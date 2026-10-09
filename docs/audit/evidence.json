@@ -1,0 +1,106 @@
+{
+  "openpyxl": "3.1.5",
+  "evidence": {
+    "A": {
+      "lines": 2314,
+      "blob": "86d6bb43cc98b9de10c136cb4114cf441b0805b1",
+      "partial_calculation": {
+        "valid_records": 1,
+        "errors": 1
+      },
+      "partial_export_file_created": true,
+      "group_collision": {
+        "rows": [
+          7,
+          8,
+          9,
+          10
+        ],
+        "orders": [
+          "订单一",
+          "订单二"
+        ]
+      },
+      "customer_cell_type": "f",
+      "unknown_schema_old_cell_after_open": "六六派对利润明细",
+      "lost_update_values": [
+        "需要保留的旧数据",
+        "乙的新增订单"
+      ],
+      "bool_expression": [
+        1.0,
+        null
+      ],
+      "rounding": {
+        "displayed_lines": [
+          "0.01",
+          "0.01"
+        ],
+        "displayed_total": "0.01"
+      },
+      "overflow_display": "inf",
+      "corrupt_summary": {
+        "income": 0.0,
+        "cost": 0.0,
+        "profit": 0.0,
+        "margin": 0.0
+      },
+      "fallback_summary": {
+        "income": 0.0,
+        "cost": 0.0,
+        "profit": 10.0,
+        "margin": 0.0
+      }
+    },
+    "B": {
+      "lines": 2209,
+      "blob": "6f026f8c0c178ae83581224a6fe8d0ff65a2aa3f",
+      "partial_calculation": {
+        "valid_records": 1,
+        "errors": 1
+      },
+      "partial_export_file_created": true,
+      "group_collision": {
+        "rows": [
+          7,
+          8,
+          9,
+          10
+        ],
+        "orders": [
+          "订单一",
+          "订单二"
+        ]
+      },
+      "customer_cell_type": "f",
+      "unknown_schema_old_cell_after_open": "六六派对利润明细",
+      "lost_update_values": [
+        "需要保留的旧数据",
+        "乙的新增订单"
+      ],
+      "bool_expression": [
+        1.0,
+        null
+      ],
+      "rounding": {
+        "displayed_lines": [
+          "0.01",
+          "0.01"
+        ],
+        "displayed_total": "0.01"
+      },
+      "overflow_display": "inf",
+      "string_false_single": true,
+      "read_only_cell_rescans": {
+        "20": {
+          "visible": 20,
+          "xml_source_opens": 27
+        },
+        "40": {
+          "visible": 40,
+          "xml_source_opens": 47
+        }
+      }
+    }
+  }
+}
