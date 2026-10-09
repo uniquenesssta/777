@@ -1,0 +1,2209 @@
+# -*- coding: utf-8 -*-
+"""
+六六派对报价 / 利润计算器 - 局域网子版本
+
+本版重点：
+1. 保留计算主页、淘宝ID、订单号、微信号、折扣行、Excel 导出和 Excel 记录查看。
+2. 删除利润分析页和价格设定页；子版本不能查看成本、利润、利润率，也不能修改价格设定。
+3. 项目价格优先读取母版本 config.json，可在代码顶部 LAN_PRICE_CONFIG_FILE 中填写完整局域网路径。
+4. 如果 LAN_PRICE_CONFIG_FILE 留空，会尝试读取 LAN_DATA_DIR/config.json；读取失败时可用 DEFAULT_PRICE_ITEMS 兜底。
+5. Excel 导出目录读取代码顶部 LAN_DATA_DIR；截图目录读取 LAN_SCREENSHOT_DIR，留空则保存到 LAN_DATA_DIR/截图。
+6. Excel 记录页只读，仅显示销售相关字段。
+7. 子版本与母版本共用同一天 Excel 文件；可追加导出，并读取母版本更新/删除后的同一文件。
+
+依赖：
+- tkinter：Python 标准库自带
+- openpyxl：用于导出/读取 Excel，安装命令：pip install openpyxl
+- pillow：用于截图，安装命令：pip install pillow
+"""
+
+import ast
+import json
+import math
+import os
+import sys
+import re
+import time
+import tkinter as tk
+from tkinter import filedialog, messagebox, ttk
+
+try:
+    from PIL import ImageGrab
+except ImportError:
+    ImageGrab = None
+
+try:
+    from openpyxl import Workbook, load_workbook
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+    from openpyxl.utils import get_column_letter
+except ImportError:
+    Workbook = None
+    load_workbook = None
+
+
+# ======================== 子版本可填写区域 ========================
+# Excel 每天共用一个文件，统一保存到：\\192.168.4.38\14T共享盘\葛宁\PyInstaller\利润表
+# 价格设定 JSON 统一读取母版本：\\192.168.4.38\14T共享盘\葛宁\PyInstaller\config.json
+APP_SAVE_ROOT = r"\\192.168.4.38\14T共享盘\葛宁\PyInstaller"
+LAN_DATA_DIR = os.path.join(APP_SAVE_ROOT, "利润表")
+LAN_PRICE_CONFIG_FILE = os.path.join(APP_SAVE_ROOT, "config.json")
+LAN_SCREENSHOT_DIR = os.path.join(APP_SAVE_ROOT, "截图")  # 截图会按天保存到该目录下的 YYYYMMDD 子文件夹
+DAILY_EXCEL_PREFIX = "利润明细"
+
+# 程序图标路径。支持 .ico 或 .png。
+# 建议封包时把图标文件放在 .py 同目录，例如：APP_ICON_PATH = r"app.ico"
+# 如果填写绝对路径，也可以直接使用，例如：APP_ICON_PATH = r"E:\\图标\\app.ico"
+# PyInstaller 封包时需要同时使用 --icon 和 --add-data，具体命令见下方说明。
+APP_ICON_PATH = r"app.ico"
+
+# 当局域网 JSON 读取失败时，是否临时使用下面的基础价格兜底。
+USE_DEFAULT_PRICE_ITEMS_WHEN_JSON_MISSING = True
+
+# 兜底基础价格：只有在 LAN_PRICE_CONFIG_FILE 读取失败时才会使用。
+DEFAULT_PRICE_ITEMS = [
+    {"name": "背景板", "sale": "11.5", "cost": "5.0", "k": "1.0", "single": False},
+    {"name": "喷绘", "sale": "15.0", "cost": "7.0", "k": "1.0", "single": False},
+    {"name": "KT板", "sale": "12.5", "cost": "11.5", "k": "2.2", "single": False},
+    {"name": "支架", "sale": "50.0", "cost": "20.0", "k": "1.0", "single": True},
+    {"name": "设计费", "sale": "100.0", "cost": "0.0", "k": "1.0", "single": True},
+    {"name": "配套气球", "sale": "30.0", "cost": "15.0", "k": "1.0", "single": True},
+    {"name": "其他", "sale": "1.0", "cost": "1.0", "k": "1.0", "single": False},
+]
+# ===============================================================
+
+
+def get_resource_path(path_text):
+    """兼容开发环境和 PyInstaller 封包后的资源路径。
+
+    APP_ICON_PATH 如果填写相对路径，例如 app.ico：
+    - 开发运行时：优先从 .py 同目录读取；
+    - PyInstaller onefile/onedir：优先从打包资源目录读取；
+    - 如果图标放在 exe 同目录，也会尝试读取。
+    """
+    path = str(path_text or "").strip().strip('"').strip("'")
+    if not path:
+        return ""
+    if os.path.isabs(path):
+        return path
+
+    candidates = []
+    if hasattr(sys, "_MEIPASS"):
+        candidates.append(os.path.join(sys._MEIPASS, path))
+    if getattr(sys, "frozen", False):
+        candidates.append(os.path.join(os.path.dirname(sys.executable), path))
+    candidates.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), path))
+    candidates.append(os.path.abspath(path))
+
+    for candidate in candidates:
+        if candidate and os.path.exists(candidate):
+            return candidate
+    return candidates[0] if candidates else path
+
+
+class SafeNumberParser:
+    """把自由填写的文本尽量安全地转成数字。
+
+    支持示例：
+    - 12 / 12.5
+    - ￥12.5 / 12.5元 / 2米 / 3个
+    - 10%
+    - 1 + 2 * 3
+    - (10 + 5) / 2
+
+    不支持：
+    - 待定
+    - 按实际报价
+    - 包含变量名、函数名的表达式
+    """
+
+    allowed_nodes = (
+        ast.Expression,
+        ast.BinOp,
+        ast.UnaryOp,
+        ast.Add,
+        ast.Sub,
+        ast.Mult,
+        ast.Div,
+        ast.Mod,
+        ast.USub,
+        ast.UAdd,
+        ast.Constant,
+        ast.Load,
+    )
+
+    @staticmethod
+    def normalize(text):
+        value = str(text).strip()
+        replacements = {
+            "，": ",",
+            "％": "%",
+            "×": "*",
+            "x": "*",
+            "X": "*",
+            "÷": "/",
+            "（": "(",
+            "）": ")",
+            "￥": "",
+            "¥": "",
+            "元": "",
+            "块": "",
+            "人民币": "",
+            "米": "",
+            "m": "",
+            "M": "",
+            "个": "",
+            "件": "",
+            "张": "",
+            "套": "",
+            "倍": "",
+            " ": "",
+            ",": "",
+        }
+        for old, new in replacements.items():
+            value = value.replace(old, new)
+
+        # 把 10% / 12.5% 转成 (10/100) / (12.5/100)
+        value = re.sub(r"(?<![\w.])(\d+(?:\.\d+)?)%", r"(\1/100)", value)
+        return value
+
+    @classmethod
+    def parse(cls, text, default=None, empty_is_default=False):
+        raw = str(text).strip()
+        if raw == "":
+            if empty_is_default:
+                return float(default), None
+            return None, "不能为空"
+
+        expr = cls.normalize(raw)
+        if not expr:
+            if empty_is_default:
+                return float(default), None
+            return None, "不能为空"
+
+        if len(expr) > 80:
+            return None, "表达式太长"
+
+        if "**" in expr:
+            return None, "不支持乘方运算"
+
+        try:
+            tree = ast.parse(expr, mode="eval")
+            for node in ast.walk(tree):
+                if not isinstance(node, cls.allowed_nodes):
+                    return None, f"无法识别：{raw}"
+                if isinstance(node, ast.Constant) and not isinstance(node.value, (int, float)):
+                    return None, f"不是可计算数字：{raw}"
+
+            result = eval(compile(tree, "<safe-number>", "eval"), {"__builtins__": {}}, {})
+            if not isinstance(result, (int, float)):
+                return None, f"不是可计算数字：{raw}"
+            result = float(result)
+            if not math.isfinite(result):
+                return None, f"不是有效数字：{raw}"
+            return result, None
+        except ZeroDivisionError:
+            return None, f"除数不能为 0：{raw}"
+        except Exception:
+            return None, f"无法计算：{raw}"
+
+
+class DiscountParser:
+    """折扣百分比专用解析器。
+
+    折扣不使用 SafeNumberParser，是为了避免输入 1+2、￥90 之类内容。
+    只接受 0-100 之间的数字或百分比文本，例如：90、90%、88.5、88.5%。
+    业务含义：90% = 按销售额的 90% 收款，即 9 折。
+    """
+
+    @staticmethod
+    def format_percent(value, keep_decimal=True):
+        number = float(value)
+        if number.is_integer():
+            return str(int(number))
+        if keep_decimal:
+            return (f"{number:.2f}".rstrip("0").rstrip("."))
+        return str(round(number, 2))
+
+    @classmethod
+    def parse_percent(cls, text):
+        raw = str(text).strip().replace("％", "%")
+        if raw == "":
+            return None, "折扣不能为空"
+        if raw.endswith("%"):
+            raw = raw[:-1].strip()
+        if not re.fullmatch(r"\d+(?:\.\d+)?", raw):
+            return None, "折扣只能填写 0-100 的百分比，例如 90%"
+        try:
+            value = float(raw)
+        except ValueError:
+            return None, "折扣不是有效百分比"
+        if value < 0 or value > 100:
+            return None, "折扣百分比必须在 0 到 100 之间"
+        return value, None
+
+
+class ScrollableFrame(ttk.Frame):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.canvas = tk.Canvas(self, highlightthickness=0)
+        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.inner = ttk.Frame(self.canvas)
+
+        self.inner.bind(
+            "<Configure>",
+            lambda event: self.canvas.configure(scrollregion=self.canvas.bbox("all")),
+        )
+
+        self.window_id = self.canvas.create_window((0, 0), window=self.inner, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+        self.canvas.bind("<Configure>", self._on_canvas_configure)
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+    def _on_canvas_configure(self, event):
+        self.canvas.itemconfigure(self.window_id, width=event.width)
+
+    def _on_mousewheel(self, event):
+        try:
+            widget = self.winfo_containing(event.x_root, event.y_root)
+            if widget is not None and str(widget).startswith(str(self)):
+                self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        except Exception:
+            pass
+
+
+class TableRowHandle:
+    """计算列表表格行句柄。
+
+    表头和所有数据行都直接放在同一个 grid 父容器里，
+    普通项目行、折扣行、表头会共享同一组列宽，避免列线错位。
+    """
+
+    def __init__(self, parent, row_index):
+        self.parent = parent
+        self.row_index = row_index
+        self.cells = []
+
+    def add_cell(self, cell):
+        self.cells.append(cell)
+
+    def destroy(self):
+        for cell in list(self.cells):
+            try:
+                cell.destroy()
+            except Exception:
+                pass
+        self.cells = []
+        try:
+            self.parent.grid_rowconfigure(self.row_index, minsize=0)
+        except Exception:
+            pass
+
+
+class PriceCalculator:
+    SPECIAL_DISCOUNT_TYPE = "折扣"
+    DISCOUNT_CHOICES = ["95%", "90%", "85%", "80%", "75%", "70%", "50%", "自定义"]
+    CALC_COLUMNS = [
+        # 标题、最小像素宽、扩展权重。所有列在同一个 grid 中统一分配宽度。
+        ("项目名称", 250, 3),
+        ("高(m)", 110, 1),
+        ("宽(m)", 110, 1),
+        ("数量", 90, 1),
+        ("折扣/说明", 180, 2),
+        ("销售额小计", 130, 1),
+        ("状态", 95, 1),
+        ("操作", 90, 1),
+    ]
+
+    def __init__(self, root):
+        self.root = root
+        self.root.title("六六派对报价 / 利润计算器 - 子版本")
+        self.apply_window_icon()
+        self.root.geometry("1180x840")
+        self.root.minsize(1040, 720)
+
+        self.config_file = "config.json"  # 仅用于兼容旧方法；子版本不再写入本机价格设定。
+        self.default_report_dir = self.get_default_report_dir()
+        self.report_dir = self.default_report_dir
+        self.price_config_file = self.get_price_config_file()
+        self.image_dir = self.get_screenshot_dir()
+        self.ensure_directories()
+
+        self.default_items = [dict(item) for item in DEFAULT_PRICE_ITEMS]
+        self.price_source_text = ""
+
+        self.setting_rows = []
+        self.calc_rows = []
+        self.calc_table_next_row = 1
+        self.last_export_records = []
+        self.validation_issues = []
+        self.last_config_snapshot = {}
+        self.current_excel_path = None
+        self.excel_view_row_map = {}
+
+        self.user_name = tk.StringVar(value="默认淘宝ID")  # 兼容旧代码命名：这里实际表示“淘宝ID”
+        self.order_no = tk.StringVar(value="")
+        self.wechat_no = tk.StringVar(value="")
+        self.feedback_var = tk.StringVar(value="")
+        self.price_source_var = tk.StringVar(value=self.price_source_text)
+        self.issue_summary_var = tk.StringVar(value="暂无输入问题。")
+        self.total_val = tk.StringVar(value="总计：0.00 元")
+        self.summary_income = tk.StringVar(value="0.00")
+        self.summary_cost = tk.StringVar(value="0.00")
+        self.summary_profit = tk.StringVar(value="0.00")
+        self.summary_margin = tk.StringVar(value="0%")
+        self.excel_selected_file = tk.StringVar(value="未选择 Excel 文件")
+        self.excel_sheet_var = tk.StringVar(value="")
+        self.export_dir_var = tk.StringVar(value=self.report_dir)
+
+        self._build_style()
+        self._build_layout()
+        self.load_settings_to_ui()
+        self.refresh_item_selector()
+
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+
+    # ---------- 基础工具 ----------
+
+    def apply_window_icon(self):
+        """设置窗口左上角图标。
+
+        这里不弹窗提示，图标路径为空或文件不存在时自动跳过，
+        避免员工端看到内部路径或报错。
+        """
+        icon_path = get_resource_path(APP_ICON_PATH)
+        if not icon_path or not os.path.exists(icon_path):
+            return
+
+        try:
+            ext = os.path.splitext(icon_path)[1].lower()
+            if ext == ".ico" and os.name == "nt":
+                self.root.iconbitmap(default=icon_path)
+            else:
+                self._app_icon_image = tk.PhotoImage(file=icon_path)
+                self.root.iconphoto(True, self._app_icon_image)
+        except Exception:
+            # 图标不影响主程序使用，失败时静默跳过。
+            pass
+
+    def _build_style(self):
+        style = ttk.Style()
+        try:
+            style.theme_use("clam")
+        except Exception:
+            pass
+        style.configure("Title.TLabel", font=("Arial", 15, "bold"))
+        style.configure("Section.TLabelframe.Label", font=("Arial", 10, "bold"))
+        style.configure("Feedback.TLabel", font=("Arial", 10))
+        style.configure("Total.TLabel", font=("Arial", 14, "bold"))
+        style.configure("Accent.TButton", font=("Arial", 10, "bold"))
+
+    def get_default_report_dir(self):
+        """Excel 读写目录：只跟随代码顶部 LAN_DATA_DIR，不再被本机 config.json 覆盖。"""
+        return self.normalize_path_text(LAN_DATA_DIR, fallback="利润表")
+
+    def get_price_config_file(self):
+        """母版本价格 JSON 路径：优先使用 LAN_PRICE_CONFIG_FILE，留空则尝试 LAN_DATA_DIR/config.json。"""
+        configured = self.normalize_path_text(LAN_PRICE_CONFIG_FILE, fallback="")
+        if configured:
+            return configured
+        return os.path.join(self.get_default_report_dir(), "config.json")
+
+    def get_screenshot_dir(self):
+        """截图目录：优先使用 LAN_SCREENSHOT_DIR，留空则保存到 Excel 目录下的“截图”。"""
+        configured = self.normalize_path_text(LAN_SCREENSHOT_DIR, fallback="")
+        if configured:
+            return configured
+        return os.path.join(self.get_default_report_dir(), "截图")
+
+    def normalize_path_text(self, text, fallback=None):
+        path = str(text or "").strip().strip('"').strip("'")
+        path = os.path.expandvars(os.path.expanduser(path))
+        if path:
+            return path
+        if fallback is not None:
+            return fallback
+        return getattr(self, "default_report_dir", "利润表")
+
+    def ensure_directories(self):
+        for folder in [self.report_dir, self.image_dir]:
+            if not folder:
+                continue
+            if not os.path.exists(folder):
+                os.makedirs(folder, exist_ok=True)
+
+    def format_display(self, value):
+        return f"{round(float(value), 2):.2f}"
+
+    def clean_filename(self, text):
+        return re.sub(r"[\\/:*?\"<>|]", "_", str(text).strip() or "默认淘宝ID")
+
+    def set_feedback(self, text, is_error=False):
+        self.feedback_var.set(text)
+        if hasattr(self, "feedback_label"):
+            self.feedback_label.configure(foreground="#c0392b" if is_error else "#2c3e50")
+
+    def add_issue(self, issues, level, location, field, raw_value, message):
+        issues.append(
+            {
+                "级别": level,
+                "位置": location,
+                "字段": field,
+                "输入内容": str(raw_value),
+                "提示": message,
+            }
+        )
+
+    def validate_discount_key(self, proposed):
+        text = str(proposed).strip().replace("％", "%")
+        if text == "":
+            return True
+        if text.endswith("%"):
+            text = text[:-1]
+        if text == "":
+            return True
+        if not re.fullmatch(r"\d{0,3}(?:\.\d{0,2})?", text):
+            return False
+        try:
+            return float(text) <= 100
+        except ValueError:
+            return False
+
+    def normalize_discount_entry(self, var):
+        value, error = DiscountParser.parse_percent(var.get())
+        if error is None:
+            var.set(DiscountParser.format_percent(value))
+
+    # ---------- 界面 ----------
+
+    def _build_layout(self):
+        top = ttk.Frame(self.root, padding=(14, 10, 14, 6))
+        top.pack(fill=tk.X)
+
+        ttk.Label(top, text="六六派对报价 / 利润计算器", style="Title.TLabel").pack(side=tk.LEFT)
+
+        user_box = ttk.Frame(top)
+        user_box.pack(side=tk.RIGHT)
+        ttk.Label(user_box, text="淘宝ID：").grid(row=0, column=0, sticky=tk.E, padx=(0, 4))
+        ttk.Entry(user_box, textvariable=self.user_name, width=14).grid(row=0, column=1, sticky=tk.W, padx=(0, 8))
+        ttk.Label(user_box, text="订单号：").grid(row=0, column=2, sticky=tk.E, padx=(0, 4))
+        ttk.Entry(user_box, textvariable=self.order_no, width=15).grid(row=0, column=3, sticky=tk.W, padx=(0, 8))
+        ttk.Label(user_box, text="微信号：").grid(row=0, column=4, sticky=tk.E, padx=(0, 4))
+        ttk.Entry(user_box, textvariable=self.wechat_no, width=14).grid(row=0, column=5, sticky=tk.W)
+
+        self.notebook = ttk.Notebook(self.root)
+        self.notebook.pack(fill=tk.BOTH, expand=True, padx=12, pady=(0, 8))
+
+        self.calc_page = ttk.Frame(self.notebook)
+        self.feedback_page = ttk.Frame(self.notebook)
+        self.excel_page = ttk.Frame(self.notebook)
+
+        self.notebook.add(self.calc_page, text=" 计算主页 ")
+        self.notebook.add(self.feedback_page, text=" 输入反馈 ")
+        self.notebook.add(self.excel_page, text=" Excel记录 ")
+
+        self.setup_calc_page()
+        self.setup_feedback_page()
+        self.setup_excel_page()
+
+    def setup_calc_page(self):
+        add_frame = ttk.LabelFrame(self.calc_page, text="添加项目", padding=10, style="Section.TLabelframe")
+        add_frame.pack(fill=tk.X, padx=10, pady=(10, 6))
+
+        ttk.Label(add_frame, text="品名备注：").grid(row=0, column=0, sticky=tk.W, padx=(0, 6))
+        self.custom_item_entry = ttk.Entry(add_frame, width=22)
+        self.custom_item_entry.grid(row=0, column=1, sticky=tk.W, padx=(0, 14))
+
+        ttk.Label(add_frame, text="项目类型：").grid(row=0, column=2, sticky=tk.W, padx=(0, 6))
+        self.item_selector = ttk.Combobox(add_frame, width=24, state="readonly")
+        self.item_selector.grid(row=0, column=3, sticky=tk.W, padx=(0, 14))
+
+        ttk.Button(add_frame, text="+ 添加到列表", command=self.handle_add_item, style="Accent.TButton").grid(row=0, column=4, sticky=tk.W)
+        ttk.Button(add_frame, text="刷新价格设定", command=lambda: self.reload_price_settings_from_json(silent=True)).grid(row=0, column=5, sticky=tk.W, padx=(8, 0))
+        # 子版本隐藏价格来源和兜底说明，避免员工端显示内部路径/配置提示。
+
+        list_frame = ttk.LabelFrame(self.calc_page, text="计算列表", padding=8, style="Section.TLabelframe")
+        list_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=6)
+
+        self.calc_scroll = ScrollableFrame(list_frame)
+        self.calc_scroll.pack(fill=tk.BOTH, expand=True)
+        self.calc_table_next_row = 1
+        self.build_calc_header(self.calc_scroll.inner)
+
+        bottom = ttk.Frame(self.calc_page, padding=(10, 4, 10, 10))
+        bottom.pack(fill=tk.X)
+
+        buttons = ttk.Frame(bottom)
+        buttons.pack(side=tk.LEFT)
+        ttk.Button(buttons, text="开始计算", command=self.calculate, style="Accent.TButton").pack(side=tk.LEFT, padx=(0, 6))
+        ttk.Button(buttons, text="查看输入反馈", command=self.go_to_feedback_page).pack(side=tk.LEFT, padx=6)
+        ttk.Button(buttons, text="清空所有行", command=self.reset).pack(side=tk.LEFT, padx=6)
+        ttk.Button(buttons, text="导出 Excel", command=self.export_to_excel).pack(side=tk.LEFT, padx=6)
+        ttk.Button(buttons, text="保存计算截图", command=self.save_screenshot).pack(side=tk.LEFT, padx=6)
+
+        ttk.Label(bottom, textvariable=self.total_val, style="Total.TLabel", foreground="#2c3e50").pack(side=tk.RIGHT)
+
+        # 已隐藏计算主页底部说明栏；输入问题请进入“输入反馈”页面查看。
+
+    def setup_feedback_page(self):
+        container = ttk.Frame(self.feedback_page, padding=14)
+        container.pack(fill=tk.BOTH, expand=True)
+
+        top = ttk.Frame(container)
+        top.pack(fill=tk.X, pady=(0, 8))
+        ttk.Label(top, text="输入校验反馈", style="Title.TLabel").pack(side=tk.LEFT)
+        ttk.Button(top, text="返回计算主页", command=lambda: self.notebook.select(self.calc_page)).pack(side=tk.RIGHT, padx=(6, 0))
+        ttk.Button(top, text="重新计算", command=self.calculate).pack(side=tk.RIGHT, padx=(6, 0))
+
+        ttk.Label(
+            container,
+            text="这里集中显示计算时发现的问题。出现“错误”时，相关行不会进入利润明细和 Excel 明细；“提醒”表示系统仍会计算，但建议人工确认。",
+            foreground="#7f8c8d",
+            wraplength=1080,
+        ).pack(fill=tk.X, pady=(0, 8))
+
+        summary_box = ttk.LabelFrame(container, text="反馈概览", padding=10, style="Section.TLabelframe")
+        summary_box.pack(fill=tk.X, pady=(0, 10))
+        ttk.Label(summary_box, textvariable=self.issue_summary_var, font=("Arial", 11, "bold"), foreground="#2c3e50").pack(anchor=tk.W)
+
+        tree_frame = ttk.Frame(container)
+        tree_frame.pack(fill=tk.BOTH, expand=True)
+
+        issue_columns = ("level", "location", "field", "value", "message")
+        self.issue_tree = ttk.Treeview(tree_frame, columns=issue_columns, show="headings", height=18)
+        issue_headings = {
+            "level": "级别",
+            "location": "位置",
+            "field": "字段",
+            "value": "输入内容",
+            "message": "提示",
+        }
+        issue_widths = {"level": 80, "location": 190, "field": 140, "value": 240, "message": 540}
+        for col in issue_columns:
+            self.issue_tree.heading(col, text=issue_headings[col])
+            self.issue_tree.column(col, width=issue_widths[col], anchor=tk.W)
+
+        y_scroll = ttk.Scrollbar(tree_frame, orient="vertical", command=self.issue_tree.yview)
+        x_scroll = ttk.Scrollbar(tree_frame, orient="horizontal", command=self.issue_tree.xview)
+        self.issue_tree.configure(yscrollcommand=y_scroll.set, xscrollcommand=x_scroll.set)
+        self.issue_tree.grid(row=0, column=0, sticky="nsew")
+        y_scroll.grid(row=0, column=1, sticky="ns")
+        x_scroll.grid(row=1, column=0, sticky="ew")
+        tree_frame.rowconfigure(0, weight=1)
+        tree_frame.columnconfigure(0, weight=1)
+
+        self.issue_tree.tag_configure("错误", foreground="#c0392b")
+        self.issue_tree.tag_configure("提醒", foreground="#8e44ad")
+
+    def get_calc_column(self, col_index):
+        column = self.CALC_COLUMNS[col_index]
+        if len(column) == 2:
+            title, width = column
+            weight = 1
+        else:
+            title, width, weight = column
+        return title, width, weight
+
+    def build_calc_header(self, parent):
+        """表头和数据行共用同一个 grid 父容器，确保列线严格对齐。"""
+        for col_index, _column in enumerate(self.CALC_COLUMNS):
+            title, width, weight = self.get_calc_column(col_index)
+            parent.grid_columnconfigure(col_index, minsize=width, weight=weight, uniform="calc_table")
+            cell = tk.Frame(parent, height=32, bd=1, relief="groove", bg="#eef3f7")
+            cell.grid(row=0, column=col_index, sticky="nsew", padx=0, pady=(0, 2))
+            cell.grid_propagate(False)
+            label = tk.Label(cell, text=title, bg="#eef3f7", fg="#2c3e50", font=("Arial", 10, "bold"))
+            label.pack(fill=tk.BOTH, expand=True)
+        parent.grid_rowconfigure(0, minsize=32)
+
+    def create_calc_row_frame(self, kind="normal"):
+        bg = "#ffffff" if kind == "normal" else "#fffaf2"
+        row_handle = TableRowHandle(self.calc_scroll.inner, self.calc_table_next_row)
+        self.calc_table_next_row += 1
+        self.calc_scroll.inner.grid_rowconfigure(row_handle.row_index, minsize=44)
+        return row_handle, bg
+
+    def create_calc_cell(self, frame, col_index, bg="#ffffff"):
+        _title, _width, _weight = self.get_calc_column(col_index)
+        # 直接把每一个单元格 grid 到 calc_scroll.inner，所有行共享一套列宽。
+        cell = tk.Frame(self.calc_scroll.inner, height=42, bd=1, relief="sunken", bg=bg)
+        cell.grid(row=frame.row_index, column=col_index, sticky="nsew", padx=0, pady=1)
+        cell.grid_propagate(False)
+        frame.add_cell(cell)
+        return cell
+
+    def pack_in_cell(self, parent, widget, padx=6, pady=5):
+        widget.pack(fill=tk.BOTH, expand=True, padx=padx, pady=pady)
+        return widget
+
+    def go_to_feedback_page(self):
+        if hasattr(self, "feedback_page"):
+            self.notebook.select(self.feedback_page)
+
+    def notify_validation_errors(self, error_count, warn_count):
+        self.go_to_feedback_page()
+        messagebox.showwarning(
+            "发现输入错误",
+            f"本次计算发现 {error_count} 个错误、{warn_count} 个提醒。\n\n"
+            "已切换到“输入反馈”页面，请根据提示修改后重新计算。",
+        )
+
+    # ---------- 设置数据 ----------
+
+    def load_settings_to_ui(self):
+        """启动时读取母版本 JSON；失败时才使用代码顶部兜底价格。"""
+        self.reload_price_settings_from_json(silent=True, first_load=True)
+
+    def clear_setting_rows(self):
+        for row in list(self.setting_rows):
+            frame = row.get("frame")
+            if frame is not None:
+                try:
+                    frame.destroy()
+                except Exception:
+                    pass
+        self.setting_rows = []
+
+    def convert_price_items_from_json(self, data):
+        """兼容母版本新版 config 和早期 config。
+
+        新版格式：{"items": [{"name":..., "sale":..., "cost":..., "k":..., "single":...}]}
+        旧版格式：{"背景板": ["11.5", "5.0", "1.0"], ...}
+        """
+        items = []
+        if isinstance(data, dict) and isinstance(data.get("items"), list):
+            for item in data.get("items", []):
+                if not isinstance(item, dict):
+                    continue
+                name = str(item.get("name", "")).strip()
+                if not name:
+                    continue
+                items.append(
+                    {
+                        "name": name,
+                        "sale": str(item.get("sale", "")),
+                        "cost": str(item.get("cost", "")),
+                        "k": str(item.get("k", "")),
+                        "single": bool(item.get("single", item.get("qty_only", False))),
+                    }
+                )
+            return items
+
+        if isinstance(data, dict):
+            qty_only_names = {item["name"] for item in self.default_items if item.get("single")}
+            for name, values in data.items():
+                # 跳过新版 config 中的非价格字段，例如 export_dir。
+                if name in {"export_dir", "items"}:
+                    continue
+                if isinstance(values, list) and len(values) >= 3:
+                    item_name = str(name).strip()
+                    if not item_name:
+                        continue
+                    items.append(
+                        {
+                            "name": item_name,
+                            "sale": str(values[0]),
+                            "cost": str(values[1]),
+                            "k": str(values[2]),
+                            "single": item_name in qty_only_names,
+                        }
+                    )
+        return items
+
+    def read_price_items_from_json(self):
+        path = self.price_config_file
+        if not path or not os.path.exists(path):
+            return None, f"未找到母版本价格 JSON：{path}"
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            items = self.convert_price_items_from_json(data)
+            if not items:
+                return None, f"母版本价格 JSON 中没有识别到有效项目：{path}"
+            return items, None
+        except Exception as exc:
+            return None, f"读取母版本价格 JSON 失败：{exc}"
+
+    def apply_price_items(self, items):
+        self.clear_setting_rows()
+        for item in items:
+            self.add_setting_row(
+                name=item.get("name", ""),
+                sale=item.get("sale", ""),
+                cost=item.get("cost", ""),
+                k=item.get("k", ""),
+                single=bool(item.get("single", item.get("qty_only", False))),
+            )
+        self.refresh_item_selector()
+        config, _issues = self.get_settings_snapshot()
+        self.update_calc_row_states(config)
+
+    def reload_price_settings_from_json(self, silent=False, first_load=False):
+        """从局域网母版本 JSON 刷新价格；失败时保留现有价格或使用兜底价格。"""
+        self.price_config_file = self.get_price_config_file()
+        items, error = self.read_price_items_from_json()
+        source = None
+        is_error = False
+
+        if items:
+            self.apply_price_items(items)
+            source = f"价格来源：母版本 JSON（{self.price_config_file}）"
+            is_error = False
+        else:
+            if self.setting_rows and not first_load:
+                # 运行中网络短暂断开时，不清空已经读取到的价格。
+                source = f"价格来源：沿用上一次已读取价格；{error}"
+                is_error = True
+            elif USE_DEFAULT_PRICE_ITEMS_WHEN_JSON_MISSING:
+                self.apply_price_items([dict(item) for item in self.default_items])
+                source = f"价格来源：代码兜底 DEFAULT_PRICE_ITEMS；{error}"
+                is_error = True
+            else:
+                self.clear_setting_rows()
+                self.refresh_item_selector()
+                source = f"价格来源：无可用价格；{error}"
+                is_error = True
+
+        self.price_source_text = source
+        if hasattr(self, "price_source_var"):
+            self.price_source_var.set("")
+        # 静默刷新：不弹窗、不在计算主页显示价格来源或内部路径。
+        return not is_error
+
+    def add_setting_row(self, name="", sale="", cost="", k="", single=False):
+        # 子版本删除了“价格设定”页面，但计算仍然需要项目价格数据。
+        # 因此这里可以创建“无界面”的设置行；若以后恢复设置页，也兼容原来的界面行。
+        name_var = tk.StringVar(value=name)
+        sale_var = tk.StringVar(value=sale)
+        cost_var = tk.StringVar(value=cost)
+        k_var = tk.StringVar(value=k)
+        single_var = tk.BooleanVar(value=single)
+
+        frame = None
+        if hasattr(self, "settings_scroll"):
+            frame = ttk.Frame(self.settings_scroll.inner)
+            frame.pack(fill=tk.X, pady=3)
+            ttk.Entry(frame, textvariable=name_var, width=24).pack(side=tk.LEFT, padx=4)
+            ttk.Entry(frame, textvariable=sale_var, width=18).pack(side=tk.LEFT, padx=4)
+            ttk.Entry(frame, textvariable=cost_var, width=18).pack(side=tk.LEFT, padx=4)
+            ttk.Entry(frame, textvariable=k_var, width=14).pack(side=tk.LEFT, padx=4)
+            ttk.Checkbutton(frame, variable=single_var).pack(side=tk.LEFT, padx=(28, 26))
+            ttk.Button(frame, text="删除", width=6, command=lambda: self.remove_setting_row(frame)).pack(side=tk.LEFT, padx=4)
+
+        row = {
+            "frame": frame,
+            "name": name_var,
+            "sale": sale_var,
+            "cost": cost_var,
+            "k": k_var,
+            "single": single_var,
+        }
+        self.setting_rows.append(row)
+
+    def update_discount_editor_state(self, row):
+        choice = row["discount_choice"].get()
+        if choice == "自定义":
+            row["custom_entry"].configure(state="normal")
+            if not row["discount_custom"].get().strip():
+                row["discount_custom"].set("90")
+        else:
+            row["custom_entry"].configure(state="disabled")
+
+    def remove_setting_row(self, frame):
+        for idx, row in enumerate(self.setting_rows):
+            if row["frame"] == frame:
+                if row.get("frame") is not None:
+                    row["frame"].destroy()
+                self.setting_rows.pop(idx)
+                break
+        self.refresh_item_selector()
+
+    def get_discount_from_row(self, row, location, issues):
+        choice = row["discount_choice"].get().strip() or "90%"
+        if choice == "自定义":
+            raw = row["discount_custom"].get()
+            percent_value, error = DiscountParser.parse_percent(raw)
+            if error:
+                self.add_issue(issues, "错误", location, "折扣", raw, error)
+                return None, "需检查"
+            percent_text = f"{DiscountParser.format_percent(percent_value)}%"
+            return percent_value / 100.0, percent_text
+
+        percent_value, error = DiscountParser.parse_percent(choice)
+        if error:
+            self.add_issue(issues, "错误", location, "折扣", choice, error)
+            return None, "需检查"
+        return percent_value / 100.0, choice
+
+    def get_settings_snapshot(self):
+        config = {}
+        issues = []
+        for idx, row in enumerate(self.setting_rows, start=1):
+            name = row["name"].get().strip()
+            if not name:
+                # 价格设定非强制填写：空白行直接忽略，不再提示。
+                continue
+            if name == self.SPECIAL_DISCOUNT_TYPE:
+                self.add_issue(issues, "提醒", f"价格设定第 {idx} 行", "项目名称", name, "“折扣”是计算主页里的特殊项目类型，不需要在价格设定里填写，已忽略。")
+                continue
+            if name in config:
+                self.add_issue(issues, "提醒", f"价格设定第 {idx} 行", "项目名称", name, "项目名称重复，已忽略后面的重复项。")
+                continue
+            config[name] = {
+                "sale": row["sale"].get(),
+                "cost": row["cost"].get(),
+                "k": row["k"].get(),
+                "single": row["single"].get(),
+            }
+        return config, issues
+
+    def refresh_item_selector(self):
+        config, _issues = self.get_settings_snapshot()
+        values = list(config.keys()) + [self.SPECIAL_DISCOUNT_TYPE]
+        self.item_selector.configure(values=values)
+        current = self.item_selector.get().strip()
+        if values and current not in values:
+            self.item_selector.set(values[0])
+        elif not values:
+            self.item_selector.set("")
+
+    def apply_settings_to_calc(self):
+        config, issues = self.get_settings_snapshot()
+        self.refresh_item_selector()
+        self.update_calc_row_states(config)
+        self.validation_issues = issues
+        self.render_issues(issues)
+        if issues:
+            self.set_feedback(f"价格设定已应用，但有 {len(issues)} 条提醒，请查看“输入反馈”页面。", is_error=True)
+        else:
+            self.set_feedback("价格设定已应用到计算主页。", is_error=False)
+
+    def on_close(self):
+        # 子版本只读取母版本价格 JSON，不在本机写入价格设定，避免员工端覆盖母版本配置。
+        self.root.destroy()
+
+    # ---------- 计算主页 ----------
+
+    def handle_add_item(self):
+        self.reload_price_settings_from_json(silent=True)
+        config, issues = self.get_settings_snapshot()
+        self.refresh_item_selector()
+        base_type = self.item_selector.get().strip()
+        prefix = self.custom_item_entry.get().strip()
+
+        if base_type == self.SPECIAL_DISCOUNT_TYPE:
+            display_name = f"{prefix}（折扣）" if prefix else "整单折扣"
+            self.add_discount_calc_row(display_name)
+            self.custom_item_entry.delete(0, tk.END)
+            self.render_issues(issues)
+            self.set_feedback("已添加折扣行：折扣行按它前面的当前小计计算，建议放在需要折扣的项目后面。", is_error=False)
+            return
+
+        if not config:
+            self.render_issues(issues)
+            self.set_feedback("当前代码顶部 DEFAULT_PRICE_ITEMS 中没有有效项目名称；请维护项目配置，或直接选择“折扣”添加折扣行。", is_error=True)
+            return
+
+        if base_type not in config:
+            self.add_issue(issues, "错误", "添加项目", "项目类型", base_type, "请选择一个有效的项目类型。")
+            self.render_issues(issues)
+            self.set_feedback("请选择一个有效的项目类型。", is_error=True)
+            return
+
+        display_name = f"{prefix}（{base_type}）" if prefix else base_type
+        self.add_calc_row(display_name, base_type, config[base_type].get("single", False))
+        self.custom_item_entry.delete(0, tk.END)
+
+        if issues:
+            self.render_issues(issues)
+            self.set_feedback(f"项目已添加，但价格设定有 {len(issues)} 条提醒。", is_error=True)
+        else:
+            self.set_feedback(f"已添加：{display_name}", is_error=False)
+
+    def add_calc_row(self, display_name, base_type, single=False):
+        frame, bg = self.create_calc_row_frame("normal")
+
+        h_var = tk.StringVar(value="" if single else "1.0")
+        w_var = tk.StringVar(value="" if single else "1.0")
+        q_var = tk.StringVar(value="1")
+        note_var = tk.StringVar(value="—")
+        result_var = tk.StringVar(value="0.00")
+        status_var = tk.StringVar(value="未计算")
+
+        name_cell = self.create_calc_cell(frame, 0, bg)
+        tk.Label(name_cell, text=display_name, anchor="w", bg=bg, fg="#2c3e50").pack(fill=tk.BOTH, expand=True, padx=8)
+
+        h_cell = self.create_calc_cell(frame, 1, bg)
+        w_cell = self.create_calc_cell(frame, 2, bg)
+        q_cell = self.create_calc_cell(frame, 3, bg)
+        h_entry = ttk.Entry(h_cell, textvariable=h_var, justify="center")
+        w_entry = ttk.Entry(w_cell, textvariable=w_var, justify="center")
+        q_entry = ttk.Entry(q_cell, textvariable=q_var, justify="center")
+        self.pack_in_cell(h_cell, h_entry)
+        self.pack_in_cell(w_cell, w_entry)
+        self.pack_in_cell(q_cell, q_entry)
+
+        note_cell = self.create_calc_cell(frame, 4, bg)
+        tk.Label(note_cell, textvariable=note_var, anchor="center", bg=bg, fg="#7f8c8d").pack(fill=tk.BOTH, expand=True)
+
+        result_cell = self.create_calc_cell(frame, 5, bg)
+        tk.Label(result_cell, textvariable=result_var, anchor="center", bg=bg, fg="#e67e22", font=("Arial", 10, "bold")).pack(fill=tk.BOTH, expand=True)
+
+        status_cell = self.create_calc_cell(frame, 6, bg)
+        tk.Label(status_cell, textvariable=status_var, anchor="center", bg=bg, fg="#2c3e50").pack(fill=tk.BOTH, expand=True)
+
+        action_cell = self.create_calc_cell(frame, 7, bg)
+        ttk.Button(action_cell, text="删除", width=6, command=lambda: self.remove_calc_row(frame)).pack(expand=True, padx=6, pady=4)
+
+        row = {
+            "row_kind": "normal",
+            "frame": frame,
+            "display_name": display_name,
+            "base_type": base_type,
+            "h": h_var,
+            "w": w_var,
+            "q": q_var,
+            "discount": note_var,
+            "res": result_var,
+            "status": status_var,
+            "h_entry": h_entry,
+            "w_entry": w_entry,
+        }
+        self.calc_rows.append(row)
+        self.set_row_dimension_state(row, single)
+
+    def add_discount_calc_row(self, display_name):
+        frame, bg = self.create_calc_row_frame("discount")
+
+        h_var = tk.StringVar(value="")
+        w_var = tk.StringVar(value="")
+        q_var = tk.StringVar(value="")
+        discount_choice_var = tk.StringVar(value="90%")
+        discount_custom_var = tk.StringVar(value="90")
+        result_var = tk.StringVar(value="0.00")
+        status_var = tk.StringVar(value="未计算")
+
+        name_cell = self.create_calc_cell(frame, 0, bg)
+        tk.Label(name_cell, text=display_name, anchor="w", bg=bg, fg="#8a5a00", font=("Arial", 10, "bold")).pack(fill=tk.BOTH, expand=True, padx=8)
+
+        h_cell = self.create_calc_cell(frame, 1, bg)
+        w_cell = self.create_calc_cell(frame, 2, bg)
+        q_cell = self.create_calc_cell(frame, 3, bg)
+        h_entry = ttk.Entry(h_cell, textvariable=h_var, justify="center", state="disabled")
+        w_entry = ttk.Entry(w_cell, textvariable=w_var, justify="center", state="disabled")
+        q_entry = ttk.Entry(q_cell, textvariable=q_var, justify="center", state="disabled")
+        self.pack_in_cell(h_cell, h_entry)
+        self.pack_in_cell(w_cell, w_entry)
+        self.pack_in_cell(q_cell, q_entry)
+
+        discount_cell = self.create_calc_cell(frame, 4, bg)
+        discount_box = tk.Frame(discount_cell, bg=bg)
+        discount_box.pack(fill=tk.BOTH, expand=True, padx=5, pady=4)
+        discount_combo = ttk.Combobox(
+            discount_box,
+            textvariable=discount_choice_var,
+            values=self.DISCOUNT_CHOICES,
+            width=7,
+            state="readonly",
+        )
+        discount_combo.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        vcmd = (self.root.register(self.validate_discount_key), "%P")
+        custom_entry = ttk.Entry(discount_box, textvariable=discount_custom_var, width=6, justify="center", validate="key", validatecommand=vcmd)
+        custom_entry.pack(side=tk.LEFT, padx=(5, 2))
+        tk.Label(discount_box, text="%", bg=bg, fg="#7f8c8d").pack(side=tk.LEFT)
+
+        result_cell = self.create_calc_cell(frame, 5, bg)
+        tk.Label(result_cell, textvariable=result_var, anchor="center", bg=bg, fg="#c0392b", font=("Arial", 10, "bold")).pack(fill=tk.BOTH, expand=True)
+
+        status_cell = self.create_calc_cell(frame, 6, bg)
+        tk.Label(status_cell, textvariable=status_var, anchor="center", bg=bg, fg="#2c3e50").pack(fill=tk.BOTH, expand=True)
+
+        action_cell = self.create_calc_cell(frame, 7, bg)
+        ttk.Button(action_cell, text="删除", width=6, command=lambda: self.remove_calc_row(frame)).pack(expand=True, padx=6, pady=4)
+
+        row = {
+            "row_kind": "discount",
+            "frame": frame,
+            "display_name": display_name,
+            "base_type": self.SPECIAL_DISCOUNT_TYPE,
+            "h": h_var,
+            "w": w_var,
+            "q": q_var,
+            "discount": discount_choice_var,
+            "discount_choice": discount_choice_var,
+            "discount_custom": discount_custom_var,
+            "custom_entry": custom_entry,
+            "res": result_var,
+            "status": status_var,
+            "h_entry": h_entry,
+            "w_entry": w_entry,
+        }
+        self.calc_rows.append(row)
+        discount_combo.bind("<<ComboboxSelected>>", lambda _event, r=row: self.update_discount_editor_state(r))
+        custom_entry.bind("<FocusOut>", lambda _event, v=discount_custom_var: self.normalize_discount_entry(v))
+        self.update_discount_editor_state(row)
+
+    def set_row_dimension_state(self, row, single):
+        if row.get("row_kind") == "discount":
+            return
+        state = "disabled" if single else "normal"
+        row["h_entry"].configure(state=state)
+        row["w_entry"].configure(state=state)
+        if single:
+            row["h"].set("")
+            row["w"].set("")
+
+    def update_calc_row_states(self, config):
+        for row in self.calc_rows:
+            if row.get("row_kind") == "discount":
+                continue
+            item = config.get(row["base_type"])
+            if item is not None:
+                self.set_row_dimension_state(row, item.get("single", False))
+                row["discount"].set("—")
+            else:
+                row["discount"].set("需检查")
+
+    def remove_calc_row(self, frame):
+        for idx, row in enumerate(self.calc_rows):
+            if row["frame"] == frame:
+                row["frame"].destroy()
+                self.calc_rows.pop(idx)
+                break
+        self.calculate(notify=False)
+
+    def parse_field(self, text, location, field, issues, default=None, empty_is_default=False):
+        value, error = SafeNumberParser.parse(text, default=default, empty_is_default=empty_is_default)
+        if error:
+            self.add_issue(issues, "错误", location, field, text, error)
+        return value
+
+    def warn_if_negative(self, value, location, field, raw_value, issues):
+        if value is not None and value < 0:
+            self.add_issue(issues, "提醒", location, field, raw_value, "当前值为负数，系统仍会参与计算，请确认是否符合业务逻辑。")
+
+    def render_issues(self, issues):
+        if not hasattr(self, "issue_tree"):
+            return
+
+        for item in self.issue_tree.get_children():
+            self.issue_tree.delete(item)
+
+        for issue in issues:
+            level = issue["级别"]
+            self.issue_tree.insert(
+                "",
+                tk.END,
+                values=(level, issue["位置"], issue["字段"], issue["输入内容"], issue["提示"]),
+                tags=(level,),
+            )
+
+        error_count = sum(1 for issue in issues if issue["级别"] == "错误")
+        warn_count = len(issues) - error_count
+        if error_count:
+            self.issue_summary_var.set(f"发现 {error_count} 个错误、{warn_count} 个提醒。请先处理错误；错误行不会进入利润明细和 Excel 明细。")
+            self.notebook.tab(self.feedback_page, text=f" 输入反馈 ({error_count}) ")
+        elif warn_count:
+            self.issue_summary_var.set(f"发现 {warn_count} 个提醒。系统仍会计算，但建议人工确认。")
+            self.notebook.tab(self.feedback_page, text=f" 输入反馈 ({warn_count}) ")
+        else:
+            self.issue_summary_var.set("暂无输入问题。")
+            self.notebook.tab(self.feedback_page, text=" 输入反馈 ")
+
+    def calculate(self, notify=True):
+        if hasattr(self, "profit_tree"):
+            for item in self.profit_tree.get_children():
+                self.profit_tree.delete(item)
+
+        self.last_export_records = []
+        self.reload_price_settings_from_json(silent=True)
+        config, setting_issues = self.get_settings_snapshot()
+        self.last_config_snapshot = config
+        self.refresh_item_selector()
+        self.update_calc_row_states(config)
+
+        total_income = 0.0
+        total_cost = 0.0
+        issues = list(setting_issues)
+
+        if not self.calc_rows:
+            self.total_val.set("总计：0.00 元")
+            self.summary_income.set("0.00")
+            self.summary_cost.set("0.00")
+            self.summary_profit.set("0.00")
+            self.summary_margin.set("0%")
+            self.validation_issues = issues
+            self.render_issues(issues)
+            self.set_feedback("当前列表为空，请先添加项目。", is_error=True)
+            return
+
+        for row_index, row in enumerate(self.calc_rows, start=1):
+            display_name = row["display_name"]
+            base_type = row["base_type"]
+            location = f"计算第 {row_index} 行"
+
+            # 折扣行是计算主页里的特殊项目：不走价格设定，不检查高宽数量。
+            # 90% 表示整单按 90% 收款，因此本行金额 = 当前小计 × (90% - 100%)，为负数。
+            if row.get("row_kind") == "discount":
+                before_error_count = sum(1 for issue in issues if issue["级别"] == "错误")
+                discount_factor, discount_text = self.get_discount_from_row(row, location, issues)
+                after_error_count = sum(1 for issue in issues if issue["级别"] == "错误")
+                if after_error_count > before_error_count or discount_factor is None:
+                    row["res"].set("需检查")
+                    row["status"].set("需检查")
+                    continue
+
+                subtotal_before_discount = total_income
+                if subtotal_before_discount == 0:
+                    self.add_issue(issues, "提醒", location, "折扣", discount_text, "折扣行前面的当前小计为 0，本行折扣金额为 0。建议把折扣行放在需要打折的项目后面。")
+
+                discount_amount = subtotal_before_discount * (1.0 - discount_factor)
+                line_income = -discount_amount
+                line_cost = 0.0
+                line_profit = line_income
+                line_margin_decimal = 0.0
+                line_margin_text = "—"
+
+                total_income += line_income
+
+                row["res"].set(self.format_display(line_income))
+                row["status"].set("OK")
+                if hasattr(self, "profit_tree"):
+                    self.profit_tree.insert(
+                        "",
+                        tk.END,
+                        values=(display_name, discount_text, self.format_display(line_income), self.format_display(line_cost), self.format_display(line_profit), line_margin_text),
+                    )
+
+                self.last_export_records.append(
+                    {
+                        "项目名称": display_name,
+                        "基础类型": self.SPECIAL_DISCOUNT_TYPE,
+                        "是否单件": "折扣行",
+                        "折扣": discount_text,
+                        "折扣系数": discount_factor,
+                        "高度原文": "",
+                        "宽度原文": "",
+                        "数量原文": "",
+                        "高度(m)": None,
+                        "宽度(m)": None,
+                        "数量": None,
+                        "销售单价原文": "",
+                        "成本单价原文": "",
+                        "K系数原文": "",
+                        "销售单价": None,
+                        "成本单价": None,
+                        "K系数": None,
+                        "折前销售额": subtotal_before_discount,
+                        "销售额": line_income,
+                        "总成本": line_cost,
+                        "利润": line_profit,
+                        "利润率": line_margin_decimal,
+                    }
+                )
+                continue
+
+            item_cfg = config.get(base_type)
+            if item_cfg is None:
+                row["res"].set("项目已失效")
+                row["status"].set("需检查")
+                row["discount"].set("需检查")
+                self.add_issue(issues, "错误", location, "项目类型", base_type, "该项目类型已不在价格设定中。")
+                continue
+
+            single = item_cfg.get("single", False)
+            before_error_count = sum(1 for issue in issues if issue["级别"] == "错误")
+
+            q_val = self.parse_field(row["q"].get(), location, "数量", issues)
+            self.warn_if_negative(q_val, location, "数量", row["q"].get(), issues)
+
+            if single:
+                h_val = 1.0
+                w_val = 1.0
+                h_text = ""
+                w_text = ""
+            else:
+                h_val = self.parse_field(row["h"].get(), location, "高度", issues)
+                w_val = self.parse_field(row["w"].get(), location, "宽度", issues)
+                h_text = row["h"].get()
+                w_text = row["w"].get()
+                self.warn_if_negative(h_val, location, "高度", h_text, issues)
+                self.warn_if_negative(w_val, location, "宽度", w_text, issues)
+
+            p_sale = self.parse_field(item_cfg.get("sale", ""), f"价格设定：{base_type}", "销售单价", issues)
+            p_cost = self.parse_field(item_cfg.get("cost", ""), f"价格设定：{base_type}", "成本单价", issues)
+            k_val = self.parse_field(item_cfg.get("k", ""), f"价格设定：{base_type}", "K系数", issues, default=1, empty_is_default=True)
+            row["discount"].set("—")
+
+            self.warn_if_negative(p_sale, f"价格设定：{base_type}", "销售单价", item_cfg.get("sale", ""), issues)
+            self.warn_if_negative(p_cost, f"价格设定：{base_type}", "成本单价", item_cfg.get("cost", ""), issues)
+            self.warn_if_negative(k_val, f"价格设定：{base_type}", "K系数", item_cfg.get("k", ""), issues)
+
+            after_error_count = sum(1 for issue in issues if issue["级别"] == "错误")
+            if after_error_count > before_error_count or None in (q_val, h_val, w_val, p_sale, p_cost, k_val):
+                row["res"].set("需检查")
+                row["status"].set("需检查")
+                continue
+
+            if single:
+                base_income = q_val * p_sale * k_val
+                line_cost = q_val * p_cost
+            else:
+                base_income = h_val * w_val * q_val * p_sale * k_val
+                line_cost = h_val * w_val * q_val * p_cost
+            line_income = base_income
+
+            line_profit = line_income - line_cost
+            line_margin_decimal = (line_profit / line_income) if line_income else 0.0
+            line_margin_text = f"{round(line_margin_decimal * 100, 1)}%"
+
+            total_income += line_income
+            total_cost += line_cost
+
+            row["res"].set(self.format_display(line_income))
+            row["status"].set("OK")
+            if hasattr(self, "profit_tree"):
+                self.profit_tree.insert(
+                    "",
+                    tk.END,
+                    values=(display_name, "—", self.format_display(line_income), self.format_display(line_cost), self.format_display(line_profit), line_margin_text),
+                )
+
+            self.last_export_records.append(
+                {
+                    "项目名称": display_name,
+                    "基础类型": base_type,
+                    "是否单件": "是" if single else "否",
+                    "折扣": "—",
+                    "折扣系数": None,
+                    "高度原文": h_text,
+                    "宽度原文": w_text,
+                    "数量原文": row["q"].get(),
+                    "高度(m)": h_val if not single else None,
+                    "宽度(m)": w_val if not single else None,
+                    "数量": q_val,
+                    "销售单价原文": item_cfg.get("sale", ""),
+                    "成本单价原文": item_cfg.get("cost", ""),
+                    "K系数原文": item_cfg.get("k", ""),
+                    "销售单价": p_sale,
+                    "成本单价": p_cost,
+                    "K系数": k_val,
+                    "折前销售额": base_income,
+                    "销售额": line_income,
+                    "总成本": line_cost,
+                    "利润": line_profit,
+                    "利润率": line_margin_decimal,
+                }
+            )
+
+        final_profit = total_income - total_cost
+        final_margin_decimal = (final_profit / total_income) if total_income else 0.0
+
+        self.total_val.set(f"总计：{self.format_display(total_income)} 元")
+        self.summary_income.set(self.format_display(total_income))
+        self.summary_cost.set(self.format_display(total_cost))
+        self.summary_profit.set(self.format_display(final_profit))
+        self.summary_margin.set(f"{round(final_margin_decimal * 100, 1)}%")
+
+        self.validation_issues = issues
+        self.render_issues(issues)
+        error_count = sum(1 for issue in issues if issue["级别"] == "错误")
+        warn_count = len(issues) - error_count
+
+        if error_count:
+            self.set_feedback(f"计算完成，但有 {error_count} 个错误、{warn_count} 个提醒；已切换到“输入反馈”页面查看。", is_error=True)
+            if notify:
+                self.notify_validation_errors(error_count, warn_count)
+        elif warn_count:
+            self.set_feedback(f"计算完成，有 {warn_count} 个提醒；请在“输入反馈”页面确认。", is_error=True)
+        else:
+            self.set_feedback("计算完成，所有内容均可参与计算。", is_error=False)
+
+    def reset(self):
+        for row in self.calc_rows:
+            row["frame"].destroy()
+        self.calc_rows = []
+        self.calc_table_next_row = 1
+        self.last_export_records = []
+        self.validation_issues = []
+        if hasattr(self, "profit_tree"):
+            for item in self.profit_tree.get_children():
+                self.profit_tree.delete(item)
+        self.render_issues([])
+        self.total_val.set("总计：0.00 元")
+        self.summary_income.set("0.00")
+        self.summary_cost.set("0.00")
+        self.summary_profit.set("0.00")
+        self.summary_margin.set("0%")
+        self.set_feedback("已清空计算列表。", is_error=False)
+
+
+    # ---------- Excel 记录 / 读取 / 统算 ----------
+
+    def setup_excel_page(self):
+        wrapper = ttk.Frame(self.excel_page, padding=12)
+        wrapper.pack(fill=tk.BOTH, expand=True)
+
+        self.excel_list_frame = ttk.Frame(wrapper)
+        self.excel_detail_frame = ttk.Frame(wrapper)
+
+        # 上一层：只提供 Excel 查看，不提供删除、备注或利润统算。
+        list_top = ttk.Frame(self.excel_list_frame)
+        list_top.pack(fill=tk.X, pady=(0, 8))
+        ttk.Label(list_top, text="Excel 记录查看", style="Title.TLabel").pack(side=tk.LEFT)
+        ttk.Button(list_top, text="刷新列表", command=self.refresh_excel_files).pack(side=tk.RIGHT, padx=(6, 0))
+        ttk.Button(list_top, text="选择 Excel 查看", command=self.browse_excel_file).pack(side=tk.RIGHT, padx=(6, 0))
+
+        # 员工端隐藏局域网目录、价格 JSON、截图目录等内部路径信息。
+
+        list_body = ttk.Frame(self.excel_list_frame)
+        list_body.pack(fill=tk.BOTH, expand=True)
+        columns = ("file", "mtime", "rows")
+        self.excel_file_tree = ttk.Treeview(list_body, columns=columns, show="headings", height=18)
+        headings = {"file": "文件名", "mtime": "修改时间", "rows": "可查看明细行"}
+        widths = {"file": 520, "mtime": 170, "rows": 120}
+        for col in columns:
+            self.excel_file_tree.heading(col, text=headings[col])
+            self.excel_file_tree.column(col, width=widths[col], anchor=tk.W if col == "file" else tk.CENTER)
+        y_scroll = ttk.Scrollbar(list_body, orient="vertical", command=self.excel_file_tree.yview)
+        x_scroll = ttk.Scrollbar(list_body, orient="horizontal", command=self.excel_file_tree.xview)
+        self.excel_file_tree.configure(yscrollcommand=y_scroll.set, xscrollcommand=x_scroll.set)
+        self.excel_file_tree.grid(row=0, column=0, sticky="nsew")
+        y_scroll.grid(row=0, column=1, sticky="ns")
+        x_scroll.grid(row=1, column=0, sticky="ew")
+        list_body.rowconfigure(0, weight=1)
+        list_body.columnconfigure(0, weight=1)
+        self.excel_file_tree.bind("<Double-1>", lambda _event: self.open_selected_excel_from_list())
+
+        list_actions = ttk.Frame(self.excel_list_frame)
+        list_actions.pack(fill=tk.X, pady=(8, 0))
+        ttk.Button(list_actions, text="查看选中 Excel", command=self.open_selected_excel_from_list).pack(side=tk.LEFT, padx=(0, 6))
+        ttk.Label(list_actions, text="双击文件也可以查看。", foreground="#7f8c8d").pack(side=tk.LEFT, padx=12)
+
+        # 下一层：单个 Excel 只读查看。
+        detail_top = ttk.Frame(self.excel_detail_frame)
+        detail_top.pack(fill=tk.X, pady=(0, 8))
+        ttk.Label(detail_top, text="Excel 查看", style="Title.TLabel").pack(side=tk.LEFT)
+        ttk.Button(detail_top, text="返回上一层", command=self.show_excel_list).pack(side=tk.RIGHT, padx=(6, 0))
+        ttk.Button(detail_top, text="查看另一个 Excel", command=self.browse_excel_file).pack(side=tk.RIGHT, padx=(6, 0))
+        ttk.Button(detail_top, text="删除同组行", command=self.delete_current_excel_row).pack(side=tk.RIGHT, padx=(6, 0))
+
+        selected_box = ttk.LabelFrame(self.excel_detail_frame, text="当前文件", padding=8, style="Section.TLabelframe")
+        selected_box.pack(fill=tk.X, pady=(0, 8))
+        ttk.Label(selected_box, textvariable=self.excel_selected_file, foreground="#2c3e50", wraplength=1080).pack(anchor=tk.W)
+
+        sheet_bar = ttk.Frame(self.excel_detail_frame)
+        sheet_bar.pack(fill=tk.X, pady=(0, 6))
+        ttk.Label(sheet_bar, text="工作表：").pack(side=tk.LEFT)
+        self.excel_sheet_combo = ttk.Combobox(sheet_bar, textvariable=self.excel_sheet_var, width=28, state="readonly")
+        self.excel_sheet_combo.pack(side=tk.LEFT, padx=(4, 8))
+        ttk.Button(sheet_bar, text="读取", command=self.load_current_excel_sheet).pack(side=tk.LEFT)
+        ttk.Label(sheet_bar, text="只显示：淘宝ID、订单号、微信号、记录时间、项目名称、基础类型、高、宽、数量、销售单价、折扣、销售额、折前销售额、总销售额。", foreground="#7f8c8d").pack(side=tk.LEFT, padx=10)
+
+        view_body = ttk.Frame(self.excel_detail_frame)
+        view_body.pack(fill=tk.BOTH, expand=True)
+        self.excel_view_tree = ttk.Treeview(view_body, show="headings", height=16, selectmode="browse")
+        view_y = ttk.Scrollbar(view_body, orient="vertical", command=self.excel_view_tree.yview)
+        view_x = ttk.Scrollbar(view_body, orient="horizontal", command=self.excel_view_tree.xview)
+        self.excel_view_tree.configure(yscrollcommand=view_y.set, xscrollcommand=view_x.set)
+        self.excel_view_tree.grid(row=0, column=0, sticky="nsew")
+        view_y.grid(row=0, column=1, sticky="ns")
+        view_x.grid(row=1, column=0, sticky="ew")
+        view_body.rowconfigure(0, weight=1)
+        view_body.columnconfigure(0, weight=1)
+        self.excel_sheet_combo.bind("<<ComboboxSelected>>", lambda _event: self.load_current_excel_sheet())
+
+        remark_box = ttk.LabelFrame(self.excel_detail_frame, text="备注（先选择一行，再保存到同组底部）", padding=8, style="Section.TLabelframe")
+        remark_box.pack(fill=tk.X, pady=(8, 0))
+        self.excel_remark_text = tk.Text(remark_box, height=3, wrap="word")
+        self.excel_remark_text.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        ttk.Button(remark_box, text="保存备注", command=self.save_current_excel_remark).pack(side=tk.RIGHT, padx=(8, 0))
+
+        self.show_excel_list()
+        self.root.after(300, self.refresh_excel_files)
+
+    def show_excel_list(self):
+        self.excel_detail_frame.pack_forget()
+        self.excel_list_frame.pack(fill=tk.BOTH, expand=True)
+        self.refresh_excel_files()
+
+    def show_excel_detail(self):
+        self.excel_list_frame.pack_forget()
+        self.excel_detail_frame.pack(fill=tk.BOTH, expand=True)
+
+    def get_report_excel_paths(self):
+        self.ensure_directories()
+        paths = []
+        for name in os.listdir(self.report_dir):
+            if name.startswith("~$"):
+                continue
+            if name.lower().endswith(".xlsx"):
+                paths.append(os.path.join(self.report_dir, name))
+        paths.sort(key=lambda p: os.path.getmtime(p), reverse=True)
+        return paths
+
+    def _to_float(self, value, default=0.0):
+        try:
+            if value is None:
+                return default
+            if isinstance(value, str):
+                text = value.strip().replace(",", "")
+                if text.endswith("%"):
+                    return float(text[:-1]) / 100.0
+                return float(text)
+            return float(value)
+        except Exception:
+            return default
+
+    def count_visible_excel_rows(self, path):
+        if load_workbook is None:
+            return 0
+        try:
+            wb = load_workbook(path, data_only=True, read_only=True)
+            if "利润明细" not in wb.sheetnames:
+                wb.close()
+                return 0
+            ws = wb["利润明细"]
+            header_row, headers = self.find_excel_table_header(ws)
+            if not header_row:
+                wb.close()
+                return 0
+            item_col = headers.get("项目名称")
+            count = 0
+            for r in range(header_row + 1, (ws.max_row or 0) + 1):
+                item_text = str(ws.cell(row=r, column=item_col).value or "").strip() if item_col else ""
+                if self.is_visible_sales_record(item_text):
+                    count += 1
+            wb.close()
+            return count
+        except Exception:
+            return 0
+
+    def refresh_excel_files(self):
+        if not hasattr(self, "excel_file_tree"):
+            return
+        for item in self.excel_file_tree.get_children():
+            self.excel_file_tree.delete(item)
+
+        paths = self.get_report_excel_paths()
+        for path in paths:
+            modified = time.strftime("%Y-%m-%d %H:%M", time.localtime(os.path.getmtime(path)))
+            row_count = self.count_visible_excel_rows(path)
+            self.excel_file_tree.insert(
+                "",
+                tk.END,
+                iid=path,
+                values=(os.path.basename(path), modified, row_count),
+            )
+
+    def browse_excel_file(self):
+        self.ensure_directories()
+        path = filedialog.askopenfilename(
+            title="选择要查看的 Excel",
+            initialdir=os.path.abspath(self.report_dir),
+            filetypes=[("Excel 文件", "*.xlsx"), ("所有文件", "*.*")],
+        )
+        if path:
+            self.open_excel_path(path)
+
+    def open_selected_excel_from_list(self):
+        selected = self.excel_file_tree.selection()
+        if not selected:
+            messagebox.showwarning("未选择", "请先选择一个 Excel 文件。")
+            return
+        self.open_excel_path(selected[0])
+
+    def open_excel_path(self, path):
+        if load_workbook is None:
+            messagebox.showerror("无法读取", "缺少 openpyxl，请先运行：pip install openpyxl")
+            return
+        if not os.path.exists(path):
+            messagebox.showerror("文件不存在", f"找不到文件：{path}")
+            return
+        try:
+            wb = load_workbook(path, data_only=True, read_only=True)
+            sheet_names = wb.sheetnames
+            wb.close()
+            if not sheet_names:
+                messagebox.showwarning("无法查看", "这个 Excel 没有工作表。")
+                return
+            self.current_excel_path = path
+            # 前端“当前文件”只显示 Excel 文件名，不暴露完整局域网路径。
+            self.excel_selected_file.set(os.path.basename(path))
+            view_sheets = ["利润明细"] if "利润明细" in sheet_names else sheet_names
+            self.excel_sheet_combo.configure(values=view_sheets)
+            preferred = "利润明细" if "利润明细" in view_sheets else view_sheets[0]
+            self.excel_sheet_var.set(preferred)
+            self.load_current_excel_sheet()
+            self.load_current_excel_remark()
+            self.show_excel_detail()
+        except Exception as exc:
+            messagebox.showerror("读取失败", f"无法打开 Excel：{exc}")
+
+    def is_visible_sales_record(self, item_text):
+        item = str(item_text or "").strip()
+        if not item:
+            return False
+        if item.startswith("---"):
+            return False
+        if item in {"备注", "文件备注"}:
+            return False
+        return True
+
+    def _excel_cell_text(self, value, money=False):
+        if value is None:
+            return ""
+        if isinstance(value, float):
+            return self.format_display(value) if money else (str(int(value)) if value.is_integer() else self.format_display(value))
+        return str(value)
+
+    def build_group_sales_totals(self, ws, headers, header_row):
+        id_col = self.get_excel_id_column(headers)
+        time_col = headers.get("记录时间")
+        item_col = headers.get("项目名称")
+        sales_col = headers.get("销售额")
+        totals = {}
+        if not (id_col and time_col and item_col and sales_col):
+            return totals
+        for r in range(header_row + 1, (ws.max_row or 0) + 1):
+            item_text = str(ws.cell(row=r, column=item_col).value or "").strip()
+            if not self.is_visible_sales_record(item_text):
+                continue
+            group_key = (
+                str(ws.cell(row=r, column=id_col).value or "").strip(),
+                str(ws.cell(row=r, column=time_col).value or "").strip(),
+            )
+            totals[group_key] = totals.get(group_key, 0.0) + self._to_float(ws.cell(row=r, column=sales_col).value)
+        return totals
+
+    def load_current_excel_sheet(self):
+        path = self.current_excel_path
+        if not path:
+            return
+        sheet_name = self.excel_sheet_var.get().strip()
+        if not sheet_name:
+            return
+        try:
+            wb = load_workbook(path, data_only=True, read_only=True)
+            if sheet_name not in wb.sheetnames:
+                wb.close()
+                messagebox.showerror("读取失败", "当前工作表不存在。")
+                return
+            ws = wb[sheet_name]
+            header_row, headers = self.find_excel_table_header(ws)
+            self.excel_view_tree.delete(*self.excel_view_tree.get_children())
+            self.excel_view_row_map = {}
+
+            display_columns = [
+                "淘宝ID", "订单号", "微信号", "记录时间", "项目名称", "基础类型",
+                "高", "宽", "数量", "销售单价", "折扣", "销售额", "折前销售额", "总销售额",
+            ]
+            tree_columns = [f"c{i}" for i in range(len(display_columns))]
+            self.excel_view_tree.configure(columns=tree_columns, show="headings")
+            widths = [130, 150, 130, 170, 240, 120, 80, 80, 80, 100, 90, 110, 120, 120]
+            for col, heading, width in zip(tree_columns, display_columns, widths):
+                self.excel_view_tree.heading(col, text=heading)
+                self.excel_view_tree.column(col, width=width, anchor=tk.W if heading in {"淘宝ID", "订单号", "微信号", "项目名称", "基础类型"} else tk.CENTER)
+
+            if not header_row:
+                wb.close()
+                messagebox.showwarning("无法查看", "这个工作表没有识别到“记录时间 + 淘宝ID/用户 + 项目名称”表头。")
+                return
+
+            id_col = self.get_excel_id_column(headers)
+            col_map = {
+                "淘宝ID": id_col,
+                "订单号": headers.get("订单号"),
+                "微信号": headers.get("微信号"),
+                "记录时间": headers.get("记录时间"),
+                "项目名称": headers.get("项目名称"),
+                "基础类型": headers.get("基础类型"),
+                "高": headers.get("高度(m)") or headers.get("高度"),
+                "宽": headers.get("宽度(m)") or headers.get("宽度"),
+                "数量": headers.get("数量"),
+                "销售单价": headers.get("销售单价"),
+                "折扣": headers.get("折扣"),
+                "销售额": headers.get("销售额"),
+                "折前销售额": headers.get("折前销售额"),
+            }
+            money_fields = {"销售单价", "销售额", "折前销售额", "总销售额"}
+            group_totals = self.build_group_sales_totals(ws, headers, header_row)
+            shown = 0
+            for r in range(header_row + 1, (ws.max_row or 0) + 1):
+                item_text = str(ws.cell(row=r, column=col_map["项目名称"]).value or "").strip() if col_map["项目名称"] else ""
+                if not self.is_visible_sales_record(item_text):
+                    continue
+                taobao_id = str(ws.cell(row=r, column=id_col).value or "").strip() if id_col else ""
+                record_time = str(ws.cell(row=r, column=col_map["记录时间"]).value or "").strip() if col_map["记录时间"] else ""
+                group_total = group_totals.get((taobao_id, record_time), 0.0)
+
+                values = []
+                for field in display_columns:
+                    if field == "总销售额":
+                        values.append(self.format_display(group_total))
+                        continue
+                    col_idx = col_map.get(field)
+                    cell_value = ws.cell(row=r, column=col_idx).value if col_idx else ""
+                    values.append(self._excel_cell_text(cell_value, money=field in money_fields))
+                item_id = f"row_{r}"
+                self.excel_view_row_map[item_id] = r
+                self.excel_view_tree.insert("", tk.END, iid=item_id, values=values)
+                shown += 1
+            wb.close()
+            if shown == 0:
+                messagebox.showinfo("没有可查看明细", "当前工作表没有可显示的销售明细行。")
+        except Exception as exc:
+            messagebox.showerror("读取失败", f"无法读取工作表：{exc}")
+
+
+    def find_excel_table_header(self, ws):
+        """返回利润明细表头行和列映射；兼容旧版“用户”和新版“淘宝ID”。"""
+        max_scan = min(ws.max_row or 1, 40)
+        for row_idx in range(1, max_scan + 1):
+            headers = {}
+            for cell in ws[row_idx]:
+                if cell.value is None:
+                    continue
+                name = str(cell.value).strip()
+                if name:
+                    headers[name] = cell.column
+            has_time = "记录时间" in headers
+            has_id = "淘宝ID" in headers or "用户" in headers
+            has_item = "项目名称" in headers
+            if has_time and has_id and has_item:
+                return row_idx, headers
+        return None, {}
+
+    def get_excel_id_column(self, headers):
+        return headers.get("淘宝ID") or headers.get("用户")
+
+    def style_excel_sheet(self, ws, header_row=None, freeze=None, widths=None):
+        title_fill = PatternFill("solid", fgColor="1F4E78")
+        header_fill = PatternFill("solid", fgColor="D9EAF7")
+        white_font = Font(color="FFFFFF", bold=True, size=14)
+        header_font = Font(bold=True)
+        thin = Side(style="thin", color="D9D9D9")
+        border = Border(left=thin, right=thin, top=thin, bottom=thin)
+
+        if ws.max_row >= 1:
+            ws["A1"].font = white_font
+            ws["A1"].fill = title_fill
+            ws["A1"].alignment = Alignment(horizontal="left")
+
+        if header_row:
+            for cell in ws[header_row]:
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.border = border
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+
+        for row in ws.iter_rows():
+            for cell in row:
+                cell.border = border
+                cell.alignment = Alignment(vertical="center", wrap_text=True)
+
+        if freeze:
+            ws.freeze_panes = freeze
+
+        if header_row and ws.max_column:
+            last_col = get_column_letter(ws.max_column)
+            ws.auto_filter.ref = f"A{header_row}:{last_col}{ws.max_row}"
+
+        if widths:
+            for col, width in widths.items():
+                ws.column_dimensions[col].width = width
+        else:
+            for col_idx in range(1, ws.max_column + 1):
+                col_letter = get_column_letter(col_idx)
+                max_len = 10
+                for cell in ws[col_letter]:
+                    value = "" if cell.value is None else str(cell.value)
+                    max_len = max(max_len, min(len(value) + 2, 40))
+                ws.column_dimensions[col_letter].width = max_len
+
+
+
+    def get_selected_excel_row_index(self):
+        selected = self.excel_view_tree.selection() if hasattr(self, "excel_view_tree") else []
+        if not selected:
+            return None
+        return self.excel_view_row_map.get(selected[0])
+
+    def read_excel_remark(self, path):
+        if load_workbook is None:
+            return ""
+        try:
+            wb = load_workbook(path, data_only=True, read_only=True)
+            if "备注" in wb.sheetnames:
+                ws_note = wb["备注"]
+                value = ws_note["B5"].value or ws_note["B4"].value
+                wb.close()
+                return str(value or "")
+            if "利润明细" in wb.sheetnames:
+                ws = wb["利润明细"]
+                header_row, headers = self.find_excel_table_header(ws)
+                remark_col = headers.get("备注") if headers else None
+                if remark_col:
+                    last_remark = ""
+                    for r in range((ws.max_row or 1), header_row, -1):
+                        value = ws.cell(row=r, column=remark_col).value
+                        if value:
+                            last_remark = str(value)
+                            break
+                    wb.close()
+                    return last_remark
+            wb.close()
+        except Exception:
+            pass
+        return ""
+
+    def load_current_excel_remark(self):
+        if not hasattr(self, "excel_remark_text"):
+            return
+        self.excel_remark_text.delete("1.0", tk.END)
+        if self.current_excel_path:
+            self.excel_remark_text.insert("1.0", self.read_excel_remark(self.current_excel_path))
+
+    def get_excel_group_rows(self, ws, selected_row, headers, header_row):
+        time_col = headers.get("记录时间")
+        id_col = self.get_excel_id_column(headers)
+        if not (time_col and id_col):
+            return [], "", ""
+        selected_time = str(ws.cell(row=selected_row, column=time_col).value or "").strip()
+        selected_id = str(ws.cell(row=selected_row, column=id_col).value or "").strip()
+        if not selected_time or not selected_id:
+            return [], selected_id, selected_time
+        matched = []
+        for r in range(header_row + 1, (ws.max_row or 0) + 1):
+            row_time = str(ws.cell(row=r, column=time_col).value or "").strip()
+            row_id = str(ws.cell(row=r, column=id_col).value or "").strip()
+            if row_id == selected_id and row_time == selected_time:
+                matched.append(r)
+        return matched, selected_id, selected_time
+
+    def ensure_excel_remark_column(self, ws, headers, header_row):
+        remark_col = headers.get("备注")
+        if remark_col:
+            return remark_col
+        remark_col = (ws.max_column or 0) + 1
+        ws.cell(row=header_row, column=remark_col, value="备注")
+        headers["备注"] = remark_col
+        try:
+            ws.column_dimensions[get_column_letter(remark_col)].width = 45
+            ws.cell(row=header_row, column=remark_col).font = Font(bold=True)
+            ws.cell(row=header_row, column=remark_col).fill = PatternFill("solid", fgColor="D9EAF7")
+        except Exception:
+            pass
+        return remark_col
+
+    def delete_current_excel_row(self):
+        path = self.current_excel_path
+        if not path:
+            messagebox.showwarning("未选择", "请先选择一个 Excel 文件。")
+            return
+        sheet_name = self.excel_sheet_var.get().strip()
+        if not sheet_name:
+            messagebox.showwarning("未选择", "请先选择一个工作表。")
+            return
+        row_index = self.get_selected_excel_row_index()
+        if not row_index:
+            messagebox.showwarning("未选择行", "请先在下方表格中点选要删除的行。")
+            return
+        try:
+            wb = load_workbook(path)
+            if sheet_name not in wb.sheetnames:
+                wb.close()
+                messagebox.showerror("删除失败", "当前工作表不存在，请重新打开 Excel。")
+                return
+            ws = wb[sheet_name]
+            header_row, headers = self.find_excel_table_header(ws)
+            if not header_row:
+                wb.close()
+                messagebox.showwarning("无法分组删除", "当前工作表没有识别到“记录时间 + 淘宝ID/用户 + 项目名称”表头。")
+                return
+            group_rows, taobao_id, record_time = self.get_excel_group_rows(ws, row_index, headers, header_row)
+            if not group_rows:
+                wb.close()
+                messagebox.showwarning("无法分组删除", "当前选中行没有有效的记录时间或淘宝ID，无法判断同组数据。")
+                return
+            ok = messagebox.askyesno(
+                "确认删除同组行",
+                f"将删除当前工作表中同一组的 {len(group_rows)} 行：\n\n淘宝ID/用户：{taobao_id}\n记录时间：{record_time}\n文件：{os.path.basename(path)}\n工作表：{sheet_name}\n\n不会删除其他淘宝ID或其他记录时间的数据。删除后会直接保存到这个 Excel 文件。",
+            )
+            if not ok:
+                wb.close()
+                return
+            for r in sorted(group_rows, reverse=True):
+                ws.delete_rows(r, 1)
+            self.recompute_daily_profit_summary(ws)
+            wb.save(path)
+            wb.close()
+            self.load_current_excel_sheet()
+            self.load_current_excel_remark()
+            self.refresh_excel_files()
+            messagebox.showinfo("删除成功", f"已删除淘宝ID/用户“{taobao_id}”在 {record_time} 的 {len(group_rows)} 行。")
+        except PermissionError:
+            messagebox.showerror("删除失败", "无法保存 Excel。请先关闭正在打开的 Excel 文件后再试。")
+        except Exception as exc:
+            messagebox.showerror("删除失败", f"无法删除同组行：{exc}")
+
+    def save_current_excel_remark(self):
+        path = self.current_excel_path
+        if not path:
+            messagebox.showwarning("未选择", "请先选择一个 Excel 文件。")
+            return
+        if load_workbook is None:
+            messagebox.showerror("无法保存", "缺少 openpyxl，请先运行：pip install openpyxl")
+            return
+        sheet_name = self.excel_sheet_var.get().strip()
+        if not sheet_name:
+            messagebox.showwarning("未选择", "请先选择一个工作表。")
+            return
+        row_index = self.get_selected_excel_row_index()
+        if not row_index:
+            messagebox.showwarning("未选择行", "请先在下方表格中点选一行，再保存备注。")
+            return
+        remark = self.excel_remark_text.get("1.0", tk.END).strip()
+        if not remark:
+            messagebox.showwarning("备注为空", "请先输入备注内容。")
+            return
+        try:
+            wb = load_workbook(path)
+            if sheet_name not in wb.sheetnames:
+                wb.close()
+                messagebox.showerror("保存失败", "当前工作表不存在，请重新打开 Excel。")
+                return
+            ws = wb[sheet_name]
+            header_row, headers = self.find_excel_table_header(ws)
+            if not header_row:
+                wb.close()
+                messagebox.showwarning("无法保存备注", "当前工作表没有识别到“记录时间 + 淘宝ID/用户 + 项目名称”表头。")
+                return
+            group_rows, taobao_id, record_time = self.get_excel_group_rows(ws, row_index, headers, header_row)
+            if not group_rows:
+                wb.close()
+                messagebox.showwarning("无法保存备注", "当前选中行没有有效的记录时间或淘宝ID，无法判断备注应该加入哪一组。")
+                return
+            remark_col = self.ensure_excel_remark_column(ws, headers, header_row)
+            insert_at = max(group_rows) + 1
+            ws.insert_rows(insert_at, 1)
+            for name in ["记录时间", "淘宝ID", "用户", "订单号", "微信号"]:
+                col = headers.get(name)
+                if col:
+                    ws.cell(row=insert_at, column=col, value=ws.cell(row=row_index, column=col).value)
+            item_col = headers.get("项目名称")
+            if item_col:
+                ws.cell(row=insert_at, column=item_col, value="备注")
+            base_col = headers.get("基础类型")
+            if base_col:
+                ws.cell(row=insert_at, column=base_col, value="备注")
+            ws.cell(row=insert_at, column=remark_col, value=remark)
+            try:
+                fill = PatternFill("solid", fgColor="FFF2CC")
+                for col in range(1, ws.max_column + 1):
+                    cell = ws.cell(row=insert_at, column=col)
+                    cell.fill = fill
+                    cell.alignment = Alignment(wrap_text=True, vertical="top")
+            except Exception:
+                pass
+            if "备注" in wb.sheetnames:
+                note_ws = wb["备注"]
+            else:
+                note_ws = wb.create_sheet("备注")
+            note_ws["A1"] = "最近备注"
+            note_ws["A2"] = "保存时间"
+            note_ws["B2"] = time.strftime("%Y-%m-%d %H:%M:%S")
+            note_ws["A3"] = "淘宝ID/用户"
+            note_ws["B3"] = taobao_id
+            note_ws["A4"] = "记录时间"
+            note_ws["B4"] = record_time
+            note_ws["A5"] = "备注"
+            note_ws["B5"] = remark
+            note_ws.column_dimensions["A"].width = 14
+            note_ws.column_dimensions["B"].width = 80
+            note_ws["B5"].alignment = Alignment(wrap_text=True, vertical="top")
+            wb.save(path)
+            wb.close()
+            self.refresh_excel_files()
+            self.open_excel_path(path)
+            self.excel_sheet_var.set(sheet_name)
+            self.load_current_excel_sheet()
+            messagebox.showinfo("保存成功", f"备注已加入淘宝ID/用户“{taobao_id}”在 {record_time} 的分组底部。")
+        except PermissionError:
+            messagebox.showerror("保存失败", "无法保存 Excel。请先关闭正在打开的 Excel 文件后再试。")
+        except Exception as exc:
+            messagebox.showerror("保存失败", f"无法保存备注：{exc}")
+
+    def get_excel_headers(self):
+        """母版和子版共用同一套 Excel 表头，确保同一天追加到同一个 Excel。"""
+        return [
+            "记录时间", "淘宝ID", "订单号", "微信号", "项目名称", "基础类型", "是否单件",
+            "高度(m)", "宽度(m)", "数量", "销售单价", "成本单价", "K系数", "折扣", "折扣系数",
+            "折前销售额", "销售额", "总成本", "利润", "利润率", "高度原文", "宽度原文",
+            "数量原文", "销售单价原文", "成本单价原文", "K系数原文",
+        ]
+
+    def get_daily_excel_path(self):
+        """每天只创建一个 Excel：利润明细_YYYYMMDD.xlsx。"""
+        date_text = time.strftime("%Y%m%d")
+        return os.path.join(self.report_dir, f"{DAILY_EXCEL_PREFIX}_{date_text}.xlsx")
+
+    def create_profit_sheet_template(self, ws, timestamp):
+        """初始化利润明细工作表模板。"""
+        if ws.max_row:
+            ws.delete_rows(1, ws.max_row)
+        ws.title = "利润明细"
+        ws.append(["六六派对利润明细"])
+        ws.append(["最后导出时间", timestamp])
+        ws.append(["最近导出淘宝ID", self.user_name.get().strip(), "订单号", self.order_no.get().strip(), "微信号", self.wechat_no.get().strip()])
+        ws.append(["总收入", 0.0, "总成本", 0.0, "总利润", 0.0, "综合利润率", "0.0%"])
+        ws.append([])
+        ws.append(self.get_excel_headers())
+        return ws
+
+    def open_daily_workbook_for_append(self, timestamp):
+        """打开或创建当天 Excel。母版和子版都只写这个文件。"""
+        xlsx_path = self.get_daily_excel_path()
+        if os.path.exists(xlsx_path):
+            wb = load_workbook(xlsx_path)
+            if "利润明细" in wb.sheetnames:
+                ws = wb["利润明细"]
+            else:
+                ws = wb.create_sheet("利润明细", 0)
+            header_row, _headers = self.find_excel_table_header(ws)
+            if not header_row:
+                self.create_profit_sheet_template(ws, timestamp)
+        else:
+            wb = Workbook()
+            ws = wb.active
+            self.create_profit_sheet_template(ws, timestamp)
+        return xlsx_path, wb, ws
+
+    def append_profit_records_to_sheet(self, ws, timestamp):
+        """把本次计算明细追加到当天 Excel 的利润明细表。"""
+        for record in self.last_export_records:
+            ws.append([
+                timestamp, self.user_name.get().strip(), self.order_no.get().strip(), self.wechat_no.get().strip(),
+                record["项目名称"], record["基础类型"], record["是否单件"], record["高度(m)"], record["宽度(m)"],
+                record["数量"], record["销售单价"], record["成本单价"], record["K系数"], record["折扣"],
+                record["折扣系数"], record["折前销售额"], record["销售额"], record["总成本"], record["利润"],
+                record["利润率"], record["高度原文"], record["宽度原文"], record["数量原文"], record["销售单价原文"],
+                record["成本单价原文"], record["K系数原文"],
+            ])
+        ws.append([
+            timestamp, self.user_name.get().strip(), self.order_no.get().strip(), self.wechat_no.get().strip(),
+            "--- 本次总计 ---", "", "", "", "", "", "", "", "", "", "", "",
+            float(self.summary_income.get()), float(self.summary_cost.get()), float(self.summary_profit.get()), self.summary_margin.get(),
+        ])
+
+    def recompute_daily_profit_summary(self, ws):
+        """重算当天 Excel A4:H4 的整表汇总。"""
+        header_row, headers = self.find_excel_table_header(ws)
+        if not header_row:
+            return
+        income_col = headers.get("销售额")
+        cost_col = headers.get("总成本")
+        profit_col = headers.get("利润")
+        item_col = headers.get("项目名称")
+        if not (income_col and cost_col and profit_col and item_col):
+            return
+        total_income = total_cost = total_profit = 0.0
+        for r in range(header_row + 1, (ws.max_row or 0) + 1):
+            item_text = str(ws.cell(row=r, column=item_col).value or "").strip()
+            if not item_text or item_text.startswith("---") or item_text in {"备注", "文件备注"}:
+                continue
+            total_income += self._to_float(ws.cell(row=r, column=income_col).value)
+            total_cost += self._to_float(ws.cell(row=r, column=cost_col).value)
+            total_profit += self._to_float(ws.cell(row=r, column=profit_col).value)
+        margin = total_profit / total_income if total_income else 0.0
+        ws.cell(row=4, column=1, value="总收入")
+        ws.cell(row=4, column=2, value=total_income)
+        ws.cell(row=4, column=3, value="总成本")
+        ws.cell(row=4, column=4, value=total_cost)
+        ws.cell(row=4, column=5, value="总利润")
+        ws.cell(row=4, column=6, value=total_profit)
+        ws.cell(row=4, column=7, value="综合利润率")
+        ws.cell(row=4, column=8, value=f"{margin * 100:.1f}%")
+
+    def append_input_issues_sheet(self, wb, timestamp):
+        """把本次输入校验结果追加到当天 Excel 的“输入问题”。"""
+        if "输入问题" in wb.sheetnames:
+            issue_ws = wb["输入问题"]
+        else:
+            issue_ws = wb.create_sheet("输入问题")
+            issue_ws.append(["输入校验反馈"])
+            issue_ws.append([])
+            issue_ws.append([])
+            issue_ws.append(["记录时间", "级别", "位置", "字段", "输入内容", "提示"])
+        if issue_ws.max_row < 4:
+            issue_ws.delete_rows(1, issue_ws.max_row)
+            issue_ws.append(["输入校验反馈"])
+            issue_ws.append([])
+            issue_ws.append([])
+            issue_ws.append(["记录时间", "级别", "位置", "字段", "输入内容", "提示"])
+        if self.validation_issues:
+            for issue in self.validation_issues:
+                issue_ws.append([timestamp, issue["级别"], issue["位置"], issue["字段"], issue["输入内容"], issue["提示"]])
+        else:
+            issue_ws.append([timestamp, "OK", "全部", "", "", "没有发现输入问题。"])
+        self.style_excel_sheet(issue_ws, header_row=4, freeze="A5", widths={"A": 20, "B": 10, "C": 22, "D": 18, "E": 24, "F": 70})
+        try:
+            if "A1:F1" not in [str(rng) for rng in issue_ws.merged_cells.ranges]:
+                issue_ws.merge_cells("A1:F1")
+        except Exception:
+            pass
+
+    def refresh_price_snapshot_sheet(self, wb, timestamp):
+        """刷新当天 Excel 中的价格设定快照。"""
+        if "价格设定" in wb.sheetnames:
+            del wb["价格设定"]
+        settings_ws = wb.create_sheet("价格设定")
+        settings_ws.append(["价格设定快照"])
+        settings_ws.append(["最后导出时间", timestamp])
+        settings_ws.append([])
+        settings_ws.append(["项目名称", "销售单价原文", "成本单价原文", "K系数原文", "是否单件"])
+        for name, item in self.last_config_snapshot.items():
+            settings_ws.append([name, item.get("sale", ""), item.get("cost", ""), item.get("k", ""), "是" if item.get("single") else "否"])
+        self.style_excel_sheet(settings_ws, header_row=4, freeze="A5", widths={"A": 22, "B": 18, "C": 18, "D": 14, "E": 10})
+        try:
+            settings_ws.merge_cells("A1:E1")
+        except Exception:
+            pass
+
+    def style_daily_profit_sheet(self, ws):
+        """设置当天利润明细表样式。"""
+        header_row, _headers = self.find_excel_table_header(ws)
+        if not header_row:
+            header_row = 6
+        for row in range(header_row + 1, ws.max_row + 1):
+            for col in [8, 9, 10, 11, 12, 13, 16, 17, 18, 19]:
+                ws.cell(row=row, column=col).number_format = "#,##0.00"
+            ws.cell(row=row, column=15).number_format = "0.0%"
+            ws.cell(row=row, column=20).number_format = "0.0%"
+        for col in [2, 4, 6]:
+            ws.cell(row=4, column=col).number_format = "#,##0.00"
+        widths = {
+            "A": 20, "B": 16, "C": 18, "D": 16, "E": 28, "F": 16, "G": 10, "H": 10,
+            "I": 10, "J": 10, "K": 12, "L": 12, "M": 10, "N": 12, "O": 12, "P": 14,
+            "Q": 14, "R": 14, "S": 14, "T": 10, "U": 14, "V": 14, "W": 14, "X": 16,
+            "Y": 16, "Z": 14,
+        }
+        self.style_excel_sheet(ws, header_row=header_row, freeze=f"A{header_row + 1}", widths=widths)
+        try:
+            if "A1:Z1" not in [str(rng) for rng in ws.merged_cells.ranges]:
+                ws.merge_cells("A1:Z1")
+        except Exception:
+            pass
+        ws.row_dimensions[1].height = 24
+
+
+    def export_to_excel(self):
+        self.calculate()
+        if Workbook is None:
+            self.set_feedback("导出失败：缺少 openpyxl，请先运行 pip install openpyxl。", is_error=True)
+            messagebox.showerror("导出失败", "缺少 openpyxl，请先运行：pip install openpyxl")
+            return
+
+        if not self.last_export_records:
+            self.set_feedback("没有可导出的有效明细，请先检查输入并完成计算。", is_error=True)
+            return
+
+        # 子版本的导出目录固定读取代码顶部 LAN_DATA_DIR，确保和母版本写入同一个“利润表”目录。
+        self.report_dir = self.get_default_report_dir()
+        self.export_dir_var.set(self.report_dir)
+        self.ensure_directories()
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+        try:
+            xlsx_path, wb, ws = self.open_daily_workbook_for_append(timestamp)
+            ws.cell(row=2, column=1, value="最后导出时间")
+            ws.cell(row=2, column=2, value=timestamp)
+            ws.cell(row=3, column=1, value="最近导出淘宝ID")
+            ws.cell(row=3, column=2, value=self.user_name.get().strip())
+            ws.cell(row=3, column=3, value="订单号")
+            ws.cell(row=3, column=4, value=self.order_no.get().strip())
+            ws.cell(row=3, column=5, value="微信号")
+            ws.cell(row=3, column=6, value=self.wechat_no.get().strip())
+
+            self.append_profit_records_to_sheet(ws, timestamp)
+            self.recompute_daily_profit_summary(ws)
+            self.style_daily_profit_sheet(ws)
+            self.append_input_issues_sheet(wb, timestamp)
+            self.refresh_price_snapshot_sheet(wb, timestamp)
+            wb.save(xlsx_path)
+            wb.close()
+
+            issue_count = len(self.validation_issues)
+            suffix = f"；同时追加 {issue_count} 条输入校验反馈" if issue_count else ""
+            self.set_feedback(f"Excel 已追加到当天文件：{xlsx_path}{suffix}", is_error=False)
+            if hasattr(self, "excel_file_tree"):
+                self.refresh_excel_files()
+            messagebox.showinfo("导出成功", f"本次明细已追加到当天 Excel：\n{xlsx_path}")
+        except PermissionError:
+            self.set_feedback("Excel 导出失败：当天 Excel 可能正被打开，请关闭后再试。", is_error=True)
+            messagebox.showerror("导出失败", "无法保存当天 Excel。请先关闭正在打开的 Excel 文件后再试。")
+        except Exception as exc:
+            self.set_feedback(f"Excel 导出失败：{exc}", is_error=True)
+            messagebox.showerror("导出失败", f"无法写入 Excel：{exc}")
+
+    # ---------- 截图 ----------
+
+    def get_daily_screenshot_dir(self):
+        """截图按天分文件夹保存，例如：截图/20260529。"""
+        day_folder = time.strftime("%Y%m%d")
+        return os.path.join(self.image_dir, day_folder)
+
+    def build_unique_screenshot_path(self, folder):
+        """截图文件名按淘宝ID + 订单号保存；重名时自动追加序号，避免覆盖。"""
+        taobao_id = self.clean_filename(self.user_name.get())
+        order_no = self.clean_filename(self.order_no.get())
+        if not order_no or order_no == "默认淘宝ID":
+            order_no = "未填订单号"
+
+        base_name = f"{taobao_id}_{order_no}"
+        image_path = os.path.join(folder, f"{base_name}.png")
+        if not os.path.exists(image_path):
+            return image_path
+
+        index = 2
+        while True:
+            candidate = os.path.join(folder, f"{base_name}_{index}.png")
+            if not os.path.exists(candidate):
+                return candidate
+            index += 1
+
+    def save_screenshot(self):
+        self.calculate()
+
+        if ImageGrab is None:
+            self.set_feedback("截图失败：缺少 pillow，请先运行 pip install pillow。", is_error=True)
+            return
+
+        daily_screenshot_dir = self.get_daily_screenshot_dir()
+        try:
+            os.makedirs(daily_screenshot_dir, exist_ok=True)
+        except Exception as exc:
+            self.set_feedback(f"截图保存失败：无法创建当天截图文件夹：{exc}", is_error=True)
+            return
+
+        x = self.root.winfo_rootx()
+        y = self.root.winfo_rooty()
+        width = self.root.winfo_width()
+        height = self.root.winfo_height()
+        image_path = self.build_unique_screenshot_path(daily_screenshot_dir)
+        display_name = os.path.join(os.path.basename(daily_screenshot_dir), os.path.basename(image_path))
+
+        try:
+            image = ImageGrab.grab(bbox=(x, y, x + width, y + height))
+            image.save(image_path)
+            self.set_feedback(f"截图保存成功：{display_name}", is_error=False)
+            messagebox.showinfo("保存成功", f"截图已保存：{display_name}")
+        except Exception as exc:
+            self.set_feedback(f"截图保存失败：{exc}", is_error=True)
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = PriceCalculator(root)
+    root.mainloop()
