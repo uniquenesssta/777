@@ -1,0 +1,1125 @@
+{
+  "task": "P01-02",
+  "status": "proposal_examples_not_frozen",
+  "source_commit": "32e164d78643de8fa6cbd21a7ca634e1b318f855",
+  "environment": {
+    "os": "Linux",
+    "python": "3.12.14",
+    "openpyxl": "3.1.5"
+  },
+  "scope": "原calculate方法、控件替身、内存合成价格；候选Decimal示例；不启动GUI，不调用导出/截图/价格读取，不验证权限接口",
+  "production_paths_accessed": false,
+  "windows_acceptance": "not_performed_by_this_tool",
+  "candidate_rejections": "E10-E13按待确认规则标记拒绝；并非已实现的验证器测试",
+  "sources": [
+    {
+      "role": "manager",
+      "path": "报价利润计算器_局域网导出版_每日汇总版(1).py",
+      "normalized_git_blob_sha1": "86d6bb43cc98b9de10c136cb4114cf441b0805b1",
+      "normalized_sha256": "165e74cec1ccd728ef9fec93350ce9fa967946c16a7ccf5233f9acb1ec0fe52e",
+      "baseline_match_kind": "exact"
+    },
+    {
+      "role": "sales",
+      "path": "报价利润计算器_局域网子版本_JSON价格_截图按天订单命名_ICON版(1).py",
+      "normalized_git_blob_sha1": "6f026f8c0c178ae83581224a6fe8d0ff65a2aa3f",
+      "normalized_sha256": "f8494a21af9122c6007bf1f7d3425c603070f3cef67cc0c7650653e8e3e3bb1c",
+      "baseline_match_kind": "exact"
+    }
+  ],
+  "cases": [
+    {
+      "id": "E01",
+      "title": "面积与K",
+      "input": [
+        {
+          "kind": "normal",
+          "q": "3",
+          "sale": "50",
+          "cost": "20",
+          "k": "1.1",
+          "h": "1.2",
+          "w": "0.8",
+          "single": false
+        }
+      ],
+      "original": {
+        "manager": {
+          "displayed_line_income": [
+            "158.40"
+          ],
+          "displayed_totals": {
+            "income": "158.40",
+            "cost": "57.60",
+            "profit": "100.80",
+            "margin": "63.6%"
+          },
+          "retained_records": 1,
+          "errors": 0,
+          "warnings": 0
+        },
+        "sales": {
+          "displayed_line_income": [
+            "158.40"
+          ],
+          "displayed_totals": {
+            "income": "158.40",
+            "cost": "57.60",
+            "profit": "100.80",
+            "margin": "63.6%"
+          },
+          "retained_records": 1,
+          "errors": 0,
+          "warnings": 0
+        }
+      },
+      "recommended_candidate": {
+        "status": "candidate_only",
+        "would_allow_commit_if_adopted": true,
+        "lines": [
+          {
+            "income": "158.40",
+            "cost": "57.60",
+            "profit": "100.80"
+          }
+        ],
+        "totals": {
+          "income": "158.40",
+          "cost": "57.60",
+          "profit": "100.80",
+          "margin": "63.6%"
+        }
+      }
+    },
+    {
+      "id": "E02",
+      "title": "单件小数数量与空K",
+      "input": [
+        {
+          "kind": "normal",
+          "q": "2.5",
+          "sale": "12",
+          "cost": "4",
+          "k": "",
+          "h": "1",
+          "w": "1",
+          "single": true
+        }
+      ],
+      "original": {
+        "manager": {
+          "displayed_line_income": [
+            "30.00"
+          ],
+          "displayed_totals": {
+            "income": "30.00",
+            "cost": "10.00",
+            "profit": "20.00",
+            "margin": "66.7%"
+          },
+          "retained_records": 1,
+          "errors": 0,
+          "warnings": 0
+        },
+        "sales": {
+          "displayed_line_income": [
+            "30.00"
+          ],
+          "displayed_totals": {
+            "income": "30.00",
+            "cost": "10.00",
+            "profit": "20.00",
+            "margin": "66.7%"
+          },
+          "retained_records": 1,
+          "errors": 0,
+          "warnings": 0
+        }
+      },
+      "recommended_candidate": {
+        "status": "candidate_only",
+        "would_allow_commit_if_adopted": true,
+        "lines": [
+          {
+            "income": "30.00",
+            "cost": "10.00",
+            "profit": "20.00"
+          }
+        ],
+        "totals": {
+          "income": "30.00",
+          "cost": "10.00",
+          "profit": "20.00",
+          "margin": "66.7%"
+        }
+      }
+    },
+    {
+      "id": "E03",
+      "title": "两行半分",
+      "input": [
+        {
+          "kind": "normal",
+          "q": "1",
+          "sale": "0.005",
+          "cost": "0",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        },
+        {
+          "kind": "normal",
+          "q": "1",
+          "sale": "0.005",
+          "cost": "0",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        }
+      ],
+      "original": {
+        "manager": {
+          "displayed_line_income": [
+            "0.01",
+            "0.01"
+          ],
+          "displayed_totals": {
+            "income": "0.01",
+            "cost": "0.00",
+            "profit": "0.01",
+            "margin": "100.0%"
+          },
+          "retained_records": 2,
+          "errors": 0,
+          "warnings": 0
+        },
+        "sales": {
+          "displayed_line_income": [
+            "0.01",
+            "0.01"
+          ],
+          "displayed_totals": {
+            "income": "0.01",
+            "cost": "0.00",
+            "profit": "0.01",
+            "margin": "100.0%"
+          },
+          "retained_records": 2,
+          "errors": 0,
+          "warnings": 0
+        }
+      },
+      "recommended_candidate": {
+        "status": "candidate_only",
+        "would_allow_commit_if_adopted": true,
+        "lines": [
+          {
+            "income": "0.01",
+            "cost": "0.00",
+            "profit": "0.01"
+          },
+          {
+            "income": "0.01",
+            "cost": "0.00",
+            "profit": "0.01"
+          }
+        ],
+        "totals": {
+          "income": "0.02",
+          "cost": "0.00",
+          "profit": "0.02",
+          "margin": "100.0%"
+        }
+      }
+    },
+    {
+      "id": "E04",
+      "title": "销售与成本分别量化后求利润",
+      "input": [
+        {
+          "kind": "normal",
+          "q": "1",
+          "sale": "1.005",
+          "cost": "1.004",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        }
+      ],
+      "original": {
+        "manager": {
+          "displayed_line_income": [
+            "1.00"
+          ],
+          "displayed_totals": {
+            "income": "1.00",
+            "cost": "1.00",
+            "profit": "0.00",
+            "margin": "0.1%"
+          },
+          "retained_records": 1,
+          "errors": 0,
+          "warnings": 0
+        },
+        "sales": {
+          "displayed_line_income": [
+            "1.00"
+          ],
+          "displayed_totals": {
+            "income": "1.00",
+            "cost": "1.00",
+            "profit": "0.00",
+            "margin": "0.1%"
+          },
+          "retained_records": 1,
+          "errors": 0,
+          "warnings": 0
+        }
+      },
+      "recommended_candidate": {
+        "status": "candidate_only",
+        "would_allow_commit_if_adopted": true,
+        "lines": [
+          {
+            "income": "1.01",
+            "cost": "1.00",
+            "profit": "0.01"
+          }
+        ],
+        "totals": {
+          "income": "1.01",
+          "cost": "1.00",
+          "profit": "0.01",
+          "margin": "1.0%"
+        }
+      }
+    },
+    {
+      "id": "E05",
+      "title": "连续折扣后加商品",
+      "input": [
+        {
+          "kind": "normal",
+          "q": "1",
+          "sale": "100",
+          "cost": "60",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        },
+        {
+          "kind": "discount",
+          "percent": "90"
+        },
+        {
+          "kind": "discount",
+          "percent": "80"
+        },
+        {
+          "kind": "normal",
+          "q": "1",
+          "sale": "50",
+          "cost": "20",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        }
+      ],
+      "original": {
+        "manager": {
+          "displayed_line_income": [
+            "100.00",
+            "-10.00",
+            "-18.00",
+            "50.00"
+          ],
+          "displayed_totals": {
+            "income": "122.00",
+            "cost": "80.00",
+            "profit": "42.00",
+            "margin": "34.4%"
+          },
+          "retained_records": 4,
+          "errors": 0,
+          "warnings": 0
+        },
+        "sales": {
+          "displayed_line_income": [
+            "100.00",
+            "-10.00",
+            "-18.00",
+            "50.00"
+          ],
+          "displayed_totals": {
+            "income": "122.00",
+            "cost": "80.00",
+            "profit": "42.00",
+            "margin": "34.4%"
+          },
+          "retained_records": 4,
+          "errors": 0,
+          "warnings": 0
+        }
+      },
+      "recommended_candidate": {
+        "status": "candidate_only",
+        "would_allow_commit_if_adopted": true,
+        "lines": [
+          {
+            "income": "100.00",
+            "cost": "60.00",
+            "profit": "40.00"
+          },
+          {
+            "income": "-10.00",
+            "cost": "0.00",
+            "profit": "-10.00"
+          },
+          {
+            "income": "-18.00",
+            "cost": "0.00",
+            "profit": "-18.00"
+          },
+          {
+            "income": "50.00",
+            "cost": "20.00",
+            "profit": "30.00"
+          }
+        ],
+        "totals": {
+          "income": "122.00",
+          "cost": "80.00",
+          "profit": "42.00",
+          "margin": "34.4%"
+        }
+      }
+    },
+    {
+      "id": "E06",
+      "title": "负折扣半分",
+      "input": [
+        {
+          "kind": "normal",
+          "q": "1",
+          "sale": "0.05",
+          "cost": "0.02",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        },
+        {
+          "kind": "discount",
+          "percent": "90"
+        }
+      ],
+      "original": {
+        "manager": {
+          "displayed_line_income": [
+            "0.05",
+            "-0.00"
+          ],
+          "displayed_totals": {
+            "income": "0.05",
+            "cost": "0.02",
+            "profit": "0.03",
+            "margin": "55.6%"
+          },
+          "retained_records": 2,
+          "errors": 0,
+          "warnings": 0
+        },
+        "sales": {
+          "displayed_line_income": [
+            "0.05",
+            "-0.00"
+          ],
+          "displayed_totals": {
+            "income": "0.05",
+            "cost": "0.02",
+            "profit": "0.03",
+            "margin": "55.6%"
+          },
+          "retained_records": 2,
+          "errors": 0,
+          "warnings": 0
+        }
+      },
+      "recommended_candidate": {
+        "status": "candidate_only",
+        "would_allow_commit_if_adopted": true,
+        "lines": [
+          {
+            "income": "0.05",
+            "cost": "0.02",
+            "profit": "0.03"
+          },
+          {
+            "income": "-0.01",
+            "cost": "0.00",
+            "profit": "-0.01"
+          }
+        ],
+        "totals": {
+          "income": "0.04",
+          "cost": "0.02",
+          "profit": "0.02",
+          "margin": "50.0%"
+        }
+      }
+    },
+    {
+      "id": "E07",
+      "title": "零收入但有成本",
+      "input": [
+        {
+          "kind": "normal",
+          "q": "1",
+          "sale": "0",
+          "cost": "4",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        }
+      ],
+      "original": {
+        "manager": {
+          "displayed_line_income": [
+            "0.00"
+          ],
+          "displayed_totals": {
+            "income": "0.00",
+            "cost": "4.00",
+            "profit": "-4.00",
+            "margin": "0.0%"
+          },
+          "retained_records": 1,
+          "errors": 0,
+          "warnings": 0
+        },
+        "sales": {
+          "displayed_line_income": [
+            "0.00"
+          ],
+          "displayed_totals": {
+            "income": "0.00",
+            "cost": "4.00",
+            "profit": "-4.00",
+            "margin": "0.0%"
+          },
+          "retained_records": 1,
+          "errors": 0,
+          "warnings": 0
+        }
+      },
+      "recommended_candidate": {
+        "status": "candidate_only",
+        "would_allow_commit_if_adopted": true,
+        "lines": [
+          {
+            "income": "0.00",
+            "cost": "4.00",
+            "profit": "-4.00"
+          }
+        ],
+        "totals": {
+          "income": "0.00",
+          "cost": "4.00",
+          "profit": "-4.00",
+          "margin": null
+        }
+      }
+    },
+    {
+      "id": "E08",
+      "title": "0%表示免费",
+      "input": [
+        {
+          "kind": "normal",
+          "q": "1",
+          "sale": "10",
+          "cost": "4",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        },
+        {
+          "kind": "discount",
+          "percent": "0"
+        }
+      ],
+      "original": {
+        "manager": {
+          "displayed_line_income": [
+            "10.00",
+            "-10.00"
+          ],
+          "displayed_totals": {
+            "income": "0.00",
+            "cost": "4.00",
+            "profit": "-4.00",
+            "margin": "0.0%"
+          },
+          "retained_records": 2,
+          "errors": 0,
+          "warnings": 0
+        },
+        "sales": {
+          "displayed_line_income": [
+            "10.00",
+            "-10.00"
+          ],
+          "displayed_totals": {
+            "income": "0.00",
+            "cost": "4.00",
+            "profit": "-4.00",
+            "margin": "0.0%"
+          },
+          "retained_records": 2,
+          "errors": 0,
+          "warnings": 0
+        }
+      },
+      "recommended_candidate": {
+        "status": "candidate_only",
+        "would_allow_commit_if_adopted": true,
+        "lines": [
+          {
+            "income": "10.00",
+            "cost": "4.00",
+            "profit": "6.00"
+          },
+          {
+            "income": "-10.00",
+            "cost": "0.00",
+            "profit": "-10.00"
+          }
+        ],
+        "totals": {
+          "income": "0.00",
+          "cost": "4.00",
+          "profit": "-4.00",
+          "margin": null
+        }
+      }
+    },
+    {
+      "id": "E09",
+      "title": "100%表示原价",
+      "input": [
+        {
+          "kind": "normal",
+          "q": "1",
+          "sale": "10",
+          "cost": "4",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        },
+        {
+          "kind": "discount",
+          "percent": "100"
+        }
+      ],
+      "original": {
+        "manager": {
+          "displayed_line_income": [
+            "10.00",
+            "-0.00"
+          ],
+          "displayed_totals": {
+            "income": "10.00",
+            "cost": "4.00",
+            "profit": "6.00",
+            "margin": "60.0%"
+          },
+          "retained_records": 2,
+          "errors": 0,
+          "warnings": 0
+        },
+        "sales": {
+          "displayed_line_income": [
+            "10.00",
+            "-0.00"
+          ],
+          "displayed_totals": {
+            "income": "10.00",
+            "cost": "4.00",
+            "profit": "6.00",
+            "margin": "60.0%"
+          },
+          "retained_records": 2,
+          "errors": 0,
+          "warnings": 0
+        }
+      },
+      "recommended_candidate": {
+        "status": "candidate_only",
+        "would_allow_commit_if_adopted": true,
+        "lines": [
+          {
+            "income": "10.00",
+            "cost": "4.00",
+            "profit": "6.00"
+          },
+          {
+            "income": "0.00",
+            "cost": "0.00",
+            "profit": "0.00"
+          }
+        ],
+        "totals": {
+          "income": "10.00",
+          "cost": "4.00",
+          "profit": "6.00",
+          "margin": "60.0%"
+        }
+      }
+    },
+    {
+      "id": "E10",
+      "title": "普通行负数量",
+      "input": [
+        {
+          "kind": "normal",
+          "q": "-1",
+          "sale": "10",
+          "cost": "4",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        }
+      ],
+      "original": {
+        "manager": {
+          "displayed_line_income": [
+            "-10.00"
+          ],
+          "displayed_totals": {
+            "income": "-10.00",
+            "cost": "-4.00",
+            "profit": "-6.00",
+            "margin": "60.0%"
+          },
+          "retained_records": 1,
+          "errors": 0,
+          "warnings": 1
+        },
+        "sales": {
+          "displayed_line_income": [
+            "-10.00"
+          ],
+          "displayed_totals": {
+            "income": "-10.00",
+            "cost": "-4.00",
+            "profit": "-6.00",
+            "margin": "60.0%"
+          },
+          "retained_records": 1,
+          "errors": 0,
+          "warnings": 1
+        }
+      },
+      "recommended_candidate": {
+        "status": "VALIDATION",
+        "would_allow_commit_if_adopted": false,
+        "reason": "普通行数量为负；候选规则阻断整单",
+        "authoritative_totals": null
+      }
+    },
+    {
+      "id": "E11",
+      "title": "一行有效一行错误",
+      "input": [
+        {
+          "kind": "normal",
+          "q": "1",
+          "sale": "10",
+          "cost": "4",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        },
+        {
+          "kind": "normal",
+          "q": "bad",
+          "sale": "10",
+          "cost": "4",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        }
+      ],
+      "original": {
+        "manager": {
+          "displayed_line_income": [
+            "10.00",
+            "需检查"
+          ],
+          "displayed_totals": {
+            "income": "10.00",
+            "cost": "4.00",
+            "profit": "6.00",
+            "margin": "60.0%"
+          },
+          "retained_records": 1,
+          "errors": 1,
+          "warnings": 0
+        },
+        "sales": {
+          "displayed_line_income": [
+            "10.00",
+            "需检查"
+          ],
+          "displayed_totals": {
+            "income": "10.00",
+            "cost": "4.00",
+            "profit": "6.00",
+            "margin": "60.0%"
+          },
+          "retained_records": 1,
+          "errors": 1,
+          "warnings": 0
+        }
+      },
+      "recommended_candidate": {
+        "status": "VALIDATION",
+        "would_allow_commit_if_adopted": false,
+        "reason": "存在字段错误；候选规则不提交有效部分",
+        "authoritative_totals": null
+      }
+    },
+    {
+      "id": "E12",
+      "title": "布尔量不作为数量",
+      "input": [
+        {
+          "kind": "normal",
+          "q": "True",
+          "sale": "10",
+          "cost": "4",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        }
+      ],
+      "original": {
+        "manager": {
+          "displayed_line_income": [
+            "10.00"
+          ],
+          "displayed_totals": {
+            "income": "10.00",
+            "cost": "4.00",
+            "profit": "6.00",
+            "margin": "60.0%"
+          },
+          "retained_records": 1,
+          "errors": 0,
+          "warnings": 0
+        },
+        "sales": {
+          "displayed_line_income": [
+            "10.00"
+          ],
+          "displayed_totals": {
+            "income": "10.00",
+            "cost": "4.00",
+            "profit": "6.00",
+            "margin": "60.0%"
+          },
+          "retained_records": 1,
+          "errors": 0,
+          "warnings": 0
+        }
+      },
+      "recommended_candidate": {
+        "status": "VALIDATION",
+        "would_allow_commit_if_adopted": false,
+        "reason": "布尔常量不是业务数值",
+        "authoritative_totals": null
+      }
+    },
+    {
+      "id": "E13",
+      "title": "有限输入乘积溢出",
+      "input": [
+        {
+          "kind": "normal",
+          "q": "1e308",
+          "sale": "1e308",
+          "cost": "0",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        }
+      ],
+      "original": {
+        "manager": {
+          "displayed_line_income": [
+            "inf"
+          ],
+          "displayed_totals": {
+            "income": "inf",
+            "cost": "0.00",
+            "profit": "inf",
+            "margin": "nan%"
+          },
+          "retained_records": 1,
+          "errors": 0,
+          "warnings": 0
+        },
+        "sales": {
+          "displayed_line_income": [
+            "inf"
+          ],
+          "displayed_totals": {
+            "income": "inf",
+            "cost": "0.00",
+            "profit": "inf",
+            "margin": "nan%"
+          },
+          "retained_records": 1,
+          "errors": 0,
+          "warnings": 0
+        }
+      },
+      "recommended_candidate": {
+        "status": "VALIDATION",
+        "would_allow_commit_if_adopted": false,
+        "reason": "乘积超出结算容量；候选规则报错而非inf",
+        "authoritative_totals": null
+      }
+    },
+    {
+      "id": "E14",
+      "title": "折扣在首行",
+      "input": [
+        {
+          "kind": "discount",
+          "percent": "90"
+        },
+        {
+          "kind": "normal",
+          "q": "1",
+          "sale": "10",
+          "cost": "4",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        }
+      ],
+      "original": {
+        "manager": {
+          "displayed_line_income": [
+            "-0.00",
+            "10.00"
+          ],
+          "displayed_totals": {
+            "income": "10.00",
+            "cost": "4.00",
+            "profit": "6.00",
+            "margin": "60.0%"
+          },
+          "retained_records": 2,
+          "errors": 0,
+          "warnings": 1
+        },
+        "sales": {
+          "displayed_line_income": [
+            "-0.00",
+            "10.00"
+          ],
+          "displayed_totals": {
+            "income": "10.00",
+            "cost": "4.00",
+            "profit": "6.00",
+            "margin": "60.0%"
+          },
+          "retained_records": 2,
+          "errors": 0,
+          "warnings": 1
+        }
+      },
+      "recommended_candidate": {
+        "status": "candidate_only",
+        "would_allow_commit_if_adopted": true,
+        "lines": [
+          {
+            "income": "0.00",
+            "cost": "0.00",
+            "profit": "0.00"
+          },
+          {
+            "income": "10.00",
+            "cost": "4.00",
+            "profit": "6.00"
+          }
+        ],
+        "totals": {
+          "income": "10.00",
+          "cost": "4.00",
+          "profit": "6.00",
+          "margin": "60.0%"
+        }
+      }
+    },
+    {
+      "id": "E15",
+      "title": "综合利润率按总额计算",
+      "input": [
+        {
+          "kind": "normal",
+          "q": "1",
+          "sale": "100",
+          "cost": "90",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        },
+        {
+          "kind": "normal",
+          "q": "1",
+          "sale": "10",
+          "cost": "0",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        }
+      ],
+      "original": {
+        "manager": {
+          "displayed_line_income": [
+            "100.00",
+            "10.00"
+          ],
+          "displayed_totals": {
+            "income": "110.00",
+            "cost": "90.00",
+            "profit": "20.00",
+            "margin": "18.2%"
+          },
+          "retained_records": 2,
+          "errors": 0,
+          "warnings": 0
+        },
+        "sales": {
+          "displayed_line_income": [
+            "100.00",
+            "10.00"
+          ],
+          "displayed_totals": {
+            "income": "110.00",
+            "cost": "90.00",
+            "profit": "20.00",
+            "margin": "18.2%"
+          },
+          "retained_records": 2,
+          "errors": 0,
+          "warnings": 0
+        }
+      },
+      "recommended_candidate": {
+        "status": "candidate_only",
+        "would_allow_commit_if_adopted": true,
+        "lines": [
+          {
+            "income": "100.00",
+            "cost": "90.00",
+            "profit": "10.00"
+          },
+          {
+            "income": "10.00",
+            "cost": "0.00",
+            "profit": "10.00"
+          }
+        ],
+        "totals": {
+          "income": "110.00",
+          "cost": "90.00",
+          "profit": "20.00",
+          "margin": "18.2%"
+        }
+      }
+    },
+    {
+      "id": "E16",
+      "title": "正输入仍可产生亏损",
+      "input": [
+        {
+          "kind": "normal",
+          "q": "1",
+          "sale": "10",
+          "cost": "20",
+          "k": "1",
+          "h": "1",
+          "w": "1",
+          "single": true
+        }
+      ],
+      "original": {
+        "manager": {
+          "displayed_line_income": [
+            "10.00"
+          ],
+          "displayed_totals": {
+            "income": "10.00",
+            "cost": "20.00",
+            "profit": "-10.00",
+            "margin": "-100.0%"
+          },
+          "retained_records": 1,
+          "errors": 0,
+          "warnings": 0
+        },
+        "sales": {
+          "displayed_line_income": [
+            "10.00"
+          ],
+          "displayed_totals": {
+            "income": "10.00",
+            "cost": "20.00",
+            "profit": "-10.00",
+            "margin": "-100.0%"
+          },
+          "retained_records": 1,
+          "errors": 0,
+          "warnings": 0
+        }
+      },
+      "recommended_candidate": {
+        "status": "candidate_only",
+        "would_allow_commit_if_adopted": true,
+        "lines": [
+          {
+            "income": "10.00",
+            "cost": "20.00",
+            "profit": "-10.00"
+          }
+        ],
+        "totals": {
+          "income": "10.00",
+          "cost": "20.00",
+          "profit": "-10.00",
+          "margin": "-100.0%"
+        }
+      }
+    }
+  ]
+}
