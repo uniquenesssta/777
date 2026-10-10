@@ -9,10 +9,10 @@
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
 | 本轮授权 | 已开始P01-04；既有仓库推送授权有效；P02及后续任务尚未启动 |
 | 文档工作 | [P01-04黄金/格式/技术参数/验收材料](baseline/P01-04-validation.md)已交付；原业务源码未改 |
-| 当前开发阶段 / Atomic Task | P01阶段未完成；P01-01至03已验收，04材料已交付待Windows诊断与阶段材料验收，business-v1保持冻结 |
-| 下一项 | 按P01-04入口回传Windows summary.json，采纳/调整技术建议并完成P01验收；[目录/备份需求](baseline/P01-03-directory-backup.md)按P03/P05/P07/P08实施，未知真实旧格式/主机版本等保留到实际导入/部署前核实 |
+| 当前开发阶段 / Atomic Task | P01阶段未完成；P01-01至03已验收，04材料已交付，Windows原测已登记，待格式兼容修复的Windows复查与阶段材料验收，business-v1保持冻结 |
+| 下一项 | 只运行P01-04格式复查入口、回传summary.json；已测黄金/规模/GUI不重跑，采纳/调整技术建议并完成P01验收；[目录/备份需求](baseline/P01-03-directory-backup.md)按P03/P05/P07/P08实施，未知真实旧格式/主机版本等保留到实际导入/部署前核实 |
 | 业务源码 | 两份原始脚本保留原路径、原内容 |
-| Windows / 局域网验收 | Windows隔离GUI自动检查及人工界面确认通过；完整业务、实际部署及SMB验收按后续任务执行 |
+| Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；格式缓存样本修复待复查；完整业务、部署及SMB验收留后续 |
 
 [主任务书](MASTER_PLAN.md) 是计划、阶段状态和阶段入口的权威索引；[审计报告](audit/python-audit.md) 保存证据；[迁移契约](MIGRATION_CONTRACT.md) 保存业务、字段与数据规则；[架构方案](RUST_TAURI_DESIGN.md) 保存拟议边界。根 README 的 Change Log 是唯一变更摘要，不再创建平行日志。
 

@@ -3,6 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 import shutil
+from xml.etree import ElementTree
 import zipfile
 
 import openpyxl
@@ -12,6 +13,21 @@ from collect_p01_samples import HEADERS
 
 def write_json(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+
+
+def synthetic_formula_cache(data):
+    """Set the declared Q7 synthetic cache, independent of XML empty-tag style."""
+    namespace = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+    sheet = ElementTree.fromstring(data)
+    cell = sheet.find(f".//{namespace}c[@r='Q7']")
+    formula = cell.find(namespace + "f") if cell is not None else None
+    if formula is None or formula.text != "1+1":
+        raise ValueError("SYNTHETIC_FORMULA_CELL_MISMATCH")
+    value = cell.find(namespace + "v")
+    if value is None:
+        value = ElementTree.SubElement(cell, namespace + "v")
+    value.text = "2"
+    return ElementTree.tostring(sheet, encoding="utf-8", xml_declaration=True)
 
 
 def workbook(path, count=2, variant="current", summary=True):
@@ -73,7 +89,7 @@ def workbook(path, count=2, variant="current", summary=True):
         with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
             for info, data in parts:
                 if info.filename == "xl/worksheets/sheet1.xml":
-                    data = data.replace(b"<f>1+1</f><v></v>", b"<f>1+1</f><v>2</v>")
+                    data = synthetic_formula_cache(data)
                 archive.writestr(info, data)
 
 

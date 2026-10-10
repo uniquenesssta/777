@@ -1,5 +1,7 @@
 """Meaningful checks for P01 assets and diagnostic isolation, not app acceptance."""
 import json
+from contextlib import redirect_stdout
+import io
 import subprocess
 from pathlib import Path
 import sys
@@ -132,6 +134,40 @@ class P01ValidationTests(unittest.TestCase):
             self.assertEqual(run.call_args.kwargs["env"]["PYTHONIOENCODING"], "utf-8")
             self.assertTrue((output / "keep").is_dir())
             self.assertFalse(list(output.glob("gui-*-owned")))
+
+    def test_formula_cache_handles_empty_tags_and_namespaces(self):
+        ns = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+        for empty in ("<v></v>", "<v />", ""):
+            with self.subTest(empty=empty):
+                xml = f'<worksheet xmlns="{ns}"><sheetData><row r="7"><c r="Q7"><f>1+1</f>{empty}</c><c r="R7"><v>4</v></c></row></sheetData></worksheet>'.encode()
+                sheet = fixtures.ElementTree.fromstring(fixtures.synthetic_formula_cache(xml))
+                self.assertEqual(sheet.find(f".//{{{ns}}}c[@r='Q7']/{{{ns}}}v").text, "2")
+                self.assertEqual(sheet.find(f".//{{{ns}}}c[@r='R7']/{{{ns}}}v").text, "4")
+        with self.assertRaisesRegex(ValueError, "SYNTHETIC_FORMULA_CELL_MISMATCH"):
+            fixtures.synthetic_formula_cache(f'<worksheet xmlns="{ns}"/>'.encode())
+
+    def test_missing_formula_cache_stays_failure_and_summary_names_it(self):
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp) / "formats"
+            entries = fixtures.formats(folder)
+            fixtures.workbook(folder / "ledger_formula_cached.xlsx", variant="formula")
+            summary = validation.format_summary(validation.check_formats(folder, entries))
+            self.assertEqual(summary["passed"], 17)
+            self.assertEqual([failure["path"] for failure in summary["failures"]], ["ledger_formula_cached.xlsx"])
+            self.assertEqual(summary["failures"][0]["sheets"][0]["sampled_formula_without_cache"], 1)
+
+    def test_formats_only_skips_calculation_and_measurement(self):
+        (ROOT / "reports").mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=ROOT / "reports") as temp:
+            output = Path(temp) / "run"
+            with patch.object(sys, "argv", ["p01_validation.py", "--formats-only", "--output", str(output)]), patch.object(validation, "golden", side_effect=AssertionError("calculation must be skipped")), patch.object(validation, "module", side_effect=AssertionError("legacy methods must be skipped")), patch.object(validation, "benchmarks", side_effect=AssertionError("measurement must be skipped")), redirect_stdout(io.StringIO()):
+                self.assertEqual(validation.main(), 0)
+            report = json.loads((output / "summary.json").read_text(encoding="utf-8"))
+            self.assertEqual(report["formats"]["passed"], 18)
+            self.assertEqual(report["formats"]["failures"], [])
+            self.assertEqual(report["golden"]["status"], "not_run_formats_only")
+            self.assertEqual(report["gui"], [])
+            self.assertIsNone(report["datasets"])
 
 
 if __name__ == "__main__":

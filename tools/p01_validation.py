@@ -99,6 +99,9 @@ def check_formats(folder, entries):
                 passed = first["schema"] == entry.get("first_sheet_schema")
                 if "formula" in entry["path"]:
                     passed &= first["sampled_formula_count"] == 1 and first["sampled_formula_without_cache"] == (0 if "cached" in entry["path"] else 1)
+                    if "cached" in entry["path"]:
+                        formula_cells = [cell for cell in first["cells"] if cell["type"] == "f"]
+                        passed &= len(formula_cells) == 1 and formula_cells[0]["value"].get("cached_numeric_value") == 2
                 if "same_bytes_as" in entry:
                     passed &= before == (folder / entry["same_bytes_as"]).read_bytes()
             results.append({"path": entry["path"], "passed": bool(passed), "observed": observed})
@@ -106,6 +109,15 @@ def check_formats(folder, entries):
             results.append({"path": entry["path"], "passed": type(exc).__name__ == entry.get("expected_read_error"), "error": type(exc).__name__})
         results[-1]["source_unchanged"] = before == path.read_bytes()
     return results
+
+
+def format_summary(results):
+    failures = []
+    for result in results:
+        if not result["passed"] or not result["source_unchanged"]:
+            observed = result.get("observed", {})
+            failures.append({"path": result["path"], "error": result.get("error"), "source_unchanged": result["source_unchanged"], "schema": observed.get("schema"), "issues": observed.get("issues", []), "sheets": [{key: sheet[key] for key in ("schema", "sampled_formula_count", "sampled_formula_without_cache")} for sheet in observed.get("sheets", [])]})
+    return {"count": len(results), "passed": sum(result["passed"] for result in results), "originals_unchanged": all(result["source_unchanged"] for result in results), "failures": failures}
 
 
 @contextmanager
@@ -260,6 +272,7 @@ def benchmarks(output, gui=False, timeout=30, size="small"):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--formats-only", action="store_true", help="recheck 18 formats only; skips already-measured calculations, scales and GUI")
     parser.add_argument("--datasets", action="store_true", help="generate 100/1000/10000 rows and 10/100/1000 files")
     parser.add_argument("--benchmark", action="store_true", help="bounded small baseline: manager 10 files, sales 100 rows; implies datasets")
     parser.add_argument("--size", choices=("small", "medium", "large"), default="small", help="performance scales: rows/files 100/10, 1000/100, 10000/1000; each worker bounded to 30 seconds")
@@ -267,6 +280,8 @@ def main():
     parser.add_argument("--worker", choices=("manager", "sales"), help=argparse.SUPPRESS)
     parser.add_argument("--worker-root", type=Path, help=argparse.SUPPRESS)
     args = parser.parse_args()
+    if args.formats_only and (args.datasets or args.benchmark or args.gui_heartbeat or args.worker):
+        parser.error("--formats-only cannot be combined with dataset/measurement modes")
     if args.worker:
         print(json.dumps(worker(args.worker, args.worker_root, args.gui_heartbeat, args.size), ensure_ascii=False, allow_nan=False))
         return 0
@@ -274,21 +289,22 @@ def main():
         parser.error("--output reports/<new-directory> is required")
     manifest, sources = gate()
     output = new_output(args.output)
-    cases = golden(manifest)
+    cases = [] if args.formats_only else golden(manifest)
     fixtures.write_json(output / "golden-results.json", cases)
     formats = fixtures.formats(output / "formats")
     format_results = check_formats(output / "formats", formats)
     fixtures.write_json(output / "format-results.json", format_results)
-    audit = module(ROOT / "docs/audit/reproduce.py")
-    audit_output = io.StringIO()
-    with redirect_stdout(audit_output):
-        audit.main()
-    audit_result = json.loads(audit_output.getvalue())
-    manager = next(entry for entry in manifest["files"] if entry["role"] == "manager")
-    namespace = runpy.run_path(str(ROOT / manager["path"]), run_name="p01_summary_observation_only")
-    app = audit.instance(namespace, output / "formats")
-    audit_result["evidence"]["A"]["summary_header_collision"] = {"fixture": "ledger_current.xlsx", "expected": {"income": 20, "cost": 8, "profit": 12}, "observed": app.parse_excel_summary(str(output / "formats/ledger_current.xlsx"))}
-    fixtures.write_json(output / "legacy-audit.json", audit_result)
+    if not args.formats_only:
+        audit = module(ROOT / "docs/audit/reproduce.py")
+        audit_output = io.StringIO()
+        with redirect_stdout(audit_output):
+            audit.main()
+        audit_result = json.loads(audit_output.getvalue())
+        manager = next(entry for entry in manifest["files"] if entry["role"] == "manager")
+        namespace = runpy.run_path(str(ROOT / manager["path"]), run_name="p01_summary_observation_only")
+        app = audit.instance(namespace, output / "formats")
+        audit_result["evidence"]["A"]["summary_header_collision"] = {"fixture": "ledger_current.xlsx", "expected": {"income": 20, "cost": 8, "profit": 12}, "observed": app.parse_excel_summary(str(output / "formats/ledger_current.xlsx"))}
+        fixtures.write_json(output / "legacy-audit.json", audit_result)
     dataset = fixtures.scales(output / "scales") if args.datasets or args.benchmark or args.gui_heartbeat else None
     perf = benchmarks(output, size=args.size) if args.benchmark else []
     gui = benchmarks(output, gui=True, size=args.size) if args.gui_heartbeat and platform.system() == "Windows" else []
@@ -298,7 +314,11 @@ def main():
     passed = all(case["target_check_passed"] for case in cases) and all(case["passed"] and case["source_unchanged"] for case in format_results)
     if dataset:
         passed &= all(check["passed"] for check in dataset["checks"])
-    report = {"task": "P01-04", "status": "diagnostic_checks_passed" if passed else "diagnostic_checks_failed", "environment": {"os": platform.system(), "python": platform.python_version(), "openpyxl": openpyxl.__version__}, "scope": "synthetic targets/formats, original methods, optional bounded measurement; not production correctness acceptance", "production_paths_accessed": False, "business_sources_modified": False, "numeric_profile": oracle.PROFILE["profile_id"], "numeric_profile_status": oracle.PROFILE["status"], "normalized_artifact_sha256": hashes, "source_commit": manifest["source_commit"], "sources": sources, "golden": {"count": len(cases), "passed": sum(case["target_check_passed"] for case in cases), "legacy_differences": {role: sum(case["legacy_differs_from_target"][role] for case in cases) for role in ("manager", "sales")}}, "formats": {"count": len(format_results), "passed": sum(case["passed"] for case in format_results), "originals_unchanged": all(case["source_unchanged"] for case in format_results)}, "datasets": dataset, "performance": perf, "gui": gui, "acceptance": "technical_recommendations_and_P01_stage_user_review_pending; Windows_SMB_full_matrix_future"}
+    report = {"task": "P01-04", "status": "diagnostic_checks_passed" if passed else "diagnostic_checks_failed", "environment": {"os": platform.system(), "python": platform.python_version(), "openpyxl": openpyxl.__version__}, "scope": "synthetic targets/formats, original methods, optional bounded measurement; not production correctness acceptance", "production_paths_accessed": False, "business_sources_modified": False, "numeric_profile": oracle.PROFILE["profile_id"], "numeric_profile_status": oracle.PROFILE["status"], "normalized_artifact_sha256": hashes, "source_commit": manifest["source_commit"], "sources": sources, "golden": {"count": len(cases), "passed": sum(case["target_check_passed"] for case in cases), "legacy_differences": {role: sum(case["legacy_differs_from_target"][role] for case in cases) for role in ("manager", "sales")}}, "formats": format_summary(format_results), "datasets": dataset, "performance": perf, "gui": gui, "acceptance": "technical_recommendations_and_P01_stage_user_review_pending; Windows_SMB_full_matrix_future"}
+    report["environment"]["xml_backend"] = "lxml" if openpyxl.LXML else "stdlib"
+    if args.formats_only:
+        report["scope"] = "synthetic formats only; calculations, scale datasets, legacy methods and GUI not run"
+        report["golden"]["status"] = "not_run_formats_only"
     fixtures.write_json(output / "summary.json", report)
     print(json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False))
     return 0 if passed else 1
