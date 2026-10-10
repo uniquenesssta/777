@@ -1,6 +1,8 @@
-# 业务与数据迁移契约草案
+# 业务与数据迁移契约（业务规则 v1）
 
-状态：P01-02候选稿，尚未冻结v1，尚未实现。源码现状已核实，目标规则仍待用户确认；[P01-02决策与金额示例](baseline/P01-02-decisions.md)登记状态、影响及证据。来源：[审计报告](audit/python-audit.md)。本文件维护唯一字段/规则定义，阶段任务书只引用。
+状态：**业务规则v1已确认冻结，P01-02已验收收尾；尚未实现。** 用户于2026-10-10 21:52:38（Asia/Shanghai）回复“采用推荐方案”，采纳`ed0c627d5151970e53448e92a21315ca31957142`中的D01–D06。[决策与金额示例](baseline/P01-02-decisions.md)及[确认记录](baseline/p01-02-confirmation.json)登记确认范围和证据。来源：[审计报告](audit/python-audit.md)。本文件维护唯一字段/规则定义，阶段任务书只引用。
+
+规则标识：`rule_version=business-v1`。冻结范围为第2节的金额/输入/折扣与错误语义、第6节的价格生效和角色权限；第3至5节实体/schema/API设计仍为拟议，尚未形成已实现接口。数值容量、表达式中间精度和除法等技术参数在P01-04补齐、P02前纳入契约；不得把示例精度64当生产决策。后续变更已确认的业务语义需登记新决策并升规则版本，不能直接重写v1含义或覆盖旧单。
 
 ## 1. 源码核实的业务现状
 
@@ -14,11 +16,11 @@
 
 普通字段当前支持单位标记、四则运算、余数、括号、百分号、科学计数法；折扣字段只接受0至100的数字及可选尾随%。布尔量被当成数字、负输入仅提醒、运算乘积可溢出、错误行跳过后仍可导出有效部分，是现有缺陷或待决行为，不直接作为迁移正确规则。源码观察不等于用户已确认目标规则。
 
-## 2. 建议金额规则（待确认）
+## 2. 已确认金额与输入规则（business-v1）
 
-以下D01至D03和D06均为候选，确认记录见P01-02决策文档。
+以下D01至D03和D06已获用户确认，确认原文与影响见P01-02决策文档。
 
-| 决策 | 候选规则 | 明确边界 |
+| 决策 | 已确认规则 | 明确边界 |
 | --- | --- | --- |
 | D01 金额链 | 普通行销售额和成本分别ROUND_HALF_UP至0.01；行利润＝二者之差；总销售/成本/利润分别为行金额之和 | 负折扣金额也按ROUND_HALF_UP，半分向远离0方向舍入；金额0统一显示0.00；UI/保存/导出/汇总共用结果，不分别重算 |
 | D02 数值范围 | 普通行高、宽、数量、销售单价、成本单价、K的最终解析值均≥0，允许小数数量，空K＝1 | 0是合法数值；负折扣是合法特殊行；成本高于销售产生的负利润合法；不借负数量暗中增加退单功能 |
@@ -40,7 +42,7 @@ IPC/JSON使用十进制字符串（如`"123.45"`），持久化已结算金额�
 | QuoteDraft | draft_id、revision、customer/order_ref/wechat、ordered_lines、price_version_id、rule_version | UI修改使计算过期；草稿不进入正式汇总 |
 | Order | order_id、external_order_no、customer_id_text、wechat_text、created_at、business_date、actor_id、device_id、revision、status、request_id、rule_version、price_version_id、totals | 内部ID独立于淘宝ID、时间及用户订单号；业务日期和时区显式记录 |
 | OrderLine | line_id、order_id、sequence、line_kind、product_id、product_name_snapshot、unit_kind、raw_inputs、normalized_inputs、unit_prices_snapshot、k、discount、amounts | line_kind=normal/discount；备注不伪装商品；金额快照不可被新价格重写 |
-| OrderNote | note_id、order_id、revision、text、actor_id、created_at | 候选为只追加；更正追加新备注，不覆盖/删除旧备注；引用稳定订单，不引用Excel行号 |
+| OrderNote | note_id、order_id、revision、text、actor_id、created_at | 已确认只追加；更正追加新备注，不覆盖/删除旧备注；具体字段/schema仍拟议，引用稳定订单，不引用Excel行号 |
 | Attachment | attachment_id、order_id或draft_id、relative_path、content_hash、created_at | 路径由受控根目录解析；截图不可覆盖同名文件 |
 | ImportBatch | batch_id、source_hash、schema_detected、row_map、counts、totals、errors、status | 相同来源重导入幂等；源行→新ID可追踪；歧义不擅自合并 |
 | AuditEvent | event_id、actor、operation、target_id、old/new_revision、time、request_id | 记录变更/作废/恢复；不泄露凭证或非必要客户资料 |
@@ -74,7 +76,7 @@ ID采用经评估的随机/排序唯一标识方案，不以“加毫秒”替�
 | calculate_quote | 草稿快照、价格版本、规则版本 | 权威金额、逐字段问题、calculation_revision；不能写账 |
 | commit_order | 校验通过的草稿版本、request_id | order_id、revision、提交状态；幂等且服务端重验 |
 | query_orders / get_order | 筛选、稳定分页游标 / order_id | 按角色过滤的DTO；不可让前端指定成本权限 |
-| add_note / void_order / restore_order | order_id、expected_revision、request_id、操作内容 | 候选权限见第6节；追加备注/作废/恢复均审计，作废/恢复须原因；新revision或明确CONFLICT/FORBIDDEN |
+| add_note / void_order / restore_order | order_id、expected_revision、request_id、操作内容 | 已确认权限见第6节；追加备注/作废/恢复均审计，作废/恢复须原因；新revision或明确CONFLICT/FORBIDDEN |
 | publish_prices | 完整schema、expected_version、request_id | 新不可变版本；只允许授权角色 |
 | import_legacy | 受控文件选择、dry_run、策略 | 检测结果、差异报告、导入批次；确认后事务提交 |
 | export_report | 数据范围、格式版本、角色 | job_id与完成路径；失败不撤销已确认订单 |
@@ -88,13 +90,13 @@ ID采用经评估的随机/排序唯一标识方案，不以“加毫秒”替�
 
 草稿→校验通过→提交中→已提交；任一输入修改使旧计算过期。结果未知先查询request_id再重试。订单提交与Excel生成分开：订单成功、报表失败可单独补导出，不重复记账。作废保留原订单/金额/备注，汇总分别统计有效和作废金额，不物理删行；恢复使用revision检查与审计。
 
-### 6.2 D04 价格生效候选
+### 6.2 D04 已确认价格生效规则
 
 新草稿绑定当时有效的已发布价格版本；计算不静默切换版本。发布新版本时，已提交订单保持原快照；旧版本草稿标为价格待更新，提交返回PRICE_STALE。用户刷新后展示销售价格差异并重新计算、确认；若升级期间再次发布新版本，提交重新校验。管理员同样不能以旧计算绕过检查；首期不增加旧价特批通道。
 
 离线可用上次已授权取得的销售价格缓存编辑未提交草稿，明确显示离线/待校价；未成功取得已发布版本时只允许演示草稿，不把代码默认价作为正式成交价。读取价格失败不得抹成正常价格来源。正式提交需要服务可达、认证有效及版本校验通过；不自动补交离线草稿。重新连接后先校价、重新计算并确认，再提交。缓存不含成本或利润。
 
-### 6.3 D05 角色与字段权限候选
+### 6.3 D05 已确认角色与字段权限
 
 “自己的订单”指服务从认证会话绑定的actor_id创建的订单，不按客户/淘宝ID、设备名或客户端自报owner判断。管理员可查询全部订单；销售仅自己的订单。备注只追加，更正另加一条；管理员作废/恢复必须填写原因，销售不能作废。首期不提供业务客户端物理删除订单/账本功能。
 
@@ -113,7 +115,7 @@ ID采用经评估的随机/排序唯一标识方案，不以“加毫秒”替�
 
 服务从认证会话确定actor，不能相信客户端role/actor字段。查询、按ID读取、附件、导出和后台任务状态都检查资源归属，不能先取完整财务对象再在前端删字段；非本人订单ID统一按未找到处理，阻止枚举。销售版共享JSON/本地缓存/DTO/Excel/截图都不得包含成本快照；前端隐藏、Tk页面和Tauri capabilities不能代替局域网业务鉴权。管理员恢复功能不是绕开数据备份恢复流程。
 
-以上为待确认逻辑契约，当前Python没有认证服务，尚不能执行直接接口权限测试。P05和P07的验收必须覆盖：未认证请求、伪造actor/role、查询他人order_id、本人/他人备注、销售作废、导出/附件/任务越权及嵌套成本字段泄漏。
+以上为已确认的业务授权规则，当前Python没有认证服务，尚不能执行直接接口权限测试。业务确认不等于授权实现已经通过；P05和P07的验收必须覆盖：未认证请求、伪造actor/role、查询他人order_id、本人/他人备注、销售作废、导出/附件/任务越权及嵌套成本字段泄漏。
 
 ## 7. 跨语言黄金样本要求
 

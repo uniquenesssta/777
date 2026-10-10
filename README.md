@@ -2,14 +2,14 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于 `plans`；当前阶段分支为 `stage/p01-baseline`。仓库已交付重新审计结果、Python 优化计划及 Rust + Tauri 迁移准备方案。**两份业务脚本保持原始基线；P01-01已验收，P01-02候选规则及权限矩阵已形成、待业务确认，P01-03/04及后续实施尚未启动。**
+规划位于 `plans`；当前阶段分支为 `stage/p01-baseline`。仓库已交付重新审计结果、Python 优化计划及 Rust + Tauri 迁移准备方案。**两份业务脚本保持原始基线；P01-01/02已验收，业务规则v1已确认冻结，P01-03/04及后续实施尚未启动。**
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
 - [文档与计划入口](docs/README.md)
 - [优化及迁移主任务书](docs/MASTER_PLAN.md)
 - [两份 Python 代码重新审计报告](docs/audit/python-audit.md)
-- [业务与数据迁移契约草案](docs/MIGRATION_CONTRACT.md)
+- [业务与数据迁移契约（业务规则v1）](docs/MIGRATION_CONTRACT.md)
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
@@ -26,3 +26,4 @@
 - 登记两版人工窗口会话已完成、启动和临时目录清理正常；下一步仅需回传界面观察及部署/打包现状，无需重复运行已完成的检查命令。
 - 用户确认两版页面切换、文字控件和关闭均正常，P01-01已验收收尾；源码入口与Git内打包资源缺失按仓库事实登记，后续Rust + Tauri Windows安装包由P07-04交付。
 - 启动P01-02，核对两版金额/价格/权限行为，形成D01–D06候选规则及角色/直接调用权限矩阵；16个合成示例复核两版原计算结果一致，12个可算候选例金额链一致。业务决策待用户确认，契约v1未冻结，原业务脚本未修改。
+- 用户确认“采用推荐方案”，D01–D06全部采纳，冻结业务规则business-v1并收尾P01-02；新增确认记录绑定原方案提交及16例历史输出，原脚本保持基线，P01-03/04待启动。

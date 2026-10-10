@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "task": "P01-02",
+  "status": "accepted",
+  "rule_version": "business-v1",
+  "confirmed_at": "2026-10-10T21:52:38+08:00",
+  "confirmation": {
+    "source": "user_message",
+    "verbatim": "采用推荐方案",
+    "decision_ids": ["D01", "D02", "D03", "D04", "D05", "D06"],
+    "selection": "all_recommended_options"
+  },
+  "approved_proposal_commit": "ed0c627d5151970e53448e92a21315ca31957142",
+  "contract_file": "docs/MIGRATION_CONTRACT.md",
+  "decision_record": "docs/baseline/P01-02-decisions.md",
+  "frozen_scope": [
+    "金额舍入与金额链、普通输入边界、小数数量、利润率、顺序折扣与错误阻断",
+    "价格版本生效、旧草稿刷新、离线仅草稿及历史金额保留",
+    "管理员/销售/未认证的查询、财务字段、备注、作废/恢复、导出及直接调用权限"
+  ],
+  "examples": {
+    "path": "docs/baseline/p01-02-examples.json",
+    "sha256": "158e5382b5f40a511f0c9f6e764700f8ae07f28776a20e45e20ffd358c337d26",
+    "adopted_target_field": "cases[].recommended_candidate",
+    "adopted_case_ids": ["E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09", "E10", "E11", "E12", "E13", "E14", "E15", "E16"],
+    "historical_output_preserved": true,
+    "rejection_cases_are_expectations_not_implemented_validator_tests": ["E10", "E11", "E12", "E13"]
+  },
+  "source_commit": "32e164d78643de8fa6cbd21a7ca634e1b318f855",
+  "source_manifest": "docs/baseline/manifest.json",
+  "implementation_status": "not_implemented",
+  "deferred": {
+    "P01-03": "真实脱敏样本、部署拓扑及旧单所有者映射；未启动",
+    "P01-04": "黄金样本、数值容量/小数位、表达式中间精度/除法及性能基线；未启动",
+    "P05/P07": "服务鉴权与直接接口权限实现/验收；未启动",
+    "entity_schema_api": "实体字段、文件schema和API设计仍拟议，不属于本次已实现或完整协议冻结"
+  },
+  "production_paths_accessed": false,
+  "phase_status": "P01_in_progress_P01-01_and_P01-02_accepted"
+}
