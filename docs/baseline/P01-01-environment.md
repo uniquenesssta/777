@@ -1,6 +1,6 @@
 # P01-01 运行基线与检查说明
 
-状态：检查工具与材料已完成，**Windows 实机验收待完成**。当前只授权P01-01；P01-02至04未启动。阶段分支 `stage/p01-baseline`，创建基线 `plans@78a1e1d9d8b10c198be2338a7dc61328535d7655`；业务源码仍为 `master@32e164d`。阶段记录：[P01任务书](../now/P01-baseline.md)。
+状态：检查工具与材料已完成，**Windows双版隔离GUI自动检查已通过，待人工确认及部署/打包资料登记**。当前只授权P01-01；P01-02至04未启动。阶段分支 `stage/p01-baseline`，创建基线 `plans@78a1e1d9d8b10c198be2338a7dc61328535d7655`；业务源码仍为 `master@32e164d`。阶段记录：[P01任务书](../now/P01-baseline.md)。
 
 ## 1. 核对结果
 
@@ -9,7 +9,7 @@
 | 能力 | 当前仓库事实 | 当前辅助环境实测 | Windows本机 |
 | --- | --- | --- | --- |
 | Python | 未声明最低/生产版本 | 3.12.14，64位 | 用户回传Windows 10 / AMD64、Python 3.12.10、64位；生产解释器是否同一份待确认 |
-| tkinter / Tcl / Tk | Python随附模块，启动必需 | 导入可用；Tcl 9.0.4；编译Tk 9.0；未创建窗口 | 导入可用；Tcl 8.6.15、编译Tk 8.6；实机窗口待验证 |
+| tkinter / Tcl / Tk | Python随附模块，启动必需 | 导入可用；Tcl 9.0.4；编译Tk 9.0；未创建窗口 | Tcl 8.6.15、编译Tk 8.6；母子版隔离窗口启动/计算/关闭已通过，界面人工确认待完成 |
 | openpyxl | 原代码可选导入；Excel功能实际必需 | 3.1.5导入可用 | 3.1.5导入可用 |
 | Pillow / PIL.ImageGrab | 原代码可选导入；截图功能实际必需 | 12.3.0导入可用；未实测截图 | 11.2.1导入可用；未实测截图，无需为本次修正升级 |
 | PyInstaller | 不是源码启动依赖；代码仅有资源路径适配 | 未安装，未构建 | 检查环境已安装6.20.0；原应用打包流程/使用版本仍待登记 |
@@ -74,17 +74,27 @@ python tools/baseline_check.py --gui-smoke
 
 现有 [审计复现入口](../audit/reproduce.py) 使用同一manifest和检查函数，允许仅CRLF换行差异，实际修改仍在加载前拒绝，且仅使用临时合成数据；本轮复现退出码0，原审计观察保持一致。此任务没有新增P01-04黄金业务样本集，没有把已知业务缺陷修成通过结果。
 
-## 5. 当前阻塞与恢复
+## 5. Windows实机结果与待补项
 
-用户已回传一次Windows检查：[脱敏环境及诊断证据](windows-environment.json)。旧工具将CRLF工作区原始字节与LF仓库blob直接比较，导致两版`status=changed`并在创建窗口前阻断。把原始LF文件逐字节转换成CRLF，得到的Git blob及SHA-256均与回传结果完全相同，确认只有换行差异；这不是用户业务代码发生修改的证据。已修正检查工具与同根因的审计入口，原始业务文件和指纹保持不变。
+用户已回传两次Windows检查：[脱敏环境及诊断证据](windows-environment.json)中分别保存`observed_before_fix`和`observed_after_fix`。旧工具将CRLF工作区原始字节与LF仓库blob直接比较，导致两版`status=changed`并在创建窗口前阻断。把原始LF文件逐字节转换成CRLF，得到的Git blob及SHA-256均与首轮回传结果完全相同，确认只有换行差异。已修正检查工具与同根因的审计入口，原始业务文件和指纹保持不变。
 
-在`stage/p01-baseline`仓库根目录拉取修正后，用新报告名重新运行（旧报告保留）：
+用户在Windows执行并回传的第二轮命令（已完成，无需为本次登记重复运行）：
 
 ```powershell
-git pull --ff-only origin stage/p01-baseline
 py -3 tools/baseline_check.py --gui-smoke --output reports/p01-windows-smoke-02.json
 ```
 
-预期两份源码均为`status=ok`、`baseline_matches=true`，CRLF文件显示`baseline_match_kind=line_endings_only`；之后核对两版GUI的`passed`/`close=ok`/`sandbox_cleaned=true`。当前GUI仍待重跑，不能将依赖导入成功或此处预期记为窗口通过。还缺人工确认、原图标/实际打包流程登记；P01任务书留在now，不归档也不进入P01-02。
+实际结果：两份源码均为`status=ok`、`baseline_matches=true`、`baseline_match_kind=line_endings_only`；GUI整体`completed`。
+
+| 检查项 | 母版 manager | 子版 sales |
+| --- | --- | --- |
+| 启动 / GUI结果 | `startup=ok` / `status=passed` | `startup=ok` / `status=passed` |
+| 页面数 | 5：计算主页、输入反馈、利润分析、Excel记录、价格设定 | 3：计算主页、输入反馈、Excel记录 |
+| 样例销售 / 成本 / 利润 | 50.00 / 20.00 / 30.00 | 50.00 / 20.00 / 30.00 |
+| 关闭 / 临时目录清理 | `close=ok` / `sandbox_cleaned=true` | `close=ok` / `sandbox_cleaned=true` |
+
+这份用户回传报告证明隔离GUI自动检查通过，工具未访问生产路径；不是辅助环境模拟窗口结果。回传内容未单独打印进程退出码，不额外编造该值。截图、真实Excel读写、局域网和生产部署未在本次检查中执行。
+
+P01-01还需按第3节人工确认两版页面切换、文字/控件显示和关闭，并登记当前使用直接运行.py还是已有.exe、生产解释器/原打包版本、已有图标及.spec/构建命令。没有图标或打包流程可明确登记缺失，不要求本任务新增这些资源。P01任务书继续留在now，待以上确认后收尾P01-01；P01-02未启动。
 
 恢复方式：本轮只添加诊断工具、清单和说明，原两版源码/外部配置/订单未修改；代码可按本阶段创建基线恢复。报告写失败不覆盖旧报告，临时GUI目录关闭时自动清理。

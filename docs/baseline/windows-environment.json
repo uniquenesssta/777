@@ -99,6 +99,141 @@
       }
     ],
     "fix": "Shared inspect_source policy records raw and CRLF-to-LF hashes, accepts newline-only differences, rejects other edits without rewriting files.",
-    "windows_gui_after_fix": "not_run; user rerun and manual acceptance pending"
+    "windows_gui_after_fix": "passed for both original applications in temporary directories; deployment and manual user acceptance pending"
+  },
+  "after_fix_received_at": "2026-10-10 (Asia/Shanghai)",
+  "after_fix_command": "py -3 tools/baseline_check.py --gui-smoke --output reports/p01-windows-smoke-02.json",
+  "observed_after_fix": {
+    "task": "P01-01",
+    "source_commit": "32e164d78643de8fa6cbd21a7ca634e1b318f855",
+    "environment": {
+      "os": "Windows",
+      "release": "10",
+      "architecture": "AMD64",
+      "python_bits": 64,
+      "python": "3.12.10",
+      "python_executable": "omitted: user-local interpreter path",
+      "target_windows": true
+    },
+    "sources": [
+      {
+        "role": "manager",
+        "path": "报价利润计算器_局域网导出版_每日汇总版(1).py",
+        "git_blob_sha1": "9d0281b4c2003b3bad3ac4a23acc9a5447e3c483",
+        "sha256": "20f2d8489cc58a9f2d3c689123f350eb810b571d5d3c76d89f264db28e24aad4",
+        "baseline_matches": true,
+        "syntax": "valid",
+        "status": "ok",
+        "normalized_git_blob_sha1": "86d6bb43cc98b9de10c136cb4114cf441b0805b1",
+        "normalized_sha256": "165e74cec1ccd728ef9fec93350ce9fa967946c16a7ccf5233f9acb1ec0fe52e",
+        "baseline_match_kind": "line_endings_only"
+      },
+      {
+        "role": "sales",
+        "path": "报价利润计算器_局域网子版本_JSON价格_截图按天订单命名_ICON版(1).py",
+        "git_blob_sha1": "7cf6f53bddc38bfc3c446f7a1c715b4f7dbc2861",
+        "sha256": "bfba1e8563127cd7f7a022df3b265f282b8d5c9c588f45d97377c52e7a40edc9",
+        "baseline_matches": true,
+        "syntax": "valid",
+        "status": "ok",
+        "normalized_git_blob_sha1": "6f026f8c0c178ae83581224a6fe8d0ff65a2aa3f",
+        "normalized_sha256": "f8494a21af9122c6007bf1f7d3425c603070f3cef67cc0c7650653e8e3e3bb1c",
+        "baseline_match_kind": "line_endings_only"
+      }
+    ],
+    "dependencies": [
+      {
+        "module": "tkinter",
+        "required_for": "application startup",
+        "tcl_runtime_version": "8.6.15",
+        "tk_compiled_version": "8.6",
+        "status": "available"
+      },
+      {
+        "module": "openpyxl",
+        "required_for": "Excel feature and audit reproduction",
+        "version": "3.1.5",
+        "status": "available"
+      },
+      {
+        "module": "PIL.ImageGrab",
+        "required_for": "screenshot feature",
+        "version": "11.2.1",
+        "status": "available"
+      }
+    ],
+    "resources": [
+      {
+        "role": "sales",
+        "path": "app.ico",
+        "required": false,
+        "effect_if_missing": "窗口图标静默降级；打包品牌资源待提供",
+        "present_in_repository": false
+      },
+      {
+        "path": "config.json",
+        "required": false,
+        "effect_if_missing": "两版有默认/兜底价格；这不是成交价格已确认的证据",
+        "present_in_repository": false
+      }
+    ],
+    "gui": {
+      "status": "completed",
+      "applications": [
+        {
+          "role": "manager",
+          "mode": "automatic_smoke",
+          "startup": "ok",
+          "tabs": [
+            "计算主页",
+            "输入反馈",
+            "利润分析",
+            "Excel记录",
+            "价格设定"
+          ],
+          "single_item_smoke": [
+            "50.00",
+            "20.00",
+            "30.00"
+          ],
+          "status": "passed",
+          "close": "ok",
+          "scope": "original GUI startup/event loop/one calculation/close in temporary directories",
+          "sandbox_cleaned": true
+        },
+        {
+          "role": "sales",
+          "mode": "automatic_smoke",
+          "startup": "ok",
+          "tabs": [
+            "计算主页",
+            "输入反馈",
+            "Excel记录"
+          ],
+          "single_item_smoke": [
+            "50.00",
+            "20.00",
+            "30.00"
+          ],
+          "status": "passed",
+          "close": "ok",
+          "scope": "original GUI startup/event loop/one calculation/close in temporary directories",
+          "sandbox_cleaned": true
+        }
+      ]
+    },
+    "packaging_environment": {
+      "pyinstaller_version": "6.20.0"
+    },
+    "production_paths_accessed": false,
+    "windows_acceptance": "isolated_gui_smoke_passed; deployed_environment_and_user_acceptance_pending"
+  },
+  "acceptance": {
+    "isolated_windows_gui_smoke": "passed; user-returned report",
+    "manual_interface_confirmation": "pending",
+    "production_interpreter_and_packaging_registration": "pending",
+    "production_excel_screenshot_and_smb_acceptance": "not_run; outside this startup smoke",
+    "process_exit_code": "not separately supplied in user-pasted output",
+    "P01-01": "automatic smoke passed; manual confirmation and deployment records pending"
   }
 }

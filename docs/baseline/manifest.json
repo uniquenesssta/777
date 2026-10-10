@@ -55,7 +55,7 @@
       "distribution": null,
       "purpose": "窗口/表格/对话框",
       "required_for": "application startup",
-      "version_policy": "使用所选 Python 随附 Tcl/Tk；用户回传Windows Tcl 8.6.15 / 编译Tk 8.6导入可用，窗口待重跑"
+      "version_policy": "使用所选 Python 随附 Tcl/Tk；用户回传Windows Tcl 8.6.15 / 编译Tk 8.6，双版隔离窗口启动/关闭已通过，界面人工确认待完成"
     },
     {
       "module": "openpyxl",
