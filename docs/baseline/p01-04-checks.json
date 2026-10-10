@@ -1,0 +1,399 @@
+{
+  "task": "P01-04",
+  "status": "diagnostic_checks_passed",
+  "environment": {
+    "os": "Linux",
+    "python": "3.12.14",
+    "openpyxl": "3.1.5"
+  },
+  "scope": "synthetic targets/formats, original methods, optional bounded measurement; not production correctness acceptance",
+  "production_paths_accessed": false,
+  "business_sources_modified": false,
+  "numeric_profile": "numeric-v1-proposed",
+  "numeric_profile_status": "recommended_for_review_not_business_approval",
+  "normalized_artifact_sha256": {
+    "p01-04-golden.json": "dc7ee8ee1689aa4af2e35801eac8eeb90a6a321a05d70f8f921a28695a91eb64",
+    "p01-04-numeric-profile.json": "6774de633b3cf2e005b6c849b5a2acf52e6003068046a79763082eaa4497cc90",
+    "p01_validation.py": "b8e51af09b8997fb99f82a6bf67f1667908d8ce02d19b556e60c75d421928961",
+    "p01_oracle.py": "8217df29596b2b49fc0d6b4800ee97ca160907f6e6cd735fc2f0c2b733875816",
+    "p01_fixtures.py": "31596207580f11e4308a13401f64752a0723989715ae7e48a3c11ee1bec52ef3"
+  },
+  "source_commit": "32e164d78643de8fa6cbd21a7ca634e1b318f855",
+  "sources": [
+    {
+      "role": "manager",
+      "path": "报价利润计算器_局域网导出版_每日汇总版(1).py",
+      "git_blob_sha1": "86d6bb43cc98b9de10c136cb4114cf441b0805b1",
+      "sha256": "165e74cec1ccd728ef9fec93350ce9fa967946c16a7ccf5233f9acb1ec0fe52e",
+      "normalized_git_blob_sha1": "86d6bb43cc98b9de10c136cb4114cf441b0805b1",
+      "normalized_sha256": "165e74cec1ccd728ef9fec93350ce9fa967946c16a7ccf5233f9acb1ec0fe52e",
+      "baseline_matches": true,
+      "baseline_match_kind": "exact",
+      "syntax": "valid",
+      "status": "ok"
+    },
+    {
+      "role": "sales",
+      "path": "报价利润计算器_局域网子版本_JSON价格_截图按天订单命名_ICON版(1).py",
+      "git_blob_sha1": "6f026f8c0c178ae83581224a6fe8d0ff65a2aa3f",
+      "sha256": "f8494a21af9122c6007bf1f7d3425c603070f3cef67cc0c7650653e8e3e3bb1c",
+      "normalized_git_blob_sha1": "6f026f8c0c178ae83581224a6fe8d0ff65a2aa3f",
+      "normalized_sha256": "f8494a21af9122c6007bf1f7d3425c603070f3cef67cc0c7650653e8e3e3bb1c",
+      "baseline_matches": true,
+      "baseline_match_kind": "exact",
+      "syntax": "valid",
+      "status": "ok"
+    }
+  ],
+  "golden": {
+    "count": 53,
+    "passed": 53,
+    "legacy_differences": {
+      "manager": 33,
+      "sales": 33
+    }
+  },
+  "formats": {
+    "count": 18,
+    "passed": 18,
+    "originals_unchanged": true
+  },
+  "datasets": {
+    "origin": "synthetic",
+    "row_sets": [
+      {
+        "path": "rows_100.xlsx",
+        "detail_rows": 100,
+        "income": "1000",
+        "cost": "400",
+        "profit": "600",
+        "sha256": "22f1c17f4e5c60b9ff8032ded718d1882f13e73bedb460bf0689e094e15e7f98"
+      },
+      {
+        "path": "rows_1000.xlsx",
+        "detail_rows": 1000,
+        "income": "10000",
+        "cost": "4000",
+        "profit": "6000",
+        "sha256": "b2328fb0a46e0144ced32b531f4d0849247845626481e9482c9ce3230ac5ac57"
+      },
+      {
+        "path": "rows_10000.xlsx",
+        "detail_rows": 10000,
+        "income": "100000",
+        "cost": "40000",
+        "profit": "60000",
+        "sha256": "73a6246a815e135b2c2c092160b1a81eb204b452f8ee6fc01a7f5a47ca4a4cb0"
+      }
+    ],
+    "file_sets": [
+      {
+        "path": "files_10",
+        "files": 10,
+        "detail_rows_per_file": 1,
+        "same_bytes_intentionally": true
+      },
+      {
+        "path": "files_100",
+        "files": 100,
+        "detail_rows_per_file": 1,
+        "same_bytes_intentionally": true
+      },
+      {
+        "path": "files_1000",
+        "files": 1000,
+        "detail_rows_per_file": 1,
+        "same_bytes_intentionally": true
+      }
+    ],
+    "hash_policy": "generated OOXML bytes vary with library/timestamp; row contents and counts fixed",
+    "checks": [
+      {
+        "path": "rows_100.xlsx",
+        "detail_rows": 100,
+        "distinct_order_refs": 100,
+        "totals": [
+          1000,
+          400,
+          600
+        ],
+        "passed": true
+      },
+      {
+        "path": "rows_1000.xlsx",
+        "detail_rows": 1000,
+        "distinct_order_refs": 1000,
+        "totals": [
+          10000,
+          4000,
+          6000
+        ],
+        "passed": true
+      },
+      {
+        "path": "rows_10000.xlsx",
+        "detail_rows": 10000,
+        "distinct_order_refs": 10000,
+        "totals": [
+          100000,
+          40000,
+          60000
+        ],
+        "passed": true
+      },
+      {
+        "path": "files_10",
+        "files": 10,
+        "passed": true
+      },
+      {
+        "path": "files_100",
+        "files": 100,
+        "passed": true
+      },
+      {
+        "path": "files_1000",
+        "files": 1000,
+        "passed": true
+      }
+    ]
+  },
+  "performance": [
+    {
+      "role": "manager",
+      "size": "small",
+      "input_files": 10,
+      "detail_rows_per_file": 1,
+      "scope": "original methods with control stubs; synthetic local files",
+      "ui_heartbeat": "not_measured",
+      "passes": [
+        {
+          "condition": "first_pass_os_cache_uncontrolled",
+          "seconds": 2.3858504000018,
+          "python_allocation_peak_bytes": 1300270,
+          "observed": {
+            "displayed_files": 10,
+            "totals": {
+              "income": "100.00",
+              "cost": "0.00",
+              "profit": "60.00"
+            }
+          },
+          "workbook_opens": 50,
+          "worksheet_xml_source_opens": 200,
+          "iter_rows_calls": 150,
+          "yielded_rows": 330
+        },
+        {
+          "condition": "same_process_warm_pass",
+          "seconds": 1.6784381809993647,
+          "python_allocation_peak_bytes": 1312739,
+          "observed": {
+            "displayed_files": 10,
+            "totals": {
+              "income": "100.00",
+              "cost": "0.00",
+              "profit": "60.00"
+            }
+          },
+          "workbook_opens": 50,
+          "worksheet_xml_source_opens": 200,
+          "iter_rows_calls": 150,
+          "yielded_rows": 330
+        }
+      ]
+    },
+    {
+      "role": "sales",
+      "size": "small",
+      "input_files": 1,
+      "detail_rows_per_file": 100,
+      "scope": "original methods with control stubs; synthetic local files",
+      "ui_heartbeat": "not_measured",
+      "passes": [
+        {
+          "condition": "first_pass_os_cache_uncontrolled",
+          "seconds": 11.112919879000401,
+          "python_allocation_peak_bytes": 3836806,
+          "observed": {
+            "displayed_files": 1,
+            "visible_detail_rows": 100
+          },
+          "workbook_opens": 1,
+          "worksheet_xml_source_opens": 107,
+          "iter_rows_calls": 6,
+          "yielded_rows": 6
+        },
+        {
+          "condition": "same_process_warm_pass",
+          "seconds": 8.802498709002975,
+          "python_allocation_peak_bytes": 4208902,
+          "observed": {
+            "displayed_files": 1,
+            "visible_detail_rows": 100
+          },
+          "workbook_opens": 1,
+          "worksheet_xml_source_opens": 107,
+          "iter_rows_calls": 6,
+          "yielded_rows": 6
+        }
+      ]
+    }
+  ],
+  "gui": [
+    {
+      "status": "blocked_non_windows",
+      "ui_heartbeat": "not_measured"
+    }
+  ],
+  "acceptance": "technical_recommendations_and_P01_stage_user_review_pending; Windows_SMB_full_matrix_future",
+  "work_baseline": "a3e8e81f496cbeb12e977033596aa8cf4e3aa484",
+  "commands": [
+    "python tools/p01_validation.py --datasets --benchmark --gui-heartbeat --output reports/p01-04-aux-complete",
+    "python -m unittest discover -s tests -v"
+  ],
+  "tests": {
+    "count": 39,
+    "result": "passed",
+    "scope": "diagnostic tool safety and static fixtures; not Windows application acceptance",
+    "normalized_test_sha256": "02f3ad0b6c3ef25db26e860d91bdec01049d7ad4dae59e35117cb9112bd89e11"
+  },
+  "legacy_audit": {
+    "openpyxl": "3.1.5",
+    "evidence": {
+      "A": {
+        "lines": 2314,
+        "blob": "86d6bb43cc98b9de10c136cb4114cf441b0805b1",
+        "worktree_blob": "86d6bb43cc98b9de10c136cb4114cf441b0805b1",
+        "baseline_match_kind": "exact",
+        "partial_calculation": {
+          "valid_records": 1,
+          "errors": 1
+        },
+        "partial_export_file_created": true,
+        "group_collision": {
+          "rows": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "orders": [
+            "订单一",
+            "订单二"
+          ]
+        },
+        "customer_cell_type": "f",
+        "unknown_schema_old_cell_after_open": "六六派对利润明细",
+        "lost_update_values": [
+          "需要保留的旧数据",
+          "乙的新增订单"
+        ],
+        "bool_expression": [
+          1.0,
+          null
+        ],
+        "rounding": {
+          "displayed_lines": [
+            "0.01",
+            "0.01"
+          ],
+          "displayed_total": "0.01"
+        },
+        "overflow_display": "inf",
+        "corrupt_summary": {
+          "income": 0.0,
+          "cost": 0.0,
+          "profit": 0.0,
+          "margin": 0.0
+        },
+        "fallback_summary": {
+          "income": 0.0,
+          "cost": 0.0,
+          "profit": 10.0,
+          "margin": 0.0
+        },
+        "summary_header_collision": {
+          "fixture": "ledger_current.xlsx",
+          "expected": {
+            "income": 20,
+            "cost": 8,
+            "profit": 12
+          },
+          "observed": {
+            "income": 20.0,
+            "cost": 0.0,
+            "profit": 12.0,
+            "margin": 0.6
+          }
+        }
+      },
+      "B": {
+        "lines": 2209,
+        "blob": "6f026f8c0c178ae83581224a6fe8d0ff65a2aa3f",
+        "worktree_blob": "6f026f8c0c178ae83581224a6fe8d0ff65a2aa3f",
+        "baseline_match_kind": "exact",
+        "partial_calculation": {
+          "valid_records": 1,
+          "errors": 1
+        },
+        "partial_export_file_created": true,
+        "group_collision": {
+          "rows": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "orders": [
+            "订单一",
+            "订单二"
+          ]
+        },
+        "customer_cell_type": "f",
+        "unknown_schema_old_cell_after_open": "六六派对利润明细",
+        "lost_update_values": [
+          "需要保留的旧数据",
+          "乙的新增订单"
+        ],
+        "bool_expression": [
+          1.0,
+          null
+        ],
+        "rounding": {
+          "displayed_lines": [
+            "0.01",
+            "0.01"
+          ],
+          "displayed_total": "0.01"
+        },
+        "overflow_display": "inf",
+        "string_false_single": true,
+        "read_only_cell_rescans": {
+          "20": {
+            "visible": 20,
+            "xml_source_opens": 27
+          },
+          "40": {
+            "visible": 40,
+            "xml_source_opens": 47
+          }
+        }
+      }
+    }
+  },
+  "additional_scope_notes": [
+    "Physical cold disk and process RSS not measured",
+    "Performance: small profile, two instrumented passes only; full Windows/SMB matrix not run",
+    "Numeric profile and response thresholds are recommendations for P01 stage review",
+    "No product Linux/macOS acceptance introduced"
+  ],
+  "repository_checks": {
+    "artifact_fingerprints": "matched_final_diagnostic_code",
+    "original_source_blobs": "unchanged",
+    "p01_02_historical_examples": "unchanged",
+    "collector_sha256": "unchanged",
+    "markdown_links": "passed_including_parenthesized_source_filenames",
+    "git_diff_check": "passed"
+  }
+}

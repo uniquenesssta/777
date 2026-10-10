@@ -2,6 +2,8 @@
 
 状态：待启动。前置：P01已验收且金额/权限相关规则冻结。拟议分支 `stage/p02-calculation`。问题：A04、A06、A07、A08、A18、A21、A23。依据：[主任务书](../MASTER_PLAN.md) / [迁移契约](../MIGRATION_CONTRACT.md)。
 
+P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值profile建议](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。本任务实施前核对P01验收采纳状态，读取同一黄金JSON，不复制另一套期望；本次仅补充任务输入，阶段仍待启动。
+
 目标：两版共用一套可独立运行的正确计算与价格校验，供Rust对照。只抽离计算、输入、价格快照及必需适配，不做全面Tk界面重写。
 
 | ID | 输入/范围与交付 | 可执行验收 | 恢复方式 |

@@ -2,6 +2,8 @@
 
 状态：待启动。前置：P05已验收，黄金样本、schema、API已冻结。拟议分支 `stage/p06-rust-core`。依据：[架构方案](../RUST_TAURI_DESIGN.md) / [迁移契约](../MIGRATION_CONTRACT.md)。
 
+P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值profile建议](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。本任务实施前核对P01验收采纳状态，读取同一黄金JSON，不复制另一套期望；本次仅补充任务输入，阶段仍待启动。
+
 目标：把已确认业务行为迁移至Rust，用独立核对证明正确性；此阶段不实施完整Tauri界面，也不迁移生产账本。
 
 | ID | 实施与交付 | 可执行验收 | 恢复方式 |

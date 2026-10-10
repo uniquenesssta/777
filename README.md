@@ -2,11 +2,12 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于 `plans`；当前阶段分支为 `stage/p01-baseline`。仓库已交付重新审计结果、Python 优化计划及 Rust + Tauri 迁移准备方案。**两份业务脚本保持原始基线；P01-01至03已验收收尾，business-v1已冻结；P01-03按用户确认完成数据/部署登记及可见目录、隐藏备份规划，P01-04及后续实施未启动。**
+规划位于 `plans`；当前阶段分支为 `stage/p01-baseline`。仓库已交付重新审计结果、Python 优化计划及 Rust + Tauri 迁移准备方案。**两份业务脚本保持原始基线；P01-01至03已验收收尾，business-v1已冻结；P01-04黄金/格式样本、技术建议和验收入口已交付，待Windows诊断及阶段材料验收；P02及后续实施未启动。**
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
 - [P01-03只读样本采集与部署登记](docs/baseline/P01-03-data-deployment.md)
+- [P01-04黄金样本、技术参数与Windows验收](docs/baseline/P01-04-validation.md)
 - [文档与计划入口](docs/README.md)
 - [优化及迁移主任务书](docs/MASTER_PLAN.md)
 - [两份 Python 代码重新审计报告](docs/audit/python-audit.md)
@@ -14,6 +15,10 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+### 2026-10-11
+
+- P01-04：交付53例静态黄金目标、18种合成格式、数值容量/除法建议、全规模数据生成及受限原方法/Windows心跳测量入口。53/53、18/18、3档明细与3档文件核对通过，39项诊断回归通过；辅助小档复现母版10文件50次打开、子版100明细107次XML源打开。A09补充有摘要时成本被表头覆盖为0的证据，纳入P03-02。原源码和真实数据未改，技术参数采纳、Windows诊断及P01阶段验收待完成，未进入P02。
 
 ### 2026-10-10
 
