@@ -230,12 +230,13 @@
   },
   "acceptance": {
     "isolated_windows_gui_smoke": "passed; user-returned report",
-    "manual_interface_confirmation": "pending",
-    "production_interpreter_and_packaging_registration": "pending",
+    "manual_interface_confirmation": "passed; explicit user confirmation",
+    "production_interpreter_and_packaging_registration": "repository facts registered: verified source interpreter, source entrypoints, packaging resources absent; unprovided legacy distribution not a prerequisite for P01-01",
     "production_excel_screenshot_and_smb_acceptance": "not_run; outside this startup smoke",
     "process_exit_code": "not separately supplied in user-pasted output",
-    "P01-01": "automatic smoke passed; manual sessions completed; user observation and deployment records pending",
-    "manual_window_sessions": "both completed; startup ok, sandbox cleaned, no reported tool error"
+    "P01-01": "accepted; source baseline, Windows startup smoke, manual interface confirmation, and repository runtime/resource inventory complete",
+    "manual_window_sessions": "both completed; startup ok, sandbox cleaned, no reported tool error",
+    "P01_stage": "in_progress; P01-02 through P01-04 not started"
   },
   "manual_launch_observations": {
     "origin": "User-pasted PowerShell JSON; common fields stored once, interpreter path omitted",
@@ -371,6 +372,26 @@
       }
     ],
     "transcript_note": "Pasted sales filename contains a space between ICON and 版; stored literally. Repository filenames remain unchanged, and the reported normalized fingerprints match the pinned sources.",
-    "user_interface_observation": "not yet supplied; manual_session_finished records session completion, not visual or page-switch acceptance"
+    "user_interface_observation": "User explicitly confirmed page switching, text/controls, and close are normal for both versions."
+  },
+  "user_confirmation": {
+    "received_at": "2026-10-10 (Asia/Shanghai)",
+    "source": "User confirmation after both manual window sessions",
+    "quote": "页面切换文字控件关闭等都正常。",
+    "roles": [
+      "manager",
+      "sales"
+    ],
+    "page_switching": "normal",
+    "text_and_controls": "normal",
+    "close": "normal"
+  },
+  "repository_runtime_registration": {
+    "startup": "Two root Python scripts; __main__ creates Tk and PriceCalculator, then enters mainloop.",
+    "verified_windows_source_python": "3.12.10 (64 bit)",
+    "packaging_resources": "No tracked app.ico, .spec, build scripts, executables, or installers; missing resources registered, no new Python packaging required in P01-01.",
+    "installed_pyinstaller": "6.20.0; environment observation only, not evidence of an existing build workflow.",
+    "future_delivery": "Rust + Tauri Windows installer in P07-04, as already planned and reaffirmed by the user.",
+    "scope": "Repository source runtime baseline; no assertion about an unprovided legacy production executable."
   }
 }

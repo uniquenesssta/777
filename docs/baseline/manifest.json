@@ -55,7 +55,7 @@
       "distribution": null,
       "purpose": "窗口/表格/对话框",
       "required_for": "application startup",
-      "version_policy": "使用所选 Python 随附 Tcl/Tk；用户回传Windows Tcl 8.6.15 / 编译Tk 8.6，双版隔离窗口启动/关闭已通过，界面人工确认待完成"
+      "version_policy": "使用所选Python随附Tcl/Tk；Windows Tcl 8.6.15 / 编译Tk 8.6，双版隔离启动/关闭通过，用户已确认页面切换和文字控件正常"
     },
     {
       "module": "openpyxl",
@@ -77,7 +77,7 @@
       "role": "sales",
       "path": "app.ico",
       "required": false,
-      "effect_if_missing": "窗口图标静默降级；打包品牌资源待提供"
+      "effect_if_missing": "窗口图标静默降级；仓库缺失已登记，桌面品牌资源在P07准备"
     },
     {
       "path": "config.json",
@@ -86,8 +86,10 @@
     }
   ],
   "packaging": {
-    "pyinstaller": "代码有资源路径适配；仓库没有spec/构建脚本/版本锁/安装包",
-    "production_python_version": "unknown; Windows smoke interpreter is 3.12.10, production identity not yet confirmed",
-    "observed_windows_pyinstaller": "6.20.0 installed; original application build workflow/version not yet confirmed"
-  }
+    "pyinstaller": "代码有资源路径适配；仓库无.spec/构建脚本/版本锁/安装包，缺失现状已登记",
+    "production_python_version": "仓库未提供独立生产发行包；本任务采用已实测Python 3.12.10源码启动基线",
+    "observed_windows_pyinstaller": "6.20.0已安装，仅作为环境记录；仓库无打包流程或安装包",
+    "future_delivery": "Rust + Tauri Windows安装包；已列入P07-04，当前不实施打包"
+  },
+  "source_startup": "根目录两份Python脚本的__main__创建Tk、PriceCalculator并进入mainloop；P01-01通过临时目录隔离入口完成实机验证"
 }
