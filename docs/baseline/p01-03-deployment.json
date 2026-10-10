@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "task": "P01-03",
+  "status": "in_progress_real_samples_and_deployment_evidence_pending",
+  "task_start_commit": "96495368d51a49620f7acb5baa48967f5cc00f12",
+  "source_commit": "32e164d78643de8fa6cbd21a7ca634e1b318f855",
+  "rule_version": "business-v1",
+  "observed_client_environment": {
+    "os": "Windows",
+    "release": "10",
+    "architecture": "AMD64",
+    "python": "3.12.10",
+    "evidence": "docs/baseline/windows-environment.json",
+    "scope": "已回传客户端隔离检查；不代表共享主机系统或服务验收"
+  },
+  "source_declared_paths": {
+    "manager_root": "E:\\14T共享盘\\葛宁\\PyInstaller",
+    "sales_root": "\\\\192.168.4.38\\14T共享盘\\葛宁\\PyInstaller",
+    "report_suffix": "利润表",
+    "config_suffix": "config.json",
+    "screenshot_suffix": "截图",
+    "sales_screenshot_day_subdirectory": true,
+    "manager_export_dir_saved_but_not_loaded_at_startup": true,
+    "sales_export_dir_comes_from_code_not_config_json": true,
+    "evidence_kind": "source_only_not_verified_runtime_mapping"
+  },
+  "actual_deployment": {
+    "shared_host": null,
+    "shared_host_os": null,
+    "smb_share_local_root": null,
+    "manager_sales_same_physical_directory": null,
+    "current_manager_report_directory": null,
+    "possible_concurrent_write_computers": null,
+    "manager_write_computers": null,
+    "sales_write_computers": null,
+    "backup_owner_role": null,
+    "backup_schedule": null,
+    "backup_destination_kind": null,
+    "service_host_role": null,
+    "service_host_always_online": null,
+    "operations_owner_role": null,
+    "user_confirmation": null
+  },
+  "samples": {
+    "real_config": "not_provided_or_absence_not_confirmed",
+    "current_excel": "not_provided_or_absence_not_confirmed",
+    "legacy_excel": "not_provided_or_absence_not_confirmed",
+    "unknown_format_inventory": "pending_actual_collection",
+    "synthetic_tool_checks": "docs/baseline/p01-03-tool-checks.json",
+    "collection_tool": "tools/collect_p01_samples.py"
+  },
+  "proposed_service_topology": {
+    "logical_route": "管理员/销售客户端 -> 认证业务服务 -> 服务主机本地账本；沿用business-v1价格/字段权限边界",
+    "host_candidate": "可常驻且能运行Windows服务的现共享主机；未核实系统和运维条件时不视为已选定",
+    "database_location": "服务主机本地目录，客户端不直接打开共享数据库",
+    "physical_host_selection": "pending_user_registration",
+    "deployment_performed": false
+  },
+  "acceptance": {
+    "source_and_schema_inventory": "completed",
+    "real_readonly_snapshots_and_hashes": "pending",
+    "same_share_or_difference_evidence": "pending",
+    "writer_backup_operations_registration": "pending",
+    "service_host_and_topology_confirmation": "pending",
+    "P01-03": "not_accepted",
+    "P01-04": "not_started"
+  },
+  "production_paths_accessed_by_assistant": false
+}

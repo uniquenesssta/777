@@ -1,0 +1,45 @@
+{
+  "task": "P01-03",
+  "environment": {
+    "os": "Linux",
+    "python": "3.12.14",
+    "openpyxl": "3.1.5"
+  },
+  "scope": "synthetic_temporary_files_only_no_Windows_SMB_acceptance",
+  "unit_checks": {
+    "count": 16,
+    "passed": 16,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0,
+    "tests": [
+      "test_collect_p01_samples.CollectorTests.test_changed_source_blocks_release_of_snapshot",
+      "test_collect_p01_samples.CollectorTests.test_cli_requires_explicit_file_selection",
+      "test_collect_p01_samples.CollectorTests.test_config_byte_comparison_is_not_physical_mapping_claim",
+      "test_collect_p01_samples.CollectorTests.test_config_shape_types_and_unknown_values_are_redacted",
+      "test_collect_p01_samples.CollectorTests.test_current_excel_customer_order_and_formula_never_leak",
+      "test_collect_p01_samples.CollectorTests.test_duplicate_json_keys_and_nonfinite_constants_are_blocked",
+      "test_collect_p01_samples.CollectorTests.test_existing_output_or_outside_reports_is_rejected",
+      "test_collect_p01_samples.CollectorTests.test_invalid_json_error_report_does_not_expose_excerpt_or_path",
+      "test_collect_p01_samples.CollectorTests.test_legacy_json_and_normalized_duplicate_names",
+      "test_collect_p01_samples.CollectorTests.test_numeric_customer_and_free_note_remain_redacted",
+      "test_collect_p01_samples.CollectorTests.test_original_preserved_and_snapshot_readonly",
+      "test_collect_p01_samples.CollectorTests.test_output_symlink_is_rejected",
+      "test_collect_p01_samples.CollectorTests.test_product_token_shared_between_config_and_excel",
+      "test_collect_p01_samples.CollectorTests.test_reordered_added_remark_and_legacy_header_classification",
+      "test_collect_p01_samples.CollectorTests.test_unknown_sheet_has_metadata_only",
+      "test_collect_p01_samples.CollectorTests.test_zip_capacity_is_checked_before_workbook_loader"
+    ]
+  },
+  "cli_smoke": {
+    "exit_code": 0,
+    "selected_synthetic_files": 2,
+    "original_hashes_unchanged": true,
+    "public_customer_product_text_redacted": true
+  },
+  "tool_sha256": "948644386da7f945597f8df43331e9c4e1c205ee828be2a490014fed84ac14f0",
+  "original_business_sources_unchanged": true,
+  "production_paths_accessed": false,
+  "real_samples_collected": false,
+  "deployment_verified": false
+}
