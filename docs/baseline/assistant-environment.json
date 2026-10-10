@@ -1,0 +1,84 @@
+{
+  "task": "P01-01",
+  "source_commit": "32e164d78643de8fa6cbd21a7ca634e1b318f855",
+  "environment": {
+    "os": "Linux",
+    "release": "6.18.44",
+    "architecture": "x86_64",
+    "python_bits": 64,
+    "python": "3.12.14",
+    "python_executable": "omitted: auxiliary runner path; user environment remains unknown",
+    "target_windows": false
+  },
+  "sources": [
+    {
+      "role": "manager",
+      "path": "报价利润计算器_局域网导出版_每日汇总版(1).py",
+      "git_blob_sha1": "86d6bb43cc98b9de10c136cb4114cf441b0805b1",
+      "sha256": "165e74cec1ccd728ef9fec93350ce9fa967946c16a7ccf5233f9acb1ec0fe52e",
+      "baseline_matches": true,
+      "syntax": "valid",
+      "status": "ok"
+    },
+    {
+      "role": "sales",
+      "path": "报价利润计算器_局域网子版本_JSON价格_截图按天订单命名_ICON版(1).py",
+      "git_blob_sha1": "6f026f8c0c178ae83581224a6fe8d0ff65a2aa3f",
+      "sha256": "f8494a21af9122c6007bf1f7d3425c603070f3cef67cc0c7650653e8e3e3bb1c",
+      "baseline_matches": true,
+      "syntax": "valid",
+      "status": "ok"
+    }
+  ],
+  "dependencies": [
+    {
+      "module": "tkinter",
+      "required_for": "application startup",
+      "tcl_runtime_version": "9.0.4",
+      "tk_compiled_version": "9.0",
+      "status": "available"
+    },
+    {
+      "module": "openpyxl",
+      "required_for": "Excel feature and audit reproduction",
+      "version": "3.1.5",
+      "status": "available"
+    },
+    {
+      "module": "PIL.ImageGrab",
+      "required_for": "screenshot feature",
+      "version": "12.3.0",
+      "status": "available"
+    }
+  ],
+  "resources": [
+    {
+      "role": "sales",
+      "path": "app.ico",
+      "required": false,
+      "effect_if_missing": "窗口图标静默降级；打包品牌资源待提供",
+      "present_in_repository": false
+    },
+    {
+      "path": "config.json",
+      "required": false,
+      "effect_if_missing": "两版有默认/兜底价格；这不是成交价格已确认的证据",
+      "present_in_repository": false
+    }
+  ],
+  "gui": {
+    "status": "blocked",
+    "reason": "Windows target environment required; no Linux/macOS GUI acceptance"
+  },
+  "packaging_environment": {
+    "pyinstaller_version": null,
+    "status": "not_installed; source startup does not require packaging tools"
+  },
+  "production_paths_accessed": false,
+  "windows_acceptance": "pending",
+  "checked_at": "2026-10-10 (Asia/Shanghai)",
+  "tool_safety_tests": {
+    "passed": 7,
+    "scope": "diagnostic tool only; no Windows GUI/product acceptance"
+  }
+}

@@ -2,8 +2,9 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-本分支 `plans` 交付重新审计结果、Python 优化计划及 Rust + Tauri 迁移准备方案。**本次没有修改两份业务脚本，也没有启动迁移实施。**
+规划位于 `plans`；当前阶段分支为 `stage/p01-baseline`。仓库已交付重新审计结果、Python 优化计划及 Rust + Tauri 迁移准备方案。**两份业务脚本保持原始基线；当前开始P01-01运行基线工作，后续迁移实施尚未启动。**
 
+- [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [文档与计划入口](docs/README.md)
 - [优化及迁移主任务书](docs/MASTER_PLAN.md)
 - [两份 Python 代码重新审计报告](docs/audit/python-audit.md)
@@ -17,3 +18,5 @@
 - 基于 `master@32e164d` 新建 `plans` 文档分支，建立 `docs/new`、`docs/now`、`docs/old` 计划生命周期。
 - 完成两份脚本的源码审计与隔离样本复现，建立问题到任务、验收与恢复方式的对应关系。
 - 规划 P01–P08：基线契约、计算准确性、文件安全、性能、结构化存储、Rust 核心、Tauri 界面和迁移验收；各开发阶段均待授权启动。
+
+- P01-01：在唯一阶段分支stage/p01-baseline登记依赖/资源和源码指纹，提供临时目录内的Windows双GUI检查；7项诊断工具安全回归通过，Windows实机验收待完成。
