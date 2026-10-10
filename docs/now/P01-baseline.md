@@ -30,6 +30,7 @@
 - 已检查：修正后10项安全回归通过；两版源码语法/指纹一致；辅助环境依赖导入可用；GUI选项在非Windows环境明确阻断，未假装启动成功。审计复现退出码0，原观察保持一致。
 - 用户回传：[Windows环境及诊断证据](../baseline/windows-environment.json)。Windows 10 / AMD64、Python 3.12.10（64位）、Tcl 8.6.15 / Tk 8.6、openpyxl 3.1.5、Pillow 11.2.1均已识别，检查环境PyInstaller为6.20.0。旧工具在窗口创建前因原始字节指纹不符阻断；两版回传哈希均精确等于原LF文件转CRLF的结果，确认换行误报，已修正两处诊断入口并保持真实修改拦截。
 - Windows自动检查：用户回传`reports/p01-windows-smoke-02.json`，两版源码均为`ok`/`line_endings_only`，整体GUI为`completed`；母版5页、子版3页，均`startup=ok`、`status=passed`、`close=ok`、`sandbox_cleaned=true`，销售/成本/利润样例均为50.00/20.00/30.00。工具未访问生产路径，实际Excel/截图/SMB未因此验收；原始失败与修正后成功报告一并脱敏保存。
+- 人工窗口会话：用户已拉取`cdf1ca3`并分别执行`--launch manager`和`--launch sales`。两版均`startup=ok`、`manual_session_finished`、`sandbox_cleaned=true`，页面列表分别为5页和3页；报告仍明确`requires_user_observation`，尚未取得用户对页面切换/文字控件显示的文字确认。无需重复执行这两个命令；原报告字段脱敏保存于`manual_launch_observations`。
 - 状态：Windows隔离GUI自动检查已通过，待用户人工确认及部署资料登记。尚缺页面切换/文字控件显示的人工观察、生产启动方式及解释器/原打包版本确认、图标和打包流程现状，不能标为P01-01完整已验收。
-- 下一步：用`--launch manager`及`--launch sales`检查两版界面后回传观察，并说明当前直接运行.py还是已有.exe、是否有现有图标/.spec/构建命令；没有打包资源则明确登记缺失，不要求本任务新增打包。仍在本阶段同一分支完成P01-01，没有进入P01-02或后续阶段。
+- 下一步：用户直接回传刚才两版窗口是否显示正常、页面能否切换、关闭是否正常，并说明当前直接运行.py还是已有.exe、是否有现有图标/.spec/构建命令；没有打包资源则明确登记缺失，不要求本任务新增打包或重复运行已完成的检查。仍在本阶段同一分支完成P01-01，没有进入P01-02或后续阶段。
 - 恢复：没有修改业务源码与外部数据；可回到阶段创建基线。临时检查目录自动清理，已有报告不覆盖。
