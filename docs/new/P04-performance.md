@@ -2,7 +2,7 @@
 
 状态：待启动。前置：P03已验收。拟议分支 `stage/p04-performance`。问题：A12–A14、A17、A19、A20及A09统计状态。依据：[主任务书](../MASTER_PLAN.md)。
 
-P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值profile建议](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。本任务实施前核对P01验收采纳状态，读取同一黄金JSON，不复制另一套期望；本次仅补充任务输入，阶段仍待启动。
+P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。P01已按[批准记录](../baseline/p01-acceptance.json)采纳numeric-v1/performance-v1，历史候选/黄金元数据保留并映射；实施时读取同一黄金JSON，不复制期望。本阶段仍待启动。
 
 Windows原小档基线已在[P01-04回传](../baseline/p01-04-windows-evidence.json)登记：母版10文件每刷新加统算50次workbook打开、心跳最大555ms；子版100明细107次XML源打开、心跳最大3085ms；均有插桩、短会话、同进程首/暖结果。P04在同设备/数据/插桩条件比较，记录样本数及最大停顿，不能用减少读取/错汇总换速度；完整SMB和更大规模另验。
 

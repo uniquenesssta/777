@@ -2,7 +2,7 @@
 
 版本：初始规划；日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P01已验收归档，business-v1、numeric-v1和performance-v1已确认；黄金53/53、Windows格式18/18及全部规模结构检查通过，原GUI/性能已登记。用户授权开始P02-01，P02阶段使用stage/p02-calculation；P02-02至04及P03–P08未启动。** 本任务书不自动授予后续阶段实施权限。任务定位按用户授权、此索引和真实Git状态交叉确认。
+**P01已验收归档，business-v1、numeric-v1和performance-v1已确认；黄金53/53、Windows格式18/18及全部规模结构检查通过，原GUI/性能已登记。P02-01纯计算与不可变快照已实现，53例黄金及60项回归通过，待用户验收；实际阶段分支stage/p02-calculation，P02-02至04及P03–P08未启动。** 本任务书不自动授予后续阶段实施权限。任务定位按用户授权、此索引和真实Git状态交叉确认。
 
 ## 1. 目标与边界
 
@@ -11,16 +11,16 @@
 3. 让业务数据有可靠的唯一来源；Excel逐步成为兼容输入/导出报表，不再承载多客户端任意读改写账本。
 4. 用Rust负责领域逻辑、存储和业务授权，Tauri负责桌面宿主，Web前端负责呈现与交互，不把Tkinter控件逐个机械翻译。
 
-本次不改业务源码；未来不默认新增店铺分红、库存、税务、云同步、移动端或其他项目功能。首期拟定Windows桌面及现有局域网场景，确切Windows版本/架构在P01登记；不新增Linux/macOS产品验收。审计环境的无界面计算证据仅是辅助证据。
+当前已按授权建立P02纯计算核心，两份原业务脚本在P02-04接入；后续范围按阶段授权执行。首期针对P01已登记的Windows桌面及现有局域网场景，不默认新增店铺分红、库存、税务、云同步、移动端或其他项目功能，不新增Linux/macOS产品验收。辅助环境的无界面核心证据不替代Windows实际交互与部署验收。
 
 ## 2. 阶段索引
 
-P01任务书已归档old；P02-01获启动授权，P02任务书在阶段分支建立后移入now，其余阶段仍在new。每阶段一个开发分支；P01实际分支为stage/p01-baseline，创建于plans@78a1e1d；其余名称仍为建议，尚未创建。
+P01任务书已归档old；P02-01已实施，P02唯一任务书已移入now，其余阶段仍在new。每阶段一个开发分支；P01实际分支为stage/p01-baseline，创建于plans@78a1e1d；P02实际分支stage/p02-calculation创建于P01验收提交7099303；P03至P08名称仍为建议，尚未创建。
 
 | 阶段 | 任务书 | 前置 | 建议分支 | 状态 / 核心退出门槛 |
 | --- | --- | --- | --- | --- |
 | P01 | [基线与规则确认](old/P01-baseline.md) | 本轮审计交付 | stage/p01-baseline | 已验收归档；[确认记录](baseline/p01-acceptance.json)，business-v1/numeric-v1/performance-v1已确认，53/53黄金、18/18格式及全部规模结构检查通过 |
-| P02 | [计算正确性与公共核心](new/P02-calculation.md) | P01已验收 | stage/p02-calculation | P02-01已授权，待建立本阶段分支实施；02至04未启动 |
+| P02 | [计算正确性与公共核心](now/P02-calculation.md) | P01已验收 | stage/p02-calculation | 执行中；P02-01核心已实现、53例黄金和60项回归通过待用户验收；两端接入留04，02至04未启动 |
 | P03 | [文件数据安全与兼容](new/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 待启动；冲突不覆盖、未知格式不破坏、幂等恢复成立 |
 | P04 | [后台任务与性能](new/P04-performance.md) | P03已验收 | stage/p04-performance | 待启动；消除重复全量读取、UI响应、完整分页实测 |
 | P05 | [结构化存储与局域网服务](new/P05-data-service.md) | P04已验收 | stage/p05-data-service | 待启动；事务/鉴权/导入核对及恢复演练通过 |
@@ -74,3 +74,5 @@ P01-02的金额/权限现状、16个复核示例、D01–D06确认状态见[决�
 P01-02已核对金额/折扣/解析、价格重读和子版权限事实，交付[决策记录](baseline/P01-02-decisions.md)及16个合成示例；用户已采纳D01–D06，冻结business-v1并验收收尾，确认原文、方案提交及原示例哈希见[确认记录](baseline/p01-02-confirmation.json)。业务功能及服务鉴权尚未实现。
 
 P01-03已启动，交付[源码目录/格式与只读采集说明](baseline/P01-03-data-deployment.md)、[部署记录](baseline/p01-03-deployment.json)、采集工具及16项合成检查/CLI证据。子版配置（9商品，6面积/3单件）与利润明细_20260529.xlsx脱敏材料已核对，分别登记[第一批配置摘要](baseline/p01-03-user-evidence.json)和[第二批账本摘要](baseline/p01-03-ledger-evidence.json)。账本含当前26列空明细、9项一致价格快照及1条已脱敏诊断记录，无报告的未知表/公式/外链/宏/截断；0明细不能验真实成交金额链。用户23:41确认目录同源、母版范围、未定销售台数及常在线电脑，授权资料缺口按源码/建议登记；[可见目录与E盘隐藏备份规划](baseline/P01-03-directory-backup.md)已纳入后续任务。P01-03登记范围已验收收尾，未提供真实历史的存在性、主机系统版本/具体运维账户及备份实施保持未知并按P05/P08验证；没有服务部署或成交金额对账。P01-04现已交付，详见[黄金/格式/技术参数与验收说明](baseline/P01-04-validation.md)及[辅助证据](baseline/p01-04-checks.json)；53/53、18/18及全规模核对通过，39项诊断回归通过。Windows原GUI心跳已采集，修复后的[Windows格式复查](baseline/p01-04-windows-format-evidence.json)18/18通过、5项材料指纹匹配68bc256；原53/53黄金与全部规模结构检查证据继续有效，无需重跑。数值参数/响应指标和阶段材料现已按用户授权采纳验收，详见[P01确认](baseline/p01-acceptance.json)；P01归档old，P02-01获启动授权。
+
+P02-01现已交付[领域核心](../quote_core/__init__.py)与[检查证据](verification/P02-01-checks.json)：使用numeric-v1、结构化整数分结果和不可变快照；旧两版calculate尚未切换，真实Windows交互/导出状态在P02-03/04验收。当前任务书为[now/P02](now/P02-calculation.md)，P02整阶段未完成。

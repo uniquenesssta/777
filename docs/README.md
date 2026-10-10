@@ -1,6 +1,6 @@
 # 文档与计划入口
 
-日期：2026-10-10（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；P01收尾分支：`stage/p01-baseline`；下一执行分支：`stage/p02-calculation`。
+日期：2026-10-10（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；当前执行分支：`stage/p02-calculation`；P01收尾提交：`7099303`。
 
 ## 当前状态
 
@@ -8,9 +8,9 @@
 | --- | --- |
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
 | 本轮授权 | 按建议收尾P01并开始P02-01；既有推送授权有效，其余任务未启动 |
-| 文档工作 | [P01-04黄金/格式/技术参数/验收材料](baseline/P01-04-validation.md)已交付；原业务源码未改 |
-| 当前开发阶段 / Atomic Task | P01已验收归档；business-v1/numeric-v1/performance-v1已确认；P02-01获启动授权 |
-| 下一项 | 从P01收尾提交建立stage/p02-calculation，实施P02-01纯Decimal计算与快照模型；无需重跑P01 |
+| 文档工作 | [P02当前任务书](now/P02-calculation.md)及[核心验证证据](verification/P02-01-checks.json)已交付；P01已归档old |
+| 当前开发阶段 / Atomic Task | P02执行中；P02-01纯核心/快照已实现，53例黄金及60项回归通过，待用户验收；P01已验收，规则/参数已确认 |
+| 下一项 | P02-01材料与核心验收；P02-02将复用数字/折扣解析完成整份配置schema校验，尚未启动；无需重跑P01 GUI |
 | 业务源码 | 两份原始脚本保留原路径、原内容 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；完整业务、部署及SMB验收留后续 |
 
@@ -31,8 +31,8 @@
 ## 分支策略与续接
 
 - `plans` 仅承载规划及其记录；本轮从上述 master 基线创建。不得向 main/master 顺带提交。
-- 启动一个开发阶段时，先公告该阶段唯一分支名称和真实基线，再在授权内创建或复用；阶段内 Atomic Task 复用它。当前已创建stage/p01-baseline；未创建其他开发阶段分支。
-- P01实际分支 `stage/p01-baseline` 以已核验的 `plans@78a1e1d` 为基线，业务源码与master原始blob一致；P02至P08分支仍为拟议；后续基于前阶段已验收代码，不盲目从 master 重开。
+- 启动一个开发阶段时，先公告该阶段唯一分支名称和真实基线，再在授权内创建或复用；阶段内 Atomic Task 复用它。P01已在stage/p01-baseline收尾；P02复用唯一stage/p02-calculation，未创建P03及其他实施分支。
+- P01实际分支 `stage/p01-baseline` 以已核验的 `plans@78a1e1d` 为基线，业务源码与master原始blob一致；P02实际分支stage/p02-calculation基于P01验收提交7099303；P03至P08分支仍为拟议，后续基于前阶段已验收代码，不盲目从 master 重开。
 - 开发分支携带当前任务书记录。需同步 plans 索引时只同步文档且核对最新状态；不要把 plans 旧代码合并回开发分支，不为了同步文档制造第二条开发分支。
 - 恢复工作必须核对主任务书、now、真实分支/提交和工作区；三者不一致先查证，禁止从文件名推断完成。
 

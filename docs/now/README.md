@@ -1,3 +1,5 @@
 # 当前执行计划
 
-P01已验收并归档[old](../old/P01-baseline.md)。用户已授权开始P02-01；下一阶段建立stage/p02-calculation后，将P02唯一任务书移入此处，详见[主任务书](../MASTER_PLAN.md)。
+当前唯一任务书为[P02计算核心](P02-calculation.md)，分支stage/p02-calculation，创建于P01验收提交7099303。P02-01已实现、53例黄金和60项回归通过待用户验收；P02-02至04未启动。P01已验收归档[old](../old/P01-baseline.md)，见[主任务书](../MASTER_PLAN.md)。
+
+P02整阶段尚未验收，继续留now；两版实际窗口接入及Windows交互留P02-04。

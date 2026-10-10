@@ -1,6 +1,6 @@
 # 业务与数据迁移契约（业务规则 v1）
 
-状态：**业务规则v1已确认冻结，P01-02已验收收尾；尚未实现。** 用户于2026-10-10 21:52:38（Asia/Shanghai）回复“采用推荐方案”，采纳`ed0c627d5151970e53448e92a21315ca31957142`中的D01–D06。[决策与金额示例](baseline/P01-02-decisions.md)及[确认记录](baseline/p01-02-confirmation.json)登记确认范围和证据。来源：[审计报告](audit/python-audit.md)。本文件维护唯一字段/规则定义，阶段任务书只引用。
+状态：**业务规则v1已确认冻结，P01已验收归档；P02-01纯计算已实现，应用接入与业务提交/权限仍待后续任务。** 用户于2026-10-10 21:52:38（Asia/Shanghai）回复“采用推荐方案”，采纳`ed0c627d5151970e53448e92a21315ca31957142`中的D01–D06。[决策与金额示例](baseline/P01-02-decisions.md)及[确认记录](baseline/p01-02-confirmation.json)登记确认范围和证据。来源：[审计报告](audit/python-audit.md)。本文件维护唯一字段/规则定义，阶段任务书只引用。
 
 规则标识：`rule_version=business-v1`。冻结范围为第2节的金额/输入/折扣与错误语义、第6节的价格生效和角色权限；第3至5节实体/schema/API设计仍为拟议，尚未形成已实现接口。P01-04已交付[技术参数与验收材料](baseline/P01-04-validation.md)和[numeric-v1-proposed](baseline/p01-04-numeric-profile.json)，现已按[P01确认](baseline/p01-acceptance.json)原值采纳为numeric-v1；历史候选JSON与黄金元数据保留并在批准记录映射，不重写旧证据。不得把原16例精度64当生产决策。后续变更已确认的业务语义需登记新决策并升规则版本，不能直接重写v1含义或覆盖旧单。
 
@@ -124,3 +124,20 @@ ID采用经评估的随机/排序唯一标识方案，不以“加毫秒”替�
 正确样本覆盖面积、单件、K空值默认1、零成本、0/100%折扣、连续折扣、折扣后加商品、中文单位、百分号及表达式。边界覆盖分位舍入、最大金额、除零、非法bool、负数政策、重复商品名和陈旧价格。每例包含input、price_snapshot、rule_version、期望行金额/总额/错误码；精确比较，不用浮点近似。
 
 审计中复现的错误另列“旧缺陷→确认后的新期望”，不作为Rust必须复现的黄金正确结果。历史导入按订单数/明细数/收入/成本/利润/备注关联五类指标核对，歧义名单必须清零或经业务确认隔离并注明未迁移范围。
+
+## 8. P02-01已实现的Python领域接口
+
+实现入口为[quote_core](../quote_core/__init__.py)，使用business-v1与已采纳的numeric-v1，生产模块只依赖标准库。它不读取仓库profile、黄金、配置或Excel；[批准记录](baseline/p01-acceptance.json)与测试按Git已提交LF字节指纹（工作区仅CRLF转LF）核对参数。历史候选标识numeric-v1-proposed仅是保留的证据别名，不是生产接口默认版本。
+
+| 已实现类型/入口 | 输入与结果 | 边界 |
+| --- | --- | --- |
+| NormalLine / DiscountLine | 普通行product_id/q/h/w原文，或明确的折扣percent原文；名称仅展示 | 普通/折扣由类型显式区分，原文保留；不凭商品名称判断折扣 |
+| PriceItem / PriceSnapshot | 商品键、sale/cost/k原文、single布尔；独立的price_version_id和不可变items元组 | 用到的价格逐字段校验；single字符串false拒绝，空价格拒绝，空K默认1；整份配置发布校验在P02-02 |
+| QuoteSnapshot | 不可变有序lines、绑定price_version_id、rule_version和numeric_profile | 列表入参复制为元组；不接受可变字段/控件，布尔或浮点等错误原文由计算报VALIDATION；空订单/超过10000行拒绝 |
+| calculate_quote(snapshot, prices) | QuoteResult；逐行整数分、原输入/价格和规范十进制串、折前整数分、订单总额、错误/提醒 | 快照版本须相同；不加载/刷新价格、不写账，不能据此证明已发布价格或正式提交授权 |
+| Amounts | income_cents/cost_cents整数，profit_cents派生；margin_tenths为百分比十分位或null | display仅从整数分生成文本，cents_payload把分整数转字符串跨JS边界；不从UI文本回读金额 |
+| capture_legacy_quote(rows, config, price_version_id=...) | 主线程读取两版当前行与已获取价格映射一次，返回QuoteSnapshot/PriceSnapshot | 单件不读高宽，自定义折扣保留全部精度；不读res/status/summary、不保存Tk变量；尚未接入两版窗口 |
+
+QuoteResult携带business-v1/numeric-v1/price_version_id。VALIDATION时lines和totals均为null，issues含reason/field及从1开始的行号；成功才有完整金额。首行或零小计折扣返回零并附DISCOUNT_ZERO_SUBTOTAL提醒，折扣行及零收入利润率为null。未实现草稿revision、输入变更/PRICE_STALE状态及真实导出阻断，它们属于P02-03/P02-04。领域价格包含成本，仅用于受信任计算链，销售DTO及服务鉴权由P05落实，不能把完整领域对象直接当销售投影。
+
+母子原calculate尚未切换，原summary回读/部分导出缺陷也未据此关闭。P02-04接回两端后才能验收UI、保存/Excel/图片都使用同一权威结果；历史账本不重算覆盖。

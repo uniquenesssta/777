@@ -2,12 +2,13 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于 `plans`；P01收尾分支为 `stage/p01-baseline`。**P01已验收归档，business-v1、numeric-v1与performance-v1已确认；黄金53/53、Windows格式18/18及全部规模结构检查通过，原GUI/性能已登记。用户授权开始P02-01，下一阶段使用 `stage/p02-calculation`；两份原业务脚本仍保留基线。**
+规划位于 `plans`；当前执行分支为 `stage/p02-calculation`，创建于P01验收提交 `7099303`。**P01已验收归档，business-v1/numeric-v1/performance-v1已确认；P02-01纯Decimal领域核心与输入/价格快照已实现，53例黄金精确通过，60项回归通过。两版窗口接入留P02-04，原业务脚本保持基线；P02-02至04和后续阶段未启动。**
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
 - [P01-03只读样本采集与部署登记](docs/baseline/P01-03-data-deployment.md)
 - [P01-04黄金样本、技术参数与Windows验收](docs/baseline/P01-04-validation.md)
+- [P02计算核心与当前任务书](docs/now/P02-calculation.md)
 - [文档与计划入口](docs/README.md)
 - [优化及迁移主任务书](docs/MASTER_PLAN.md)
 - [两份 Python 代码重新审计报告](docs/audit/python-audit.md)
@@ -17,6 +18,8 @@
 ## Change Log
 
 ### 2026-10-11
+
+- P02-01：从P01收尾7099303建立唯一stage/p02-calculation，任务书new→now；交付无UI/I/O依赖的Decimal领域核心、不可变快照和母子输入适配，金额以整数分权威保存、除法精确HALF_UP、错误/溢出无部分结果。53例静态黄金、200组独立对照和60项回归通过；两版原类隔离输入的两行半分由新核心结算为0.02。原窗口/导出接入留P02-03/04，配置完整schema留P02-02，原脚本与真实数据未改；P02-01待用户验收，未启动下一项。
 
 - 用户授权按建议收尾P01、开始P02-01；确认numeric-v1及performance-v1，保留候选/黄金/历史报告原值并登记批准哈希。P01任务书now→old，Windows黄金53/53、格式18/18及规模结构检查证据齐全，无需补跑；业务修复和真实部署验收留后续，P02将从本收尾提交建立唯一阶段分支。
 
