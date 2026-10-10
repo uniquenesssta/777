@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "task": "P01-03",
+  "status": "partial_user_evidence_registered_acceptance_pending",
+  "received_at": "2026-10-10T23:04:14+08:00",
+  "record_base_commit": "3dd7c60eb4f33befbd0e2c060784b6778f72466d",
+  "evidence_kind": "user_uploaded_public_collector_report_and_terminal_output",
+  "attachments": [
+    {
+      "filename": "manifest.json",
+      "sha256": "ed5ada5218ed70829dd0a623b4cb5fb6a90b5d0223526cb856ff177c9221f7b7",
+      "size_bytes": 1045,
+      "stored_in_repository": false
+    },
+    {
+      "filename": "S001.json",
+      "sha256": "4ad89e8681d7817114e28f8e8b5c0151941d2d20fdb35672edc389b05fc4a1c4",
+      "size_bytes": 1594,
+      "stored_in_repository": false
+    }
+  ],
+  "collector_report": {
+    "environment": {
+      "os": "Windows",
+      "python": "3.12.10",
+      "openpyxl": "3.1.5"
+    },
+    "originals_modified": false,
+    "private_readonly_snapshot_reported": true,
+    "review_required": [],
+    "scope": "Windows客户端显式读取子版共享配置；原件哈希和只读属性依据用户采集报告，审计端未直接访问原件。"
+  },
+  "config": {
+    "source_role": "sales",
+    "source_path": "\\\\192.168.4.38\\14T共享盘\\葛宁\\PyInstaller\\config.json",
+    "source_sha256_reported": "35ff9863e72748db90f7adbb63f9a2ac710d592ccaa21b9bc1feddde9f1705cb",
+    "source_size_bytes_reported": 1579,
+    "schema": "json_items",
+    "sample_id": "S001",
+    "item_count": 9,
+    "area_item_count": 6,
+    "single_item_count": 3,
+    "finite_nonnegative_sale_cost_k": true,
+    "duplicate_anonymized_product_tokens": false,
+    "missing_price_fields": false,
+    "boolean_single_flags": true,
+    "unknown_item_field_count": 0,
+    "unknown_top_field_count": 0,
+    "export_dir_present": true,
+    "export_dir_value_received": false,
+    "raw_prices_or_product_records_committed": false,
+    "production_price_approval": false,
+    "source_hash_independently_recomputed": false,
+    "private_original_copy_received": false,
+    "manager_config_received": false,
+    "manager_sales_bytes_comparison": null
+  },
+  "ledger_listing": {
+    "evidence_kind": "user_terminal_nonrecursive_xlsx_file_listing",
+    "directory": "\\\\192.168.4.38\\14T共享盘\\葛宁\\PyInstaller\\利润表",
+    "returned_names": [
+      "利润明细_20260529.xlsx"
+    ],
+    "observed_xlsx_count": 1,
+    "full_name_display_truncated": true,
+    "next_explicit_sample_path": "\\\\192.168.4.38\\14T共享盘\\葛宁\\PyInstaller\\利润表\\利润明细_20260529.xlsx",
+    "next_path_basis": "命令中的明确目录加完整Name；不是从省略号后的FullName猜测子目录。",
+    "content_received": false,
+    "schema": null,
+    "absence_of_other_formats_or_directories_proven": false,
+    "filename_date_does_not_determine_schema": true
+  },
+  "deployment_observations": {
+    "sales_unc_read_access_observed": true,
+    "access_observed_from_client_os": "Windows",
+    "observed_share_host": "192.168.4.38",
+    "shared_host_os_confirmed": false,
+    "manager_same_physical_share_confirmed": false,
+    "service_host_selected": false,
+    "smb_concurrency_acl_write_availability_or_restore_acceptance": false
+  },
+  "pending": [
+    "ledger_contents_schema_hash_and_readonly_copy_report",
+    "manager_config_or_absence_confirmation",
+    "legacy_format_sample_or_absence_confirmation",
+    "share_local_root_and_manager_current_export_directory",
+    "possible_writer_computer_counts",
+    "backup_operations_roles_and_current_arrangements",
+    "always_online_service_host_os_and_selection"
+  ],
+  "P01-03": "not_accepted",
+  "P01-04": "not_started",
+  "production_paths_accessed_by_assistant": false
+}
