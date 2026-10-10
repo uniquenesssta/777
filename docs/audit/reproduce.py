@@ -4,7 +4,7 @@ Loads definitions without starting Tk. Writes synthetic workbooks only inside
 TemporaryDirectory. Stubbed UI tests are not Windows/Tk/SMB acceptance tests.
 """
 import ast
-import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import runpy
@@ -15,10 +15,10 @@ import openpyxl
 from openpyxl.worksheet._read_only import ReadOnlyWorksheet
 
 ROOT = Path(__file__).resolve().parents[2]
-FILES = {
-    "A": ("报价利润计算器_局域网导出版_每日汇总版(1).py", "86d6bb43cc98b9de10c136cb4114cf441b0805b1"),
-    "B": ("报价利润计算器_局域网子版本_JSON价格_截图按天订单命名_ICON版(1).py", "6f026f8c0c178ae83581224a6fe8d0ff65a2aa3f"),
-}
+# Both diagnostic entry points use the same manifest and byte-level policy.
+spec = importlib.util.spec_from_file_location("baseline_check", ROOT / "tools/baseline_check.py")
+baseline = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(baseline)
 
 
 class Var:
@@ -69,11 +69,14 @@ def calculate_rows(obj, quantities, price="10", cost="4"):
 
 def main():
     result = {"openpyxl": openpyxl.__version__, "evidence": {}}
-    for label, (filename, expected) in FILES.items():
-        data = (ROOT / filename).read_bytes()
-        digest = hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest()
-        if digest != expected:
+    manifest = json.loads((ROOT / "docs/baseline/manifest.json").read_text(encoding="utf-8"))
+    for entry in manifest["files"]:
+        label = {"manager": "A", "sales": "B"}[entry["role"]]
+        filename = entry["path"]
+        source = baseline.inspect_source(ROOT, entry)
+        if source["status"] != "ok":
             raise SystemExit(f"Baseline changed: {filename}; re-audit before running these observations")
+        data = (ROOT / filename).read_bytes()
         ast.parse(data.decode("utf-8"))
         ns = runpy.run_path(str(ROOT / filename), run_name="audit_only")
         # Functions keep runpy's globals; override message boxes there, never show UI.
@@ -81,7 +84,12 @@ def main():
         with tempfile.TemporaryDirectory(prefix="777-audit-") as temp:
             folder = Path(temp)
             obj = instance(ns, folder)
-            out = {"lines": len(data.splitlines()), "blob": digest}
+            out = {
+                "lines": len(data.splitlines()),
+                "blob": source["normalized_git_blob_sha1"],
+                "worktree_blob": source["git_blob_sha1"],
+                "baseline_match_kind": source["baseline_match_kind"],
+            }
             calculate_rows(obj, ["1", "bad"])
             out["partial_calculation"] = {"valid_records": len(obj.last_export_records), "errors": sum(x["级别"] == "错误" for x in obj.validation_issues)}
             records = list(obj.last_export_records)

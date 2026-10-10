@@ -31,9 +31,24 @@ def inspect_source(root, entry):
             b"blob " + str(len(data)).encode() + b"\0" + data
         ).hexdigest()
         result["sha256"] = hashlib.sha256(data).hexdigest()
-        result["baseline_matches"] = (
+        exact_match = (
             result["git_blob_sha1"] == entry["git_blob_sha1"]
             and result["sha256"] == entry["sha256"]
+        )
+        # Git may check LF blobs out as CRLF on Windows. Keep the raw hashes,
+        # and accept only that byte transformation; do not ignore other edits.
+        normalized = data.replace(b"\r\n", b"\n")
+        result["normalized_git_blob_sha1"] = hashlib.sha1(
+            b"blob " + str(len(normalized)).encode() + b"\0" + normalized
+        ).hexdigest()
+        result["normalized_sha256"] = hashlib.sha256(normalized).hexdigest()
+        normalized_match = (
+            result["normalized_git_blob_sha1"] == entry["git_blob_sha1"]
+            and result["normalized_sha256"] == entry["sha256"]
+        )
+        result["baseline_matches"] = exact_match or normalized_match
+        result["baseline_match_kind"] = (
+            "exact" if exact_match else "line_endings_only" if normalized_match else "changed"
         )
         ast.parse(data.decode("utf-8"), filename=str(path))
         result["syntax"] = "valid"

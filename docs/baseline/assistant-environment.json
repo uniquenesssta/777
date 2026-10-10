@@ -7,7 +7,7 @@
     "architecture": "x86_64",
     "python_bits": 64,
     "python": "3.12.14",
-    "python_executable": "omitted: auxiliary runner path; user environment remains unknown",
+    "python_executable": "omitted: auxiliary runner path",
     "target_windows": false
   },
   "sources": [
@@ -16,7 +16,10 @@
       "path": "报价利润计算器_局域网导出版_每日汇总版(1).py",
       "git_blob_sha1": "86d6bb43cc98b9de10c136cb4114cf441b0805b1",
       "sha256": "165e74cec1ccd728ef9fec93350ce9fa967946c16a7ccf5233f9acb1ec0fe52e",
+      "normalized_git_blob_sha1": "86d6bb43cc98b9de10c136cb4114cf441b0805b1",
+      "normalized_sha256": "165e74cec1ccd728ef9fec93350ce9fa967946c16a7ccf5233f9acb1ec0fe52e",
       "baseline_matches": true,
+      "baseline_match_kind": "exact",
       "syntax": "valid",
       "status": "ok"
     },
@@ -25,7 +28,10 @@
       "path": "报价利润计算器_局域网子版本_JSON价格_截图按天订单命名_ICON版(1).py",
       "git_blob_sha1": "6f026f8c0c178ae83581224a6fe8d0ff65a2aa3f",
       "sha256": "f8494a21af9122c6007bf1f7d3425c603070f3cef67cc0c7650653e8e3e3bb1c",
+      "normalized_git_blob_sha1": "6f026f8c0c178ae83581224a6fe8d0ff65a2aa3f",
+      "normalized_sha256": "f8494a21af9122c6007bf1f7d3425c603070f3cef67cc0c7650653e8e3e3bb1c",
       "baseline_matches": true,
+      "baseline_match_kind": "exact",
       "syntax": "valid",
       "status": "ok"
     }
@@ -76,9 +82,9 @@
   },
   "production_paths_accessed": false,
   "windows_acceptance": "pending",
-  "checked_at": "2026-10-10 (Asia/Shanghai)",
+  "checked_at": "2026-10-10 (UTC)",
   "tool_safety_tests": {
-    "passed": 7,
+    "passed": 10,
     "scope": "diagnostic tool only; no Windows GUI/product acceptance"
   }
 }

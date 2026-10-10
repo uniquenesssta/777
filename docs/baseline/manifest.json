@@ -3,6 +3,7 @@
   "task": "P01-01",
   "source_commit": "32e164d78643de8fa6cbd21a7ca634e1b318f855",
   "planning_commit": "78a1e1d9d8b10c198be2338a7dc61328535d7655",
+  "fingerprint_policy": "仓库LF原始字节指纹固定；工作区同时记录原始与CRLF转LF后的指纹，仅接受该换行差异，不忽略其他内容修改、不重写源码",
   "files": [
     {
       "role": "manager",
@@ -54,21 +55,21 @@
       "distribution": null,
       "purpose": "窗口/表格/对话框",
       "required_for": "application startup",
-      "version_policy": "使用所选 Python 随附 Tcl/Tk，Windows 实机版本待采集"
+      "version_policy": "使用所选 Python 随附 Tcl/Tk；用户回传Windows Tcl 8.6.15 / 编译Tk 8.6导入可用，窗口待重跑"
     },
     {
       "module": "openpyxl",
       "distribution": "openpyxl",
       "purpose": "Excel 读取/追加/格式",
       "required_for": "Excel feature and audit reproduction",
-      "version_policy": "实机版本待采集，当前辅助验证环境为3.1.5"
+      "version_policy": "用户回传Windows与辅助验证环境均为3.1.5，已确认导入可用，Excel实机功能未验收"
     },
     {
       "module": "PIL.ImageGrab",
       "distribution": "Pillow",
       "purpose": "窗口截图",
       "required_for": "screenshot feature",
-      "version_policy": "实机版本待采集，当前辅助验证环境为12.3.0"
+      "version_policy": "用户回传Windows为11.2.1、辅助验证环境为12.3.0；均已确认导入可用，截图实机功能未验收，不为本次修正升级依赖"
     }
   ],
   "resources": [
@@ -86,6 +87,7 @@
   ],
   "packaging": {
     "pyinstaller": "代码有资源路径适配；仓库没有spec/构建脚本/版本锁/安装包",
-    "production_python_version": "unknown"
+    "production_python_version": "unknown; Windows smoke interpreter is 3.12.10, production identity not yet confirmed",
+    "observed_windows_pyinstaller": "6.20.0 installed; original application build workflow/version not yet confirmed"
   }
 }

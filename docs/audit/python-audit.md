@@ -64,6 +64,8 @@
 
 [reproduce.py](reproduce.py) 固定两份 blob 后通过 `runpy` 只加载定义，用轻量 UI 替身调用真实计算/导出方法，文件全部位于临时目录；[evidence.json](evidence.json) 为本轮输出。可从仓库根目录执行 `python docs/audit/reproduce.py`，需要已有 Python/tkinter/openpyxl；本轮未安装生产依赖。源码变化后脚本拒绝沿用旧证据，应另建立新版回归，不为了跑过删除基线检查。
 
+P01-01诊断修正：复现入口与`tools/baseline_check.py`共用[manifest](../baseline/manifest.json)及源码检查，允许Windows工作区仅CRLF换行差异，实际内容变化仍拒绝加载。输出`blob`为核对后的原始LF基线指纹，`worktree_blob`为实际文件指纹，`baseline_match_kind`说明匹配方式；旧evidence保留首次审计输出，复现业务观察未变。详见[运行基线说明](../baseline/P01-01-environment.md)。
+
 | 样本 | 实际结果 | 证明范围 |
 | --- | --- | --- |
 | 两版数量1与bad | 1有效行、1错误，真实导出方法仍创建文件 | 错误订单导出门槛缺失，非真实UI交互验收 |
