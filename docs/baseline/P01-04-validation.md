@@ -1,6 +1,6 @@
 # P01-04 黄金样本、技术参数与验收基线
 
-状态：已交付可执行诊断材料；Windows原测已回传，53/53黄金和全部规模通过，两版GUI心跳已登记；格式17/18，诊断生成器兼容修复已验证，待Windows格式复查。数值参数/性能阈值仍为建议，待本阶段采纳。business-v1保持冻结，P01留now，P02未启动。初次工作基线：stage/p01-baseline@a3e8e81f496cbeb12e977033596aa8cf4e3aa484；本次修复基线c843dc3；授权：用户“开始04”及验收回传。
+状态：Windows自动诊断已通过；累计53/53黄金、18/18格式及全部规模结构检查通过，两版原GUI心跳已登记，无需重跑。数值参数/性能阈值仍为建议，待采纳及阶段材料验收；business-v1保持冻结，P01留now，P02未启动。初次工作基线：stage/p01-baseline@a3e8e81f496cbeb12e977033596aa8cf4e3aa484；原Windows报告指纹匹配c843dc3，格式复查指纹匹配68bc256；授权：用户“开始04”及验收回传。
 
 ## 1. 材料与执行
 
@@ -13,25 +13,25 @@
 | [隔离验证入口](../../tools/p01_validation.py) | 先核对两份源码指纹，再调用原计算/读取方法；支持新reports目录、格式只读检查、受限进程测量、Windows原GUI心跳 |
 | [诊断回归](../../tests/test_p01_validation.py) | 静态目标、舍入/余数/容量、输出不覆盖/越界、源码变化拦截、同秒不同订单、公式缓存状态、插桩恢复 |
 | [本次辅助证据](p01-04-checks.json) | 命令、工具/目标指纹、真实计数、规模结构及未执行范围；Windows/SMB状态独立记录 |
-| [Windows回传与核对](p01-04-windows-evidence.json) / [XML兼容修复检查](p01-04-xml-compat-checks.json) | 原17/18报告字段和值保持，绑定c843dc3指纹；辅助stdlib后端复现相同失败，修复后两种后端分别42项回归与18/18格式通过，Windows复查待回传 |
+| [Windows原回传](p01-04-windows-evidence.json) / [XML兼容修复检查](p01-04-xml-compat-checks.json) / [Windows格式复查](p01-04-windows-format-evidence.json) | 原17/18报告字段和值保持，绑定c843dc3指纹；修复后两种后端分别42项回归与18/18格式通过。Windows stdlib复查18/18通过，5项材料指纹匹配68bc256；累计结论与技术建议采纳状态单独登记 |
 
-在仓库根目录执行。仅生成合成文件，原代码及生产路径不写入；输出目录必须不存在。原价配置/空账本的真实证据继续引用[P01-03账本摘要](p01-03-ledger-evidence.json)，不复制真实商品或价格到黄金集。没有提供的历史格式存在性仍未知。
+以下命令保留为已执行步骤与复现入口，当前无需重跑。在仓库根目录执行，仅生成合成文件，原代码及生产路径不写入；复现时输出目录必须不存在。原价配置/空账本的真实证据继续引用[P01-03账本摘要](p01-03-ledger-evidence.json)，不复制真实商品或价格到黄金集。没有提供的历史格式存在性仍未知。
 
 ```powershell
 git pull
 py -3 tools/p01_validation.py --benchmark --gui-heartbeat --output reports/p01-04-windows-01
 ```
 
-该命令核对53例和18种格式，生成全部规模数据，测小规模原读取方法及两版原GUI的50ms心跳。回传`summary.json`即可先登记；若失败，再按失败项目查看golden-results.json、format-results.json或legacy-audit.json。此前P01-01人工页面验收无需重做。`--gui-heartbeat`在非Windows明确标为blocked，不冒充实测；无GUI的黄金/格式检查不受此限制。
+该命令核对53例和18种格式，生成全部规模数据，测小规模原读取方法及两版原GUI的50ms心跳。首份Windows报告已登记：黄金53/53、全部规模结构检查通过、两版GUI已测，格式17/18为修复前历史结果。详细结果在对应golden-results.json、format-results.json或legacy-audit.json；此前P01-01人工页面验收无需重做。`--gui-heartbeat`在非Windows明确标为blocked，不冒充实测；无GUI的黄金/格式检查不受此限制。
 
-2026-10-11 Windows原测已回传，已完成的黄金/规模/GUI无需重跑。当前只复查诊断工具修复后的18种格式：
+2026-10-11 02:24（Asia/Shanghai）格式单独复查已回传，Windows/Python 3.12.10/openpyxl 3.1.5/stdlib XML后端18/18通过，failures=[]。本次已执行步骤为：
 
 ```powershell
 git pull
 py -3 tools/p01_validation.py --formats-only --output reports/p01-04-windows-format-02
 ```
 
-回传新目录summary.json；目标formats=18/18、failures=[]。该模式将golden标为not_run_formats_only，datasets=null、performance/gui为空，表示本次跳过，不替换之前通过/已测的证据。摘要新增XML后端和失败文件名，若仍失败可直接定位。
+回传附件summary(1).json的原字段和值保存在[格式复查证据](p01-04-windows-format-evidence.json)，5项材料规范哈希与68bc256一致，源码仅CRLF差异。该模式将golden标为not_run_formats_only，datasets=null、performance/gui为空，表示本次跳过，不替换之前通过/已测的证据。两份报告合并确认自动诊断已通过，无需再次执行上述命令。
 
 修复原因：旧缓存样本用固定字节串`<f>1+1</f><v></v>`替换。stdlib XML会写`<v />`，未写入缓存，辅助环境复现17/18，失败文件ledger_formula_cached.xlsx。现按XML命名空间及Q7单元格写缓存2并校验公式；检查仍要求缓存存在且值为2，未放宽目标。原Windows摘要没有失败文件名/后端，故只能确认同类失败复现，不能宣称已独立检查用户Windows原XML。
 
@@ -111,7 +111,7 @@ P01验收诊断材料、参数/指标以及原现状记录；以下功能目标�
 
 | ID / 阶段 | 操作 | 验收要点 / 当前证据 |
 | --- | --- | --- |
-| W01 / P01 | Windows诊断及当前格式单独复查 | 已回传53/53、17/18、全部规模通过；源码line_endings_only，production_paths_accessed=false；修复后18/18待Windows复查 |
+| W01 / P01 | Windows诊断及当前格式单独复查 | pass：原报告黄金53/53、全部规模结构检查通过；格式复查18/18、failures=[]，源码line_endings_only，production_paths_accessed=false；原17/18保留为历史 |
 | W02 / P01 | 原两版隔离GUI启动/切页/输入/关闭 | P01-01已通过，复用已有人工确认，不重复要求 |
 | W03 / P01、P04 | 自动GUI心跳及同档读取指标 | Windows小档两版已测，无回调错误；最大间隔555/3085ms及重复读取留P04修复；优化后目标另验 |
 | W04 / P02 | 逐行分位/折扣/零值/利润率/非法输入 | 同一黄金集，错误整单正式Excel/报价图零写入；改输入后旧结果失效；无UI核心与两端金额一致 |
@@ -133,4 +133,4 @@ P01验收诊断材料、参数/指标以及原现状记录；以下功能目标�
 
 本阶段材料范围可审阅：黄金目标/格式候选/容量边界/性能方案/Windows清单及原缺陷记录均有入口。本次不修改两份业务脚本、P01-02原16例历史输出、采集工具及真实文件；没有创建用户E盘目录、隐藏文件、安装服务/数据库或Rust/Tauri依赖。
 
-P01-04待修复后的Windows格式复查及阶段材料验收，已收到黄金/规模/GUI证据不重跑，技术参数/响应指标尚未伪造确认。全部P01门槛完成再归档，P02仍需启动授权。恢复可撤回本次诊断/文档提交或删除新reports目录；Git回退不撤销business-v1及用户目录/备份要求，任何真实数据恢复仍走后续备份流程。
+P01-04 Windows自动诊断已通过，黄金/规模/GUI与格式复查证据齐全，无需重跑。数值技术参数及响应指标仍待采纳，P01阶段材料待用户验收；全部P01门槛完成再归档，P02仍需启动授权。原成本汇总/停顿缺陷按P03/P04实施修复，格式复查通过不代表旧业务已修复或完整SMB已验收。恢复可撤回本次诊断/文档提交或删除新reports目录；Git回退不撤销business-v1及用户目录/备份要求，任何真实数据恢复仍走后续备份流程。
