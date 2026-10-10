@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "P01-03",
-  "status": "in_progress_sales_config_received_excel_and_remaining_deployment_evidence_pending",
+  "status": "in_progress_sales_config_and_empty_current_ledger_checked_remaining_samples_and_deployment_pending",
   "task_start_commit": "96495368d51a49620f7acb5baa48967f5cc00f12",
   "source_commit": "32e164d78643de8fa6cbd21a7ca634e1b318f855",
   "rule_version": "business-v1",
@@ -43,12 +43,14 @@
   },
   "samples": {
     "real_config": "sales_json_items_public_sample_received_and_checked_manager_pending",
-    "current_excel": "one_ledger_filename_listed_content_and_schema_not_received",
+    "current_excel": "excel_current_26_empty_ledger_received_and_checked_zero_transaction_rows",
     "legacy_excel": "not_provided_or_absence_not_confirmed_no_schema_inferred_from_filename",
-    "unknown_format_inventory": "sales_config_no_shape_review_items_excel_and_other_formats_pending",
+    "unknown_format_inventory": "received_config_and_three_ledger_sheets_known_no_review_flags_other_formats_or_absence_pending",
     "synthetic_tool_checks": "docs/baseline/p01-03-tool-checks.json",
     "collection_tool": "tools/collect_p01_samples.py",
-    "user_evidence": "docs/baseline/p01-03-user-evidence.json"
+    "user_evidence": "docs/baseline/p01-03-user-evidence.json",
+    "ledger_evidence": "docs/baseline/p01-03-ledger-evidence.json",
+    "transaction_details": "zero_detail_rows_in_received_ledger_other_samples_or_absence_pending"
   },
   "proposed_service_topology": {
     "logical_route": "管理员/销售客户端 -> 认证业务服务 -> 服务主机本地账本；沿用business-v1价格/字段权限边界",
@@ -59,18 +61,21 @@
   },
   "acceptance": {
     "source_and_schema_inventory": "completed",
-    "real_readonly_snapshots_and_hashes": "sales_config_reported_hash_and_private_readonly_copy_public_sample_checked_excel_and_manager_pending",
+    "real_readonly_snapshots_and_hashes": "sales_config_and_empty_ledger_reported_hashes_readonly_copies_public_samples_checked_manager_and_other_history_pending",
     "same_share_or_difference_evidence": "pending",
     "writer_backup_operations_registration": "pending",
     "service_host_and_topology_confirmation": "pending",
     "P01-03": "not_accepted",
-    "P01-04": "not_started"
+    "P01-04": "not_started",
+    "transaction_amount_reconciliation": "not_performed_received_ledger_has_zero_detail_rows"
   },
   "production_paths_accessed_by_assistant": false,
   "observed_runtime_paths": {
     "evidence": "docs/baseline/p01-03-user-evidence.json",
     "sales_config_unc_read": "user_collector_report_observed",
     "sales_report_directory_xlsx_listing": "user_terminal_observed_one_xlsx_name",
-    "host_scope": "读配置和列出账本的UNC地址；主机系统/本地共享根/服务主机选择尚未确认。"
+    "host_scope": "读配置/账本和列出利润表的UNC地址；主机系统/本地共享根/服务主机选择尚未确认。",
+    "latest_evidence": "docs/baseline/p01-03-ledger-evidence.json",
+    "sales_ledger_unc_read": "user_collector_report_observed_empty_current_26_ledger"
   }
 }

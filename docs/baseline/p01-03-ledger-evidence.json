@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "task": "P01-03",
+  "status": "config_and_empty_current_ledger_checked_remaining_samples_and_deployment_pending",
+  "received_at": "2026-10-10T23:29:39+08:00",
+  "record_base_commit": "7be056ca1c002b821b4926edd41742908b4bfab0",
+  "batch": "reports/p01-03-run-02",
+  "evidence_kind": "user_uploaded_public_collector_report_and_terminal_output",
+  "previous_evidence": "docs/baseline/p01-03-user-evidence.json",
+  "attachments": [
+    {
+      "uploaded_filename": "manifest(1).json",
+      "collector_public_filename": "manifest.json",
+      "sha256": "5f939797098bffadab9bfe29cd9d96a42a96f7c9bfd9cf7cad82a2e898e7bf86",
+      "size_bytes": 1390,
+      "stored_in_repository": false
+    },
+    {
+      "uploaded_filename": "S001(1).json",
+      "collector_public_filename": "S001.json",
+      "sha256": "4ad89e8681d7817114e28f8e8b5c0151941d2d20fdb35672edc389b05fc4a1c4",
+      "size_bytes": 1594,
+      "stored_in_repository": false
+    },
+    {
+      "uploaded_filename": "S002.json",
+      "collector_public_filename": "S002.json",
+      "sha256": "a21cc0c0e4a1c6c8c72fda412aa9db308e6efeddad3c000a77b85e09d1ffbe4b",
+      "size_bytes": 13955,
+      "stored_in_repository": false
+    }
+  ],
+  "collector_report": {
+    "environment": {
+      "os": "Windows",
+      "python": "3.12.10",
+      "openpyxl": "3.1.5"
+    },
+    "review_required": [],
+    "originals_modified": false,
+    "readonly_snapshots_reported": true,
+    "source_hashes_independently_recomputed": false,
+    "private_original_copies_received": false,
+    "scope": "已核对回传JSON；原件哈希、只读属性和源行范围依据用户采集报告，不代表审计端复读原件或实际SMB写入/恢复验收。"
+  },
+  "config_observation": {
+    "sample_id": "S001",
+    "source_role": "sales",
+    "source_sha256_reported": "35ff9863e72748db90f7adbb63f9a2ac710d592ccaa21b9bc1feddde9f1705cb",
+    "source_size_bytes_reported": 1579,
+    "schema": "json_items",
+    "item_count": 9,
+    "same_reported_source_hash_as_run_01": true,
+    "public_snapshot_bytes_equal_run_01": true,
+    "production_price_approval": false
+  },
+  "ledger_observation": {
+    "sample_id": "S002",
+    "source_role": "unspecified",
+    "source_path": "\\\\192.168.4.38\\14T共享盘\\葛宁\\PyInstaller\\利润表\\利润明细_20260529.xlsx",
+    "source_sha256_reported": "6111f919803827f379c42b874439976c8454b328d979400d641650e4d63df703",
+    "source_size_bytes_reported": 8414,
+    "schema": "excel_workbook",
+    "sheet_count": 3,
+    "sheets": [
+      {
+        "sheet": "利润明细",
+        "schema": "excel_current_26",
+        "reported_rows": 6,
+        "reported_columns": 26,
+        "header_row": 6,
+        "truncated": false,
+        "sampled_formula_count": 0,
+        "sampled_formula_without_cache": 0,
+        "nonempty_cell_count": 41
+      },
+      {
+        "sheet": "输入问题",
+        "schema": "excel_input_issues",
+        "reported_rows": 5,
+        "reported_columns": 6,
+        "header_row": 4,
+        "truncated": false,
+        "sampled_formula_count": 0,
+        "sampled_formula_without_cache": 0,
+        "nonempty_cell_count": 11
+      },
+      {
+        "sheet": "价格设定",
+        "schema": "excel_price_snapshot",
+        "reported_rows": 13,
+        "reported_columns": 5,
+        "header_row": 4,
+        "truncated": false,
+        "sampled_formula_count": 0,
+        "sampled_formula_without_cache": 0,
+        "nonempty_cell_count": 53
+      }
+    ],
+    "unknown_sheets": [],
+    "external_link_parts": 0,
+    "macro_parts": 0,
+    "detail_rows_after_header": 0,
+    "income_cost_profit_summary_all_zero": true,
+    "legacy_zero_income_margin_display": "0.0%",
+    "business_v1_zero_income_margin_display": "—",
+    "business_v1_zero_income_margin_value": null,
+    "input_issue_sheet_record_count": 1,
+    "diagnostic_level_and_message_redacted": true,
+    "diagnostic_severity_or_cause_verified": false,
+    "transaction_amount_reconciliation_performed": false,
+    "evidence_use": "当前26列空账本、价格快照和输入问题表的格式证据；不提供真实成交/折扣/利润金额链或历史导入完成证据。",
+    "creator_role_or_actor_inferred": false,
+    "other_ledger_or_legacy_format_absence_confirmed": false
+  },
+  "config_ledger_price_snapshot_comparison": {
+    "same_collection_batch": true,
+    "matched_item_count": 9,
+    "unmatched_config_items": 0,
+    "unmatched_snapshot_items": 0,
+    "raw_sale_cost_k_fields_equal": true,
+    "single_flags_equal": true,
+    "match_kind": "同批稳定匿名商品编号及已保留字段逐项匹配；不等于价格版本/历史订单归属已建立。"
+  },
+  "checks_performed": [
+    "manifest_snapshot_schema_binding",
+    "attachment_bytes_hashes",
+    "run_01_config_source_hash_and_public_bytes_match",
+    "source_literal_26_headers_match",
+    "declared_sheet_cell_ranges_and_no_duplicate_coordinates",
+    "no_rows_after_detail_header_and_zero_summaries",
+    "all_9_price_snapshot_fields_and_flags_match_same_batch_config",
+    "one_diagnostic_record_no_unredacted_severity_inference",
+    "no_reported_unknown_formula_external_macro_or_truncation"
+  ],
+  "pending": [
+    "manager_config_or_absence_confirmation",
+    "other_transaction_or_legacy_format_samples_if_available_otherwise_absence_confirmation",
+    "share_local_root_and_manager_current_export_directory",
+    "possible_writer_computer_counts",
+    "backup_operations_roles_and_current_arrangements",
+    "always_online_service_host_os_and_selection"
+  ],
+  "P01-03": "not_accepted",
+  "P01-04": "not_started",
+  "raw_business_records_committed": false,
+  "production_paths_accessed_by_assistant": false
+}
