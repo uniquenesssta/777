@@ -1,6 +1,6 @@
 # P02 计算正确性与公共业务核心
 
-状态：P02阶段执行中；P02-01已验收收尾，无需补跑；P02-02统一输入/配置校验执行中，P02-03/04未启动。前置：P01已验收归档，business-v1/numeric-v1/performance-v1已确认，见[P01验收](../baseline/p01-acceptance.json)。实际唯一分支 `stage/p02-calculation`；创建基线 `stage/p01-baseline@7099303fda9edf70cc6544a99ec32c57db88a7c9`。问题：A04、A06、A07、A08、A18、A21、A23。依据：[主任务书](../MASTER_PLAN.md) / [迁移契约](../MIGRATION_CONTRACT.md)。
+状态：P02阶段执行中；P02-01已验收收尾，无需补跑；P02-02统一输入/配置校验已实现、辅助78项通过待本机复查/用户验收，P02-03/04未启动。前置：P01已验收归档，business-v1/numeric-v1/performance-v1已确认，见[P01验收](../baseline/p01-acceptance.json)。实际唯一分支 `stage/p02-calculation`；创建基线 `stage/p01-baseline@7099303fda9edf70cc6544a99ec32c57db88a7c9`。问题：A04、A06、A07、A08、A18、A21、A23。依据：[主任务书](../MASTER_PLAN.md) / [迁移契约](../MIGRATION_CONTRACT.md)。
 
 共用[P01黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)和[验收方案](../baseline/P01-04-validation.md)；[批准记录](../baseline/p01-acceptance.json)将历史numeric-v1-proposed原值映射为numeric-v1，JSON及期望保持原样。P02/P06读取同一黄金文件。
 
@@ -9,7 +9,7 @@
 | ID | 输入/范围与交付 | 可执行验收 | 恢复方式 |
 | --- | --- | --- | --- |
 | P02-01 | 已验收收尾；从两版calculate抽离纯领域模型和Decimal计算；UI变量转成一次快照；金额不再从summary字符串回读；版本化规则 | P01黄金样本精确通过；面积/单件K公式不变；0.005例符合确认规则；行和、订单和、利润恒等；运算溢出明确失败 | 可回退代码；已导出数据不重算覆盖，规则版本分开 |
-| P02-02 | 执行中；统一数字/折扣/配置schema；拒bool及非有限值，定义范围/中间精度；解析旧/新JSON、严格布尔、重复商品；显式line_kind | bool、false字符串、非法items成员、重复项、空价格/空K、除零、极值、保留名称商品及负数政策均有用例；损坏配置不半生效 | 保留上次有效快照及原配置；不自动以默认值替换用户配置 |
+| P02-02 | 已实现、辅助78项通过待本机复查/用户验收；统一数字/折扣/配置schema；拒bool及非有限值，定义范围/中间精度；解析旧/新JSON、严格布尔、重复商品；显式line_kind | bool、false字符串、非法items成员、重复项、空价格/空K、除零、极值、保留名称商品及负数政策均有用例；损坏配置不半生效 | 保留上次有效快照及原配置；不自动以默认值替换用户配置 |
 | P02-03 | 计算有效性/陈旧状态进入显式结果；有错误禁止正式导出，输入/价格变动使旧计算失效；截图按确认策略阻断或标草稿 | 一有效一错误时Excel零写入；旧结果不能直接成交；错误能定位行；折扣错误不会把局部明细当完整订单 | 草稿保留，可修改重算；不得为恢复临时绕过校验 |
 | P02-04 | 接回母子入口与共享用例，删除本次已替代的重复业务逻辑；保留角色差异、格式适配边界 | 同一数据两端计算完全一致；UI基础流程Windows实测；Python核心无Tk/openpyxl/Pillow依赖；未使用商品的空价格不无故阻止计算 | 以本阶段基线回退完整改动，避免一端新一端旧 |
 
@@ -45,7 +45,7 @@
 
 ### 本机复现核心检查
 
-本次本机复查已经通过，下列命令仅供以后复现，不是要求补跑。新检出仓库首次切换本阶段分支时，在仓库根目录的PowerShell 7运行：
+P02-01本机复查已通过，无需补跑；当前分支新增P02-02检查可沿用以下入口（不会启动GUI或操作生产文件）。新检出仓库首次切换本阶段分支时，在仓库根目录的PowerShell 7运行：
 
 ```powershell
 git remote set-branches --add origin stage/p02-calculation &&
@@ -55,7 +55,7 @@ git log -1 --format="%h %d %s" &&
 py -3 -m unittest discover -s tests -v
 ```
 
-日志装饰应显示HEAD所在stage/p02-calculation及本次修复提交；只显示42项或没有test_quote_core/test_legacy_snapshot_adapter说明未进入P02检查。检查入口共60项，包括18项新核心/适配检查；成功应为OK，无法创建symlink时可为OK (skipped=2)，六处编码错误不应再出现。
+日志装饰应显示HEAD所在stage/p02-calculation及P02-02实现提交；检查入口现为78项（此前60项+新增18项配置检查），应包含test_price_configuration。只显示42或60项说明没有取得本次实现。成功应为OK，无法创建symlink时可为OK (skipped=2)；P02-01已通过的历史Windows60项结果不改写为78项。
 
 已有本地stage/p02-calculation时不重复创建，改用：
 
@@ -72,3 +72,13 @@ py -3 -m unittest discover -s tests -v
 
 - 用户明确指令“收尾01开始02”，[确认记录](../verification/P02-01-acceptance.json)绑定材料b1a2d96及Windows实测2d8006e；P02-01验收收尾，原53例黄金、辅助60项及Windows58通过/2项跳过证据保持，无需补跑。
 - 启动前核对stage/p02-calculation@b1a2d9655cae4bcff4226ed382dc17b4909b3a46及干净工作区；复用本阶段唯一分支，P02整阶段留now。P02-02将从本收尾登记提交继续实施，完整基线及验证结果在实施记录补齐；P02-03/04未启动。
+
+## P02-02实施与验证 — 2026-10-11（Asia/Shanghai）
+
+- 实施基线：已推送的P02-01收尾提交8c6b78cc0d30542efb3958f98527fe374b1faff7，工作区核验干净；同一stage/p02-calculation分支，没有另建阶段分支。授权及01验收见上方确认记录。
+- 交付：[整份配置候选校验/纯替换接口](../../quote_core/configuration.py)，公开parse_price_config/refresh_price_config及冻结结果；统一复用numeric-v1的parse_number/parse_percent，金融原文和整数分规则不变。NormalLine/DiscountLine新增不可改写的line_kind字段，并进入dataclasses.asdict；标签不由展示名称推断。
+- Schema：UTF-8/BOM文本或字节，JSON数字保留token原文；当前items及旧三元数组兼容，single/qty_only严格布尔且冲突拒绝，原始JSON键/trim商品名重复、保留“折扣”、未知字段、坏items成员、空价格、非有限/布尔/负值/超容量均阻断整份。空K仍为1；旧格式必须显式传入原default_items中的单件名单。详细字段/容量及旧格式尾项处理见[迁移契约第9节](../MIGRATION_CONTRACT.md#9-p02-02已实现的配置候选校验)。
+- 保留与恢复：成功才产生完整新配置；失败active指向上次有效对象，价格版本、目录、原文不变；无旧有效值则保持null，不以默认价格补齐。仅为纯内存状态转换，不写配置/账本/备份；保留价格不等于允许陈旧/离线成交。原两份脚本、黄金/profile及全部历史证据不改。
+- 验证：[P02-02检查证据](../verification/P02-02-checks.json)，python -m unittest discover -s tests -v，78/78辅助通过（原60+新增18）、53/53黄金保持；单件/面积/顺序折扣、原始JSON数字精度、flag别名/冲突、整份拒绝、失败保留/首次无fallback、资源界限、标签语义和孤立标准库包均覆盖。隔离原两端类方法实证字符串false变True、非法成员崩溃/跳过；新校验拒绝对应候选，错误定位items[0].single等字段。
+- 未执行：P02-02新的Windows本机复查/用户验收待回传；本次辅助环境无GUI/SMB验收。原配置加载及fallback还未路由到新接口，统一在P02-04接回，A18应用入口不提前宣称关闭；P02-03接陈旧状态/输出阻断，P03接真实文件安全，P05接价格发布身份/鉴权。P02-03/04未启动，整阶段留now。
+- 回退：从本任务基线恢复新增解析/结果/标签及相关测试，保留P02-01验收和已冻结金额规则；没有真实文件需要覆盖回滚。Windows沿用本机复现核心检查入口，预期78项OK（既有symlink条件仍可跳过）；不要求重跑P01 GUI、规模诊断或生产采集。

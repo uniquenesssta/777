@@ -1,6 +1,6 @@
 """Immutable inputs/results; settled amounts are integer cents, not UI text."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from .numbers import MONEY_LIMIT, NUMERIC_PROFILE, RULE_VERSION, ValidationError, money_text, rounded_ratio
 
 
@@ -19,6 +19,7 @@ class NormalLine:
     h: str = ""
     w: str = ""
     name: str = ""
+    line_kind: str = field(default="normal", init=False)
 
     def __post_init__(self):
         _immutable_scalars(self, ("product_id", "q", "h", "w", "name"))
@@ -28,6 +29,7 @@ class NormalLine:
 class DiscountLine:
     percent: str
     name: str = "折扣"
+    line_kind: str = field(default="discount", init=False)
 
     def __post_init__(self):
         _immutable_scalars(self, ("percent", "name"))

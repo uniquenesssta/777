@@ -279,6 +279,11 @@ prices = PriceSnapshot('v1', (PriceItem('P', '0.005', '0', single=True),))
 result = calculate_quote(QuoteSnapshot('v1', (NormalLine('P', '1'),)), prices)
 assert result.totals.income_cents == 1
 assert result.numeric_profile == 'numeric-v1'
+validated = parse_price_config('{"items":[{"name":"P","sale":"0.005","cost":"0","single":true}]}', price_version_id='v1')
+assert validated.status == 'ok'
+assert calculate_quote(QuoteSnapshot('v1', (NormalLine('P', '1'),)), validated.config.prices).totals.income_cents == 1
+retained = refresh_price_config(validated.config, '{"items":false}', price_version_id='v2')
+assert not retained.applied and retained.active is validated.config
 print('standalone core passed')
 """
         with tempfile.TemporaryDirectory(prefix="777-core-only-") as folder:

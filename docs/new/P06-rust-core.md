@@ -4,6 +4,8 @@
 
 P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。P01已按[批准记录](../baseline/p01-acceptance.json)采纳numeric-v1/performance-v1，历史候选/黄金元数据保留并映射；实施时读取同一黄金JSON，不复制期望。本阶段仍待启动。
 
+P02-02已实现[配置候选契约](../MIGRATION_CONTRACT.md#9-p02-02已实现的配置候选校验)与[18项配置回归](../../tests/test_price_configuration.py)。P06-01同时移植JSON数字原始token、旧格式显式单件名单、严格single/qty_only、重复/未知项整份拒绝、失败保留有效快照及固定line_kind；不能用浮点JSON解码重新引入精度丢失，也不能静默跳过坏配置。服务发布身份/协议仍以P05冻结版本为准，本段仅补充后续验证输入，不启动Rust开发。
+
 目标：把已确认业务行为迁移至Rust，用独立核对证明正确性；此阶段不实施完整Tauri界面，也不迁移生产账本。
 
 | ID | 实施与交付 | 可执行验收 | 恢复方式 |

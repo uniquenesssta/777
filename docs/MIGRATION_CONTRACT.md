@@ -127,12 +127,12 @@ ID采用经评估的随机/排序唯一标识方案，不以“加毫秒”替�
 
 ## 8. P02-01已实现的Python领域接口
 
-实现入口为[quote_core](../quote_core/__init__.py)，使用business-v1与已采纳的numeric-v1，生产模块只依赖标准库。它不读取仓库profile、黄金、配置或Excel；[批准记录](baseline/p01-acceptance.json)与测试按Git已提交LF字节指纹（工作区仅CRLF转LF）核对参数。历史候选标识numeric-v1-proposed仅是保留的证据别名，不是生产接口默认版本。
+实现入口为[quote_core](../quote_core/__init__.py)，使用business-v1与已采纳的numeric-v1，生产模块只依赖标准库。它不从文件读取仓库profile、黄金、配置或Excel；P02-02配置入口只接收调用者已取得的JSON文本/字节，见第9节。[批准记录](baseline/p01-acceptance.json)与测试按Git已提交LF字节指纹（工作区仅CRLF转LF）核对参数。历史候选标识numeric-v1-proposed仅是保留的证据别名，不是生产接口默认版本。
 
 | 已实现类型/入口 | 输入与结果 | 边界 |
 | --- | --- | --- |
-| NormalLine / DiscountLine | 普通行product_id/q/h/w原文，或明确的折扣percent原文；名称仅展示 | 普通/折扣由类型显式区分，原文保留；不凭商品名称判断折扣 |
-| PriceItem / PriceSnapshot | 商品键、sale/cost/k原文、single布尔；独立的price_version_id和不可变items元组 | 用到的价格逐字段校验；single字符串false拒绝，空价格拒绝，空K默认1；整份配置发布校验在P02-02 |
+| NormalLine / DiscountLine | 普通行product_id/q/h/w原文，或明确的折扣percent原文；名称仅展示 | 普通/折扣由类型显式区分；P02-02补充固定且不可传入改写的line_kind=normal/discount，dataclasses.asdict包含该标签；不凭展示名称判断折扣 |
+| PriceItem / PriceSnapshot | 商品键、sale/cost/k原文、single布尔；独立的price_version_id和不可变items元组 | 计算只逐字段校验用到的价格；整份配置候选由P02-02全量校验，见第9节；single字符串false拒绝，空价格拒绝，空K默认1 |
 | QuoteSnapshot | 不可变有序lines、绑定price_version_id、rule_version和numeric_profile | 列表入参复制为元组；不接受可变字段/控件，布尔或浮点等错误原文由计算报VALIDATION；空订单/超过10000行拒绝 |
 | calculate_quote(snapshot, prices) | QuoteResult；逐行整数分、原输入/价格和规范十进制串、折前整数分、订单总额、错误/提醒 | 快照版本须相同；不加载/刷新价格、不写账，不能据此证明已发布价格或正式提交授权 |
 | Amounts | income_cents/cost_cents整数，profit_cents派生；margin_tenths为百分比十分位或null | display仅从整数分生成文本，cents_payload把分整数转字符串跨JS边界；不从UI文本回读金额 |
@@ -141,3 +141,24 @@ ID采用经评估的随机/排序唯一标识方案，不以“加毫秒”替�
 QuoteResult携带business-v1/numeric-v1/price_version_id。VALIDATION时lines和totals均为null，issues含reason/field及从1开始的行号；成功才有完整金额。首行或零小计折扣返回零并附DISCOUNT_ZERO_SUBTOTAL提醒，折扣行及零收入利润率为null。未实现草稿revision、输入变更/PRICE_STALE状态及真实导出阻断，它们属于P02-03/P02-04。领域价格包含成本，仅用于受信任计算链，销售DTO及服务鉴权由P05落实，不能把完整领域对象直接当销售投影。
 
 母子原calculate尚未切换，原summary回读/部分导出缺陷也未据此关闭。P02-04接回两端后才能验收UI、保存/Excel/图片都使用同一权威结果；历史账本不重算覆盖。
+
+## 9. P02-02已实现的配置候选校验
+
+[configuration.py](../quote_core/configuration.py)复用同一parse_number/parse_percent，数值规则仍为numeric-v1；没有另一套JSON金额算法。JSON数字通过parse_int/parse_float接收原始token，之后与字符串使用同一十进制表达式解析；不先转换为float。旧JSON数字可兼容，后续IPC金融字段仍输出十进制字符串。
+
+| 入口/类型 | 已实现行为 | 边界 |
+| --- | --- | --- |
+| parse_price_config(source, price_version_id=..., legacy_single_names=...) | UTF-8字节或文本，允许UTF-8 BOM；成功返回PriceConfigResult(ok, config)，配置含不可变prices、source_schema、export_dir和original_json | 失败status=VALIDATION且config=null，issues定位json/items[0].sale等字段；不是文件加载、价格发布或认证接口 |
+| refresh_price_config(previous, source, ...) | 全部校验成功后返回新active；失败active保留previous同一对象，applied=false；首次无有效配置时保持null | previous须来自此前成功校验；保留原文、原价格版本及目录，不写文件、不以硬编码默认价格替代，也不授权陈旧/离线价格成交 |
+| ValidatedPriceConfig / PriceConfigResult / PriceConfigRefresh | frozen领域记录及不可变PriceSnapshot；金融原文保留，空K保留原文并按1计算 | price_version_id由调用者显式传入；该标签不证明已发布，版本分配/鉴权在P05，陈旧状态及提交阻断在P02-03 |
+
+支持的文件形状：
+
+- 新格式顶层只接受items及可选export_dir；items必须是非空数组，成员只接受name/sale/cost/k/single/qty_only。sale和cost必填且不可空；k缺失或空白为1，null及bool不是空K。single/qty_only只接受真正的布尔值；两者同存必须一致，均缺失时按现有读取器兼容为false。
+- 旧格式为商品名→恰好三个sale/cost/k值的数组及可选export_dir；未知/多余尾项和非价格记录拒绝。旧格式没有单件标志，调用者必须显式传入各端现有默认商品中的单件名称集合，可以为空；不凭常见名称猜测，也不使用一套隐藏名单。P02-04接入时从原有default_items取得该集合。
+- 商品名必须是真正的文本，trim后非空且唯一；重复原始JSON键在解码时直接拒绝，重复trim名称也拒绝整份。保留名称“折扣”不能作为价格商品，折扣由独立行类型表达。items数组内名为items/export_dir的普通商品没有元数据歧义，允许；旧顶层export_dir必须是目录文本，不能兼作商品数组。
+- 任一价格项、未知字段、目录文本类型或其他schema错误均拒绝整份候选，不跳过坏项或部分生效。export_dir仅保留原文/缺失null，不探测目录、不补隐性E盘路径；路径设置、可用性和真实读写仍由后续适配/文件任务处理。
+
+当前JSON解码保护为1MiB UTF-8、嵌套深度32、最多10000商品、商品名256字符、目录文本32767字符；数字原文沿用numeric-v1的256字符限制。名称/目录拒绝控制字符及非法Unicode。上述是当前配置载入容量保护，不改business-v1金额范围或舍入，也不冒充服务协议/最终目录设置已实现。未知扩展拒绝，原配置保留待处理；旧单不重算。
+
+整份候选校验与计算所用价格校验范围不同：损坏的未用商品也不能进入新有效配置；已冻结的PriceSnapshot计算时仍只校验引用商品，不因未引用空价无故阻断报价。原母子配置加载/默认fallback尚未切换到这些入口，真实UI接入统一留P02-04；A18的核心校验已具备证据，原应用入口不能据此宣称已修复。
