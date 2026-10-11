@@ -2,7 +2,7 @@
 
 版本：初始规划；日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P01、P02已验收归档old；P02四项均通过，最新[阶段验收](verification/P02-acceptance.json)已登记。下一项P03-01，P03阶段分支尚未建立；P04至P08未启动。** 本任务书不自动授予后续阶段实施权限。任务定位按用户授权、此索引和真实Git状态交叉确认。
+**P01、P02已验收归档old；P02四项均通过，最新[阶段验收](verification/P02-acceptance.json)已登记。P03-01文件事务已实现待实机/用户验收，当前唯一分支stage/p03-file-safety；P03-02至04和P04至P08未启动。** 本任务书不自动授予后续阶段实施权限。任务定位按用户授权、此索引和真实Git状态交叉确认。
 
 ## 1. 目标与边界
 
@@ -15,13 +15,13 @@
 
 ## 2. 阶段索引
 
-P01、P02任务书均已归档old，其余阶段仍在new。每阶段一个开发分支；P01实际分支为stage/p01-baseline，创建于plans@78a1e1d；P02实际分支stage/p02-calculation创建于P01验收提交7099303；P03至P08名称仍为建议，尚未创建。
+P01、P02任务书均已归档old，P03在now，P04至P08仍在new。每阶段一个开发分支；P01实际分支为stage/p01-baseline，创建于plans@78a1e1d；P02实际分支stage/p02-calculation创建于P01验收提交7099303；P03实际分支stage/p03-file-safety创建于P02收尾96735ad；P04至P08名称仍为建议，尚未创建。
 
 | 阶段 | 任务书 | 前置 | 建议分支 | 状态 / 核心退出门槛 |
 | --- | --- | --- | --- | --- |
 | P01 | [基线与规则确认](old/P01-baseline.md) | 本轮审计交付 | stage/p01-baseline | 已验收归档；[确认记录](baseline/p01-acceptance.json)，business-v1/numeric-v1/performance-v1已确认，53/53黄金、18/18格式及全部规模结构检查通过 |
 | P02 | [计算正确性与公共核心](old/P02-calculation.md) | P01已验收 | stage/p02-calculation | 四项均已验收归档；[P02确认](verification/P02-acceptance.json)，辅助130项及用户明确Windows复查通过 |
-| P03 | [文件数据安全与兼容](new/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 待启动；冲突不覆盖、未知格式不破坏、幂等恢复成立 |
+| P03 | [文件数据安全与兼容](now/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | P03-01已实现待实机/用户验收；02至04待启动，冲突/未知提交/旧数据兼容仍按退出门槛验证 |
 | P04 | [后台任务与性能](new/P04-performance.md) | P03已验收 | stage/p04-performance | 待启动；消除重复全量读取、UI响应、完整分页实测 |
 | P05 | [结构化存储与局域网服务](new/P05-data-service.md) | P04已验收 | stage/p05-data-service | 待启动；事务/鉴权/导入核对及恢复演练通过 |
 | P06 | [Rust业务核心与适配](new/P06-rust-core.md) | P05已验收 | stage/p06-rust-core | 待启动；黄金样本一致、服务适配和格式兼容通过 |
@@ -67,14 +67,14 @@ P01-02的金额/权限现状、16个复核示例、D01–D06确认状态见[决�
 
 ## 6. 本轮交付核验与下一步
 
-已完成：固定源码与规则基线，读取两版实现，形成23项问题、隔离复现脚本及输出，创建计划生命周期与P01–P08任务分解。两份业务文件的blob保持不变。
+已完成：固定源码与规则基线，读取两版实现，形成23项问题、隔离复现脚本及输出，创建计划生命周期与P01–P08任务分解。原两份业务源码现已不可变归档，当前入口已在P02接入共享核心，并在P03-01接入文件事务。
 
-未完成且不属于本轮实施：Python业务修复、Rust/Tauri开发、完整业务/SMB实机验收、真实账本迁移。P01-01交付见[运行基线说明](baseline/P01-01-environment.md)；工具10项安全回归通过，Windows母子版隔离GUI启动/样例计算/关闭/清理通过，用户明确确认界面正常，P01-01已验收。后续Windows安装包交付已在P07-04规划。
+仍未完成：Rust/Tauri开发、完整业务/SMB实机验收、真实账本迁移。Python计算/窗口已在P02交付验收，文件安全按P03继续实施。P01-01交付见[运行基线说明](baseline/P01-01-environment.md)；工具10项安全回归通过，Windows母子版隔离GUI启动/样例计算/关闭/清理通过，用户明确确认界面正常，P01-01已验收。后续Windows安装包交付已在P07-04规划。
 
-P01-02已核对金额/折扣/解析、价格重读和子版权限事实，交付[决策记录](baseline/P01-02-decisions.md)及16个合成示例；用户已采纳D01–D06，冻结business-v1并验收收尾，确认原文、方案提交及原示例哈希见[确认记录](baseline/p01-02-confirmation.json)。业务功能及服务鉴权尚未实现。
+P01-02已核对金额/折扣/解析、价格重读和子版权限事实，交付[决策记录](baseline/P01-02-decisions.md)及16个合成示例；用户已采纳D01–D06，冻结business-v1并验收收尾，确认原文、方案提交及原示例哈希见[确认记录](baseline/p01-02-confirmation.json)。规则对应的计算功能已在P02实现；服务鉴权仍待P05。
 
 P01-03已启动，交付[源码目录/格式与只读采集说明](baseline/P01-03-data-deployment.md)、[部署记录](baseline/p01-03-deployment.json)、采集工具及16项合成检查/CLI证据。子版配置（9商品，6面积/3单件）与利润明细_20260529.xlsx脱敏材料已核对，分别登记[第一批配置摘要](baseline/p01-03-user-evidence.json)和[第二批账本摘要](baseline/p01-03-ledger-evidence.json)。账本含当前26列空明细、9项一致价格快照及1条已脱敏诊断记录，无报告的未知表/公式/外链/宏/截断；0明细不能验真实成交金额链。用户23:41确认目录同源、母版范围、未定销售台数及常在线电脑，授权资料缺口按源码/建议登记；[可见目录与E盘隐藏备份规划](baseline/P01-03-directory-backup.md)已纳入后续任务。P01-03登记范围已验收收尾，未提供真实历史的存在性、主机系统版本/具体运维账户及备份实施保持未知并按P05/P08验证；没有服务部署或成交金额对账。P01-04现已交付，详见[黄金/格式/技术参数与验收说明](baseline/P01-04-validation.md)及[辅助证据](baseline/p01-04-checks.json)；53/53、18/18及全规模核对通过，39项诊断回归通过。Windows原GUI心跳已采集，修复后的[Windows格式复查](baseline/p01-04-windows-format-evidence.json)18/18通过、5项材料指纹匹配68bc256；原53/53黄金与全部规模结构检查证据继续有效，无需重跑。数值参数/响应指标和阶段材料现已按用户授权采纳验收，详见[P01确认](baseline/p01-acceptance.json)；P01归档old，P02-01获启动授权。
 
-P02-01现已交付[领域核心](../quote_core/__init__.py)与[检查证据](verification/P02-01-checks.json)：使用numeric-v1、结构化整数分结果和不可变快照；原行为由不可变归档源复现，当前入口已统一接入，Windows交互待04验收。首次本机回传的分支失败及六处GBK错误已修复，[原始回传与兼容检查](verification/P02-01-windows-compatibility.json)保留失败结果；最新[Windows通过证据](verification/P02-01-windows-evidence.json)匹配2d8006e及全部60项清单，58通过/2项既有权限跳过，新增18项全过，P02-01已按[用户指令](verification/P02-01-acceptance.json)验收收尾、无需补跑；P02-02已交付[整份配置校验与保留快照](../quote_core/configuration.py)，新增18项及完整78项辅助检查通过，见[P02-02证据](verification/P02-02-checks.json)；[P02-02 Windows通过证据](verification/P02-02-windows-evidence.json)对应ed47a29及全部78项清单，76通过/2项既有权限跳过，新增18项配置全过，53例黄金通过，已按[用户接续指令](verification/P02-02-acceptance.json)验收收尾、无需补跑；P02-03已交付[QuoteSession状态与输出门槛](../quote_core/session.py)，输入/身份/价格变化使结果失效、旧工作丢弃、价格刷新重算确认，三种正式输出错误零回调；新增18项与完整96项辅助回归及53例黄金通过，见[P02-03证据](verification/P02-03-checks.json)，03已验收收尾，04已实现待Windows/用户验收。原应用入口现已接入[共享窗口适配](../quote_app/integration.py)，[04辅助证据](verification/P02-04-checks.json)119项及两端53例通过；Windows交互/用户验收待完成。当前任务书为[now/P02](old/P02-calculation.md)，P02整阶段未完成。
+P02-01现已交付[领域核心](../quote_core/__init__.py)与[检查证据](verification/P02-01-checks.json)：使用numeric-v1、结构化整数分结果和不可变快照；原行为由不可变归档源复现，当前入口已统一接入，P02-04 Windows交互现已按用户明确确认验收。首次本机回传的分支失败及六处GBK错误已修复，[原始回传与兼容检查](verification/P02-01-windows-compatibility.json)保留失败结果；最新[Windows通过证据](verification/P02-01-windows-evidence.json)匹配2d8006e及全部60项清单，58通过/2项既有权限跳过，新增18项全过，P02-01已按[用户指令](verification/P02-01-acceptance.json)验收收尾、无需补跑；P02-02已交付[整份配置校验与保留快照](../quote_core/configuration.py)，新增18项及完整78项辅助检查通过，见[P02-02证据](verification/P02-02-checks.json)；[P02-02 Windows通过证据](verification/P02-02-windows-evidence.json)对应ed47a29及全部78项清单，76通过/2项既有权限跳过，新增18项配置全过，53例黄金通过，已按[用户接续指令](verification/P02-02-acceptance.json)验收收尾、无需补跑；P02-03已交付[QuoteSession状态与输出门槛](../quote_core/session.py)，输入/身份/价格变化使结果失效、旧工作丢弃、价格刷新重算确认，三种正式输出错误零回调；新增18项与完整96项辅助回归及53例黄金通过，见[P02-03证据](verification/P02-03-checks.json)，03与04均已验收收尾。原应用入口现已接入[共享窗口适配](../quote_app/integration.py)，[04辅助证据](verification/P02-04-checks.json)119项及两端53例通过；P02-04目录及关闭修复辅助130项通过，用户明确Windows复查通过，见[阶段验收](verification/P02-acceptance.json)。P02任务书已归档[old/P02](old/P02-calculation.md)。
 
-最新状态：P02已按用户2026-10-11 20:47确认验收归档，历史段落中的“待04验收”是当时状态，以上阶段索引和[P02确认](verification/P02-acceptance.json)为当前结论。P03-01按用户接续意图准备启动，不跳到P05。
+最新状态：P02已按用户2026-10-11 20:47确认验收归档，历史段落中的“待04验收”是当时状态，以上阶段索引和[P02确认](verification/P02-acceptance.json)为当前结论。P03-01按用户接续意图实施，不跳到P05；[当前任务书](now/P03-file-safety.md)、[文件协议](verification/P03-01-file-protocol.md)和[辅助证据](verification/P03-01-checks.json)已交付，真实Windows/双机共享验收未完成。

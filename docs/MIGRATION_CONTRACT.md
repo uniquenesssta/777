@@ -184,7 +184,7 @@ QuoteResult携带business-v1/numeric-v1/price_version_id。VALIDATION时lines和
 
 OutputPayload冻结revision、输入、价格、客户/订单/微信文本和同一个QuoteResult；不从summary或其他结果控件回读。输出前核对业务/数值/价格版本、完整行及对应原行、销售/成本行和与总额恒等。合法零收入、0%免费、首行折扣提醒及亏损不因金额为0/负而阻断。此门槛不重新舍入金额、不生成Excel/图片本身，也不处理公式文本/文件格式、并发覆盖或持久化结果未知。
 
-本接口是当前Python内部链，不是已冻结服务协议。调用者的current与latest_price_version_id不等于认证/已发布价证明，完整领域载荷含成本，不能直接作为销售DTO/IPC响应。P05在服务事务内重验认证、归属、价格版本及revision；P03负责真实文件提交/恢复，P04负责后台输出任务。P02-04现已接回两版编辑/载入/价格差异确认/输出路径，当前类方法辅助检查错误/陈旧零写入；A04 Windows交互仍待04实机验收，不以辅助检查代替。
+本接口是当前Python内部链，不是已冻结服务协议。调用者的current与latest_price_version_id不等于认证/已发布价证明，完整领域载荷含成本，不能直接作为销售DTO/IPC响应。P05在服务事务内重验认证、归属、价格版本及revision；P03负责真实文件提交/恢复，P04负责后台输出任务。P02-04现已接回两版编辑/载入/价格差异确认/输出路径，当前类方法辅助检查错误/陈旧零写入；A04/P02-04已按用户明确通过确认验收，见[阶段确认](verification/P02-acceptance.json)；P03文件事务另验。
 
 ## 11. P02-04已实现的窗口与输出适配
 
@@ -204,4 +204,15 @@ P01诊断使用[source-location.json](baseline/source-location.json)及原manife
 
 当前纯schema的ValidatedPriceConfig末尾兼容新增screenshot_dir=null，旧四位置参数构造保持；其文本类型/UTF-8/控制字符/32767容量与export_dir一致，未知字段仍拒绝整份。旧字典顶层screenshot_dir为目录元数据，items数组内同名商品仍是商品。该扩展不改business-v1/numeric-v1及53例。
 
-母版计算页增加正式Excel按钮，母版摘要仅扫描已识别表头前区域，避免成本被表头覆盖；完整历史/未知schema继续由P03定义。窗口拥有延迟刷新/截图任务ID，关闭取消；Windows工具捕获callback exception及bgerror，原漏报记录保留在[回传证据](verification/P02-04-windows-evidence.json)。[130项辅助检查](verification/P02-04-directory-checks.json)不替代Windows共享窗口/真实截图/SMB验收；04/P02仍未收尾。
+母版计算页增加正式Excel按钮，母版摘要仅扫描已识别表头前区域，避免成本被表头覆盖；完整历史/未知schema继续由P03定义。窗口拥有延迟刷新/截图任务ID，关闭取消；Windows工具捕获callback exception及bgerror，原漏报记录保留在[回传证据](verification/P02-04-windows-evidence.json)。[130项辅助检查](verification/P02-04-directory-checks.json)不替代Windows共享窗口/真实截图/SMB验收；04/P02现已按用户明确确认收尾归档，见[验收](verification/P02-acceptance.json)，原回传/辅助报告不重写。
+
+
+## P03-01 过渡文件事务
+
+当前Python文件层为[quote_files](../quote_files/transactions.py)，窗口文件编辑为[共享适配](../quote_app/file_edits.py)。协议`777-file-v1`遵循完整原生锁内读取最新内容、版本/哈希检查、校验后临时文件、写前副本、替换及回读；未知提交先查请求而不是新建单。详细状态、恢复与使用限制见[文件协议](verification/P03-01-file-protocol.md)。这不是服务认证或已冻结Rust IPC协议。
+
+Excel保留原26列与normal/discount/order_total行类型，新单额外列为订单ID、明细ID、订单版本、请求ID、记录状态。身份UUID、订单初始版本1，新备注/作废令整单版本加1，文件全局版本在隐藏`_写入事务`回执中递增；明细ID不使用用户、时间或UI行号。作废保留金额和原行，active/void决定有效日汇总。重复同一计算导出复用request_id；主动重新计算得到新的计算revision及写入请求。旧未识别记录不补猜身份、不改原金额。
+
+备注按稳定order_id追加，独立订单备注记录request_id及文本，并在该单总计的备注列追加文本。当前未开放作废恢复/归档UI、历史转换和子版备注归属认证，按P03-02/P03-04/P05补齐。销售仍不能直接接收安全保证：隐藏列/工作表不是保密；现有共享Excel/JSON可能含成本，A05持续开放。
+
+配置整份校验后按读取版本CAS保存，JSON业务schema不加请求字段；配置效应由内容SHA和旁路日志核查。恢复副本在`.777-recovery`，与正式主机独立备份分开。所有旧写端需退出协作写入；非协作外部Excel仅作关闭写端后的查看，不保证任意外部编辑并发安全。P03-01辅助证据不等于真实Windows/SMB验收。

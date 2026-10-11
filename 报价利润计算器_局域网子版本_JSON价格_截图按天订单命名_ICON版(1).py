@@ -847,7 +847,7 @@ class PriceCalculator(QuoteApplicationMixin):
         ttk.Label(detail_top, text="Excel 查看", style="Title.TLabel").pack(side=tk.LEFT)
         ttk.Button(detail_top, text="返回上一层", command=self.show_excel_list).pack(side=tk.RIGHT, padx=(6, 0))
         ttk.Button(detail_top, text="查看另一个 Excel", command=self.browse_excel_file).pack(side=tk.RIGHT, padx=(6, 0))
-        ttk.Button(detail_top, text="删除同组行", command=self.delete_current_excel_row).pack(side=tk.RIGHT, padx=(6, 0))
+        ttk.Button(detail_top, text="作废选中订单", command=self.delete_current_excel_row, state="disabled").pack(side=tk.RIGHT, padx=(6, 0))
 
         selected_box = ttk.LabelFrame(self.excel_detail_frame, text="当前文件", padding=8, style="Section.TLabelframe")
         selected_box.pack(fill=tk.X, pady=(0, 8))
@@ -878,7 +878,7 @@ class PriceCalculator(QuoteApplicationMixin):
         remark_box.pack(fill=tk.X, pady=(8, 0))
         self.excel_remark_text = tk.Text(remark_box, height=3, wrap="word")
         self.excel_remark_text.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        ttk.Button(remark_box, text="保存备注", command=self.save_current_excel_remark).pack(side=tk.RIGHT, padx=(8, 0))
+        ttk.Button(remark_box, text="追加备注", command=self.save_current_excel_remark, state="disabled").pack(side=tk.RIGHT, padx=(8, 0))
 
         self.show_excel_list()
         self.schedule_quote_callback(self.refresh_excel_files, delay=300)
@@ -909,26 +909,27 @@ class PriceCalculator(QuoteApplicationMixin):
     def count_visible_excel_rows(self, path):
         if load_workbook is None:
             return 0
+        wb = None
         try:
             wb = load_workbook(path, data_only=True, read_only=True)
             if "利润明细" not in wb.sheetnames:
-                wb.close()
                 return 0
             ws = wb["利润明细"]
             header_row, headers = self.find_excel_table_header(ws)
             if not header_row:
-                wb.close()
                 return 0
             item_col = headers.get("项目名称")
             count = 0
             for r in range(header_row + 1, (ws.max_row or 0) + 1):
                 item_text = str(ws.cell(row=r, column=item_col).value or "").strip() if item_col else ""
-                if self.is_visible_sales_record(item_text):
+                if self.sales_record_visible(ws, headers, r):
                     count += 1
-            wb.close()
             return count
         except Exception:
             return 0
+        finally:
+            if wb is not None:
+                wb.close()
 
     def refresh_excel_files(self):
         if not hasattr(self, "excel_file_tree"):
@@ -971,10 +972,10 @@ class PriceCalculator(QuoteApplicationMixin):
         if not os.path.exists(path):
             messagebox.showerror("文件不存在", f"找不到文件：{path}")
             return
+        wb = None
         try:
             wb = load_workbook(path, data_only=True, read_only=True)
-            sheet_names = wb.sheetnames
-            wb.close()
+            sheet_names = [ws.title for ws in wb.worksheets if ws.sheet_state == "visible"]
             if not sheet_names:
                 messagebox.showwarning("无法查看", "这个 Excel 没有工作表。")
                 return
@@ -990,6 +991,9 @@ class PriceCalculator(QuoteApplicationMixin):
             self.show_excel_detail()
         except Exception as exc:
             messagebox.showerror("读取失败", f"无法打开 Excel：{exc}")
+        finally:
+            if wb is not None:
+                wb.close()
 
     def is_visible_sales_record(self, item_text):
         item = str(item_text or "").strip()
@@ -1018,12 +1022,9 @@ class PriceCalculator(QuoteApplicationMixin):
             return totals
         for r in range(header_row + 1, (ws.max_row or 0) + 1):
             item_text = str(ws.cell(row=r, column=item_col).value or "").strip()
-            if not self.is_visible_sales_record(item_text):
+            if not self.sales_record_visible(ws, headers, r):
                 continue
-            group_key = (
-                str(ws.cell(row=r, column=id_col).value or "").strip(),
-                str(ws.cell(row=r, column=time_col).value or "").strip(),
-            )
+            group_key = self.sales_group_key(ws, headers, r)
             totals[group_key] = totals.get(group_key, 0.0) + self._to_float(ws.cell(row=r, column=sales_col).value)
         return totals
 
@@ -1034,10 +1035,10 @@ class PriceCalculator(QuoteApplicationMixin):
         sheet_name = self.excel_sheet_var.get().strip()
         if not sheet_name:
             return
+        wb = None
         try:
-            wb = load_workbook(path, data_only=True, read_only=True)
+            wb = self.read_excel_view(path, sheet_name)
             if sheet_name not in wb.sheetnames:
-                wb.close()
                 messagebox.showerror("读取失败", "当前工作表不存在。")
                 return
             ws = wb[sheet_name]
@@ -1057,7 +1058,6 @@ class PriceCalculator(QuoteApplicationMixin):
                 self.excel_view_tree.column(col, width=width, anchor=tk.W if heading in {"淘宝ID", "订单号", "微信号", "项目名称", "基础类型"} else tk.CENTER)
 
             if not header_row:
-                wb.close()
                 messagebox.showwarning("无法查看", "这个工作表没有识别到“记录时间 + 淘宝ID/用户 + 项目名称”表头。")
                 return
 
@@ -1082,11 +1082,11 @@ class PriceCalculator(QuoteApplicationMixin):
             shown = 0
             for r in range(header_row + 1, (ws.max_row or 0) + 1):
                 item_text = str(ws.cell(row=r, column=col_map["项目名称"]).value or "").strip() if col_map["项目名称"] else ""
-                if not self.is_visible_sales_record(item_text):
+                if not self.sales_record_visible(ws, headers, r):
                     continue
                 taobao_id = str(ws.cell(row=r, column=id_col).value or "").strip() if id_col else ""
                 record_time = str(ws.cell(row=r, column=col_map["记录时间"]).value or "").strip() if col_map["记录时间"] else ""
-                group_total = group_totals.get((taobao_id, record_time), 0.0)
+                group_total = group_totals.get(self.sales_group_key(ws, headers, r), 0.0)
 
                 values = []
                 for field in display_columns:
@@ -1100,11 +1100,13 @@ class PriceCalculator(QuoteApplicationMixin):
                 self.excel_view_row_map[item_id] = r
                 self.excel_view_tree.insert("", tk.END, iid=item_id, values=values)
                 shown += 1
-            wb.close()
             if shown == 0:
                 messagebox.showinfo("没有可查看明细", "当前工作表没有可显示的销售明细行。")
         except Exception as exc:
             messagebox.showerror("读取失败", f"无法读取工作表：{exc}")
+        finally:
+            if wb is not None:
+                wb.close()
 
 
     def find_excel_table_header(self, ws):
@@ -1182,12 +1184,12 @@ class PriceCalculator(QuoteApplicationMixin):
     def read_excel_remark(self, path):
         if load_workbook is None:
             return ""
+        wb = None
         try:
             wb = load_workbook(path, data_only=True, read_only=True)
             if "备注" in wb.sheetnames:
                 ws_note = wb["备注"]
                 value = ws_note["B5"].value or ws_note["B4"].value
-                wb.close()
                 return str(value or "")
             if "利润明细" in wb.sheetnames:
                 ws = wb["利润明细"]
@@ -1200,19 +1202,14 @@ class PriceCalculator(QuoteApplicationMixin):
                         if value:
                             last_remark = str(value)
                             break
-                    wb.close()
                     return last_remark
-            wb.close()
         except Exception:
             pass
+        finally:
+            if wb is not None:
+                wb.close()
         return ""
 
-    def load_current_excel_remark(self):
-        if not hasattr(self, "excel_remark_text"):
-            return
-        self.excel_remark_text.delete("1.0", tk.END)
-        if self.current_excel_path:
-            self.excel_remark_text.insert("1.0", self.read_excel_remark(self.current_excel_path))
 
     def get_excel_group_rows(self, ws, selected_row, headers, header_row):
         time_col = headers.get("记录时间")
@@ -1246,143 +1243,7 @@ class PriceCalculator(QuoteApplicationMixin):
             pass
         return remark_col
 
-    def delete_current_excel_row(self):
-        path = self.current_excel_path
-        if not path:
-            messagebox.showwarning("未选择", "请先选择一个 Excel 文件。")
-            return
-        sheet_name = self.excel_sheet_var.get().strip()
-        if not sheet_name:
-            messagebox.showwarning("未选择", "请先选择一个工作表。")
-            return
-        row_index = self.get_selected_excel_row_index()
-        if not row_index:
-            messagebox.showwarning("未选择行", "请先在下方表格中点选要删除的行。")
-            return
-        try:
-            wb = load_workbook(path)
-            if sheet_name not in wb.sheetnames:
-                wb.close()
-                messagebox.showerror("删除失败", "当前工作表不存在，请重新打开 Excel。")
-                return
-            ws = wb[sheet_name]
-            header_row, headers = self.find_excel_table_header(ws)
-            if not header_row:
-                wb.close()
-                messagebox.showwarning("无法分组删除", "当前工作表没有识别到“记录时间 + 淘宝ID/用户 + 项目名称”表头。")
-                return
-            group_rows, taobao_id, record_time = self.get_excel_group_rows(ws, row_index, headers, header_row)
-            if not group_rows:
-                wb.close()
-                messagebox.showwarning("无法分组删除", "当前选中行没有有效的记录时间或淘宝ID，无法判断同组数据。")
-                return
-            ok = messagebox.askyesno(
-                "确认删除同组行",
-                f"将删除当前工作表中同一组的 {len(group_rows)} 行：\n\n淘宝ID/用户：{taobao_id}\n记录时间：{record_time}\n文件：{os.path.basename(path)}\n工作表：{sheet_name}\n\n不会删除其他淘宝ID或其他记录时间的数据。删除后会直接保存到这个 Excel 文件。",
-            )
-            if not ok:
-                wb.close()
-                return
-            for r in sorted(group_rows, reverse=True):
-                ws.delete_rows(r, 1)
-            self.recompute_daily_profit_summary(ws)
-            wb.save(path)
-            wb.close()
-            self.load_current_excel_sheet()
-            self.load_current_excel_remark()
-            self.refresh_excel_files()
-            messagebox.showinfo("删除成功", f"已删除淘宝ID/用户“{taobao_id}”在 {record_time} 的 {len(group_rows)} 行。")
-        except PermissionError:
-            messagebox.showerror("删除失败", "无法保存 Excel。请先关闭正在打开的 Excel 文件后再试。")
-        except Exception as exc:
-            messagebox.showerror("删除失败", f"无法删除同组行：{exc}")
 
-    def save_current_excel_remark(self):
-        path = self.current_excel_path
-        if not path:
-            messagebox.showwarning("未选择", "请先选择一个 Excel 文件。")
-            return
-        if load_workbook is None:
-            messagebox.showerror("无法保存", "缺少 openpyxl，请先运行：pip install openpyxl")
-            return
-        sheet_name = self.excel_sheet_var.get().strip()
-        if not sheet_name:
-            messagebox.showwarning("未选择", "请先选择一个工作表。")
-            return
-        row_index = self.get_selected_excel_row_index()
-        if not row_index:
-            messagebox.showwarning("未选择行", "请先在下方表格中点选一行，再保存备注。")
-            return
-        remark = self.excel_remark_text.get("1.0", tk.END).strip()
-        if not remark:
-            messagebox.showwarning("备注为空", "请先输入备注内容。")
-            return
-        try:
-            wb = load_workbook(path)
-            if sheet_name not in wb.sheetnames:
-                wb.close()
-                messagebox.showerror("保存失败", "当前工作表不存在，请重新打开 Excel。")
-                return
-            ws = wb[sheet_name]
-            header_row, headers = self.find_excel_table_header(ws)
-            if not header_row:
-                wb.close()
-                messagebox.showwarning("无法保存备注", "当前工作表没有识别到“记录时间 + 淘宝ID/用户 + 项目名称”表头。")
-                return
-            group_rows, taobao_id, record_time = self.get_excel_group_rows(ws, row_index, headers, header_row)
-            if not group_rows:
-                wb.close()
-                messagebox.showwarning("无法保存备注", "当前选中行没有有效的记录时间或淘宝ID，无法判断备注应该加入哪一组。")
-                return
-            remark_col = self.ensure_excel_remark_column(ws, headers, header_row)
-            insert_at = max(group_rows) + 1
-            ws.insert_rows(insert_at, 1)
-            for name in ["记录时间", "淘宝ID", "用户", "订单号", "微信号"]:
-                col = headers.get(name)
-                if col:
-                    ws.cell(row=insert_at, column=col, value=ws.cell(row=row_index, column=col).value)
-            item_col = headers.get("项目名称")
-            if item_col:
-                ws.cell(row=insert_at, column=item_col, value="备注")
-            base_col = headers.get("基础类型")
-            if base_col:
-                ws.cell(row=insert_at, column=base_col, value="备注")
-            ws.cell(row=insert_at, column=remark_col, value=remark)
-            try:
-                fill = PatternFill("solid", fgColor="FFF2CC")
-                for col in range(1, ws.max_column + 1):
-                    cell = ws.cell(row=insert_at, column=col)
-                    cell.fill = fill
-                    cell.alignment = Alignment(wrap_text=True, vertical="top")
-            except Exception:
-                pass
-            if "备注" in wb.sheetnames:
-                note_ws = wb["备注"]
-            else:
-                note_ws = wb.create_sheet("备注")
-            note_ws["A1"] = "最近备注"
-            note_ws["A2"] = "保存时间"
-            note_ws["B2"] = time.strftime("%Y-%m-%d %H:%M:%S")
-            note_ws["A3"] = "淘宝ID/用户"
-            note_ws["B3"] = taobao_id
-            note_ws["A4"] = "记录时间"
-            note_ws["B4"] = record_time
-            note_ws["A5"] = "备注"
-            note_ws["B5"] = remark
-            note_ws.column_dimensions["A"].width = 14
-            note_ws.column_dimensions["B"].width = 80
-            note_ws["B5"].alignment = Alignment(wrap_text=True, vertical="top")
-            wb.save(path)
-            wb.close()
-            self.refresh_excel_files()
-            self.open_excel_path(path)
-            self.excel_sheet_var.set(sheet_name)
-            self.load_current_excel_sheet()
-            messagebox.showinfo("保存成功", f"备注已加入淘宝ID/用户“{taobao_id}”在 {record_time} 的分组底部。")
-        except PermissionError:
-            messagebox.showerror("保存失败", "无法保存 Excel。请先关闭正在打开的 Excel 文件后再试。")
-        except Exception as exc:
-            messagebox.showerror("保存失败", f"无法保存备注：{exc}")
 
     def get_excel_headers(self):
         """母版和子版共用同一套 Excel 表头，确保同一天追加到同一个 Excel。"""
@@ -1411,23 +1272,6 @@ class PriceCalculator(QuoteApplicationMixin):
         ws.append(self.get_excel_headers())
         return ws
 
-    def open_daily_workbook_for_append(self, timestamp):
-        """打开或创建当天 Excel。母版和子版都只写这个文件。"""
-        xlsx_path = self.get_daily_excel_path()
-        if os.path.exists(xlsx_path):
-            wb = load_workbook(xlsx_path)
-            if "利润明细" in wb.sheetnames:
-                ws = wb["利润明细"]
-            else:
-                ws = wb.create_sheet("利润明细", 0)
-            header_row, _headers = self.find_excel_table_header(ws)
-            if not header_row:
-                self.create_profit_sheet_template(ws, timestamp)
-        else:
-            wb = Workbook()
-            ws = wb.active
-            self.create_profit_sheet_template(ws, timestamp)
-        return xlsx_path, wb, ws
 
 
 

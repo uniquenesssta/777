@@ -5,11 +5,13 @@ in quote_core. Local config SHA identifies bytes, not authenticated publication.
 P03 handles atomic file writes/concurrency; P05 handles service authority.
 """
 import hashlib
+from dataclasses import asdict
 from decimal import Decimal, InvalidOperation
 import json
 import os
 from pathlib import Path
 import time
+import uuid
 from tkinter import TclError, filedialog, messagebox, ttk
 
 from quote_core import (
@@ -21,6 +23,10 @@ from quote_core.numbers import exact_context, settle
 
 from .projection import append_quote, legacy_record
 from .storage import publish_directory, resolve_directory
+from .file_edits import FileEditingMixin
+from quote_files.configuration import save_config
+from quote_files.transactions import FileFailure, UnknownCommit, digest, query_request
+from quote_files.workbooks import assign_order, inspect_receipt, request, workbook_transaction
 
 
 FIELD_NAMES = {"q": "数量", "h": "高度", "w": "宽度", "sale": "销售单价",
@@ -62,7 +68,7 @@ def price_difference(old, new):
                  if a.get(name) != b.get(name))
 
 
-class QuoteApplicationMixin:
+class QuoteApplicationMixin(FileEditingMixin):
     quote_role = "manager"
 
     def initialize_quote_state(self):
@@ -73,6 +79,15 @@ class QuoteApplicationMixin:
         self._config_load_problem = None
         self._storage_version = None
         self._after_jobs = set()
+        self._excel_pending = None
+        self._config_pending = None
+        self._edit_pending = None
+        self._blocking_file_request = None
+        self.last_file_transaction = None
+        self._excel_view_hash = None
+        self._excel_view_orders = {}
+        self._excel_view_path = None
+        self._last_config_sha = None
         self.screenshot_dir_var = self._new_text_var(self.image_dir)
         self.config_source_var = self._new_text_var(self._price_path())
         self.storage_status_var = self._new_text_var("目录尚未从共享配置确认。")
@@ -104,6 +119,7 @@ class QuoteApplicationMixin:
             ttk.Button(box, text="保存共享目录", command=self.apply_export_dir).grid(row=4, column=1, sticky="w", pady=4)
         else:
             ttk.Button(box, text="刷新母版配置", command=self.reload_price_settings_from_json).grid(row=4, column=1, sticky="w", pady=4)
+        ttk.Button(box, text="检查上次写入", command=self.check_last_write).grid(row=4, column=2, sticky="w", pady=4)
 
     def choose_storage_dir(self, var):
         if self.quote_role != "manager":
@@ -208,6 +224,7 @@ class QuoteApplicationMixin:
         try:
             with open(self._price_path(), "rb") as stream:
                 source = stream.read(CONFIG_BYTE_LIMIT + 1)
+            self._last_config_sha = digest(source)
         except OSError:
             return None, "unavailable", (Issue("IO_UNAVAILABLE", "PRICES_UNAVAILABLE", "price_source"),)
         candidate = parse_price_config(source, price_version_id=price_version(source),
@@ -316,6 +333,9 @@ class QuoteApplicationMixin:
     def save_settings(self):
         if self.quote_role == "sales":
             return False
+        if self._blocking_file_request:
+            self.set_feedback("存在待核查的旧请求，请先检查上次写入。", is_error=True)
+            return False
         config, issues = self.get_settings_snapshot()
         try:
             export_dir = publish_directory(self.export_dir_var.get(), self._price_path(), "利润表")
@@ -334,14 +354,20 @@ class QuoteApplicationMixin:
             self.set_feedback("未保存：配置须整份有效，原文件和上次有效快照已保留。", is_error=True)
             return False
         try:
-            # Atomic replace/locking/backups are P03, not claimed by this adapter.
-            with open(self.config_file, "wb") as stream:
-                stream.write(source)
-        except OSError:
+            expected = self.active_price_config.prices.price_version_id.removeprefix("local-sha256:") if self.active_price_config else self._last_config_sha
+            def validate(raw):
+                if parse_price_config(raw, price_version_id=price_version(raw)).status != "ok":
+                    raise FileFailure("配置整份校验失败")
+            self.last_file_transaction, self._config_pending = save_config(self.config_file, source,
+                expected_hash=expected, validator=validate, pending=self._config_pending)
+        except (OSError, FileFailure) as exc:
+            self._config_pending = getattr(exc, "pending_request", self._config_pending)
+            if getattr(exc, "blocking_request_id", None):
+                self._blocking_file_request = {"path": self.config_file, "request_id": exc.blocking_request_id}
             self.quote_session.observe_price_source("unavailable")
             self.clear_quote_display()
             self.update_quote_status()
-            self.set_feedback("价格保存失败，请修复目录/权限后重试。", is_error=True)
+            self.set_feedback(f"配置未确认保存：{exc}；请求{getattr(exc, 'request_id', None) or '未进入提交'}，请先核查。", is_error=True)
             return False
         return self.reload_price_settings_from_json(silent=True)
 
@@ -487,7 +513,7 @@ class QuoteApplicationMixin:
         try:
             path = self._formal_output("excel", self._write_quote_excel)
         except Exception as exc:
-            self.set_feedback(f"Excel写入失败：{exc}；请核查文件后再重试。", is_error=True)
+            self.set_feedback(f"Excel写入未确认：{exc}；" + (f"请求{exc.request_id}，请检查上次写入。" if getattr(exc, "request_id", None) else "请核查文件后再重试。"), is_error=True)
             return False
         if not path:
             return False
@@ -502,32 +528,55 @@ class QuoteApplicationMixin:
 
     def _write_quote_excel(self, payload):
         # No dialog/event-loop yield/widget finance or identity reads in writer.
+        if self._blocking_file_request:
+            raise FileFailure("存在待核查的旧请求，请先检查上次写入")
         self.ensure_directories()
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-        path, wb, ws = self.open_daily_workbook_for_append(timestamp)
-        try:
+        path = self.get_daily_excel_path()
+        pending = self._excel_pending
+        if pending and pending["unknown"]:
+            state = query_request(pending["path"], pending["request"].request_id, inspect_receipt)
+            if state["status"] == "committed":
+                pending["unknown"] = False
+                if pending["revision"] != payload.revision:
+                    raise FileFailure("上次请求已确认保存；本次变化尚未提交，请核对旧单后再导出")
+                return pending["path"]
+            if state["status"] != "not_committed":
+                raise UnknownCommit("上次写入结果仍不明；请先检查上次写入", request_id=pending["request"].request_id)
+            pending["unknown"] = False
+        if not pending or pending["revision"] != payload.revision:
+            req = request("append_quote", asdict(payload), order_id=str(uuid.uuid4()))
+            pending = self._excel_pending = {"revision": payload.revision, "request": req, "path": path, "unknown": False}
+        else:
+            path = pending["path"]  # Retry remains bound to its original destination/day.
+        req = pending["request"]
+        def create():
+            from openpyxl import Workbook
+            book = Workbook()
+            self.create_profit_sheet_template(book.active, timestamp)
+            return book
+        def mutate(wb, ws, headers):
             ws.cell(2, 1, "最后导出时间")
             ws.cell(2, 2, timestamp)
             for column, value in enumerate(("最近导出淘宝ID", payload.details.customer, "订单号",
                                           payload.details.order_ref, "微信号", payload.details.wechat), 1):
                 ws.cell(3, column, value)
-            header_row, headers = self.find_excel_table_header(ws)
-            if not header_row:
-                raise ValueError("利润表表头不完整，未写入")
-            kind_column = headers.get("行类型")
-            if kind_column is None:
-                # Extend without overwriting legacy remarks or unknown columns.
-                kind_column = ws.max_column + 1
-                ws.cell(header_row, kind_column, "行类型")
-            append_quote(ws, timestamp, payload, kind_column=kind_column)
+            start = ws.max_row + 1
+            append_quote(ws, timestamp, payload, kind_column=headers["行类型"])
+            assign_order(ws, start, ws.max_row, headers, req)
             self.recompute_daily_profit_summary(ws)
             self.style_daily_profit_sheet(ws)
             self.append_input_issues_sheet(wb, timestamp, payload)
             self.refresh_price_snapshot_sheet(wb, timestamp, payload)
-            wb.save(path)
-        finally:
-            wb.close()
-        return path
+            return {"order_revision": 1, "price_version_id": payload.prices.price_version_id}
+        try:
+            self.last_file_transaction = workbook_transaction(path, req, self.get_excel_headers(), create, mutate)
+        except UnknownCommit as exc:
+            pending["unknown"] = True
+            if exc.request_id and exc.request_id != req.request_id:
+                self._blocking_file_request = {"path": str(path), "request_id": exc.request_id}
+            raise
+        return self.last_file_transaction.path
 
     def append_input_issues_sheet(self, wb, timestamp, payload):
         sheet = wb["输入问题"] if "输入问题" in wb.sheetnames else wb.create_sheet("输入问题")
@@ -552,6 +601,8 @@ class QuoteApplicationMixin:
         income = cost = Decimal(0)
         context = exact_context()
         for row in ws.iter_rows(min_row=header_row + 1, values_only=True):
+            if "记录状态" in headers and row[headers["记录状态"] - 1] == "void":
+                continue
             name = str(row[headers["项目名称"] - 1] or "").strip()
             kind = row[headers["行类型"] - 1] if "行类型" in headers else None
             if kind:

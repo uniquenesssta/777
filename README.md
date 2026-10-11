@@ -2,13 +2,14 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于 `plans`；当前执行分支为 `stage/p02-calculation`，创建于P01验收提交 `7099303`。**P01、P02均已验收归档。P02-04修复已获用户明确通过确认，阶段实现1f07f6b、辅助130项通过；下一项按任务书为P03-01，P03待建立阶段分支，P04至P08未启动。**
+规划位于 `plans`；当前执行分支为 `stage/p03-file-safety`，创建于P02收尾提交 `96735ad`。**P01、P02均已验收归档；P03-01文件事务已实现，辅助检查通过，待Windows/真实共享盘及用户验收。P03-02至04、P04至P08未启动。**
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
 - [P01-03只读样本采集与部署登记](docs/baseline/P01-03-data-deployment.md)
 - [P01-04黄金样本、技术参数与Windows验收](docs/baseline/P01-04-validation.md)
 - [P02计算核心与归档任务书](docs/old/P02-calculation.md)
+- [当前P03文件安全任务书与Windows入口](docs/now/P03-file-safety.md)
 - [文档与计划入口](docs/README.md)
 - [优化及迁移主任务书](docs/MASTER_PLAN.md)
 - [两份 Python 代码重新审计报告](docs/audit/python-audit.md)
@@ -16,6 +17,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 接续下一项P03-01，唯一阶段分支stage/p03-file-safety基于P02收尾96735ad，任务书new→now。共用文件锁/哈希检查/临时校验/写前备份/替换回读与请求回执，Excel追加/备注/作废和配置保存接同一事务；新单稳定编号与版本、重复点击幂等，母版旧页面冲突拒写，作废保留原金额并移出有效汇总，子版新单分组按订单身份。整文件删除停用，旧无身份订单只读，未知/未支持格式禁止模板重置。见[P03-01证据](docs/verification/P03-01-checks.json)及[恢复说明](docs/verification/P03-01-file-protocol.md)。新增35项，完整165项辅助回归通过；Windows/双机SMB与真实网络故障仍待验证，P03不收尾，不启动02至04/CI。
 
 - 用户明确确认本轮通过并收尾04；登记[04验收](docs/verification/P02-04-acceptance.json)及[P02阶段验收](docs/verification/P02-acceptance.json)，P02四项全部验收，任务书now→old。最新Windows结论来自用户确认，无新附件，不编造逐项运行数据；原Windows问题/辅助130项证据保留。“05”在P02任务目录中不存在，已告知按下一项P03-01接续，P05不跳过P03/P04前置。
 
