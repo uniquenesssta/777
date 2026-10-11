@@ -1,6 +1,6 @@
 # P03 共享文件安全、身份与格式兼容
 
-状态：执行中，P03-01已实现待Windows/真实共享盘及用户验收，P03-02至04待启动。前置：P02已验收。唯一分支 `stage/p03-file-safety`，创建于P02收尾提交 `96735ad2fd156a09c6a192731910cc03a40cbbc0`。覆盖A01–A03、A08–A11、A15–A18、A20、A22、A23的文件链路；权限真正隔离仍由P05完成。依据：[审计报告](../audit/python-audit.md)。
+状态：执行中，P03-01 Windows本机32项与母子GUI联测通过，待真实共享盘及用户验收，P03-02至04待启动。前置：P02已验收。唯一分支 `stage/p03-file-safety`，创建于P02收尾提交 `96735ad2fd156a09c6a192731910cc03a40cbbc0`。覆盖A01–A03、A08–A11、A15–A18、A20、A22、A23的文件链路；权限真正隔离仍由P05完成。依据：[审计报告](../audit/python-audit.md)。
 
 目标：过渡期Python不丢单、不破坏未知文件，母子版所有写路径遵循同一协议。不是给每个保存函数套try/except。
 
@@ -46,16 +46,26 @@ P03-01不是阶段收尾：完整165项辅助检查通过（新增35项、0失�
 
 ## Windows 复查入口
 
-从P02分支切到本阶段；单分支克隆也用以下显式跟踪，任一命令失败先停止，不把旧分支结果当P03结果：
+从原本地分支切到本阶段。2026-10-11回传显示：远端引用已fetch，但普通switch失败，后续pull将原分支推进到151efe8；两份报告的代码指纹仍完全匹配，所以已通过检查有效，无需重跑。该错误已在一次性单分支克隆中复现；先登记remote.fetch映射，再显式创建/切换本地分支。用户的实际fetch配置和原分支名称未回传，具体配置原因保持推断。
+
+以下命令兼容本地已有/没有P03分支；任一命令失败停止，不在旧分支继续pull：
 
 ```powershell
+git remote set-branches --add origin stage/p03-file-safety
+if ($LASTEXITCODE -ne 0) { throw 'register branch failed' }
 git fetch origin stage/p03-file-safety:refs/remotes/origin/stage/p03-file-safety
 if ($LASTEXITCODE -ne 0) { throw 'fetch failed' }
-git switch stage/p03-file-safety
-if ($LASTEXITCODE -ne 0) {
+git show-ref --verify --quiet refs/heads/stage/p03-file-safety
+if ($LASTEXITCODE -eq 0) {
+    git switch stage/p03-file-safety
+} elseif ($LASTEXITCODE -eq 1) {
     git switch --track -c stage/p03-file-safety origin/stage/p03-file-safety
-    if ($LASTEXITCODE -ne 0) { throw 'switch failed' }
+} else {
+    throw 'local branch check failed'
 }
+if ($LASTEXITCODE -ne 0) { throw 'switch failed' }
+$p03Branch = git branch --show-current
+if ($LASTEXITCODE -ne 0 -or $p03Branch -ne 'stage/p03-file-safety') { throw 'wrong branch' }
 git pull --ff-only origin stage/p03-file-safety
 if ($LASTEXITCODE -ne 0) { throw 'pull failed' }
 py -3 tools/p03_file_check.py --windows-smoke --output reports/p03-01-windows.json
@@ -71,3 +81,10 @@ py -3 tools/p03_file_check.py --launch-pair --output reports/p03-01-manual.json
 两窗口共用本机临时目录，全部关闭后清理。可在子版计算并重复导出，母版刷新/打开、选订单追加备注/作废，确认日汇总和旧记录保留；手动点击截图时才截当前窗口。该本机双窗口不等于两台SMB写端。
 
 真实共享验收另用共享盘上明确隔离的合成副本：两个已升级Windows客户端使用同一个普通文件及同一个锁路径，交错追加/备注/作废；另测Excel占用、只读权限及断网。保留两端提交/主机/报告、冲突提示/请求编号、前后文件/备份哈希及恢复结果。不要用真实交易账本演练断网或恢复，不把一台电脑的两进程结果冒充双机验收。若存储不能满足验证，暂停多人写入，本项不收尾。
+
+
+## P03-01 Windows 本机回传登记
+
+[最新Windows证据](../verification/P03-01-windows-evidence.json)来自用户上传的控制台文本，测试提交151efe8：两份报告各12项实现指纹全匹配；本机事务32/32通过（5.266秒，无失败/错误/跳过，ID清单完全一致），母子自动GUI联测全部通过，无callback_errors，关闭和临时目录清理正常。该结果覆盖实际Windows原生锁/进程与本机窗口操作，无需补跑同一检查。
+
+回传中切换分支失败但代码快进正确；修正上面的跟踪命令即可，不reset用户原本地分支。附件没有两个物理客户端/真实SMB、Excel实际占用、只读共享或断网记录，不把本机passed提升为共享盘验收。P03-01继续留now等待共享协议/用户验收，未收尾或开始P03-02。

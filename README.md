@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于 `plans`；当前执行分支为 `stage/p03-file-safety`，创建于P02收尾提交 `96735ad`。**P01、P02均已验收归档；P03-01文件事务已实现，辅助检查通过，待Windows/真实共享盘及用户验收。P03-02至04、P04至P08未启动。**
+规划位于 `plans`；当前执行分支为 `stage/p03-file-safety`，创建于P02收尾提交 `96735ad`。**P01、P02均已验收归档；P03-01文件事务已实现，辅助165项及Windows本机32项/母子GUI联测通过，待真实共享盘及用户验收。P03-02至04、P04至P08未启动。**
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -17,6 +17,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 登记[P03-01 Windows回传](docs/verification/P03-01-windows-evidence.json)：两份报告匹配151efe8及各12项指纹，32/32本机事务检查与母子GUI联测通过，无回调错误，关闭/清理正常。原分支切换失败后pull快进到正确代码，检查结果有效；辅助一次性单分支克隆复现，补remote.fetch登记和显式跟踪/失败停止命令。无需重跑已通过检查，实际共享双机/占用/只读/断网与用户验收仍待完成，01不收尾/02不启动，源码和原报告不改。
 
 - 接续下一项P03-01，唯一阶段分支stage/p03-file-safety基于P02收尾96735ad，任务书new→now。共用文件锁/哈希检查/临时校验/写前备份/替换回读与请求回执，Excel追加/备注/作废和配置保存接同一事务；新单稳定编号与版本、重复点击幂等，母版旧页面冲突拒写，作废保留原金额并移出有效汇总，子版新单分组按订单身份。整文件删除停用，旧无身份订单只读，未知/未支持格式禁止模板重置。见[P03-01证据](docs/verification/P03-01-checks.json)及[恢复说明](docs/verification/P03-01-file-protocol.md)。新增35项，完整165项辅助回归通过；Windows/双机SMB与真实网络故障仍待验证，P03不收尾，不启动02至04/CI。
 

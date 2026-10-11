@@ -1,0 +1,232 @@
+{
+  "task": "P03-01",
+  "record_type": "user_uploaded_windows_console_evidence",
+  "status": "windows_local_and_gui_passed_shared_and_user_acceptance_pending",
+  "received_at": "2026-10-11T22:00:05+08:00",
+  "phase_branch": "stage/p03-file-safety",
+  "implementation_commit": "151efe8e447fc945f7565ee1693006008d97e03f",
+  "attachment": {
+    "uploaded_name": "粘贴的文本 (1)(6).txt",
+    "sha256": "ba61ac2ac1aa9cd13a4c948b7bfffe103fb915a2415e04693bbf70e1176c791d",
+    "size_bytes": 17730,
+    "reports_extracted": 2,
+    "original_modified": false
+  },
+  "validation": {
+    "implementation_fingerprints_matched_per_report": 12,
+    "both_reports_same_fingerprints": true,
+    "test_ids_match_current_implementation": true,
+    "tests_run": 32,
+    "passed": 32,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 5.266,
+    "gui_status": "passed",
+    "callback_errors": [],
+    "close": "ok",
+    "sandbox_cleaned": true
+  },
+  "git_user_observation": {
+    "fetch_new_remote_branch": "origin/stage/p03-file-safety",
+    "plain_switch_command": "git switch stage/p03-file-safety",
+    "plain_switch_error": "fatal: invalid reference: stage/p03-file-safety",
+    "continued_pull_command": "git pull --ff-only origin stage/p03-file-safety",
+    "pull_result": "Fast-forward 1f07f6b..151efe8",
+    "local_branch_name_in_attachment": null,
+    "user_fetch_config_in_attachment": null,
+    "tested_commit_from_reports": "151efe8e447fc945f7565ee1693006008d97e03f",
+    "assessment": "The implementation under test matches P03-01, but branch switching failed and the original local branch was advanced. Do not infer its branch name or require rerunning matching passed checks."
+  },
+  "auxiliary_git_reproduction": {
+    "scope": "Disposable local synthetic single-branch clone, auxiliary Git command reproduction only",
+    "original_fetch_mapping": "+refs/heads/stage/p02-calculation:refs/remotes/origin/stage/p02-calculation",
+    "plain_switch_after_explicit_fetch": {
+      "arguments": [
+        "switch",
+        "stage/p03-file-safety"
+      ],
+      "exit_code": 128,
+      "stdout": "",
+      "stderr": "fatal: invalid reference: stage/p03-file-safety"
+    },
+    "explicit_track_before_registering_mapping": {
+      "arguments": [
+        "switch",
+        "--track",
+        "-c",
+        "stage/p03-file-safety",
+        "origin/stage/p03-file-safety"
+      ],
+      "exit_code": 128,
+      "stdout": "",
+      "stderr": "fatal: cannot set up tracking information; starting point 'origin/stage/p03-file-safety' is not a branch"
+    },
+    "registered_fetch_mapping": "+refs/heads/stage/p02-calculation:refs/remotes/origin/stage/p02-calculation\n+refs/heads/stage/p03-file-safety:refs/remotes/origin/stage/p03-file-safety",
+    "explicit_track_after_registering_mapping": {
+      "arguments": [
+        "switch",
+        "--track",
+        "-c",
+        "stage/p03-file-safety",
+        "origin/stage/p03-file-safety"
+      ],
+      "exit_code": 0,
+      "stdout": "branch 'stage/p03-file-safety' set up to track 'origin/stage/p03-file-safety'.",
+      "stderr": "Switched to a new branch 'stage/p03-file-safety'"
+    },
+    "existing_branch_switch": {
+      "arguments": [
+        "switch",
+        "stage/p03-file-safety"
+      ],
+      "exit_code": 0,
+      "stdout": "Your branch is up to date with 'origin/stage/p03-file-safety'.",
+      "stderr": "Already on 'stage/p03-file-safety'"
+    },
+    "final_branch": "stage/p03-file-safety",
+    "final_upstream": "origin/stage/p03-file-safety",
+    "no_real_repository_or_user_branch_reset": true
+  },
+  "reports": {
+    "windows_file_smoke": {
+      "task": "P03-01",
+      "environment": {
+        "os": "Windows",
+        "python": "3.12.10"
+      },
+      "commit": "151efe8e447fc945f7565ee1693006008d97e03f",
+      "implementation_sha256_LF": {
+        "quote_app/__init__.py": "33b32e668ffe3a5d0fd4c6d0f7aac49ee3583ad6a81ec54efcca98e28ceec3d8",
+        "quote_app/file_edits.py": "c47e29bfac0c4fc31821f3515c4f8984d52c9c88b1f1df6eb29431c850f76058",
+        "quote_app/integration.py": "3e8c18b11ba741d7095b8528be53da14ae1ca2ba1671551c4040d7b6b91b1a7f",
+        "quote_app/projection.py": "02d4d57c2c9cb3b5491936774981db16d6496842421dcb5dea373675ecf1d124",
+        "quote_app/storage.py": "e101611051ac8cc854ba61cd1d72f75dc77bbcb5d782912261d8373ff12064d2",
+        "quote_files/__init__.py": "df245ae88782f9067a0d9735547d30025a36fc9c5f659de124a076c081434329",
+        "quote_files/configuration.py": "978f7f541e83a115390b74e2be88bafc64c88e60486b0800785e23b6544ec57e",
+        "quote_files/transactions.py": "848e6bb73cf5b1ed4f988493ea63b0017de2772edafb2a4597b6e5bf8983477c",
+        "quote_files/workbooks.py": "3b11ed1690a551c7955302d28af117b24c2b218be5d9052a1583e6e43c7e5386",
+        "tools/p03_file_check.py": "5d39fcfbbf30d24a78fd5740297359de44f7882ca83fd1a710fc64f9301d9c56",
+        "报价利润计算器_局域网子版本_JSON价格_截图按天订单命名_ICON版(1).py": "f1e9e473e22ffc9af445b21afe7d0d92ceb6091c28ed1347609b8cc421cf64a5",
+        "报价利润计算器_局域网导出版_每日汇总版(1).py": "fc10479bc437fb784391eb1fbc9ed655fcf1ea8fe754e4c827c3a299f9a1b29c"
+      },
+      "production_paths_accessed": false,
+      "windows_shared_acceptance": "pending",
+      "scope": "Temporary synthetic local files only; not two physical SMB clients or network interruption acceptance",
+      "checks": {
+        "status": "passed",
+        "tests_run": 32,
+        "failures": 0,
+        "errors": 0,
+        "skipped": [],
+        "test_ids": [
+          "test_file_transactions.FileTransactionTests.test_absent_receipt_is_not_proof_of_noncommit",
+          "test_file_transactions.FileTransactionTests.test_backup_verification_failure_preserves_original",
+          "test_file_transactions.FileTransactionTests.test_candidate_validation_failure_preserves_original",
+          "test_file_transactions.FileTransactionTests.test_config_cas_preserves_other_writer_and_validates_whole_candidate",
+          "test_file_transactions.FileTransactionTests.test_config_publish_and_effect_idempotency_keep_schema",
+          "test_file_transactions.FileTransactionTests.test_crashed_holder_releases_native_lock_without_deleting_lockfile",
+          "test_file_transactions.FileTransactionTests.test_journal_failure_after_verified_publish_does_not_report_unsaved",
+          "test_file_transactions.FileTransactionTests.test_observed_external_change_is_not_overwritten",
+          "test_file_transactions.FileTransactionTests.test_receipt_replay_before_stale_version_is_exactly_once",
+          "test_file_transactions.FileTransactionTests.test_replace_denied_is_queryable_and_same_id_can_retry",
+          "test_file_transactions.FileTransactionTests.test_replace_happened_then_exception_returns_known_saved",
+          "test_file_transactions.FileTransactionTests.test_request_id_cannot_be_reused_for_other_content",
+          "test_file_transactions.FileTransactionTests.test_stale_hash_rejects_without_transform",
+          "test_file_transactions.FileTransactionTests.test_temp_write_failure_preserves_original",
+          "test_file_transactions.FileTransactionTests.test_two_native_process_writers_preserve_both_requests",
+          "test_file_transactions.FileTransactionTests.test_unreadable_after_replace_is_unknown_then_receipt_resolves",
+          "test_file_transactions.FileTransactionTests.test_unresolved_prepared_request_blocks_new_writer",
+          "test_file_transactions.FileTransactionTests.test_verified_preimage_backup_and_committed_journal",
+          "test_workbook_transactions.WorkbookTransactionTests.test_committed_edit_refresh_error_and_retry_do_not_duplicate_note",
+          "test_workbook_transactions.WorkbookTransactionTests.test_concurrent_append_remark_void_preserve_all_receipts_and_amounts",
+          "test_workbook_transactions.WorkbookTransactionTests.test_legacy_typed_rows_without_identity_remain_readonly_for_edit",
+          "test_workbook_transactions.WorkbookTransactionTests.test_listing_workbook_closes_when_sheet_enumeration_raises",
+          "test_workbook_transactions.WorkbookTransactionTests.test_prior_unknown_journal_queries_prior_id_and_blocks_new_requests",
+          "test_workbook_transactions.WorkbookTransactionTests.test_recalculate_same_second_same_customer_creates_distinct_orders",
+          "test_workbook_transactions.WorkbookTransactionTests.test_remark_then_void_preserves_raw_amounts_and_excludes_void_summary",
+          "test_workbook_transactions.WorkbookTransactionTests.test_sales_edit_and_entire_file_delete_are_zero_writes",
+          "test_workbook_transactions.WorkbookTransactionTests.test_sales_view_uses_order_ids_for_same_second_and_hides_void",
+          "test_workbook_transactions.WorkbookTransactionTests.test_same_calculation_double_click_has_one_receipt_and_stable_ids",
+          "test_workbook_transactions.WorkbookTransactionTests.test_stale_row_view_rejects_instead_of_changing_other_order",
+          "test_workbook_transactions.WorkbookTransactionTests.test_switch_file_or_failed_view_invalidates_old_edit_lease",
+          "test_workbook_transactions.WorkbookTransactionTests.test_unknown_append_query_then_retry_has_no_duplicate",
+          "test_workbook_transactions.WorkbookTransactionTests.test_unknown_corrupt_or_untyped_daily_file_is_never_rebuilt"
+        ],
+        "log": "test_absent_receipt_is_not_proof_of_noncommit (test_file_transactions.FileTransactionTests.test_absent_receipt_is_not_proof_of_noncommit) ... ok\ntest_backup_verification_failure_preserves_original (test_file_transactions.FileTransactionTests.test_backup_verification_failure_preserves_original) ... ok\ntest_candidate_validation_failure_preserves_original (test_file_transactions.FileTransactionTests.test_candidate_validation_failure_preserves_original) ... ok\ntest_config_cas_preserves_other_writer_and_validates_whole_candidate (test_file_transactions.FileTransactionTests.test_config_cas_preserves_other_writer_and_validates_whole_candidate) ... ok\ntest_config_publish_and_effect_idempotency_keep_schema (test_file_transactions.FileTransactionTests.test_config_publish_and_effect_idempotency_keep_schema) ... ok\ntest_crashed_holder_releases_native_lock_without_deleting_lockfile (test_file_transactions.FileTransactionTests.test_crashed_holder_releases_native_lock_without_deleting_lockfile) ... ok\ntest_journal_failure_after_verified_publish_does_not_report_unsaved (test_file_transactions.FileTransactionTests.test_journal_failure_after_verified_publish_does_not_report_unsaved) ... ok\ntest_observed_external_change_is_not_overwritten (test_file_transactions.FileTransactionTests.test_observed_external_change_is_not_overwritten) ... ok\ntest_receipt_replay_before_stale_version_is_exactly_once (test_file_transactions.FileTransactionTests.test_receipt_replay_before_stale_version_is_exactly_once) ... ok\ntest_replace_denied_is_queryable_and_same_id_can_retry (test_file_transactions.FileTransactionTests.test_replace_denied_is_queryable_and_same_id_can_retry) ... ok\ntest_replace_happened_then_exception_returns_known_saved (test_file_transactions.FileTransactionTests.test_replace_happened_then_exception_returns_known_saved) ... ok\ntest_request_id_cannot_be_reused_for_other_content (test_file_transactions.FileTransactionTests.test_request_id_cannot_be_reused_for_other_content) ... ok\ntest_stale_hash_rejects_without_transform (test_file_transactions.FileTransactionTests.test_stale_hash_rejects_without_transform) ... ok\ntest_temp_write_failure_preserves_original (test_file_transactions.FileTransactionTests.test_temp_write_failure_preserves_original) ... ok\ntest_two_native_process_writers_preserve_both_requests (test_file_transactions.FileTransactionTests.test_two_native_process_writers_preserve_both_requests) ... ok\ntest_unreadable_after_replace_is_unknown_then_receipt_resolves (test_file_transactions.FileTransactionTests.test_unreadable_after_replace_is_unknown_then_receipt_resolves) ... ok\ntest_unresolved_prepared_request_blocks_new_writer (test_file_transactions.FileTransactionTests.test_unresolved_prepared_request_blocks_new_writer) ... ok\ntest_verified_preimage_backup_and_committed_journal (test_file_transactions.FileTransactionTests.test_verified_preimage_backup_and_committed_journal) ... ok\ntest_committed_edit_refresh_error_and_retry_do_not_duplicate_note (test_workbook_transactions.WorkbookTransactionTests.test_committed_edit_refresh_error_and_retry_do_not_duplicate_note) ... ok\ntest_concurrent_append_remark_void_preserve_all_receipts_and_amounts (test_workbook_transactions.WorkbookTransactionTests.test_concurrent_append_remark_void_preserve_all_receipts_and_amounts) ... ok\ntest_legacy_typed_rows_without_identity_remain_readonly_for_edit (test_workbook_transactions.WorkbookTransactionTests.test_legacy_typed_rows_without_identity_remain_readonly_for_edit) ... ok\ntest_listing_workbook_closes_when_sheet_enumeration_raises (test_workbook_transactions.WorkbookTransactionTests.test_listing_workbook_closes_when_sheet_enumeration_raises) ... ok\ntest_prior_unknown_journal_queries_prior_id_and_blocks_new_requests (test_workbook_transactions.WorkbookTransactionTests.test_prior_unknown_journal_queries_prior_id_and_blocks_new_requests) ... ok\ntest_recalculate_same_second_same_customer_creates_distinct_orders (test_workbook_transactions.WorkbookTransactionTests.test_recalculate_same_second_same_customer_creates_distinct_orders) ... ok\ntest_remark_then_void_preserves_raw_amounts_and_excludes_void_summary (test_workbook_transactions.WorkbookTransactionTests.test_remark_then_void_preserves_raw_amounts_and_excludes_void_summary) ... ok\ntest_sales_edit_and_entire_file_delete_are_zero_writes (test_workbook_transactions.WorkbookTransactionTests.test_sales_edit_and_entire_file_delete_are_zero_writes) ... ok\ntest_sales_view_uses_order_ids_for_same_second_and_hides_void (test_workbook_transactions.WorkbookTransactionTests.test_sales_view_uses_order_ids_for_same_second_and_hides_void) ... ok\ntest_same_calculation_double_click_has_one_receipt_and_stable_ids (test_workbook_transactions.WorkbookTransactionTests.test_same_calculation_double_click_has_one_receipt_and_stable_ids) ... ok\ntest_stale_row_view_rejects_instead_of_changing_other_order (test_workbook_transactions.WorkbookTransactionTests.test_stale_row_view_rejects_instead_of_changing_other_order) ... ok\ntest_switch_file_or_failed_view_invalidates_old_edit_lease (test_workbook_transactions.WorkbookTransactionTests.test_switch_file_or_failed_view_invalidates_old_edit_lease) ... ok\ntest_unknown_append_query_then_retry_has_no_duplicate (test_workbook_transactions.WorkbookTransactionTests.test_unknown_append_query_then_retry_has_no_duplicate) ... ok\ntest_unknown_corrupt_or_untyped_daily_file_is_never_rebuilt (test_workbook_transactions.WorkbookTransactionTests.test_unknown_corrupt_or_untyped_daily_file_is_never_rebuilt) ... ok\n\n----------------------------------------------------------------------\nRan 32 tests in 5.266s\n\nOK\n",
+        "scope": "Synthetic local files and native process locks; no production share"
+      },
+      "status": "passed"
+    },
+    "windows_gui_smoke": {
+      "task": "P03-01",
+      "environment": {
+        "os": "Windows",
+        "python": "3.12.10"
+      },
+      "commit": "151efe8e447fc945f7565ee1693006008d97e03f",
+      "implementation_sha256_LF": {
+        "quote_app/__init__.py": "33b32e668ffe3a5d0fd4c6d0f7aac49ee3583ad6a81ec54efcca98e28ceec3d8",
+        "quote_app/file_edits.py": "c47e29bfac0c4fc31821f3515c4f8984d52c9c88b1f1df6eb29431c850f76058",
+        "quote_app/integration.py": "3e8c18b11ba741d7095b8528be53da14ae1ca2ba1671551c4040d7b6b91b1a7f",
+        "quote_app/projection.py": "02d4d57c2c9cb3b5491936774981db16d6496842421dcb5dea373675ecf1d124",
+        "quote_app/storage.py": "e101611051ac8cc854ba61cd1d72f75dc77bbcb5d782912261d8373ff12064d2",
+        "quote_files/__init__.py": "df245ae88782f9067a0d9735547d30025a36fc9c5f659de124a076c081434329",
+        "quote_files/configuration.py": "978f7f541e83a115390b74e2be88bafc64c88e60486b0800785e23b6544ec57e",
+        "quote_files/transactions.py": "848e6bb73cf5b1ed4f988493ea63b0017de2772edafb2a4597b6e5bf8983477c",
+        "quote_files/workbooks.py": "3b11ed1690a551c7955302d28af117b24c2b218be5d9052a1583e6e43c7e5386",
+        "tools/p03_file_check.py": "5d39fcfbbf30d24a78fd5740297359de44f7882ca83fd1a710fc64f9301d9c56",
+        "报价利润计算器_局域网子版本_JSON价格_截图按天订单命名_ICON版(1).py": "f1e9e473e22ffc9af445b21afe7d0d92ceb6091c28ed1347609b8cc421cf64a5",
+        "报价利润计算器_局域网导出版_每日汇总版(1).py": "fc10479bc437fb784391eb1fbc9ed655fcf1ea8fe754e4c827c3a299f9a1b29c"
+      },
+      "production_paths_accessed": false,
+      "windows_shared_acceptance": "pending",
+      "scope": "Temporary synthetic local files only; not two physical SMB clients or network interruption acceptance",
+      "gui": {
+        "role": "pair",
+        "mode": "shared_automatic",
+        "source_sha256_LF": {
+          "manager": "fc10479bc437fb784391eb1fbc9ed655fcf1ea8fe754e4c827c3a299f9a1b29c",
+          "sales": "f1e9e473e22ffc9af445b21afe7d0d92ceb6091c28ed1347609b8cc421cf64a5"
+        },
+        "startup": "ok",
+        "checks": {
+          "manager_publish_sales_auto_inherit": "passed",
+          "sales_directory_mutators_zero_writes": "passed",
+          "sales_export_manager_list_and_reader": "passed",
+          "manager_summary_income_cost_profit": {
+            "income": 12.0,
+            "cost": 4.0,
+            "profit": 8.0,
+            "margin": 0.6666666666666666
+          },
+          "sales_screenshot_inherits_manager_directory": "passed",
+          "repeated_click_single_receipt": "passed",
+          "manager_append_remark_and_soft_void": "passed",
+          "preserved_rows_and_active_summary": "passed",
+          "hidden_transaction_sheet": "passed"
+        },
+        "status": "passed",
+        "callback_errors": [],
+        "close": "ok",
+        "sandbox_cleaned": true
+      },
+      "status": "passed"
+    }
+  },
+  "remaining": [
+    "Two physical Windows clients writing same isolated SMB synthetic file/lock path",
+    "Real Excel occupancy, readonly shared directory, network interruption and request recovery",
+    "User acceptance of P03-01 scope"
+  ],
+  "boundaries": [
+    "Windows local CRT lock/process and current GUI checks have passed",
+    "These reports are synthetic local checks, not physical dual-client SMB acceptance",
+    "No manual session/production data test/real screenshot or deployment evidence uploaded",
+    "Only documentation and branch instructions updated this turn; production code and original reports unchanged",
+    "P03-01 not closed; P03-02 to04/P04 toP08 not started"
+  ],
+  "production_paths_accessed": false,
+  "windows_shared_acceptance": "pending",
+  "user_acceptance": "pending"
+}
