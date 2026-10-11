@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于 `plans`；当前执行分支为 `stage/p02-calculation`，创建于P01验收提交 `7099303`。**P01已验收归档，business-v1/numeric-v1/performance-v1已确认；P02-01纯Decimal领域核心与输入/价格快照已实现，53例黄金及辅助60项回归通过；Windows本机60项检查完成（58通过、2项既有权限检查跳过），新增18项全过，P02-01具备收尾条件。两版窗口接入留P02-04，原业务脚本保持基线；P02-02至04和后续阶段未启动。**
+规划位于 `plans`；当前执行分支为 `stage/p02-calculation`，创建于P01验收提交 `7099303`。**P01已验收归档，business-v1/numeric-v1/performance-v1已确认；P02-01纯Decimal领域核心与输入/价格快照已实现，53例黄金及辅助60项回归通过；Windows本机60项检查完成（58通过、2项既有权限检查跳过），新增18项全过；用户已验收收尾P02-01，P02-02统一输入/配置校验执行中。两版窗口接入留P02-04，原业务脚本保持基线；P02-03/04和后续阶段未启动。**
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -18,6 +18,8 @@
 ## Change Log
 
 ### 2026-10-11
+
+- 用户“收尾01开始02”：登记[P02-01验收](docs/verification/P02-01-acceptance.json)，保留原检查及Windows回传证据，P02整阶段继续留now；复用stage/p02-calculation启动P02-02统一数字/折扣与旧、新JSON配置schema校验，不创建第二条阶段分支。P02-03/04未启动。
 
 - P02-01 Windows核心复查通过：已切到stage/p02-calculation@2d8006e，60项清单与仓库一致，2.052秒，OK (skipped=2)，58通过、无失败/错误，P02新增18项全过；53例黄金通过，前次六处GBK错误对应检查均通过。两项既有symlink权限跳过原样登记，未冒充Windows链接保护通过；见[本机通过证据](docs/verification/P02-01-windows-evidence.json)。P02-01具备收尾条件、无需补跑；原业务代码及历史报告不改，P02整阶段留now，02至04未启动。
 
