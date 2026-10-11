@@ -1,0 +1,28 @@
+{
+  "task": "P03-01",
+  "recorded_at": "2026-10-11T22:47:14+08:00",
+  "source": "current_user_message",
+  "user_statement": "过于麻烦 放弃测试",
+  "baseline_commit": "35d476d116819ed6a335f27206a9e4a94b9e49b4",
+  "decision": "取消本轮剩余共享盘实机测试，不再要求用户执行或回传",
+  "cancelled_scope": [
+    "双机共享目录并发与持锁拒写演练",
+    "共享盘旧页面冲突、备注与作废演练",
+    "桌面Excel实际占用与释放后重试演练",
+    "共享只读权限实机检查"
+  ],
+  "deliberate_network_interruption": "此前已取消，继续取消",
+  "real_shared_test_status": "cancelled_by_user; not_executed; not_passed",
+  "retained_evidence": {
+    "windows_local_transaction_tests": "32/32 passed in existing report",
+    "windows_manager_sales_gui": "passed in existing report",
+    "auxiliary_regression": "171 passed in existing report"
+  },
+  "existing_failure_protections": "retained",
+  "shared_test_tool_and_guide": "保留为历史诊断方案，本轮无需执行",
+  "previous_scope_record": "P03-01-scope.json保持原值；本记录更新其剩余测试安排",
+  "p03_01_closed": false,
+  "p03_02_started": false,
+  "production_files_modified": false,
+  "change_scope": "仅文档与计划状态更新"
+}
