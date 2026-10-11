@@ -7,12 +7,12 @@
 | 项目 | 状态 |
 | --- | --- |
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
-| 本轮授权 | P02-02已验收，用户“开始03”授权P02-03；既有推送授权有效，P02-04及后续未启动 |
+| 本轮授权 | P02-03已验收，用户“如果没问题收尾03开始04”授权P02-04；既有推送授权有效，P02-04执行中；后续未启动 |
 | 文档工作 | [P02当前任务书](now/P02-calculation.md)及[核心验证证据](verification/P02-01-checks.json)、[本机回传与兼容修复](verification/P02-01-windows-compatibility.json)、[Windows通过证据](verification/P02-01-windows-evidence.json)及[P02-02检查证据](verification/P02-02-checks.json)、[P02-02 Windows通过证据](verification/P02-02-windows-evidence.json)及[P02-03检查证据](verification/P02-03-checks.json)已交付；P01已归档old |
-| 当前开发阶段 / Atomic Task | P02执行中；01/02已验收，03计算失效/正式输出门槛已实现，辅助96项及53例黄金通过，待Windows本机复查/用户验收；P01规则/参数已确认 |
-| 下一项 | P02-03本机复查/用户验收；P02-04未启动；无需补跑P01 GUI/历史诊断 |
+| 当前开发阶段 / Atomic Task | P02执行中；01/02已验收，03计算失效/正式输出门槛已实现，辅助96项及53例黄金通过，03已验收收尾，04窗口接入执行中；P01规则/参数已确认 |
+| 下一项 | P02-03本机复查/用户验收；P02-04执行中；无需补跑P01 GUI/历史诊断 |
 | 业务源码 | 两份原始脚本保留原路径、原内容 |
-| Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03新检查待本机复查；完整业务、部署及SMB验收留后续 |
+| Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
 [主任务书](MASTER_PLAN.md) 是计划、阶段状态和阶段入口的权威索引；[审计报告](audit/python-audit.md) 保存证据；[迁移契约](MIGRATION_CONTRACT.md) 保存业务、字段与数据规则；[架构方案](RUST_TAURI_DESIGN.md) 保存拟议边界。根 README 的 Change Log 是唯一变更摘要，不再创建平行日志。
 

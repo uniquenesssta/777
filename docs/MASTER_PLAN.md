@@ -2,7 +2,7 @@
 
 版本：初始规划；日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P01已验收归档，business-v1/numeric-v1/performance-v1已确认；黄金53/53、Windows格式18/18及规模/GUI证据保持。P02-01/02已验收收尾；P02-03计算失效与正式输出门槛已实现，辅助96项回归及53例黄金通过，待Windows本机复查/用户验收。实际阶段分支stage/p02-calculation，P02-04及P03–P08未启动。** 本任务书不自动授予后续阶段实施权限。任务定位按用户授权、此索引和真实Git状态交叉确认。
+**P01已验收归档，business-v1/numeric-v1/performance-v1已确认；黄金53/53、Windows格式18/18及规模/GUI证据保持。P02-01/02已验收收尾；P02-03计算失效与正式输出门槛已实现，辅助96项回归及53例黄金通过，03已验收收尾，04窗口接入执行中。实际阶段分支stage/p02-calculation，P02-04执行中；P03–P08未启动。** 本任务书不自动授予后续阶段实施权限。任务定位按用户授权、此索引和真实Git状态交叉确认。
 
 ## 1. 目标与边界
 
@@ -20,7 +20,7 @@ P01任务书已归档old；P02-01已实施，P02唯一任务书已移入now，�
 | 阶段 | 任务书 | 前置 | 建议分支 | 状态 / 核心退出门槛 |
 | --- | --- | --- | --- | --- |
 | P01 | [基线与规则确认](old/P01-baseline.md) | 本轮审计交付 | stage/p01-baseline | 已验收归档；[确认记录](baseline/p01-acceptance.json)，business-v1/numeric-v1/performance-v1已确认，53/53黄金、18/18格式及全部规模结构检查通过 |
-| P02 | [计算正确性与公共核心](now/P02-calculation.md) | P01已验收 | stage/p02-calculation | 执行中；01/02已验收；03计算状态/输出门槛已实现、辅助96项及53例黄金通过，待Windows本机复查/用户验收，两端统一接入留04，04未启动 |
+| P02 | [计算正确性与公共核心](now/P02-calculation.md) | P01已验收 | stage/p02-calculation | 执行中；01/02已验收；03计算状态/输出门槛已实现、辅助96项及53例黄金通过，03已验收收尾，04窗口接入执行中，两端统一接入留04，04执行中 |
 | P03 | [文件数据安全与兼容](new/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 待启动；冲突不覆盖、未知格式不破坏、幂等恢复成立 |
 | P04 | [后台任务与性能](new/P04-performance.md) | P03已验收 | stage/p04-performance | 待启动；消除重复全量读取、UI响应、完整分页实测 |
 | P05 | [结构化存储与局域网服务](new/P05-data-service.md) | P04已验收 | stage/p05-data-service | 待启动；事务/鉴权/导入核对及恢复演练通过 |
@@ -75,4 +75,4 @@ P01-02已核对金额/折扣/解析、价格重读和子版权限事实，交付
 
 P01-03已启动，交付[源码目录/格式与只读采集说明](baseline/P01-03-data-deployment.md)、[部署记录](baseline/p01-03-deployment.json)、采集工具及16项合成检查/CLI证据。子版配置（9商品，6面积/3单件）与利润明细_20260529.xlsx脱敏材料已核对，分别登记[第一批配置摘要](baseline/p01-03-user-evidence.json)和[第二批账本摘要](baseline/p01-03-ledger-evidence.json)。账本含当前26列空明细、9项一致价格快照及1条已脱敏诊断记录，无报告的未知表/公式/外链/宏/截断；0明细不能验真实成交金额链。用户23:41确认目录同源、母版范围、未定销售台数及常在线电脑，授权资料缺口按源码/建议登记；[可见目录与E盘隐藏备份规划](baseline/P01-03-directory-backup.md)已纳入后续任务。P01-03登记范围已验收收尾，未提供真实历史的存在性、主机系统版本/具体运维账户及备份实施保持未知并按P05/P08验证；没有服务部署或成交金额对账。P01-04现已交付，详见[黄金/格式/技术参数与验收说明](baseline/P01-04-validation.md)及[辅助证据](baseline/p01-04-checks.json)；53/53、18/18及全规模核对通过，39项诊断回归通过。Windows原GUI心跳已采集，修复后的[Windows格式复查](baseline/p01-04-windows-format-evidence.json)18/18通过、5项材料指纹匹配68bc256；原53/53黄金与全部规模结构检查证据继续有效，无需重跑。数值参数/响应指标和阶段材料现已按用户授权采纳验收，详见[P01确认](baseline/p01-acceptance.json)；P01归档old，P02-01获启动授权。
 
-P02-01现已交付[领域核心](../quote_core/__init__.py)与[检查证据](verification/P02-01-checks.json)：使用numeric-v1、结构化整数分结果和不可变快照；旧两版calculate尚未切换，真实Windows交互/导出状态在P02-03/04验收。首次本机回传的分支失败及六处GBK错误已修复，[原始回传与兼容检查](verification/P02-01-windows-compatibility.json)保留失败结果；最新[Windows通过证据](verification/P02-01-windows-evidence.json)匹配2d8006e及全部60项清单，58通过/2项既有权限跳过，新增18项全过，P02-01已按[用户指令](verification/P02-01-acceptance.json)验收收尾、无需补跑；P02-02已交付[整份配置校验与保留快照](../quote_core/configuration.py)，新增18项及完整78项辅助检查通过，见[P02-02证据](verification/P02-02-checks.json)；[P02-02 Windows通过证据](verification/P02-02-windows-evidence.json)对应ed47a29及全部78项清单，76通过/2项既有权限跳过，新增18项配置全过，53例黄金通过，已按[用户接续指令](verification/P02-02-acceptance.json)验收收尾、无需补跑；P02-03已交付[QuoteSession状态与输出门槛](../quote_core/session.py)，输入/身份/价格变化使结果失效、旧工作丢弃、价格刷新重算确认，三种正式输出错误零回调；新增18项与完整96项辅助回归及53例黄金通过，见[P02-03证据](verification/P02-03-checks.json)，待Windows本机复查/用户验收。原应用加载/输出入口接入留04。当前任务书为[now/P02](now/P02-calculation.md)，P02整阶段未完成。
+P02-01现已交付[领域核心](../quote_core/__init__.py)与[检查证据](verification/P02-01-checks.json)：使用numeric-v1、结构化整数分结果和不可变快照；旧两版calculate尚未切换，真实Windows交互/导出状态在P02-03/04验收。首次本机回传的分支失败及六处GBK错误已修复，[原始回传与兼容检查](verification/P02-01-windows-compatibility.json)保留失败结果；最新[Windows通过证据](verification/P02-01-windows-evidence.json)匹配2d8006e及全部60项清单，58通过/2项既有权限跳过，新增18项全过，P02-01已按[用户指令](verification/P02-01-acceptance.json)验收收尾、无需补跑；P02-02已交付[整份配置校验与保留快照](../quote_core/configuration.py)，新增18项及完整78项辅助检查通过，见[P02-02证据](verification/P02-02-checks.json)；[P02-02 Windows通过证据](verification/P02-02-windows-evidence.json)对应ed47a29及全部78项清单，76通过/2项既有权限跳过，新增18项配置全过，53例黄金通过，已按[用户接续指令](verification/P02-02-acceptance.json)验收收尾、无需补跑；P02-03已交付[QuoteSession状态与输出门槛](../quote_core/session.py)，输入/身份/价格变化使结果失效、旧工作丢弃、价格刷新重算确认，三种正式输出错误零回调；新增18项与完整96项辅助回归及53例黄金通过，见[P02-03证据](verification/P02-03-checks.json)，03已验收收尾，04窗口接入执行中。原应用加载/输出入口接入留04。当前任务书为[now/P02](now/P02-calculation.md)，P02整阶段未完成。

@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于 `plans`；当前执行分支为 `stage/p02-calculation`，创建于P01验收提交 `7099303`。**P01已验收归档，business-v1/numeric-v1/performance-v1已确认；P02-01/02已验收收尾。P02-03计算revision、陈旧/价格来源状态及正式输出门槛已实现，辅助96项回归和53例黄金通过，待Windows本机复查/用户验收。两版窗口统一接入留P02-04，原业务脚本保持基线；P02-04和后续阶段未启动。**
+规划位于 `plans`；当前执行分支为 `stage/p02-calculation`，创建于P01验收提交 `7099303`。**P01已归档；P02-01/02/03已验收收尾。P02-03 Windows 96项检查为94通过、2项既有权限跳过，新增18项状态检查全过。按用户指令开始P02-04，统一接入母子窗口；P02整阶段留now，P03及后续未启动。**
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -16,6 +16,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 用户“如果没问题收尾03开始04”：核对[Windows日志](docs/verification/P02-03-windows-evidence.json)匹配2248774及96项清单，94通过/2项既有权限跳过、新增18项全过，登记[03验收](docs/verification/P02-03-acceptance.json)。同一stage/p02-calculation启动04窗口接入，P02继续留now。
 
 ### 2026-10-11
 
