@@ -22,7 +22,8 @@ from quote_core.configuration import CONFIG_BYTE_LIMIT
 from quote_core.numbers import exact_context, settle
 
 from .projection import append_quote, legacy_record
-from .storage import publish_directory, resolve_directory
+from .storage import resolve_directory
+from .connections import ConnectionMixin
 from .file_edits import FileEditingMixin
 from .file_reads import FileReadingMixin
 from quote_files.configuration import save_config
@@ -70,7 +71,7 @@ def price_difference(old, new):
                  if a.get(name) != b.get(name))
 
 
-class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
+class QuoteApplicationMixin(ConnectionMixin, FileReadingMixin, FileEditingMixin):
     quote_role = "manager"
 
     def initialize_quote_state(self):
@@ -90,9 +91,7 @@ class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
         self._excel_view_orders = {}
         self._excel_view_path = None
         self._last_config_sha = None
-        self.screenshot_dir_var = self._new_text_var(self.image_dir)
-        self.config_source_var = self._new_text_var(self._price_path())
-        self.storage_status_var = self._new_text_var("目录尚未从共享配置确认。")
+        self.initialize_connections()
 
     def schedule_quote_callback(self, callback, *, delay=None):
         def run():
@@ -101,27 +100,6 @@ class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
         job = self.root.after_idle(run) if delay is None else self.root.after(delay, run)
         self._after_jobs.add(job)
         return job
-
-    def install_storage_controls(self, parent):
-        box = ttk.LabelFrame(parent, text="母版共享目录设置" if self.quote_role == "manager" else "继承母版目录（只读）", padding=8)
-        box.pack(fill="x", pady=(0, 8))
-        self.storage_entries = {}
-        for index, (label, var) in enumerate((("共享配置", self.config_source_var),
-                ("Excel目录", self.export_dir_var), ("截图目录", self.screenshot_dir_var))):
-            ttk.Label(box, text=label + "：").grid(row=index, column=0, sticky="w")
-            editable = self.quote_role == "manager" and index > 0
-            entry = ttk.Entry(box, textvariable=var, state="normal" if editable else "readonly")
-            entry.grid(row=index, column=1, sticky="ew", padx=6, pady=2)
-            self.storage_entries[label] = entry
-            if editable:
-                ttk.Button(box, text="选择文件夹", command=lambda v=var: self.choose_storage_dir(v)).grid(row=index, column=2)
-        box.columnconfigure(1, weight=1)
-        ttk.Label(box, textvariable=self.storage_status_var, wraplength=900).grid(row=3, column=0, columnspan=3, sticky="w")
-        if self.quote_role == "manager":
-            ttk.Button(box, text="保存共享目录", command=self.apply_export_dir).grid(row=4, column=1, sticky="w", pady=4)
-        else:
-            ttk.Button(box, text="刷新母版配置", command=self.reload_price_settings_from_json).grid(row=4, column=1, sticky="w", pady=4)
-        ttk.Button(box, text="检查上次写入", command=self.check_last_write).grid(row=4, column=2, sticky="w", pady=4)
 
     def choose_storage_dir(self, var):
         if self.quote_role != "manager":
@@ -133,17 +111,6 @@ class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
 
     def choose_export_dir(self):
         return self.choose_storage_dir(self.export_dir_var)
-
-    def apply_export_dir(self):
-        if self.quote_role != "manager" or not self.save_settings():
-            return False
-        try:
-            self.refresh_excel_files()
-        except OSError as exc:
-            self.set_feedback(f"目录配置已保存，但读取失败：{exc}", is_error=True)
-            return False
-        self.set_feedback("共享目录已保存；子版刷新列表或输出时自动继承，不能自行修改。")
-        return True
 
     def reset_export_dir_to_local(self):
         if self.quote_role != "manager":
@@ -163,6 +130,9 @@ class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
         if self.quote_role == "manager":
             ttk.Button(box, text="刷新已保存价格", command=self.reload_price_settings_from_json).pack(side="left", padx=4)
         self.update_quote_status()
+        if not self.data_root:
+            self.notebook.select(self.excel_page)
+            self.set_feedback("首次使用：在Excel记录页选择数据源并保存本机连接；母版再保存共享目录。")
 
     def _new_text_var(self, text):
         # Entry modules already own the interpreter; no implicit default root.
@@ -202,7 +172,8 @@ class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
             return
         state = self.quote_session.state
         decision = self.quote_session.prepare_output("excel")
-        text = "计算有效，可导出或截图。" if decision.allowed else self._issue_text(decision.issues[0])
+        text = ("目录尚未确认，请在Excel记录页保存或修复连接。" if not self._storage_valid else
+                "计算有效，可导出或截图。" if decision.allowed else self._issue_text(decision.issues[0]))
         if state.price_confirmation_required:
             text += " 查看价格差异，重算后点击“确认当前价格”。"
         self.quote_status_var.set(text)
@@ -220,7 +191,7 @@ class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
                  "提示": REASONS.get(i.reason, i.reason)} for i in issues]
 
     def _price_path(self):
-        return self.get_price_config_file() if self.quote_role == "sales" else self.config_file
+        return self.config_file
 
     def _read_price_candidate(self):
         try:
@@ -233,32 +204,11 @@ class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
             legacy_single_names={i["name"] for i in self.default_items if i.get("single") is True})
         if candidate.status != "ok":
             return None, "invalid", candidate.issues
-        try:
-            self._candidate_directories(candidate.config)
-        except ValueError as exc:
-            self.storage_status_var.set(str(exc))
-            return None, "invalid", (Issue("VALIDATION", "DIRECTORY_CONFIG_INVALID", "price_source"),)
         return candidate.config, "current", ()
 
-    def _candidate_directories(self, candidate):
-        return (resolve_directory(candidate.export_dir, self._price_path(), "利润表", sales=self.quote_role == "sales"),
-                resolve_directory(candidate.screenshot_dir, self._price_path(), "截图", sales=self.quote_role == "sales"))
-
     def _observe_price_file(self):
+        self.observe_storage()
         candidate, status, issues = self._read_price_candidate()
-        if candidate and self._storage_version != candidate.prices.price_version_id:
-            self.report_dir, self.image_dir = self._candidate_directories(candidate)
-            self.export_dir_var.set(self.report_dir)
-            self.screenshot_dir_var.set(self.image_dir)
-            self._storage_version = candidate.prices.price_version_id
-            self.current_excel_path = None
-            self.storage_status_var.set("目录来自上述共享配置；母版保存后子版自动继承。")
-        if candidate:
-            self.storage_status_var.set("启动、刷新列表和输出前自动同步母版目录；子版只读。")
-        elif status == "unavailable":
-            self.storage_status_var.set("共享配置不可用；保留上次目录显示，禁止正式输出。")
-        elif not any(i.reason == "DIRECTORY_CONFIG_INVALID" for i in issues):
-            self.storage_status_var.set("共享配置校验失败；保留上次目录显示，禁止正式输出。")
         latest = candidate.prices.price_version_id if candidate else None
         self.quote_session.observe_price_source(status, latest_price_version_id=latest)
         self._config_load_problem = issues
@@ -339,14 +289,19 @@ class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
             self.set_feedback("存在待核查的旧请求，请先检查上次写入。", is_error=True)
             return False
         config, issues = self.get_settings_snapshot()
-        try:
-            export_dir = publish_directory(self.export_dir_var.get(), self._price_path(), "利润表")
-            screenshot_dir = publish_directory(self.screenshot_dir_var.get(), self._price_path(), "截图")
-        except ValueError as exc:
-            self.set_feedback(f"目录未保存：{exc}", is_error=True)
+        if not self.data_root or not self.config_file:
+            self.set_feedback("请先保存本机连接，再保存价格。", is_error=True)
             return False
-        source = json.dumps({"items": [{"name": name, **item} for name, item in config.items()],
-            "export_dir": export_dir, "screenshot_dir": screenshot_dir}, ensure_ascii=False, indent=4).encode("utf-8")
+        try:
+            from quote_files.transactions import read_bytes
+            existing = read_bytes(self.config_file)
+            if existing is not None and parse_price_config(existing, price_version_id=price_version(existing)).status != "ok":
+                raise FileFailure("现有价格配置损坏，禁止覆盖；请核查并显式恢复")
+        except (OSError, FileFailure) as exc:
+            self.set_feedback(str(exc), is_error=True)
+            return False
+        source = json.dumps({"items": [{"name": name, **item} for name, item in config.items()]},
+                            ensure_ascii=False, indent=4).encode("utf-8")
         candidate = parse_price_config(source, price_version_id=price_version(source))
         if issues or candidate.status != "ok":
             self.quote_session.observe_price_source("invalid")
@@ -364,8 +319,8 @@ class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
                 expected_hash=expected, validator=validate, pending=self._config_pending)
         except (OSError, FileFailure) as exc:
             self._config_pending = getattr(exc, "pending_request", self._config_pending)
-            if getattr(exc, "blocking_request_id", None):
-                self._blocking_file_request = {"path": self.config_file, "request_id": exc.blocking_request_id}
+            if isinstance(exc, UnknownCommit):
+                self._blocking_file_request = {"path": self.config_file, "request_id": getattr(exc, "blocking_request_id", None) or exc.request_id}
             self.quote_session.observe_price_source("unavailable")
             self.clear_quote_display()
             self.update_quote_status()
@@ -385,8 +340,8 @@ class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
 
     def get_report_excel_paths(self):
         # Reading the list observes the shared directory without rebinding prices.
-        if self._observe_price_file() is None:
-            self.set_feedback("无法确认共享目录，请修复母版配置后刷新。", is_error=True)
+        if not self.observe_storage():
+            self.set_feedback("无法确认共享目录，请修复母版目录设置后刷新。", is_error=True)
             return []
         self.ensure_directories()
         paths = [os.path.join(self.report_dir, name) for name in os.listdir(self.report_dir)
@@ -496,6 +451,12 @@ class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
 
     def _formal_output(self, kind, writer):
         self._observe_price_file()
+        if self._blocking_file_request:
+            self.set_feedback("已阻止输出：存在未确认写入，请先检查上次写入。", is_error=True)
+            return False
+        if not self._storage_valid:
+            self.set_feedback("已阻止输出：共享目录未确认，请先保存或修复目录设置。", is_error=True)
+            return False
         # Manager editor modifications are drafts, even if file bytes stayed valid.
         config, issues = self.get_settings_snapshot()
         if self.quote_session.state.price_source == "current" and (
@@ -569,7 +530,7 @@ class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
             self.recompute_daily_profit_summary(ws)
             self.style_daily_profit_sheet(ws)
             self.append_input_issues_sheet(wb, timestamp, payload)
-            self.refresh_price_snapshot_sheet(wb, timestamp, payload)
+            self.refresh_price_snapshot_sheet(wb, timestamp, payload, req)
             return {"order_revision": 1, "price_version_id": payload.prices.price_version_id}
         try:
             self.last_file_transaction = workbook_transaction(path, req, self.get_excel_headers(), create, mutate)
@@ -639,9 +600,18 @@ class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
                                        "总利润", display["profit"], "综合利润率", display["margin"] or "—"), 1):
             ws.cell(4, column, value)
 
-    def refresh_price_snapshot_sheet(self, wb, timestamp, payload):
+    def refresh_price_snapshot_sheet(self, wb, timestamp, payload, req):
+        from quote_files.schema import PRICE_HISTORY_HEADERS
+        history = wb["订单价格快照"] if "订单价格快照" in wb.sheetnames else wb.create_sheet("订单价格快照")
+        if history.cell(1, 1).value is None:
+            for column, value in enumerate(PRICE_HISTORY_HEADERS, 1):
+                history.cell(1, column, value)
+        for item in payload.prices.items:
+            history.append([req.order_id, req.request_id, timestamp, payload.prices.price_version_id,
+                payload.result.rule_version, payload.result.numeric_profile, item.product_id,
+                item.sale, item.cost, item.k, "是" if item.single else "否"])
         if "价格设定" in wb.sheetnames:
-            del wb["价格设定"]
+            return  # Preserve the original legacy snapshot; never replace past prices.
         sheet = wb.create_sheet("价格设定")
         sheet.append(["价格设定快照", payload.prices.price_version_id, payload.result.rule_version, payload.result.numeric_profile])
         sheet.append(["最后导出时间", timestamp])
@@ -661,7 +631,7 @@ class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
         try:
             path = self._formal_output("screenshot", self._write_quote_screenshot)
         except Exception as exc:
-            self.set_feedback(f"截图失败：{exc}", is_error=True)
+            self.set_feedback(f"截图未确认保存：{exc}" + (f"；请求{exc.request_id}，请检查上次写入。" if getattr(exc, "request_id", None) else ""), is_error=True)
             return False
         if path:
             self.set_feedback("截图已保存：" + str(path))
@@ -675,8 +645,13 @@ class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
         os.makedirs(folder, exist_ok=True)
         name = self.clean_filename(payload.details.customer)
         order = self.clean_filename(payload.details.order_ref) or "未填订单号"
-        path = Path(folder) / f"{name}_{order}_{time.time_ns()}.png"
+        path = Path(folder) / f"{name[:60]}_{order[:60]}_{time.time_ns()}_{uuid.uuid4().hex}.png"
         x, y = self.root.winfo_rootx(), self.root.winfo_rooty()
         image = ImageGrab.grab(bbox=(x, y, x + self.root.winfo_width(), y + self.root.winfo_height()))
-        image.save(path)
+        from quote_files.images import save_png
+        try:
+            self.last_file_transaction = save_png(path, image)
+        except UnknownCommit as exc:
+            self._blocking_file_request = {"path": str(path), "request_id": exc.request_id}
+            raise
         return str(path)

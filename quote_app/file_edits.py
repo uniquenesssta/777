@@ -34,7 +34,7 @@ class FileEditingMixin:
             blocked = self._blocking_file_request
             try:
                 state = query_request(blocked["path"], blocked["request_id"],
-                    (lambda *_: None) if Path(blocked["path"]).suffix.lower() == ".json" else inspect_receipt)
+                    (lambda *_: None) if Path(blocked["path"]).suffix.lower() in {".json", ".png"} else inspect_receipt)
             except Exception as exc:
                 self.set_feedback(f"暂无法核查请求{blocked['request_id']}：{exc}", is_error=True)
                 return None
@@ -46,6 +46,8 @@ class FileEditingMixin:
             self.set_feedback(f"待核查请求{blocked['request_id']}：{state['status']}；当前新请求尚未提交。")
             return state
         pending = self._edit_pending if self._edit_pending and self._edit_pending["unknown"] else self._excel_pending
+        if pending is None and self._settings_pending is not None:
+            pending = self._settings_pending
         if pending is None and self._config_pending is not None:
             pending = {"path": self._price_path(), "request": self._config_pending, "unknown": True}
         if not pending:

@@ -21,7 +21,8 @@ def shared_app(role, sandbox):
     with application(role) as (app, _, namespace, _):
         namespace.update(LAN_PRICE_CONFIG_FILE=str(sandbox / "config.json"),
                          LAN_DATA_DIR=str(sandbox / "reports"), LAN_SCREENSHOT_DIR=str(sandbox / "screenshots"))
-        app.config_file = str(sandbox / "config.json")
+        app.data_source_var.set(str(sandbox))
+        assert app.apply_connection(), app.feedback
         app.reload_price_settings_from_json(silent=True)
         events = []
         app.__class__ = check.observed_type(type(app), events)

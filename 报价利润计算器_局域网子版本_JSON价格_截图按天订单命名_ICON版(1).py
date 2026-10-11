@@ -5,8 +5,8 @@
 本版重点：
 1. 保留计算主页、淘宝ID、订单号、微信号、折扣行、Excel 导出和 Excel 记录查看。
 2. 删除利润分析页和价格设定页；子版本不能查看成本、利润、利润率，也不能修改价格设定。
-3. 项目价格优先读取母版本 config.json，可在代码顶部 LAN_PRICE_CONFIG_FILE 中填写完整局域网路径。
-4. LAN_PRICE_CONFIG_FILE 是共享配置入口；读取失败只保留草稿，禁止正式输出。
+3. 在Excel记录页保存本机数据连接；价格与输出目录从母版storage.json继承。
+4. 首次连接须显式选择，旧版路径仅作导入建议；读取失败只保留草稿，禁止正式输出。
 5. Excel 和截图目录自动继承母版 config.json；子版显示只读目录，不可更改。
 6. Excel 记录页只读，仅显示销售相关字段。
 7. 子版本与母版本共用同一天 Excel 文件；可追加导出，并读取母版本更新/删除后的同一文件。
@@ -23,6 +23,7 @@ import re
 import time
 import tkinter as tk
 from quote_app import QuoteApplicationMixin
+from quote_app.connections import default_settings_file
 from tkinter import filedialog, messagebox, ttk
 
 try:
@@ -34,7 +35,7 @@ except ImportError:
     load_workbook = None
 
 
-# ======================== 子版本可填写区域 ========================
+# ======================== 旧版目录导入建议（不自动访问） ========================
 # Excel 每天共用一个文件，统一保存到：\\192.168.4.38\14T共享盘\葛宁\PyInstaller\利润表
 # 价格设定 JSON 统一读取母版本：\\192.168.4.38\14T共享盘\葛宁\PyInstaller\config.json
 APP_SAVE_ROOT = r"\\192.168.4.38\14T共享盘\葛宁\PyInstaller"
@@ -151,6 +152,8 @@ class TableRowHandle:
 
 
 class PriceCalculator(QuoteApplicationMixin):
+    local_settings_file = default_settings_file('sales')
+    legacy_data_root = APP_SAVE_ROOT
     quote_role = "sales"
     SPECIAL_DISCOUNT_TYPE = "折扣"
     DISCOUNT_CHOICES = ["95%", "90%", "85%", "80%", "75%", "70%", "50%", "自定义"]
@@ -174,10 +177,10 @@ class PriceCalculator(QuoteApplicationMixin):
         self.root.minsize(1040, 720)
 
         self.config_file = "config.json"  # 仅用于兼容旧方法；子版本不再写入本机价格设定。
-        self.default_report_dir = self.get_default_report_dir()
+        self.default_report_dir = ""
         self.report_dir = self.default_report_dir
-        self.price_config_file = self.get_price_config_file()
-        self.image_dir = self.get_screenshot_dir()
+        self.price_config_file = ""
+        self.image_dir = ""
         # Storage is resolved from the shared config before any directory I/O.
 
         self.default_items = [dict(item) for item in DEFAULT_PRICE_ITEMS]
@@ -252,22 +255,13 @@ class PriceCalculator(QuoteApplicationMixin):
         style.configure("Accent.TButton", font=("Arial", 10, "bold"))
 
     def get_default_report_dir(self):
-        """界面初始化占位；真实读写目录由共享config.json解析后替换。"""
-        return self.normalize_path_text(LAN_DATA_DIR, fallback="利润表")
+        return self.report_dir
 
     def get_price_config_file(self):
-        """母版本价格 JSON 路径：优先使用 LAN_PRICE_CONFIG_FILE，留空则尝试 LAN_DATA_DIR/config.json。"""
-        configured = self.normalize_path_text(LAN_PRICE_CONFIG_FILE, fallback="")
-        if configured:
-            return configured
-        return os.path.join(self.get_default_report_dir(), "config.json")
+        return self.config_file
 
     def get_screenshot_dir(self):
-        """截图目录：优先使用 LAN_SCREENSHOT_DIR，留空则保存到 Excel 目录下的“截图”。"""
-        configured = self.normalize_path_text(LAN_SCREENSHOT_DIR, fallback="")
-        if configured:
-            return configured
-        return os.path.join(self.get_default_report_dir(), "截图")
+        return self.image_dir
 
     def normalize_path_text(self, text, fallback=None):
         path = str(text or "").strip().strip('"').strip("'")

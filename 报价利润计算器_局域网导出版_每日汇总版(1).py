@@ -24,6 +24,7 @@ import re
 import time
 import tkinter as tk
 from quote_app import QuoteApplicationMixin
+from quote_app.connections import default_settings_file
 from tkinter import filedialog, messagebox, ttk
 
 try:
@@ -35,7 +36,7 @@ except ImportError:
     load_workbook = None
 
 
-# ======================== 固定保存位置 ========================
+# ======================== 旧版目录导入建议（不自动访问） ========================
 # Excel 每天共用一个文件，统一保存到：E:\14T共享盘\葛宁\PyInstaller\利润表
 # 价格设定 config.json 保存到：E:\14T共享盘\葛宁\PyInstaller\config.json，子版本会读取这个文件。
 APP_SAVE_ROOT = r"E:\14T共享盘\葛宁\PyInstaller"
@@ -107,6 +108,8 @@ class TableRowHandle:
 
 
 class PriceCalculator(QuoteApplicationMixin):
+    local_settings_file = default_settings_file('manager')
+    legacy_data_root = APP_SAVE_ROOT
     quote_role = "manager"
     SPECIAL_DISCOUNT_TYPE = "折扣"
     DISCOUNT_CHOICES = ["95%", "90%", "85%", "80%", "75%", "70%", "50%", "自定义"]
@@ -128,10 +131,10 @@ class PriceCalculator(QuoteApplicationMixin):
         self.root.geometry("1180x840")
         self.root.minsize(1040, 720)
 
-        self.config_file = DEFAULT_CONFIG_FILE
-        self.default_report_dir = DEFAULT_REPORT_DIR
+        self.config_file = ""
+        self.default_report_dir = ""
         self.report_dir = self.default_report_dir
-        self.image_dir = DEFAULT_SCREENSHOT_DIR
+        self.image_dir = ""
         # Storage is resolved from the shared config before any directory I/O.
 
         self.default_items = [

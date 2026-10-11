@@ -53,7 +53,7 @@ class SharedStorageTests(unittest.TestCase):
             app.export_dir_var.set(str(reports))
             app.screenshot_dir_var.set(str(images))
             self.assertTrue(app.apply_export_dir())
-            saved = json.loads((folder / "config.json").read_text(encoding="utf-8"))
+            saved = json.loads((folder / "storage.json").read_text(encoding="utf-8"))
             self.assertEqual(saved["export_dir"], "新订单")
             self.assertEqual(saved["screenshot_dir"], "新图片")
             app.report_dir = "wrong"
@@ -71,7 +71,8 @@ class SharedStorageTests(unittest.TestCase):
 
     def test_sales_export_is_found_and_read_by_manager_after_directory_change(self):
         with application("manager") as (manager, folder, *_), application("sales") as (sales, _, ns, _):
-            ns["LAN_PRICE_CONFIG_FILE"] = manager.config_file
+            sales.data_source_var.set(str(folder))
+            self.assertTrue(sales.apply_connection())
             manager.export_dir_var.set(str(folder / "共同订单"))
             manager.screenshot_dir_var.set(str(folder / "共同图片"))
             self.assertTrue(manager.apply_export_dir())
@@ -114,24 +115,24 @@ class SharedStorageTests(unittest.TestCase):
             with application(role) as (app, folder, *_):
                 retained = app.active_price_config
                 directories = app.report_dir, app.image_dir
-                bad = {**gui.FIXTURE, "export_dir": "../unconfirmed"}
-                (folder / "config.json").write_text(json.dumps(bad), encoding="utf-8")
+                bad = {"schema": "777-shared-v1", "price_file": "config.json", "export_dir": "../unconfirmed", "screenshot_dir": "screenshots"}
+                (folder / "storage.json").write_text(json.dumps(bad), encoding="utf-8")
                 before = gui.files(folder)
-                self.assertFalse(app.reload_price_settings_from_json())
-                self.assertIs(app.active_price_config, retained)
+                app.reload_price_settings_from_json()
+                self.assertEqual(app.active_price_config, retained)
                 self.assertEqual((app.report_dir, app.image_dir), directories)
                 self.assertEqual(app.get_report_excel_paths(), [])
                 self.assertFalse(app.export_to_excel())
                 self.assertEqual(gui.files(folder), before)
 
-    def test_invalid_price_cannot_claim_a_successful_directory_save(self):
+    def test_directory_save_is_independent_of_invalid_price_editor(self):
         with application("manager") as (app, folder, *_):
-            before = gui.files(folder)
+            before = (folder / "config.json").read_bytes()
             app.setting_rows[0]["sale"].set("bad")
             app.export_dir_var.set(str(folder / "new"))
-            self.assertFalse(app.apply_export_dir())
-            self.assertEqual(gui.files(folder), before)
-            self.assertNotEqual(app.report_dir, str(folder / "new"))
+            self.assertTrue(app.apply_export_dir())
+            self.assertEqual((folder / "config.json").read_bytes(), before)
+            self.assertEqual(app.report_dir, str(folder / "new"))
 
     def test_close_cancels_only_owned_delayed_callbacks_and_never_saves(self):
         with application("manager") as (app, *_):

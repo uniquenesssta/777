@@ -400,7 +400,8 @@ class LedgerAdapterTests(unittest.TestCase):
     def test_current_gui_diagnostic_report_can_serialize_typed_summary_after_shared_adapter_run(self):
         import p02_gui_check as gui
         with application("manager") as (manager, folder, *_), application("sales") as (sales, _, ns, _):
-            ns["LAN_PRICE_CONFIG_FILE"] = manager.config_file
+            sales.data_source_var.set(str(folder))
+            self.assertTrue(sales.apply_connection())
             for app in (manager, sales):
                 app.excel_file_tree = ViewTree()
                 app.refresh_excel_files = lambda a=app: FileReadingMixin.refresh_excel_files(a)

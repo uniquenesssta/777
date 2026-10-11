@@ -2,7 +2,7 @@
 
 版本：初始规划；日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P01、P02已验收归档old；P03-01已[验收通过](verification/P03-01-acceptance.json)。P03-02已实现，辅助192项、Windows本机21项及母子Tk联测通过，具备收尾条件，见[本机证据](verification/P03-02-windows-evidence.json)。当前唯一分支stage/p03-file-safety；P03-03/04和P04至P08未启动。** 本任务书不自动授予后续阶段实施权限。任务定位按用户授权、此索引和真实Git状态交叉确认。
+**P01、P02已验收归档old；P03-01已[验收通过](verification/P03-01-acceptance.json)。P03-02已[验收收尾](verification/P03-02-acceptance.json)。P03-03独立连接/目录、价格保护、逐单快照和图片防覆盖已实现，完整215项辅助通过，待本机复查/用户验收，见[契约](verification/P03-03-storage-contract.md)。当前唯一分支stage/p03-file-safety；P03-04和P04至P08未启动。** 本任务书不自动授予后续阶段实施权限。任务定位按用户授权、此索引和真实Git状态交叉确认。
 
 ## 1. 目标与边界
 
@@ -21,7 +21,7 @@ P01、P02任务书均已归档old，P03在now，P04至P08仍在new。每阶段�
 | --- | --- | --- | --- | --- |
 | P01 | [基线与规则确认](old/P01-baseline.md) | 本轮审计交付 | stage/p01-baseline | 已验收归档；[确认记录](baseline/p01-acceptance.json)，business-v1/numeric-v1/performance-v1已确认，53/53黄金、18/18格式及全部规模结构检查通过 |
 | P02 | [计算正确性与公共核心](old/P02-calculation.md) | P01已验收 | stage/p02-calculation | 四项均已验收归档；[P02确认](verification/P02-acceptance.json)，辅助130项及用户明确Windows复查通过 |
-| P03 | [文件数据安全与兼容](now/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 01已验收通过；02格式兼容/读取状态已实现，辅助192项及Windows本机/GUI通过，具备收尾条件；03/04待启动，整阶段仍留now |
+| P03 | [文件数据安全与兼容](now/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 01/02已验收收尾；03已实现、完整215项辅助通过，待Windows本机/用户复查；04待启动，整阶段仍留now |
 | P04 | [后台任务与性能](new/P04-performance.md) | P03已验收 | stage/p04-performance | 待启动；消除重复全量读取、UI响应、完整分页实测 |
 | P05 | [结构化存储与局域网服务](new/P05-data-service.md) | P04已验收 | stage/p05-data-service | 待启动；事务/鉴权/导入核对及恢复演练通过 |
 | P06 | [Rust业务核心与适配](new/P06-rust-core.md) | P05已验收 | stage/p06-rust-core | 待启动；黄金样本一致、服务适配和格式兼容通过 |
@@ -81,4 +81,4 @@ P02-01现已交付[领域核心](../quote_core/__init__.py)与[检查证据](ver
 
 P03-01最新[Windows回传](verification/P03-01-windows-evidence.json)匹配151efe8：本机事务32/32及母子GUI联测通过，无回调错误，关闭/清理正常。切分支失败后的pull仍取到正确代码，不取消通过结果；用户已正确跟踪/切换P03。本机检查无需重跑。P03-01已按[用户确认](verification/P03-01-acceptance.json)验收通过，原报告及[诊断参考](verification/P03-01-shared-test.md)保存。
 
-当前续接：用户“推进02”后继续同分支实施02。完整列映射、旧表只读边界、typed读取、公式缓存核对、显式文本和历史归属歧义已交付，见[格式契约](verification/P03-02-format-contract.md)及[192项辅助检查](verification/P03-02-checks.json)。最新[Windows回传](verification/P03-02-windows-evidence.json)匹配9be33a8与18项指纹，21/21及母子Tk联测通过，无回调错误，关闭/清理正常。02具备收尾条件，无需重跑；03/04未启动，P03仍留now。
+当前续接：用户“开始03”后按既有Windows证据[收尾02](verification/P03-02-acceptance.json)，继续同分支实施03。独立本机连接/母版共享目录、价格保护、逐单价格快照和PNG防覆盖已交付；完整215项、新增23项辅助通过，见[契约及Windows入口](verification/P03-03-storage-contract.md)、[证据](verification/P03-03-checks.json)。03待本机复查/用户验收，04未启动，P03仍留now。

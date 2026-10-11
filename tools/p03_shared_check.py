@@ -57,6 +57,8 @@ def prepare(parent):
     for name in ("reports", "screenshots", "sessions"):
         (sandbox / name).mkdir()
     write_exclusive(sandbox / "config.json", CONFIG)
+    from quote_files.settings import encode_settings
+    write_exclusive(sandbox / "storage.json", encode_settings({"schema": "777-shared-v1", "price_file": "config.json", "export_dir": "reports", "screenshot_dir": "screenshots"}, "shared"))
     marker = {"protocol": PROTOCOL, "sandbox_id": token,
               "created_at": datetime.now(timezone.utc).isoformat(),
               "created_by_host": socket.gethostname(), "implementation_sha256_LF": fingerprints()}

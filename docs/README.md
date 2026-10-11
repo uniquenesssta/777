@@ -1,16 +1,16 @@
 # 文档与计划入口
 
-日期：2026-10-11（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；当前执行分支：`stage/p03-file-safety`；P01收尾提交：`7099303`。
+日期：2026-10-12（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；当前执行分支：`stage/p03-file-safety`；P01收尾提交：`7099303`。
 
 ## 当前状态
 
 | 项目 | 状态 |
 | --- | --- |
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
-| 本轮授权 | 用户“推进02”及P03-01验收通过确认；既有推送授权有效 |
+| 本轮授权 | 用户“开始03”，收尾P03-02并实施P03-03；既有推送授权有效 |
 | 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P03-01已[验收通过](verification/P03-01-acceptance.json)；P03-02完整格式映射及读取状态已实现，辅助192项、Windows本机21项及母子Tk联测通过，见[本机证据](verification/P03-02-windows-evidence.json)、[契约](verification/P03-02-format-contract.md)、[证据](verification/P03-02-checks.json)及[任务书](now/P03-file-safety.md)。P01/P02已归档；03/04和P04至P08未启动 |
-| 下一项 | 02具备收尾条件，已通过检查无需重跑；03尚未启动 |
+| 当前开发阶段 / Atomic Task | P03-01/02已验收收尾；P03-03已实现独立连接/共享目录、价格保护、逐单快照及截图防覆盖，完整215项和新增23项辅助通过，见[契约/一键入口](verification/P03-03-storage-contract.md)、[证据](verification/P03-03-checks.json)及[任务书](now/P03-file-safety.md)。P01/P02已归档；04和P04至P08未启动 |
+| 下一项 | 03待Windows本机复查/用户验收；04未启动 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
@@ -42,4 +42,4 @@
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
 
-当前结论：P01/P02已归档，P03-01已验收通过；P03-02复用stage/p03-file-safety，辅助192项、Windows本机21项和母子Tk联测通过，具备收尾条件。03/04及P04至P08未启动，P03整阶段仍在now。
+当前结论：P01/P02已归档，P03-01/02已验收收尾；P03-03已实施、215项辅助通过，待本机复查/用户验收。04及P04至P08未启动，P03整阶段仍在now。

@@ -303,7 +303,7 @@ class ApplicationIntegrationTests(unittest.TestCase):
                 try:
                     rows = list(wb["利润明细"].iter_rows(min_row=7, values_only=True))
                     self.assertEqual(wb["利润明细"].cell(4, 2).value, "0.02")
-                    self.assertEqual(set(wb.sheetnames), {"利润明细", "输入问题", "价格设定", "_写入事务"})
+                    self.assertEqual(set(wb.sheetnames), {"利润明细", "输入问题", "价格设定", "订单价格快照", "_写入事务"})
                     self.assertEqual(wb["_写入事务"].sheet_state, "hidden")
                     self.assertEqual([(r[1], r[2], r[16], r[17], r[18]) for r in rows],
                         [("000123", "0000456", "0.01", "0.01", "0.00"),

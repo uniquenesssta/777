@@ -39,21 +39,39 @@ def load_namespace(root, role, sandbox):
               DEFAULT_CONFIG_FILE=str(config), DEFAULT_SCREENSHOT_DIR=str(images),
               LAN_DATA_DIR=str(reports), LAN_PRICE_CONFIG_FILE=str(config),
               LAN_SCREENSHOT_DIR=str(images))
+    from quote_files.settings import encode_settings
+    shared = sandbox / "storage.json"
+    if not shared.exists():
+        shared.write_bytes(encode_settings({"schema": "777-shared-v1", "price_file": "config.json",
+            "export_dir": "reports", "screenshot_dir": "screenshots"}, "shared"))
+    settings = sandbox / (role + "-settings.json")
+    if not settings.exists():
+        settings.write_bytes(encode_settings({"schema": "777-local-v1", "data_root": str(sandbox), "backup_dir": ""}, "local"))
+    ns["PriceCalculator"].local_settings_file = str(settings)
     return ns, entry
 
 
 def live_sandbox_type(namespace, sandbox):
     parent = baseline_check.sandbox_application_type(namespace, sandbox)
     class SandboxedCurrent(parent):
+        def shared_settings_path(self, root=None):
+            path = super().shared_settings_path(root)
+            if (root or self.data_root) and not Path(path).resolve().is_relative_to(sandbox.resolve()):
+                raise ValueError("隔离检查只允许临时共享设置")
+            return path
+        def apply_connection(self):
+            if not Path(self.data_source_var.get()).resolve().is_relative_to(sandbox.resolve()):
+                raise ValueError("隔离检查只允许选择临时数据源")
+            return super().apply_connection()
         def _price_path(self):
             path = super()._price_path()
-            if not Path(path).resolve().is_relative_to(sandbox.resolve()):
+            if path and not Path(path).resolve().is_relative_to(sandbox.resolve()):
                 raise ValueError("P02隔离检查只允许临时价格文件")
             return path
-        def _candidate_directories(self, candidate):
-            paths = super()._candidate_directories(candidate)
+        def resolve_shared(self, candidate, root=None):
+            paths = super().resolve_shared(candidate, root)
             if any(not Path(p).resolve().is_relative_to(sandbox.resolve()) for p in paths):
-                raise ValueError("P02隔离检查只允许临时输出目录")
+                raise ValueError("隔离检查只允许临时输出目录")
             return paths
         def save_settings(self):
             if self.quote_role == "sales":
@@ -218,7 +236,7 @@ def shared_directory_smoke(manager, sales, sandbox):
     manager.export_dir_var.set(str(sandbox / "shared-reports-new"))
     manager.screenshot_dir_var.set(str(sandbox / "shared-images-new"))
     assert manager.apply_export_dir()
-    saved = json.loads((sandbox / "config.json").read_text(encoding="utf-8"))
+    saved = json.loads((sandbox / "storage.json").read_text(encoding="utf-8"))
     assert saved["export_dir"] == "shared-reports-new"
     assert saved["screenshot_dir"] == "shared-images-new"
     sales.refresh_excel_files()  # Directory inheritance requires no manual edit.
