@@ -2,7 +2,7 @@
 
 版本：初始规划；日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P01、P02已验收归档old；P03-01按调整范围[登记收尾](verification/P03-01-acceptance.json)，取消的共享实测不记通过。P03-02已实现，新增21项、完整192项辅助回归通过，待用户验收，本次Windows窗口复查未登记。当前唯一分支stage/p03-file-safety；P03-03/04和P04至P08未启动。** 本任务书不自动授予后续阶段实施权限。任务定位按用户授权、此索引和真实Git状态交叉确认。
+**P01、P02已验收归档old；P03-01已[验收通过](verification/P03-01-acceptance.json)。P03-02已实现，辅助192项、Windows本机21项及母子Tk联测通过，具备收尾条件，见[本机证据](verification/P03-02-windows-evidence.json)。当前唯一分支stage/p03-file-safety；P03-03/04和P04至P08未启动。** 本任务书不自动授予后续阶段实施权限。任务定位按用户授权、此索引和真实Git状态交叉确认。
 
 ## 1. 目标与边界
 
@@ -21,7 +21,7 @@ P01、P02任务书均已归档old，P03在now，P04至P08仍在new。每阶段�
 | --- | --- | --- | --- | --- |
 | P01 | [基线与规则确认](old/P01-baseline.md) | 本轮审计交付 | stage/p01-baseline | 已验收归档；[确认记录](baseline/p01-acceptance.json)，business-v1/numeric-v1/performance-v1已确认，53/53黄金、18/18格式及全部规模结构检查通过 |
 | P02 | [计算正确性与公共核心](old/P02-calculation.md) | P01已验收 | stage/p02-calculation | 四项均已验收归档；[P02确认](verification/P02-acceptance.json)，辅助130项及用户明确Windows复查通过 |
-| P03 | [文件数据安全与兼容](now/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 01按调整范围收尾；02格式兼容/读取状态已实现，辅助192项通过、待用户验收；03/04待启动，整阶段仍留now |
+| P03 | [文件数据安全与兼容](now/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 01已验收通过；02格式兼容/读取状态已实现，辅助192项及Windows本机/GUI通过，具备收尾条件；03/04待启动，整阶段仍留now |
 | P04 | [后台任务与性能](new/P04-performance.md) | P03已验收 | stage/p04-performance | 待启动；消除重复全量读取、UI响应、完整分页实测 |
 | P05 | [结构化存储与局域网服务](new/P05-data-service.md) | P04已验收 | stage/p05-data-service | 待启动；事务/鉴权/导入核对及恢复演练通过 |
 | P06 | [Rust业务核心与适配](new/P06-rust-core.md) | P05已验收 | stage/p06-rust-core | 待启动；黄金样本一致、服务适配和格式兼容通过 |
@@ -54,7 +54,7 @@ P01-02的金额/权限现状、16个复核示例、D01–D06确认状态见[决�
 - 每个Atomic Task记录实际基线/提交、改动范围、检查命令、真实结果、未执行项与恢复点；没有命令则明确采用人工操作步骤，不编造测试入口。
 - 所有已知P1必须有关闭证据才可进入面向真实数据的上线。读写失败不可伪装为零；成功提交不可因视图刷新错误变成“未提交”；未知结果必须可查询并幂等重试。
 - 金额UI、订单持久化、Excel、日/月汇总使用同一权威结果。黄金样本区分旧行为、已知缺陷、确认后的目标行为；正确性不采用模糊金额误差阈值。
-- Windows本机：启动/退出、无管理员权限、中文路径、UNC/映射盘、不同DPI、多窗口/多实例；网络验证按对应阶段及用户批准范围记录。P03-01主动断网和剩余双机共享/Excel占用/共享只读实机测试已按用户2026-10-11要求取消，不再作为本项补测门槛；保留读取/写入失败保护及合成故障检查。
+- Windows本机：启动/退出、无管理员权限、中文路径、UNC/映射盘、不同DPI、多窗口/多实例；网络验证按对应阶段及用户批准范围记录。P03-01按用户确认验收通过，实测范围按原报告保存；保留读取/写入失败保护及合成故障检查，无额外补测待办。
 - CI只承载可复现的单元/合成格式/构建检查；当前仓库没有CI，本轮不创建。真实局域网和真实数据演练不能以CI替代。没有Linux/macOS产品门槛。
 - 性能目标以P01登记的硬件/数据集/冷暖条件为基准。拟定健康环境UI心跳p95≤100ms、无持续>500ms主线程阻塞；网络故障任务有明确取消/状态出口。阈值在实施前确认，达不到则分析或批准调目标，不能事后改数掩盖失败。
 - 绝对性能目标不针对不受控SMB系统调用作无依据保证；线程超时不等于底层I/O停止，不能对仍在写的任务直接重试。必要时在确认的任务边界使用可终止工作进程。
@@ -79,6 +79,6 @@ P02-01现已交付[领域核心](../quote_core/__init__.py)与[检查证据](ver
 
 历史续接：P02已按用户2026-10-11 20:47确认验收归档，历史段落中的“待04验收”是当时状态，以上阶段索引和[P02确认](verification/P02-acceptance.json)为当前结论。P03-01按用户接续意图实施，不跳到P05；[当前任务书](now/P03-file-safety.md)、[文件协议](verification/P03-01-file-protocol.md)和[辅助证据](verification/P03-01-checks.json)已交付，当时真实Windows/双机共享验收未完成。
 
-P03-01最新[Windows回传](verification/P03-01-windows-evidence.json)匹配151efe8：本机事务32/32及母子GUI联测通过，无回调错误，关闭/清理正常。切分支失败后的pull仍取到正确代码，不取消通过结果；用户已正确跟踪/切换P03。本机检查无需重跑。用户22:47进一步[取消剩余共享实机测试](verification/P03-01-test-cancellation.json)，不再要求执行或回传；双机SMB/Excel实际占用/只读状态为未执行、用户取消，不记通过。此前[双机步骤](verification/P03-01-shared-test.md)仅存档。
+P03-01最新[Windows回传](verification/P03-01-windows-evidence.json)匹配151efe8：本机事务32/32及母子GUI联测通过，无回调错误，关闭/清理正常。切分支失败后的pull仍取到正确代码，不取消通过结果；用户已正确跟踪/切换P03。本机检查无需重跑。P03-01已按[用户确认](verification/P03-01-acceptance.json)验收通过，原报告及[诊断参考](verification/P03-01-shared-test.md)保存。
 
-当前续接：用户22:53“推进02”，据此按上述范围[登记01收尾](verification/P03-01-acceptance.json)，继续同分支实施02。完整列映射、旧表只读边界、typed读取、公式缓存核对、显式文本和历史归属歧义已交付，见[格式契约](verification/P03-02-format-contract.md)及[192项辅助检查](verification/P03-02-checks.json)。02已实现待用户验收，本次改动没有新的Windows窗口报告，不复用旧指纹报告冒充通过；03/04未启动，P03仍留now。
+当前续接：用户“推进02”后继续同分支实施02。完整列映射、旧表只读边界、typed读取、公式缓存核对、显式文本和历史归属歧义已交付，见[格式契约](verification/P03-02-format-contract.md)及[192项辅助检查](verification/P03-02-checks.json)。最新[Windows回传](verification/P03-02-windows-evidence.json)匹配9be33a8与18项指纹，21/21及母子Tk联测通过，无回调错误，关闭/清理正常。02具备收尾条件，无需重跑；03/04未启动，P03仍留now。

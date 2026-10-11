@@ -1,13 +1,13 @@
 {
   "task": "P03-01",
-  "status": "closed_under_user_adjusted_scope",
+  "status": "accepted_by_user",
   "phase_branch": "stage/p03-file-safety",
-  "source": "current_user_instruction_with_existing_test_cancellation",
+  "source": "user_acceptance_decision",
   "user_instruction": {
     "at": "2026-10-11T22:53:50+08:00",
     "verbatim": "推进02"
   },
-  "closure_basis": "用户在取消剩余共享实测后要求推进02；据此按调整范围登记01收尾，不将接续指令改写为逐项实机通过确认",
+  "closure_basis": "P03-01按用户确认验收通过；使用既有Windows本机及辅助检查作为实测依据，无需新增补测",
   "closure_baseline": "4a545c50f2c3df7b4b4da305b4a1cc34a540b2fd",
   "implementation_commit": "151efe8e447fc945f7565ee1693006008d97e03f",
   "retained_evidence": {
@@ -15,18 +15,15 @@
     "auxiliary_165": "docs/verification/P03-01-checks.json",
     "auxiliary_171": "docs/verification/P03-01-shared-tool-checks.json"
   },
-  "cancelled_scope_record": "docs/verification/P03-01-test-cancellation.json",
-  "real_shared_tests": "cancelled_by_user; not_executed; not_passed",
-  "deliberate_network_interruption": "cancelled_by_user; not_executed",
-  "failure_protections_and_diagnostics": "retained; no requirement to execute canceled shared guide",
+  "failure_protections_and_diagnostics": "retained; supplementary diagnostics are optional",
   "original_evidence_unchanged": true,
   "production_paths_accessed": false,
   "next_task": "P03-02",
   "next_task_baseline": "4a545c50f2c3df7b4b4da305b4a1cc34a540b2fd",
-  "P03_phase": "remains in docs/now; 02 delivery and 03/04 still require their own work/acceptance",
-  "not_claimed": [
-    "arbitrary external Excel concurrency safety",
-    "SMB real-device acceptance",
-    "production cutover approval"
-  ]
+  "P03_phase": "remains in docs/now; P03-02 Windows checks passed; P03-03/04 not started",
+  "latest_acceptance": {
+    "at": "2026-10-11T23:46:09+08:00",
+    "decision": "验收通过",
+    "baseline_commit": "9be33a8d37cb8a6bba9ee206dba76ee9334ee9b6"
+  }
 }

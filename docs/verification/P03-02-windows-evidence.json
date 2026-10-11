@@ -1,0 +1,95 @@
+{
+  "task": "P03-02",
+  "status": "Windows_local_format_and_GUI_passed",
+  "phase_branch": "stage/p03-file-safety",
+  "recorded_at": "2026-10-11T23:46:09+08:00",
+  "source": "user_uploaded_console_text",
+  "source_attachment": {
+    "name": "粘贴的文本 (1)(7).txt",
+    "sha256": "13fc1adeffae46de33941059a8f907c9b13aeffe7d621046427131a688e34277"
+  },
+  "source_commit": "9be33a8d37cb8a6bba9ee206dba76ee9334ee9b6",
+  "command": "py -3 tools/p03_format_check.py --gui-smoke --output reports/p03-02.json",
+  "environment": {
+    "os": "Windows",
+    "python": "3.12.10"
+  },
+  "implementation_verification": {
+    "sha256_LF_count": 18,
+    "matched": 18,
+    "mismatches": [],
+    "GUI_source_hashes_matched": true
+  },
+  "tests": {
+    "count": 21,
+    "passed": 21,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 1.875,
+    "all_expected_ids_matched": true,
+    "test_ids": [
+      "test_ledger_reading.LedgerAdapterTests.test_all_new_identity_raw_and_metadata_strings_are_explicit_text",
+      "test_ledger_reading.LedgerAdapterTests.test_current_gui_diagnostic_report_can_serialize_typed_summary_after_shared_adapter_run",
+      "test_ledger_reading.LedgerAdapterTests.test_current_mapped_and_legacy_alias_headers_append_without_rewriting_old_values_or_ids",
+      "test_ledger_reading.LedgerAdapterTests.test_current_page_builders_wire_every_list_heading_and_read_status_column",
+      "test_ledger_reading.LedgerAdapterTests.test_existing_template_is_never_cleared_and_fresh_header_stays_at_row_six",
+      "test_ledger_reading.LedgerAdapterTests.test_legitimate_zero_counts_and_failures_display_dash_with_partial_aggregation",
+      "test_ledger_reading.LedgerAdapterTests.test_post_mutation_amount_check_refuses_publish_and_preserves_original_and_receipts",
+      "test_ledger_reading.LedgerAdapterTests.test_readonly_files_refuse_append_and_edit_with_unchanged_original",
+      "test_ledger_reading.LedgerAdapterTests.test_sales_list_count_and_unresolved_group_total_are_visible_not_zero",
+      "test_ledger_reading.LedgerReadingTests.test_all_immutable_p01_excel_formats_have_explicit_results_and_unchanged_bytes",
+      "test_ledger_reading.LedgerReadingTests.test_consistent_synthetic_formula_cache_is_readonly_and_not_evaluated",
+      "test_ledger_reading.LedgerReadingTests.test_footer_without_detail_is_error_and_first_row_header_has_no_preamble",
+      "test_ledger_reading.LedgerReadingTests.test_formula_without_cache_and_inconsistent_cache_are_explicit_errors",
+      "test_ledger_reading.LedgerReadingTests.test_incomplete_summary_and_invalid_amounts_never_become_zero",
+      "test_ledger_reading.LedgerReadingTests.test_legacy_export_boundaries_allow_same_prefix_without_assigning_ids",
+      "test_ledger_reading.LedgerReadingTests.test_missing_fields_alias_collisions_and_unknown_columns_are_unsupported",
+      "test_ledger_reading.LedgerReadingTests.test_missing_or_corrupt_files_are_errors_and_workbooks_close_on_failed_analysis",
+      "test_ledger_reading.LedgerReadingTests.test_missing_summary_uses_named_financial_columns_and_never_double_counts_footer",
+      "test_ledger_reading.LedgerReadingTests.test_same_second_distinct_order_references_are_separate_and_collisions_unresolved",
+      "test_ledger_reading.LedgerReadingTests.test_unknown_sheet_or_package_extension_is_readable_but_not_writable",
+      "test_ledger_reading.LedgerReadingTests.test_zero_summary_is_present_and_nonzero_details_are_rejected"
+    ]
+  },
+  "GUI": {
+    "role": "pair",
+    "mode": "shared_automatic",
+    "source_sha256_LF": {
+      "manager": "90297185aed6857664bbf8641787620047dbd5eaa062cf21bab60cfddc8ef5a2",
+      "sales": "ade6e407e5ea497f4002f61e272ac35534725077fb87ea15b81eb71d1ee2415e"
+    },
+    "startup": "ok",
+    "checks": {
+      "manager_publish_sales_auto_inherit": "passed",
+      "sales_directory_mutators_zero_writes": "passed",
+      "sales_export_manager_list_and_reader": "passed",
+      "manager_summary_income_cost_profit": {
+        "income": "12.00",
+        "cost": "4.00",
+        "profit": "8.00",
+        "margin": "66.7%"
+      },
+      "sales_screenshot_inherits_manager_directory": "passed",
+      "repeated_click_single_receipt": "passed",
+      "manager_append_remark_and_soft_void": "passed",
+      "preserved_rows_and_active_summary": "passed",
+      "hidden_transaction_sheet": "passed"
+    },
+    "status": "passed",
+    "callback_errors": [],
+    "close": "ok",
+    "sandbox_cleaned": true
+  },
+  "production_paths_accessed": false,
+  "scope": "真实Windows本机；临时合成工作簿与当前母子Tk窗口、Tcl回调、输出和关闭；截图使用合成图片替代抓屏",
+  "task_acceptance": "检查通过，本记录登记实测结果；P03-01的用户验收决定单独保存，P03-03尚未启动",
+  "original_auxiliary_report": "P03-02-checks.json保持原值",
+  "report_snapshot": "P03-02-windows-report.json",
+  "snapshot_policy": {
+    "measured_results": "检查ID、金额、GUI状态、日志和实现指纹按回传原值保存",
+    "omitted_metadata_fields": [
+      "shared_machine_tests"
+    ]
+  }
+}

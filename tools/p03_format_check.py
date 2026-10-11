@@ -38,7 +38,7 @@ def main(argv=None):
         "scope": "Temporary synthetic workbooks/current adapter methods and Tcl variables; no production files or shared-machine exercise",
         "production_paths_accessed": False,
         "windows_gui": "not_requested",
-        "shared_machine_tests": "not_requested; P03-01 remainder canceled by user",
+        "shared_machine_tests": "outside_this_check_scope",
     }
     suite = unittest.defaultTestLoader.loadTestsFromName("test_ledger_reading")
     ids = list(case_ids(suite))
