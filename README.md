@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于 `plans`；当前执行分支为 `stage/p03-file-safety`，创建于P02收尾提交 `96735ad`。**P01、P02均已验收归档；P03-01文件事务已实现，辅助171项及Windows本机32项/母子GUI联测通过，剩余共享实机测试已由用户取消，待任务收尾。P03-02至04、P04至P08未启动。**
+规划位于 `plans`；当前执行分支为 `stage/p03-file-safety`，创建于P02收尾提交 `96735ad`。**P01、P02均已验收归档；P03-01按取消剩余共享实测后的范围收尾。P03-02格式兼容与明确读取状态已实现，新增21项、完整192项辅助检查通过，待用户验收；本次Windows窗口复查未登记。P03-03/04、P04至P08未启动。**
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -11,6 +11,8 @@
 - [P02计算核心与归档任务书](docs/old/P02-calculation.md)
 - [当前P03文件安全任务书与Windows入口](docs/now/P03-file-safety.md)
 - [P03-01共享实机测试取消记录](docs/verification/P03-01-test-cancellation.json)
+- [P03-01收尾记录](docs/verification/P03-01-acceptance.json)
+- [P03-02格式契约与简短本机入口](docs/verification/P03-02-format-contract.md)
 - [文档与计划入口](docs/README.md)
 - [优化及迁移主任务书](docs/MASTER_PLAN.md)
 - [两份 Python 代码重新审计报告](docs/audit/python-audit.md)
@@ -18,6 +20,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 按用户“推进02”[收尾P03-01](docs/verification/P03-01-acceptance.json)并实施P03-02，继续唯一stage/p03-file-safety。共用完整列映射、旧别名及只读边界；合法零/缺摘要/失败状态分开，公式只读缓存并核对，历史分组歧义提示，部分统算显性标注；新字符串强制文本、模板禁止清空已有数据、写后核对失败不发布。两端全部列重排后的追加和旧身份保留通过，新增21项、完整192项辅助检查通过，见[证据](docs/verification/P03-02-checks.json)及[契约](docs/verification/P03-02-format-contract.md)。既有黄金/P01/旧报告保持原值；已取消共享实测不重新要求，本次Windows窗口/用户验收未登记，03/04未启动。
 
 - 按用户“过于麻烦 放弃测试”[取消P03-01剩余共享实机测试](docs/verification/P03-01-test-cancellation.json)，同步任务书及索引，不再要求双机/Excel占用/共享只读演练或报告。保留已通过的Windows本机32项/母子GUI与辅助171项证据、诊断工具及历史方案；未执行不登记为通过。仅更新文档，业务实现不改；01待任务收尾，02未启动。
 

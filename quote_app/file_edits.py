@@ -5,30 +5,23 @@ from tkinter import messagebox
 from quote_files.transactions import FileFailure, digest, read_bytes, query_request
 from quote_files.workbooks import (inspect_receipt, open_book, request, target_order,
                                    view_identity, workbook_transaction)
+from quote_files.reading import analyze_raw
 
 
 class FileEditingMixin:
-    def sales_record_visible(self, ws, headers, row):
-        if "记录状态" in headers and ws.cell(row, headers["记录状态"]).value == "void":
-            return False
-        if "行类型" in headers and ws.cell(row, headers["行类型"]).value:
-            return ws.cell(row, headers["行类型"]).value in {"normal", "discount"}
-        return self.is_visible_sales_record(ws.cell(row, headers["项目名称"]).value)
 
-    def sales_group_key(self, ws, headers, row):
-        if "订单ID" in headers and ws.cell(row, headers["订单ID"]).value:
-            return ("order", ws.cell(row, headers["订单ID"]).value)
-        return (str(ws.cell(row, self.get_excel_id_column(headers)).value or "").strip(),
-                str(ws.cell(row, headers["记录时间"]).value or "").strip())
 
     def read_excel_view(self, path, sheet_name):
         self._excel_view_hash = None
         self._excel_view_orders = {}
         self._excel_view_path = None
         raw = read_bytes(path)
-        book = open_book(raw, data_only=True)
+        book = open_book(raw, for_write=False)
         try:
-            self._excel_view_orders = view_identity(book, sheet_name)
+            result = analyze_raw(raw)
+            self._remember_ledger(book, result)
+            self._excel_view_orders = view_identity(book, sheet_name) if result.status == "ok" and result.schema.writable else {}
+            self.set_feedback(self._read_status(result), is_error=result.status != "ok")
         except Exception:
             book.close()
             raise

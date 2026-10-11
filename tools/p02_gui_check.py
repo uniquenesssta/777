@@ -249,7 +249,7 @@ def shared_directory_smoke(manager, sales, sandbox):
     for app in (manager, sales):
         app.schedule_quote_callback(lambda: (_ for _ in ()).throw(AssertionError("closed callback ran")), delay=1)
     return {"manager_publish_sales_auto_inherit": "passed", "sales_directory_mutators_zero_writes": "passed",
-            "sales_export_manager_list_and_reader": "passed", "manager_summary_income_cost_profit": summary,
+            "sales_export_manager_list_and_reader": "passed", "manager_summary_income_cost_profit": summary.totals.display(),
             "sales_screenshot_inherits_manager_directory": "passed"}
 
 

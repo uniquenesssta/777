@@ -1,7 +1,7 @@
 """Stable identity and replay receipts in one workbook transaction.
 
-Known current 26-column layout is writable. Historical untyped/nonconforming
-files remain untouched for P03-02 review. No cost/privacy claims: P05 owns auth.
+Known tagged layouts use canonical column mapping; historical untyped or
+nonconforming files remain read-only. No cost/privacy claims: P05 owns auth.
 """
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -13,10 +13,10 @@ from zipfile import ZipFile
 
 
 from .transactions import FileConflict, FileFailure, transact
+from .schema import DETAIL_HEADERS, IDENTITY_HEADERS, force_text, inspect_schema, table_header
 
 LOG_SHEET = "_写入事务"
 LOG_HEADERS = ("请求ID", "操作", "内容哈希", "订单ID", "文件版本", "提交时间", "结果JSON")
-IDENTITY_HEADERS = ("订单ID", "明细ID", "订单版本", "请求ID", "记录状态")
 KINDS = {"normal", "discount", "order_total"}
 
 
@@ -33,7 +33,7 @@ def request(operation, value, *, order_id=None):
     return Request(str(uuid.uuid4()), hashlib.sha256(encoded).hexdigest(), operation, order_id)
 
 
-def open_book(raw, *, data_only=False):
+def open_book(raw, *, data_only=False, for_write=True):
     if raw is None:
         raise FileFailure("文件不存在")
     with ZipFile(io.BytesIO(raw)) as package:
@@ -43,37 +43,34 @@ def open_book(raw, *, data_only=False):
             raise FileFailure("工作簿容量/压缩包结构不支持写入")
         for entry in entries:
             name = entry.filename.lower()
-            if not data_only and any(token in name for token in ("externallinks", "vbaproject", "customxml", "embeddings", "drawings", "vml")):
+            if for_write and not data_only and any(token in name for token in ("externallinks", "vbaproject", "customxml", "embeddings", "drawings", "vml")):
                 raise FileFailure("含未支持扩展/外链/宏/图片的工作簿只读保留")
     from openpyxl import load_workbook
-    return load_workbook(io.BytesIO(raw), data_only=data_only)
+    return load_workbook(io.BytesIO(raw), data_only=data_only, keep_links=for_write)
 
 
 def table(ws):
-    for row in ws.iter_rows(max_row=min(ws.max_row, 40)):
-        headers = {str(c.value).strip(): c.column for c in row if c.value is not None}
-        if {"记录时间", "淘宝ID", "项目名称"}.issubset(headers):
-            return row[0].row, headers
-    raise FileFailure("不支持的利润表格式，原件只读保留")
+    return table_header(ws)
 
 
 def writable(book, base_headers):
-    if "利润明细" not in book.sheetnames:
-        raise FileFailure("未知工作簿，禁止重建模板覆盖")
-    if set(book.sheetnames) - {"利润明细", "输入问题", "价格设定", "备注", "订单备注", LOG_SHEET}:
-        raise FileFailure("含未知工作表，原件只读保留")
-    ws = book["利润明细"]
-    row, headers = table(ws)
-    if tuple(ws.cell(row, i).value for i in range(1, 27)) != tuple(base_headers):
-        raise FileFailure("当前写入只支持已确认的26列顺序；旧/重排格式待复核")
-    if set(headers) - {*base_headers, "行类型", *IDENTITY_HEADERS, "备注"}:
-        raise FileFailure("含未识别明细列，原件只读保留")
-    if "输入问题" in book.sheetnames and tuple(c.value for c in book["输入问题"][4]) != ("记录时间", "级别", "位置", "字段", "输入内容", "提示"):
-        raise FileFailure("输入问题表格式不支持，原件只读保留")
-    if "价格设定" in book.sheetnames and tuple(c.value for c in book["价格设定"][4]) != ("项目名称", "销售单价原文", "成本单价原文", "K系数原文", "是否单件"):
-        raise FileFailure("价格快照表格式不支持，原件只读保留")
+    schema = inspect_schema(book)
+    if tuple(base_headers) != DETAIL_HEADERS:
+        raise FileFailure("未知写入字段契约，原件只读保留")
+    if not schema.writable:
+        raise FileFailure("；".join(schema.readonly_reasons))
+    from .reading import analyze
+    result = analyze(book)
+    if result.status != "ok":
+        raise FileFailure("；".join(i.message for i in result.issues))
+    return book["利润明细"], schema.header_row, schema.columns
+
+
+def validate_identity(ws, row, headers):
     present_identity = set(IDENTITY_HEADERS) & set(headers)
-    if present_identity and present_identity != set(IDENTITY_HEADERS):
+    if not present_identity:
+        return
+    if present_identity != set(IDENTITY_HEADERS):
         raise FileFailure("订单身份列不完整，原件只读保留")
     ids, groups = set(), {}
     for index in range(row + 1, ws.max_row + 1):
@@ -107,7 +104,6 @@ def writable(book, base_headers):
             raise FileFailure("部分订单身份损坏，原件只读保留")
     if any(group["totals"] != 1 for group in groups.values()):
         raise FileFailure("订单总计身份不完整，原件只读保留")
-    return ws, row, headers
 
 
 def receipts(book):
@@ -168,6 +164,8 @@ def workbook_transaction(path, req, base_headers, create, mutate, *, expected_ha
     def transform(raw):
         book = open_book(raw) if raw is not None else create()
         try:
+            if raw is None:
+                force_text(book)  # The trusted new template contains user labels.
             ws, row, headers = writable(book, base_headers)
             prior = receipts(book)
             headers = identity_columns(ws, row, headers)
@@ -181,6 +179,11 @@ def workbook_transaction(path, req, base_headers, create, mutate, *, expected_ha
             log.sheet_state = "hidden"
             log.append([req.request_id, req.operation, req.fingerprint, req.order_id,
                         result["revision"], datetime.now(timezone.utc).isoformat(), json.dumps(result, ensure_ascii=False)])
+            force_text(book)
+            from .reading import analyze
+            checked = analyze(book)
+            if checked.status != "ok":
+                raise FileFailure("写后工作簿核对失败：" + "；".join(i.message for i in checked.issues))
             buffer = io.BytesIO()
             book.save(buffer)
             return buffer.getvalue(), result

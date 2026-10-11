@@ -7,10 +7,10 @@
 | 项目 | 状态 |
 | --- | --- |
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
-| 本轮授权 | P03-01与既有推送授权有效；用户22:47“过于麻烦 放弃测试”，[取消剩余共享实机测试](verification/P03-01-test-cancellation.json) |
+| 本轮授权 | 用户22:53“推进02”；既有推送授权有效。22:47[取消剩余共享实机测试](verification/P03-01-test-cancellation.json)继续生效 |
 | 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P03-01已实现，Windows本机32项与母子GUI联测通过，剩余共享实机测试已取消，待任务收尾；[当前任务书](now/P03-file-safety.md)、[文件协议](verification/P03-01-file-protocol.md)、[辅助证据](verification/P03-01-checks.json)、[Windows回传](verification/P03-01-windows-evidence.json)。P01/P02已归档；P03-02至04和P04至P08未启动 |
-| 下一项 | P03-01按已调整范围登记收尾；无需执行或回传已取消共享测试，也无需重跑本机检查；本轮未自动收尾或启动P03-02 |
+| 当前开发阶段 / Atomic Task | P03-01按调整范围[收尾](verification/P03-01-acceptance.json)；P03-02完整格式映射及读取状态已实现，新增21项、完整192项辅助检查通过，见[契约](verification/P03-02-format-contract.md)、[证据](verification/P03-02-checks.json)及[任务书](now/P03-file-safety.md)。P01/P02已归档；03/04和P04至P08未启动 |
+| 下一项 | 02待用户验收，本次Windows窗口复查未登记；可选简短隔离入口在格式契约中。无需执行已取消共享测试，不自动开始03 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
@@ -42,4 +42,4 @@
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
 
-当前结论（2026-10-11 22:47）：P01/P02已归档，P03-01复用stage/p03-file-safety，Windows本机32项及母子GUI联测通过；用户已正确切换跟踪分支。用户取消剩余共享实机测试，不再要求执行或回传，诊断入口及操作说明只作历史保存；01待任务收尾。P03-02至04及P04至P08未启动，原始报告保留。
+当前结论（2026-10-11“推进02”续接）：P01/P02已归档，P03-01按取消剩余共享实测后的范围收尾；Windows旧报告/诊断方案保留。P03-02复用stage/p03-file-safety，已实现且辅助192项通过，待用户验收，本次Windows窗口复查未登记。03/04及P04至P08未启动，P03整阶段仍在now。

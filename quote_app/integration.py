@@ -24,9 +24,11 @@ from quote_core.numbers import exact_context, settle
 from .projection import append_quote, legacy_record
 from .storage import publish_directory, resolve_directory
 from .file_edits import FileEditingMixin
+from .file_reads import FileReadingMixin
 from quote_files.configuration import save_config
 from quote_files.transactions import FileFailure, UnknownCommit, digest, query_request
 from quote_files.workbooks import assign_order, inspect_receipt, request, workbook_transaction
+from quote_files.schema import DETAIL_HEADERS, create_template
 
 
 FIELD_NAMES = {"q": "数量", "h": "高度", "w": "宽度", "sale": "销售单价",
@@ -68,7 +70,7 @@ def price_difference(old, new):
                  if a.get(name) != b.get(name))
 
 
-class QuoteApplicationMixin(FileEditingMixin):
+class QuoteApplicationMixin(FileReadingMixin, FileEditingMixin):
     quote_role = "manager"
 
     def initialize_quote_state(self):
@@ -562,7 +564,7 @@ class QuoteApplicationMixin(FileEditingMixin):
                                           payload.details.order_ref, "微信号", payload.details.wechat), 1):
                 ws.cell(3, column, value)
             start = ws.max_row + 1
-            append_quote(ws, timestamp, payload, kind_column=headers["行类型"])
+            append_quote(ws, timestamp, payload, kind_column=headers["行类型"], headers=headers)
             assign_order(ws, start, ws.max_row, headers, req)
             self.recompute_daily_profit_summary(ws)
             self.style_daily_profit_sheet(ws)
@@ -577,6 +579,12 @@ class QuoteApplicationMixin(FileEditingMixin):
                 self._blocking_file_request = {"path": str(path), "request_id": exc.request_id}
             raise
         return self.last_file_transaction.path
+
+    def create_profit_sheet_template(self, ws, timestamp):
+        return create_template(ws, timestamp)
+
+    def get_excel_headers(self):
+        return list(DETAIL_HEADERS)
 
     def append_input_issues_sheet(self, wb, timestamp, payload):
         sheet = wb["输入问题"] if "输入问题" in wb.sheetnames else wb.create_sheet("输入问题")

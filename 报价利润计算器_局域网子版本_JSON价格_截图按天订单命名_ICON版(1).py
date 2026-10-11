@@ -819,10 +819,10 @@ class PriceCalculator(QuoteApplicationMixin):
 
         list_body = ttk.Frame(self.excel_list_frame)
         list_body.pack(fill=tk.BOTH, expand=True)
-        columns = ("file", "mtime", "rows")
+        columns = ("file", "mtime", "rows", "status")
         self.excel_file_tree = ttk.Treeview(list_body, columns=columns, show="headings", height=18)
-        headings = {"file": "文件名", "mtime": "修改时间", "rows": "可查看明细行"}
-        widths = {"file": 520, "mtime": 170, "rows": 120}
+        headings = {"file": "文件名", "mtime": "修改时间", "rows": "可查看明细行", "status": "读取状态"}
+        widths = {"file": 520, "mtime": 170, "rows": 120, "status": 420}
         for col in columns:
             self.excel_file_tree.heading(col, text=headings[col])
             self.excel_file_tree.column(col, width=widths[col], anchor=tk.W if col == "file" else tk.CENTER)
@@ -893,60 +893,8 @@ class PriceCalculator(QuoteApplicationMixin):
         self.excel_detail_frame.pack(fill=tk.BOTH, expand=True)
 
 
-    def _to_float(self, value, default=0.0):
-        try:
-            if value is None:
-                return default
-            if isinstance(value, str):
-                text = value.strip().replace(",", "")
-                if text.endswith("%"):
-                    return float(text[:-1]) / 100.0
-                return float(text)
-            return float(value)
-        except Exception:
-            return default
 
-    def count_visible_excel_rows(self, path):
-        if load_workbook is None:
-            return 0
-        wb = None
-        try:
-            wb = load_workbook(path, data_only=True, read_only=True)
-            if "利润明细" not in wb.sheetnames:
-                return 0
-            ws = wb["利润明细"]
-            header_row, headers = self.find_excel_table_header(ws)
-            if not header_row:
-                return 0
-            item_col = headers.get("项目名称")
-            count = 0
-            for r in range(header_row + 1, (ws.max_row or 0) + 1):
-                item_text = str(ws.cell(row=r, column=item_col).value or "").strip() if item_col else ""
-                if self.sales_record_visible(ws, headers, r):
-                    count += 1
-            return count
-        except Exception:
-            return 0
-        finally:
-            if wb is not None:
-                wb.close()
 
-    def refresh_excel_files(self):
-        if not hasattr(self, "excel_file_tree"):
-            return
-        for item in self.excel_file_tree.get_children():
-            self.excel_file_tree.delete(item)
-
-        paths = self.get_report_excel_paths()
-        for path in paths:
-            modified = time.strftime("%Y-%m-%d %H:%M", time.localtime(os.path.getmtime(path)))
-            row_count = self.count_visible_excel_rows(path)
-            self.excel_file_tree.insert(
-                "",
-                tk.END,
-                iid=path,
-                values=(os.path.basename(path), modified, row_count),
-            )
 
     def browse_excel_file(self):
         self.ensure_directories()
@@ -974,7 +922,7 @@ class PriceCalculator(QuoteApplicationMixin):
             return
         wb = None
         try:
-            wb = load_workbook(path, data_only=True, read_only=True)
+            wb = self.open_excel_for_view(path)
             sheet_names = [ws.title for ws in wb.worksheets if ws.sheet_state == "visible"]
             if not sheet_names:
                 messagebox.showwarning("无法查看", "这个 Excel 没有工作表。")
@@ -995,38 +943,7 @@ class PriceCalculator(QuoteApplicationMixin):
             if wb is not None:
                 wb.close()
 
-    def is_visible_sales_record(self, item_text):
-        item = str(item_text or "").strip()
-        if not item:
-            return False
-        if item.startswith("---"):
-            return False
-        if item in {"备注", "文件备注"}:
-            return False
-        return True
 
-    def _excel_cell_text(self, value, money=False):
-        if value is None:
-            return ""
-        if isinstance(value, float):
-            return self.format_display(value) if money else (str(int(value)) if value.is_integer() else self.format_display(value))
-        return str(value)
-
-    def build_group_sales_totals(self, ws, headers, header_row):
-        id_col = self.get_excel_id_column(headers)
-        time_col = headers.get("记录时间")
-        item_col = headers.get("项目名称")
-        sales_col = headers.get("销售额")
-        totals = {}
-        if not (id_col and time_col and item_col and sales_col):
-            return totals
-        for r in range(header_row + 1, (ws.max_row or 0) + 1):
-            item_text = str(ws.cell(row=r, column=item_col).value or "").strip()
-            if not self.sales_record_visible(ws, headers, r):
-                continue
-            group_key = self.sales_group_key(ws, headers, r)
-            totals[group_key] = totals.get(group_key, 0.0) + self._to_float(ws.cell(row=r, column=sales_col).value)
-        return totals
 
     def load_current_excel_sheet(self):
         path = self.current_excel_path
@@ -1086,12 +1003,12 @@ class PriceCalculator(QuoteApplicationMixin):
                     continue
                 taobao_id = str(ws.cell(row=r, column=id_col).value or "").strip() if id_col else ""
                 record_time = str(ws.cell(row=r, column=col_map["记录时间"]).value or "").strip() if col_map["记录时间"] else ""
-                group_total = group_totals.get(self.sales_group_key(ws, headers, r), 0.0)
+                group_total = group_totals.get(self.sales_group_key(ws, headers, r))
 
                 values = []
                 for field in display_columns:
                     if field == "总销售额":
-                        values.append(self.format_display(group_total))
+                        values.append(format(group_total, ".2f") if group_total is not None else "—（历史归属待核对）")
                         continue
                     col_idx = col_map.get(field)
                     cell_value = ws.cell(row=r, column=col_idx).value if col_idx else ""
@@ -1109,23 +1026,6 @@ class PriceCalculator(QuoteApplicationMixin):
                 wb.close()
 
 
-    def find_excel_table_header(self, ws):
-        """返回利润明细表头行和列映射；兼容旧版“用户”和新版“淘宝ID”。"""
-        max_scan = min(ws.max_row or 1, 40)
-        for row_idx in range(1, max_scan + 1):
-            headers = {}
-            for cell in ws[row_idx]:
-                if cell.value is None:
-                    continue
-                name = str(cell.value).strip()
-                if name:
-                    headers[name] = cell.column
-            has_time = "记录时间" in headers
-            has_id = "淘宝ID" in headers or "用户" in headers
-            has_item = "项目名称" in headers
-            if has_time and has_id and has_item:
-                return row_idx, headers
-        return None, {}
 
     def get_excel_id_column(self, headers):
         return headers.get("淘宝ID") or headers.get("用户")
@@ -1181,52 +1081,8 @@ class PriceCalculator(QuoteApplicationMixin):
             return None
         return self.excel_view_row_map.get(selected[0])
 
-    def read_excel_remark(self, path):
-        if load_workbook is None:
-            return ""
-        wb = None
-        try:
-            wb = load_workbook(path, data_only=True, read_only=True)
-            if "备注" in wb.sheetnames:
-                ws_note = wb["备注"]
-                value = ws_note["B5"].value or ws_note["B4"].value
-                return str(value or "")
-            if "利润明细" in wb.sheetnames:
-                ws = wb["利润明细"]
-                header_row, headers = self.find_excel_table_header(ws)
-                remark_col = headers.get("备注") if headers else None
-                if remark_col:
-                    last_remark = ""
-                    for r in range((ws.max_row or 1), header_row, -1):
-                        value = ws.cell(row=r, column=remark_col).value
-                        if value:
-                            last_remark = str(value)
-                            break
-                    return last_remark
-        except Exception:
-            pass
-        finally:
-            if wb is not None:
-                wb.close()
-        return ""
 
 
-    def get_excel_group_rows(self, ws, selected_row, headers, header_row):
-        time_col = headers.get("记录时间")
-        id_col = self.get_excel_id_column(headers)
-        if not (time_col and id_col):
-            return [], "", ""
-        selected_time = str(ws.cell(row=selected_row, column=time_col).value or "").strip()
-        selected_id = str(ws.cell(row=selected_row, column=id_col).value or "").strip()
-        if not selected_time or not selected_id:
-            return [], selected_id, selected_time
-        matched = []
-        for r in range(header_row + 1, (ws.max_row or 0) + 1):
-            row_time = str(ws.cell(row=r, column=time_col).value or "").strip()
-            row_id = str(ws.cell(row=r, column=id_col).value or "").strip()
-            if row_id == selected_id and row_time == selected_time:
-                matched.append(r)
-        return matched, selected_id, selected_time
 
     def ensure_excel_remark_column(self, ws, headers, header_row):
         remark_col = headers.get("备注")
@@ -1245,32 +1101,12 @@ class PriceCalculator(QuoteApplicationMixin):
 
 
 
-    def get_excel_headers(self):
-        """母版和子版共用同一套 Excel 表头，确保同一天追加到同一个 Excel。"""
-        return [
-            "记录时间", "淘宝ID", "订单号", "微信号", "项目名称", "基础类型", "是否单件",
-            "高度(m)", "宽度(m)", "数量", "销售单价", "成本单价", "K系数", "折扣", "折扣系数",
-            "折前销售额", "销售额", "总成本", "利润", "利润率", "高度原文", "宽度原文",
-            "数量原文", "销售单价原文", "成本单价原文", "K系数原文",
-        ]
 
     def get_daily_excel_path(self):
         """每天只创建一个 Excel：利润明细_YYYYMMDD.xlsx。"""
         date_text = time.strftime("%Y%m%d")
         return os.path.join(self.report_dir, f"{DAILY_EXCEL_PREFIX}_{date_text}.xlsx")
 
-    def create_profit_sheet_template(self, ws, timestamp):
-        """初始化利润明细工作表模板。"""
-        if ws.max_row:
-            ws.delete_rows(1, ws.max_row)
-        ws.title = "利润明细"
-        ws.append(["六六派对利润明细"])
-        ws.append(["最后导出时间", timestamp])
-        ws.append(["最近导出淘宝ID", self.user_name.get().strip(), "订单号", self.order_no.get().strip(), "微信号", self.wechat_no.get().strip()])
-        ws.append(["总收入", 0.0, "总成本", 0.0, "总利润", 0.0, "综合利润率", "0.0%"])
-        ws.append([])
-        ws.append(self.get_excel_headers())
-        return ws
 
 
 
@@ -1283,10 +1119,15 @@ class PriceCalculator(QuoteApplicationMixin):
         if not header_row:
             header_row = 6
         for row in range(header_row + 1, ws.max_row + 1):
-            for col in [8, 9, 10, 11, 12, 13, 16, 17, 18, 19]:
-                ws.cell(row=row, column=col).number_format = "#,##0.00"
-            ws.cell(row=row, column=15).number_format = "0.0%"
-            ws.cell(row=row, column=20).number_format = "0.0%"
+            for name in ("高度(m)", "宽度(m)", "数量", "销售单价", "成本单价", "K系数", "折前销售额", "销售额", "总成本", "利润"):
+                if name in _headers:
+                    ws.cell(row, _headers[name]).number_format = "#,##0.00"
+            for name in ("折扣系数", "利润率"):
+                if name in _headers:
+                    ws.cell(row, _headers[name]).number_format = "0.0%"
+            for name, col in _headers.items():
+                if name.endswith("原文") or name in ("淘宝ID", "订单号", "微信号", "备注"):
+                    ws.cell(row, col).number_format = "@"
         for col in [2, 4, 6]:
             ws.cell(row=4, column=col).number_format = "#,##0.00"
         widths = {

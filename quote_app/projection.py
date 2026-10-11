@@ -8,6 +8,7 @@ from decimal import Decimal
 
 from quote_core import DiscountLine
 from quote_core.numbers import exact_context, money_text
+from quote_files.schema import RECORD_COLUMNS, DETAIL_HEADERS
 
 
 def legacy_record(line):
@@ -36,22 +37,18 @@ def legacy_record(line):
     return record
 
 
-RECORD_COLUMNS = (
-    "项目名称", "基础类型", "是否单件", "高度(m)", "宽度(m)", "数量",
-    "销售单价", "成本单价", "K系数", "折扣", "折扣系数", "折前销售额",
-    "销售额", "总成本", "利润", "利润率", "高度原文", "宽度原文", "数量原文",
-    "销售单价原文", "成本单价原文", "K系数原文",
-)
-
-
-def append_quote(ws, timestamp, payload, *, kind_column):
+def append_quote(ws, timestamp, payload, *, kind_column, headers=None):
     details = payload.details
-    prefix = [timestamp, details.customer, details.order_ref, details.wechat]
+    prefix = dict(zip(DETAIL_HEADERS[:4], (timestamp, details.customer, details.order_ref, details.wechat)))
+    mapping = headers or {key: i for i, key in enumerate(DETAIL_HEADERS, 1)}
+    def append(record, kind):
+        values = [None] * max(ws.max_column, max(mapping.values()), kind_column)
+        for key, value in {**prefix, **record}.items():
+            values[mapping[key] - 1] = value
+        values[kind_column - 1] = kind
+        ws.append(values)
     for line in payload.result.lines:
-        record = legacy_record(line)
-        ws.append(prefix + [record[key] for key in RECORD_COLUMNS])
-        ws.cell(ws.max_row, kind_column, line.raw.line_kind)
+        append(legacy_record(line), line.raw.line_kind)
     totals = payload.result.totals.display()
-    ws.append(prefix + ["--- 本次总计 ---"] + [""] * 11 +
-              [totals["income"], totals["cost"], totals["profit"], totals["margin"] or "—"])
-    ws.cell(ws.max_row, kind_column, "order_total")
+    append({"项目名称": "--- 本次总计 ---", "销售额": totals["income"], "总成本": totals["cost"],
+            "利润": totals["profit"], "利润率": totals["margin"] or "—"}, "order_total")

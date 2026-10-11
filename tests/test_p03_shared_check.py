@@ -12,6 +12,7 @@ import p03_shared_check as check
 from test_application_integration import application
 from test_workbook_transactions import bind_view
 from quote_files.transactions import FileBusy, file_lock
+from quote_files.transactions import FileFailure
 from quote_files.workbooks import open_book
 
 
@@ -136,7 +137,7 @@ class SharedDiagnosticTests(unittest.TestCase):
                     book.save(path)
                 finally:
                     book.close()
-                with self.assertRaisesRegex(ValueError, "日汇总"):
+                with self.assertRaisesRegex(FileFailure, "摘要"):
                     check.verify(sandbox, 1)
                 path.write_bytes(before)
                 export(app, "A01")  # A new calculation really is another order.

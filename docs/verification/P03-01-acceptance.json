@@ -1,0 +1,32 @@
+{
+  "task": "P03-01",
+  "status": "closed_under_user_adjusted_scope",
+  "phase_branch": "stage/p03-file-safety",
+  "source": "current_user_instruction_with_existing_test_cancellation",
+  "user_instruction": {
+    "at": "2026-10-11T22:53:50+08:00",
+    "verbatim": "推进02"
+  },
+  "closure_basis": "用户在取消剩余共享实测后要求推进02；据此按调整范围登记01收尾，不将接续指令改写为逐项实机通过确认",
+  "closure_baseline": "4a545c50f2c3df7b4b4da305b4a1cc34a540b2fd",
+  "implementation_commit": "151efe8e447fc945f7565ee1693006008d97e03f",
+  "retained_evidence": {
+    "Windows_local_32_and_GUI": "docs/verification/P03-01-windows-evidence.json; fingerprints matched 151efe8, not the new P03-02 source",
+    "auxiliary_165": "docs/verification/P03-01-checks.json",
+    "auxiliary_171": "docs/verification/P03-01-shared-tool-checks.json"
+  },
+  "cancelled_scope_record": "docs/verification/P03-01-test-cancellation.json",
+  "real_shared_tests": "cancelled_by_user; not_executed; not_passed",
+  "deliberate_network_interruption": "cancelled_by_user; not_executed",
+  "failure_protections_and_diagnostics": "retained; no requirement to execute canceled shared guide",
+  "original_evidence_unchanged": true,
+  "production_paths_accessed": false,
+  "next_task": "P03-02",
+  "next_task_baseline": "4a545c50f2c3df7b4b4da305b4a1cc34a540b2fd",
+  "P03_phase": "remains in docs/now; 02 delivery and 03/04 still require their own work/acceptance",
+  "not_claimed": [
+    "arbitrary external Excel concurrency safety",
+    "SMB real-device acceptance",
+    "production cutover approval"
+  ]
+}

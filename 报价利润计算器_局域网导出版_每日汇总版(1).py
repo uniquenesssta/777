@@ -825,7 +825,7 @@ class PriceCalculator(QuoteApplicationMixin):
 
         list_body = ttk.Frame(self.excel_list_frame)
         list_body.pack(fill=tk.BOTH, expand=True)
-        columns = ("file", "mtime", "income", "cost", "profit", "margin", "remark")
+        columns = ("file", "mtime", "income", "cost", "profit", "margin", "remark", "status")
         self.excel_file_tree = ttk.Treeview(list_body, columns=columns, show="headings", height=16)
         headings = {
             "file": "文件名",
@@ -835,8 +835,9 @@ class PriceCalculator(QuoteApplicationMixin):
             "profit": "利润",
             "margin": "利润率",
             "remark": "备注",
+            "status": "读取状态",
         }
-        widths = {"file": 320, "mtime": 150, "income": 110, "cost": 110, "profit": 110, "margin": 90, "remark": 360}
+        widths = {"file": 320, "mtime": 150, "income": 110, "cost": 110, "profit": 110, "margin": 90, "remark": 360, "status": 420}
         for col in columns:
             self.excel_file_tree.heading(col, text=headings[col])
             self.excel_file_tree.column(col, width=widths[col], anchor=tk.W if col in ("file", "remark") else tk.CENTER)
@@ -912,140 +913,10 @@ class PriceCalculator(QuoteApplicationMixin):
         self.excel_detail_frame.pack(fill=tk.BOTH, expand=True)
 
 
-    def _to_float(self, value, default=0.0):
-        try:
-            if value is None:
-                return default
-            if isinstance(value, str):
-                text = value.strip().replace(",", "")
-                if text.endswith("%"):
-                    return float(text[:-1]) / 100.0
-                return float(text)
-            return float(value)
-        except Exception:
-            return default
 
-    def parse_excel_summary(self, path):
-        result = {"income": 0.0, "cost": 0.0, "profit": 0.0, "margin": 0.0}
-        if load_workbook is None:
-            return result
-        wb = None
-        try:
-            wb = load_workbook(path, data_only=True, read_only=True)
-            if "利润明细" not in wb.sheetnames:
-                return result
-            ws = wb["利润明细"]
-            # 摘要在表头之前，不能让表头“总成本”覆盖已读成本。
-            header_row, _headers = self.find_excel_table_header(ws)
-            summary_end = header_row - 1 if header_row else min(ws.max_row, 5)
-            for row in ws.iter_rows(min_row=1, max_row=max(1, summary_end), values_only=True):
-                values = list(row)
-                for idx, value in enumerate(values):
-                    if value == "总收入" and idx + 1 < len(values):
-                        result["income"] = self._to_float(values[idx + 1])
-                    elif value == "总成本" and idx + 1 < len(values):
-                        result["cost"] = self._to_float(values[idx + 1])
-                    elif value == "总利润" and idx + 1 < len(values):
-                        result["profit"] = self._to_float(values[idx + 1])
-                    elif value == "综合利润率" and idx + 1 < len(values):
-                        result["margin"] = self._to_float(values[idx + 1])
-            # 如果旧文件没有摘要，则尝试找“本次总计”行。
-            if result["income"] == 0 and result["cost"] == 0 and result["profit"] == 0:
-                for row in ws.iter_rows(values_only=True):
-                    values = list(row)
-                    if "--- 本次总计 ---" in values:
-                        result["income"] = self._to_float(values[14] if len(values) > 14 else 0)
-                        result["cost"] = self._to_float(values[15] if len(values) > 15 else 0)
-                        result["profit"] = self._to_float(values[16] if len(values) > 16 else 0)
-                        break
-            if result["income"]:
-                result["margin"] = result["profit"] / result["income"]
-        except Exception:
-            pass
-        finally:
-            if wb is not None:
-                wb.close()
-        return result
 
-    def read_excel_remark(self, path):
-        if load_workbook is None:
-            return ""
-        wb = None
-        try:
-            wb = load_workbook(path, data_only=True, read_only=True)
-            if "备注" in wb.sheetnames:
-                ws_note = wb["备注"]
-                value = ws_note["B5"].value or ws_note["B4"].value
-                return str(value or "")
-            if "利润明细" in wb.sheetnames:
-                ws = wb["利润明细"]
-                header_row, headers = self.find_excel_table_header(ws)
-                remark_col = headers.get("备注") if headers else None
-                if remark_col:
-                    last_remark = ""
-                    for r in range((ws.max_row or 1), header_row, -1):
-                        value = ws.cell(row=r, column=remark_col).value
-                        if value:
-                            last_remark = str(value)
-                            break
-                    return last_remark
-        except Exception:
-            pass
-        finally:
-            if wb is not None:
-                wb.close()
-        return ""
 
-    def refresh_excel_files(self):
-        if not hasattr(self, "excel_file_tree"):
-            return
-        for item in self.excel_file_tree.get_children():
-            self.excel_file_tree.delete(item)
 
-        paths = self.get_report_excel_paths()
-        for path in paths:
-            summary = self.parse_excel_summary(path)
-            remark = self.read_excel_remark(path)
-            modified = time.strftime("%Y-%m-%d %H:%M", time.localtime(os.path.getmtime(path)))
-            margin = f"{summary['margin'] * 100:.1f}%" if summary["income"] else "0%"
-            self.excel_file_tree.insert(
-                "",
-                tk.END,
-                iid=path,
-                values=(
-                    os.path.basename(path),
-                    modified,
-                    self.format_display(summary["income"]),
-                    self.format_display(summary["cost"]),
-                    self.format_display(summary["profit"]),
-                    margin,
-                    remark,
-                ),
-            )
-
-    def aggregate_all_excels(self, silent=False):
-        paths = self.get_report_excel_paths()
-        total_income = 0.0
-        total_cost = 0.0
-        total_profit = 0.0
-        valid_count = 0
-        for path in paths:
-            summary = self.parse_excel_summary(path)
-            # 只统计能识别出利润明细的文件；纯备注或无关 Excel 会被跳过。
-            if summary["income"] or summary["cost"] or summary["profit"]:
-                valid_count += 1
-                total_income += summary["income"]
-                total_cost += summary["cost"]
-                total_profit += summary["profit"]
-        margin = (total_profit / total_income) if total_income else 0.0
-        self.excel_total_count.set(f"{valid_count} 个文件")
-        self.excel_total_income.set(self.format_display(total_income))
-        self.excel_total_cost.set(self.format_display(total_cost))
-        self.excel_total_profit.set(self.format_display(total_profit))
-        self.excel_total_margin.set(f"{margin * 100:.1f}%")
-        self.refresh_excel_files()
-        if not silent:
-            messagebox.showinfo("统算完成", f"已统计 {valid_count} 个可识别的导出 Excel。")
 
     def browse_excel_file(self):
         self.ensure_directories()
@@ -1073,7 +944,7 @@ class PriceCalculator(QuoteApplicationMixin):
             return
         wb = None
         try:
-            wb = load_workbook(path, data_only=True, read_only=True)
+            wb = self.open_excel_for_view(path)
             sheet_names = [ws.title for ws in wb.worksheets if ws.sheet_state == "visible"]
             if not sheet_names:
                 messagebox.showwarning("无法查看", "这个 Excel 没有工作表。")
@@ -1138,23 +1009,6 @@ class PriceCalculator(QuoteApplicationMixin):
                 wb.close()
 
 
-    def find_excel_table_header(self, ws):
-        """返回利润明细表头行和列映射；兼容旧版“用户”和新版“淘宝ID”。"""
-        max_scan = min(ws.max_row or 1, 40)
-        for row_idx in range(1, max_scan + 1):
-            headers = {}
-            for cell in ws[row_idx]:
-                if cell.value is None:
-                    continue
-                name = str(cell.value).strip()
-                if name:
-                    headers[name] = cell.column
-            has_time = "记录时间" in headers
-            has_id = "淘宝ID" in headers or "用户" in headers
-            has_item = "项目名称" in headers
-            if has_time and has_id and has_item:
-                return row_idx, headers
-        return None, {}
 
     def get_excel_id_column(self, headers):
         return headers.get("淘宝ID") or headers.get("用户")
@@ -1165,67 +1019,8 @@ class PriceCalculator(QuoteApplicationMixin):
             return None
         return self.excel_view_row_map.get(selected[0])
 
-    def get_excel_group_rows(self, ws, row_index, headers, header_row):
-        """按淘宝ID/旧版用户 + 记录时间定位同一次导出的所有行。"""
-        time_col = headers.get("记录时间")
-        id_col = self.get_excel_id_column(headers)
-        if not time_col or not id_col:
-            return [], "", ""
-        selected_time = str(ws.cell(row=row_index, column=time_col).value or "").strip()
-        selected_id = str(ws.cell(row=row_index, column=id_col).value or "").strip()
-        if not selected_time or not selected_id:
-            return [], selected_id, selected_time
-        matched = []
-        for r in range(header_row + 1, (ws.max_row or 0) + 1):
-            row_time = str(ws.cell(row=r, column=time_col).value or "").strip()
-            row_id = str(ws.cell(row=r, column=id_col).value or "").strip()
-            if row_id == selected_id and row_time == selected_time:
-                matched.append(r)
-        return matched, selected_id, selected_time
 
-    def ensure_excel_remark_column(self, ws, headers, header_row):
-        remark_col = headers.get("备注")
-        if remark_col:
-            return remark_col
-        remark_col = (ws.max_column or 0) + 1
-        ws.cell(row=header_row, column=remark_col, value="备注")
-        headers["备注"] = remark_col
-        try:
-            ws.column_dimensions[get_column_letter(remark_col)].width = 45
-            ws.cell(row=header_row, column=remark_col).font = Font(bold=True)
-            ws.cell(row=header_row, column=remark_col).fill = PatternFill("solid", fgColor="D9EAF7")
-        except Exception:
-            pass
-        return remark_col
 
-    def recompute_excel_summary(self, ws, headers):
-        """删除/备注后重算 A4:H4 摘要，统算全部Excel会以这里为准。"""
-        income_col = headers.get("销售额")
-        cost_col = headers.get("总成本")
-        profit_col = headers.get("利润")
-        item_col = headers.get("项目名称")
-        header_row, _headers = self.find_excel_table_header(ws)
-        if not header_row or not income_col or not cost_col or not profit_col:
-            return
-        total_income = total_cost = total_profit = 0.0
-        for r in range(header_row + 1, (ws.max_row or 0) + 1):
-            item_text = str(ws.cell(row=r, column=item_col).value or "").strip() if item_col else ""
-            if not item_text:
-                continue
-            if item_text.startswith("---") or item_text in {"备注", "文件备注"}:
-                continue
-            total_income += self._to_float(ws.cell(row=r, column=income_col).value)
-            total_cost += self._to_float(ws.cell(row=r, column=cost_col).value)
-            total_profit += self._to_float(ws.cell(row=r, column=profit_col).value)
-        margin = total_profit / total_income if total_income else 0.0
-        ws.cell(row=4, column=1, value="总收入")
-        ws.cell(row=4, column=2, value=total_income)
-        ws.cell(row=4, column=3, value="总成本")
-        ws.cell(row=4, column=4, value=total_cost)
-        ws.cell(row=4, column=5, value="总利润")
-        ws.cell(row=4, column=6, value=total_profit)
-        ws.cell(row=4, column=7, value="综合利润率")
-        ws.cell(row=4, column=8, value=f"{margin * 100:.1f}%")
 
 
 
@@ -1292,54 +1087,12 @@ class PriceCalculator(QuoteApplicationMixin):
                 ws.column_dimensions[col_letter].width = max_len
 
 
-    def get_excel_headers(self):
-        """母版和子版共用同一套 Excel 表头，确保同一天追加到同一个 Excel。"""
-        return [
-            "记录时间",
-            "淘宝ID",
-            "订单号",
-            "微信号",
-            "项目名称",
-            "基础类型",
-            "是否单件",
-            "高度(m)",
-            "宽度(m)",
-            "数量",
-            "销售单价",
-            "成本单价",
-            "K系数",
-            "折扣",
-            "折扣系数",
-            "折前销售额",
-            "销售额",
-            "总成本",
-            "利润",
-            "利润率",
-            "高度原文",
-            "宽度原文",
-            "数量原文",
-            "销售单价原文",
-            "成本单价原文",
-            "K系数原文",
-        ]
 
     def get_daily_excel_path(self):
         """每天只创建一个 Excel：利润明细_YYYYMMDD.xlsx。"""
         date_text = time.strftime("%Y%m%d")
         return os.path.join(self.report_dir, f"{DAILY_EXCEL_PREFIX}_{date_text}.xlsx")
 
-    def create_profit_sheet_template(self, ws, timestamp):
-        """初始化利润明细工作表模板。"""
-        if ws.max_row:
-            ws.delete_rows(1, ws.max_row)
-        ws.title = "利润明细"
-        ws.append(["六六派对利润明细"])
-        ws.append(["最后导出时间", timestamp])
-        ws.append(["最近导出淘宝ID", self.user_name.get().strip(), "订单号", self.order_no.get().strip(), "微信号", self.wechat_no.get().strip()])
-        ws.append(["总收入", 0.0, "总成本", 0.0, "总利润", 0.0, "综合利润率", "0.0%"])
-        ws.append([])
-        ws.append(self.get_excel_headers())
-        return ws
 
 
 
@@ -1352,10 +1105,15 @@ class PriceCalculator(QuoteApplicationMixin):
         if not header_row:
             header_row = 6
         for row in range(header_row + 1, ws.max_row + 1):
-            for col in [8, 9, 10, 11, 12, 13, 16, 17, 18, 19]:
-                ws.cell(row=row, column=col).number_format = "#,##0.00"
-            ws.cell(row=row, column=15).number_format = "0.0%"
-            ws.cell(row=row, column=20).number_format = "0.0%"
+            for name in ("高度(m)", "宽度(m)", "数量", "销售单价", "成本单价", "K系数", "折前销售额", "销售额", "总成本", "利润"):
+                if name in _headers:
+                    ws.cell(row, _headers[name]).number_format = "#,##0.00"
+            for name in ("折扣系数", "利润率"):
+                if name in _headers:
+                    ws.cell(row, _headers[name]).number_format = "0.0%"
+            for name, col in _headers.items():
+                if name.endswith("原文") or name in ("淘宝ID", "订单号", "微信号", "备注"):
+                    ws.cell(row, col).number_format = "@"
         for col in [2, 4, 6]:
             ws.cell(row=4, column=col).number_format = "#,##0.00"
         widths = {
