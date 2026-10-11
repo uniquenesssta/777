@@ -10,6 +10,7 @@
 - [P01-04黄金样本、技术参数与Windows验收](docs/baseline/P01-04-validation.md)
 - [P02计算核心与归档任务书](docs/old/P02-calculation.md)
 - [当前P03文件安全任务书与Windows入口](docs/now/P03-file-safety.md)
+- [P03-01真实共享盘双机与Excel占用步骤](docs/verification/P03-01-shared-test.md)
 - [文档与计划入口](docs/README.md)
 - [优化及迁移主任务书](docs/MASTER_PLAN.md)
 - [两份 Python 代码重新审计报告](docs/audit/python-audit.md)
@@ -17,6 +18,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 按用户要求[取消主动断网演练](docs/verification/P03-01-scope.json)，保留原写入失败保护与历史报告。新增[共享测试入口](tools/p03_shared_check.py)及[双机步骤](docs/verification/P03-01-shared-test.md)：新建UUID测试子目录、标记/指纹/UNC校验，两台实际Windows电脑打开当前母子窗口，共享持锁拒写和同请求重试，只读核对订单/回执/金额，关闭保留各自主机报告。[新增6项、完整171项辅助检查](docs/verification/P03-01-shared-tool-checks.json)通过，正式配置和账本不改；实际SMB/Excel占用尚待用户执行，01不收尾、02不启动。
 
 - 登记[P03-01 Windows回传](docs/verification/P03-01-windows-evidence.json)：两份报告匹配151efe8及各12项指纹，32/32本机事务检查与母子GUI联测通过，无回调错误，关闭/清理正常。原分支切换失败后pull快进到正确代码，检查结果有效；辅助一次性单分支克隆复现，补remote.fetch登记和显式跟踪/失败停止命令。无需重跑已通过检查，实际共享双机/占用/只读/断网与用户验收仍待完成，01不收尾/02不启动，源码和原报告不改。
 

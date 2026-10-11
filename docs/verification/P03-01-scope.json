@@ -1,0 +1,22 @@
+{
+  "task": "P03-01",
+  "recorded_date": "2026-10-11",
+  "source": "current_user_message",
+  "user_statement": "不需要做断网验证因为一定会在使用中开机。真实共享盘双机并发占用怎么测试",
+  "operating_assumption": "共享主机在使用期间保持开机",
+  "deliberate_network_interruption_test": "excluded_by_user",
+  "existing_failure_protections": "retained",
+  "real_shared_acceptance": "pending",
+  "remaining_scope": [
+    "两个实际Windows客户端使用同一UNC测试目录并发写入",
+    "跨机持锁时拒写，释放后同请求重试不重复",
+    "旧页面冲突、追加备注、订单作废及金额核对",
+    "桌面Excel实际占用表现和请求结果核对",
+    "共享只读权限证据及最终用户验收"
+  ],
+  "historical_evidence": "原Windows与辅助检查报告保留原值；本记录更新当前验收范围，不将未执行项写成通过",
+  "branch_switch": "用户已回传正确跟踪并切换stage/p03-file-safety，pull为Already up to date",
+  "production_files_modified": false,
+  "p03_01_closed": false,
+  "p03_02_started": false
+}

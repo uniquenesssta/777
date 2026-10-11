@@ -1,0 +1,56 @@
+{
+  "task": "P03-01",
+  "baseline_commit": "9cb028b6ef7dec6efab993fcfab112437266b953",
+  "environment": {
+    "os": "Linux",
+    "python": "3.12.14"
+  },
+  "scope": "Linux/Tcl/temporary-file auxiliary checks only; not real Windows GUI or two physical SMB clients",
+  "full_regression": {
+    "command": "python -m unittest discover -s tests -v",
+    "tests_run": 171,
+    "seconds": 10.516,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "status": "passed",
+    "log_sha256": "18109d587b1fb04d9106b799b1db0fde42acc9d0496cd4953e55322a45b6d6e9"
+  },
+  "new_test_ids": [
+    "test_cli_nonwindows_and_unmarked_unc_do_not_launch_or_create_files (test_p03_shared_check.SharedDiagnosticTests.test_cli_nonwindows_and_unmarked_unc_do_not_launch_or_create_files)",
+    "test_code_mismatch_and_output_directory_link_are_rejected (test_p03_shared_check.SharedDiagnosticTests.test_code_mismatch_and_output_directory_link_are_rejected)",
+    "test_held_lock_blocks_current_writer_then_same_request_retries_once (test_p03_shared_check.SharedDiagnosticTests.test_held_lock_blocks_current_writer_then_same_request_retries_once)",
+    "test_prepare_unique_child_and_reject_unmarked_or_missing_config_without_repair (test_p03_shared_check.SharedDiagnosticTests.test_prepare_unique_child_and_reject_unmarked_or_missing_config_without_repair)",
+    "test_two_current_adapters_share_fixture_replay_then_void_and_readonly_reconcile (test_p03_shared_check.SharedDiagnosticTests.test_two_current_adapters_share_fixture_replay_then_void_and_readonly_reconcile)",
+    "test_verify_detects_corrupt_summary_and_duplicate_human_order_reference (test_p03_shared_check.SharedDiagnosticTests.test_verify_detects_corrupt_summary_and_duplicate_human_order_reference)"
+  ],
+  "implementation_sha256_LF": {
+    "quote_app/__init__.py": "33b32e668ffe3a5d0fd4c6d0f7aac49ee3583ad6a81ec54efcca98e28ceec3d8",
+    "quote_app/file_edits.py": "c47e29bfac0c4fc31821f3515c4f8984d52c9c88b1f1df6eb29431c850f76058",
+    "quote_app/integration.py": "3e8c18b11ba741d7095b8528be53da14ae1ca2ba1671551c4040d7b6b91b1a7f",
+    "quote_app/projection.py": "02d4d57c2c9cb3b5491936774981db16d6496842421dcb5dea373675ecf1d124",
+    "quote_app/storage.py": "e101611051ac8cc854ba61cd1d72f75dc77bbcb5d782912261d8373ff12064d2",
+    "quote_core/__init__.py": "3f515c88484f84a4349a48f107e12d83db966ce55ed1efb729a38bcf88d52683",
+    "quote_core/calculation.py": "f9b0355a2d84005ea09a7c7038bbd61882f13656baf2796d4addd387d6eab6b6",
+    "quote_core/configuration.py": "d307eb507cd0f424516b681bc8bf2a56a71c93d6015779ee14a9e75b5f156ff7",
+    "quote_core/models.py": "d4339ceb5e017d5f38f6c4e6454a17e96ea4b846b95b0ee379ddd065764910a5",
+    "quote_core/numbers.py": "321c6448b2ebb603e5462ffcbb985465a29f69d0e9a8e03946fd1a436a7005e3",
+    "quote_core/session.py": "d48cc3abe46250a5e5e58cf62bd00deb3f9e2759b10ae6279550abeaadf5d02d",
+    "quote_core/snapshot.py": "e4e525917a3c1fe4dd21478942552b2fca595defad8ffbde4fa3d84223c3e8ba",
+    "quote_files/__init__.py": "df245ae88782f9067a0d9735547d30025a36fc9c5f659de124a076c081434329",
+    "quote_files/configuration.py": "978f7f541e83a115390b74e2be88bafc64c88e60486b0800785e23b6544ec57e",
+    "quote_files/transactions.py": "848e6bb73cf5b1ed4f988493ea63b0017de2772edafb2a4597b6e5bf8983477c",
+    "quote_files/workbooks.py": "3b11ed1690a551c7955302d28af117b24c2b218be5d9052a1583e6e43c7e5386",
+    "tools/baseline_check.py": "6fb6939e96a3c91794ed60b8d6da01548d7061606f40bf00e303d31911b6ac57",
+    "tools/p02_gui_check.py": "e2862e3c007b851d519a6beded8bdf4e51dffde1c30facb57f1b01de8e92ab2b",
+    "tools/p03_shared_check.py": "ee775b0645a74da40702290d21387aed245afeb198a3a21f4e464d73be6e9b35",
+    "报价利润计算器_局域网子版本_JSON价格_截图按天订单命名_ICON版(1).py": "f1e9e473e22ffc9af445b21afe7d0d92ceb6091c28ed1347609b8cc421cf64a5",
+    "报价利润计算器_局域网导出版_每日汇总版(1).py": "fc10479bc437fb784391eb1fbc9ed655fcf1ea8fe754e4c827c3a299f9a1b29c"
+  },
+  "protected_files_checked": 46,
+  "protected_files_changed": [],
+  "production_paths_accessed": false,
+  "windows_shared_tool_execution": "not_run; user execution pending",
+  "deliberate_network_interruption": "excluded_by_user",
+  "p03_01_closed": false
+}
