@@ -97,7 +97,7 @@ def verify(sandbox, expected_orders, expected_voids=0):
     sandbox, marker = validate(sandbox)
     orders, references, request_ids = set(), set(), set()
     counts = {"orders": 0, "active": 0, "void": 0, "append_receipts": 0,
-              "remark_receipts": 0, "void_receipts": 0}
+              "remark_receipts": 0, "void_receipts": 0, "restore_receipts": 0}
     files = []
     for path in workbook_paths(sandbox):
         raw = read_bytes(path)
@@ -140,7 +140,7 @@ def verify(sandbox, expected_orders, expected_voids=0):
                 if rid in request_ids or log[rid]["order_id"] not in groups:
                     raise ValueError("跨文件请求重复或回执指向缺失订单")
                 request_ids.add(rid)
-                counts[{"append_quote": "append_receipts", "append_remark": "remark_receipts", "void_order": "void_receipts"}[operation]] += 1
+                counts[{"append_quote": "append_receipts", "append_remark": "remark_receipts", "void_order": "void_receipts", "restore_order": "restore_receipts"}[operation]] += 1
             active = sum(group["state"] == "active" for group in groups.values())
             expected = (f"{active * 10}.00", f"{active * 4}.00", f"{active * 6}.00")
             actual = tuple(str(ws.cell(4, col).value) for col in (2, 4, 6))
@@ -190,9 +190,9 @@ def observed_type(parent, events):
             self._record("append_quote", self._excel_pending)
             return path
 
-        def _edit_order(self, operation, remark=None):
+        def _edit_order(self, operation, remark=None, **kwargs):
             try:
-                result = super()._edit_order(operation, remark)
+                result = super()._edit_order(operation, remark, **kwargs)
             except Exception as exc:
                 self._record(operation, self._edit_pending, exc)
                 raise

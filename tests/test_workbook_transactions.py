@@ -124,7 +124,7 @@ class WorkbookTransactionTests(unittest.TestCase):
             committed = app._edit_order('append_remark', '=1+1')
             self.assertEqual(committed.result['order_revision'], 2)
             bind_view(app, path)
-            app._edit_order('void_order')
+            app._edit_order('void_order', reason='合成检查：撤销订单')
             book = open_book(path.read_bytes())
             try:
                 ws = book['利润明细']
@@ -143,7 +143,7 @@ class WorkbookTransactionTests(unittest.TestCase):
             bind_view(app, path)
             before = path.read_bytes()
             with self.assertRaises(tx.FileFailure):
-                app._edit_order('void_order')
+                app._edit_order('void_order', reason='合成检查：撤销订单')
             self.assertEqual(path.read_bytes(), before)
 
     def test_stale_row_view_rejects_instead_of_changing_other_order(self):
@@ -174,7 +174,7 @@ class WorkbookTransactionTests(unittest.TestCase):
             other.write_bytes(path.read_bytes())
             app.current_excel_path = str(other)
             with self.assertRaises(tx.FileFailure):
-                app._edit_order('void_order')
+                app._edit_order('void_order', reason='合成检查：撤销订单')
             with self.assertRaises(Exception):
                 app.read_excel_view(folder / 'missing.xlsx', '利润明细')
             self.assertEqual(app._excel_view_orders, {})
@@ -186,7 +186,7 @@ class WorkbookTransactionTests(unittest.TestCase):
             bind_view(app, path)
             before = path.read_bytes()
             with self.assertRaises(tx.FileFailure):
-                app._edit_order('void_order')
+                app._edit_order('void_order', reason='合成检查：撤销订单')
             with self.assertRaises(tx.FileFailure):
                 app._edit_order('append_remark', '备注')
             self.assertFalse(app.delete_excel_path(path))
@@ -199,6 +199,8 @@ class WorkbookTransactionTests(unittest.TestCase):
             try:
                 ws = book['利润明细']
                 ws.delete_cols(28, 5)
+                del book['订单价格快照']
+                book['输入问题'].delete_cols(7, 2)
                 del book['_写入事务']
                 book.save(path)
             finally:
@@ -206,7 +208,7 @@ class WorkbookTransactionTests(unittest.TestCase):
             bind_view(app, path)
             before = path.read_bytes()
             with self.assertRaises(tx.FileFailure):
-                app._edit_order('void_order')
+                app._edit_order('void_order', reason='合成检查：撤销订单')
             self.assertEqual(path.read_bytes(), before)
             app.calculate(notify=False)
             self.assertTrue(app.export_to_excel())  # New identified order only.
@@ -237,7 +239,7 @@ class WorkbookTransactionTests(unittest.TestCase):
                 finally:
                     book.close()
                 bind_view(manager, path)
-                manager._edit_order('void_order')
+                manager._edit_order('void_order', reason='合成检查：撤销订单')
                 book = open_book(path.read_bytes())
                 try:
                     ws = book['利润明细']

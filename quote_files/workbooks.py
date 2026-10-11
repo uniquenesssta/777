@@ -117,7 +117,7 @@ def receipts(book):
         rid, operation, fingerprint, order_id, revision, timestamp, encoded = row
         if rid in records or type(revision) is not int or revision != expected:
             raise FileFailure("写入回执编号或版本损坏")
-        if str(uuid.UUID(rid)) != rid or operation not in {"append_quote", "append_remark", "void_order"}:
+        if str(uuid.UUID(rid)) != rid or operation not in {"append_quote", "append_remark", "void_order", "restore_order"}:
             raise FileFailure("写入回执身份或操作无效")
         if type(fingerprint) is not str or len(fingerprint) != 64 or any(c not in "0123456789abcdef" for c in fingerprint):
             raise FileFailure("写入回执哈希无效")

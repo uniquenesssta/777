@@ -94,7 +94,7 @@ class SharedDiagnosticTests(unittest.TestCase):
                 bind_view(manager, path)
                 manager._edit_order("append_remark", "共享测试备注")
                 bind_view(manager, path)
-                manager._edit_order("void_order")
+                manager._edit_order("void_order", reason="合成检查：撤销订单")
                 result = check.verify(sandbox, 2, 1)
                 self.assertEqual(result["files"][0]["summary"], ("10.00", "4.00", "6.00"))
                 self.assertEqual([e["operation"] for e in a_events], ["append_quote", "append_remark", "void_order"])

@@ -17,6 +17,7 @@ class FileReadingMixin:
         self._excel_view_hash = None
         self._excel_view_orders = {}
         self._excel_view_path = None
+        self._excel_order_views = {}
         return open_book(read_bytes(path), for_write=False)
 
     def _excel_cell_text(self, value, money=False):

@@ -90,6 +90,9 @@ class QuoteApplicationMixin(ConnectionMixin, FileReadingMixin, FileEditingMixin)
         self._excel_view_hash = None
         self._excel_view_orders = {}
         self._excel_view_path = None
+        self._excel_order_views = {}
+        self._remark_drafts = {}
+        self._remark_editor_order = None
         self._last_config_sha = None
         self.initialize_connections()
 
@@ -529,7 +532,7 @@ class QuoteApplicationMixin(ConnectionMixin, FileReadingMixin, FileEditingMixin)
             assign_order(ws, start, ws.max_row, headers, req)
             self.recompute_daily_profit_summary(ws)
             self.style_daily_profit_sheet(ws)
-            self.append_input_issues_sheet(wb, timestamp, payload)
+            self.append_input_issues_sheet(wb, timestamp, payload, req)
             self.refresh_price_snapshot_sheet(wb, timestamp, payload, req)
             return {"order_revision": 1, "price_version_id": payload.prices.price_version_id}
         try:
@@ -547,17 +550,21 @@ class QuoteApplicationMixin(ConnectionMixin, FileReadingMixin, FileEditingMixin)
     def get_excel_headers(self):
         return list(DETAIL_HEADERS)
 
-    def append_input_issues_sheet(self, wb, timestamp, payload):
+    def append_input_issues_sheet(self, wb, timestamp, payload, req):
+        from quote_files.schema import INPUT_ORDER_HEADERS
         sheet = wb["输入问题"] if "输入问题" in wb.sheetnames else wb.create_sheet("输入问题")
         if sheet.max_row < 4:
             sheet.delete_rows(1, sheet.max_row)
             for values in (["输入校验反馈"], [], [], ["记录时间", "级别", "位置", "字段", "输入内容", "提示"]):
                 sheet.append(values)
+        # Legacy diagnostic cells remain intact; new rows are explicitly bound.
+        for column, value in enumerate(INPUT_ORDER_HEADERS, 1):
+            sheet.cell(4, column, value)
         issues = self._legacy_issues(payload.result.warnings)
         for issue in issues:
-            sheet.append([timestamp] + [issue[key] for key in ("级别", "位置", "字段", "输入内容", "提示")])
+            sheet.append([timestamp] + [issue[key] for key in ("级别", "位置", "字段", "输入内容", "提示")] + [req.order_id, req.request_id])
         if not issues:
-            sheet.append([timestamp, "OK", "全部", "", "", "没有发现输入问题。"])
+            sheet.append([timestamp, "OK", "全部", "", "", "没有发现输入问题。", req.order_id, req.request_id])
         self.style_excel_sheet(sheet, header_row=4, freeze="A5", widths={"A": 20, "B": 10, "C": 22, "D": 18, "E": 24, "F": 70})
 
     def recompute_daily_profit_summary(self, ws):

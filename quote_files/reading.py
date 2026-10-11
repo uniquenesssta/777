@@ -135,6 +135,8 @@ def analyze(book, cached_book=None):
                 rid = ws.cell(r.index, h["请求ID"]).value
                 if oid and (rid not in log or log[rid]["order_id"] != oid or operations[rid] != "append_quote"):
                     raise InvalidLedger("MISSING_RECEIPT", "订单没有匹配的原始追加回执", str(r.index))
+            from .orders import validate_associations
+            validate_associations(book, {ws.cell(r.index, h["订单ID"]).value for r in rows}, log, operations)
         keys, totals = groups(ws, h, rows, prefixes, issues)
         if rows and all(r.kind == "order_total" for r in rows):
             raise InvalidLedger("ORPHAN_ORDER_TOTAL", "仅有总计行而没有可核对明细，不作为零金额文件")

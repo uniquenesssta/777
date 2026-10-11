@@ -32,9 +32,11 @@ def transaction_gui_smoke(manager, sales, sandbox):
     assert manager.calc_export_button.invoke() == path
     manager.open_excel_path(path)
     manager.excel_view_tree.selection_set('row_7')
+    manager.load_current_excel_remark()
     manager.excel_remark_text.insert('1.0', '=1+1')
     assert manager.save_current_excel_remark()
     manager.excel_view_tree.selection_set('row_7')
+    manager.excel_order_reason.set('合成检查：撤销该订单')
     with patch('tkinter.messagebox.askyesno', return_value=True):
         assert manager.delete_current_excel_row()
     book = open_book(Path(path).read_bytes())

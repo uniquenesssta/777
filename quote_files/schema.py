@@ -14,9 +14,11 @@ IDENTITY_HEADERS = ("订单ID", "明细ID", "订单版本", "请求ID", "记录�
 ALIASES = {"用户": "淘宝ID", "高度": "高度(m)", "宽度": "宽度(m)"}
 KNOWN_SHEETS = {"利润明细", "输入问题", "价格设定", "备注", "订单备注", "订单价格快照", "_写入事务"}
 PRICE_HISTORY_HEADERS = ("订单ID", "请求ID", "记录时间", "价格版本", "规则版本", "数值版本", "项目名称", "销售单价原文", "成本单价原文", "K系数原文", "是否单件")
+INPUT_HEADERS = ("记录时间", "级别", "位置", "字段", "输入内容", "提示")
+INPUT_ORDER_HEADERS = (*INPUT_HEADERS, "订单ID", "请求ID")
 APPENDIX_HEADERS = {
     "订单价格快照": (1, PRICE_HISTORY_HEADERS),
-    "输入问题": (4, ("记录时间", "级别", "位置", "字段", "输入内容", "提示")),
+    "输入问题": (4, INPUT_HEADERS),
     "价格设定": (4, ("项目名称", "销售单价原文", "成本单价原文", "K系数原文", "是否单件")),
     "订单备注": (1, ("请求ID", "订单ID", "备注")),
 }
@@ -76,7 +78,8 @@ def inspect_schema(book):
     for name, (header_row, expected) in APPENDIX_HEADERS.items():
         if name in book.sheetnames:
             sheet = book[name]
-            if tuple(c.value for c in sheet[header_row]) != expected:
+            actual = tuple(c.value for c in sheet[header_row])
+            if actual != expected and not (name == "输入问题" and actual == INPUT_ORDER_HEADERS):
                 reasons.append(name + "表格式未支持")
     for sheet in book.worksheets:
         if sheet.max_column > 64 or sheet.max_row > 100000:

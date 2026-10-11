@@ -837,7 +837,7 @@ class PriceCalculator(QuoteApplicationMixin):
             "cost": "成本",
             "profit": "利润",
             "margin": "利润率",
-            "remark": "备注",
+            "remark": "历史备注预览",
             "status": "读取状态",
         }
         widths = {"file": 320, "mtime": 150, "income": 110, "cost": 110, "profit": 110, "margin": 90, "remark": 360, "status": 420}
@@ -864,6 +864,7 @@ class PriceCalculator(QuoteApplicationMixin):
         detail_top = ttk.Frame(self.excel_detail_frame)
         detail_top.pack(fill=tk.X, pady=(0, 8))
         ttk.Label(detail_top, text="Excel 查看", style="Title.TLabel").pack(side=tk.LEFT)
+        ttk.Button(detail_top, text="检查上次写入", command=self.check_last_write).pack(side=tk.LEFT, padx=(12, 0))
         ttk.Button(detail_top, text="返回上一层", command=self.show_excel_list).pack(side=tk.RIGHT, padx=(6, 0))
         ttk.Button(detail_top, text="查看另一个 Excel", command=self.browse_excel_file).pack(side=tk.RIGHT, padx=(6, 0))
 
@@ -877,13 +878,24 @@ class PriceCalculator(QuoteApplicationMixin):
         self.excel_sheet_combo = ttk.Combobox(sheet_bar, textvariable=self.excel_sheet_var, width=28, state="readonly")
         self.excel_sheet_combo.pack(side=tk.LEFT, padx=(4, 8))
         ttk.Button(sheet_bar, text="读取", command=self.load_current_excel_sheet).pack(side=tk.LEFT)
-        ttk.Button(sheet_bar, text="作废选中订单", command=self.delete_current_excel_row).pack(side=tk.LEFT, padx=(8, 0))
-        ttk.Label(sheet_bar, text="提示：作废按订单编号处理，保留原记录；旧记录暂不可编辑。", foreground="#7f8c8d").pack(side=tk.LEFT, padx=10)
+        self.excel_void_button = ttk.Button(sheet_bar, text="作废选中订单", command=self.delete_current_excel_row, state="disabled")
+        self.excel_void_button.pack(side=tk.LEFT, padx=(8, 0))
+        self.excel_restore_button = ttk.Button(sheet_bar, text="恢复选中订单", command=self.restore_current_excel_order, state="disabled")
+        self.excel_restore_button.pack(side=tk.LEFT, padx=(8, 0))
+        ttk.Label(sheet_bar, text="按订单处理；作废保留原记录，恢复只计入一次。", foreground="#7f8c8d").pack(side=tk.LEFT, padx=10)
+        self.excel_order_label = tk.StringVar(self.root, "请选择利润明细中带稳定编号的新订单；旧记录只读。")
+        ttk.Label(self.excel_detail_frame, textvariable=self.excel_order_label, wraplength=1050).pack(anchor=tk.W)
+        reason_bar = ttk.Frame(self.excel_detail_frame)
+        reason_bar.pack(fill=tk.X, pady=(4, 6))
+        ttk.Label(reason_bar, text="作废 / 恢复原因：").pack(side=tk.LEFT)
+        self.excel_order_reason = tk.StringVar(self.root)
+        ttk.Entry(reason_bar, textvariable=self.excel_order_reason).pack(side=tk.LEFT, fill=tk.X, expand=True)
 
         view_body = ttk.Frame(self.excel_detail_frame)
         view_body.pack(fill=tk.BOTH, expand=True)
         self.excel_view_tree = ttk.Treeview(view_body, show="headings", height=13, selectmode="browse")
         self.excel_view_tree.bind("<Delete>", lambda _event: self.delete_current_excel_row())
+        self.excel_view_tree.bind("<<TreeviewSelect>>", lambda _event: self.load_current_excel_remark())
         view_y = ttk.Scrollbar(view_body, orient="vertical", command=self.excel_view_tree.yview)
         view_x = ttk.Scrollbar(view_body, orient="horizontal", command=self.excel_view_tree.xview)
         self.excel_view_tree.configure(yscrollcommand=view_y.set, xscrollcommand=view_x.set)
@@ -894,11 +906,19 @@ class PriceCalculator(QuoteApplicationMixin):
         view_body.columnconfigure(0, weight=1)
         self.excel_sheet_combo.bind("<<ComboboxSelected>>", lambda _event: self.load_current_excel_sheet())
 
-        remark_box = ttk.LabelFrame(self.excel_detail_frame, text="备注（先选择一行，再保存到同组底部）", padding=8, style="Section.TLabelframe")
+        history_box = ttk.LabelFrame(self.excel_detail_frame, text="选中订单的备注与操作历史", padding=6, style="Section.TLabelframe")
+        history_box.pack(fill=tk.X, pady=(6, 0))
+        self.excel_order_history = tk.Text(history_box, height=6, wrap="word", state="disabled")
+        history_scroll = ttk.Scrollbar(history_box, orient="vertical", command=self.excel_order_history.yview)
+        self.excel_order_history.configure(yscrollcommand=history_scroll.set)
+        history_scroll.pack(side=tk.RIGHT, fill=tk.Y)
+        self.excel_order_history.pack(fill=tk.X, expand=True)
+        remark_box = ttk.LabelFrame(self.excel_detail_frame, text="追加备注（更正请另行追加；切换订单保留本次草稿）", padding=6, style="Section.TLabelframe")
         remark_box.pack(fill=tk.X, pady=(8, 0))
-        self.excel_remark_text = tk.Text(remark_box, height=4, wrap="word")
+        self.excel_remark_text = tk.Text(remark_box, height=2, wrap="word", state="disabled")
         self.excel_remark_text.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        ttk.Button(remark_box, text="追加备注", command=self.save_current_excel_remark).pack(side=tk.RIGHT, padx=(8, 0))
+        self.excel_note_button = ttk.Button(remark_box, text="追加备注", command=self.save_current_excel_remark, state="disabled")
+        self.excel_note_button.pack(side=tk.RIGHT, padx=(8, 0))
 
         self.show_excel_list()
         self.schedule_quote_callback(self.refresh_excel_files, delay=300)
@@ -1005,11 +1025,14 @@ class PriceCalculator(QuoteApplicationMixin):
                 item_id = f"row_{row_idx}"
                 self.excel_view_row_map[item_id] = row_idx
                 self.excel_view_tree.insert("", tk.END, iid=item_id, values=values)
+            return True
         except Exception as exc:
             messagebox.showerror("读取失败", f"无法读取工作表：{exc}")
+            return False
         finally:
             if wb is not None:
                 wb.close()
+            self.load_current_excel_remark()
 
 
 

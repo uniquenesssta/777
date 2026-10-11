@@ -1,0 +1,10 @@
+{
+  "task": "P03-03",
+  "status": "accepted_by_user",
+  "accepted_at": "2026-10-12T00:42:09+08:00",
+  "user_instruction": "开始04",
+  "decision": "依据已通过的Windows本机检查和母子Tk联测收尾P03-03，在同分支进入P03-04。",
+  "evidence": "P03-03-windows-evidence.json",
+  "implementation_commit": "b868f2b535a4fb658f32e14c1173adfa47e8fc20",
+  "scope": "23项Windows检查、20项实现指纹匹配、实际母子Tk隔离联测；不新增实测主张。"
+}
