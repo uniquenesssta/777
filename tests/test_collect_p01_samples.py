@@ -23,6 +23,12 @@ class CollectorTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
         self.output = self.root / "reports" / "run1"
+        # Exercise UTF-8 snapshots with a GBK text default on every host.
+        # Explicit encodings and binary I/O retain their normal behavior.
+        default_codec = patch("io.text_encoding", side_effect=lambda encoding, stacklevel=2:
+                              "gbk" if encoding in (None, "locale") else encoding)
+        default_codec.start()
+        self.addCleanup(default_codec.stop)
 
     def tearDown(self):
         # Windows requires removing the readonly attribute before cleanup.
@@ -49,7 +55,7 @@ class CollectorTests(unittest.TestCase):
         return path
 
     def read_public(self):
-        return json.loads((self.output / "public/S001.json").read_text())
+        return json.loads((self.output / "public/S001.json").read_text(encoding="utf-8"))
 
     def test_original_preserved_and_snapshot_readonly(self):
         path = self.config({"items": [{"name": "秘密商品", "sale": "12.5", "cost": "4", "k": "", "single": True}]})
@@ -68,7 +74,7 @@ class CollectorTests(unittest.TestCase):
         public = self.read_public()
         self.assertIn("SINGLE_NOT_BOOLEAN", public["issues"])
         self.assertEqual(public["items"][0]["single"], "false")
-        text = (self.output / "public/S001.json").read_text()
+        text = (self.output / "public/S001.json").read_text(encoding="utf-8")
         for secret in ("私密路径", "客户私密", "商品私密", "手机号私密"):
             self.assertNotIn(secret, text)
         self.assertEqual(public["unknown_top_field_count"], 1)
@@ -99,7 +105,7 @@ class CollectorTests(unittest.TestCase):
         self.assertTrue(formula["value"]["formula_redacted"])
         self.assertFalse(formula["value"]["has_cached_value"])
         self.assertEqual(public["sampled_formula_without_cache"], 1)
-        text = (self.output / "public/S001.json").read_text()
+        text = (self.output / "public/S001.json").read_text(encoding="utf-8")
         for secret in ("00123", "秘密客户", "私密订单", "秘密微信", "秘密商品", "secret.invalid", "机密"):
             self.assertNotIn(secret, text)
         self.assertEqual(path.read_bytes(), before)
@@ -114,7 +120,7 @@ class CollectorTests(unittest.TestCase):
         cells = {cell["column"]: cell["value"] for cell in sheet["cells"] if cell["row"] == 2}
         self.assertTrue(cells[2].startswith("客户"))
         self.assertEqual(cells[17], 25.5)
-        text = (self.output / "public/S001.json").read_text()
+        text = (self.output / "public/S001.json").read_text(encoding="utf-8")
         self.assertNotIn("13912345678", text)
         self.assertNotIn("私密备注内容", text)
 
@@ -125,7 +131,7 @@ class CollectorTests(unittest.TestCase):
         workbook = self.workbook(row=row)
         tool.collect([("manager", "config", config), ("unspecified", "excel", workbook)], self.output, self.root)
         name = self.read_public()["items"][0]["name"]
-        sheet = json.loads((self.output / "public/S002.json").read_text())["sheets"][0]
+        sheet = json.loads((self.output / "public/S002.json").read_text(encoding="utf-8"))["sheets"][0]
         self.assertEqual(next(c["value"] for c in sheet["cells"] if c["row"] == 2 and c["column"] == 5), name)
 
     def test_unknown_sheet_has_metadata_only(self):
@@ -134,7 +140,7 @@ class CollectorTests(unittest.TestCase):
         sheet = self.read_public()["sheets"][0]
         self.assertEqual(sheet["schema"], "unknown_sheet")
         self.assertEqual(sheet["cells"], [])
-        self.assertNotIn("秘密", (self.output / "public/S001.json").read_text())
+        self.assertNotIn("秘密", (self.output / "public/S001.json").read_text(encoding="utf-8"))
 
     def test_reordered_added_remark_and_legacy_header_classification(self):
         cases = [(list(reversed(tool.HEADERS)), "excel_current_26_reordered"), (tool.HEADERS + ["备注"], "excel_current_26_with_remark"), (["记录时间", "用户", "项目名称", "销售额", "总成本", "利润"], "excel_legacy_user_header"), (tool.HEADERS + ["淘宝ID"], "unknown_duplicate_headers")]
@@ -144,12 +150,12 @@ class CollectorTests(unittest.TestCase):
     def test_existing_output_or_outside_reports_is_rejected(self):
         self.output.mkdir(parents=True)
         marker = self.output / "keep"
-        marker.write_text("unchanged")
+        marker.write_text("unchanged", encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "OUTPUT_ALREADY_EXISTS"):
             tool.collect([], self.output, self.root)
         with self.assertRaisesRegex(ValueError, "OUTPUT_MUST_BE_NEW_REPORTS_SUBDIRECTORY"):
             tool.collect([], self.root / "production", self.root)
-        self.assertEqual(marker.read_text(), "unchanged")
+        self.assertEqual(marker.read_text(encoding="utf-8"), "unchanged")
         self.assertFalse((self.root / "production").exists())
 
     def test_output_symlink_is_rejected(self):
@@ -168,7 +174,7 @@ class CollectorTests(unittest.TestCase):
         path.write_text('{"客户秘密": invalid}', encoding="utf-8")
         report = tool.collect([("manager", "config", path)], self.output, self.root)
         self.assertEqual(report["files"][0]["status"], "blocked")
-        public = (self.output / "public/manifest.json").read_text()
+        public = (self.output / "public/manifest.json").read_text(encoding="utf-8")
         self.assertNotIn("私密", public)
         self.assertNotIn("客户秘密", public)
         self.assertFalse((self.output / "public/S001.json").exists())

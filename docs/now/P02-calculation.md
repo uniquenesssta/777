@@ -1,6 +1,6 @@
 # P02 计算正确性与公共业务核心
 
-状态：P02阶段执行中；P02-01已实现、自动核心验证通过，待用户验收；P02-02至04未启动。前置：P01已验收归档，business-v1/numeric-v1/performance-v1已确认，见[P01验收](../baseline/p01-acceptance.json)。实际唯一分支 `stage/p02-calculation`；创建基线 `stage/p01-baseline@7099303fda9edf70cc6544a99ec32c57db88a7c9`。问题：A04、A06、A07、A08、A18、A21、A23。依据：[主任务书](../MASTER_PLAN.md) / [迁移契约](../MIGRATION_CONTRACT.md)。
+状态：P02阶段执行中；P02-01已实现、辅助核心验证通过，本机检查待正确切换分支后复查，待用户验收；P02-02至04未启动。前置：P01已验收归档，business-v1/numeric-v1/performance-v1已确认，见[P01验收](../baseline/p01-acceptance.json)。实际唯一分支 `stage/p02-calculation`；创建基线 `stage/p01-baseline@7099303fda9edf70cc6544a99ec32c57db88a7c9`。问题：A04、A06、A07、A08、A18、A21、A23。依据：[主任务书](../MASTER_PLAN.md) / [迁移契约](../MIGRATION_CONTRACT.md)。
 
 共用[P01黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)和[验收方案](../baseline/P01-04-validation.md)；[批准记录](../baseline/p01-acceptance.json)将历史numeric-v1-proposed原值映射为numeric-v1，JSON及期望保持原样。P02/P06读取同一黄金文件。
 
@@ -29,14 +29,34 @@
 - 接续：数字/折扣解析因53例计算前置已实现，P02-02复用这些入口完成整份旧/新JSON schema发布、严格布尔/重复项/保留名称等校验；P02-03接输入/价格变动、提交/导出有效性；P02-04统一接回两端并删除替代逻辑，实际Windows交互验收留该项。P02-02至04未自动启动。
 - 恢复：可撤回本任务核心/适配提交；无真实账本或配置改动，不重算覆盖旧单；P01验收及其规则仍有效。P02-01待用户验收，整阶段留now。
 
+### Windows回传与兼容修正 — 2026-10-11
+
+- [本机失败记录及修复检查](../verification/P02-01-windows-compatibility.json)保留附件全文、原始字节哈希及42项、6错误、2跳过的结果；切分支报invalid reference，未运行P02新增18项。日志没有HEAD，不能据此绑定实际测试提交或宣称P02 Windows通过。
+- 六个错误均来自采集测试用系统默认GBK读取UTF-8 JSON；采集器已有显式UTF-8输出。修正测试内全部文本读写编码，并让既有16项采集检查在GBK文本默认值替身下运行；修前复现同名六错误，修后完整60项通过、53例黄金通过，替身在清理后恢复。两份业务脚本、领域核心和P01工具/历史证据没有改变。
+- 远端P02分支190dd53存在；仅跟踪P01的临时仓库复现普通fetch不能取得P02，补充P02跟踪后切换及后续pull通过。用户实际remote.origin.fetch未回传，该配置为已复现的原因推断，不冒充本机配置实测。
+- 前次说明未兼容单分支跟踪；改用下方PowerShell 7命令，任何一步失败即停止后续步骤。原两项symlink检查因本机权限不足跳过，可继续明确记录，不要求管理员权限。仍需在正确分支完成本机核心检查；P01验收保持有效，无需重跑GUI，P02-02至04未启动。
+
 ### 本机复现核心检查
 
-在仓库根目录运行，沿用已登记的Windows Python环境。首次切换本阶段分支：
+在仓库根目录的PowerShell 7运行，沿用已登记的Windows Python环境。首次切换本阶段分支（包含本次切换失败后的恢复）：
 
 ```powershell
-git fetch origin
-git switch --track origin/stage/p02-calculation
+git remote set-branches --add origin stage/p02-calculation &&
+git fetch origin &&
+git switch --track origin/stage/p02-calculation &&
+git log -1 --format="%h %d %s" &&
 py -3 -m unittest discover -s tests -v
 ```
 
-已在该分支时只需git pull和测试命令。检查入口共60项，包括18项新核心/适配检查；Windows无法创建symlink时既有相应检查会skip并明确报告。它不启动窗口或操作生产账本；本机复现不新增P01重跑门槛，两版真实交互在P02-04接入后验证。
+日志装饰应显示HEAD所在stage/p02-calculation及本次修复提交；只显示42项或没有test_quote_core/test_legacy_snapshot_adapter说明未进入P02检查。检查入口共60项，包括18项新核心/适配检查；成功应为OK，无法创建symlink时可为OK (skipped=2)，六处编码错误不应再出现。
+
+已有本地stage/p02-calculation时不重复创建，改用：
+
+```powershell
+git switch stage/p02-calculation &&
+git pull --ff-only &&
+git log -1 --format="%h %d %s" &&
+py -3 -m unittest discover -s tests -v
+```
+
+`&&`用于失败停止，切分支失败不会继续测试旧分支。上述检查不启动窗口或操作生产账本；本机复现不新增P01重跑门槛，两版真实交互在P02-04接入后验证。
