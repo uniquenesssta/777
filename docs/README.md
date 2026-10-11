@@ -9,8 +9,8 @@
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
 | 本轮授权 | P02-03已验收，用户“如果没问题收尾03开始04”授权P02-04；既有推送授权有效，P02-04执行中；后续未启动 |
 | 文档工作 | [P02当前任务书](now/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P02-01/02/03已验收；04已实现，辅助119项通过；待Windows隔离交互/用户验收 |
-| 下一项 | P02-04 Windows检查及用户验收；无需重跑P01历史GUI/诊断；P03未启动 |
+| 当前开发阶段 / Atomic Task | P02-01/02/03已验收；04入口及人工问题已修复，辅助130项通过；待Windows共享窗口复查/用户验收 |
+| 下一项 | P02-04共享目录Windows复查及用户验收；无需重跑P01历史GUI/诊断；P03未启动 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 

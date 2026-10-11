@@ -25,6 +25,7 @@ class ValidatedPriceConfig:
     source_schema: str
     export_dir: str | None
     original_json: str
+    screenshot_dir: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -159,16 +160,18 @@ def parse_price_config(source, *, price_version_id, legacy_single_names=None):
             raise ValidationError("CONFIG_ROOT_TYPE", "json")
 
         issues = []
-        export_dir = None
-        if "export_dir" in data:
+        directories = {}
+        for field in ("export_dir", "screenshot_dir"):
+            if field not in data:
+                continue
             try:
-                export_dir = _text(data["export_dir"], "export_dir", PATH_TEXT_LIMIT)
+                directories[field] = _text(data[field], field, PATH_TEXT_LIMIT)
             except ValidationError as error:
                 issues.append(_issue(error))
         if "items" in data:
             schema = "json_items"
             for key in data:
-                if key not in {"items", "export_dir"}:
+                if key not in {"items", "export_dir", "screenshot_dir"}:
                     issues.append(Issue("VALIDATION", "CONFIG_UNKNOWN_FIELD", key))
             if type(data["items"]) is not list:
                 raise ValidationError("CONFIG_ITEMS_TYPE", "items")
@@ -176,7 +179,7 @@ def parse_price_config(source, *, price_version_id, legacy_single_names=None):
             single_names = frozenset()
         else:
             schema = "json_legacy_price_dict"
-            entries = [(key, value) for key, value in data.items() if key != "export_dir"]
+            entries = [(key, value) for key, value in data.items() if key not in {"export_dir", "screenshot_dir"}]
             if entries:
                 if type(legacy_single_names) not in (tuple, list, set, frozenset):
                     raise ValidationError("LEGACY_SINGLE_POLICY_REQUIRED", "legacy_single_names")
@@ -221,7 +224,8 @@ def parse_price_config(source, *, price_version_id, legacy_single_names=None):
         if issues:
             return PriceConfigResult("VALIDATION", None, tuple(issues))
         return PriceConfigResult("ok", ValidatedPriceConfig(
-            PriceSnapshot(version, tuple(items)), schema, export_dir, original))
+            PriceSnapshot(version, tuple(items)), schema, directories.get("export_dir"), original,
+            directories.get("screenshot_dir")))
     except ValidationError as error:
         return PriceConfigResult("VALIDATION", None, (_issue(error),))
 

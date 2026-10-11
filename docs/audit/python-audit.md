@@ -95,3 +95,5 @@ P01-04补充（2026-10-11）：[辅助诊断证据](../baseline/p01-04-checks.js
 ## P02-04当前入口与历史诊断边界
 
 两份根目录入口现共用[quote_app](../../quote_app/integration.py)/quote_core，旧calculate/解析/部分导出逻辑已删除，辅助回归见[04证据](../verification/P02-04-checks.json)，Windows交互待04验收。上面的行号/缺陷及evidence.json仍描述原始源码；[原版副本](../baseline/original/README.md)按未改manifest固定字节，reproduce.py等仅更新定位后继续复现原行为，真实内容变化仍拒绝运行。A04/A06/A07/A18计算/入口修复不等于所有文件/权限问题关闭；A08文件原子保存、A23无标签历史与旧视图、A09摘要等留P03，原报告不重写。
+
+04 Windows回传与人工复查发现计算页按钮遗漏、目录保存未被加载/子版固定写目录，以及关闭未取消Tcl延迟任务；已补入口、共享配置相对路径及只读继承/共享沙箱联测，见[回传](../verification/P02-04-windows-evidence.json)与[修复130项](../verification/P02-04-directory-checks.json)。A09表头覆盖摘要成本已修复，完整历史schema/缓存/并发/真实SMB仍待P03；原审计证据及原版字节不改，04/P02未验收。

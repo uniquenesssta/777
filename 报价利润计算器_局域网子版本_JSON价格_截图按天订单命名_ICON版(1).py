@@ -6,8 +6,8 @@
 1. 保留计算主页、淘宝ID、订单号、微信号、折扣行、Excel 导出和 Excel 记录查看。
 2. 删除利润分析页和价格设定页；子版本不能查看成本、利润、利润率，也不能修改价格设定。
 3. 项目价格优先读取母版本 config.json，可在代码顶部 LAN_PRICE_CONFIG_FILE 中填写完整局域网路径。
-4. 如果 LAN_PRICE_CONFIG_FILE 留空，会尝试读取 LAN_DATA_DIR/config.json；读取失败时可用 DEFAULT_PRICE_ITEMS 兜底。
-5. Excel 导出目录读取代码顶部 LAN_DATA_DIR；截图目录读取 LAN_SCREENSHOT_DIR，留空则保存到 LAN_DATA_DIR/截图。
+4. LAN_PRICE_CONFIG_FILE 是共享配置入口；读取失败只保留草稿，禁止正式输出。
+5. Excel 和截图目录自动继承母版 config.json；子版显示只读目录，不可更改。
 6. Excel 记录页只读，仅显示销售相关字段。
 7. 子版本与母版本共用同一天 Excel 文件；可追加导出，并读取母版本更新/删除后的同一文件。
 
@@ -178,7 +178,7 @@ class PriceCalculator(QuoteApplicationMixin):
         self.report_dir = self.default_report_dir
         self.price_config_file = self.get_price_config_file()
         self.image_dir = self.get_screenshot_dir()
-        self.ensure_directories()
+        # Storage is resolved from the shared config before any directory I/O.
 
         self.default_items = [dict(item) for item in DEFAULT_PRICE_ITEMS]
         self.price_source_text = ""
@@ -252,7 +252,7 @@ class PriceCalculator(QuoteApplicationMixin):
         style.configure("Accent.TButton", font=("Arial", 10, "bold"))
 
     def get_default_report_dir(self):
-        """Excel 读写目录：只跟随代码顶部 LAN_DATA_DIR，不再被本机 config.json 覆盖。"""
+        """界面初始化占位；真实读写目录由共享config.json解析后替换。"""
         return self.normalize_path_text(LAN_DATA_DIR, fallback="利润表")
 
     def get_price_config_file(self):
@@ -815,7 +815,7 @@ class PriceCalculator(QuoteApplicationMixin):
         ttk.Button(list_top, text="刷新列表", command=self.refresh_excel_files).pack(side=tk.RIGHT, padx=(6, 0))
         ttk.Button(list_top, text="选择 Excel 查看", command=self.browse_excel_file).pack(side=tk.RIGHT, padx=(6, 0))
 
-        # 员工端隐藏局域网目录、价格 JSON、截图目录等内部路径信息。
+        self.install_storage_controls(self.excel_list_frame)
 
         list_body = ttk.Frame(self.excel_list_frame)
         list_body.pack(fill=tk.BOTH, expand=True)
@@ -881,7 +881,7 @@ class PriceCalculator(QuoteApplicationMixin):
         ttk.Button(remark_box, text="保存备注", command=self.save_current_excel_remark).pack(side=tk.RIGHT, padx=(8, 0))
 
         self.show_excel_list()
-        self.root.after(300, self.refresh_excel_files)
+        self.schedule_quote_callback(self.refresh_excel_files, delay=300)
 
     def show_excel_list(self):
         self.excel_detail_frame.pack_forget()
@@ -892,16 +892,6 @@ class PriceCalculator(QuoteApplicationMixin):
         self.excel_list_frame.pack_forget()
         self.excel_detail_frame.pack(fill=tk.BOTH, expand=True)
 
-    def get_report_excel_paths(self):
-        self.ensure_directories()
-        paths = []
-        for name in os.listdir(self.report_dir):
-            if name.startswith("~$"):
-                continue
-            if name.lower().endswith(".xlsx"):
-                paths.append(os.path.join(self.report_dir, name))
-        paths.sort(key=lambda p: os.path.getmtime(p), reverse=True)
-        return paths
 
     def _to_float(self, value, default=0.0):
         try:

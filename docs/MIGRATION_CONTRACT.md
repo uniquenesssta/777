@@ -148,16 +148,16 @@ QuoteResult携带business-v1/numeric-v1/price_version_id。VALIDATION时lines和
 
 | 入口/类型 | 已实现行为 | 边界 |
 | --- | --- | --- |
-| parse_price_config(source, price_version_id=..., legacy_single_names=...) | UTF-8字节或文本，允许UTF-8 BOM；成功返回PriceConfigResult(ok, config)，配置含不可变prices、source_schema、export_dir和original_json | 失败status=VALIDATION且config=null，issues定位json/items[0].sale等字段；不是文件加载、价格发布或认证接口 |
+| parse_price_config(source, price_version_id=..., legacy_single_names=...) | UTF-8字节或文本，允许UTF-8 BOM；成功返回PriceConfigResult(ok, config)，配置含不可变prices、source_schema、export_dir、可选screenshot_dir和original_json | 失败status=VALIDATION且config=null，issues定位json/items[0].sale等字段；不是文件加载、价格发布或认证接口 |
 | refresh_price_config(previous, source, ...) | 全部校验成功后返回新active；失败active保留previous同一对象，applied=false；首次无有效配置时保持null | previous须来自此前成功校验；保留原文、原价格版本及目录，不写文件、不以硬编码默认价格替代，也不授权陈旧/离线价格成交 |
 | ValidatedPriceConfig / PriceConfigResult / PriceConfigRefresh | frozen领域记录及不可变PriceSnapshot；金融原文保留，空K保留原文并按1计算 | price_version_id由调用者显式传入；该标签不证明已发布，版本分配/鉴权在P05，陈旧状态及提交阻断在P02-03 |
 
 支持的文件形状：
 
-- 新格式顶层只接受items及可选export_dir；items必须是非空数组，成员只接受name/sale/cost/k/single/qty_only。sale和cost必填且不可空；k缺失或空白为1，null及bool不是空K。single/qty_only只接受真正的布尔值；两者同存必须一致，均缺失时按现有读取器兼容为false。
-- 旧格式为商品名→恰好三个sale/cost/k值的数组及可选export_dir；未知/多余尾项和非价格记录拒绝。旧格式没有单件标志，调用者必须显式传入各端现有默认商品中的单件名称集合，可以为空；不凭常见名称猜测，也不使用一套隐藏名单。P02-04接入时从原有default_items取得该集合。
+- 新格式顶层只接受items及可选export_dir/screenshot_dir；items必须是非空数组，成员只接受name/sale/cost/k/single/qty_only。sale和cost必填且不可空；k缺失或空白为1，null及bool不是空K。single/qty_only只接受真正的布尔值；两者同存必须一致，均缺失时按现有读取器兼容为false。
+- 旧格式为商品名→恰好三个sale/cost/k值的数组及可选export_dir/screenshot_dir；未知/多余尾项和非价格记录拒绝。旧格式没有单件标志，调用者必须显式传入各端现有默认商品中的单件名称集合，可以为空；不凭常见名称猜测，也不使用一套隐藏名单。P02-04接入时从原有default_items取得该集合。
 - 商品名必须是真正的文本，trim后非空且唯一；重复原始JSON键在解码时直接拒绝，重复trim名称也拒绝整份。保留名称“折扣”不能作为价格商品，折扣由独立行类型表达。items数组内名为items/export_dir的普通商品没有元数据歧义，允许；旧顶层export_dir必须是目录文本，不能兼作商品数组。
-- 任一价格项、未知字段、目录文本类型或其他schema错误均拒绝整份候选，不跳过坏项或部分生效。export_dir仅保留原文/缺失null，不探测目录、不补隐性E盘路径；路径设置、可用性和真实读写仍由后续适配/文件任务处理。
+- 任一价格项、未知字段、目录文本类型或其他schema错误均拒绝整份候选，不跳过坏项或部分生效。目录字段仅保留原文/缺失null，核心不探测目录；P02-04按共享配置根解析/发布并接回实际writer，文件可用性/连接设置分离/锁事务仍由后续任务处理。
 
 当前JSON解码保护为1MiB UTF-8、嵌套深度32、最多10000商品、商品名256字符、目录文本32767字符；数字原文沿用numeric-v1的256字符限制。名称/目录拒绝控制字符及非法Unicode。上述是当前配置载入容量保护，不改business-v1金额范围或舍入，也不冒充服务协议/最终目录设置已实现。未知扩展拒绝，原配置保留待处理；旧单不重算。
 
@@ -197,3 +197,11 @@ OutputPayload冻结revision、输入、价格、客户/订单/微信文本和同
 - [projection.py](../quote_app/projection.py)保留原26列，金额采用两位十进制文本避免Excel数值单元格15位精度无法覆盖i64分；折扣/利润率为文本或“—”，身份原文保留。扩展“行类型”列记录normal/discount/order_total，追加到空的新列，不覆盖已有备注。新日汇总按显式类型纳入新正常/折扣行，Decimal求和后整数分结算，旧明细不重写；无标签历史歧义仍待P03，旧查看/备注/删除还需按类型升级。价格快照首行登记本地版本/规则/profile；完整财务载荷/旧Excel含成本，仍不是销售授权DTO。
 
 P01诊断使用[source-location.json](baseline/source-location.json)及原manifest验证[不可变原版源码](baseline/original/README.md)，不会拿已改动入口伪造原行为。当前Windows检查独立使用tools/p02_gui_check.py。辅助119项、两端53例和核心孤立标准库检查见[04证据](verification/P02-04-checks.json)；真实Windows截图/交互、SMB/部署及后续文件安全不提前宣称通过。
+
+### P02-04目录继承与关闭修复
+
+[目录适配](../quote_app/storage.py)纯词法解析共享配置的export_dir/screenshot_dir；缺失/空串分别表示配置父目录下利润表/截图，不把本机E盘硬编码补进业务目录。母版保存根内位置为相对路径，根外Windows位置必须UNC；销售拒绝本机盘符与相对盘符，relative不能越过配置根。启动、刷新列表/计算/输出前自动观察并采用新目录，价格版本SHA变化仍须显式价格刷新/重算/确认。显示路径与已采用路径分离，未保存文本不能重定向writer；销售无保存能力、界面全readonly。截图根相同，销售保留按天子目录。配置入口既有E/UNC连接地址在界面可见，本机连接配置分离仍在P03。
+
+当前纯schema的ValidatedPriceConfig末尾兼容新增screenshot_dir=null，旧四位置参数构造保持；其文本类型/UTF-8/控制字符/32767容量与export_dir一致，未知字段仍拒绝整份。旧字典顶层screenshot_dir为目录元数据，items数组内同名商品仍是商品。该扩展不改business-v1/numeric-v1及53例。
+
+母版计算页增加正式Excel按钮，母版摘要仅扫描已识别表头前区域，避免成本被表头覆盖；完整历史/未知schema继续由P03定义。窗口拥有延迟刷新/截图任务ID，关闭取消；Windows工具捕获callback exception及bgerror，原漏报记录保留在[回传证据](verification/P02-04-windows-evidence.json)。[130项辅助检查](verification/P02-04-directory-checks.json)不替代Windows共享窗口/真实截图/SMB验收；04/P02仍未收尾。

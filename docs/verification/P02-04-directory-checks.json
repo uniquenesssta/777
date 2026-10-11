@@ -1,0 +1,238 @@
+{
+  "task": "P02-04",
+  "record_type": "directory_and_manual_regression_fix_auxiliary_checks",
+  "phase_branch": "stage/p02-calculation",
+  "base_commit": "1d5ab24584d64956378aaba22d7e4dc30f14a8a6",
+  "environment": {
+    "os": "Linux",
+    "python": "3.12.14",
+    "gui": "Tcl variables and widget doubles; no display, not Windows GUI acceptance"
+  },
+  "tests": {
+    "command": "python -m unittest discover -s tests -v",
+    "count": 130,
+    "passed": 130,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 4.619,
+    "new_shared_storage_tests": 11,
+    "existing_integration_tests": 23,
+    "golden_cases_per_role": 53,
+    "console": "test_archived_source_tampering_is_rejected_before_execution (test_application_integration.ApplicationIntegrationTests.test_archived_source_tampering_is_rejected_before_execution) ... ok\ntest_blank_unused_editor_price_allows_calculation_but_blocks_whole_config_save (test_application_integration.ApplicationIntegrationTests.test_blank_unused_editor_price_allows_calculation_but_blocks_whole_config_save) ... ok\ntest_both_live_adapters_match_all_shared_golden_amounts_or_whole_rejection (test_application_integration.ApplicationIntegrationTests.test_both_live_adapters_match_all_shared_golden_amounts_or_whole_rejection) ... ok\ntest_current_entrypoints_share_core_and_original_archive_is_exact (test_application_integration.ApplicationIntegrationTests.test_current_entrypoints_share_core_and_original_archive_is_exact) ... ok\ntest_discount_focus_loss_preserves_full_original_precision (test_application_integration.ApplicationIntegrationTests.test_discount_focus_loss_preserves_full_original_precision) ... ok\ntest_discount_result_render_does_not_mutate_aliased_input_or_invalidate_itself (test_application_integration.ApplicationIntegrationTests.test_discount_result_render_does_not_mutate_aliased_input_or_invalidate_itself) ... ok\ntest_editor_duplicates_and_reserved_names_are_errors_not_silent_skips (test_application_integration.ApplicationIntegrationTests.test_editor_duplicates_and_reserved_names_are_errors_not_silent_skips) ... ok\ntest_excel_refresh_failure_is_reported_as_saved_not_write_failure (test_application_integration.ApplicationIntegrationTests.test_excel_refresh_failure_is_reported_as_saved_not_write_failure) ... ok\ntest_explicit_export_line_kind_keeps_goods_named_like_summary_or_remark (test_application_integration.ApplicationIntegrationTests.test_explicit_export_line_kind_keeps_goods_named_like_summary_or_remark) ... ok\ntest_explicit_same_file_refresh_invalidates_and_requires_new_confirmation (test_application_integration.ApplicationIntegrationTests.test_explicit_same_file_refresh_invalidates_and_requires_new_confirmation) ... ok\ntest_first_bad_configuration_has_no_defaults_and_close_has_no_save (test_application_integration.ApplicationIntegrationTests.test_first_bad_configuration_has_no_defaults_and_close_has_no_save) ... ok\ntest_gui_cli_blocks_non_windows_before_loading_current_entrypoints (test_application_integration.ApplicationIntegrationTests.test_gui_cli_blocks_non_windows_before_loading_current_entrypoints) ... ok\ntest_invalid_or_stale_current_exports_and_screenshots_never_invoke_io (test_application_integration.ApplicationIntegrationTests.test_invalid_or_stale_current_exports_and_screenshots_never_invoke_io) ... ok\ntest_invalid_or_unavailable_file_retains_snapshot_and_blocks_preview_outputs (test_application_integration.ApplicationIntegrationTests.test_invalid_or_unavailable_file_retains_snapshot_and_blocks_preview_outputs) ... ok\ntest_pending_screenshot_callback_rechecks_after_intervening_edit (test_application_integration.ApplicationIntegrationTests.test_pending_screenshot_callback_rechecks_after_intervening_edit) ... ok\ntest_price_change_dialog_for_sales_never_displays_cost_values (test_application_integration.ApplicationIntegrationTests.test_price_change_dialog_for_sales_never_displays_cost_values) ... ok\ntest_price_observation_does_not_silently_rebind_then_refresh_requires_confirmation (test_application_integration.ApplicationIntegrationTests.test_price_observation_does_not_silently_rebind_then_refresh_requires_confirmation) ... ok\ntest_real_variable_edits_and_identity_clear_previous_amounts_immediately (test_application_integration.ApplicationIntegrationTests.test_real_variable_edits_and_identity_clear_previous_amounts_immediately) ... ok\ntest_restoring_unsaved_editor_prices_still_requires_new_calculation (test_application_integration.ApplicationIntegrationTests.test_restoring_unsaved_editor_prices_still_requires_new_calculation) ... ok\ntest_row_deletion_reset_and_setting_removal_invalidate_without_auto_calculate (test_application_integration.ApplicationIntegrationTests.test_row_deletion_reset_and_setting_removal_invalidate_without_auto_calculate) ... ok\ntest_valid_editor_save_applies_whole_snapshot_and_requires_recompute_confirm (test_application_integration.ApplicationIntegrationTests.test_valid_editor_save_applies_whole_snapshot_and_requires_recompute_confirm) ... ok\ntest_valid_excel_uses_frozen_result_not_tampered_widgets_or_cached_records (test_application_integration.ApplicationIntegrationTests.test_valid_excel_uses_frozen_result_not_tampered_widgets_or_cached_records) ... ok\ntest_valid_screenshot_writer_and_blocked_callback_use_same_current_gate (test_application_integration.ApplicationIntegrationTests.test_valid_screenshot_writer_and_blocked_callback_use_same_current_gate) ... ok\ntest_audit_gate_accepts_crlf_and_rejects_real_changes (test_baseline_check.BaselineCheckTests.test_audit_gate_accepts_crlf_and_rejects_real_changes) ... ok\ntest_changed_source_is_rejected_before_execution (test_baseline_check.BaselineCheckTests.test_changed_source_is_rejected_before_execution) ... ok\ntest_existing_output_is_never_overwritten (test_baseline_check.BaselineCheckTests.test_existing_output_is_never_overwritten) ... ok\ntest_gui_mode_blocks_non_windows_before_loading_applications (test_baseline_check.BaselineCheckTests.test_gui_mode_blocks_non_windows_before_loading_applications) ... ok\ntest_manual_file_choice_outside_sandbox_is_blocked_before_read (test_baseline_check.BaselineCheckTests.test_manual_file_choice_outside_sandbox_is_blocked_before_read) ... ok\ntest_missing_dependency_is_actionable (test_baseline_check.BaselineCheckTests.test_missing_dependency_is_actionable) ... ok\ntest_original_sources_match_manifest (test_baseline_check.BaselineCheckTests.test_original_sources_match_manifest) ... ok\ntest_real_change_in_crlf_source_is_rejected_before_execution (test_baseline_check.BaselineCheckTests.test_real_change_in_crlf_source_is_rejected_before_execution) ... ok\ntest_sandbox_replaces_every_storage_constant_and_leaves_source_intact (test_baseline_check.BaselineCheckTests.test_sandbox_replaces_every_storage_constant_and_leaves_source_intact) ... ok\ntest_windows_crlf_checkout_matches_without_rewriting_sources (test_baseline_check.BaselineCheckTests.test_windows_crlf_checkout_matches_without_rewriting_sources) ... ok\ntest_changed_source_blocks_release_of_snapshot (test_collect_p01_samples.CollectorTests.test_changed_source_blocks_release_of_snapshot) ... ok\ntest_cli_requires_explicit_file_selection (test_collect_p01_samples.CollectorTests.test_cli_requires_explicit_file_selection) ... ok\ntest_config_byte_comparison_is_not_physical_mapping_claim (test_collect_p01_samples.CollectorTests.test_config_byte_comparison_is_not_physical_mapping_claim) ... ok\ntest_config_shape_types_and_unknown_values_are_redacted (test_collect_p01_samples.CollectorTests.test_config_shape_types_and_unknown_values_are_redacted) ... ok\ntest_current_excel_customer_order_and_formula_never_leak (test_collect_p01_samples.CollectorTests.test_current_excel_customer_order_and_formula_never_leak) ... ok\ntest_duplicate_json_keys_and_nonfinite_constants_are_blocked (test_collect_p01_samples.CollectorTests.test_duplicate_json_keys_and_nonfinite_constants_are_blocked) ... ok\ntest_existing_output_or_outside_reports_is_rejected (test_collect_p01_samples.CollectorTests.test_existing_output_or_outside_reports_is_rejected) ... ok\ntest_invalid_json_error_report_does_not_expose_excerpt_or_path (test_collect_p01_samples.CollectorTests.test_invalid_json_error_report_does_not_expose_excerpt_or_path) ... ok\ntest_legacy_json_and_normalized_duplicate_names (test_collect_p01_samples.CollectorTests.test_legacy_json_and_normalized_duplicate_names) ... ok\ntest_numeric_customer_and_free_note_remain_redacted (test_collect_p01_samples.CollectorTests.test_numeric_customer_and_free_note_remain_redacted) ... ok\ntest_original_preserved_and_snapshot_readonly (test_collect_p01_samples.CollectorTests.test_original_preserved_and_snapshot_readonly) ... ok\ntest_output_symlink_is_rejected (test_collect_p01_samples.CollectorTests.test_output_symlink_is_rejected) ... ok\ntest_product_token_shared_between_config_and_excel (test_collect_p01_samples.CollectorTests.test_product_token_shared_between_config_and_excel) ... ok\ntest_reordered_added_remark_and_legacy_header_classification (test_collect_p01_samples.CollectorTests.test_reordered_added_remark_and_legacy_header_classification) ... ok\ntest_unknown_sheet_has_metadata_only (test_collect_p01_samples.CollectorTests.test_unknown_sheet_has_metadata_only) ... ok\ntest_zip_capacity_is_checked_before_workbook_loader (test_collect_p01_samples.CollectorTests.test_zip_capacity_is_checked_before_workbook_loader) ... ok\ntest_both_actual_legacy_classes_supply_the_same_immutable_core_input (test_legacy_snapshot_adapter.LegacySnapshotAdapterTests.test_both_actual_legacy_classes_supply_the_same_immutable_core_input) ... ok\ntest_baseline_change_blocks_diagnostic_execution (test_p01_validation.P01ValidationTests.test_baseline_change_blocks_diagnostic_execution) ... ok\ntest_bounded_text_ast_intermediate_and_literals (test_p01_validation.P01ValidationTests.test_bounded_text_ast_intermediate_and_literals) ... ok\ntest_division_order_and_original_remainder_semantics (test_p01_validation.P01ValidationTests.test_division_order_and_original_remainder_semantics) ... ok\ntest_expected_mutation_is_detectable (test_p01_validation.P01ValidationTests.test_expected_mutation_is_detectable) ... ok\ntest_format_candidates_preserve_same_second_and_cache_states (test_p01_validation.P01ValidationTests.test_format_candidates_preserve_same_second_and_cache_states) ... ok\ntest_formats_only_skips_calculation_and_measurement (test_p01_validation.P01ValidationTests.test_formats_only_skips_calculation_and_measurement) ... ok\ntest_formula_cache_handles_empty_tags_and_namespaces (test_p01_validation.P01ValidationTests.test_formula_cache_handles_empty_tags_and_namespaces) ... ok\ntest_instrumentation_restores_library_on_failure (test_p01_validation.P01ValidationTests.test_instrumentation_restores_library_on_failure) ... ok\ntest_missing_formula_cache_stays_failure_and_summary_names_it (test_p01_validation.P01ValidationTests.test_missing_formula_cache_stays_failure_and_summary_names_it) ... ok\ntest_negative_tie_and_no_float_loss (test_p01_validation.P01ValidationTests.test_negative_tie_and_no_float_loss) ... ok\ntest_order_line_limit_blocks_whole_order (test_p01_validation.P01ValidationTests.test_order_line_limit_blocks_whole_order) ... ok\ntest_output_cannot_overwrite_or_escape (test_p01_validation.P01ValidationTests.test_output_cannot_overwrite_or_escape) ... ok\ntest_output_symlink_is_blocked (test_p01_validation.P01ValidationTests.test_output_symlink_is_blocked) ... ok\ntest_scale_check_detects_missing_rows_and_changed_files (test_p01_validation.P01ValidationTests.test_scale_check_detects_missing_rows_and_changed_files) ... ok\ntest_static_amounts_and_rejection_targets (test_p01_validation.P01ValidationTests.test_static_amounts_and_rejection_targets) ... ok\ntest_timeout_records_failure_and_parent_cleans_only_gui_sandboxes (test_p01_validation.P01ValidationTests.test_timeout_records_failure_and_parent_cleans_only_gui_sandboxes) ... ok\ntest_bad_item_missing_fields_and_unknown_fields_reject_all_items (test_price_configuration.PriceConfigurationTests.test_bad_item_missing_fields_and_unknown_fields_reject_all_items) ... ok\ntest_byte_depth_number_and_item_capacity_are_checked_before_later_work (test_price_configuration.PriceConfigurationTests.test_byte_depth_number_and_item_capacity_are_checked_before_later_work) ... ok\ntest_current_units_alias_and_export_metadata_feed_the_shared_core (test_price_configuration.PriceConfigurationTests.test_current_units_alias_and_export_metadata_feed_the_shared_core) ... ok\ntest_financial_types_bounds_scale_and_unsafe_expressions_use_numeric_v1 (test_price_configuration.PriceConfigurationTests.test_financial_types_bounds_scale_and_unsafe_expressions_use_numeric_v1) ... ok\ntest_invalid_refresh_preserves_identical_valid_snapshot_and_raw_source (test_price_configuration.PriceConfigurationTests.test_invalid_refresh_preserves_identical_valid_snapshot_and_raw_source) ... ok\ntest_json_duplicate_keys_and_nonfinite_constants_are_never_silently_accepted (test_price_configuration.PriceConfigurationTests.test_json_duplicate_keys_and_nonfinite_constants_are_never_silently_accepted) ... ok\ntest_json_numbers_preserve_exact_original_tokens_and_no_float_roundtrip (test_price_configuration.PriceConfigurationTests.test_json_numbers_preserve_exact_original_tokens_and_no_float_roundtrip) ... ok\ntest_legacy_requires_explicit_single_policy_and_keeps_metadata (test_price_configuration.PriceConfigurationTests.test_legacy_requires_explicit_single_policy_and_keeps_metadata) ... ok\ntest_legacy_shape_and_malformed_current_items_never_fall_back (test_price_configuration.PriceConfigurationTests.test_legacy_shape_and_malformed_current_items_never_fall_back) ... ok\ntest_line_kind_is_fixed_in_serialization_and_independent_of_names (test_price_configuration.PriceConfigurationTests.test_line_kind_is_fixed_in_serialization_and_independent_of_names) ... ok\ntest_missing_or_blank_k_is_one_but_unused_blank_prices_block_whole_config (test_price_configuration.PriceConfigurationTests.test_missing_or_blank_k_is_one_but_unused_blank_prices_block_whole_config) ... ok\ntest_names_versions_and_directory_text_are_validated_without_path_io (test_price_configuration.PriceConfigurationTests.test_names_versions_and_directory_text_are_validated_without_path_io) ... ok\ntest_original_readers_reproduce_bad_boolean_or_item_shape_and_new_parser_rejects (test_price_configuration.PriceConfigurationTests.test_original_readers_reproduce_bad_boolean_or_item_shape_and_new_parser_rejects) ... ok\ntest_shared_discount_parser_and_json_errors_do_not_leak_input_excerpts (test_price_configuration.PriceConfigurationTests.test_shared_discount_parser_and_json_errors_do_not_leak_input_excerpts) ... ok\ntest_single_and_qty_only_are_strict_booleans (test_price_configuration.PriceConfigurationTests.test_single_and_qty_only_are_strict_booleans) ... ok\ntest_trimmed_duplicate_and_reserved_names_block_publication (test_price_configuration.PriceConfigurationTests.test_trimmed_duplicate_and_reserved_names_block_publication) ... ok\ntest_utf8_bom_chinese_crlf_and_bad_sources_have_explicit_results (test_price_configuration.PriceConfigurationTests.test_utf8_bom_chinese_crlf_and_bad_sources_have_explicit_results) ... ok\ntest_valid_refresh_replaces_all_prices_and_metadata_without_mutating_previous (test_price_configuration.PriceConfigurationTests.test_valid_refresh_replaces_all_prices_and_metadata_without_mutating_previous) ... ok\ntest_10000_lines_allowed_10001_and_empty_rejected (test_quote_core.QuoteCoreTests.test_10000_lines_allowed_10001_and_empty_rejected) ... ok\ntest_53_shared_golden_targets_and_money_identities (test_quote_core.QuoteCoreTests.test_53_shared_golden_targets_and_money_identities) ... ok\ntest_caller_decimal_precision_rounding_traps_do_not_change_results (test_quote_core.QuoteCoreTests.test_caller_decimal_precision_rounding_traps_do_not_change_results) ... ok\ntest_core_import_and_calculation_with_only_standard_library_no_repo_asset_reads (test_quote_core.QuoteCoreTests.test_core_import_and_calculation_with_only_standard_library_no_repo_asset_reads) ... ok\ntest_deterministic_corpus_against_independent_rational_oracle (test_quote_core.QuoteCoreTests.test_deterministic_corpus_against_independent_rational_oracle) ... ok\ntest_discount_capture_preserves_precision_and_does_not_read_disabled_fields (test_quote_core.QuoteCoreTests.test_discount_capture_preserves_precision_and_does_not_read_disabled_fields) ... ok\ntest_exact_context_handles_capacity_proof_and_rejects_excess_afterward (test_quote_core.QuoteCoreTests.test_exact_context_handles_capacity_proof_and_rejects_excess_afterward) ... ok\ntest_expression_division_remainder_units_and_precision_against_oracle (test_quote_core.QuoteCoreTests.test_expression_division_remainder_units_and_precision_against_oracle) ... ok\ntest_half_ties_are_exact_with_large_and_negative_amounts (test_quote_core.QuoteCoreTests.test_half_ties_are_exact_with_large_and_negative_amounts) ... ok\ntest_integer_cent_capacity_includes_profit_and_symmetric_negative_limit (test_quote_core.QuoteCoreTests.test_integer_cent_capacity_includes_profit_and_symmetric_negative_limit) ... ok\ntest_invalid_second_line_returns_no_partial_authoritative_amounts (test_quote_core.QuoteCoreTests.test_invalid_second_line_returns_no_partial_authoritative_amounts) ... ok\ntest_policy_matches_user_adopted_profile_and_hashes (test_quote_core.QuoteCoreTests.test_policy_matches_user_adopted_profile_and_hashes) ... ok\ntest_reject_nontext_bool_nonfinite_unsafe_or_unbounded_input (test_quote_core.QuoteCoreTests.test_reject_nontext_bool_nonfinite_unsafe_or_unbounded_input) ... ok\ntest_sequence_inputs_copied_and_invalid_mutable_values_rejected (test_quote_core.QuoteCoreTests.test_sequence_inputs_copied_and_invalid_mutable_values_rejected) ... ok\ntest_shared_price_getters_are_read_once_and_unused_fields_are_ignored (test_quote_core.QuoteCoreTests.test_shared_price_getters_are_read_once_and_unused_fields_are_ignored) ... ok\ntest_snapshots_are_detached_read_once_and_never_read_summary_widgets (test_quote_core.QuoteCoreTests.test_snapshots_are_detached_read_once_and_never_read_summary_widgets) ... ok\ntest_versions_and_unknown_product_are_explicit_errors (test_quote_core.QuoteCoreTests.test_versions_and_unknown_product_are_explicit_errors) ... ok\ntest_actual_baseline_partial_export_is_reproduced_then_new_gate_writes_zero (test_quote_session.QuoteSessionTests.test_actual_baseline_partial_export_is_reproduced_then_new_gate_writes_zero) ... ok\ntest_api_bad_types_are_atomic_and_output_kind_cannot_bypass_the_gate (test_quote_session.QuoteSessionTests.test_api_bad_types_are_atomic_and_output_kind_cannot_bypass_the_gate) ... ok\ntest_cached_decisions_do_not_authorize_later_dispatch_and_writer_errors_propagate (test_quote_session.QuoteSessionTests.test_cached_decisions_do_not_authorize_later_dispatch_and_writer_errors_propagate) ... ok\ntest_empty_and_uncalculated_drafts_never_invoke_any_writer (test_quote_session.QuoteSessionTests.test_empty_and_uncalculated_drafts_never_invoke_any_writer) ... ok\ntest_failed_configuration_refresh_retains_prices_but_never_authorizes_output (test_quote_session.QuoteSessionTests.test_failed_configuration_refresh_retains_prices_but_never_authorizes_output) ... ok\ntest_incomplete_or_wrong_version_worker_result_cannot_reach_a_writer (test_quote_session.QuoteSessionTests.test_incomplete_or_wrong_version_worker_result_cannot_reach_a_writer) ... ok\ntest_initial_unverified_missing_and_mismatched_versions_fail_closed (test_quote_session.QuoteSessionTests.test_initial_unverified_missing_and_mismatched_versions_fail_closed) ... ok\ntest_input_changes_and_change_back_require_new_calculation (test_quote_session.QuoteSessionTests.test_input_changes_and_change_back_require_new_calculation) ... ok\ntest_invalid_discount_discards_all_prior_lines_and_points_to_input_row (test_quote_session.QuoteSessionTests.test_invalid_discount_discards_all_prior_lines_and_points_to_input_row) ... ok\ntest_late_and_cross_draft_workers_cannot_replace_current_result_or_error (test_quote_session.QuoteSessionTests.test_late_and_cross_draft_workers_cannot_replace_current_result_or_error) ... ok\ntest_metadata_edits_and_capture_failure_invalidate_without_widget_reads (test_quote_session.QuoteSessionTests.test_metadata_edits_and_capture_failure_invalidate_without_widget_reads) ... ok\ntest_observed_version_changes_never_rebind_or_revive_an_old_result (test_quote_session.QuoteSessionTests.test_observed_version_changes_never_rebind_or_revive_an_old_result) ... ok\ntest_offline_unverified_and_bad_price_sources_block_cached_calculation (test_quote_session.QuoteSessionTests.test_offline_unverified_and_bad_price_sources_block_cached_calculation) ... ok\ntest_one_valid_one_invalid_has_no_authoritative_amounts_or_file_changes (test_quote_session.QuoteSessionTests.test_one_valid_one_invalid_has_no_authoritative_amounts_or_file_changes) ... ok\ntest_price_refresh_requires_current_recalculation_and_revision_confirmation (test_quote_session.QuoteSessionTests.test_price_refresh_requires_current_recalculation_and_revision_confirmation) ... ok\ntest_same_version_price_replacement_still_invalidates_and_needs_confirmation (test_quote_session.QuoteSessionTests.test_same_version_price_replacement_still_invalidates_and_needs_confirmation) ... ok\ntest_shared_53_golden_cases_flow_through_current_state_and_authoritative_export (test_quote_session.QuoteSessionTests.test_shared_53_golden_cases_flow_through_current_state_and_authoritative_export) ... ok\ntest_valid_outputs_share_frozen_integer_cent_result_and_text_identity (test_quote_session.QuoteSessionTests.test_valid_outputs_share_frozen_integer_cent_result_and_text_identity) ... ok\ntest_bad_directory_retains_snapshot_and_blocks_writes_and_list_fallback (test_shared_storage.SharedStorageTests.test_bad_directory_retains_snapshot_and_blocks_writes_and_list_fallback) ... ok\ntest_close_cancels_only_owned_delayed_callbacks_and_never_saves (test_shared_storage.SharedStorageTests.test_close_cancels_only_owned_delayed_callbacks_and_never_saves) ... ok\ntest_executed_callback_is_removed_and_background_errors_fail_report (test_shared_storage.SharedStorageTests.test_executed_callback_is_removed_and_background_errors_fail_report) ... ok\ntest_external_unc_and_share_root_are_explicit_portable_locations (test_shared_storage.SharedStorageTests.test_external_unc_and_share_root_are_explicit_portable_locations) ... ok\ntest_invalid_price_cannot_claim_a_successful_directory_save (test_shared_storage.SharedStorageTests.test_invalid_price_cannot_claim_a_successful_directory_save) ... ok\ntest_local_drive_cannot_be_published_outside_shared_root_or_used_on_sales (test_shared_storage.SharedStorageTests.test_local_drive_cannot_be_published_outside_shared_root_or_used_on_sales) ... ok\ntest_local_manager_and_unc_sales_resolve_same_published_relative_location (test_shared_storage.SharedStorageTests.test_local_manager_and_unc_sales_resolve_same_published_relative_location) ... ok\ntest_manager_saved_directories_survive_reload_and_unsaved_fields_cannot_redirect_output (test_shared_storage.SharedStorageTests.test_manager_saved_directories_survive_reload_and_unsaved_fields_cannot_redirect_output) ... ok\ntest_optional_screenshot_directory_is_whole_validated_for_both_schemas (test_shared_storage.SharedStorageTests.test_optional_screenshot_directory_is_whole_validated_for_both_schemas) ... ok\ntest_sales_cannot_save_select_or_apply_storage (test_shared_storage.SharedStorageTests.test_sales_cannot_save_select_or_apply_storage) ... ok\ntest_sales_export_is_found_and_read_by_manager_after_directory_change (test_shared_storage.SharedStorageTests.test_sales_export_is_found_and_read_by_manager_after_directory_change) ... ok\n\n----------------------------------------------------------------------\nRan 130 tests in 4.619s\n\nOK\n"
+  },
+  "code_sha256_LF": {
+    "quote_app/__init__.py": "33b32e668ffe3a5d0fd4c6d0f7aac49ee3583ad6a81ec54efcca98e28ceec3d8",
+    "quote_app/integration.py": "b02bc6c3df640aca20e8a2837eb15ee8434d91682f25d4fdb9d0c936693763bf",
+    "quote_app/projection.py": "02d4d57c2c9cb3b5491936774981db16d6496842421dcb5dea373675ecf1d124",
+    "quote_app/storage.py": "e101611051ac8cc854ba61cd1d72f75dc77bbcb5d782912261d8373ff12064d2",
+    "quote_core/__init__.py": "3f515c88484f84a4349a48f107e12d83db966ce55ed1efb729a38bcf88d52683",
+    "quote_core/calculation.py": "f9b0355a2d84005ea09a7c7038bbd61882f13656baf2796d4addd387d6eab6b6",
+    "quote_core/configuration.py": "d307eb507cd0f424516b681bc8bf2a56a71c93d6015779ee14a9e75b5f156ff7",
+    "quote_core/models.py": "d4339ceb5e017d5f38f6c4e6454a17e96ea4b846b95b0ee379ddd065764910a5",
+    "quote_core/numbers.py": "321c6448b2ebb603e5462ffcbb985465a29f69d0e9a8e03946fd1a436a7005e3",
+    "quote_core/session.py": "d48cc3abe46250a5e5e58cf62bd00deb3f9e2759b10ae6279550abeaadf5d02d",
+    "quote_core/snapshot.py": "e4e525917a3c1fe4dd21478942552b2fca595defad8ffbde4fa3d84223c3e8ba",
+    "tests/test_application_integration.py": "bf394699166612d3203665d43931e88fc9b6c110290045e449ebf0ac62a4cbe7",
+    "tests/test_baseline_check.py": "e0a78d17083297aa3b4e05586d52a05a5bf9b22aa6d568b175e9793f30fdb371",
+    "tests/test_collect_p01_samples.py": "3c3d989205c11236b80864e27e93e98a0895b0fc5befbb9b2293b577a49af005",
+    "tests/test_legacy_snapshot_adapter.py": "b4bc43468f302989af52e5a84c780b4af5b08bbb0e774f726ed4108e56eaeeb7",
+    "tests/test_p01_validation.py": "b05f3da6305e1ba9792a293cc4c712e6bdaf2fe2dce1857d90675f82ec751a07",
+    "tests/test_price_configuration.py": "27775cc5485a186a9f1572a13b94394674c1e3abdebc60152d895b9895aee2ec",
+    "tests/test_quote_core.py": "bcee732e00d41d276c2c927b8419f9dc09d4594e55e0468d14277b26a5569989",
+    "tests/test_quote_session.py": "7f9174edb22983079641527cf7c03d9c36e77e31061d99303f775bd4e4a100a6",
+    "tests/test_shared_storage.py": "11aa64d09107fdefbb1e059298b6ef7601c9eab0f3e1502636a59c093b4f8220",
+    "tools/p02_gui_check.py": "e2862e3c007b851d519a6beded8bdf4e51dffde1c30facb57f1b01de8e92ab2b",
+    "报价利润计算器_局域网子版本_JSON价格_截图按天订单命名_ICON版(1).py": "0407ecd90733d4a1466f69bef061847bb5902427eadd9eade70e04e73c6c99ed",
+    "报价利润计算器_局域网导出版_每日汇总版(1).py": "09144fbfa6d600846b85f82b3f663fe226647c72ce30fb5f93196b5a5e64c2f5"
+  },
+  "protected_existing_assets": [
+    {
+      "path": "docs/baseline/P01-01-environment.md",
+      "sha256": "a3377bb83f850052d4c6128c58c6a9925894824730e4a2afe8bf470988fc1605"
+    },
+    {
+      "path": "docs/baseline/P01-02-decisions.md",
+      "sha256": "aaa62bdd4f57533d4e87f04c08e9b1d89bab105a80c8b658a57a73678a59cf6a"
+    },
+    {
+      "path": "docs/baseline/P01-03-data-deployment.md",
+      "sha256": "f4b94cb112cd6f30dc24cda51d43bdff4597fcdebab2cab5b77e71214570968c"
+    },
+    {
+      "path": "docs/baseline/P01-03-directory-backup.md",
+      "sha256": "3dd03ac7fc7890f90b55fc0980a68861d42421aae72922df398f7ca450c3613f"
+    },
+    {
+      "path": "docs/baseline/P01-04-validation.md",
+      "sha256": "8a499c9f28dba470b324351b9f7df7025e31438de62403a16c6bca380a0daf5c"
+    },
+    {
+      "path": "docs/baseline/assistant-environment.json",
+      "sha256": "b7c09a70b8cb0b7157169e4363e2a0baa5677dfedf1ce106a42ef5645308183f"
+    },
+    {
+      "path": "docs/baseline/manifest.json",
+      "sha256": "dc5e88782760d7c05c455b61b0d3f5fa49a088fccf93a8ebeec5c1225866fdef"
+    },
+    {
+      "path": "docs/baseline/original/README.md",
+      "sha256": "54b39e7c6c4d4cf38904f72f1cf463409a3eda312d8e96272ee0f4755b2caa26"
+    },
+    {
+      "path": "docs/baseline/original/manager.py",
+      "sha256": "165e74cec1ccd728ef9fec93350ce9fa967946c16a7ccf5233f9acb1ec0fe52e"
+    },
+    {
+      "path": "docs/baseline/original/sales.py",
+      "sha256": "f8494a21af9122c6007bf1f7d3425c603070f3cef67cc0c7650653e8e3e3bb1c"
+    },
+    {
+      "path": "docs/baseline/p01-02-confirmation.json",
+      "sha256": "75d787a042f8b958091bb4c91676fe970ea8fb284c5ee9069cbc1aff91d5476a"
+    },
+    {
+      "path": "docs/baseline/p01-02-examples.json",
+      "sha256": "158e5382b5f40a511f0c9f6e764700f8ae07f28776a20e45e20ffd358c337d26"
+    },
+    {
+      "path": "docs/baseline/p01-03-deployment.json",
+      "sha256": "25a9783e83a01e5ede8eb9263426968c2ab673ae8b286f6709bc65a13a2a10e7"
+    },
+    {
+      "path": "docs/baseline/p01-03-ledger-evidence.json",
+      "sha256": "8d4fd7d6f1af735915fb2b5d5a6644671524ab505036ca4ba760adabab366c7f"
+    },
+    {
+      "path": "docs/baseline/p01-03-tool-checks.json",
+      "sha256": "96ed1073e0eaa28fd9e85c15198b82a8fa88461637c8b9800304753f6871e111"
+    },
+    {
+      "path": "docs/baseline/p01-03-user-evidence.json",
+      "sha256": "4c5b63dcf5bedd952b468aa13e1978d055a47cf45b4885891817859063a1f796"
+    },
+    {
+      "path": "docs/baseline/p01-04-checks.json",
+      "sha256": "a180f6390262977db1c707b7b2403518d3e0da2718093dac31edb859abd9a524"
+    },
+    {
+      "path": "docs/baseline/p01-04-golden.json",
+      "sha256": "dc7ee8ee1689aa4af2e35801eac8eeb90a6a321a05d70f8f921a28695a91eb64"
+    },
+    {
+      "path": "docs/baseline/p01-04-numeric-profile.json",
+      "sha256": "6774de633b3cf2e005b6c849b5a2acf52e6003068046a79763082eaa4497cc90"
+    },
+    {
+      "path": "docs/baseline/p01-04-windows-evidence.json",
+      "sha256": "756ffaf14927e133e564cec263fbeb48132e9c6d815e3f805f6ba68a8dd62029"
+    },
+    {
+      "path": "docs/baseline/p01-04-windows-format-evidence.json",
+      "sha256": "3162f130a73f5287722a611d260490092b7272bd32cc545c41cb58164c5f5cd5"
+    },
+    {
+      "path": "docs/baseline/p01-04-xml-compat-checks.json",
+      "sha256": "4fea830a9c90c99f4372f86f9730d78298b707a3f894b037583dd775497bc2f3"
+    },
+    {
+      "path": "docs/baseline/p01-acceptance.json",
+      "sha256": "2631c052643c3b8a9f316cc341c4dd922b8ae3219e4ee6a0405c449445149b10"
+    },
+    {
+      "path": "docs/baseline/p01_02_examples.py",
+      "sha256": "6bb5ee0e034a72d30ad2bb4a7e8d02688524651bea5f03d5a4ee688c228b1665"
+    },
+    {
+      "path": "docs/baseline/source-location.json",
+      "sha256": "6279b759ff1eb265ed4c8b92770ee86f9884565d9d4ea18576207e9e8d19e27c"
+    },
+    {
+      "path": "docs/baseline/windows-environment.json",
+      "sha256": "502c2c4dd24543743c1ce9bedcf4147670444ef2f3ce5816bf6d057c391c7726"
+    },
+    {
+      "path": "docs/verification/P02-01-acceptance.json",
+      "sha256": "3cdcc48658802376937b184dbb756b2aa618e7ce78349364f953bcb940cc7559"
+    },
+    {
+      "path": "docs/verification/P02-01-checks.json",
+      "sha256": "4b699ed78f36b58f1d15f54f3b9b3320e96fffda3286a27df9d42f81b47da9c6"
+    },
+    {
+      "path": "docs/verification/P02-01-windows-compatibility.json",
+      "sha256": "7d9b43a59531e9bdb41a300b6252541192f65f6badd172a22b63358ba2600a74"
+    },
+    {
+      "path": "docs/verification/P02-01-windows-evidence.json",
+      "sha256": "3ecc3bce37182090a6173603f0d0b82e3dae50f73725f3aad27866f2a9f28280"
+    },
+    {
+      "path": "docs/verification/P02-02-acceptance.json",
+      "sha256": "05e3f7fedc037d06b0600ff7b25d091c4a9518ec811097a2c3b50213cab906b8"
+    },
+    {
+      "path": "docs/verification/P02-02-checks.json",
+      "sha256": "8d8049314415c29e648e16f0a64184df4a97f042675927ce6cc7c62b78f26d15"
+    },
+    {
+      "path": "docs/verification/P02-02-windows-evidence.json",
+      "sha256": "f0ed46138b801569d2de68e28813239f026d7616c5a8ddbe5af8878f100b685b"
+    },
+    {
+      "path": "docs/verification/P02-03-acceptance.json",
+      "sha256": "cdd10dbf48482000d56003ceb7025241183fb0b226fc43a7f05bfc26e891c655"
+    },
+    {
+      "path": "docs/verification/P02-03-checks.json",
+      "sha256": "f6053740b6f8a221d8e9756bcd83a4e470b211e5e3360792b7b9e47f3928f6bf"
+    },
+    {
+      "path": "docs/verification/P02-03-windows-evidence.json",
+      "sha256": "20f9c3d341334429f7f29560926df3950b7200a4628c1b80eb3786e564903b07"
+    },
+    {
+      "path": "docs/verification/P02-04-checks.json",
+      "sha256": "e790781404f2e771019ad7a60a8923b927e238866f1fe3507f9080a97b895787"
+    },
+    {
+      "path": "quote_core/__init__.py",
+      "sha256": "3f515c88484f84a4349a48f107e12d83db966ce55ed1efb729a38bcf88d52683"
+    },
+    {
+      "path": "quote_core/calculation.py",
+      "sha256": "f9b0355a2d84005ea09a7c7038bbd61882f13656baf2796d4addd387d6eab6b6"
+    },
+    {
+      "path": "quote_core/models.py",
+      "sha256": "d4339ceb5e017d5f38f6c4e6454a17e96ea4b846b95b0ee379ddd065764910a5"
+    },
+    {
+      "path": "quote_core/numbers.py",
+      "sha256": "321c6448b2ebb603e5462ffcbb985465a29f69d0e9a8e03946fd1a436a7005e3"
+    },
+    {
+      "path": "quote_core/session.py",
+      "sha256": "d48cc3abe46250a5e5e58cf62bd00deb3f9e2759b10ae6279550abeaadf5d02d"
+    },
+    {
+      "path": "quote_core/snapshot.py",
+      "sha256": "e4e525917a3c1fe4dd21478942552b2fca595defad8ffbde4fa3d84223c3e8ba"
+    }
+  ],
+  "checks": [
+    "母版保存两目录，显式重载后保持；未保存输入不可重定向writer",
+    "销售不能选择/应用/保存目录；共享配置改变后自动采用，两端实际临时Excel互读及摘要12/4/8",
+    "本机E下目录发布相对路径后在子版UNC配置根解析；外部UNC允许，本机盘符/越根相对路径拒绝；不访问网络",
+    "screenshot_dir当前/旧schema整份严格验证，坏目录保留旧对象并禁止输出/固定路径fallback",
+    "真实Tcl取消本窗口延迟刷新/截图而保留其他任务；bgerror注入使报告failed",
+    "原23项状态/格式/黄金/归档回归保持通过；原规则、历史证据与不可变源码逐字节不变"
+  ],
+  "Windows_follow_up": {
+    "automated": "py -3 tools/p02_gui_check.py --gui-smoke --output reports/p02-04-windows-smoke-02.json",
+    "manual": "py -3 tools/p02_gui_check.py --launch pair --output reports/p02-04-pair-manual.json",
+    "required": "manager/sales/pair passed and callback_errors empty; manual button/readonly inheritance/export-reader/real screenshot/close observations"
+  },
+  "acceptance": "pending Windows shared GUI regression and user acceptance; P02 stays now; P03+ not started",
+  "production_paths_accessed": false
+}

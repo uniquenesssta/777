@@ -10,7 +10,7 @@ import json
 import os
 from pathlib import Path
 import time
-from tkinter import messagebox, ttk
+from tkinter import TclError, filedialog, messagebox, ttk
 
 from quote_core import (
     Amounts, DraftDetails, Issue, OutputBlocked, QuoteSession,
@@ -20,6 +20,7 @@ from quote_core.configuration import CONFIG_BYTE_LIMIT
 from quote_core.numbers import exact_context, settle
 
 from .projection import append_quote, legacy_record
+from .storage import publish_directory, resolve_directory
 
 
 FIELD_NAMES = {"q": "数量", "h": "高度", "w": "宽度", "sale": "销售单价",
@@ -32,6 +33,7 @@ REASONS = {
     "PRICES_UNAVAILABLE": "价格文件暂不可用，当前金额只供草稿预览。",
     "PRICE_SOURCE_UNVERIFIED": "当前使用未保存的价格，保存有效配置后刷新。",
     "PRICE_CONFIG_INVALID": "价格配置校验失败，当前金额只供草稿预览。",
+    "DIRECTORY_CONFIG_INVALID": "共享目录无效，请在母版重新保存；本机盘符不能直接发给子版。",
     "PRODUCT_NOT_FOUND": "项目已不存在，请删除或重新选择。",
     "LINE_CAPACITY": "请添加项目；订单最多支持10000行。",
     "DISCOUNT_ZERO_SUBTOTAL": "折扣前小计为零，请确认折扣行位置。",
@@ -69,6 +71,67 @@ class QuoteApplicationMixin:
         self.price_changes = ()
         self._loading_prices = False
         self._config_load_problem = None
+        self._storage_version = None
+        self._after_jobs = set()
+        self.screenshot_dir_var = self._new_text_var(self.image_dir)
+        self.config_source_var = self._new_text_var(self._price_path())
+        self.storage_status_var = self._new_text_var("目录尚未从共享配置确认。")
+
+    def schedule_quote_callback(self, callback, *, delay=None):
+        def run():
+            self._after_jobs.discard(job)
+            callback()
+        job = self.root.after_idle(run) if delay is None else self.root.after(delay, run)
+        self._after_jobs.add(job)
+        return job
+
+    def install_storage_controls(self, parent):
+        box = ttk.LabelFrame(parent, text="母版共享目录设置" if self.quote_role == "manager" else "继承母版目录（只读）", padding=8)
+        box.pack(fill="x", pady=(0, 8))
+        self.storage_entries = {}
+        for index, (label, var) in enumerate((("共享配置", self.config_source_var),
+                ("Excel目录", self.export_dir_var), ("截图目录", self.screenshot_dir_var))):
+            ttk.Label(box, text=label + "：").grid(row=index, column=0, sticky="w")
+            editable = self.quote_role == "manager" and index > 0
+            entry = ttk.Entry(box, textvariable=var, state="normal" if editable else "readonly")
+            entry.grid(row=index, column=1, sticky="ew", padx=6, pady=2)
+            self.storage_entries[label] = entry
+            if editable:
+                ttk.Button(box, text="选择文件夹", command=lambda v=var: self.choose_storage_dir(v)).grid(row=index, column=2)
+        box.columnconfigure(1, weight=1)
+        ttk.Label(box, textvariable=self.storage_status_var, wraplength=900).grid(row=3, column=0, columnspan=3, sticky="w")
+        if self.quote_role == "manager":
+            ttk.Button(box, text="保存共享目录", command=self.apply_export_dir).grid(row=4, column=1, sticky="w", pady=4)
+        else:
+            ttk.Button(box, text="刷新母版配置", command=self.reload_price_settings_from_json).grid(row=4, column=1, sticky="w", pady=4)
+
+    def choose_storage_dir(self, var):
+        if self.quote_role != "manager":
+            return False
+        path = filedialog.askdirectory(parent=self.root, initialdir=var.get())
+        if path:
+            var.set(path)
+        return bool(path)
+
+    def choose_export_dir(self):
+        return self.choose_storage_dir(self.export_dir_var)
+
+    def apply_export_dir(self):
+        if self.quote_role != "manager" or not self.save_settings():
+            return False
+        try:
+            self.refresh_excel_files()
+        except OSError as exc:
+            self.set_feedback(f"目录配置已保存，但读取失败：{exc}", is_error=True)
+            return False
+        self.set_feedback("共享目录已保存；子版刷新列表或输出时自动继承，不能自行修改。")
+        return True
+
+    def reset_export_dir_to_local(self):
+        if self.quote_role != "manager":
+            return False
+        self.export_dir_var.set(resolve_directory(None, self._price_path(), "利润表"))
+        return self.apply_export_dir()
 
     def install_quote_controls(self):
         for var in (self.user_name, self.order_no, self.wechat_no):
@@ -151,10 +214,32 @@ class QuoteApplicationMixin:
             legacy_single_names={i["name"] for i in self.default_items if i.get("single") is True})
         if candidate.status != "ok":
             return None, "invalid", candidate.issues
+        try:
+            self._candidate_directories(candidate.config)
+        except ValueError as exc:
+            self.storage_status_var.set(str(exc))
+            return None, "invalid", (Issue("VALIDATION", "DIRECTORY_CONFIG_INVALID", "price_source"),)
         return candidate.config, "current", ()
+
+    def _candidate_directories(self, candidate):
+        return (resolve_directory(candidate.export_dir, self._price_path(), "利润表", sales=self.quote_role == "sales"),
+                resolve_directory(candidate.screenshot_dir, self._price_path(), "截图", sales=self.quote_role == "sales"))
 
     def _observe_price_file(self):
         candidate, status, issues = self._read_price_candidate()
+        if candidate and self._storage_version != candidate.prices.price_version_id:
+            self.report_dir, self.image_dir = self._candidate_directories(candidate)
+            self.export_dir_var.set(self.report_dir)
+            self.screenshot_dir_var.set(self.image_dir)
+            self._storage_version = candidate.prices.price_version_id
+            self.current_excel_path = None
+            self.storage_status_var.set("目录来自上述共享配置；母版保存后子版自动继承。")
+        if candidate:
+            self.storage_status_var.set("启动、刷新列表和输出前自动同步母版目录；子版只读。")
+        elif status == "unavailable":
+            self.storage_status_var.set("共享配置不可用；保留上次目录显示，禁止正式输出。")
+        elif not any(i.reason == "DIRECTORY_CONFIG_INVALID" for i in issues):
+            self.storage_status_var.set("共享配置校验失败；保留上次目录显示，禁止正式输出。")
         latest = candidate.prices.price_version_id if candidate else None
         self.quote_session.observe_price_source(status, latest_price_version_id=latest)
         self._config_load_problem = issues
@@ -232,8 +317,14 @@ class QuoteApplicationMixin:
         if self.quote_role == "sales":
             return False
         config, issues = self.get_settings_snapshot()
+        try:
+            export_dir = publish_directory(self.export_dir_var.get(), self._price_path(), "利润表")
+            screenshot_dir = publish_directory(self.screenshot_dir_var.get(), self._price_path(), "截图")
+        except ValueError as exc:
+            self.set_feedback(f"目录未保存：{exc}", is_error=True)
+            return False
         source = json.dumps({"items": [{"name": name, **item} for name, item in config.items()],
-            "export_dir": self.normalize_path_text(self.export_dir_var.get())}, ensure_ascii=False, indent=4).encode("utf-8")
+            "export_dir": export_dir, "screenshot_dir": screenshot_dir}, ensure_ascii=False, indent=4).encode("utf-8")
         candidate = parse_price_config(source, price_version_id=price_version(source))
         if issues or candidate.status != "ok":
             self.quote_session.observe_price_source("invalid")
@@ -256,7 +347,23 @@ class QuoteApplicationMixin:
 
     def on_close(self):
         # Saving prices is explicit; closing must not overwrite damaged configs.
+        for job in tuple(self._after_jobs):
+            try:
+                self.root.after_cancel(job)
+            except TclError:
+                pass
+        self._after_jobs.clear()
         self.root.destroy()
+
+    def get_report_excel_paths(self):
+        # Reading the list observes the shared directory without rebinding prices.
+        if self._observe_price_file() is None:
+            self.set_feedback("无法确认共享目录，请修复母版配置后刷新。", is_error=True)
+            return []
+        self.ensure_directories()
+        paths = [os.path.join(self.report_dir, name) for name in os.listdir(self.report_dir)
+                 if not name.startswith("~$") and name.lower().endswith(".xlsx")]
+        return sorted(paths, key=os.path.getmtime, reverse=True)
 
     def validate_discount_key(self, proposed):
         # Permit editing; numeric-v1 validates the full original text at calculate.
@@ -395,10 +502,6 @@ class QuoteApplicationMixin:
 
     def _write_quote_excel(self, payload):
         # No dialog/event-loop yield/widget finance or identity reads in writer.
-        if self.quote_role == "manager":
-            self.report_dir = self.normalize_path_text(self.export_dir_var.get())
-        else:
-            self.report_dir = self.get_default_report_dir()
         self.ensure_directories()
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
         path, wb, ws = self.open_daily_workbook_for_append(timestamp)
@@ -493,7 +596,7 @@ class QuoteApplicationMixin:
         # Capture follows idle drawing, then rechecks the gate at callback time.
         # update()/update_idletasks() inside the writer would allow stale reentry.
         self.notebook.select(self.calc_page)
-        self.root.after_idle(self._capture_current_quote)
+        self.schedule_quote_callback(self._capture_current_quote)
 
     def _capture_current_quote(self):
         try:

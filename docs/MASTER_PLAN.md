@@ -20,7 +20,7 @@ P01任务书已归档old；P02-01已实施，P02唯一任务书已移入now，�
 | 阶段 | 任务书 | 前置 | 建议分支 | 状态 / 核心退出门槛 |
 | --- | --- | --- | --- | --- |
 | P01 | [基线与规则确认](old/P01-baseline.md) | 本轮审计交付 | stage/p01-baseline | 已验收归档；[确认记录](baseline/p01-acceptance.json)，business-v1/numeric-v1/performance-v1已确认，53/53黄金、18/18格式及全部规模结构检查通过 |
-| P02 | [计算正确性与公共核心](now/P02-calculation.md) | P01已验收 | stage/p02-calculation | 01/02/03已验收；04已实现、辅助119项及两端53例通过，待Windows交互/用户验收 |
+| P02 | [计算正确性与公共核心](now/P02-calculation.md) | P01已验收 | stage/p02-calculation | 01/02/03已验收；04原Windows117通过/2跳过，人工目录问题已修复、辅助130项通过，待共享窗口复查/用户验收 |
 | P03 | [文件数据安全与兼容](new/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 待启动；冲突不覆盖、未知格式不破坏、幂等恢复成立 |
 | P04 | [后台任务与性能](new/P04-performance.md) | P03已验收 | stage/p04-performance | 待启动；消除重复全量读取、UI响应、完整分页实测 |
 | P05 | [结构化存储与局域网服务](new/P05-data-service.md) | P04已验收 | stage/p05-data-service | 待启动；事务/鉴权/导入核对及恢复演练通过 |

@@ -20,3 +20,5 @@ P02-03已实现[草稿revision与输出门槛契约](../MIGRATION_CONTRACT.md#10
 退出门槛：所有跨语言差异已解释且符合确认规则，事务/权限/格式适配验证通过，未确认crate能力不作承诺。Rust并非必然减少SMB时间或安装包体积，按测量决定后续优化。源码、schema和协议变更记录清楚，进入P07还需对应授权。
 
 P02-04补充输入资产：[窗口适配契约第11节](../MIGRATION_CONTRACT.md#11-p02-04已实现的窗口与输出适配)与[04辅助证据](../verification/P02-04-checks.json)。Rust复用业务核心/配置/状态样本，不迁移Tktrace实现；兼容新导出两位金额文本及扩展行类型normal/discount/order_total，无标签旧文件仍按P03的歧义政策处理。当前04尚待Windows/用户验收，本段不授权启动P06。
+
+04新增兼容目录字段screenshot_dir和相对共享配置根路径发布/解析，Rust配置样本须与Python共用语义；继承/不可修改属于应用角色投影，不能代替服务ACL。见[最新目录契约](../MIGRATION_CONTRACT.md#p02-04目录继承与关闭修复)；04 Windows复查待完成，未启动P06。

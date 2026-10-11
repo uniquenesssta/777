@@ -132,7 +132,7 @@ class PriceCalculator(QuoteApplicationMixin):
         self.default_report_dir = DEFAULT_REPORT_DIR
         self.report_dir = self.default_report_dir
         self.image_dir = DEFAULT_SCREENSHOT_DIR
-        self.ensure_directories()
+        # Storage is resolved from the shared config before any directory I/O.
 
         self.default_items = [
             {"name": "背景板", "sale": "11.5", "cost": "5.0", "k": "1.0", "single": False},
@@ -302,6 +302,8 @@ class PriceCalculator(QuoteApplicationMixin):
         ttk.Button(buttons, text="查看输入反馈", command=self.go_to_feedback_page).pack(side=tk.LEFT, padx=6)
         ttk.Button(buttons, text="清空所有行", command=self.reset).pack(side=tk.LEFT, padx=6)
         ttk.Button(buttons, text="保存计算截图", command=self.save_screenshot).pack(side=tk.LEFT, padx=6)
+        self.calc_export_button = ttk.Button(buttons, text="导出 Excel", command=self.export_to_excel)
+        self.calc_export_button.pack(side=tk.LEFT, padx=6)
 
         ttk.Label(bottom, textvariable=self.total_val, style="Total.TLabel", foreground="#2c3e50").pack(side=tk.RIGHT)
 
@@ -803,19 +805,7 @@ class PriceCalculator(QuoteApplicationMixin):
         ttk.Button(list_top, text="选择 Excel 查看", command=self.browse_excel_file).pack(side=tk.RIGHT, padx=(6, 0))
         ttk.Button(list_top, text="统算全部 Excel", command=self.aggregate_all_excels, style="Accent.TButton").pack(side=tk.RIGHT, padx=(6, 0))
 
-        export_path_box = ttk.LabelFrame(self.excel_list_frame, text="Excel 导出位置（可填局域网共享路径）", padding=8, style="Section.TLabelframe")
-        export_path_box.pack(fill=tk.X, pady=(0, 10))
-        ttk.Label(export_path_box, text="导出目录：").pack(side=tk.LEFT)
-        ttk.Entry(export_path_box, textvariable=self.export_dir_var).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(4, 8))
-        ttk.Button(export_path_box, text="选择文件夹", command=self.choose_export_dir).pack(side=tk.LEFT, padx=(0, 6))
-        ttk.Button(export_path_box, text="应用导出位置", command=self.apply_export_dir, style="Accent.TButton").pack(side=tk.LEFT, padx=(0, 6))
-        ttk.Button(export_path_box, text="恢复本地", command=self.reset_export_dir_to_local).pack(side=tk.LEFT)
-        ttk.Label(
-            export_path_box,
-            text=r"示例：\\192.168.1.10\共享文件夹\利润表，或 Z:\利润表。电脑需提前有访问权限。",
-            foreground="#7f8c8d",
-            wraplength=520,
-        ).pack(side=tk.LEFT, padx=(12, 0))
+        self.install_storage_controls(self.excel_list_frame)
 
         stat_frame = ttk.LabelFrame(self.excel_list_frame, text="全部 Excel 利润统算", padding=10, style="Section.TLabelframe")
         stat_frame.pack(fill=tk.X, pady=(0, 10))
@@ -907,44 +897,10 @@ class PriceCalculator(QuoteApplicationMixin):
         ttk.Button(remark_box, text="保存备注", command=self.save_current_excel_remark).pack(side=tk.RIGHT, padx=(8, 0))
 
         self.show_excel_list()
-        self.root.after(300, self.refresh_excel_files)
+        self.schedule_quote_callback(self.refresh_excel_files, delay=300)
 
-    def choose_export_dir(self):
-        initial_dir = self.normalize_path_text(self.export_dir_var.get() or self.report_dir)
-        if not os.path.isdir(initial_dir):
-            initial_dir = os.getcwd()
-        path = filedialog.askdirectory(title="选择 Excel 导出目录", initialdir=initial_dir)
-        if path:
-            self.export_dir_var.set(path)
-            self.apply_export_dir()
 
-    def apply_export_dir(self):
-        new_dir = self.normalize_path_text(self.export_dir_var.get())
-        try:
-            os.makedirs(new_dir, exist_ok=True)
-            test_file = os.path.join(new_dir, ".write_test.tmp")
-            with open(test_file, "w", encoding="utf-8") as f:
-                f.write("ok")
-            os.remove(test_file)
-        except Exception as exc:
-            messagebox.showerror(
-                "导出位置不可用",
-                f"无法使用这个导出目录：\n{new_dir}\n\n原因：{exc}\n\n请确认局域网共享已打开、账号有写入权限，或先在系统里映射为盘符。",
-            )
-            return False
 
-        self.report_dir = new_dir
-        self.export_dir_var.set(new_dir)
-        self.save_settings()
-        self.refresh_excel_files()
-        self.aggregate_all_excels(silent=True)
-        self.set_feedback(f"Excel 导出位置已切换为：{new_dir}", is_error=False)
-        messagebox.showinfo("导出位置已应用", f"之后导出的 Excel 会保存到：\n{new_dir}")
-        return True
-
-    def reset_export_dir_to_local(self):
-        self.export_dir_var.set(self.default_report_dir)
-        self.apply_export_dir()
 
     def show_excel_list(self):
         self.excel_detail_frame.pack_forget()
@@ -955,16 +911,6 @@ class PriceCalculator(QuoteApplicationMixin):
         self.excel_list_frame.pack_forget()
         self.excel_detail_frame.pack(fill=tk.BOTH, expand=True)
 
-    def get_report_excel_paths(self):
-        self.ensure_directories()
-        paths = []
-        for name in os.listdir(self.report_dir):
-            if name.startswith("~$"):
-                continue
-            if name.lower().endswith(".xlsx"):
-                paths.append(os.path.join(self.report_dir, name))
-        paths.sort(key=lambda p: os.path.getmtime(p), reverse=True)
-        return paths
 
     def _to_float(self, value, default=0.0):
         try:
@@ -989,8 +935,10 @@ class PriceCalculator(QuoteApplicationMixin):
                 wb.close()
                 return result
             ws = wb["利润明细"]
-            # 优先读取导出时的汇总行：A4:H4
-            for row in ws.iter_rows(min_row=1, max_row=min(ws.max_row, 12), values_only=True):
+            # 摘要在表头之前，不能让表头“总成本”覆盖已读成本。
+            header_row, _headers = self.find_excel_table_header(ws)
+            summary_end = header_row - 1 if header_row else min(ws.max_row, 5)
+            for row in ws.iter_rows(min_row=1, max_row=max(1, summary_end), values_only=True):
                 values = list(row)
                 for idx, value in enumerate(values):
                     if value == "总收入" and idx + 1 < len(values):
