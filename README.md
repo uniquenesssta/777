@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于 `plans`；当前执行分支为 `stage/p02-calculation`，创建于P01验收提交 `7099303`。**P01已验收归档，business-v1/numeric-v1/performance-v1已确认；P02-01纯Decimal领域核心与输入/价格快照已实现，53例黄金及辅助60项回归通过；本机回传切分支失败，测试编码已修，待正确分支复查。两版窗口接入留P02-04，原业务脚本保持基线；P02-02至04和后续阶段未启动。**
+规划位于 `plans`；当前执行分支为 `stage/p02-calculation`，创建于P01验收提交 `7099303`。**P01已验收归档，business-v1/numeric-v1/performance-v1已确认；P02-01纯Decimal领域核心与输入/价格快照已实现，53例黄金及辅助60项回归通过；Windows本机60项检查完成（58通过、2项既有权限检查跳过），新增18项全过，P02-01具备收尾条件。两版窗口接入留P02-04，原业务脚本保持基线；P02-02至04和后续阶段未启动。**
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -18,6 +18,8 @@
 ## Change Log
 
 ### 2026-10-11
+
+- P02-01 Windows核心复查通过：已切到stage/p02-calculation@2d8006e，60项清单与仓库一致，2.052秒，OK (skipped=2)，58通过、无失败/错误，P02新增18项全过；53例黄金通过，前次六处GBK错误对应检查均通过。两项既有symlink权限跳过原样登记，未冒充Windows链接保护通过；见[本机通过证据](docs/verification/P02-01-windows-evidence.json)。P02-01具备收尾条件、无需补跑；原业务代码及历史报告不改，P02整阶段留now，02至04未启动。
 
 - P02-01本机复查修正：回传切分支失败、仅运行原42项且6处UTF-8/GBK读取错误、2项symlink权限跳过；不登记为P02通过。采集测试显式UTF-8并加入GBK默认编码替身，修前复现同名六错误，修后辅助60项通过。已复现单分支跟踪缺少P02引用，更新补充跟踪与失败停止命令；见[本机原始回传与兼容检查](docs/verification/P02-01-windows-compatibility.json)。本机P02检查待复查，P01验收及领域核心/原脚本不变，未启动下一项。
 
