@@ -1,0 +1,47 @@
+{
+  "phase": "P02",
+  "status": "accepted_and_archived",
+  "accepted_at": "2026-10-11T20:47:06+08:00",
+  "implementation_commit": "1f07f6ba8797e8ff4808d557aa7501af298b6cea",
+  "phase_branch": "stage/p02-calculation",
+  "task_book": "docs/old/P02-calculation.md",
+  "tasks": [
+    {
+      "id": "P02-01",
+      "acceptance": "docs/verification/P02-01-acceptance.json"
+    },
+    {
+      "id": "P02-02",
+      "acceptance": "docs/verification/P02-02-acceptance.json"
+    },
+    {
+      "id": "P02-03",
+      "acceptance": "docs/verification/P02-03-acceptance.json"
+    },
+    {
+      "id": "P02-04",
+      "acceptance": "docs/verification/P02-04-acceptance.json"
+    }
+  ],
+  "exit_scope": [
+    "A04整单正确/陈旧输出门槛接回两端",
+    "A06整数分权威结果、HALF_UP、两端53例一致",
+    "A07数值容量及bool/非有限值拒绝",
+    "A18整份价格schema校验和坏配置保留",
+    "A08价格观察/快照/显式更新确认、关闭不覆盖坏配置；文件锁/备份仍留P03",
+    "A21公共业务核心与角色适配；存储/框架后续任务继续",
+    "A23新记录显式行类型及精确日汇总；历史歧义/旧编辑仍留P03"
+  ],
+  "evidence": [
+    "docs/verification/P02-04-directory-checks.json",
+    "docs/verification/P02-04-windows-evidence.json",
+    "docs/verification/P02-04-acceptance.json"
+  ],
+  "boundaries": [
+    "最新Windows通过来自用户明确确认，无新附件，不编造具体运行次数/耗时/截图证据",
+    "两项原symlink权限跳过保留，未宣称Windows junction保护已验收",
+    "归档只覆盖P02计算与窗口范围，真实共享并发/原子保存/权限/完整格式/生产上线仍留后续"
+  ],
+  "next_task": "P03-01",
+  "historical_assets_unchanged": true
+}

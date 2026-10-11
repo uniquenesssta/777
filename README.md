@@ -2,13 +2,13 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于 `plans`；当前执行分支为 `stage/p02-calculation`，创建于P01验收提交 `7099303`。**P01已验收归档；P02-01/02/03已验收收尾；P02-04原Windows单元117通过/2项既有跳过，人工发现导出与目录问题，本次已修复、辅助130项通过，待Windows共享窗口复查和用户验收。唯一分支stage/p02-calculation；P02继续留now，P03至P08未启动。**
+规划位于 `plans`；当前执行分支为 `stage/p02-calculation`，创建于P01验收提交 `7099303`。**P01、P02均已验收归档。P02-04修复已获用户明确通过确认，阶段实现1f07f6b、辅助130项通过；下一项按任务书为P03-01，P03待建立阶段分支，P04至P08未启动。**
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
 - [P01-03只读样本采集与部署登记](docs/baseline/P01-03-data-deployment.md)
 - [P01-04黄金样本、技术参数与Windows验收](docs/baseline/P01-04-validation.md)
-- [P02计算核心与当前任务书](docs/now/P02-calculation.md)
+- [P02计算核心与归档任务书](docs/old/P02-calculation.md)
 - [文档与计划入口](docs/README.md)
 - [优化及迁移主任务书](docs/MASTER_PLAN.md)
 - [两份 Python 代码重新审计报告](docs/audit/python-audit.md)
@@ -17,9 +17,11 @@
 
 ## Change Log
 
-- P02-04复查修复：登记[原Windows回传及人工问题](docs/verification/P02-04-windows-evidence.json)，原119项117通过/2项既有跳过，控制台有JSON未捕获的关闭后Tcl回调错误。补母版计算页Excel按钮、接通共享Excel/截图目录的保存与加载，子版目录显示只读、启动/刷新/输出自动继承；共享配置下位置发布为相对路径，避免把母版E盘当子版本机E盘。修复摘要成本被表头覆盖、取消关闭后任务并捕获bgerror，增加母子共用临时目录联测。新增11项、完整130项辅助通过，见[修复证据](docs/verification/P02-04-directory-checks.json)。[新Windows入口](docs/now/P02-calculation.md#p02-04-windows隔离验收入口)待复查，P02仍留now，未启动P03。
+- 用户明确确认本轮通过并收尾04；登记[04验收](docs/verification/P02-04-acceptance.json)及[P02阶段验收](docs/verification/P02-acceptance.json)，P02四项全部验收，任务书now→old。最新Windows结论来自用户确认，无新附件，不编造逐项运行数据；原Windows问题/辅助130项证据保留。“05”在P02任务目录中不存在，已告知按下一项P03-01接续，P05不跳过P03/P04前置。
 
-- P02-04：两版原入口接回quote_core/QuoteSession，共用[窗口适配](quote_app/integration.py)，删除重复浮点计算/解析/默认价fallback；Tk输入与增删立即失效，价格变化显式差异/重算/确认，Excel与截图共用当前门槛，关闭不自动改写价格。新增23项与完整119项辅助检查通过，两端53例一致；Excel取冻结整数分/身份，金融单元格精确文本，新增行类型扩展避免商品名被当汇总。原始源码按原manifest归档，P01诊断继续复现原行为，历史报告不改。见[04证据](docs/verification/P02-04-checks.json)和[Windows检查入口](docs/now/P02-calculation.md#p02-04-windows隔离验收入口)。04待Windows/用户验收，P02留now，P03未启动。
+- P02-04复查修复：登记[原Windows回传及人工问题](docs/verification/P02-04-windows-evidence.json)，原119项117通过/2项既有跳过，控制台有JSON未捕获的关闭后Tcl回调错误。补母版计算页Excel按钮、接通共享Excel/截图目录的保存与加载，子版目录显示只读、启动/刷新/输出自动继承；共享配置下位置发布为相对路径，避免把母版E盘当子版本机E盘。修复摘要成本被表头覆盖、取消关闭后任务并捕获bgerror，增加母子共用临时目录联测。新增11项、完整130项辅助通过，见[修复证据](docs/verification/P02-04-directory-checks.json)。[新Windows入口](docs/old/P02-calculation.md#p02-04-windows隔离验收入口)待复查，P02仍留now，未启动P03。
+
+- P02-04：两版原入口接回quote_core/QuoteSession，共用[窗口适配](quote_app/integration.py)，删除重复浮点计算/解析/默认价fallback；Tk输入与增删立即失效，价格变化显式差异/重算/确认，Excel与截图共用当前门槛，关闭不自动改写价格。新增23项与完整119项辅助检查通过，两端53例一致；Excel取冻结整数分/身份，金融单元格精确文本，新增行类型扩展避免商品名被当汇总。原始源码按原manifest归档，P01诊断继续复现原行为，历史报告不改。见[04证据](docs/verification/P02-04-checks.json)和[Windows检查入口](docs/old/P02-calculation.md#p02-04-windows隔离验收入口)。04待Windows/用户验收，P02留now，P03未启动。
 
 - 用户“如果没问题收尾03开始04”：核对[Windows日志](docs/verification/P02-03-windows-evidence.json)匹配2248774及96项清单，94通过/2项既有权限跳过、新增18项全过，登记[03验收](docs/verification/P02-03-acceptance.json)。同一stage/p02-calculation启动04窗口接入，P02继续留now。
 

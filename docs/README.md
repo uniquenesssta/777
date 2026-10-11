@@ -7,10 +7,10 @@
 | 项目 | 状态 |
 | --- | --- |
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
-| 本轮授权 | P02-03已验收，用户“如果没问题收尾03开始04”授权P02-04；既有推送授权有效，P02-04执行中；后续未启动 |
-| 文档工作 | [P02当前任务书](now/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P02-01/02/03已验收；04入口及人工问题已修复，辅助130项通过；待Windows共享窗口复查/用户验收 |
-| 下一项 | P02-04共享目录Windows复查及用户验收；无需重跑P01历史GUI/诊断；P03未启动 |
+| 本轮授权 | 用户确认04通过并要求接续；既有推送授权有效，P02归档，下一项按任务书为P03-01 |
+| 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
+| 当前开发阶段 / Atomic Task | P02四项全部验收归档[old/P02](old/P02-calculation.md)，[阶段确认](verification/P02-acceptance.json)登记用户Windows复查通过；金额规则与历史证据保持。下一项按主任务书为P03-01，当前准备建立阶段分支，P04至P08未启动。
+| 下一项 | 建立P03唯一阶段分支并开始P03-01；无需重跑P02已通过检查 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
@@ -41,3 +41,5 @@
 项目采用 [通用规则入口 AGENTS.md](https://github.com/uniquenesssta/skil/blob/main/0.0.1/AGENTS.md)，并配套 [ALL_AI_CODE.md](https://github.com/uniquenesssta/skil/blob/main/0.0.1/ALL_AI_CODE.md)、[AI_PROJECT_RULES.md](https://github.com/uniquenesssta/skil/blob/main/0.0.1/AI_PROJECT_RULES.md)。本次读取的规则仓库提交为 `c0a57ae1b391ba48bc0b20ae9f9c71eb0926ec40`。项目专属要求与当前用户授权同时适用，不在此复制一套分叉规则。
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
+
+当前结论（2026-10-11 20:47）：用户明确确认04通过，P02全部验收归档[old/P02](old/P02-calculation.md)，[验收记录](verification/P02-acceptance.json)区分用户确认与原始报告。下一项P03-01待建立分支；P04至P08未启动。上文旧进度描述保留为历史，当前状态以主任务书阶段索引为准。
