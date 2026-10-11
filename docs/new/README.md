@@ -1,5 +1,5 @@
 # 待执行计划
 
-P03至P08已规划、尚未启动。P02已移入[now](../now/P02-calculation.md)，P02-01已验收收尾，P02-02配置校验已实现，[Windows本机检查](../verification/P02-02-windows-evidence.json)76通过/2项既有权限跳过，新增18项配置全过，02已[验收收尾](../verification/P02-02-acceptance.json)，03执行中、04仍未启动；P01已验收归档[old](../old/P01-baseline.md)。见[主任务书](../MASTER_PLAN.md)。
+P03至P08已规划、尚未启动。P02已移入[now](../now/P02-calculation.md)，01/02已验收收尾，03状态/正式输出门槛已实现、[辅助96项通过](../verification/P02-03-checks.json)，待Windows本机复查/用户验收，04仍未启动；P01已验收归档[old](../old/P01-baseline.md)。见[主任务书](../MASTER_PLAN.md)。
 
 收到相应阶段启动授权并核对前置条件后，将唯一任务书移入now并同步索引，其他计划留在此处。

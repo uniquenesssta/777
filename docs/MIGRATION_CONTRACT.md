@@ -138,7 +138,7 @@ ID采用经评估的随机/排序唯一标识方案，不以“加毫秒”替�
 | Amounts | income_cents/cost_cents整数，profit_cents派生；margin_tenths为百分比十分位或null | display仅从整数分生成文本，cents_payload把分整数转字符串跨JS边界；不从UI文本回读金额 |
 | capture_legacy_quote(rows, config, price_version_id=...) | 主线程读取两版当前行与已获取价格映射一次，返回QuoteSnapshot/PriceSnapshot | 单件不读高宽，自定义折扣保留全部精度；不读res/status/summary、不保存Tk变量；尚未接入两版窗口 |
 
-QuoteResult携带business-v1/numeric-v1/price_version_id。VALIDATION时lines和totals均为null，issues含reason/field及从1开始的行号；成功才有完整金额。首行或零小计折扣返回零并附DISCOUNT_ZERO_SUBTOTAL提醒，折扣行及零收入利润率为null。未实现草稿revision、输入变更/PRICE_STALE状态及真实导出阻断，它们属于P02-03/P02-04。领域价格包含成本，仅用于受信任计算链，销售DTO及服务鉴权由P05落实，不能把完整领域对象直接当销售投影。
+QuoteResult携带business-v1/numeric-v1/price_version_id。VALIDATION时lines和totals均为null，issues含reason/field及从1开始的行号；成功才有完整金额。首行或零小计折扣返回零并附DISCOUNT_ZERO_SUBTOTAL提醒，折扣行及零收入利润率为null。P02-03已实现本地草稿revision、输入/价格状态失效与正式输出门槛，见第10节；原窗口及真实输出入口统一接入仍属于P02-04。领域价格包含成本，仅用于受信任计算链，销售DTO及服务鉴权由P05落实，不能把完整领域对象直接当销售投影。
 
 母子原calculate尚未切换，原summary回读/部分导出缺陷也未据此关闭。P02-04接回两端后才能验收UI、保存/Excel/图片都使用同一权威结果；历史账本不重算覆盖。
 
@@ -162,3 +162,26 @@ QuoteResult携带business-v1/numeric-v1/price_version_id。VALIDATION时lines和
 当前JSON解码保护为1MiB UTF-8、嵌套深度32、最多10000商品、商品名256字符、目录文本32767字符；数字原文沿用numeric-v1的256字符限制。名称/目录拒绝控制字符及非法Unicode。上述是当前配置载入容量保护，不改business-v1金额范围或舍入，也不冒充服务协议/最终目录设置已实现。未知扩展拒绝，原配置保留待处理；旧单不重算。
 
 整份候选校验与计算所用价格校验范围不同：损坏的未用商品也不能进入新有效配置；已冻结的PriceSnapshot计算时仍只校验引用商品，不因未引用空价无故阻断报价。原母子配置加载/默认fallback尚未切换到这些入口，真实UI接入统一留P02-04；A18的核心校验已具备证据，原应用入口不能据此宣称已修复。
+
+## 10. P02-03已实现的草稿状态与正式输出门槛
+
+[session.py](../quote_core/session.py)是无UI/I/O依赖的本地草稿控制器；复用calculate_quote及business-v1/numeric-v1，不再实现一套金额算法。QuoteSession的更新/应用完成/确认/输出方法必须由所属UI线程串行调用；计算工作线程只接收不可变CalculationRequest并调用run_calculation。
+
+| 类型/方法 | 已实现行为 | 调用约定 |
+| --- | --- | --- |
+| DraftDetails | 冻结customer/order_ref/wechat文本，保留前导零；数字或控件拒绝 | 这些是草稿展示/业务引用，不是认证身份或最终订单schema；更新同样使计算失效 |
+| QuoteSession(snapshot, prices, ...) / state | 返回冻结QuoteState：revision、calculation_revision、状态、输入/价格/身份、结果、输入问题、价格来源/最新版本和确认要求 | 初始价格来源为unverified，无默认成交许可；state.status的valid仅表示数值有效，不表示正式输出或提交已授权 |
+| update_inputs / update_details / invalidate_inputs | 编辑使revision递增并清空result/calculation_revision；invalidate_inputs先清空旧快照，可带原字段/从1开始行号的VALIDATION问题 | UI编辑trace/增删/排序/折扣切换应立即失效，完整快照取得后再update_inputs；失败捕获不可继续使用旧快照 |
+| observe_price_source(status, latest_price_version_id=...) | current/unavailable/unverified/invalid严格枚举；事实改变时递增revision并清空结果，完全相同的观察无操作 | 仅记录调用者提供的当前载入/服务状态及最新版本，不读取文件、探测网络、刷新价格或证明发布身份 |
+| refresh_prices(prices) | 显式替换完整冻结价格，并把已有草稿绑定该版本；失效计算，已有价格被刷新时要求重新确认 | 新版本观察不会自动调用此方法；即使版本文字相同，显式内容替换也需重算。失败候选不能传入，必须保留原有效价格并observe invalid/unavailable |
+| begin_calculation / run_calculation / apply_calculation | 请求冻结本草稿owner、revision、输入/价格/身份；纯计算返回完成；仅本owner、当前revision及原快照相同才应用 | 旧/跨草稿完成返回false，不覆盖当前结果或错误；owner是进程内不透明对象，非持久身份或IPC字段；完成只在受信任内部链传递 |
+| calculate() | 同步请求→计算→应用，返回当前冻结state | 允许用缓存价计算草稿预览，但正式输出仍独立检查来源/版本/确认；错误整单lines/totals=null |
+| confirm_prices(expected_revision=...) | 仅当前revision、计算完整且来源/版本有效时接受；解除该次价格刷新确认要求 | 04先展示旧/新价格差异，再重算并确认；旧确认、未重算确认、升级再次变化均不接受。已确认价格后的普通输入编辑需重算，无需重复确认同一价格 |
+| prepare_output(kind) | excel/quote_image/screenshot返回冻结OutputDecision；允许时附OutputPayload，失败时payload=null及结构化问题 | 所有三种正式输出共用门槛，不提供草稿图片旁路；历史decision不是许可令牌，不应缓存后直接写 |
+| dispatch_output(kind, writer) | 调用时重新检查当前状态；阻断抛OutputBlocked并保留decision，writer零调用；成功writer仅拿冻结OutputPayload | 先结束路径选择/对话框，再同步dispatch；writer不可yield、进入Tk嵌套事件循环或修改草稿。异常原样传播，不猜提交结果或自动重试 |
+
+输入/身份/价格及来源变化后原数值结果被清空；即使改回同一原文/版本，旧revision结果也不能复活。QuoteState.status为uncalculated/stale/valid/invalid；实际输出限制由OutputDecision体现：字段/计算/配置错误或待确认为VALIDATION，当前缓存版本落后最新版本为PRICE_STALE，读取不可用为IO_UNAVAILABLE，已算过但失效的结果为CALCULATION_STALE，首次未算为VALIDATION/CALCULATION_REQUIRED。问题携带reason/field和可用的输入行号，错误不会替成正常零值。
+
+OutputPayload冻结revision、输入、价格、客户/订单/微信文本和同一个QuoteResult；不从summary或其他结果控件回读。输出前核对业务/数值/价格版本、完整行及对应原行、销售/成本行和与总额恒等。合法零收入、0%免费、首行折扣提醒及亏损不因金额为0/负而阻断。此门槛不重新舍入金额、不生成Excel/图片本身，也不处理公式文本/文件格式、并发覆盖或持久化结果未知。
+
+本接口是当前Python内部链，不是已冻结服务协议。调用者的current与latest_price_version_id不等于认证/已发布价证明，完整领域载荷含成本，不能直接作为销售DTO/IPC响应。P05在服务事务内重验认证、归属、价格版本及revision；P03负责真实文件提交/恢复，P04负责后台输出任务。P02-04统一接回原两版编辑、配置载入、价格差异确认和所有正式输出路径后，才验收A04原应用入口及Windows交互；本次不据核心测试宣称原Tk导出已修复。

@@ -284,6 +284,17 @@ assert validated.status == 'ok'
 assert calculate_quote(QuoteSnapshot('v1', (NormalLine('P', '1'),)), validated.config.prices).totals.income_cents == 1
 retained = refresh_price_config(validated.config, '{"items":false}', price_version_id='v2')
 assert not retained.applied and retained.active is validated.config
+session = QuoteSession(QuoteSnapshot('v1', (NormalLine('P', '1'),)), validated.config.prices,
+                       price_source='current', latest_price_version_id='v1')
+session.calculate()
+assert session.dispatch_output('excel', lambda payload: payload.result.totals.income_cents) == 1
+session.invalidate_inputs()
+try:
+    session.dispatch_output('screenshot', lambda payload: (_ for _ in ()).throw(AssertionError('writer called')))
+except OutputBlocked as error:
+    assert error.decision.status == 'CALCULATION_STALE'
+else:
+    raise AssertionError('stale screenshot was accepted')
 print('standalone core passed')
 """
         with tempfile.TemporaryDirectory(prefix="777-core-only-") as folder:
