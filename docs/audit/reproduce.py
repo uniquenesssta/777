@@ -76,9 +76,9 @@ def main():
         source = baseline.inspect_source(ROOT, entry)
         if source["status"] != "ok":
             raise SystemExit(f"Baseline changed: {filename}; re-audit before running these observations")
-        data = (ROOT / filename).read_bytes()
+        data = baseline.source_path(ROOT, entry).read_bytes()
         ast.parse(data.decode("utf-8"))
-        ns = runpy.run_path(str(ROOT / filename), run_name="audit_only")
+        ns = runpy.run_path(str(baseline.source_path(ROOT, entry)), run_name="audit_only")
         # Functions keep runpy's globals; override message boxes there, never show UI.
         ns["PriceCalculator"].export_to_excel.__globals__["messagebox"] = types.SimpleNamespace(showinfo=lambda *a: None, showerror=lambda *a: None, showwarning=lambda *a: None)
         with tempfile.TemporaryDirectory(prefix="777-audit-") as temp:

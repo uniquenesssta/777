@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于 `plans`；当前执行分支为 `stage/p02-calculation`，创建于P01验收提交 `7099303`。**P01已归档；P02-01/02/03已验收收尾。P02-03 Windows 96项检查为94通过、2项既有权限跳过，新增18项状态检查全过。按用户指令开始P02-04，统一接入母子窗口；P02整阶段留now，P03及后续未启动。**
+规划位于 `plans`；当前执行分支为 `stage/p02-calculation`，创建于P01验收提交 `7099303`。**P01已验收归档；P02-01/02/03已验收收尾；P02-04母子窗口接入已实现，辅助119项（新增23项）及两端53例通过，待Windows隔离交互和用户验收。唯一分支stage/p02-calculation；P02继续留now，P03至P08未启动。**
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -16,6 +16,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P02-04：两版原入口接回quote_core/QuoteSession，共用[窗口适配](quote_app/integration.py)，删除重复浮点计算/解析/默认价fallback；Tk输入与增删立即失效，价格变化显式差异/重算/确认，Excel与截图共用当前门槛，关闭不自动改写价格。新增23项与完整119项辅助检查通过，两端53例一致；Excel取冻结整数分/身份，金融单元格精确文本，新增行类型扩展避免商品名被当汇总。原始源码按原manifest归档，P01诊断继续复现原行为，历史报告不改。见[04证据](docs/verification/P02-04-checks.json)和[Windows检查入口](docs/now/P02-calculation.md#p02-04-windows隔离验收入口)。04待Windows/用户验收，P02留now，P03未启动。
 
 - 用户“如果没问题收尾03开始04”：核对[Windows日志](docs/verification/P02-03-windows-evidence.json)匹配2248774及96项清单，94通过/2项既有权限跳过、新增18项全过，登记[03验收](docs/verification/P02-03-acceptance.json)。同一stage/p02-calculation启动04窗口接入，P02继续留now。
 

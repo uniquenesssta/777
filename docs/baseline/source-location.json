@@ -1,0 +1,8 @@
+{
+  "source_commit": "32e164d78643de8fa6cbd21a7ca634e1b318f855",
+  "purpose": "Immutable P01 diagnostic sources; live entrypoints were wired in P02-04. Original manifest and hashes remain unchanged.",
+  "paths": {
+    "报价利润计算器_局域网导出版_每日汇总版(1).py": "docs/baseline/original/manager.py",
+    "报价利润计算器_局域网子版本_JSON价格_截图按天订单命名_ICON版(1).py": "docs/baseline/original/sales.py"
+  }
+}

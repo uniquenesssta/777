@@ -61,7 +61,7 @@ def new_output(output, root=ROOT):
 def golden(manifest):
     suite = json.loads((ROOT / "docs/baseline/p01-04-golden.json").read_text(encoding="utf-8"))
     examples = module(ROOT / "docs/baseline/p01_02_examples.py")
-    namespaces = {entry["role"]: runpy.run_path(str(ROOT / entry["path"]), run_name="p01_validation_only") for entry in manifest["files"]}
+    namespaces = {entry["role"]: runpy.run_path(str(baseline_check.source_path(ROOT, entry)), run_name="p01_validation_only") for entry in manifest["files"]}
     results = []
     with tempfile.TemporaryDirectory(prefix="777-p01-golden-") as temp:
         for case in suite["cases"]:
@@ -202,7 +202,7 @@ def worker(role, folder, gui=False, size="small"):
     paths = sorted((folder / f"scales/files_{file_count}").glob("*.xlsx")) if role == "manager" else [folder / f"scales/rows_{row_count}.xlsx"]
     if not gui:
         examples = module(ROOT / "docs/baseline/p01_02_examples.py")
-        namespace = runpy.run_path(str(ROOT / entry["path"]), run_name="p01_performance_only")
+        namespace = runpy.run_path(str(baseline_check.source_path(ROOT, entry)), run_name="p01_performance_only")
         app = examples.audit.instance(namespace, folder)
         app.excel_file_tree = CaptureTree()
         app.get_report_excel_paths = lambda: [str(path) for path in paths]

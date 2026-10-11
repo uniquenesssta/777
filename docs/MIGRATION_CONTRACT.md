@@ -161,7 +161,7 @@ QuoteResult携带business-v1/numeric-v1/price_version_id。VALIDATION时lines和
 
 当前JSON解码保护为1MiB UTF-8、嵌套深度32、最多10000商品、商品名256字符、目录文本32767字符；数字原文沿用numeric-v1的256字符限制。名称/目录拒绝控制字符及非法Unicode。上述是当前配置载入容量保护，不改business-v1金额范围或舍入，也不冒充服务协议/最终目录设置已实现。未知扩展拒绝，原配置保留待处理；旧单不重算。
 
-整份候选校验与计算所用价格校验范围不同：损坏的未用商品也不能进入新有效配置；已冻结的PriceSnapshot计算时仍只校验引用商品，不因未引用空价无故阻断报价。原母子配置加载/默认fallback尚未切换到这些入口，真实UI接入统一留P02-04；A18的核心校验已具备证据，原应用入口不能据此宣称已修复。
+整份候选校验与计算所用价格校验范围不同：损坏的未用商品也不能进入新有效配置；已冻结的PriceSnapshot计算时仍只校验引用商品，不因未引用空价无故阻断报价。母子配置加载已在P02-04切换到该校验，首次坏配置无默认fallback，失败保留有效对象；A18应用适配已完成辅助回归，Windows交互待04验收。
 
 ## 10. P02-03已实现的草稿状态与正式输出门槛
 
@@ -184,4 +184,16 @@ QuoteResult携带business-v1/numeric-v1/price_version_id。VALIDATION时lines和
 
 OutputPayload冻结revision、输入、价格、客户/订单/微信文本和同一个QuoteResult；不从summary或其他结果控件回读。输出前核对业务/数值/价格版本、完整行及对应原行、销售/成本行和与总额恒等。合法零收入、0%免费、首行折扣提醒及亏损不因金额为0/负而阻断。此门槛不重新舍入金额、不生成Excel/图片本身，也不处理公式文本/文件格式、并发覆盖或持久化结果未知。
 
-本接口是当前Python内部链，不是已冻结服务协议。调用者的current与latest_price_version_id不等于认证/已发布价证明，完整领域载荷含成本，不能直接作为销售DTO/IPC响应。P05在服务事务内重验认证、归属、价格版本及revision；P03负责真实文件提交/恢复，P04负责后台输出任务。P02-04统一接回原两版编辑、配置载入、价格差异确认和所有正式输出路径后，才验收A04原应用入口及Windows交互；本次不据核心测试宣称原Tk导出已修复。
+本接口是当前Python内部链，不是已冻结服务协议。调用者的current与latest_price_version_id不等于认证/已发布价证明，完整领域载荷含成本，不能直接作为销售DTO/IPC响应。P05在服务事务内重验认证、归属、价格版本及revision；P03负责真实文件提交/恢复，P04负责后台输出任务。P02-04现已接回两版编辑/载入/价格差异确认/输出路径，当前类方法辅助检查错误/陈旧零写入；A04 Windows交互仍待04实机验收，不以辅助检查代替。
+
+## 11. P02-04已实现的窗口与输出适配
+
+[quote_app/integration.py](../quote_app/integration.py)供两版PriceCalculator继承，Tk/文件/Excel/Pillow依赖仅在适配边界。QuoteSession和核心数值规则没有修改；Rust迁移复用同一黄金/配置/状态规则，Tk变量trace、沙箱、格式投影不是跨语言协议。
+
+- initialize_quote_state在布局/价格加载前建立无有效价控制器；真实变量trace及行增删/清空立即invalidate_inputs，结果显示为待计算，不保留局部金额。冻结输入只在计算所属线程捕获；折扣行的discount与discount_choice为同一输入变量，结果渲染不得回写选择或截短自定义百分比。
+- 文件读入上限1MiB+1后parse_price_config整份验证。成功来源current与local-sha256字节版本仅代表当前路径读取/本地schema成功；服务发布认证及文件读取与提交间的竞态仍待P05/P03。失败观察invalid/unavailable，保留旧有效对象供草稿计算，不默认成交或关闭自动覆盖。未保存的编辑价格版本使用editor-sha256，正式门槛不允许输出。
+- 观察新版不刷新冻结价；刷新按钮/显式有效保存才refresh_prices，已有价格要求重算/确认，包括相同文件显式刷新。差异可见字段按现有角色投影，销售不展示成本。确认对话框结束后重新观察来源，以对话前revision确认，期间编辑/升级不能得到许可。
+- 正式Excel先观察当前来源/编辑状态再dispatch；writer只读OutputPayload中的金额和身份。截图after_idle后再次门槛，选页/绘制事件在writer之前，worker不进入Tk嵌套事件循环；不存在错误订单草稿截图旁路。保存异常不自动重试；文件已保存后的列表异常单独提示已保存。
+- [projection.py](../quote_app/projection.py)保留原26列，金额采用两位十进制文本避免Excel数值单元格15位精度无法覆盖i64分；折扣/利润率为文本或“—”，身份原文保留。扩展“行类型”列记录normal/discount/order_total，追加到空的新列，不覆盖已有备注。新日汇总按显式类型纳入新正常/折扣行，Decimal求和后整数分结算，旧明细不重写；无标签历史歧义仍待P03，旧查看/备注/删除还需按类型升级。价格快照首行登记本地版本/规则/profile；完整财务载荷/旧Excel含成本，仍不是销售授权DTO。
+
+P01诊断使用[source-location.json](baseline/source-location.json)及原manifest验证[不可变原版源码](baseline/original/README.md)，不会拿已改动入口伪造原行为。当前Windows检查独立使用tools/p02_gui_check.py。辅助119项、两端53例和核心孤立标准库检查见[04证据](verification/P02-04-checks.json)；真实Windows截图/交互、SMB/部署及后续文件安全不提前宣称通过。

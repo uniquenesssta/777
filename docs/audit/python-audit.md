@@ -91,3 +91,7 @@ P01-04补充（2026-10-11）：[辅助诊断证据](../baseline/p01-04-checks.js
 ## 6. 审计转计划
 
 每个问题的任务归属见上表，各任务验收见 [主任务书](../MASTER_PLAN.md) 和阶段文件。先处理P1及其必要结构，性能采用访问次数/冷暖基线核验；Rust迁移接受正确业务规则与明确修正后的期望，不能为了“保持一致”复制已知错误金额和破坏性行为。
+
+## P02-04当前入口与历史诊断边界
+
+两份根目录入口现共用[quote_app](../../quote_app/integration.py)/quote_core，旧calculate/解析/部分导出逻辑已删除，辅助回归见[04证据](../verification/P02-04-checks.json)，Windows交互待04验收。上面的行号/缺陷及evidence.json仍描述原始源码；[原版副本](../baseline/original/README.md)按未改manifest固定字节，reproduce.py等仅更新定位后继续复现原行为，真实内容变化仍拒绝运行。A04/A06/A07/A18计算/入口修复不等于所有文件/权限问题关闭；A08文件原子保存、A23无标签历史与旧视图、A09摘要等留P03，原报告不重写。

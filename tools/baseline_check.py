@@ -22,9 +22,22 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "docs" / "baseline" / "manifest.json"
 
 
+def source_path(root, entry):
+    """Explicit P01 archive mapping, never fallback after a failed hash gate."""
+    mapping = root / "docs/baseline/source-location.json"
+    if not mapping.exists():
+        return root / entry["path"]  # Older checkouts and isolated gate fixtures.
+    locations = json.loads(mapping.read_text(encoding="utf-8"))["paths"]
+    path = root / locations[entry["path"]]
+    if not path.resolve().is_relative_to(root.resolve()):
+        raise ValueError("Baseline source mapping escapes repository")
+    return path
+
+
 def inspect_source(root, entry):
-    path = root / entry["path"]
-    result = {"role": entry["role"], "path": entry["path"]}
+    path = source_path(root, entry)
+    result = {"role": entry["role"], "path": entry["path"],
+              "diagnostic_source_path": str(path.relative_to(root))}
     try:
         data = path.read_bytes()
         result["git_blob_sha1"] = hashlib.sha1(
@@ -84,6 +97,7 @@ def inspect_environment(root=ROOT):
         packager = {"pyinstaller_version": None, "status": "not_installed; source startup does not require packaging tools"}
     return {
         "task": "P01-01",
+        "scope": "Immutable P01 originals from diagnostic_source_path; current GUI checks use tools/p02_gui_check.py",
         "source_commit": manifest["source_commit"],
         "environment": {
             "os": system,
@@ -112,7 +126,7 @@ def sandbox_namespace(root, entry, sandbox):
     source = inspect_source(root, entry)
     if source["status"] != "ok":
         raise ValueError(f"Source differs from P01-01 baseline: {entry['path']}")
-    path = root / entry["path"]
+    path = source_path(root, entry)
     namespace = {"__name__": "p01_baseline_sandbox", "__file__": str(path)}
     exec(compile(path.read_bytes(), str(path), "exec"), namespace)
     report_dir = sandbox / "reports"

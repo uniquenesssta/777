@@ -36,7 +36,7 @@ class BaselineCheckTests(unittest.TestCase):
             with self.subTest(role=entry["role"]), tempfile.TemporaryDirectory() as folder:
                 root = Path(folder)
                 path = root / entry["path"]
-                crlf = (ROOT / entry["path"]).read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+                crlf = baseline.source_path(ROOT, entry).read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
                 path.write_bytes(crlf)
                 result = baseline.inspect_source(root, entry)
                 self.assertEqual(result["status"], "ok")
@@ -52,7 +52,7 @@ class BaselineCheckTests(unittest.TestCase):
         for entry in manifest["files"]:
             with self.subTest(role=entry["role"]), tempfile.TemporaryDirectory() as folder:
                 root = Path(folder)
-                crlf = (ROOT / entry["path"]).read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+                crlf = baseline.source_path(ROOT, entry).read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
                 marker = root / "executed"
                 (root / entry["path"]).write_bytes(
                     crlf + f"\r\nfrom pathlib import Path\r\nPath({str(marker)!r}).touch()\r\n".encode("utf-8")
@@ -71,7 +71,7 @@ class BaselineCheckTests(unittest.TestCase):
             with self.subTest(role=entry["role"]), tempfile.TemporaryDirectory() as folder:
                 root = Path(folder)
                 path = root / entry["path"]
-                crlf = (ROOT / entry["path"]).read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+                crlf = baseline.source_path(ROOT, entry).read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
                 path.write_bytes(crlf)
                 manifest_path = root / "docs/baseline/manifest.json"
                 manifest_path.parent.mkdir(parents=True)
@@ -104,7 +104,7 @@ class BaselineCheckTests(unittest.TestCase):
     def test_sandbox_replaces_every_storage_constant_and_leaves_source_intact(self):
         manifest = json.loads(baseline.MANIFEST.read_text(encoding="utf-8"))
         for entry in manifest["files"]:
-            original = (ROOT / entry["path"]).read_bytes()
+            original = baseline.source_path(ROOT, entry).read_bytes()
             with tempfile.TemporaryDirectory() as folder:
                 sandbox = Path(folder)
                 namespace = baseline.sandbox_namespace(ROOT, entry, sandbox)
@@ -114,7 +114,7 @@ class BaselineCheckTests(unittest.TestCase):
                 globals_used = namespace["PriceCalculator"].__init__.__globals__
                 self.assertIs(globals_used, namespace)
                 self.assertEqual(json.loads((sandbox / "config.json").read_text(encoding="utf-8"))["items"][0]["sale"], "50")
-            self.assertEqual((ROOT / entry["path"]).read_bytes(), original)
+            self.assertEqual(baseline.source_path(ROOT, entry).read_bytes(), original)
 
     def test_missing_dependency_is_actionable(self):
         entry = {"module": "openpyxl", "distribution": "openpyxl", "required_for": "Excel"}

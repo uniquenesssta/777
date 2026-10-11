@@ -112,7 +112,7 @@ def main():
         if inspected["status"] != "ok":
             raise SystemExit(f"Baseline changed: {entry['path']}; do not execute changed sources")
         sources.append({key: inspected[key] for key in ("role", "path", "normalized_git_blob_sha1", "normalized_sha256", "baseline_match_kind")})
-        namespaces[entry["role"]] = runpy.run_path(str(ROOT / entry["path"]), run_name="p01_02_examples_only")
+        namespaces[entry["role"]] = runpy.run_path(str(audit.baseline.source_path(ROOT, entry)), run_name="p01_02_examples_only")
     results = []
     with tempfile.TemporaryDirectory(prefix="777-p01-02-") as temp:
         for case_id, title, lines, blocked_reason in CASES:

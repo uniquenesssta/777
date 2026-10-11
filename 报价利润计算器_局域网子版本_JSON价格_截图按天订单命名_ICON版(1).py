@@ -17,20 +17,13 @@
 - pillow：用于截图，安装命令：pip install pillow
 """
 
-import ast
-import json
-import math
 import os
 import sys
 import re
 import time
 import tkinter as tk
+from quote_app import QuoteApplicationMixin
 from tkinter import filedialog, messagebox, ttk
-
-try:
-    from PIL import ImageGrab
-except ImportError:
-    ImageGrab = None
 
 try:
     from openpyxl import Workbook, load_workbook
@@ -56,10 +49,7 @@ DAILY_EXCEL_PREFIX = "利润明细"
 # PyInstaller 封包时需要同时使用 --icon 和 --add-data，具体命令见下方说明。
 APP_ICON_PATH = r"app.ico"
 
-# 当局域网 JSON 读取失败时，是否临时使用下面的基础价格兜底。
-USE_DEFAULT_PRICE_ITEMS_WHEN_JSON_MISSING = True
-
-# 兜底基础价格：只有在 LAN_PRICE_CONFIG_FILE 读取失败时才会使用。
+# 历史单件策略：仅为旧三元JSON识别单件项目，不作为价格兜底。
 DEFAULT_PRICE_ITEMS = [
     {"name": "背景板", "sale": "11.5", "cost": "5.0", "k": "1.0", "single": False},
     {"name": "喷绘", "sale": "15.0", "cost": "7.0", "k": "1.0", "single": False},
@@ -98,148 +88,6 @@ def get_resource_path(path_text):
         if candidate and os.path.exists(candidate):
             return candidate
     return candidates[0] if candidates else path
-
-
-class SafeNumberParser:
-    """把自由填写的文本尽量安全地转成数字。
-
-    支持示例：
-    - 12 / 12.5
-    - ￥12.5 / 12.5元 / 2米 / 3个
-    - 10%
-    - 1 + 2 * 3
-    - (10 + 5) / 2
-
-    不支持：
-    - 待定
-    - 按实际报价
-    - 包含变量名、函数名的表达式
-    """
-
-    allowed_nodes = (
-        ast.Expression,
-        ast.BinOp,
-        ast.UnaryOp,
-        ast.Add,
-        ast.Sub,
-        ast.Mult,
-        ast.Div,
-        ast.Mod,
-        ast.USub,
-        ast.UAdd,
-        ast.Constant,
-        ast.Load,
-    )
-
-    @staticmethod
-    def normalize(text):
-        value = str(text).strip()
-        replacements = {
-            "，": ",",
-            "％": "%",
-            "×": "*",
-            "x": "*",
-            "X": "*",
-            "÷": "/",
-            "（": "(",
-            "）": ")",
-            "￥": "",
-            "¥": "",
-            "元": "",
-            "块": "",
-            "人民币": "",
-            "米": "",
-            "m": "",
-            "M": "",
-            "个": "",
-            "件": "",
-            "张": "",
-            "套": "",
-            "倍": "",
-            " ": "",
-            ",": "",
-        }
-        for old, new in replacements.items():
-            value = value.replace(old, new)
-
-        # 把 10% / 12.5% 转成 (10/100) / (12.5/100)
-        value = re.sub(r"(?<![\w.])(\d+(?:\.\d+)?)%", r"(\1/100)", value)
-        return value
-
-    @classmethod
-    def parse(cls, text, default=None, empty_is_default=False):
-        raw = str(text).strip()
-        if raw == "":
-            if empty_is_default:
-                return float(default), None
-            return None, "不能为空"
-
-        expr = cls.normalize(raw)
-        if not expr:
-            if empty_is_default:
-                return float(default), None
-            return None, "不能为空"
-
-        if len(expr) > 80:
-            return None, "表达式太长"
-
-        if "**" in expr:
-            return None, "不支持乘方运算"
-
-        try:
-            tree = ast.parse(expr, mode="eval")
-            for node in ast.walk(tree):
-                if not isinstance(node, cls.allowed_nodes):
-                    return None, f"无法识别：{raw}"
-                if isinstance(node, ast.Constant) and not isinstance(node.value, (int, float)):
-                    return None, f"不是可计算数字：{raw}"
-
-            result = eval(compile(tree, "<safe-number>", "eval"), {"__builtins__": {}}, {})
-            if not isinstance(result, (int, float)):
-                return None, f"不是可计算数字：{raw}"
-            result = float(result)
-            if not math.isfinite(result):
-                return None, f"不是有效数字：{raw}"
-            return result, None
-        except ZeroDivisionError:
-            return None, f"除数不能为 0：{raw}"
-        except Exception:
-            return None, f"无法计算：{raw}"
-
-
-class DiscountParser:
-    """折扣百分比专用解析器。
-
-    折扣不使用 SafeNumberParser，是为了避免输入 1+2、￥90 之类内容。
-    只接受 0-100 之间的数字或百分比文本，例如：90、90%、88.5、88.5%。
-    业务含义：90% = 按销售额的 90% 收款，即 9 折。
-    """
-
-    @staticmethod
-    def format_percent(value, keep_decimal=True):
-        number = float(value)
-        if number.is_integer():
-            return str(int(number))
-        if keep_decimal:
-            return (f"{number:.2f}".rstrip("0").rstrip("."))
-        return str(round(number, 2))
-
-    @classmethod
-    def parse_percent(cls, text):
-        raw = str(text).strip().replace("％", "%")
-        if raw == "":
-            return None, "折扣不能为空"
-        if raw.endswith("%"):
-            raw = raw[:-1].strip()
-        if not re.fullmatch(r"\d+(?:\.\d+)?", raw):
-            return None, "折扣只能填写 0-100 的百分比，例如 90%"
-        try:
-            value = float(raw)
-        except ValueError:
-            return None, "折扣不是有效百分比"
-        if value < 0 or value > 100:
-            return None, "折扣百分比必须在 0 到 100 之间"
-        return value, None
 
 
 class ScrollableFrame(ttk.Frame):
@@ -302,7 +150,8 @@ class TableRowHandle:
             pass
 
 
-class PriceCalculator:
+class PriceCalculator(QuoteApplicationMixin):
+    quote_role = "sales"
     SPECIAL_DISCOUNT_TYPE = "折扣"
     DISCOUNT_CHOICES = ["95%", "90%", "85%", "80%", "75%", "70%", "50%", "自定义"]
     CALC_COLUMNS = [
@@ -358,11 +207,13 @@ class PriceCalculator:
         self.excel_sheet_var = tk.StringVar(value="")
         self.export_dir_var = tk.StringVar(value=self.report_dir)
 
+        self.initialize_quote_state()
         self._build_style()
         self._build_layout()
         self.load_settings_to_ui()
         self.refresh_item_selector()
 
+        self.install_quote_controls()
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
     # ---------- 基础工具 ----------
@@ -456,25 +307,6 @@ class PriceCalculator:
             }
         )
 
-    def validate_discount_key(self, proposed):
-        text = str(proposed).strip().replace("％", "%")
-        if text == "":
-            return True
-        if text.endswith("%"):
-            text = text[:-1]
-        if text == "":
-            return True
-        if not re.fullmatch(r"\d{0,3}(?:\.\d{0,2})?", text):
-            return False
-        try:
-            return float(text) <= 100
-        except ValueError:
-            return False
-
-    def normalize_discount_entry(self, var):
-        value, error = DiscountParser.parse_percent(var.get())
-        if error is None:
-            var.set(DiscountParser.format_percent(value))
 
     # ---------- 界面 ----------
 
@@ -652,9 +484,6 @@ class PriceCalculator:
 
     # ---------- 设置数据 ----------
 
-    def load_settings_to_ui(self):
-        """启动时读取母版本 JSON；失败时才使用代码顶部兜底价格。"""
-        self.reload_price_settings_from_json(silent=True, first_load=True)
 
     def clear_setting_rows(self):
         for row in list(self.setting_rows):
@@ -666,111 +495,6 @@ class PriceCalculator:
                     pass
         self.setting_rows = []
 
-    def convert_price_items_from_json(self, data):
-        """兼容母版本新版 config 和早期 config。
-
-        新版格式：{"items": [{"name":..., "sale":..., "cost":..., "k":..., "single":...}]}
-        旧版格式：{"背景板": ["11.5", "5.0", "1.0"], ...}
-        """
-        items = []
-        if isinstance(data, dict) and isinstance(data.get("items"), list):
-            for item in data.get("items", []):
-                if not isinstance(item, dict):
-                    continue
-                name = str(item.get("name", "")).strip()
-                if not name:
-                    continue
-                items.append(
-                    {
-                        "name": name,
-                        "sale": str(item.get("sale", "")),
-                        "cost": str(item.get("cost", "")),
-                        "k": str(item.get("k", "")),
-                        "single": bool(item.get("single", item.get("qty_only", False))),
-                    }
-                )
-            return items
-
-        if isinstance(data, dict):
-            qty_only_names = {item["name"] for item in self.default_items if item.get("single")}
-            for name, values in data.items():
-                # 跳过新版 config 中的非价格字段，例如 export_dir。
-                if name in {"export_dir", "items"}:
-                    continue
-                if isinstance(values, list) and len(values) >= 3:
-                    item_name = str(name).strip()
-                    if not item_name:
-                        continue
-                    items.append(
-                        {
-                            "name": item_name,
-                            "sale": str(values[0]),
-                            "cost": str(values[1]),
-                            "k": str(values[2]),
-                            "single": item_name in qty_only_names,
-                        }
-                    )
-        return items
-
-    def read_price_items_from_json(self):
-        path = self.price_config_file
-        if not path or not os.path.exists(path):
-            return None, f"未找到母版本价格 JSON：{path}"
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            items = self.convert_price_items_from_json(data)
-            if not items:
-                return None, f"母版本价格 JSON 中没有识别到有效项目：{path}"
-            return items, None
-        except Exception as exc:
-            return None, f"读取母版本价格 JSON 失败：{exc}"
-
-    def apply_price_items(self, items):
-        self.clear_setting_rows()
-        for item in items:
-            self.add_setting_row(
-                name=item.get("name", ""),
-                sale=item.get("sale", ""),
-                cost=item.get("cost", ""),
-                k=item.get("k", ""),
-                single=bool(item.get("single", item.get("qty_only", False))),
-            )
-        self.refresh_item_selector()
-        config, _issues = self.get_settings_snapshot()
-        self.update_calc_row_states(config)
-
-    def reload_price_settings_from_json(self, silent=False, first_load=False):
-        """从局域网母版本 JSON 刷新价格；失败时保留现有价格或使用兜底价格。"""
-        self.price_config_file = self.get_price_config_file()
-        items, error = self.read_price_items_from_json()
-        source = None
-        is_error = False
-
-        if items:
-            self.apply_price_items(items)
-            source = f"价格来源：母版本 JSON（{self.price_config_file}）"
-            is_error = False
-        else:
-            if self.setting_rows and not first_load:
-                # 运行中网络短暂断开时，不清空已经读取到的价格。
-                source = f"价格来源：沿用上一次已读取价格；{error}"
-                is_error = True
-            elif USE_DEFAULT_PRICE_ITEMS_WHEN_JSON_MISSING:
-                self.apply_price_items([dict(item) for item in self.default_items])
-                source = f"价格来源：代码兜底 DEFAULT_PRICE_ITEMS；{error}"
-                is_error = True
-            else:
-                self.clear_setting_rows()
-                self.refresh_item_selector()
-                source = f"价格来源：无可用价格；{error}"
-                is_error = True
-
-        self.price_source_text = source
-        if hasattr(self, "price_source_var"):
-            self.price_source_var.set("")
-        # 静默刷新：不弹窗、不在计算主页显示价格来源或内部路径。
-        return not is_error
 
     def add_setting_row(self, name="", sale="", cost="", k="", single=False):
         # 子版本删除了“价格设定”页面，但计算仍然需要项目价格数据。
@@ -801,6 +525,7 @@ class PriceCalculator:
             "single": single_var,
         }
         self.setting_rows.append(row)
+        self.watch_quote_row(row, settings=True)
 
     def update_discount_editor_state(self, row):
         choice = row["discount_choice"].get()
@@ -817,47 +542,10 @@ class PriceCalculator:
                 if row.get("frame") is not None:
                     row["frame"].destroy()
                 self.setting_rows.pop(idx)
+                self.quote_input_changed()
                 break
         self.refresh_item_selector()
 
-    def get_discount_from_row(self, row, location, issues):
-        choice = row["discount_choice"].get().strip() or "90%"
-        if choice == "自定义":
-            raw = row["discount_custom"].get()
-            percent_value, error = DiscountParser.parse_percent(raw)
-            if error:
-                self.add_issue(issues, "错误", location, "折扣", raw, error)
-                return None, "需检查"
-            percent_text = f"{DiscountParser.format_percent(percent_value)}%"
-            return percent_value / 100.0, percent_text
-
-        percent_value, error = DiscountParser.parse_percent(choice)
-        if error:
-            self.add_issue(issues, "错误", location, "折扣", choice, error)
-            return None, "需检查"
-        return percent_value / 100.0, choice
-
-    def get_settings_snapshot(self):
-        config = {}
-        issues = []
-        for idx, row in enumerate(self.setting_rows, start=1):
-            name = row["name"].get().strip()
-            if not name:
-                # 价格设定非强制填写：空白行直接忽略，不再提示。
-                continue
-            if name == self.SPECIAL_DISCOUNT_TYPE:
-                self.add_issue(issues, "提醒", f"价格设定第 {idx} 行", "项目名称", name, "“折扣”是计算主页里的特殊项目类型，不需要在价格设定里填写，已忽略。")
-                continue
-            if name in config:
-                self.add_issue(issues, "提醒", f"价格设定第 {idx} 行", "项目名称", name, "项目名称重复，已忽略后面的重复项。")
-                continue
-            config[name] = {
-                "sale": row["sale"].get(),
-                "cost": row["cost"].get(),
-                "k": row["k"].get(),
-                "single": row["single"].get(),
-            }
-        return config, issues
 
     def refresh_item_selector(self):
         config, _issues = self.get_settings_snapshot()
@@ -869,25 +557,10 @@ class PriceCalculator:
         elif not values:
             self.item_selector.set("")
 
-    def apply_settings_to_calc(self):
-        config, issues = self.get_settings_snapshot()
-        self.refresh_item_selector()
-        self.update_calc_row_states(config)
-        self.validation_issues = issues
-        self.render_issues(issues)
-        if issues:
-            self.set_feedback(f"价格设定已应用，但有 {len(issues)} 条提醒，请查看“输入反馈”页面。", is_error=True)
-        else:
-            self.set_feedback("价格设定已应用到计算主页。", is_error=False)
-
-    def on_close(self):
-        # 子版本只读取母版本价格 JSON，不在本机写入价格设定，避免员工端覆盖母版本配置。
-        self.root.destroy()
 
     # ---------- 计算主页 ----------
 
     def handle_add_item(self):
-        self.reload_price_settings_from_json(silent=True)
         config, issues = self.get_settings_snapshot()
         self.refresh_item_selector()
         base_type = self.item_selector.get().strip()
@@ -903,7 +576,7 @@ class PriceCalculator:
 
         if not config:
             self.render_issues(issues)
-            self.set_feedback("当前代码顶部 DEFAULT_PRICE_ITEMS 中没有有效项目名称；请维护项目配置，或直接选择“折扣”添加折扣行。", is_error=True)
+            self.set_feedback("没有载入有效价格；请修复价格文件并点击刷新。", is_error=True)
             return
 
         if base_type not in config:
@@ -972,6 +645,7 @@ class PriceCalculator:
             "w_entry": w_entry,
         }
         self.calc_rows.append(row)
+        self.watch_quote_row(row)
         self.set_row_dimension_state(row, single)
 
     def add_discount_calc_row(self, display_name):
@@ -1041,6 +715,7 @@ class PriceCalculator:
             "w_entry": w_entry,
         }
         self.calc_rows.append(row)
+        self.watch_quote_row(row)
         discount_combo.bind("<<ComboboxSelected>>", lambda _event, r=row: self.update_discount_editor_state(r))
         custom_entry.bind("<FocusOut>", lambda _event, v=discount_custom_var: self.normalize_discount_entry(v))
         self.update_discount_editor_state(row)
@@ -1072,17 +747,8 @@ class PriceCalculator:
                 row["frame"].destroy()
                 self.calc_rows.pop(idx)
                 break
-        self.calculate(notify=False)
+        self.quote_input_changed()
 
-    def parse_field(self, text, location, field, issues, default=None, empty_is_default=False):
-        value, error = SafeNumberParser.parse(text, default=default, empty_is_default=empty_is_default)
-        if error:
-            self.add_issue(issues, "错误", location, field, text, error)
-        return value
-
-    def warn_if_negative(self, value, location, field, raw_value, issues):
-        if value is not None and value < 0:
-            self.add_issue(issues, "提醒", location, field, raw_value, "当前值为负数，系统仍会参与计算，请确认是否符合业务逻辑。")
 
     def render_issues(self, issues):
         if not hasattr(self, "issue_tree"):
@@ -1103,7 +769,7 @@ class PriceCalculator:
         error_count = sum(1 for issue in issues if issue["级别"] == "错误")
         warn_count = len(issues) - error_count
         if error_count:
-            self.issue_summary_var.set(f"发现 {error_count} 个错误、{warn_count} 个提醒。请先处理错误；错误行不会进入利润明细和 Excel 明细。")
+            self.issue_summary_var.set(f"发现 {error_count} 个错误、{warn_count} 个提醒。请先处理错误；整单没有有效金额，禁止正式导出和截图。")
             self.notebook.tab(self.feedback_page, text=f" 输入反馈 ({error_count}) ")
         elif warn_count:
             self.issue_summary_var.set(f"发现 {warn_count} 个提醒。系统仍会计算，但建议人工确认。")
@@ -1112,219 +778,12 @@ class PriceCalculator:
             self.issue_summary_var.set("暂无输入问题。")
             self.notebook.tab(self.feedback_page, text=" 输入反馈 ")
 
-    def calculate(self, notify=True):
-        if hasattr(self, "profit_tree"):
-            for item in self.profit_tree.get_children():
-                self.profit_tree.delete(item)
-
-        self.last_export_records = []
-        self.reload_price_settings_from_json(silent=True)
-        config, setting_issues = self.get_settings_snapshot()
-        self.last_config_snapshot = config
-        self.refresh_item_selector()
-        self.update_calc_row_states(config)
-
-        total_income = 0.0
-        total_cost = 0.0
-        issues = list(setting_issues)
-
-        if not self.calc_rows:
-            self.total_val.set("总计：0.00 元")
-            self.summary_income.set("0.00")
-            self.summary_cost.set("0.00")
-            self.summary_profit.set("0.00")
-            self.summary_margin.set("0%")
-            self.validation_issues = issues
-            self.render_issues(issues)
-            self.set_feedback("当前列表为空，请先添加项目。", is_error=True)
-            return
-
-        for row_index, row in enumerate(self.calc_rows, start=1):
-            display_name = row["display_name"]
-            base_type = row["base_type"]
-            location = f"计算第 {row_index} 行"
-
-            # 折扣行是计算主页里的特殊项目：不走价格设定，不检查高宽数量。
-            # 90% 表示整单按 90% 收款，因此本行金额 = 当前小计 × (90% - 100%)，为负数。
-            if row.get("row_kind") == "discount":
-                before_error_count = sum(1 for issue in issues if issue["级别"] == "错误")
-                discount_factor, discount_text = self.get_discount_from_row(row, location, issues)
-                after_error_count = sum(1 for issue in issues if issue["级别"] == "错误")
-                if after_error_count > before_error_count or discount_factor is None:
-                    row["res"].set("需检查")
-                    row["status"].set("需检查")
-                    continue
-
-                subtotal_before_discount = total_income
-                if subtotal_before_discount == 0:
-                    self.add_issue(issues, "提醒", location, "折扣", discount_text, "折扣行前面的当前小计为 0，本行折扣金额为 0。建议把折扣行放在需要打折的项目后面。")
-
-                discount_amount = subtotal_before_discount * (1.0 - discount_factor)
-                line_income = -discount_amount
-                line_cost = 0.0
-                line_profit = line_income
-                line_margin_decimal = 0.0
-                line_margin_text = "—"
-
-                total_income += line_income
-
-                row["res"].set(self.format_display(line_income))
-                row["status"].set("OK")
-                if hasattr(self, "profit_tree"):
-                    self.profit_tree.insert(
-                        "",
-                        tk.END,
-                        values=(display_name, discount_text, self.format_display(line_income), self.format_display(line_cost), self.format_display(line_profit), line_margin_text),
-                    )
-
-                self.last_export_records.append(
-                    {
-                        "项目名称": display_name,
-                        "基础类型": self.SPECIAL_DISCOUNT_TYPE,
-                        "是否单件": "折扣行",
-                        "折扣": discount_text,
-                        "折扣系数": discount_factor,
-                        "高度原文": "",
-                        "宽度原文": "",
-                        "数量原文": "",
-                        "高度(m)": None,
-                        "宽度(m)": None,
-                        "数量": None,
-                        "销售单价原文": "",
-                        "成本单价原文": "",
-                        "K系数原文": "",
-                        "销售单价": None,
-                        "成本单价": None,
-                        "K系数": None,
-                        "折前销售额": subtotal_before_discount,
-                        "销售额": line_income,
-                        "总成本": line_cost,
-                        "利润": line_profit,
-                        "利润率": line_margin_decimal,
-                    }
-                )
-                continue
-
-            item_cfg = config.get(base_type)
-            if item_cfg is None:
-                row["res"].set("项目已失效")
-                row["status"].set("需检查")
-                row["discount"].set("需检查")
-                self.add_issue(issues, "错误", location, "项目类型", base_type, "该项目类型已不在价格设定中。")
-                continue
-
-            single = item_cfg.get("single", False)
-            before_error_count = sum(1 for issue in issues if issue["级别"] == "错误")
-
-            q_val = self.parse_field(row["q"].get(), location, "数量", issues)
-            self.warn_if_negative(q_val, location, "数量", row["q"].get(), issues)
-
-            if single:
-                h_val = 1.0
-                w_val = 1.0
-                h_text = ""
-                w_text = ""
-            else:
-                h_val = self.parse_field(row["h"].get(), location, "高度", issues)
-                w_val = self.parse_field(row["w"].get(), location, "宽度", issues)
-                h_text = row["h"].get()
-                w_text = row["w"].get()
-                self.warn_if_negative(h_val, location, "高度", h_text, issues)
-                self.warn_if_negative(w_val, location, "宽度", w_text, issues)
-
-            p_sale = self.parse_field(item_cfg.get("sale", ""), f"价格设定：{base_type}", "销售单价", issues)
-            p_cost = self.parse_field(item_cfg.get("cost", ""), f"价格设定：{base_type}", "成本单价", issues)
-            k_val = self.parse_field(item_cfg.get("k", ""), f"价格设定：{base_type}", "K系数", issues, default=1, empty_is_default=True)
-            row["discount"].set("—")
-
-            self.warn_if_negative(p_sale, f"价格设定：{base_type}", "销售单价", item_cfg.get("sale", ""), issues)
-            self.warn_if_negative(p_cost, f"价格设定：{base_type}", "成本单价", item_cfg.get("cost", ""), issues)
-            self.warn_if_negative(k_val, f"价格设定：{base_type}", "K系数", item_cfg.get("k", ""), issues)
-
-            after_error_count = sum(1 for issue in issues if issue["级别"] == "错误")
-            if after_error_count > before_error_count or None in (q_val, h_val, w_val, p_sale, p_cost, k_val):
-                row["res"].set("需检查")
-                row["status"].set("需检查")
-                continue
-
-            if single:
-                base_income = q_val * p_sale * k_val
-                line_cost = q_val * p_cost
-            else:
-                base_income = h_val * w_val * q_val * p_sale * k_val
-                line_cost = h_val * w_val * q_val * p_cost
-            line_income = base_income
-
-            line_profit = line_income - line_cost
-            line_margin_decimal = (line_profit / line_income) if line_income else 0.0
-            line_margin_text = f"{round(line_margin_decimal * 100, 1)}%"
-
-            total_income += line_income
-            total_cost += line_cost
-
-            row["res"].set(self.format_display(line_income))
-            row["status"].set("OK")
-            if hasattr(self, "profit_tree"):
-                self.profit_tree.insert(
-                    "",
-                    tk.END,
-                    values=(display_name, "—", self.format_display(line_income), self.format_display(line_cost), self.format_display(line_profit), line_margin_text),
-                )
-
-            self.last_export_records.append(
-                {
-                    "项目名称": display_name,
-                    "基础类型": base_type,
-                    "是否单件": "是" if single else "否",
-                    "折扣": "—",
-                    "折扣系数": None,
-                    "高度原文": h_text,
-                    "宽度原文": w_text,
-                    "数量原文": row["q"].get(),
-                    "高度(m)": h_val if not single else None,
-                    "宽度(m)": w_val if not single else None,
-                    "数量": q_val,
-                    "销售单价原文": item_cfg.get("sale", ""),
-                    "成本单价原文": item_cfg.get("cost", ""),
-                    "K系数原文": item_cfg.get("k", ""),
-                    "销售单价": p_sale,
-                    "成本单价": p_cost,
-                    "K系数": k_val,
-                    "折前销售额": base_income,
-                    "销售额": line_income,
-                    "总成本": line_cost,
-                    "利润": line_profit,
-                    "利润率": line_margin_decimal,
-                }
-            )
-
-        final_profit = total_income - total_cost
-        final_margin_decimal = (final_profit / total_income) if total_income else 0.0
-
-        self.total_val.set(f"总计：{self.format_display(total_income)} 元")
-        self.summary_income.set(self.format_display(total_income))
-        self.summary_cost.set(self.format_display(total_cost))
-        self.summary_profit.set(self.format_display(final_profit))
-        self.summary_margin.set(f"{round(final_margin_decimal * 100, 1)}%")
-
-        self.validation_issues = issues
-        self.render_issues(issues)
-        error_count = sum(1 for issue in issues if issue["级别"] == "错误")
-        warn_count = len(issues) - error_count
-
-        if error_count:
-            self.set_feedback(f"计算完成，但有 {error_count} 个错误、{warn_count} 个提醒；已切换到“输入反馈”页面查看。", is_error=True)
-            if notify:
-                self.notify_validation_errors(error_count, warn_count)
-        elif warn_count:
-            self.set_feedback(f"计算完成，有 {warn_count} 个提醒；请在“输入反馈”页面确认。", is_error=True)
-        else:
-            self.set_feedback("计算完成，所有内容均可参与计算。", is_error=False)
 
     def reset(self):
         for row in self.calc_rows:
             row["frame"].destroy()
         self.calc_rows = []
+        self.quote_input_changed()
         self.calc_table_next_row = 1
         self.last_export_records = []
         self.validation_issues = []
@@ -1724,7 +1183,6 @@ class PriceCalculator:
                 ws.column_dimensions[col_letter].width = max_len
 
 
-
     def get_selected_excel_row_index(self):
         selected = self.excel_view_tree.selection() if hasattr(self, "excel_view_tree") else []
         if not selected:
@@ -1981,96 +1439,9 @@ class PriceCalculator:
             self.create_profit_sheet_template(ws, timestamp)
         return xlsx_path, wb, ws
 
-    def append_profit_records_to_sheet(self, ws, timestamp):
-        """把本次计算明细追加到当天 Excel 的利润明细表。"""
-        for record in self.last_export_records:
-            ws.append([
-                timestamp, self.user_name.get().strip(), self.order_no.get().strip(), self.wechat_no.get().strip(),
-                record["项目名称"], record["基础类型"], record["是否单件"], record["高度(m)"], record["宽度(m)"],
-                record["数量"], record["销售单价"], record["成本单价"], record["K系数"], record["折扣"],
-                record["折扣系数"], record["折前销售额"], record["销售额"], record["总成本"], record["利润"],
-                record["利润率"], record["高度原文"], record["宽度原文"], record["数量原文"], record["销售单价原文"],
-                record["成本单价原文"], record["K系数原文"],
-            ])
-        ws.append([
-            timestamp, self.user_name.get().strip(), self.order_no.get().strip(), self.wechat_no.get().strip(),
-            "--- 本次总计 ---", "", "", "", "", "", "", "", "", "", "", "",
-            float(self.summary_income.get()), float(self.summary_cost.get()), float(self.summary_profit.get()), self.summary_margin.get(),
-        ])
 
-    def recompute_daily_profit_summary(self, ws):
-        """重算当天 Excel A4:H4 的整表汇总。"""
-        header_row, headers = self.find_excel_table_header(ws)
-        if not header_row:
-            return
-        income_col = headers.get("销售额")
-        cost_col = headers.get("总成本")
-        profit_col = headers.get("利润")
-        item_col = headers.get("项目名称")
-        if not (income_col and cost_col and profit_col and item_col):
-            return
-        total_income = total_cost = total_profit = 0.0
-        for r in range(header_row + 1, (ws.max_row or 0) + 1):
-            item_text = str(ws.cell(row=r, column=item_col).value or "").strip()
-            if not item_text or item_text.startswith("---") or item_text in {"备注", "文件备注"}:
-                continue
-            total_income += self._to_float(ws.cell(row=r, column=income_col).value)
-            total_cost += self._to_float(ws.cell(row=r, column=cost_col).value)
-            total_profit += self._to_float(ws.cell(row=r, column=profit_col).value)
-        margin = total_profit / total_income if total_income else 0.0
-        ws.cell(row=4, column=1, value="总收入")
-        ws.cell(row=4, column=2, value=total_income)
-        ws.cell(row=4, column=3, value="总成本")
-        ws.cell(row=4, column=4, value=total_cost)
-        ws.cell(row=4, column=5, value="总利润")
-        ws.cell(row=4, column=6, value=total_profit)
-        ws.cell(row=4, column=7, value="综合利润率")
-        ws.cell(row=4, column=8, value=f"{margin * 100:.1f}%")
 
-    def append_input_issues_sheet(self, wb, timestamp):
-        """把本次输入校验结果追加到当天 Excel 的“输入问题”。"""
-        if "输入问题" in wb.sheetnames:
-            issue_ws = wb["输入问题"]
-        else:
-            issue_ws = wb.create_sheet("输入问题")
-            issue_ws.append(["输入校验反馈"])
-            issue_ws.append([])
-            issue_ws.append([])
-            issue_ws.append(["记录时间", "级别", "位置", "字段", "输入内容", "提示"])
-        if issue_ws.max_row < 4:
-            issue_ws.delete_rows(1, issue_ws.max_row)
-            issue_ws.append(["输入校验反馈"])
-            issue_ws.append([])
-            issue_ws.append([])
-            issue_ws.append(["记录时间", "级别", "位置", "字段", "输入内容", "提示"])
-        if self.validation_issues:
-            for issue in self.validation_issues:
-                issue_ws.append([timestamp, issue["级别"], issue["位置"], issue["字段"], issue["输入内容"], issue["提示"]])
-        else:
-            issue_ws.append([timestamp, "OK", "全部", "", "", "没有发现输入问题。"])
-        self.style_excel_sheet(issue_ws, header_row=4, freeze="A5", widths={"A": 20, "B": 10, "C": 22, "D": 18, "E": 24, "F": 70})
-        try:
-            if "A1:F1" not in [str(rng) for rng in issue_ws.merged_cells.ranges]:
-                issue_ws.merge_cells("A1:F1")
-        except Exception:
-            pass
 
-    def refresh_price_snapshot_sheet(self, wb, timestamp):
-        """刷新当天 Excel 中的价格设定快照。"""
-        if "价格设定" in wb.sheetnames:
-            del wb["价格设定"]
-        settings_ws = wb.create_sheet("价格设定")
-        settings_ws.append(["价格设定快照"])
-        settings_ws.append(["最后导出时间", timestamp])
-        settings_ws.append([])
-        settings_ws.append(["项目名称", "销售单价原文", "成本单价原文", "K系数原文", "是否单件"])
-        for name, item in self.last_config_snapshot.items():
-            settings_ws.append([name, item.get("sale", ""), item.get("cost", ""), item.get("k", ""), "是" if item.get("single") else "否"])
-        self.style_excel_sheet(settings_ws, header_row=4, freeze="A5", widths={"A": 22, "B": 18, "C": 18, "D": 14, "E": 10})
-        try:
-            settings_ws.merge_cells("A1:E1")
-        except Exception:
-            pass
 
     def style_daily_profit_sheet(self, ws):
         """设置当天利润明细表样式。"""
@@ -2099,54 +1470,6 @@ class PriceCalculator:
         ws.row_dimensions[1].height = 24
 
 
-    def export_to_excel(self):
-        self.calculate()
-        if Workbook is None:
-            self.set_feedback("导出失败：缺少 openpyxl，请先运行 pip install openpyxl。", is_error=True)
-            messagebox.showerror("导出失败", "缺少 openpyxl，请先运行：pip install openpyxl")
-            return
-
-        if not self.last_export_records:
-            self.set_feedback("没有可导出的有效明细，请先检查输入并完成计算。", is_error=True)
-            return
-
-        # 子版本的导出目录固定读取代码顶部 LAN_DATA_DIR，确保和母版本写入同一个“利润表”目录。
-        self.report_dir = self.get_default_report_dir()
-        self.export_dir_var.set(self.report_dir)
-        self.ensure_directories()
-        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-        try:
-            xlsx_path, wb, ws = self.open_daily_workbook_for_append(timestamp)
-            ws.cell(row=2, column=1, value="最后导出时间")
-            ws.cell(row=2, column=2, value=timestamp)
-            ws.cell(row=3, column=1, value="最近导出淘宝ID")
-            ws.cell(row=3, column=2, value=self.user_name.get().strip())
-            ws.cell(row=3, column=3, value="订单号")
-            ws.cell(row=3, column=4, value=self.order_no.get().strip())
-            ws.cell(row=3, column=5, value="微信号")
-            ws.cell(row=3, column=6, value=self.wechat_no.get().strip())
-
-            self.append_profit_records_to_sheet(ws, timestamp)
-            self.recompute_daily_profit_summary(ws)
-            self.style_daily_profit_sheet(ws)
-            self.append_input_issues_sheet(wb, timestamp)
-            self.refresh_price_snapshot_sheet(wb, timestamp)
-            wb.save(xlsx_path)
-            wb.close()
-
-            issue_count = len(self.validation_issues)
-            suffix = f"；同时追加 {issue_count} 条输入校验反馈" if issue_count else ""
-            self.set_feedback(f"Excel 已追加到当天文件：{xlsx_path}{suffix}", is_error=False)
-            if hasattr(self, "excel_file_tree"):
-                self.refresh_excel_files()
-            messagebox.showinfo("导出成功", f"本次明细已追加到当天 Excel：\n{xlsx_path}")
-        except PermissionError:
-            self.set_feedback("Excel 导出失败：当天 Excel 可能正被打开，请关闭后再试。", is_error=True)
-            messagebox.showerror("导出失败", "无法保存当天 Excel。请先关闭正在打开的 Excel 文件后再试。")
-        except Exception as exc:
-            self.set_feedback(f"Excel 导出失败：{exc}", is_error=True)
-            messagebox.showerror("导出失败", f"无法写入 Excel：{exc}")
-
     # ---------- 截图 ----------
 
     def get_daily_screenshot_dir(self):
@@ -2172,35 +1495,6 @@ class PriceCalculator:
             if not os.path.exists(candidate):
                 return candidate
             index += 1
-
-    def save_screenshot(self):
-        self.calculate()
-
-        if ImageGrab is None:
-            self.set_feedback("截图失败：缺少 pillow，请先运行 pip install pillow。", is_error=True)
-            return
-
-        daily_screenshot_dir = self.get_daily_screenshot_dir()
-        try:
-            os.makedirs(daily_screenshot_dir, exist_ok=True)
-        except Exception as exc:
-            self.set_feedback(f"截图保存失败：无法创建当天截图文件夹：{exc}", is_error=True)
-            return
-
-        x = self.root.winfo_rootx()
-        y = self.root.winfo_rooty()
-        width = self.root.winfo_width()
-        height = self.root.winfo_height()
-        image_path = self.build_unique_screenshot_path(daily_screenshot_dir)
-        display_name = os.path.join(os.path.basename(daily_screenshot_dir), os.path.basename(image_path))
-
-        try:
-            image = ImageGrab.grab(bbox=(x, y, x + width, y + height))
-            image.save(image_path)
-            self.set_feedback(f"截图保存成功：{display_name}", is_error=False)
-            messagebox.showinfo("保存成功", f"截图已保存：{display_name}")
-        except Exception as exc:
-            self.set_feedback(f"截图保存失败：{exc}", is_error=True)
 
 
 if __name__ == "__main__":
