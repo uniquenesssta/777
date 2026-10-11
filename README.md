@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于 `plans`；当前执行分支为 `stage/p03-file-safety`，创建于P02收尾提交 `96735ad`。**P01、P02均已验收归档；P03-01已验收通过。P03-02已依据“开始03”验收收尾。P03-03连接/目录/价格分离、逐单价格快照与截图防覆盖已实现，完整215项辅助检查通过，待Windows本机复查。P03-04、P04至P08未启动。**
+规划位于 `plans`；当前执行分支为 `stage/p03-file-safety`，创建于P02收尾提交 `96735ad`。**P01、P02均已验收归档；P03-01已验收通过。P03-02已依据“开始03”验收收尾。P03-03连接/目录/价格分离、逐单价格快照与截图防覆盖已实现，完整215项辅助及Windows本机23项/母子Tk联测通过，具备收尾条件。P03-04、P04至P08未启动。**
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -14,6 +14,7 @@
 - [P03-02格式契约与本机入口](docs/verification/P03-02-format-contract.md)
 - [P03-02 Windows复查通过](docs/verification/P03-02-windows-evidence.json)
 - [P03-03设置契约、使用方式与Windows一键检查](docs/verification/P03-03-storage-contract.md)
+- [P03-03 Windows本机复查通过](docs/verification/P03-03-windows-evidence.json)
 - [文档与计划入口](docs/README.md)
 - [优化及迁移主任务书](docs/MASTER_PLAN.md)
 - [两份 Python 代码重新审计报告](docs/audit/python-audit.md)
@@ -21,6 +22,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 登记[P03-03 Windows回传](docs/verification/P03-03-windows-evidence.json)：23/23检查通过，20项实现指纹匹配b868f2b；母子Tk联测、真实新窗口恢复设置、首次连接、旧单价格快照保留及同时间PNG唯一命名通过，无回调错误，关闭与清理正常。原报告按回传保存，辅助215项证据不改；03具备收尾条件，已通过检查无需重跑，04未启动。
 
 - 按用户“开始03”[收尾P03-02](docs/verification/P03-02-acceptance.json)，同分支实施P03-03。本机连接按角色存入用户AppData，母版单独发布storage.json，子版只读继承输出位置，启动去掉旧E盘/UNC隐性fallback。目录/价格保存互不改写，坏配置禁覆盖，唯一目录写测；新单追加完整价格快照，PNG唯一命名和验证发布/未知查询。新增23项、完整215项辅助通过；[契约及Windows入口](docs/verification/P03-03-storage-contract.md)、[证据](docs/verification/P03-03-checks.json)已交付。03待本机复查/用户验收，04未启动；备份目标只登记，隐藏属性和自动调度留P05/P08。
 
