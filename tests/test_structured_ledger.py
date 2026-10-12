@@ -1,6 +1,8 @@
 """P05-01 actual SQLite transactions/backup boundaries on synthetic local files."""
 from dataclasses import replace
-from contextlib import closing
+from contextlib import closing,contextmanager
+import builtins
+import errno
 from datetime import datetime,timedelta,timezone
 import json
 import os
@@ -20,6 +22,7 @@ from quote_core import PriceItem,PriceSnapshot,QuoteSnapshot,NormalLine,Discount
 from quote_ledger import Ledger,Principal,LedgerError,Conflict,Forbidden,InvalidDatabase,UnknownCommit
 from quote_ledger.backup import Backups,restore_backup,hash_file
 from quote_ledger import schema
+from quote_ledger import backup as backup_module
 from quote_files.transactions import file_lock,FileBusy
 
 ADMIN=Principal('manager','admin');SALES=Principal('sales-1','sales');OTHER=Principal('sales-2','sales')
@@ -36,6 +39,27 @@ class StructuredLedgerTests(unittest.TestCase):
     def tearDown(self):self.temp.cleanup()
     def order(self,actor=SALES):return self.ledger.submit_order(uid(),actor,quote(),DraftDetails('客户','订单','微信'))
     def backups(self,name='backups'):return Backups.create(self.root/name,auxiliary=os.name!='nt')
+
+    @contextmanager
+    def guarded_sync(self,*,fail_database=False):
+        # Exercise real files and fsync, while enforcing Windows' write-access
+        # requirement even on the auxiliary runtime. No native Windows claim.
+        streams={};synced=[];real_sync=os.fsync
+        def tracked_open(*args,**kwargs):
+            stream=builtins.open(*args,**kwargs);streams[stream.fileno()]=stream
+            return stream
+        def sync(fd):
+            stream=streams[fd]
+            if not stream.writable():raise OSError(errno.EBADF,'read-only descriptor cannot be flushed')
+            if Path(stream.name).name=='ledger.sqlite3':
+                before=hash_file(stream.name)
+                if fail_database:raise OSError(errno.EIO,'injected snapshot flush failure')
+                real_sync(fd)
+                self.assertEqual(hash_file(stream.name),before)
+                synced.append({'writable':stream.writable(),'size':os.fstat(fd).st_size})
+            else:real_sync(fd)
+        with patch.object(backup_module,'open',side_effect=tracked_open,create=True),patch.object(backup_module.os,'fsync',side_effect=sync):
+            yield synced
 
     def test_integer_cents_and_exact_parameter_snapshot_round_trip(self):
         result=self.order();self.assertEqual((result['income_cents'],result['cost_cents'],result['profit_cents']),('1800','800','1000'))
@@ -208,6 +232,30 @@ class StructuredLedgerTests(unittest.TestCase):
         with self.assertRaises(LedgerError):manager.create_backup(self.ledger,timeout=-1)
         after=manager.status();self.assertEqual(after['last_success'],first);self.assertIsNotNone(after['last_error']);self.assertEqual(after['backups'],before['backups'])
         restored=restore_backup(manager.root/first['backup_id'],self.root/'after-failure.sqlite3');self.assertEqual(restored.inventory(),self.ledger.inventory())
+
+    def test_snapshot_flush_requires_writable_handle_without_truncation_or_content_change(self):
+        self.order();manager=self.backups();before=self.ledger.inventory()
+        with self.guarded_sync() as synced:entry=manager.create_backup(self.ledger)
+        self.assertEqual(len(synced),1);self.assertTrue(synced[0]['writable']);self.assertGreater(synced[0]['size'],0)
+        self.assertEqual(self.ledger.inventory(),before)
+        restored=restore_backup(manager.root/entry['backup_id'],self.root/'flushed.sqlite3')
+        self.assertEqual(restored.inventory(),before)
+        self.assertTrue(manager.status()['last_success']['verified_restore'])
+
+    def test_snapshot_flush_failure_preserves_verified_backup_and_committed_order(self):
+        request=uid();order=self.ledger.submit_order(request,SALES,quote())
+        manager=self.backups();first=manager.create_backup(self.ledger);before=manager.status();ledger_before=self.ledger.inventory()
+        original_hash=hash_file(manager.root/first['backup_id']/'ledger.sqlite3')
+        with self.guarded_sync(fail_database=True),self.assertRaises(OSError) as caught:manager.create_backup(self.ledger)
+        self.assertEqual(caught.exception.errno,errno.EIO)
+        after=manager.status();self.assertEqual(after['last_success'],first);self.assertEqual(after['backups'],before['backups'])
+        self.assertIn('injected snapshot flush failure',after['last_error']['reason'])
+        self.assertFalse(list(manager.root.glob('*.partial')))
+        self.assertEqual(hash_file(manager.root/first['backup_id']/'ledger.sqlite3'),original_hash)
+        self.assertEqual(self.ledger.inventory(),ledger_before);self.assertEqual(self.ledger.query_request(request,SALES),order)
+        self.assertEqual(self.ledger.submit_order(request,SALES,quote()),order);self.assertEqual(self.ledger.inventory(),ledger_before)
+        restored=restore_backup(manager.root/first['backup_id'],self.root/'after-flush-failure.sqlite3')
+        self.assertEqual(restored.inventory(),ledger_before)
 
     def test_retention_keeps_maintenance_latest_and_unknown_files(self):
         manager=self.backups();when=datetime(2026,1,1,tzinfo=timezone.utc)

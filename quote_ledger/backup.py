@@ -92,7 +92,9 @@ class Backups:
                         destination.row_factory=sqlite3.Row
                         checked=inventory(destination)
                     finally:destination.close()
-                with open(target,'rb') as stream:os.fsync(stream.fileno())
+                # Windows _commit/FlushFileBuffers requires write access.
+                # r+b opens the owned snapshot without creating/truncating it.
+                with open(target,'r+b') as stream:os.fsync(stream.fileno())
                 manifest={'format':'777-ledger-backup-v1','backup_id':backup_id,'kind':kind,'created_at':when.isoformat(),'sha256':hash_file(target),'inventory':checked,'attachments':[],'attachment_scope':'P05-01 has no persisted attachments; P05-04 owns attachment inventory/copy.'}
                 with open(partial/'manifest.json','x',encoding='utf-8') as stream:
                     stream.write(encoded(manifest));stream.flush();os.fsync(stream.fileno())

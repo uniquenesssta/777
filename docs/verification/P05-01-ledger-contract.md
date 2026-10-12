@@ -1,6 +1,6 @@
 # P05-01 本地主机结构化账本与备份契约
 
-状态：首次Windows隔离检查失败，已修复备份DACL与测试连接关闭，待第二次复验，尚未用户验收。唯一分支`stage/p05-data-service`，基线`31c8784`；用户确认停电并授权先P05的[依赖例外](P04-04-deferral.json)保留P04共享复验，不伪造整阶段通过。
+状态：第二次Windows暴露备份快照只读句柄刷盘失败，已修复待第三次复验，尚未用户验收。唯一分支`stage/p05-data-service`，基线`31c8784`；用户确认停电并授权先P05的[依赖例外](P04-04-deferral.json)保留P04共享复验，不伪造整阶段通过。
 
 实现：`quote_ledger`＋Python标准库sqlite3，要求Python3.12和SQLite≥3.37。复用已有business-v1/numeric-v1及53例黄金集，不另算财务公式。全程只在显式本机普通路径创建新库，拒绝UNC/映射盘/链接/重解析、现有文件及占用的WAL/SHM；已有库以schema_version、application_id和实际schema指纹核对，不自动修复/覆盖未知或不兼容库。现有窗口、价格/Excel写链未切换，没有服务或生产数据库部署。
 
@@ -41,13 +41,15 @@
 
 备份目录必须新建且专属，不能采用任意已有目录。Windows设置Hidden+System，用SetNamedSecurityInfoW及DACL|PROTECTED_DACL标志一次替换完整DACL，精确授予当前执行身份、SYSTEM和内置管理员完全控制及OI/CI继承，随后独立读取原生安全描述符/属性核验。允许标准SID别名和等价完全控制掩码，额外/重复主体、缺失主体、继承/仅继承ACE、拒绝条目或其他权限均拒绝；只调用GetSystemDirectoryW确认的系统whoami，不经shell，DACL写入不再使用icacls组合命令。隐藏属性不代替ACL；当前账户的隔离检查不证明真实主机服务身份或真实E盘显示效果已验收。非Windows仅显式辅助模式，不能登记Windows保护通过。
 
-单一备份/计划入口用既有原生持久锁，不能按锁文件年龄夺锁或删除锁文件。使用sqlite3.Connection.backup一致性快照，生成唯一backup_id包，检查完整性、外键、价格/规则/订单逐行金额、回执/审计/revision及行数。包有版本、哈希、核对清单；在独立新文件恢复并再次核对后才记成功。失败保留最近成功包与错误状态，不撤销已提交订单；未列入成功清单的失败包保留供审阅，不当成功备份。附件字段目前为空，因为附件实体/复制尚在P05-04。
+单一备份/计划入口用既有原生持久锁，不能按锁文件年龄夺锁或删除锁文件。使用sqlite3.Connection.backup一致性快照，生成唯一backup_id包，检查完整性、外键、价格/规则/订单逐行金额、回执/审计/revision及行数。快照SQLite连接关闭后以r+b打开该应用新建文件执行fsync；r+b不创建或截断文件，Windows刷盘需要可写句柄。刷盘异常不得当成功忽略。包有版本、哈希、核对清单；在独立新文件恢复并再次核对后才记成功。失败保留最近成功包与错误状态，不撤销已提交订单；未列入成功清单的失败包保留供审阅，不当成功备份。附件字段目前为空，因为附件实体/复制尚在P05-04。
 
 恢复只能写入不存在的独立普通文件及干净附属文件位置，校验备份哈希与清单，不覆盖线上账本。运行中不能单独复制主db作为一致快照。过期清理只处理清单中本应用包，先校验候选的ID、内容哈希与完整文件集合；未知目录/文件与维护备份保持。生产恢复和schema升级必须先停写、维护备份及新旧增量对账；本轮只有初始v1，不提供跨未知版本自动迁移。
 
 ## 验证证据和剩余门槛
 
 [31专项/374项完整辅助证据](P05-01-checks.json)记录真实本机合成SQLite：同请求两连接只有一单、锁失败无半单、第二条明细失败整单回滚、真实子进程在提交前退出后恢复、已提交回复丢失查询/重放、价格CAS/冻结与备注revision、作废恢复对账、实际并发未提交写入时的一致性备份、独立恢复、坏包/坏库/过期清理/计划锁、全部53黄金入库或拒绝与原资料保护。辅助环境不是目标Windows/真实E盘或真实多客户端服务。[首次Windows报告](P05-01-windows-report-01.json)中31项21通过/10错误，19项源码和测试清单均匹配94f4d89；[核对与修复记录](P05-01-windows-evidence-01.json)保留具体边界。9处备份DACL组合门禁失败，实际SDDL未采集，不能区分保护位和主体数；另1处文件SQLite连接未显式关闭导致WinError32。修复后[40专项/383完整辅助](P05-01-security-fix-checks.json)通过；新增7项精确权限/Win32调用边界及2项控制台失败证据检查，模拟调用不当原生权限证据。Windows入口现运行40项及原生属性/DACL、账本与恢复联测；另外在新建临时目录预置Everyone完全控制，再用实际原生API移除并读回核验。真实认证客户端在P05-02。
+
+[第二次Windows原报告](P05-01-windows-report-02.json)的20项指纹及40测试ID匹配877e8af，32通过/8错误，前次DACL和清理错误未再出现；全部8处发生于快照rb句柄执行fsync，详见[核对记录](P05-01-windows-evidence-02.json)。已改为不截断快照的可写r+b句柄，保持刷盘失败传播；[42专项/385完整辅助](P05-01-fsync-checks.json)通过。新增两项用真实文件/SQLite/独立恢复，辅助守卫在旧实现复现只读刷盘失败；注入刷盘EIO验证旧成功备份、原订单/回执和幂等性保留。模拟守卫不证明Windows已通过，独立原生联测仍待windows-03。
 
 P04整阶段尚未验收；用户确认停电原因并授权开发先行，明日共享复验保留为2026-10-14待办。不要把本地SQLite通过当P04共享性能通过，或自动开启生产切换。
 
@@ -58,9 +60,11 @@ P04整阶段尚未验收；用户确认停电原因并授权开发先行，明�
 ```powershell
 git pull --ff-only
 if ($LASTEXITCODE -ne 0) { throw '拉取失败，先停止' }
-py -3 tools/p05_ledger_check.py --windows-smoke --output reports/p05-01-windows-02
+py -3 tools/p05_ledger_check.py --windows-smoke --output reports/p05-01-windows-03
 ```
 
-预计约1～3分钟，完成后回传`reports/p05-01-windows-02/report.json`。控制台会显示检查数量、失败测试摘要或原生异常与报告位置；报告保留完整检查日志和原生异常链。核对20项LF源码指纹、40个测试ID、原生属性/DACL（包含额外授权移除）、事务/恢复及清理后再决定01收尾；本阶段留now，02/03/04未实施。
+预计约1～3分钟，完成后回传`reports/p05-01-windows-03/report.json`。控制台会显示检查数量、失败测试摘要或原生异常与报告位置；报告保留完整检查日志和原生异常链。核对20项LF源码指纹、42个测试ID、原生属性/DACL（包含额外授权移除）、事务/恢复及清理后再决定01收尾；本阶段留now，02/03/04未实施。
 
 技术依据（实施时复核）：[Python3.12 sqlite3](https://docs.python.org/3.12/library/sqlite3.html)、[SQLite事务](https://www.sqlite.org/lang_transaction.html)、[SQLite在线备份](https://www.sqlite.org/backup.html)、[网络文件数据库限制](https://www.sqlite.org/useovernet.html)、[Microsoft安全描述符](https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-getnamedsecurityinfow)、[SDDL](https://learn.microsoft.com/en-us/windows/win32/secauthz/security-descriptor-string-format)、[SetNamedSecurityInfoW](https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-setnamedsecurityinfow)、[SDDL转换](https://learn.microsoft.com/en-us/windows/win32/api/sddl/nf-sddl-convertstringsecuritydescriptortosecuritydescriptorw)、[读取DACL](https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-getsecuritydescriptordacl)。
+
+刷盘依据：[Python3.12 os.fsync](https://docs.python.org/3.12/library/os.html#os.fsync)、[Microsoft _commit](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/commit?view=msvc-170)、[FlushFileBuffers可写句柄要求](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-flushfilebuffers)。
