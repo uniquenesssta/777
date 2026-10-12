@@ -1,0 +1,48 @@
+{
+  "task": "P04-01",
+  "status": "Windows_local_checks_failed_GUI_not_run",
+  "phase_branch": "stage/p04-performance",
+  "recorded_at": "2026-10-12T10:45:23.641911+08:00",
+  "received_at": "2026-10-12T10:40:40+08:00",
+  "source": "user_uploaded_console_text",
+  "source_attachment": {
+    "name": "粘贴的文本 (1)(10).txt",
+    "sha256": "fc90283dd5c299b9ee4acd4034f1985aa36603b3c3138c19d92fc50a221b82b8",
+    "library_file_id": "libfile_67c2f28019c88191b11e219e8a6fd6b4"
+  },
+  "source_commit": "a4194b93a7c5c345c6d28607d7d0b4274b0672de",
+  "command": "py -3 tools/p04_io_check.py --gui-smoke --output reports/p04-01-windows-01.json",
+  "environment": {
+    "os": "Windows",
+    "python": "3.12.10"
+  },
+  "implementation_verification": {
+    "sha256_LF_count": 24,
+    "matched": 24,
+    "mismatches": [],
+    "all_expected_ids_matched": true
+  },
+  "tests": {
+    "status": "failed",
+    "tests_run": 20,
+    "failures": 0,
+    "errors": 5,
+    "skipped": [],
+    "elapsed_seconds": 2.203
+  },
+  "errors": [
+    "ERROR: test_cold_start_restores_connection_in_worker_then_delivers_owner_prices (test_background_io.BackgroundAdapterTests.test_cold_start_restores_connection_in_worker_then_delivers_owner_prices)",
+    "ERROR: test_directory_editor_changed_during_observation_is_not_overwritten (test_background_io.BackgroundAdapterTests.test_directory_editor_changed_during_observation_is_not_overwritten)",
+    "ERROR: test_price_reload_does_not_overwrite_user_editor_changed_during_read (test_background_io.BackgroundAdapterTests.test_price_reload_does_not_overwrite_user_editor_changed_during_read)",
+    "ERROR: test_real_entrypoint_worker_reads_prices_without_touching_any_tk_variable (test_background_io.BackgroundAdapterTests.test_real_entrypoint_worker_reads_prices_without_touching_any_tk_variable) (role='manager')",
+    "ERROR: test_real_entrypoint_worker_reads_prices_without_touching_any_tk_variable (test_background_io.BackgroundAdapterTests.test_real_entrypoint_worker_reads_prices_without_touching_any_tk_variable) (role='sales')"
+  ],
+  "failure_location": "All five errors are TemporaryDirectory cleanup failures: WinError 32 while unlinking synthetic storage.json. No business assertion failure is reported. A price/startup result can queue a follow-up scan; the fixture closed its queue but did not wait for readers to leave before deleting the sandbox.",
+  "GUI": "Requested but not run because prerequisite background checks failed; original windows_gui field remains not_requested in the raw snapshot.",
+  "production_paths_accessed": false,
+  "scope": "Windows 3.12.10, synthetic temporary adapter files; actual Tk background window check not reached.",
+  "task_acceptance": "未通过；P04-01留now，不自动收尾或启动02。",
+  "report_snapshot": "P04-01-windows-report-01.json",
+  "snapshot_policy": "按回传原值保存所有报告字段；原控制台附件以哈希标识，未修改附件。原P04-01-checks.json辅助证据保留。",
+  "follow_up": "诊断清理等待所属后台线程真实退出；不改变产品读窗口关闭行为。修复后Windows使用reports/p04-01-windows-02.json另行复查。"
+}

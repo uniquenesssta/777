@@ -148,6 +148,9 @@ def run_gui():
                 if not app._io_runtime.writing:
                     try:app.on_close()
                     except tk.TclError:pass
+                if not app._io_runtime.wait_closed(5):
+                    raise TimeoutError("诊断后台I/O尚未结束，不能清理临时数据")
+            report["worker_shutdown"] = "completed_before_sandbox_cleanup"
             report["callback_errors"] = errors
             report["heartbeat_samples"] = len(ticks)
             report["max_heartbeat_gap_ms"] = round(max((b-a)*1000 for a,b in zip(ticks,ticks[1:])), 3) if len(ticks)>1 else None
@@ -175,6 +178,7 @@ def main(argv=None):
         elif checks['status']=='passed':
             try:report['windows_gui']=run_gui();report['status']=report['windows_gui']['status']
             except Exception as exc:report.update(status='failed',windows_gui={'status':'failed','error':f'{type(exc).__name__}: {exc}'})
+        else:report['windows_gui']='not_run: background checks failed'
     from baseline_check import emit
     emit(report,args.output)
     return 2 if report['status']=='blocked' else int(report['status']=='failed')

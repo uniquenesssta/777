@@ -64,9 +64,28 @@ def asynchronous(app):
         for job in (app._io_poll_job, *tuple(app._after_jobs)):
             app.root.after_cancel(job)
         app._after_jobs.clear()
+        if not app._io_runtime.wait_closed(5):
+            raise AssertionError("诊断读线程尚未退出，不能清理临时数据")
 
 
 class JobsTests(unittest.TestCase):
+    def test_diagnostic_wait_requires_closed_queue_and_timeout_does_not_terminate_reader(self):
+        jobs = Jobs(readers=1)
+        started, release = Event(), Event()
+        try:
+            with self.assertRaises(RuntimeError):jobs.wait_closed(.01)
+            task = jobs.submit("read", lambda ctx: (started.set(), release.wait(3)))
+            self.assertTrue(started.wait(1))
+            jobs.close()
+            self.assertFalse(jobs.wait_closed(.01))
+            self.assertEqual(task.state, "running")
+            release.set()
+            self.assertTrue(jobs.wait_closed(1))
+            self.assertEqual(task.state, "cancelled")
+        finally:
+            release.set();jobs.close()
+            self.assertTrue(jobs.wait_closed(1))
+
     def test_reader_queue_is_bounded_while_native_call_is_still_blocked(self):
         jobs = Jobs(readers=1, capacity=1)
         started, release = Event(), Event()
@@ -126,6 +145,33 @@ class JobsTests(unittest.TestCase):
 
 
 class BackgroundAdapterTests(unittest.TestCase):
+    def test_diagnostic_teardown_finishes_unobserved_reader_before_sandbox_cleanup(self):
+        started, release, finished = Event(), Event(), Event()
+        jobs = None
+        try:
+            with application("manager") as (app, folder, *_), ExitStack() as patches:
+                with asynchronous(app):
+                    jobs = app._io_runtime
+                    original_wait = jobs.wait_closed
+                    def release_before_join(timeout):
+                        release.set()
+                        return original_wait(timeout)
+                    def holding_file(ctx):
+                        with (folder / "storage.json").open("rb") as stream:
+                            started.set();release.wait(3);stream.read()
+                        finished.set()
+                    patches.enter_context(patch.object(jobs, "wait_closed", side_effect=release_before_join))
+                    task = jobs.submit("follow_up_scan", holding_file)
+                    self.assertTrue(started.wait(1))
+                    self.assertFalse(finished.is_set())
+                self.assertTrue(finished.is_set())
+                self.assertEqual(task.state, "cancelled")
+            self.assertFalse(folder.exists())
+        finally:
+            release.set()
+            if jobs is not None:
+                jobs.close();jobs.wait_closed(1)
+
     def test_real_entrypoint_worker_reads_prices_without_touching_any_tk_variable(self):
         for role in ("manager", "sales"):
             with self.subTest(role=role), application(role) as (app, *_), asynchronous(app):

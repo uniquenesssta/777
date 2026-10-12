@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于`plans`；**P01、P02、P03均已验收归档old**，见[P03确认](docs/verification/P03-acceptance.json)。当前唯一执行分支`stage/p04-performance`创建于P03收尾`823a487`。P04-01后台I/O、旧结果隔离与取消/关闭已实现，新增20项/完整257项辅助通过，待Windows本机及实际Tk复查；02至04及P05至P08未启动。
+规划位于`plans`；**P01、P02、P03均已验收归档old**，见[P03确认](docs/verification/P03-acceptance.json)。当前唯一执行分支`stage/p04-performance`创建于P03收尾`823a487`。P04-01后台I/O、旧结果隔离与取消/关闭已实现；首次Windows临时文件清理失败已修复，后台22项/完整259项辅助通过，待Windows本机及实际Tk复查；02至04及P05至P08未启动。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -19,6 +19,7 @@
 - [P03-04 Windows本机复查通过](docs/verification/P03-04-windows-evidence.json)
 - [当前P04性能任务书](docs/now/P04-performance.md)
 - [P04-01后台任务契约与Windows入口](docs/verification/P04-01-background-contract.md)
+- [P04-01首次Windows失败证据](docs/verification/P04-01-windows-evidence-01.json)及[清理修复辅助检查](docs/verification/P04-01-cleanup-checks.json)
 - [文档与计划入口](docs/README.md)
 - [优化及迁移主任务书](docs/MASTER_PLAN.md)
 - [两份 Python 代码重新审计报告](docs/audit/python-audit.md)
@@ -26,6 +27,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P04-01 Windows清理修复：回传a4194b9的20项检查出现5个WinError 32，均在临时storage.json删除；无业务断言失败，实际Tk联测尚未运行。[原失败报告](docs/verification/P04-01-windows-report-01.json)按原值登记，24项LF指纹匹配。诊断清理先关闭队列并等待所属读线程真实退出，窗口读关闭仍不等待原生I/O；新增2项持有文件/退出回归，原夹具可复现预期失败，修复后后台22项/完整259项辅助通过。原20/257辅助证据保留；待使用新文件名进行Windows复查，不收尾01或启动02。
 
 - P04-01：从P03收尾823a487建立唯一stage/p04-performance，任务书new→now；两版默认后台恢复连接/读取价格、共享检查、扫描、Excel视图/发布及配置/请求操作。2条读通道/4项等候与单写通道；主线程快照/after交付，按代次隔离旧结果，分批呈现，取消/超时不伪终止I/O，读关闭不等共享盘、写关闭保留原提交结果，失败备注保留。新增20项及完整257项辅助通过，[契约与Windows入口](docs/verification/P04-01-background-contract.md)、[证据](docs/verification/P04-01-checks.json)已交付；待Windows复查/用户验收，02至04未启动。
 

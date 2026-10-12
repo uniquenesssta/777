@@ -46,8 +46,11 @@ class Jobs:
         self.reads, self.writes = deque(), deque()
         self.tasks, self.latest = {}, {}
         self.closed, self.sequence = False, 0
+        self._workers = []
         for lane in [False] * readers + [True]:
-            Thread(target=self._worker, args=(lane,), daemon=True, name="777-write" if lane else "777-read").start()
+            worker = Thread(target=self._worker, args=(lane,), daemon=True, name="777-write" if lane else "777-read")
+            self._workers.append(worker)
+            worker.start()
 
     def submit(self, channel, action, *, write=False):
         with self.condition:
@@ -140,3 +143,17 @@ class Jobs:
                 raise RuntimeError("不能丢弃尚未交付结果的写任务")
             self.closed = True
             self.condition.notify_all()
+
+    def wait_closed(self, timeout):
+        """Diagnostic teardown only: wait for native I/O before deleting its sandbox.
+
+        Window close remains nonblocking. A timeout does not terminate workers
+        or authorize deleting files they may still be using.
+        """
+        with self.condition:
+            if not self.closed:
+                raise RuntimeError("必须先关闭任务队列，再等待诊断线程退出")
+        deadline = time.monotonic() + timeout
+        for worker in self._workers:
+            worker.join(max(0, deadline - time.monotonic()))
+        return all(not worker.is_alive() for worker in self._workers)
