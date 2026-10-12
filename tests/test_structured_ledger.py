@@ -1,5 +1,6 @@
 """P05-01 actual SQLite transactions/backup boundaries on synthetic local files."""
 from dataclasses import replace
+from contextlib import closing
 from datetime import datetime,timedelta,timezone
 import json
 import os
@@ -87,7 +88,7 @@ class StructuredLedgerTests(unittest.TestCase):
             if mode=='unknown':path.write_bytes(b'existing non-database original')
             else:
                 db=Ledger.create(path)
-                with sqlite3.connect(path) as c:
+                with closing(sqlite3.connect(path)) as c, c:
                     if mode=='version':c.execute('PRAGMA user_version=999')
                     else:c.execute('CREATE TABLE surprise(value TEXT)')
             raw=path.read_bytes()

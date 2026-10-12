@@ -34,4 +34,22 @@ class LedgerCheckTests(unittest.TestCase):
         with patch.object(check,'new_output',side_effect=FileExistsError('already exists')),patch.object(check,'run_checks',side_effect=AssertionError('checks touched')),self.assertRaises(FileExistsError):check.main(['--checks-only','--output',str(self.root)])
         self.assertEqual(marker.read_text(),'preserve')
 
+    def test_failed_checks_show_actionable_error_and_report_path_in_console(self):
+        checks={'status':'failed','tests_run':1,'failures':0,'errors':1,'failure_details':[{'test_id':'fixture.acl','error':'LedgerError: native ACL rejected'}]}
+        output=io.StringIO()
+        with patch.object(check,'new_output',return_value=self.root),patch.object(check.platform,'system',return_value='Windows'),patch.object(check,'run_checks',return_value=checks),patch.object(check,'windows_smoke',side_effect=AssertionError('native touched')),patch('sys.stdout',new=output):
+            self.assertEqual(check.main(['--windows-smoke','--output','ignored']),2)
+        summary=json.loads(output.getvalue())
+        self.assertEqual(summary['checks']['failure_details'],checks['failure_details'])
+        self.assertEqual(summary['report_path'],str(self.root/'report.json'))
+        self.assertEqual(self.report()['P05_01_acceptance'],'pending')
+
+    def test_native_exception_is_visible_in_console_and_full_saved_report(self):
+        output=io.StringIO()
+        with patch.object(check,'new_output',return_value=self.root),patch.object(check.platform,'system',return_value='Windows'),patch.object(check,'run_checks',return_value={'status':'passed'}),patch.object(check,'windows_smoke',side_effect=OSError('native readback failed')),patch('sys.stdout',new=output):
+            self.assertEqual(check.main(['--windows-smoke','--output','ignored']),2)
+        summary=json.loads(output.getvalue())
+        self.assertEqual(summary['error'],self.report()['error'])
+        self.assertIn('native readback failed',summary['error'])
+
 if __name__=='__main__':unittest.main()

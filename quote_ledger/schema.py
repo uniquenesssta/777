@@ -2,6 +2,7 @@
 import hashlib
 import json
 import sqlite3
+from contextlib import closing
 from functools import lru_cache
 
 VERSION = 1
@@ -35,6 +36,6 @@ def signature(connection):
 
 @lru_cache(maxsize=1)
 def expected_hash():
-    with sqlite3.connect(':memory:') as connection:
+    with closing(sqlite3.connect(':memory:')) as connection:
         for sql in DDL:connection.execute(sql)
         return signature(connection)

@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于plans；P01/P02/P03已验收；P04执行任务已按用户授权转接，整阶段验收未通过，[共享复验因停电延期](docs/verification/P04-04-deferral.json)。当前唯一stage/p05-data-service，真实基线31c8784；P05-01已实现本地SQLite账本、幂等/revision/价格CAS与不可变快照、一致备份及独立恢复，[31专项/374完整辅助检查](docs/verification/P05-01-checks.json)通过，Windows隔离检查待回传。P05-02/03/04未实施，未切换客户端或迁移生产账本。
+规划位于plans；P01/P02/P03已验收；P04执行任务已按用户授权转接，整阶段验收未通过，[共享复验因停电延期](docs/verification/P04-04-deferral.json)。当前唯一stage/p05-data-service，真实基线31c8784；P05-01已实现本地SQLite账本、幂等/revision/价格CAS与不可变快照、一致备份及独立恢复，初版[31专项/374完整辅助检查](docs/verification/P05-01-checks.json)通过；[首次Windows回传](docs/verification/P05-01-windows-evidence-01.json)31项中21通过/10错误，备份DACL及测试连接关闭已修复，[40专项/383完整辅助回归](docs/verification/P05-01-security-fix-checks.json)通过，待windows-02复验。P05-02/03/04未实施，未切换客户端或迁移生产账本。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -34,6 +34,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P05-01[首次Windows回传](docs/verification/P05-01-windows-evidence-01.json)：19项LF指纹、31测试ID与schema指纹匹配94f4d89；21通过/10错误，其中9处备份DACL核验、1处测试数据库未关闭导致WinError32，[原报告](docs/verification/P05-01-windows-report-01.json)按字节保留。新建专属目录改用原生SetNamedSecurityInfoW完整替换受保护DACL，读取核验精确主体、完整权限与子目录继承；测试/内存schema连接显式关闭。新增权限策略/原生调用边界及失败摘要回归，Windows联测增加额外Everyone显式授权移除验证；[40专项/383完整辅助](docs/verification/P05-01-security-fix-checks.json)通过，原计算/DDL/黄金与P04实现保持。现有P05分支拉取后用windows-02复验，未验收01或开始02/03/04。
 
 - 用户确认P04正式05共享预检查失败原因为停电，授权先推进P05并保留明日共享复验；[转接记录](docs/verification/P04-04-deferral.json)保留P04整阶段未验收事实，P04执行计划移old且注明延期，P05唯一stage/p05-data-service从31c8784启动。P05-01新增quote_ledger本机SQLite v1结构/索引/版本指纹，订单重算复用既有核心，整数分与原文/规范化高精度参数持久化；request_id幂等、不同负载冲突、原子整单/审计、价格CAS、只追加备注与revision、作废/恢复和未知提交查询。新增一致性备份/独立恢复、只清理清单内过期备份、最近成功副本及维护备份保留、单身份调度入口；新建Windows备份目录设置并核对Hidden+System与服务当前身份/SYSTEM/管理员DACL。[31专项/374完整辅助](docs/verification/P05-01-checks.json)通过，真实SQLite进程退出/并发/53黄金入库或拒绝及数据不变检查；Windows属性/ACL与隔离恢复待[本机入口](docs/verification/P05-01-ledger-contract.md)回传。无服务安装、真实E盘/共享修改或客户端切换，P05-02/03/04留后续。
 

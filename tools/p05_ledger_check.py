@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import traceback
 import unittest
 import uuid
 
@@ -20,15 +21,18 @@ from quote_core import PriceItem,PriceSnapshot,QuoteSnapshot,NormalLine,Discount
 from quote_ledger import Ledger,Principal
 from quote_ledger.backup import Backups,restore_backup
 from quote_ledger import schema
+from quote_ledger.security import protect_directory,_replace_dacl
 
 
 def run_checks():
-    suite=unittest.defaultTestLoader.loadTestsFromNames(['test_structured_ledger','test_p05_ledger_check'])
+    suite=unittest.defaultTestLoader.loadTestsFromNames(['test_structured_ledger','test_ledger_security','test_p05_ledger_check'])
     ids=list(case_ids(suite));log=io.StringIO();started=time.monotonic()
     result=unittest.TextTestRunner(stream=log,verbosity=2).run(suite)
     return {'status':'passed' if result.wasSuccessful() else 'failed','tests_run':result.testsRun,
             'failures':len(result.failures),'errors':len(result.errors),'skipped':result.skipped,
-            'elapsed_seconds':time.monotonic()-started,'test_ids':ids,'log':log.getvalue()}
+            'elapsed_seconds':time.monotonic()-started,'test_ids':ids,'log':log.getvalue(),
+            'failure_details':[{'test_id':test.id(),'error':trace.strip().splitlines()[-1]}
+                for test,trace in [*result.failures,*result.errors]]}
 
 
 def windows_smoke():
@@ -53,9 +57,20 @@ def windows_smoke():
         assert restored.inventory()==before
         security=manager.status()['security']
         assert security['hidden'] and security['system'] and security['protected_dacl']
+        # Native regression: a new owned fixture must lose an extra explicit
+        # Everyone grant; ordinary grants must not merely be merged into it.
+        import ctypes
+        fixture=root/'权限回归';fixture.mkdir()
+        advapi=ctypes.WinDLL('advapi32',use_last_error=True)
+        free=ctypes.WinDLL('kernel32',use_last_error=True).LocalFree
+        free.argtypes=[ctypes.c_void_p];free.restype=ctypes.c_void_p
+        _replace_dacl(fixture,set(security['allowed_sids'])|{'S-1-1-0'},advapi,free)
+        checked=protect_directory(fixture)
+        assert checked['allowed_sids']==security['allowed_sids']
         value={'status':'passed','inventory':before,'idempotent_original_and_restored_receipts':True,
             'all_exact_amounts_and_void_restore_passed':True,
-            'backup_security':{'hidden':True,'system':True,'protected_dacl':True,'allowed_principal_count':len(security['allowed_sids'])},
+            'backup_security':{'hidden':True,'system':True,'protected_dacl':True,'allowed_principal_count':len(security['allowed_sids']),
+                'extra_explicit_everyone_grant_removed_in_owned_fixture':True},
             'native_lock_and_SQLite_backup':True,'source_target_independent':True,
             'scope':'Actual Windows temp local SQLite, current Windows identity ACL/Hidden+System and independently restored backup; no E/share/live database or service installation',
             'sandbox_cleaned':False}
@@ -71,7 +86,7 @@ def main(argv=None):
     args=parser.parse_args(argv);output=new_output(args.output)
     fingerprints={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes().replace(b'\r\n',b'\n')).hexdigest()
         for p in sorted([*ROOT.glob('quote_ledger/*.py'),*ROOT.glob('quote_core/*.py'),ROOT/'quote_files/transactions.py',
-            ROOT/'tests/test_structured_ledger.py',ROOT/'tests/test_p05_ledger_check.py',ROOT/'tests/test_quote_core.py',
+            ROOT/'tests/test_structured_ledger.py',ROOT/'tests/test_ledger_security.py',ROOT/'tests/test_p05_ledger_check.py',ROOT/'tests/test_quote_core.py',
             ROOT/'tools/p05_ledger_check.py',ROOT/'docs/baseline/p01-04-golden.json'])}
     report={'task':'P05-01','source_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
         'environment':{'os':platform.system(),'python':platform.python_version(),'sqlite':sqlite3.sqlite_version},
@@ -87,10 +102,15 @@ def main(argv=None):
         elif args.windows_smoke:
             try:
                 report['native_smoke']=windows_smoke();report['status']='Windows_isolated_ledger_passed_acceptance_pending'
-            except Exception as exc:report.update(status='failed',error=f'{type(exc).__name__}: {exc}')
+            except Exception as exc:report.update(status='failed',error=f'{type(exc).__name__}: {exc}',native_error_traceback=traceback.format_exc())
         else:report['status']='auxiliary_checks_passed_Windows_pending'
     (output/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    print(json.dumps({k:report[k] for k in ('task','status','environment','P04_shared_acceptance','native_smoke')},ensure_ascii=False,indent=2))
+    summary={k:report[k] for k in ('task','status','environment','P04_shared_acceptance','native_smoke')}
+    if report['checks'] is not None:
+        summary['checks']={k:report['checks'][k] for k in ('status','tests_run','failures','errors','failure_details') if k in report['checks']}
+    if 'error' in report:summary['error']=report['error']
+    summary['report_path']=str(output/'report.json')
+    print(json.dumps(summary,ensure_ascii=False,indent=2))
     return 0 if report['status'] in {'Windows_isolated_ledger_passed_acceptance_pending','auxiliary_checks_passed_Windows_pending'} else 2
 
 
