@@ -324,3 +324,11 @@ API依据：[Python 3.12 time.sleep](https://docs.python.org/3.12/library/time.h
 该设备/解释器/Tk/scaling记录与短诊断01一致，但两次独立生成工作簿的SHA不同，只核对规模/金额一致，不作为严格字节配对或改善百分比证据。本次首读母子11.2308/11.1528秒，查看1.0814/1.2531秒，较01的10.4925/10.2546及0.8756/0.9957秒有所增加；保留响应改善与总处理时间的实际取舍，不把让步暂停与嵌套解析/视图耗时相加。正式多轮报告将继续记录总耗时、分配峰值、全部心跳及读取正确性，无新的吞吐百分比门槛，也不撤销旧57个失败阶段。
 
 本次不改程序、诊断工具、测试或金额/写事务；[完整343项含37专项辅助证据](verification/P04-04-cooperative-checks.json)保持，已通过的独立辅助检查不额外重跑。短诊断已满足推进正式性能复验的条件，使用原9种工作负载各5轮、原版小档配对、同批字节和实际本机/UNC临时子目录；保持正式每阶段至少20次回调及p95≤100ms、最大≤500ms，无事件丢弃、静默截断或降低门槛。断网/双机占用不重新安排，P04-01/02/03无需重新跑。P04-04及整阶段待正式报告与用户确认，P05未启动。
+
+## 正式05共享根阻塞
+
+[正式05原报告](verification/P04-04-windows-report-05.json)按字节保存（19164字节，SHA256 3ce3081f62e3332647e82d40741a65c1d1d1980cb365a68c3a670ffefac710b9）；[核对证据](verification/P04-04-windows-evidence-05.json)确认55f359e的42项LF指纹、37个测试ID全部一致，37本机检查通过、0失败/错误/跳过。报告status=failed、storages为空，error为ValueError: SHARED_ROOT_MUST_BE_EXISTING_DIRECTORY_WITHOUT_LINK。本机/UNC均未开始正式矩阵，没有新的心跳、金额或读取计数结果；这不是新的性能超限，也不算通过。
+
+已验证的工具先构造两个storage父目录列表，shared_parent失败会早于本机/UNC测量临时目录创建；37个检查自身仍使用隔离合成夹具。原报告production_paths_accessed=true与explicit_shared_root_requested=true保持，说明显式共享根元数据检查曾尝试；production_files_read_or_modified=false，不写成“完全没有共享路径访问”。现有门禁将is_symlink、is_junction和not is_dir合并报错，附件未记录实参、具体属性或底层Windows错误，不能据此断定目录不存在、权限不足或实际链接。程序/工具没有变化，不在缺少现场信息时放宽目录门禁。
+
+下一步只读查看指定UNC根的FullName/PSIsContainer/Attributes/LinkType/Target或实际访问错误。普通目录且可访问后才继续正式本机/UNC各5轮复验；如路径不同，使用实际已确认的普通目录，不自动扫描/猜目录，不移除或改造共享目录。正式05输出已存在，重试必须使用新的reports/p04-04-windows-06，保留原失败报告。[短诊断02十阶段通过](verification/P04-04-windows-latency-evidence-02.json)、[343项含37专项辅助](verification/P04-04-cooperative-checks.json)和历史完整报告保持原值，已通过无变动检查不另跑。P04-04及整阶段待正式证据，P05未启动。

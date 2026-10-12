@@ -1,6 +1,6 @@
 # P04 后台任务、增量读取和完整查看
 
-状态：执行中。P01/P02/P03归档，P04-01/02/03收尾。唯一stage/p04-performance；[短诊断02](../verification/P04-04-windows-latency-evidence-02.json)匹配f40e72b的42项指纹/37测试ID，母子10000行各一轮、10阶段心跳全部达标，最大124.7948ms；金额/冷一次暖0/全页及清理通过，1028次让步均在读线程。程序实现保持，[343项含37专项辅助证据](../verification/P04-04-cooperative-checks.json)继续有效；进入正式本机/UNC全档5轮复验，输出windows-05。原正式57个失败记录保留，单轮不代替验收，P04留now，P05未启动。
+状态：执行中。P01/P02/P03归档，P04-01/02/03收尾。唯一stage/p04-performance；[正式05回传](../verification/P04-04-windows-evidence-05.json)匹配55f359e的42项指纹/37测试ID、检查通过，但共享根预检查失败，零性能实测；不是新增性能超限。已通过的[短诊断02](../verification/P04-04-windows-latency-evidence-02.json)十阶段及[343项辅助](../verification/P04-04-cooperative-checks.json)保持，程序不变。当前只读核查UNC目录状态，确认真实可访问普通目录后再用新输出windows-06复验；P04留now，P05未启动。
 
 P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。P01已按[批准记录](../baseline/p01-acceptance.json)采纳numeric-v1/performance-v1，历史候选/黄金元数据保留并映射；实施时读取同一黄金JSON，不复制期望。本阶段01已按用户“开始P4-01”授权实施。
 
@@ -13,7 +13,7 @@ Windows原小档基线已在[P01-04回传](../baseline/p01-04-windows-evidence.j
 | P04-01 | 已验收收尾：主线程快照→2条读/单写通道→after交付；目录/价格/Excel/共享核查后台化、任务代次/输入revision、分批更新、取消/关闭；[契约](../verification/P04-01-background-contract.md) | 后台24项/完整261项辅助通过，[修复证据](../verification/P04-01-controls-checks.json)：慢扫描中编辑和心跳、真实连接切换隔离旧结果、后台零Tk变量访问、超时仍占槽、冻结报价与未知请求、读关闭/写关闭交付、失败备注保留、临时文件清理前读线程退出及母子导出控件原命令；[Windows本机24/24及实际母子Tk联测7项通过](../verification/P04-01-windows-evidence-03.json)，[01确认](../verification/P04-01-acceptance.json) | 取消读任务并恢复上次已验证显示；写关闭保持事件循环、等待原提交状态，不伪终止或丢弃请求 |
 | P04-02 | 已验收收尾：脱离句柄行快照、一次解码、多视图复用；摘要/完整视图双层有界索引、Windows文件身份/写入/变更时间与弱元数据回读、parser失效、并发合并；目标写前后失效、变动金额差额、外部视图改变/删除撤销租约；[契约](../verification/P04-02-incremental-contract.md)/[收尾确认](../verification/P04-02-acceptance.json) | [22项新增/283项辅助通过](../verification/P04-02-checks.json)；[样本](../verification/P04-02-read-profile.json)冷5/暖0/改单1/删除0、20/40行XML各1；公式附加打开/必要重试分别计数。暖刷新在摘要索引预算内零workbook打开，完整视图淘汰不重读摘要；超预算/不可信元数据明示。[Windows本机22/22及实际母子Tk联测11项通过](../verification/P04-02-windows-evidence-01.json)，冷4/暖0、改单1/删除0、真实备注仅重读目标；无回调错误，关闭/清理正常，本次无需重跑 | 缓存可重建，永远不是账本；版本不可信时重新校验，不复用错误零值 |
 | P04-03 | 已验收收尾：[确认](../verification/P04-03-acceptance.json)；共用200行分页/文本和订单筛选、原行号/身份编辑，换文件/刷新保留页码/选中/滚动，最多64位置；窗口HWND截图与完整冻结报价图两个入口，独占UUID目录/连续多张/完整清单；[契约](../verification/P04-03-pagination-contract.md) | [23项GBK默认下/完整306项辅助通过](../verification/P04-03-encoding-checks.json)；[Windows23/23及实际母子Tk16项通过](../verification/P04-03-windows-evidence-02.json)，两端10000明细全页可达（母版51页/子版50页）、筛选/跳转/返回定位及后段备注金额保留；真实完整报价图母版42条/2张、子版1条/1张全覆盖，当前设备HWND截图/遮挡期间完整报价图一致，无回调错误，关闭/清理正常。10000条图片布局由本机单元检查覆盖；未出现的DPI/多显示器配置不冒充实测，无需重跑 | 位置和页面是可重建显示；附件部分失败保留已验证页并提示，不改变原账本；原完整写协议保持 |
-| P04-04 | 执行中：保持f40e72b的Windows读取线程8ms预算/1ms让步，[短诊断02](../verification/P04-04-windows-latency-evidence-02.json)十阶段全部达标，转正式复验 | 42指纹/37测试ID一致，37本机检查通过，最大124.7948ms，金额/完整明细/读取/清理通过；[343项辅助](../verification/P04-04-cooperative-checks.json)继续有效。待本机及UNC全档5轮windows-05，100/500ms门槛保持，单轮不收尾 | 07e5956为让步实施前恢复点；不改旧报告，不伪造严格配对百分比；读暂停可增加总耗时，正式报告同时核验响应与耗时 |
+| P04-04 | 执行中：[正式05](../verification/P04-04-windows-evidence-05.json)共享根预检查阻塞；先只读目录核查，程序保持 | 42指纹/37测试ID一致，37检查通过；零实际性能轮次，不据此撤销短诊断02十阶段通过或登记全档通过。确认可访问普通UNC目录后正式06，本机/UNC各5轮及100/500ms门槛保持 | 原失败报告及已有短诊断保留；不降低目录/链接门禁，不重复无变动检查，不覆盖已经存在的05输出目录 |
 
 缓存键应包含规范路径、size、mtime_ns、schema/parser版本，并在写入时主动失效；共享文件同尺寸/低精度时间戳或原地替换有疑义时校验版本/哈希。不要每次暖刷新重新哈希全部文件以抵消缓存收益。大文件流式读取，关闭读句柄；UI渲染分批。
 
@@ -114,3 +114,11 @@ API依据：[Python 3.12 time.sleep](https://docs.python.org/3.12/library/time.h
 该设备/解释器/Tk/scaling记录与短诊断01一致，但两次独立生成工作簿的SHA不同，只核对规模/金额一致，不作为严格字节配对或改善百分比证据。本次首读母子11.2308/11.1528秒，查看1.0814/1.2531秒，较01的10.4925/10.2546及0.8756/0.9957秒有所增加；保留响应改善与总处理时间的实际取舍，不把让步暂停与嵌套解析/视图耗时相加。正式多轮报告将继续记录总耗时、分配峰值、全部心跳及读取正确性，无新的吞吐百分比门槛，也不撤销旧57个失败阶段。
 
 本次不改程序、诊断工具、测试或金额/写事务；[完整343项含37专项辅助证据](../verification/P04-04-cooperative-checks.json)保持，已通过的独立辅助检查不额外重跑。短诊断已满足推进正式性能复验的条件，使用原9种工作负载各5轮、原版小档配对、同批字节和实际本机/UNC临时子目录；保持正式每阶段至少20次回调及p95≤100ms、最大≤500ms，无事件丢弃、静默截断或降低门槛。断网/双机占用不重新安排，P04-01/02/03无需重新跑。P04-04及整阶段待正式报告与用户确认，P05未启动。
+
+## 正式05共享根阻塞
+
+[正式05原报告](../verification/P04-04-windows-report-05.json)按字节保存（19164字节，SHA256 3ce3081f62e3332647e82d40741a65c1d1d1980cb365a68c3a670ffefac710b9）；[核对证据](../verification/P04-04-windows-evidence-05.json)确认55f359e的42项LF指纹、37个测试ID全部一致，37本机检查通过、0失败/错误/跳过。报告status=failed、storages为空，error为ValueError: SHARED_ROOT_MUST_BE_EXISTING_DIRECTORY_WITHOUT_LINK。本机/UNC均未开始正式矩阵，没有新的心跳、金额或读取计数结果；这不是新的性能超限，也不算通过。
+
+已验证的工具先构造两个storage父目录列表，shared_parent失败会早于本机/UNC测量临时目录创建；37个检查自身仍使用隔离合成夹具。原报告production_paths_accessed=true与explicit_shared_root_requested=true保持，说明显式共享根元数据检查曾尝试；production_files_read_or_modified=false，不写成“完全没有共享路径访问”。现有门禁将is_symlink、is_junction和not is_dir合并报错，附件未记录实参、具体属性或底层Windows错误，不能据此断定目录不存在、权限不足或实际链接。程序/工具没有变化，不在缺少现场信息时放宽目录门禁。
+
+下一步只读查看指定UNC根的FullName/PSIsContainer/Attributes/LinkType/Target或实际访问错误。普通目录且可访问后才继续正式本机/UNC各5轮复验；如路径不同，使用实际已确认的普通目录，不自动扫描/猜目录，不移除或改造共享目录。正式05输出已存在，重试必须使用新的reports/p04-04-windows-06，保留原失败报告。[短诊断02十阶段通过](../verification/P04-04-windows-latency-evidence-02.json)、[343项含37专项辅助](../verification/P04-04-cooperative-checks.json)和历史完整报告保持原值，已通过无变动检查不另跑。P04-04及整阶段待正式证据，P05未启动。

@@ -9,8 +9,8 @@
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
 | 本轮授权 | 用户“开始04”：依据已通过报告收尾P04-03，继续同分支执行P04-04；既有推送授权有效 |
 | 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P01/P02/P03归档，P04-01/02/03收尾。唯一stage/p04-performance；[短诊断02](verification/P04-04-windows-latency-evidence-02.json)匹配f40e72b的42项指纹/37测试ID，母子10000行各一轮、10阶段心跳全部达标，最大124.7948ms；金额/冷一次暖0/全页及清理通过，1028次让步均在读线程。程序实现保持，[343项含37专项辅助证据](verification/P04-04-cooperative-checks.json)继续有效；进入正式本机/UNC全档5轮复验，输出windows-05。原正式57个失败记录保留，单轮不代替验收，P04留now，P05未启动。 |
-| 下一项 | 执行[P04-04正式复验入口](verification/P04-04-performance-contract.md)，回传reports/p04-04-windows-05/report.json；本机及UNC全档各5轮，预计十几至二十多分钟，依文件系统速度可能更久 |
+| 当前开发阶段 / Atomic Task | P01/P02/P03归档，P04-01/02/03收尾。唯一stage/p04-performance；[正式05回传](verification/P04-04-windows-evidence-05.json)匹配55f359e的42项指纹/37测试ID、检查通过，但共享根预检查失败，零性能实测；不是新增性能超限。已通过的[短诊断02](verification/P04-04-windows-latency-evidence-02.json)十阶段及[343项辅助](verification/P04-04-cooperative-checks.json)保持，程序不变。当前只读核查UNC目录状态，确认真实可访问普通目录后再用新输出windows-06复验；P04留now，P05未启动。 |
+| 下一项 | 按[P04-04目录核查入口](verification/P04-04-performance-contract.md)执行一次只读Get-Item并回传输出；普通目录状态确认后再正式复验，使用reports/p04-04-windows-06新目录 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
@@ -42,4 +42,4 @@
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
 
-当前结论：短诊断02全部达标，金额/读取/清理通过；正式Windows/UNC五轮性能仍待复验，P04留now。
+当前结论：正式05尚未产生性能样本，当前阻塞是共享根预检查；短诊断02十阶段通过保持，先确认目录状态，P04留now。

@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于plans；P01/P02/P03归档，P04-01/02/03收尾。唯一stage/p04-performance；[短诊断02](docs/verification/P04-04-windows-latency-evidence-02.json)匹配f40e72b的42项指纹/37测试ID，母子10000行各一轮、10阶段心跳全部达标，最大124.7948ms；金额/冷一次暖0/全页及清理通过，1028次让步均在读线程。程序实现保持，[343项含37专项辅助证据](docs/verification/P04-04-cooperative-checks.json)继续有效；进入正式本机/UNC全档5轮复验，输出windows-05。原正式57个失败记录保留，单轮不代替验收，P04留now，P05未启动。
+规划位于plans；P01/P02/P03归档，P04-01/02/03收尾。唯一stage/p04-performance；[正式05回传](docs/verification/P04-04-windows-evidence-05.json)匹配55f359e的42项指纹/37测试ID、检查通过，但共享根预检查失败，零性能实测；不是新增性能超限。已通过的[短诊断02](docs/verification/P04-04-windows-latency-evidence-02.json)十阶段及[343项辅助](docs/verification/P04-04-cooperative-checks.json)保持，程序不变。当前只读核查UNC目录状态，确认真实可访问普通目录后再用新输出windows-06复验；P04留now，P05未启动。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -34,6 +34,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P04-04[正式05回传](docs/verification/P04-04-windows-evidence-05.json)：42项LF指纹及37测试ID匹配55f359e，37本机检查通过；SHARED_ROOT_MUST_BE_EXISTING_DIRECTORY_WITHOUT_LINK发生于共享根预检查，本机/UNC零性能轮次，原报告按字节保存。不记为性能超限或通过；共享父目录元数据检查曾尝试，未读写生产文件。现有组合报错没有目录属性或底层WinError，无法区分不可访问/不存在与链接/联接点。先Get-Item只读核查指定根，确认真实可访问普通目录后再新建windows-06输出；不放宽路径门禁、不修改程序或重复已通过辅助测试，短诊断02十阶段及343项辅助仍有效，P04待正式证据，P05未启动。
 
 - P04-04[短诊断02](docs/verification/P04-04-windows-latency-evidence-02.json)：f40e72b的42项LF指纹及37个测试ID一致，本机37项通过，母子10000行各一轮、10阶段心跳全部达标，最大124.7948ms；金额/完整明细/冷一次暖0/关闭/清理正常，1028次让步均为读线程事件。原报告按字节保留，全部原始心跳与重叠重新核算；两次独立合成运行工作簿哈希不同，不宣称严格配对改善百分比或统计因果。本次首读11.2308/11.1528秒、查看1.0814/1.2531秒，响应达标但总耗时有增加。[程序与343项辅助证据](docs/verification/P04-04-cooperative-checks.json)保持，无额外重测或继续调参；下一步正式本机及UNC全档各5轮，输出reports/p04-04-windows-05。单轮诊断不关闭P04，旧57个失败结果不改，P05未启动。
 
