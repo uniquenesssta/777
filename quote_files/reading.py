@@ -6,6 +6,7 @@ from functools import cached_property
 from quote_core import Amounts
 from quote_core.numbers import exact_context, scaled_decimal, settle
 from .schema import UnsupportedSchema, inspect_schema
+from .scheduling import checkpoint
 from .transactions import digest, read_bytes
 from .workbooks import open_book, validate_identity, receipts
 
@@ -99,6 +100,7 @@ def analyze(book, cached_book=None):
         issues.extend(ReadIssue("READ_ONLY", reason) for reason in schema.readonly_reasons)
         rows, prefixes = [], {}
         for index, cells in enumerate(ws.iter_rows(min_row=schema.header_row + 1), schema.header_row + 1):
+            checkpoint()
             if all(c.value is None for c in cells):
                 continue
             value = lambda key: cells[h[key] - 1].value
@@ -130,6 +132,7 @@ def analyze(book, cached_book=None):
             log = receipts(book)
             operations = {r[0]: r[1] for r in book["_写入事务"].iter_rows(min_row=2, values_only=True)} if log else {}
             for r in rows:
+                checkpoint()
                 oid = ws.cell(r.index, h["订单ID"]).value
                 rid = ws.cell(r.index, h["请求ID"]).value
                 if oid and (rid not in log or log[rid]["order_id"] != oid or operations[rid] != "append_quote"):
@@ -143,6 +146,7 @@ def analyze(book, cached_book=None):
         detail = [r for r in rows if r.kind != "order_total" and r.state != "void"]
         values = [Decimal(0), Decimal(0), Decimal(0)]
         for row in detail:
+            checkpoint()
             values = [context.add(total, value) for total, value in zip(values, row.values)]
         summary = {}
         labels = {"总收入": "income", "总成本": "cost", "总利润": "profit"}
@@ -190,6 +194,7 @@ def groups(ws, headers, rows, prefixes, issues):
     def put(indices, key):
         value = Decimal(0)
         for r in indices:
+            checkpoint()
             keys[r.index] = key
             if r.state != "void" and r.kind != "order_total":
                 value = context.add(value, r.values[0])
@@ -198,17 +203,21 @@ def groups(ws, headers, rows, prefixes, issues):
     def flush():
         candidates = {}
         for r in pending:
+            checkpoint()
             candidates.setdefault(prefixes[r.index], []).append(r)
         for prefix, same in candidates.items():
+            checkpoint()
             if len(same) == 1 and all(prefix[:3]):
                 put(same, ("legacy", same[0].index))
             else:
                 issues.append(ReadIssue("AMBIGUOUS_LEGACY_GROUP", "历史订单缺少稳定编号或明确边界，未合并总销售额", str(same[0].index)))
                 for r in same:
+                    checkpoint()
                     keys[r.index] = ("ambiguous", r.index)
         pending.clear()
     identified = {}
     for r in rows:
+        checkpoint()
         oid = ws.cell(r.index, headers["订单ID"]).value if "订单ID" in headers else None
         if oid:
             flush()
@@ -217,6 +226,7 @@ def groups(ws, headers, rows, prefixes, issues):
             if pending and len({prefixes[x.index] for x in pending}) == 1 and prefixes[r.index] == prefixes[pending[0].index]:
                 subtotal = [Decimal(0)] * 3
                 for x in pending:
+                    checkpoint()
                     subtotal = [context.add(a, b) for a, b in zip(subtotal, x.values)]
                 if tuple(map(settle, subtotal)) != tuple(map(settle, r.values)):
                     raise InvalidLedger("ORDER_TOTAL_MISMATCH", "历史订单总计与明细不符", str(r.index))
@@ -229,11 +239,13 @@ def groups(ws, headers, rows, prefixes, issues):
             pending.append(r)
     flush()
     for oid, group in identified.items():
+        checkpoint()
         put(group, ("order", oid))
         detail = [r for r in group if r.kind != "order_total"]
         footer = [r for r in group if r.kind == "order_total"][0]
         sums = [Decimal(0)] * 3
         for r in detail:
+            checkpoint()
             sums = [context.add(a, b) for a, b in zip(sums, r.values)]
         if tuple(map(settle, sums)) != tuple(map(settle, footer.values)):
             raise InvalidLedger("ORDER_TOTAL_MISMATCH", "订单总计与明细不符", str(footer.index))

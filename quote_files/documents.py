@@ -7,6 +7,7 @@ from zipfile import ZipFile
 from openpyxl.utils.cell import coordinate_from_string, column_index_from_string, get_column_letter
 
 from .schema import UnsupportedSchema
+from .scheduling import checkpoint
 from .transactions import digest
 
 PARSER_VERSION = "ledger-document-v1"
@@ -46,6 +47,7 @@ class Sheet:
             raise UnsupportedSchema("工作表超过当前100000行/64列读取范围，原件保留")
         rows, weight, formulas = [], 0, False
         for row_number, cells in enumerate(source.iter_rows(), 1):
+            checkpoint()
             values = []
             for column, cell in enumerate(cells, 1):
                 formulas |= cell.data_type == "f"
@@ -79,6 +81,7 @@ class Sheet:
 
     def iter_rows(self, min_row=1, max_row=None, min_col=1, max_col=None, values_only=False):
         for row in range(min_row, (self.max_row if max_row is None else max_row) + 1):
+            checkpoint()
             cells = tuple(self.cell(row, column) for column in range(min_col, (self.max_column if max_col is None else max_col) + 1))
             yield tuple(cell.value for cell in cells) if values_only else cells
 

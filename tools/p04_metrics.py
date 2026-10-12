@@ -115,7 +115,7 @@ class LatencyTrace:
             if begin is not None:self.record('gc.gen' + str(info['generation']), begin, time.perf_counter())
 
     def __enter__(self):
-        from quote_files import cache, documents, reading, workbooks, orders, views
+        from quote_files import cache, documents, reading, workbooks, orders, views, scheduling
         from quote_app import background, pagination
         targets = [(cache, 'parse_document', 'parse_document'),
             (documents, 'parse_document', 'parse_document'), (documents.Book, '__init__', 'detach_cells'),
@@ -126,7 +126,8 @@ class LatencyTrace:
             (background.BackgroundApplicationMixin, '_apply_io_state', 'deliver_state'),
             (background.BackgroundApplicationMixin, '_render_io_files', 'render_file_list'),
             (pagination.PaginationMixin, '_set_paged_view', 'deliver_view'),
-            (pagination.PaginationMixin, '_render_page', 'render_page')]
+            (pagination.PaginationMixin, '_render_page', 'render_page'),
+            (scheduling.ReadTurn, 'pause', 'cooperative_pause')]
         self.stack = ExitStack()
         try:
             for target, attr, name in targets:

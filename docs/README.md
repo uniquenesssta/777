@@ -9,8 +9,8 @@
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
 | 本轮授权 | 用户“开始04”：依据已通过报告收尾P04-03，继续同分支执行P04-04；既有推送授权有效 |
 | 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P01/P02/P03归档，P04-01/02/03收尾。唯一stage/p04-performance；04第四次[Windows/UNC回传](verification/P04-04-windows-evidence-04.json)41项指纹/26项检查匹配f728c99，110进程全完成，全档5轮/金额/读取计数通过、翻页组全部达标，但57个当前阶段p95仍超限。现交付[短程分段诊断](verification/P04-04-performance-contract.md)，[33项/完整339项辅助通过](verification/P04-04-trace-checks.json)；只测本机母子各10000行一轮，先定位再优化，不重跑第五次全档。程序代码及100/500ms门槛保持，P04留now，P05未启动。 |
-| 下一项 | 执行[P04-04短诊断入口](verification/P04-04-performance-contract.md)，回传reports/p04-04-latency-01/report.json；预计约1～3分钟，仅本机母子各一轮，不能用于验收 |
+| 当前开发阶段 / Atomic Task | P01/P02/P03归档，P04-01/02/03收尾。唯一stage/p04-performance；[短诊断01](verification/P04-04-windows-latency-evidence-01.json)匹配07e5956的41项指纹/33个测试ID，母子10000行各一轮完成，金额/读取计数及清理通过，首读/查看4个阶段p95仍超限。现交付Windows读线程时间预算让步，[37项专项/完整343项辅助通过](verification/P04-04-cooperative-checks.json)，待短诊断02复查。第四次全档57个超限结果保留，100/500ms及正式5轮门槛保持，暂不重跑全档；P04留now，P05未启动。 |
+| 下一项 | 执行[P04-04短诊断02入口](verification/P04-04-performance-contract.md)，回传reports/p04-04-latency-02/report.json；仅本机母子各10000行一轮，暂不重跑全档 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
@@ -42,4 +42,4 @@
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
 
-当前结论：04第四次全档/正确性通过、剩余首读/查看响应不达标；先用短诊断定位，P04留now。
+当前结论：短诊断01确认首读/查看响应仍不达标；已针对连续后台循环加入只读线程让步，待短诊断02复查，P04留now。

@@ -2,6 +2,8 @@
 from collections import OrderedDict
 from pathlib import Path
 
+from quote_files.scheduling import checkpoint
+
 PAGE_SIZE = 200
 
 
@@ -20,6 +22,7 @@ def filter_view(view, query='', group=None, context=None):
     needle = query.strip().casefold()
     matches = []
     for index, (row, values) in enumerate(view.rows):
+        checkpoint()
         if context is not None:
             context.check()
         if group is not None and view.ledger.group_keys.get(row) != group:

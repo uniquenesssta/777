@@ -1,9 +1,12 @@
 """Bounded daemon I/O lanes. Only the owner drains events; workers never use Tk."""
 from collections import deque
+from contextlib import nullcontext
 from dataclasses import dataclass, field
 from queue import SimpleQueue
 from threading import Condition, Event, Thread
 import time
+
+from quote_files.scheduling import read_turns
 
 
 class Cancelled(Exception):
@@ -86,7 +89,8 @@ class Jobs:
             context = Context(task, self.events)
             try:
                 context.check()
-                value = task.action(context)
+                with nullcontext() if write else read_turns():
+                    value = task.action(context)
                 context.check()
                 state = "completed"
             except Cancelled:

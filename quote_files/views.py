@@ -5,6 +5,7 @@ from pathlib import Path
 
 from quote_core.numbers import money_text, settle
 from .reading import read_document
+from .scheduling import checkpoint
 
 
 @dataclass(frozen=True)
@@ -51,6 +52,7 @@ def read_view(path, sheet, role, context, document=None):
         columns = [i for i in range(1, ws.max_column + 1) if not ws.column_dimensions[get_column_letter(i)].hidden]
         headings = ("行", *(get_column_letter(i) for i in columns))
         for i, data in enumerate(ws.iter_rows(max_row=ws.max_row, max_col=ws.max_column, values_only=True), 1):
+            checkpoint()
             context.check()
             rows.append((i, (str(i), *(cell_text(data[c - 1]) for c in columns))))
     else:
@@ -60,6 +62,7 @@ def read_view(path, sheet, role, context, document=None):
         h = result.schema.columns
         mapping = {"高": "高度(m)", "宽": "宽度(m)"}
         for i, data in enumerate(ws.iter_rows(min_row=result.schema.header_row + 1, values_only=True), result.schema.header_row + 1):
+            checkpoint()
             context.check()
             if i not in result.visible_rows:
                 continue

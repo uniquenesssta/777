@@ -46,6 +46,129 @@ def configured_notebook(app, source):
 
 
 class PerformanceMeasurementTests(unittest.TestCase):
+    def test_read_turn_budget_resets_after_wakeup_and_restores_nested_error_scope(self):
+        from quote_files import scheduling as s
+        clock = [0.0]
+        def pause(seconds):
+            self.assertEqual(seconds, .001)
+            clock[0] += .020  # An oversleep does not cause immediate re-sleep.
+        with patch.object(s, 'WINDOWS', True), patch.object(s.time, 'perf_counter', side_effect=lambda: clock[0]), \
+             patch.object(s.time, 'sleep', side_effect=pause) as sleeps:
+            s.checkpoint();sleeps.assert_not_called()
+            with self.assertRaisesRegex(RuntimeError, 'read failed'):
+                with s.read_turns():
+                    outer = s._state.turn
+                    clock[0] = .007;s.checkpoint();sleeps.assert_not_called()
+                    clock[0] = .008;s.checkpoint();self.assertEqual(sleeps.call_count, 1)
+                    self.assertAlmostEqual(outer.deadline, .036)
+                    with s.read_turns():
+                        self.assertIs(s._state.turn, outer)
+                        s.checkpoint();self.assertEqual(sleeps.call_count, 1)
+                    raise RuntimeError('read failed')
+            self.assertIsNone(s._state.turn)
+            clock[0] = 100;s.checkpoint();self.assertEqual(sleeps.call_count, 1)
+        with patch.object(s, 'WINDOWS', False), patch.object(s.time, 'sleep') as sleeps, s.read_turns():
+            s.checkpoint();sleeps.assert_not_called();self.assertIsNone(s._state.turn)
+
+    def test_jobs_read_turn_is_thread_local_and_never_reaches_writer_or_owner(self):
+        from threading import Event
+        from quote_app.jobs import Jobs
+        from quote_files import scheduling as s
+        held, release, written = Event(), Event(), Event()
+        observed = {}
+        def read(context):
+            observed['read'] = s._state.turn
+            held.set()
+            if not release.wait(3):raise TimeoutError('read gate')
+            raise ValueError('synthetic read failure')
+        def write(context):
+            observed['write'] = getattr(s._state, 'turn', None)
+            written.set()
+        jobs = Jobs(readers=1)
+        try:
+            with patch.object(s, 'WINDOWS', True):
+                reader = jobs.submit('read', read)
+                self.assertTrue(held.wait(3))
+                writer = jobs.submit('write', write, write=True)
+                self.assertTrue(written.wait(3))
+                self.assertIsNone(getattr(s._state, 'turn', None))
+                self.assertIsNone(observed['write']);self.assertIsNotNone(observed['read'])
+                release.set()
+                follow = jobs.submit('follow', lambda _: getattr(s._state, 'turn', None))
+                deadline = time.monotonic() + 3
+                events = []
+                while follow.state in {'queued', 'running'} and time.monotonic() < deadline:
+                    events.extend(jobs.drain());time.sleep(.002)
+                events.extend(jobs.drain())
+                self.assertEqual(reader.state, 'failed');self.assertEqual(writer.state, 'completed')
+                value = next(v for t, state, v in events if t is follow and state == 'completed')
+                self.assertIsNotNone(value);self.assertIsNot(value, observed['read'])
+        finally:
+            release.set()
+            deadline = time.monotonic() + 3
+            while jobs.writing and time.monotonic() < deadline:jobs.drain();time.sleep(.002)
+            jobs.close();self.assertTrue(jobs.wait_closed(3))
+
+    def test_actual_budgeted_decode_and_views_keep_exact_rows_amounts_and_single_open(self):
+        from threading import Thread
+        from quote_files import scheduling as s
+        from quote_files.views import read_view
+        from quote_app.pagination import filter_view
+        path = self.root / 'budgeted.xlsx';fixtures.workbook(path, 1000)
+        raw = path.read_bytes();reference = parse_document(raw)
+        self.assertEqual(reference.result.status, 'ok')
+        baseline = {role: read_view(path, None, role, SimpleNamespace(check=lambda: None), document=reference)
+                    for role in ('manager', 'sales')}
+        results, failures, pauses = [], [], []
+        original_pause = s.ReadTurn.pause
+        def pause(turn):
+            pauses.append(time.perf_counter());return original_pause(turn)
+        def read():
+            try:
+                with s.read_turns(), instrumentation() as counts:
+                    doc = parse_document(raw)
+                    self.assertEqual(dict(counts), {'workbook_opens': 1, 'worksheet_xml_source_opens': 1,
+                                                    'iter_rows_calls': 1, 'yielded_rows': 1006})
+                    views = {role: read_view(path, None, role, SimpleNamespace(check=lambda: None), document=doc)
+                             for role in ('manager', 'sales')}
+                    last = {role: filter_view(view, '合成订单000999') for role, view in views.items()}
+                    self.assertEqual(counts['workbook_opens'], 1)
+                    results.append((doc, views, last))
+            except BaseException as exc:failures.append(exc)
+        with patch.object(s, 'WINDOWS', True), patch.object(s.ReadTurn, 'pause', pause):
+            thread = Thread(target=read);thread.start();thread.join(10)
+            self.assertFalse(thread.is_alive())
+        if failures:raise failures[0]
+        self.assertTrue(pauses)
+        doc, views, last = results[0]
+        self.assertEqual(doc.result.rows, reference.result.rows)
+        self.assertEqual(doc.result.totals, reference.result.totals)
+        self.assertEqual((doc.result.totals.income_cents, doc.result.totals.cost_cents,
+                          doc.result.totals.profit_cents), (1000000, 400000, 600000))
+        self.assertEqual(doc.result.issues, reference.result.issues)
+        for role in views:
+            self.assertEqual(views[role], baseline[role]);self.assertEqual(last[role], filter_view(baseline[role], '合成订单000999'))
+            self.assertEqual(len(last[role]), 1);self.assertEqual(views[role].rows[last[role][0]][0], 1006)
+        self.assertEqual(path.read_bytes(), raw)
+        path.unlink()  # The detached model does not retain a source handle.
+
+    def test_latency_trace_only_wraps_cooperative_pause_and_restores_it_after_error(self):
+        from threading import Thread
+        from quote_files import scheduling as s
+        sleep, pause = time.sleep, s.ReadTurn.pause
+        trace = LatencyTrace()
+        with self.assertRaisesRegex(ValueError, 'trace failure'), patch.object(s, 'WINDOWS', True), trace:
+            trace.start(time.perf_counter())
+            def read():
+                with s.read_turns():s._state.turn.pause()
+            thread = Thread(target=read);thread.start();thread.join(3)
+            self.assertFalse(thread.is_alive())
+            time.sleep(.001)  # An unrelated owner sleep is not a read turn.
+            raise ValueError('trace failure')
+        self.assertIs(time.sleep, sleep);self.assertIs(s.ReadTurn.pause, pause)
+        pauses = [e for e in trace.events if e['name'] == 'cooperative_pause']
+        self.assertEqual(len(pauses), 1);self.assertEqual(pauses[0]['thread'], 'worker')
+
     def test_real_diagnostic_inputs_select_two_files_and_keep_source_gate_and_matching_bytes(self):
         cases = perf.make_inputs(self.root, ['small'], ['manager-rows-100', 'sales-rows-100'])
         self.assertEqual([c['id'] for c in cases], ['manager-rows-100', 'sales-rows-100'])
@@ -387,6 +510,7 @@ class PerformanceMeasurementTests(unittest.TestCase):
         from test_background_io import asynchronous
         from test_pagination_images import page_controls
         from quote_app.background import BackgroundApplicationMixin
+        from quote_files import scheduling
         for role, failing_delivery in (('manager', False), ('sales', False), ('sales', True)):
             with self.subTest(role=role, failing_delivery=failing_delivery), application(role) as (app, folder, ns, _), asynchronous(app):
                 inputs = folder / 'inputs';inputs.mkdir();fixtures.workbook(inputs / 'synthetic.xlsx', 401)
@@ -431,7 +555,8 @@ class PerformanceMeasurementTests(unittest.TestCase):
                 class Factory:
                     def __new__(cls, _):return app
                 try:
-                    with patch('tkinter.Tk', return_value=window), patch.object(perf.gui, 'live_sandbox_type', return_value=Factory):
+                    with patch('tkinter.Tk', return_value=window), patch.object(perf.gui, 'live_sandbox_type', return_value=Factory), \
+                         patch.object(scheduling, 'WINDOWS', True), patch('sys.stderr', new=io.StringIO()):
                         if failing_delivery:
                             with self.assertRaisesRegex(RuntimeError, 'first_refresh: RuntimeError: APPLICATION_READ_FAILED: .*synthetic render failure'):
                                 perf.gui_measurements(ns, folder, case, True)
@@ -449,6 +574,10 @@ class PerformanceMeasurementTests(unittest.TestCase):
                 self.assertEqual(measured[1]['counts'].get('workbook_opens', 0), 0)
                 self.assertTrue(all(m['heartbeat']['samples'] >= 20 for m in measured))
                 self.assertTrue(all('latency' in m for m in measured))
+                self.assertTrue(any(e['name'] == 'cooperative_pause' and e['thread'] == 'worker'
+                                    for m in measured for e in m['latency']['events']))
+                self.assertFalse(any(e['name'] == 'cooperative_pause' and e['thread'] == 'owner'
+                                     for m in measured for e in m['latency']['events']))
                 self.assertTrue(any(e['thread'] == 'owner' and e['name'] == 'render_page'
                                     for m in measured for e in m['latency']['events']))
                 self.assertEqual(measured[3]['observed']['visible_rows'], 407 if role == 'manager' else 401)
