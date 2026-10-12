@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于plans；P01/P02/P03已归档，P04-01/02/03已收尾。唯一分支stage/p04-performance；04第三次[Windows/UNC报告](docs/verification/P04-04-windows-evidence-03.json)的41项LF指纹/23项检查匹配2cd9887，110个进程全完成，两位置当前全档5轮、金额/明细/冷暖计数通过；450个当前阶段中60个p95超限，零样本不足，最大283.7558ms。已优化Windows线程调度及分页呈现，[26项/完整332项辅助通过](docs/verification/P04-04-latency-checks.json)，待[第四次实机复查](docs/verification/P04-04-performance-contract.md)。原值及100/500ms门槛保持；P04留now，P05未启动。
+规划位于plans；P01/P02/P03归档，P04-01/02/03收尾。唯一stage/p04-performance；04第四次[Windows/UNC回传](docs/verification/P04-04-windows-evidence-04.json)41项指纹/26项检查匹配f728c99，110进程全完成，全档5轮/金额/读取计数通过、翻页组全部达标，但57个当前阶段p95仍超限。现交付[短程分段诊断](docs/verification/P04-04-performance-contract.md)，[33项/完整339项辅助通过](docs/verification/P04-04-trace-checks.json)；只测本机母子各10000行一轮，先定位再优化，不重跑第五次全档。程序代码及100/500ms门槛保持，P04留now，P05未启动。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -34,6 +34,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P04-04第四次[Windows/UNC回传](docs/verification/P04-04-windows-evidence-04.json)：41项LF指纹匹配f728c99，26/26检查通过，110个进程全完成；两位置全档5轮/金额/完整明细/冷一次暖0通过，原/新版均记录1ms调度。翻页组本轮全部达标，但首读/查看仍有57个阶段p95超限，本机/UNC最大256.2393/256.2310ms，[原报告](docs/verification/P04-04-windows-report-04.json)保持。停止推测瓶颈，新增本机母子10000行各一轮的分段/线程CPU/GC与心跳重叠[短诊断](docs/verification/P04-04-performance-contract.md)，明确不作验收，不再安排第五次全档；钩子失败恢复、事件截断显性及普通验收5轮门槛有回归，[33项/339项辅助通过](docs/verification/P04-04-trace-checks.json)。应用/数值/事务及门槛保持，P04留now，P05未启动。
 
 - P04-04第三次[Windows/UNC回传](docs/verification/P04-04-windows-evidence-03.json)：41项LF指纹匹配2cd9887，23/23检查通过，110个进程全完成、两位置当前全档5轮及原版小档完成；金额/完整明细/冷一次暖0通过，子版零超时、样本不足归零。450个当前阶段中60个p95超限、最大283.7558ms，[原报告](docs/verification/P04-04-windows-report-03.json)保留。Windows应用使用最多1ms解释器切换间隔，配对诊断原/新版一致且记录实值；仅为调度优化，不宣称已证明卡顿根因。分页复用未变列配置、每200行一次Tcl列表数据传递，保留用户列宽和原行身份，脚本样式文本不执行。[26项/332项辅助通过](docs/verification/P04-04-latency-checks.json)，待第四次实机性能复查，金额/写入/解析/缓存及门槛保持，P04不收尾、P05未启动。
 

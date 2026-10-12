@@ -20,6 +20,7 @@ import time
 import tracemalloc
 import unittest
 import uuid
+from contextlib import nullcontext
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -29,7 +30,7 @@ import p01_fixtures as fixtures
 import p01_validation as original
 import p02_gui_check as gui
 from p03_format_check import case_ids
-from p04_metrics import Heartbeat, distribution, healthy_heartbeat, input_hashes, instrumentation
+from p04_metrics import Heartbeat, LatencyTrace, distribution, healthy_heartbeat, input_hashes, instrumentation
 
 SIZES = {'small': (100, 10), 'medium': (1000, 100), 'large': (10000, 1000)}
 
@@ -49,7 +50,7 @@ def run_checks():
             'test_ids': ids, 'log': log.getvalue(), 'elapsed_seconds': time.monotonic() - started}
 
 
-def make_inputs(root, sizes):
+def make_inputs(root, sizes, case_ids=None):
     """P01 generator/content, shared once across implementations and rounds."""
     root = Path(root)
     cases = []
@@ -61,6 +62,7 @@ def make_inputs(root, sizes):
         fixtures.workbook(row_template, rows)
         for role, kind, count in [('manager', 'files', files), ('manager', 'rows', rows), ('sales', 'rows', rows)]:
             case_id = f'{role}-{kind}-{count}'
+            if case_ids is not None and case_id not in case_ids:continue
             folder = root / case_id / 'inputs'
             folder.mkdir(parents=True)
             for index in range(count if kind == 'files' else 1):
@@ -71,6 +73,7 @@ def make_inputs(root, sizes):
                     'income_cents': detail_rows * 1000, 'cost_cents': detail_rows * 400, 'profit_cents': detail_rows * 600,
                     'input_sha256': input_hashes(folder), 'legacy_p01_workload': kind == 'files' or role == 'sales'}
             cases.append(case)
+            if case_ids is not None:case['latency_diagnostic'] = True
             fixtures.write_json(root / case_id / 'case.json', case)
     fixtures.write_json(root / 'p04-run.json', {'task': 'P04-04', 'run_id': str(uuid.uuid4()), 'cases': cases,
         'origin': 'P01 synthetic generator, same immutable workbook bytes for all versions/rounds within this run',
@@ -246,9 +249,12 @@ def gui_measurements(namespace, folder, case, current):
         feedback_errors.clear()
         print('P04_PHASE ' + json.dumps({'phase': name, 'state': 'started'}), file=sys.stderr, flush=True)
         before = app._ledger_cache.metrics() if current else {}
-        with instrumentation(None if current else namespace) as counts:
+        trace = LatencyTrace() if case.get('latency_diagnostic') else None
+        hb = None
+        with instrumentation(None if current else namespace) as counts, trace if trace is not None else nullcontext():
             tracemalloc.start()
             started = time.perf_counter();heart.start(started)
+            if trace is not None:trace.start(started)
             try:
                 yield from action()
                 # Deliver paint callbacks before stopping the operation timer.
@@ -260,12 +266,16 @@ def gui_measurements(namespace, folder, case, current):
                 hb = heart.finish(time.perf_counter())
             finally:
                 tracemalloc.stop()
+                if trace is not None and hb is None:
+                    print('P04_LATENCY_PARTIAL ' + json.dumps({'phase': name, 'partial': True,
+                        'latency': trace.snapshot(heart.finish(time.perf_counter()))}), file=sys.stderr, flush=True)
         after = app._ledger_cache.metrics() if current else {}
         row = {'phase': name, 'seconds': seconds, 'python_allocation_peak_bytes': peak,
             'counts': dict(counts), 'cache_delta': {k: after.get(k, 0) - before.get(k, 0)
                 for k in ('source_reads', 'source_bytes', 'workbook_opens', 'formula_cache_opens', 'weak_hash_probes')},
             'cache_after': after, 'heartbeat': hb}
         if observed is not None:row['observed'] = observed()
+        if trace is not None:row['latency'] = trace.snapshot(hb)
         measurements.append(row)
         print('P04_PHASE ' + json.dumps({'phase': name, 'state': 'completed',
             'seconds': seconds, 'heartbeat_samples': hb['samples'], 'max_gap_ms': hb['max_gap_ms']}), file=sys.stderr, flush=True)
@@ -508,9 +518,10 @@ def main(argv=None):
     mode.add_argument('--gui-heartbeat', action='store_true')
     mode.add_argument('--auxiliary', action='store_true')
     mode.add_argument('--checks-only', action='store_true')
+    mode.add_argument('--diagnose-latency', action='store_true', help='Local Windows only: two10000-row current cases once, aligned spans/GC; diagnostic only, never performance acceptance')
     parser.add_argument('--output', type=Path)
     parser.add_argument('--sizes', nargs='+', choices=tuple(SIZES), default=list(SIZES))
-    parser.add_argument('--rounds', type=int, default=5)
+    parser.add_argument('--rounds', type=int)
     parser.add_argument('--compare-legacy', action='store_true', help='Replay P01 original workloads on identical inputs; default small baseline')
     parser.add_argument('--legacy-sizes', nargs='+', choices=tuple(SIZES), default=['small'])
     parser.add_argument('--worker-timeout', type=float, default=120)
@@ -522,9 +533,15 @@ def main(argv=None):
     if args.worker:
         print(json.dumps(worker(args.worker_root, args.case, args.worker, args.gui_heartbeat), ensure_ascii=False, allow_nan=False))
         return 0
+    args.rounds = args.rounds if args.rounds is not None else (1 if args.diagnose_latency else 5)
+    if args.diagnose_latency:
+        if args.shared_root or args.compare_legacy or args.rounds != 1:
+            parser.error('--diagnose-latency is local-only, current-only and one round; it cannot be used for performance acceptance')
+        args.gui_heartbeat = True
+        args.sizes = ['large']
     if not args.output or not any((args.gui_heartbeat, args.auxiliary, args.checks_only)):
         parser.error('Select --gui-heartbeat, --auxiliary or --checks-only and a NEW --output reports/<directory>')
-    if not 1 <= args.rounds <= 10 or (args.gui_heartbeat and args.rounds < 5) or not 5 <= args.worker_timeout <= 600:
+    if not 1 <= args.rounds <= 10 or (args.gui_heartbeat and args.rounds < 5 and not args.diagnose_latency) or not 5 <= args.worker_timeout <= 600:
         parser.error('Windows acceptance requires at least 5 rounds; allowed rounds 1..10, worker timeout 5..600 seconds')
     if args.shared_root and not args.gui_heartbeat:
         parser.error('--shared-root requires actual Windows --gui-heartbeat')
@@ -541,6 +558,7 @@ def main(argv=None):
         'implementation_sha256_LF': fingerprints, 'production_files_read_or_modified': False,
         'production_paths_accessed': bool(args.shared_root), 'explicit_shared_root_requested': bool(args.shared_root),
         'status': checks['status'], 'storages': [],
+        'latency_diagnostic_only': args.diagnose_latency,
         'previous_563ms_observation': 'P04-03 report retained unchanged; that single whole-diagnostic maximum has no phase attribution. New stage samples measure actual workflows; they cannot retrospectively assign its cause.',
         'prior_lifecycle_and_financial_evidence': ['docs/verification/P04-03-windows-evidence-02.json', 'docs/verification/P04-03-acceptance.json'],
         'acceptance': 'P04-04 and entire P04 user acceptance pending; only actual Windows/UNC results can establish performance. No physical offline or two-machine contention tests are scheduled.'}
@@ -554,7 +572,9 @@ def main(argv=None):
             if args.shared_root:parents.append(('UNC_synthetic', shared_parent(args.shared_root)))
             for storage, parent in parents:
                 with tempfile.TemporaryDirectory(prefix='777-p04-performance-', dir=parent) as temp:
-                    root = Path(temp);cases = make_inputs(root, list(dict.fromkeys(args.sizes)))
+                    root = Path(temp)
+                    cases = (make_inputs(root, ['large'], ['manager-rows-10000', 'sales-rows-10000']) if args.diagnose_latency
+                             else make_inputs(root, list(dict.fromkeys(args.sizes))))
                     runs = []
                     for case in cases:
                         versions = ['current']
@@ -579,6 +599,7 @@ def main(argv=None):
                 entry['sandbox_cleaned'] = True
             good = all(s['inputs_unchanged'] and s['summary']['current_correctness_and_read_counts_passed'] for s in report['storages'])
             if not good:report['status'] = 'failed'
+            elif args.diagnose_latency:report['status'] = 'latency_diagnostic_completed_acceptance_pending'
             elif not args.gui_heartbeat:report['status'] = 'auxiliary_measured_Windows_pending'
             elif not all(s['summary']['Windows_healthy_performance_passed'] for s in report['storages']):report['status'] = 'performance_not_passed_or_incomplete'
             elif not args.compare_legacy or not all(s['matched_legacy_rounds_complete'] for s in report['storages']):
@@ -591,7 +612,8 @@ def main(argv=None):
     fixtures.write_json(output / 'report.json', report)
     print(json.dumps({'task': report['task'], 'status': report['status'], 'checks': {k: v for k, v in checks.items() if k not in {'log', 'test_ids'}},
         'report': str(output / 'report.json'), 'storages': [compact_storage(s) for s in report['storages']]}, ensure_ascii=False, allow_nan=False, indent=2))
-    return 0 if report['status'] in {'passed', 'auxiliary_measured_Windows_pending', 'Windows_local_and_UNC_synthetic_performance_passed'} else 2
+    return 0 if report['status'] in {'passed', 'auxiliary_measured_Windows_pending', 'Windows_local_and_UNC_synthetic_performance_passed',
+                                    'latency_diagnostic_completed_acceptance_pending'} else 2
 
 
 if __name__ == '__main__':raise SystemExit(main())

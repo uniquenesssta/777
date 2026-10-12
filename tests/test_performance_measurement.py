@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT), str(ROOT / 'tools')]
 
 import p01_fixtures as fixtures
-from p04_metrics import Heartbeat, distribution, healthy_heartbeat, input_hashes, instrumentation
+from p04_metrics import Heartbeat, LatencyTrace, distribution, healthy_heartbeat, input_hashes, instrumentation
 import p04_performance_check as perf
 from quote_files.documents import parse_document
 
@@ -46,6 +46,102 @@ def configured_notebook(app, source):
 
 
 class PerformanceMeasurementTests(unittest.TestCase):
+    def test_real_diagnostic_inputs_select_two_files_and_keep_source_gate_and_matching_bytes(self):
+        cases = perf.make_inputs(self.root, ['small'], ['manager-rows-100', 'sales-rows-100'])
+        self.assertEqual([c['id'] for c in cases], ['manager-rows-100', 'sales-rows-100'])
+        self.assertFalse((self.root / 'manager-files-10').exists())
+        self.assertEqual(cases[0]['input_sha256'], cases[1]['input_sha256'])
+        for case in cases:
+            checked, _ = perf.get_case(self.root, case['id'])
+            self.assertTrue(checked['latency_diagnostic'])
+            self.assertEqual(checked['files'], 1)
+
+    def test_latency_diagnostic_rejects_shared_or_legacy_options_before_any_output_access(self):
+        for flag in (['--shared-root', '\\\\synthetic\\share'], ['--compare-legacy']):
+            with self.subTest(flag=flag), patch.object(perf.original, 'new_output', side_effect=AssertionError('output accessed')), \
+                 patch('sys.stderr', new=io.StringIO()), self.assertRaises(SystemExit) as stopped:
+                perf.main(['--diagnose-latency', '--output', 'ignored', *flag])
+            self.assertEqual(stopped.exception.code, 2)
+
+    def test_latency_trace_actual_decode_worker_gc_and_error_restore_all_hooks(self):
+        import gc
+        from threading import Thread
+        from quote_files import documents, cache
+        path = self.root / 'trace.xlsx';fixtures.workbook(path, 3)
+        callbacks = list(gc.callbacks)
+        originals = documents.parse_document, cache.parse_document
+        results = []
+        trace = LatencyTrace()
+        with self.assertRaisesRegex(RuntimeError, 'synthetic trace error'):
+            with instrumentation() as counts, trace:
+                trace.start(time.perf_counter())
+                worker = Thread(target=lambda: results.append(documents.parse_document(path.read_bytes())))
+                worker.start();worker.join(5)
+                self.assertFalse(worker.is_alive())
+                gc.collect()
+                raise RuntimeError('synthetic trace error')
+        self.assertEqual(gc.callbacks, callbacks)
+        self.assertEqual((documents.parse_document, cache.parse_document), originals)
+        self.assertEqual(results[0].result.detail_count, 3)
+        self.assertEqual(counts['workbook_opens'], 1)
+        self.assertTrue(any(e['name'] == 'decode_workbook' and e['thread'] == 'worker' for e in trace.events))
+        self.assertTrue(any(e['name'].startswith('gc.') and e['thread'] == 'owner' for e in trace.events))
+        self.assertTrue(all(e['wall_seconds'] >= 0 and (e['thread_cpu_seconds'] is None or e['thread_cpu_seconds'] >= 0) for e in trace.events))
+
+    def test_latency_overlap_is_aligned_bounded_and_never_a_causal_or_acceptance_claim(self):
+        trace = LatencyTrace(max_events=2);trace.start(0)
+        trace.record('render_page', .02, .10, .04)
+        trace.record('gc.gen2', .04, .08)
+        trace.record('discarded_span', .01, .02)
+        data = trace.snapshot({'gaps_ms': [120, 50]})
+        self.assertEqual(data['events_dropped'], 1)
+        self.assertEqual(len(data['over_100_ms_gaps']), 1)
+        self.assertAlmostEqual(data['over_100_ms_gaps'][0]['gc_overlap_ms'], 40)
+        self.assertIn('render_page', data['over_100_ms_gaps'][0]['owner_spans'])
+        self.assertIn('not proof of cause', data['scope'])
+
+    def test_short_diagnostic_selects_only_two_large_files_and_never_accepts_one_round(self):
+        def generated(root, sizes, case_ids):
+            self.assertEqual(sizes, ['large'])
+            self.assertEqual(case_ids, ['manager-rows-10000', 'sales-rows-10000'])
+            cases = [{'id': name, 'files': 1, 'input_sha256': {}, 'latency_diagnostic': True} for name in case_ids]
+            for c in cases:(root / c['id'] / 'inputs').mkdir(parents=True)
+            (root / 'p04-run.json').write_text(json.dumps({'cases': cases}), encoding='utf-8')
+            return cases
+        def measured(root, case, version, native, timeout):
+            self.assertTrue(native);self.assertEqual(version, 'current')
+            hb = {'samples': 21, 'gaps_ms': [50] * 21, 'p95_gap_ms': 50, 'max_gap_ms': 50, 'status': 'passed'}
+            return {'status': 'measured', 'case_id': case['id'], 'version': version, 'inputs_unchanged': True,
+                'measurements': [{'phase': phase, 'seconds': .1, 'python_allocation_peak_bytes': 1,
+                    'heartbeat': hb, 'counts': {'workbook_opens': 1 if phase == 'first_refresh' else 0},
+                    'observed': {'correct': True}} for phase in ('first_refresh', 'warm_refresh', 'open_view', 'all_pages', 'filter_last_detail')]}
+        with patch.object(perf, 'run_checks', return_value={'status': 'passed', 'tests_run': 0}), \
+             patch.object(perf.original, 'new_output', return_value=self.root), \
+             patch.object(perf.platform, 'system', return_value='Windows'), \
+             patch.object(perf, 'make_inputs', side_effect=generated), \
+             patch.object(perf, 'launch_worker', side_effect=measured) as workers, patch('sys.stdout', new=io.StringIO()):
+            code = perf.main(['--diagnose-latency', '--output', 'ignored'])
+        report = json.loads((self.root / 'report.json').read_text(encoding='utf-8'))
+        self.assertEqual(code, 0);self.assertEqual(workers.call_count, 2)
+        self.assertTrue(report['latency_diagnostic_only'])
+        self.assertEqual(report['status'], 'latency_diagnostic_completed_acceptance_pending')
+        self.assertFalse(report['storages'][0]['summary']['full_scale_five_rounds'])
+        self.assertFalse(report['storages'][0]['summary']['Windows_healthy_performance_passed'])
+
+    def test_latency_diagnostic_blocks_non_windows_before_input_or_gui_access(self):
+        with patch.object(perf, 'run_checks', return_value={'status': 'passed', 'tests_run': 0}), \
+             patch.object(perf.original, 'new_output', return_value=self.root), \
+             patch.object(perf.platform, 'system', return_value='Linux'), \
+             patch.object(perf, 'make_inputs', side_effect=AssertionError('inputs accessed')), patch('sys.stdout', new=io.StringIO()):
+            self.assertEqual(perf.main(['--diagnose-latency', '--output', 'ignored']), 2)
+        report = json.loads((self.root / 'report.json').read_text(encoding='utf-8'))
+        self.assertEqual(report['status'], 'blocked');self.assertEqual(report['storages'], [])
+
+    def test_normal_native_performance_still_rejects_one_round(self):
+        with patch.object(perf, 'run_checks', side_effect=AssertionError('checks ran')), \
+             patch('sys.stderr', new=io.StringIO()), self.assertRaises(SystemExit) as stopped:
+            perf.main(['--gui-heartbeat', '--rounds', '1', '--output', 'ignored'])
+        self.assertEqual(stopped.exception.code, 2)
     def test_paging_retains_user_column_width_and_reconfigures_changed_headings(self):
         from dataclasses import replace
         from test_application_integration import application
@@ -294,7 +390,7 @@ class PerformanceMeasurementTests(unittest.TestCase):
         for role, failing_delivery in (('manager', False), ('sales', False), ('sales', True)):
             with self.subTest(role=role, failing_delivery=failing_delivery), application(role) as (app, folder, ns, _), asynchronous(app):
                 inputs = folder / 'inputs';inputs.mkdir();fixtures.workbook(inputs / 'synthetic.xlsx', 401)
-                case = {'role': role, 'files': 1, 'detail_rows_per_file': 401,
+                case = {'role': role, 'files': 1, 'detail_rows_per_file': 401, 'latency_diagnostic': True,
                         'income_cents': 401000, 'cost_cents': 160400, 'profit_cents': 240600}
                 page_controls(app)
                 app.excel_next_button.invoke = lambda a=app: a.change_excel_page(1)
@@ -352,6 +448,9 @@ class PerformanceMeasurementTests(unittest.TestCase):
                 self.assertEqual(measured[0]['counts']['workbook_opens'], 1)
                 self.assertEqual(measured[1]['counts'].get('workbook_opens', 0), 0)
                 self.assertTrue(all(m['heartbeat']['samples'] >= 20 for m in measured))
+                self.assertTrue(all('latency' in m for m in measured))
+                self.assertTrue(any(e['thread'] == 'owner' and e['name'] == 'render_page'
+                                    for m in measured for e in m['latency']['events']))
                 self.assertEqual(measured[3]['observed']['visible_rows'], 407 if role == 'manager' else 401)
                 self.assertEqual(measured[3]['observed']['pages'], 3)
                 self.assertEqual(measured[4]['observed']['source_row'], 407)

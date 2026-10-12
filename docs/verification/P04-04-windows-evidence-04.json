@@ -1,0 +1,705 @@
+{
+  "task": "P04-04",
+  "status": "complete_correct_matrix_p95_still_failed",
+  "received_at": "2026-10-12T21:30:40+08:00",
+  "recorded_at": "2026-10-12T21:35:52.850919+08:00",
+  "phase_branch": "stage/p04-performance",
+  "source_commit": "f728c990b4e071ec7bde0c4fb34600c650e1d19d",
+  "source_attachment": {
+    "name": "report(3).json",
+    "sha256": "953de509d6fbc27cb626d7908c2867930b4d506909e8955a55bcc6ef270356fa",
+    "library_file_id": "libfile_4e465efd20ec8191ae3812cb21ab04db"
+  },
+  "source_verification": {
+    "matched_LF_fingerprints": 41,
+    "matched_test_ids": 26
+  },
+  "checks": {
+    "status": "passed",
+    "tests_run": 26,
+    "failures": 0,
+    "errors": 0,
+    "skipped": [],
+    "test_ids": [
+      "test_performance_measurement.PerformanceMeasurementTests.test_actual_current_and_archived_notebooks_expose_existing_excel_page_with_padded_labels",
+      "test_performance_measurement.PerformanceMeasurementTests.test_actual_current_small_read_counts_and_exact_amounts_with_fresh_round_reset",
+      "test_performance_measurement.PerformanceMeasurementTests.test_actual_original_matched_small_preserves_known_cost_defect_and_five_n_reads",
+      "test_performance_measurement.PerformanceMeasurementTests.test_bulk_tcl_page_insert_keeps_scriptlike_unicode_cells_as_data",
+      "test_performance_measurement.PerformanceMeasurementTests.test_changed_synthetic_inputs_refuse_measurement",
+      "test_performance_measurement.PerformanceMeasurementTests.test_cli_off_windows_reports_blocked_without_probing_shared_root",
+      "test_performance_measurement.PerformanceMeasurementTests.test_fixture_bytes_are_identical_for_manager_sales_and_rounds_are_not_regenerated",
+      "test_performance_measurement.PerformanceMeasurementTests.test_gui_sequence_preflight_uses_real_background_adapters_and_all_phase_gates",
+      "test_performance_measurement.PerformanceMeasurementTests.test_missing_native_phases_or_headless_samples_cannot_pass_windows_performance",
+      "test_performance_measurement.PerformanceMeasurementTests.test_negative_and_nonfinite_clock_samples_are_errors",
+      "test_performance_measurement.PerformanceMeasurementTests.test_non_windows_gui_block_precedes_all_input_and_widget_access",
+      "test_performance_measurement.PerformanceMeasurementTests.test_observation_waits_for_actual_twenty_callbacks_under_windows_timer_rounding",
+      "test_performance_measurement.PerformanceMeasurementTests.test_p95_cannot_hide_single_563ms_maximum",
+      "test_performance_measurement.PerformanceMeasurementTests.test_paging_retains_user_column_width_and_reconfigures_changed_headings",
+      "test_performance_measurement.PerformanceMeasurementTests.test_phase_boundary_includes_work_before_first_callback_and_rejects_short_sampling",
+      "test_performance_measurement.PerformanceMeasurementTests.test_preparation_failure_emits_failed_report_instead_of_successful_checks_snapshot",
+      "test_performance_measurement.PerformanceMeasurementTests.test_readonly_cell_reopens_are_observed_and_all_hooks_restore_after_error",
+      "test_performance_measurement.PerformanceMeasurementTests.test_readonly_worker_timeout_preserves_phase_diagnostics",
+      "test_performance_measurement.PerformanceMeasurementTests.test_real_current_decode_is_one_open_one_xml_and_one_source_iteration",
+      "test_performance_measurement.PerformanceMeasurementTests.test_requested_full_scale_without_completed_rounds_is_not_measured_full_scale",
+      "test_performance_measurement.PerformanceMeasurementTests.test_sales_background_file_list_without_manager_amount_controls",
+      "test_performance_measurement.PerformanceMeasurementTests.test_stage_reset_excludes_preparation_but_preserves_every_stage_gap",
+      "test_performance_measurement.PerformanceMeasurementTests.test_summary_recomputes_raw_gaps_instead_of_trusting_passed_flag",
+      "test_performance_measurement.PerformanceMeasurementTests.test_timeout_is_unavailable_sample_and_cannot_be_matched_baseline",
+      "test_performance_measurement.PerformanceMeasurementTests.test_windows_thread_policy_preserves_shorter_slice_and_other_platform_settings",
+      "test_performance_measurement.PerformanceMeasurementTests.test_worker_failure_preserves_entire_original_exception_traceback"
+    ],
+    "elapsed_seconds": 17.780999999988126
+  },
+  "environment": {
+    "os": "Windows",
+    "release": "10",
+    "python": "3.12.10",
+    "python_executable": "C:\\Users\\uniqu\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "openpyxl": "3.1.5",
+    "pillow": "11.2.1",
+    "machine": "AMD64",
+    "processor": "AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD",
+    "device": "DESKTOP-JK3H2F5"
+  },
+  "limits": {
+    "profile": "performance-v1",
+    "heartbeat_p95_ms": 100,
+    "heartbeat_max_ms": 500,
+    "minimum_rounds": 5
+  },
+  "storage_results": [
+    {
+      "storage": "local",
+      "measured_processes": 55,
+      "current_phases": 225,
+      "p95_failed_phases": 28,
+      "insufficient_samples": 0,
+      "current_max_gap_ms": 256.23929998255335,
+      "thread_switch_interval_seconds": [
+        0.001
+      ],
+      "correctness_and_read_counts_passed": true,
+      "full_scale_five_rounds": true,
+      "matched_legacy_rounds_complete": true,
+      "inputs_unchanged": true,
+      "sandbox_cleaned": true,
+      "failed_summary_rows": [
+        {
+          "case_id": "manager-rows-1000",
+          "version": "current",
+          "phase": "first_refresh",
+          "seconds": {
+            "samples": 5,
+            "p50": 1.0915881000109948,
+            "p95": 1.0949611999967601,
+            "max": 1.0949611999967601
+          },
+          "python_allocation_peak_bytes": {
+            "samples": 5,
+            "p50": 32811677,
+            "p95": 32812247,
+            "max": 32812247
+          },
+          "workbook_opens_each_round": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "worksheet_xml_source_opens_each_round": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "correct": true,
+          "expected_cold_warm_decodes": true,
+          "complete_five_rounds": true,
+          "heartbeat_healthy_each_round": false,
+          "heartbeat_max_ms_each_round": [
+            127.13219999568537,
+            142.16219997615553,
+            127.89999999222346,
+            158.42829999746755,
+            129.20150000718422
+          ],
+          "heartbeat_p95_ms_each_round": [
+            111.10539999208413,
+            112.1094000118319,
+            122.15680000372231,
+            142.03380001708865,
+            95.09119999711402
+          ]
+        },
+        {
+          "case_id": "sales-rows-1000",
+          "version": "current",
+          "phase": "first_refresh",
+          "seconds": {
+            "samples": 5,
+            "p50": 1.0461201000143774,
+            "p95": 1.06102330001886,
+            "max": 1.06102330001886
+          },
+          "python_allocation_peak_bytes": {
+            "samples": 5,
+            "p50": 21131185,
+            "p95": 21131245,
+            "max": 21131245
+          },
+          "workbook_opens_each_round": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "worksheet_xml_source_opens_each_round": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "correct": true,
+          "expected_cold_warm_decodes": true,
+          "complete_five_rounds": true,
+          "heartbeat_healthy_each_round": false,
+          "heartbeat_max_ms_each_round": [
+            144.13579998654313,
+            128.1201000092551,
+            126.62980001186952,
+            160.15190002508461,
+            128.11230000806972
+          ],
+          "heartbeat_p95_ms_each_round": [
+            128.0990999948699,
+            121.57990000559948,
+            105.97489998326637,
+            128.1058999884408,
+            98.5062999825459
+          ]
+        },
+        {
+          "case_id": "manager-rows-10000",
+          "version": "current",
+          "phase": "first_refresh",
+          "seconds": {
+            "samples": 5,
+            "p50": 10.037086700001964,
+            "p95": 10.066346900013741,
+            "max": 10.066346900013741
+          },
+          "python_allocation_peak_bytes": {
+            "samples": 5,
+            "p50": 133287707,
+            "p95": 133289581,
+            "max": 133289581
+          },
+          "workbook_opens_each_round": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "worksheet_xml_source_opens_each_round": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "correct": true,
+          "expected_cold_warm_decodes": true,
+          "complete_five_rounds": true,
+          "heartbeat_healthy_each_round": false,
+          "heartbeat_max_ms_each_round": [
+            239.75929999141954,
+            256.23929998255335,
+            222.22209998290055,
+            223.9623999921605,
+            208.22090000729077
+          ],
+          "heartbeat_p95_ms_each_round": [
+            143.13579999725334,
+            128.11479999800213,
+            128.10510001145303,
+            128.11059999512509,
+            128.13279998954386
+          ]
+        },
+        {
+          "case_id": "manager-rows-10000",
+          "version": "current",
+          "phase": "open_view",
+          "seconds": {
+            "samples": 5,
+            "p50": 0.8407924000057392,
+            "p95": 0.8602239000028931,
+            "max": 0.8602239000028931
+          },
+          "python_allocation_peak_bytes": {
+            "samples": 5,
+            "p50": 8604140,
+            "p95": 8604140,
+            "max": 8604140
+          },
+          "workbook_opens_each_round": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "worksheet_xml_source_opens_each_round": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "correct": true,
+          "expected_cold_warm_decodes": true,
+          "complete_five_rounds": true,
+          "heartbeat_healthy_each_round": false,
+          "heartbeat_max_ms_each_round": [
+            128.1091999844648,
+            190.7368999964092,
+            159.70170000218786,
+            144.13030000287108,
+            128.12040001153946
+          ],
+          "heartbeat_p95_ms_each_round": [
+            127.16249999357387,
+            122.87330001709051,
+            112.10329999448732,
+            142.39279998582788,
+            127.64160000369884
+          ]
+        },
+        {
+          "case_id": "sales-rows-10000",
+          "version": "current",
+          "phase": "first_refresh",
+          "seconds": {
+            "samples": 5,
+            "p50": 10.023006600007648,
+            "p95": 10.038448300008895,
+            "max": 10.038448300008895
+          },
+          "python_allocation_peak_bytes": {
+            "samples": 5,
+            "p50": 114735305,
+            "p95": 114735961,
+            "max": 114735961
+          },
+          "workbook_opens_each_round": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "worksheet_xml_source_opens_each_round": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "correct": true,
+          "expected_cold_warm_decodes": true,
+          "complete_five_rounds": true,
+          "heartbeat_healthy_each_round": false,
+          "heartbeat_max_ms_each_round": [
+            214.76900001289323,
+            204.7459999739658,
+            207.18999998643994,
+            223.19029999198392,
+            240.22760000661947
+          ],
+          "heartbeat_p95_ms_each_round": [
+            141.968200012343,
+            128.13239998649806,
+            128.12410001060925,
+            128.12049998319708,
+            141.66150000528432
+          ]
+        },
+        {
+          "case_id": "sales-rows-10000",
+          "version": "current",
+          "phase": "open_view",
+          "seconds": {
+            "samples": 5,
+            "p50": 1.0293825999833643,
+            "p95": 1.0460948999971151,
+            "max": 1.0460948999971151
+          },
+          "python_allocation_peak_bytes": {
+            "samples": 5,
+            "p50": 5825996,
+            "p95": 5826084,
+            "max": 5826084
+          },
+          "workbook_opens_each_round": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "worksheet_xml_source_opens_each_round": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "correct": true,
+          "expected_cold_warm_decodes": true,
+          "complete_five_rounds": true,
+          "heartbeat_healthy_each_round": false,
+          "heartbeat_max_ms_each_round": [
+            141.24009999795817,
+            160.15959999640472,
+            144.1394000139553,
+            128.11920000240207,
+            159.15380002115853
+          ],
+          "heartbeat_p95_ms_each_round": [
+            121.8939000100363,
+            143.11629999428988,
+            142.18850000179373,
+            128.10889998218045,
+            141.64919999893755
+          ]
+        }
+      ],
+      "all_current_page_heartbeats_healthy": true
+    },
+    {
+      "storage": "UNC_synthetic",
+      "measured_processes": 55,
+      "current_phases": 225,
+      "p95_failed_phases": 29,
+      "insufficient_samples": 0,
+      "current_max_gap_ms": 256.2309999775607,
+      "thread_switch_interval_seconds": [
+        0.001
+      ],
+      "correctness_and_read_counts_passed": true,
+      "full_scale_five_rounds": true,
+      "matched_legacy_rounds_complete": true,
+      "inputs_unchanged": true,
+      "sandbox_cleaned": true,
+      "failed_summary_rows": [
+        {
+          "case_id": "manager-rows-1000",
+          "version": "current",
+          "phase": "first_refresh",
+          "seconds": {
+            "samples": 5,
+            "p50": 1.1790599999949336,
+            "p95": 1.18724149998161,
+            "max": 1.18724149998161
+          },
+          "python_allocation_peak_bytes": {
+            "samples": 5,
+            "p50": 32813235,
+            "p95": 32814355,
+            "max": 32814355
+          },
+          "workbook_opens_each_round": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "worksheet_xml_source_opens_each_round": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "correct": true,
+          "expected_cold_warm_decodes": true,
+          "complete_five_rounds": true,
+          "heartbeat_healthy_each_round": false,
+          "heartbeat_max_ms_each_round": [
+            131.6176000109408,
+            111.10689997440204,
+            127.1116999851074,
+            174.66060002334416,
+            112.2849999810569
+          ],
+          "heartbeat_p95_ms_each_round": [
+            127.63030000496656,
+            103.4951000183355,
+            106.5363000088837,
+            105.94369997852482,
+            96.07940001296811
+          ]
+        },
+        {
+          "case_id": "sales-rows-1000",
+          "version": "current",
+          "phase": "first_refresh",
+          "seconds": {
+            "samples": 5,
+            "p50": 1.0663124999846332,
+            "p95": 1.0974606999952812,
+            "max": 1.0974606999952812
+          },
+          "python_allocation_peak_bytes": {
+            "samples": 5,
+            "p50": 21131932,
+            "p95": 21132525,
+            "max": 21132525
+          },
+          "workbook_opens_each_round": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "worksheet_xml_source_opens_each_round": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "correct": true,
+          "expected_cold_warm_decodes": true,
+          "complete_five_rounds": true,
+          "heartbeat_healthy_each_round": false,
+          "heartbeat_max_ms_each_round": [
+            121.52640000567771,
+            173.69009999674745,
+            158.06750001502223,
+            140.1993999897968,
+            112.09849998704158
+          ],
+          "heartbeat_p95_ms_each_round": [
+            112.10679999203421,
+            106.0433000093326,
+            143.13049998600036,
+            126.1268999951426,
+            109.64830001466908
+          ]
+        },
+        {
+          "case_id": "manager-rows-10000",
+          "version": "current",
+          "phase": "first_refresh",
+          "seconds": {
+            "samples": 5,
+            "p50": 10.103901000024052,
+            "p95": 10.160543700010749,
+            "max": 10.160543700010749
+          },
+          "python_allocation_peak_bytes": {
+            "samples": 5,
+            "p50": 133288883,
+            "p95": 133291021,
+            "max": 133291021
+          },
+          "workbook_opens_each_round": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "worksheet_xml_source_opens_each_round": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "correct": true,
+          "expected_cold_warm_decodes": true,
+          "complete_five_rounds": true,
+          "heartbeat_healthy_each_round": false,
+          "heartbeat_max_ms_each_round": [
+            224.18109999853186,
+            222.7683000091929,
+            208.1977000052575,
+            207.69969999673776,
+            205.69949998753145
+          ],
+          "heartbeat_p95_ms_each_round": [
+            143.13009998295456,
+            144.12979999906383,
+            144.13349999813363,
+            128.11690001399256,
+            128.1174000177998
+          ]
+        },
+        {
+          "case_id": "manager-rows-10000",
+          "version": "current",
+          "phase": "open_view",
+          "seconds": {
+            "samples": 5,
+            "p50": 0.8572800999972969,
+            "p95": 0.8806698999833316,
+            "max": 0.8806698999833316
+          },
+          "python_allocation_peak_bytes": {
+            "samples": 5,
+            "p50": 8604724,
+            "p95": 8604724,
+            "max": 8604724
+          },
+          "workbook_opens_each_round": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "worksheet_xml_source_opens_each_round": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "correct": true,
+          "expected_cold_warm_decodes": true,
+          "complete_five_rounds": true,
+          "heartbeat_healthy_each_round": false,
+          "heartbeat_max_ms_each_round": [
+            158.1478000152856,
+            144.13979998789728,
+            159.37199999461882,
+            144.12200002698228,
+            143.66110000992194
+          ],
+          "heartbeat_p95_ms_each_round": [
+            143.56989998486824,
+            143.43490000464953,
+            158.67969999089837,
+            128.12179999309592,
+            143.14329999615438
+          ]
+        },
+        {
+          "case_id": "sales-rows-10000",
+          "version": "current",
+          "phase": "first_refresh",
+          "seconds": {
+            "samples": 5,
+            "p50": 10.013256200007163,
+            "p95": 10.061562999995658,
+            "max": 10.061562999995658
+          },
+          "python_allocation_peak_bytes": {
+            "samples": 5,
+            "p50": 114735984,
+            "p95": 114736323,
+            "max": 114736323
+          },
+          "workbook_opens_each_round": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "worksheet_xml_source_opens_each_round": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "correct": true,
+          "expected_cold_warm_decodes": true,
+          "complete_five_rounds": true,
+          "heartbeat_healthy_each_round": false,
+          "heartbeat_max_ms_each_round": [
+            255.75979999848641,
+            192.1728000161238,
+            252.75159999728203,
+            256.2309999775607,
+            224.21839999151416
+          ],
+          "heartbeat_p95_ms_each_round": [
+            127.65149999177083,
+            141.61910000257194,
+            143.12160000554286,
+            128.13789999927394,
+            128.1371999939438
+          ]
+        },
+        {
+          "case_id": "sales-rows-10000",
+          "version": "current",
+          "phase": "open_view",
+          "seconds": {
+            "samples": 5,
+            "p50": 1.0236163999943528,
+            "p95": 1.0608886000118218,
+            "max": 1.0608886000118218
+          },
+          "python_allocation_peak_bytes": {
+            "samples": 5,
+            "p50": 5826858,
+            "p95": 5826858,
+            "max": 5826858
+          },
+          "workbook_opens_each_round": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "worksheet_xml_source_opens_each_round": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "correct": true,
+          "expected_cold_warm_decodes": true,
+          "complete_five_rounds": true,
+          "heartbeat_healthy_each_round": false,
+          "heartbeat_max_ms_each_round": [
+            175.28419999871403,
+            144.2228999803774,
+            127.67260000691749,
+            144.12700000684708,
+            144.12589999847114
+          ],
+          "heartbeat_p95_ms_each_round": [
+            128.14290000824258,
+            127.702900004806,
+            126.7160999996122,
+            143.67190000484698,
+            144.1227000032086
+          ]
+        }
+      ],
+      "all_current_page_heartbeats_healthy": true
+    }
+  ],
+  "report_snapshot": "P04-04-windows-report-04.json",
+  "production_files_read_or_modified": false,
+  "explicit_shared_root_accessed": true,
+  "observed": "All110 processes and both full current9x5 matrices completed; financial/detail/cold-once/warm-zero/cleanup passed; no worker errors. All pagination heartbeat groups passed in this run. First refresh and large-file view p95 still exceed100ms in both storages. All original/current recorded scheduling values match1ms.",
+  "attribution_limit": "Fourth result does not establish that scheduling, GC, parsing or main-thread delivery caused any particular gap. Previous scheduling change did not meet remaining p95 gate; collect aligned function/GC/gap spans in a short local diagnostic before further product changes.",
+  "next": "Read-only two-case one-round actual Windows latency diagnostic, no UNC/legacy/full-matrix repeat. Diagnostic cannot accept performance or close P04.",
+  "acceptance": "P04-04/P04 open, P05 not started. Frozen100/500ms limits and all prior raw values retained."
+}

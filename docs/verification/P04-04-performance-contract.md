@@ -1,6 +1,6 @@
 # P04-04 同数据性能对照与Windows入口
 
-状态：第三次全档采样及正确性通过、响应性能未通过；调度/分页优化已交付，待第四次Windows/UNC复查。唯一stage/p04-performance，本轮基线2cd9887；P04留now，P05未启动。
+状态：第四次完整采样及正确性通过、首读/查看p95仍未通过；短程分段诊断已交付，待本机母子各一轮定位报告。唯一stage/p04-performance，本轮基线f728c99；应用实现保持，P04留now，P05未启动。
 
 ## 测量范围和固定门槛
 
@@ -71,9 +71,9 @@ Windows应用背景I/O初始化将进程解释器切换间隔设为min(原值,1m
 
 解释器API依据：[Python官方sys.setswitchinterval](https://docs.python.org/3.12/library/sys.html#sys.setswitchinterval)；该值是理想切换间隔，长内部函数可能超出，实际调度由系统决定。历史第三次报告没有记录实际切换间隔，不补写其数值；第四次原/新版以报告实值核对配对条件。
 
-## Windows执行
+## 常规全档入口（本次不重跑）
 
-在当前P04分支执行一次，工具会自动运行26项检查、本机及共享盘三档5轮对照。窗口会自动打开、切页和关闭，禁止人工输入；控制台持续显示轮次。完整流程通常需要十几分钟，依硬盘/共享盘速度可能更久。
+在当前P04分支执行一次，工具会自动运行33项检查、本机及共享盘三档5轮对照。窗口会自动打开、切页和关闭，禁止人工输入；控制台持续显示轮次。完整流程通常需要十几分钟，依硬盘/共享盘速度可能更久。
 
 ```powershell
 git pull --ff-only
@@ -82,3 +82,23 @@ py -3 tools/p04_performance_check.py --gui-heartbeat --compare-legacy --shared-r
 ```
 
 完成后回传`reports/p04-04-windows-04/report.json`。保留当轮源指纹、原始样本与失败状态；不在回传前登记P04-04或整阶段通过，不启动P05。
+
+## 第四次结果与当前短诊断
+
+第四次[Windows/UNC证据](P04-04-windows-evidence-04.json)及[原报告](P04-04-windows-report-04.json)匹配f728c99的41项指纹/26个测试ID，26项检查通过、110个进程全完成；两位置当前9档各5轮及原版小档完整，金额/全部明细/冷一次暖0/源未改/清理均通过。本机及UNC当前原始最大间隔256.2393ms/256.2310ms，翻页心跳组本轮全部达标；仍有28+29=57个当前阶段p95超限，集中在1000/10000行首读及10000行查看。所有原/新版记录的切换间隔均为1ms，上一轮调度策略没有满足剩余指标。原值保留，不据此推断具体卡顿根因或统计因果。
+
+现新增--diagnose-latency，实际Windows本机母版/子版10000行各一轮，只生成这两个文件，不生成1000文件档、不读UNC、不跑原版或全档；预计约1～3分钟。保留冷暖/查看/全页/筛选五阶段及整数分/行数/源哈希核验，加入缓存取得、workbook解码、脱离句柄、汇总分析、身份/订单、视图转换、主线程交付/呈现、GC区间及每线程CPU时间。全部起止相对同一心跳起点，长间隔列出重叠事件；重叠只表示相关性，嵌套区间不能相加。每阶段最多4096个事件，events_dropped与unfinished_gc显性列明，不把截断数据写成完整定位。
+
+诊断额外插桩会改变耗时；状态为latency_diagnostic_completed_acceptance_pending、latency_diagnostic_only=true，全档/Windows健康验收门槛为false，即使单轮心跳通过也不能收尾。读取/交付失败保留所属阶段及部分事件，函数钩子和GC回调在成功/失败时还原，不强制GC、不改变回收设置。普通--gui-heartbeat仍要求至少5轮；诊断明确拒绝共享盘和旧版选项，非Windows在接触输入/窗口前阻断。程序业务/界面实现、价格/金额、缓存/解析、事务/CAS/回执和100/500ms门槛保持。[33项/完整339项辅助证据](P04-04-trace-checks.json)含真实解码与Tcl分段预演、错误恢复、事件上限、真实选中文件/指纹门禁与一轮绝不能验收；本机延迟诊断待回传。先定位再优化，暂停第五次全档，P04留now，P05未启动。
+
+GC回调依据：[Python官方gc.callbacks](https://docs.python.org/3.12/library/gc.html#gc.callbacks)。本工具使用3.12支持的start/stop及generation，耗时自行以perf_counter记录，不依赖新版duration字段。
+
+在当前分支执行下面一次即可；暂不执行上方全档或旧工具：
+
+```powershell
+git pull --ff-only
+if ($LASTEXITCODE -ne 0) { throw '拉取失败，先停止' }
+py -3 tools/p04_performance_check.py --diagnose-latency --output reports/p04-04-latency-01
+```
+
+回传`reports/p04-04-latency-01/report.json`。额外诊断只能定位，不能用于性能验收或关闭P04。
