@@ -1,0 +1,779 @@
+{
+  "task": "P04-04",
+  "status": "local_short_diagnostic_all_phases_passed_formal_Windows_UNC_five_rounds_pending",
+  "recorded_at": "2026-10-12T23:18:54.696373+08:00",
+  "source_attachment": "report(5).json",
+  "source_attachment_sha256": "bf83cf3a2d2befc34ff55a8b697d15aac52c8c5b1ff24ae47fd2ab3e1f75c9d7",
+  "source_bytes": 1272010,
+  "source_report": "P04-04-windows-latency-report-02.json",
+  "source_commit": "f40e72bd412f980ee317b33c7a1ab702e878d891",
+  "phase_branch": "stage/p04-performance",
+  "reported_environment": {
+    "os": "Windows",
+    "release": "10",
+    "python": "3.12.10",
+    "python_executable": "C:\\Users\\uniqu\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "openpyxl": "3.1.5",
+    "pillow": "11.2.1",
+    "machine": "AMD64",
+    "processor": "AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD",
+    "device": "DESKTOP-JK3H2F5"
+  },
+  "source_verification": {
+    "matched_LF_fingerprints": 42,
+    "matched_test_ids": 37,
+    "raw_heartbeat_and_trace_overlaps_recomputed": true,
+    "full_raw_report_preserved_byte_for_byte": true
+  },
+  "native_checks": {
+    "status": "passed",
+    "tests_run": 37,
+    "failures": 0,
+    "errors": 0,
+    "skipped": [],
+    "test_ids": [
+      "test_performance_measurement.PerformanceMeasurementTests.test_actual_budgeted_decode_and_views_keep_exact_rows_amounts_and_single_open",
+      "test_performance_measurement.PerformanceMeasurementTests.test_actual_current_and_archived_notebooks_expose_existing_excel_page_with_padded_labels",
+      "test_performance_measurement.PerformanceMeasurementTests.test_actual_current_small_read_counts_and_exact_amounts_with_fresh_round_reset",
+      "test_performance_measurement.PerformanceMeasurementTests.test_actual_original_matched_small_preserves_known_cost_defect_and_five_n_reads",
+      "test_performance_measurement.PerformanceMeasurementTests.test_bulk_tcl_page_insert_keeps_scriptlike_unicode_cells_as_data",
+      "test_performance_measurement.PerformanceMeasurementTests.test_changed_synthetic_inputs_refuse_measurement",
+      "test_performance_measurement.PerformanceMeasurementTests.test_cli_off_windows_reports_blocked_without_probing_shared_root",
+      "test_performance_measurement.PerformanceMeasurementTests.test_fixture_bytes_are_identical_for_manager_sales_and_rounds_are_not_regenerated",
+      "test_performance_measurement.PerformanceMeasurementTests.test_gui_sequence_preflight_uses_real_background_adapters_and_all_phase_gates",
+      "test_performance_measurement.PerformanceMeasurementTests.test_jobs_read_turn_is_thread_local_and_never_reaches_writer_or_owner",
+      "test_performance_measurement.PerformanceMeasurementTests.test_latency_diagnostic_blocks_non_windows_before_input_or_gui_access",
+      "test_performance_measurement.PerformanceMeasurementTests.test_latency_diagnostic_rejects_shared_or_legacy_options_before_any_output_access",
+      "test_performance_measurement.PerformanceMeasurementTests.test_latency_overlap_is_aligned_bounded_and_never_a_causal_or_acceptance_claim",
+      "test_performance_measurement.PerformanceMeasurementTests.test_latency_trace_actual_decode_worker_gc_and_error_restore_all_hooks",
+      "test_performance_measurement.PerformanceMeasurementTests.test_latency_trace_only_wraps_cooperative_pause_and_restores_it_after_error",
+      "test_performance_measurement.PerformanceMeasurementTests.test_missing_native_phases_or_headless_samples_cannot_pass_windows_performance",
+      "test_performance_measurement.PerformanceMeasurementTests.test_negative_and_nonfinite_clock_samples_are_errors",
+      "test_performance_measurement.PerformanceMeasurementTests.test_non_windows_gui_block_precedes_all_input_and_widget_access",
+      "test_performance_measurement.PerformanceMeasurementTests.test_normal_native_performance_still_rejects_one_round",
+      "test_performance_measurement.PerformanceMeasurementTests.test_observation_waits_for_actual_twenty_callbacks_under_windows_timer_rounding",
+      "test_performance_measurement.PerformanceMeasurementTests.test_p95_cannot_hide_single_563ms_maximum",
+      "test_performance_measurement.PerformanceMeasurementTests.test_paging_retains_user_column_width_and_reconfigures_changed_headings",
+      "test_performance_measurement.PerformanceMeasurementTests.test_phase_boundary_includes_work_before_first_callback_and_rejects_short_sampling",
+      "test_performance_measurement.PerformanceMeasurementTests.test_preparation_failure_emits_failed_report_instead_of_successful_checks_snapshot",
+      "test_performance_measurement.PerformanceMeasurementTests.test_read_turn_budget_resets_after_wakeup_and_restores_nested_error_scope",
+      "test_performance_measurement.PerformanceMeasurementTests.test_readonly_cell_reopens_are_observed_and_all_hooks_restore_after_error",
+      "test_performance_measurement.PerformanceMeasurementTests.test_readonly_worker_timeout_preserves_phase_diagnostics",
+      "test_performance_measurement.PerformanceMeasurementTests.test_real_current_decode_is_one_open_one_xml_and_one_source_iteration",
+      "test_performance_measurement.PerformanceMeasurementTests.test_real_diagnostic_inputs_select_two_files_and_keep_source_gate_and_matching_bytes",
+      "test_performance_measurement.PerformanceMeasurementTests.test_requested_full_scale_without_completed_rounds_is_not_measured_full_scale",
+      "test_performance_measurement.PerformanceMeasurementTests.test_sales_background_file_list_without_manager_amount_controls",
+      "test_performance_measurement.PerformanceMeasurementTests.test_short_diagnostic_selects_only_two_large_files_and_never_accepts_one_round",
+      "test_performance_measurement.PerformanceMeasurementTests.test_stage_reset_excludes_preparation_but_preserves_every_stage_gap",
+      "test_performance_measurement.PerformanceMeasurementTests.test_summary_recomputes_raw_gaps_instead_of_trusting_passed_flag",
+      "test_performance_measurement.PerformanceMeasurementTests.test_timeout_is_unavailable_sample_and_cannot_be_matched_baseline",
+      "test_performance_measurement.PerformanceMeasurementTests.test_windows_thread_policy_preserves_shorter_slice_and_other_platform_settings",
+      "test_performance_measurement.PerformanceMeasurementTests.test_worker_failure_preserves_entire_original_exception_traceback"
+    ],
+    "log": "test_actual_budgeted_decode_and_views_keep_exact_rows_amounts_and_single_open (test_performance_measurement.PerformanceMeasurementTests.test_actual_budgeted_decode_and_views_keep_exact_rows_amounts_and_single_open) ... ok\ntest_actual_current_and_archived_notebooks_expose_existing_excel_page_with_padded_labels (test_performance_measurement.PerformanceMeasurementTests.test_actual_current_and_archived_notebooks_expose_existing_excel_page_with_padded_labels) ... ok\ntest_actual_current_small_read_counts_and_exact_amounts_with_fresh_round_reset (test_performance_measurement.PerformanceMeasurementTests.test_actual_current_small_read_counts_and_exact_amounts_with_fresh_round_reset) ... ok\ntest_actual_original_matched_small_preserves_known_cost_defect_and_five_n_reads (test_performance_measurement.PerformanceMeasurementTests.test_actual_original_matched_small_preserves_known_cost_defect_and_five_n_reads) ... ok\ntest_bulk_tcl_page_insert_keeps_scriptlike_unicode_cells_as_data (test_performance_measurement.PerformanceMeasurementTests.test_bulk_tcl_page_insert_keeps_scriptlike_unicode_cells_as_data) ... ok\ntest_changed_synthetic_inputs_refuse_measurement (test_performance_measurement.PerformanceMeasurementTests.test_changed_synthetic_inputs_refuse_measurement) ... ok\ntest_cli_off_windows_reports_blocked_without_probing_shared_root (test_performance_measurement.PerformanceMeasurementTests.test_cli_off_windows_reports_blocked_without_probing_shared_root) ... ok\ntest_fixture_bytes_are_identical_for_manager_sales_and_rounds_are_not_regenerated (test_performance_measurement.PerformanceMeasurementTests.test_fixture_bytes_are_identical_for_manager_sales_and_rounds_are_not_regenerated) ... ok\ntest_gui_sequence_preflight_uses_real_background_adapters_and_all_phase_gates (test_performance_measurement.PerformanceMeasurementTests.test_gui_sequence_preflight_uses_real_background_adapters_and_all_phase_gates) ... ok\ntest_jobs_read_turn_is_thread_local_and_never_reaches_writer_or_owner (test_performance_measurement.PerformanceMeasurementTests.test_jobs_read_turn_is_thread_local_and_never_reaches_writer_or_owner) ... ok\ntest_latency_diagnostic_blocks_non_windows_before_input_or_gui_access (test_performance_measurement.PerformanceMeasurementTests.test_latency_diagnostic_blocks_non_windows_before_input_or_gui_access) ... ok\ntest_latency_diagnostic_rejects_shared_or_legacy_options_before_any_output_access (test_performance_measurement.PerformanceMeasurementTests.test_latency_diagnostic_rejects_shared_or_legacy_options_before_any_output_access) ... ok\ntest_latency_overlap_is_aligned_bounded_and_never_a_causal_or_acceptance_claim (test_performance_measurement.PerformanceMeasurementTests.test_latency_overlap_is_aligned_bounded_and_never_a_causal_or_acceptance_claim) ... ok\ntest_latency_trace_actual_decode_worker_gc_and_error_restore_all_hooks (test_performance_measurement.PerformanceMeasurementTests.test_latency_trace_actual_decode_worker_gc_and_error_restore_all_hooks) ... ok\ntest_latency_trace_only_wraps_cooperative_pause_and_restores_it_after_error (test_performance_measurement.PerformanceMeasurementTests.test_latency_trace_only_wraps_cooperative_pause_and_restores_it_after_error) ... ok\ntest_missing_native_phases_or_headless_samples_cannot_pass_windows_performance (test_performance_measurement.PerformanceMeasurementTests.test_missing_native_phases_or_headless_samples_cannot_pass_windows_performance) ... ok\ntest_negative_and_nonfinite_clock_samples_are_errors (test_performance_measurement.PerformanceMeasurementTests.test_negative_and_nonfinite_clock_samples_are_errors) ... ok\ntest_non_windows_gui_block_precedes_all_input_and_widget_access (test_performance_measurement.PerformanceMeasurementTests.test_non_windows_gui_block_precedes_all_input_and_widget_access) ... ok\ntest_normal_native_performance_still_rejects_one_round (test_performance_measurement.PerformanceMeasurementTests.test_normal_native_performance_still_rejects_one_round) ... ok\ntest_observation_waits_for_actual_twenty_callbacks_under_windows_timer_rounding (test_performance_measurement.PerformanceMeasurementTests.test_observation_waits_for_actual_twenty_callbacks_under_windows_timer_rounding) ... ok\ntest_p95_cannot_hide_single_563ms_maximum (test_performance_measurement.PerformanceMeasurementTests.test_p95_cannot_hide_single_563ms_maximum) ... ok\ntest_paging_retains_user_column_width_and_reconfigures_changed_headings (test_performance_measurement.PerformanceMeasurementTests.test_paging_retains_user_column_width_and_reconfigures_changed_headings) ... ok\ntest_phase_boundary_includes_work_before_first_callback_and_rejects_short_sampling (test_performance_measurement.PerformanceMeasurementTests.test_phase_boundary_includes_work_before_first_callback_and_rejects_short_sampling) ... ok\ntest_preparation_failure_emits_failed_report_instead_of_successful_checks_snapshot (test_performance_measurement.PerformanceMeasurementTests.test_preparation_failure_emits_failed_report_instead_of_successful_checks_snapshot) ... ok\ntest_read_turn_budget_resets_after_wakeup_and_restores_nested_error_scope (test_performance_measurement.PerformanceMeasurementTests.test_read_turn_budget_resets_after_wakeup_and_restores_nested_error_scope) ... ok\ntest_readonly_cell_reopens_are_observed_and_all_hooks_restore_after_error (test_performance_measurement.PerformanceMeasurementTests.test_readonly_cell_reopens_are_observed_and_all_hooks_restore_after_error) ... ok\ntest_readonly_worker_timeout_preserves_phase_diagnostics (test_performance_measurement.PerformanceMeasurementTests.test_readonly_worker_timeout_preserves_phase_diagnostics) ... ok\ntest_real_current_decode_is_one_open_one_xml_and_one_source_iteration (test_performance_measurement.PerformanceMeasurementTests.test_real_current_decode_is_one_open_one_xml_and_one_source_iteration) ... ok\ntest_real_diagnostic_inputs_select_two_files_and_keep_source_gate_and_matching_bytes (test_performance_measurement.PerformanceMeasurementTests.test_real_diagnostic_inputs_select_two_files_and_keep_source_gate_and_matching_bytes) ... ok\ntest_requested_full_scale_without_completed_rounds_is_not_measured_full_scale (test_performance_measurement.PerformanceMeasurementTests.test_requested_full_scale_without_completed_rounds_is_not_measured_full_scale) ... ok\ntest_sales_background_file_list_without_manager_amount_controls (test_performance_measurement.PerformanceMeasurementTests.test_sales_background_file_list_without_manager_amount_controls) ... ok\ntest_short_diagnostic_selects_only_two_large_files_and_never_accepts_one_round (test_performance_measurement.PerformanceMeasurementTests.test_short_diagnostic_selects_only_two_large_files_and_never_accepts_one_round) ... ok\ntest_stage_reset_excludes_preparation_but_preserves_every_stage_gap (test_performance_measurement.PerformanceMeasurementTests.test_stage_reset_excludes_preparation_but_preserves_every_stage_gap) ... ok\ntest_summary_recomputes_raw_gaps_instead_of_trusting_passed_flag (test_performance_measurement.PerformanceMeasurementTests.test_summary_recomputes_raw_gaps_instead_of_trusting_passed_flag) ... ok\ntest_timeout_is_unavailable_sample_and_cannot_be_matched_baseline (test_performance_measurement.PerformanceMeasurementTests.test_timeout_is_unavailable_sample_and_cannot_be_matched_baseline) ... ok\ntest_windows_thread_policy_preserves_shorter_slice_and_other_platform_settings (test_performance_measurement.PerformanceMeasurementTests.test_windows_thread_policy_preserves_shorter_slice_and_other_platform_settings) ... ok\ntest_worker_failure_preserves_entire_original_exception_traceback (test_performance_measurement.PerformanceMeasurementTests.test_worker_failure_preserves_entire_original_exception_traceback) ... ok\n\n----------------------------------------------------------------------\nRan 37 tests in 18.628s\n\nOK\n",
+    "elapsed_seconds": 18.625
+  },
+  "storage": "local",
+  "actual_completed_workers": 2,
+  "phases_complete": 10,
+  "phases_healthy": 10,
+  "phases_with_failed_p95": 0,
+  "worst_heartbeat_ms": 124.7948000091128,
+  "worker_failures": [],
+  "callback_errors": [],
+  "all_inputs_unchanged": true,
+  "sandbox_cleaned": true,
+  "financial_and_read_counts_passed": true,
+  "all_events_complete": true,
+  "cooperative_pauses_all_worker": true,
+  "cooperative_pauses_recorded": 1028,
+  "full_scale_five_rounds": false,
+  "Windows_healthy_performance_passed": false,
+  "extra_instrumentation": true,
+  "phases": [
+    {
+      "case_id": "manager-rows-10000",
+      "phase": "first_refresh",
+      "seconds": 11.230781499994919,
+      "python_allocation_peak_bytes": 133882083,
+      "heartbeat_samples": 184,
+      "heartbeat_p95_ms": 75.20719995955005,
+      "heartbeat_max_ms": 117.75760003365576,
+      "heartbeat_healthy": true,
+      "counts": {
+        "workbook_opens": 1,
+        "worksheet_xml_source_opens": 1,
+        "iter_rows_calls": 1,
+        "yielded_rows": 10006
+      },
+      "observed": {
+        "files": 1,
+        "valid_files": 1,
+        "detail_rows": 10000,
+        "income_cents": 10000000,
+        "cost_cents": 4000000,
+        "profit_cents": 6000000,
+        "displayed_totals": {
+          "income": "100000.00",
+          "cost": "40000.00",
+          "profit": "60000.00"
+        },
+        "correct": true
+      },
+      "events_dropped": 0,
+      "unfinished_gc": 0,
+      "major_spans": [
+        {
+          "name": "decode_workbook",
+          "thread": "worker",
+          "start_seconds": 0.011440499976743013,
+          "end_seconds": 6.933729899988975,
+          "wall_seconds": 6.922289400012232,
+          "thread_cpu_seconds": 6.921875
+        },
+        {
+          "name": "detach_cells",
+          "thread": "worker",
+          "start_seconds": 6.933744499983732,
+          "end_seconds": 8.822710099979304,
+          "wall_seconds": 1.8889655999955721,
+          "thread_cpu_seconds": 1.578125
+        },
+        {
+          "name": "analyze_ledger",
+          "thread": "worker",
+          "start_seconds": 8.822723899967968,
+          "end_seconds": 11.11221699998714,
+          "wall_seconds": 2.289493100019172,
+          "thread_cpu_seconds": 1.84375
+        },
+        {
+          "name": "deliver_state",
+          "thread": "owner",
+          "start_seconds": 11.151762199995574,
+          "end_seconds": 11.153694799984805,
+          "wall_seconds": 0.0019325999892316759,
+          "thread_cpu_seconds": 0.0
+        },
+        {
+          "name": "render_file_list",
+          "thread": "owner",
+          "start_seconds": 11.153717999986839,
+          "end_seconds": 11.154358899977524,
+          "wall_seconds": 0.0006408999906852841,
+          "thread_cpu_seconds": 0.0
+        },
+        {
+          "name": "deliver_state",
+          "thread": "owner",
+          "start_seconds": 11.199790699989535,
+          "end_seconds": 11.20169919996988,
+          "wall_seconds": 0.0019084999803453684,
+          "thread_cpu_seconds": 0.015625
+        },
+        {
+          "name": "render_file_list",
+          "thread": "owner",
+          "start_seconds": 11.20212289999472,
+          "end_seconds": 11.202695799991488,
+          "wall_seconds": 0.0005728999967686832,
+          "thread_cpu_seconds": 0.0
+        }
+      ],
+      "cooperative_pauses": {
+        "count": 401,
+        "wall_seconds": 0.7565487000974827,
+        "max_seconds": 0.002022000029683113,
+        "all_worker": true
+      },
+      "over_100_ms_gaps": [
+        {
+          "start_seconds": 3.283298599999398,
+          "end_seconds": 3.385816399997566,
+          "gap_ms": 102.5177999981679,
+          "owner_spans": [],
+          "worker_spans": [
+            "cache_get",
+            "decode_workbook",
+            "gc.gen0",
+            "gc.gen1",
+            "gc.gen2",
+            "parse_document"
+          ],
+          "gc_overlap_ms": 36.51720000198111
+        },
+        {
+          "start_seconds": 6.481827299983706,
+          "end_seconds": 6.592381199996453,
+          "gap_ms": 110.55390001274645,
+          "owner_spans": [],
+          "worker_spans": [
+            "cache_get",
+            "decode_workbook",
+            "gc.gen0",
+            "gc.gen1",
+            "gc.gen2",
+            "parse_document"
+          ],
+          "gc_overlap_ms": 65.07640000199899
+        },
+        {
+          "start_seconds": 8.559003999980632,
+          "end_seconds": 8.676761600014288,
+          "gap_ms": 117.75760003365576,
+          "owner_spans": [],
+          "worker_spans": [
+            "cache_get",
+            "cooperative_pause",
+            "detach_cells",
+            "gc.gen0",
+            "gc.gen1",
+            "gc.gen2",
+            "parse_document"
+          ],
+          "gc_overlap_ms": 95.58500006096438
+        }
+      ],
+      "gc_total_ms": 442.8088002023287,
+      "gc_max_ms": 95.17300000879914
+    },
+    {
+      "case_id": "manager-rows-10000",
+      "phase": "warm_refresh",
+      "seconds": 0.12091539998073131,
+      "python_allocation_peak_bytes": 21024061,
+      "heartbeat_samples": 21,
+      "heartbeat_p95_ms": 64.0622999635525,
+      "heartbeat_max_ms": 64.0756000066176,
+      "heartbeat_healthy": true,
+      "counts": {},
+      "observed": {
+        "files": 1,
+        "valid_files": 1,
+        "detail_rows": 10000,
+        "income_cents": 10000000,
+        "cost_cents": 4000000,
+        "profit_cents": 6000000,
+        "displayed_totals": {
+          "income": "100000.00",
+          "cost": "40000.00",
+          "profit": "60000.00"
+        },
+        "correct": true
+      },
+      "events_dropped": 0,
+      "unfinished_gc": 0,
+      "major_spans": [
+        {
+          "name": "deliver_state",
+          "thread": "owner",
+          "start_seconds": 0.04147399996872991,
+          "end_seconds": 0.04314089997205883,
+          "wall_seconds": 0.0016669000033289194,
+          "thread_cpu_seconds": 0.0
+        },
+        {
+          "name": "render_file_list",
+          "thread": "owner",
+          "start_seconds": 0.04315450001740828,
+          "end_seconds": 0.0438210999709554,
+          "wall_seconds": 0.0006665999535471201,
+          "thread_cpu_seconds": 0.0
+        },
+        {
+          "name": "deliver_state",
+          "thread": "owner",
+          "start_seconds": 0.08950140001252294,
+          "end_seconds": 0.0913538999739103,
+          "wall_seconds": 0.001852499961387366,
+          "thread_cpu_seconds": 0.0
+        },
+        {
+          "name": "render_file_list",
+          "thread": "owner",
+          "start_seconds": 0.09179989999393001,
+          "end_seconds": 0.09229449997656047,
+          "wall_seconds": 0.0004945999826304615,
+          "thread_cpu_seconds": 0.0
+        }
+      ],
+      "cooperative_pauses": {
+        "count": 0,
+        "wall_seconds": 0,
+        "max_seconds": 0,
+        "all_worker": true
+      },
+      "over_100_ms_gaps": [],
+      "gc_total_ms": 0,
+      "gc_max_ms": 0
+    },
+    {
+      "case_id": "manager-rows-10000",
+      "phase": "open_view",
+      "seconds": 1.0813666000030935,
+      "python_allocation_peak_bytes": 8620768,
+      "heartbeat_samples": 21,
+      "heartbeat_p95_ms": 69.51559998560697,
+      "heartbeat_max_ms": 99.88270001485944,
+      "heartbeat_healthy": true,
+      "counts": {},
+      "observed": null,
+      "events_dropped": 0,
+      "unfinished_gc": 0,
+      "major_spans": [
+        {
+          "name": "build_view",
+          "thread": "worker",
+          "start_seconds": 0.0024446999887004495,
+          "end_seconds": 0.9435729999677278,
+          "wall_seconds": 0.9411282999790274,
+          "thread_cpu_seconds": 0.765625
+        },
+        {
+          "name": "deliver_state",
+          "thread": "owner",
+          "start_seconds": 0.9700253999908455,
+          "end_seconds": 0.9700389999779873,
+          "wall_seconds": 1.3599987141788006e-05,
+          "thread_cpu_seconds": 0.0
+        },
+        {
+          "name": "deliver_view",
+          "thread": "owner",
+          "start_seconds": 0.9700573000009172,
+          "end_seconds": 0.9813916999846697,
+          "wall_seconds": 0.011334399983752519,
+          "thread_cpu_seconds": 0.015625
+        }
+      ],
+      "cooperative_pauses": {
+        "count": 94,
+        "wall_seconds": 0.18245000013848767,
+        "max_seconds": 0.002044800028670579,
+        "all_worker": true
+      },
+      "over_100_ms_gaps": [],
+      "gc_total_ms": 3.2475999905727804,
+      "gc_max_ms": 0.5451000179164112
+    },
+    {
+      "case_id": "manager-rows-10000",
+      "phase": "all_pages",
+      "seconds": 3.560288999986369,
+      "python_allocation_peak_bytes": 197448,
+      "heartbeat_samples": 51,
+      "heartbeat_p95_ms": 74.03730001533404,
+      "heartbeat_max_ms": 74.32800001697615,
+      "heartbeat_healthy": true,
+      "counts": {},
+      "observed": {
+        "visible_rows": 10006,
+        "detail_rows": 10000,
+        "pages": 51,
+        "all_rows_reachable": true,
+        "exact_income_cents": 10000000
+      },
+      "events_dropped": 0,
+      "unfinished_gc": 0,
+      "major_spans": [],
+      "cooperative_pauses": {
+        "count": 0,
+        "wall_seconds": 0,
+        "max_seconds": 0,
+        "all_worker": true
+      },
+      "over_100_ms_gaps": [],
+      "gc_total_ms": 0.11910003377124667,
+      "gc_max_ms": 0.11910003377124667
+    },
+    {
+      "case_id": "manager-rows-10000",
+      "phase": "filter_last_detail",
+      "seconds": 0.21952849999070168,
+      "python_allocation_peak_bytes": 31630,
+      "heartbeat_samples": 21,
+      "heartbeat_p95_ms": 64.08530002227053,
+      "heartbeat_max_ms": 64.1318000270985,
+      "heartbeat_healthy": true,
+      "counts": {},
+      "observed": {
+        "last_detail_reachable": true,
+        "source_row": 10006
+      },
+      "events_dropped": 0,
+      "unfinished_gc": 0,
+      "major_spans": [
+        {
+          "name": "deliver_state",
+          "thread": "owner",
+          "start_seconds": 0.17252849997021258,
+          "end_seconds": 0.17254739999771118,
+          "wall_seconds": 1.8900027498602867e-05,
+          "thread_cpu_seconds": 0.0
+        }
+      ],
+      "cooperative_pauses": {
+        "count": 16,
+        "wall_seconds": 0.031403700122609735,
+        "max_seconds": 0.002011000004131347,
+        "all_worker": true
+      },
+      "over_100_ms_gaps": [],
+      "gc_total_ms": 0,
+      "gc_max_ms": 0
+    },
+    {
+      "case_id": "sales-rows-10000",
+      "phase": "first_refresh",
+      "seconds": 11.15275060001295,
+      "python_allocation_peak_bytes": 115315039,
+      "heartbeat_samples": 178,
+      "heartbeat_p95_ms": 77.60820002295077,
+      "heartbeat_max_ms": 124.7948000091128,
+      "heartbeat_healthy": true,
+      "counts": {
+        "workbook_opens": 1,
+        "worksheet_xml_source_opens": 1,
+        "iter_rows_calls": 1,
+        "yielded_rows": 10006
+      },
+      "observed": {
+        "files": 1,
+        "valid_files": 1,
+        "detail_rows": 10000,
+        "income_cents": 10000000,
+        "cost_cents": 4000000,
+        "profit_cents": 6000000,
+        "correct": true
+      },
+      "events_dropped": 0,
+      "unfinished_gc": 0,
+      "major_spans": [
+        {
+          "name": "decode_workbook",
+          "thread": "worker",
+          "start_seconds": 0.012138299993239343,
+          "end_seconds": 6.981187199999113,
+          "wall_seconds": 6.969048900005873,
+          "thread_cpu_seconds": 6.9375
+        },
+        {
+          "name": "detach_cells",
+          "thread": "worker",
+          "start_seconds": 6.981201399990823,
+          "end_seconds": 8.790319600026123,
+          "wall_seconds": 1.8091182000353,
+          "thread_cpu_seconds": 1.453125
+        },
+        {
+          "name": "analyze_ledger",
+          "thread": "worker",
+          "start_seconds": 8.790334700024687,
+          "end_seconds": 11.063446799991652,
+          "wall_seconds": 2.2731120999669656,
+          "thread_cpu_seconds": 1.828125
+        },
+        {
+          "name": "deliver_state",
+          "thread": "owner",
+          "start_seconds": 11.107280399999581,
+          "end_seconds": 11.109204299980775,
+          "wall_seconds": 0.0019238999811932445,
+          "thread_cpu_seconds": 0.0
+        },
+        {
+          "name": "render_file_list",
+          "thread": "owner",
+          "start_seconds": 11.109222099999897,
+          "end_seconds": 11.109364100033417,
+          "wall_seconds": 0.0001420000335201621,
+          "thread_cpu_seconds": 0.0
+        }
+      ],
+      "cooperative_pauses": {
+        "count": 394,
+        "wall_seconds": 0.7027838999638334,
+        "max_seconds": 0.0020394999883137643,
+        "all_worker": true
+      },
+      "over_100_ms_gaps": [
+        {
+          "start_seconds": 3.3462720999959856,
+          "end_seconds": 3.4525848000193946,
+          "gap_ms": 106.31270002340898,
+          "owner_spans": [],
+          "worker_spans": [
+            "cache_get",
+            "decode_workbook",
+            "gc.gen0",
+            "gc.gen1",
+            "gc.gen2",
+            "parse_document"
+          ],
+          "gc_overlap_ms": 38.96020003594458
+        },
+        {
+          "start_seconds": 4.888350400025956,
+          "end_seconds": 4.997008500038646,
+          "gap_ms": 108.65810001268983,
+          "owner_spans": [],
+          "worker_spans": [
+            "cache_get",
+            "decode_workbook",
+            "gc.gen0",
+            "gc.gen1",
+            "gc.gen2",
+            "parse_document"
+          ],
+          "gc_overlap_ms": 50.7115000509657
+        },
+        {
+          "start_seconds": 6.4952062999946065,
+          "end_seconds": 6.618352400022559,
+          "gap_ms": 123.14610002795234,
+          "owner_spans": [],
+          "worker_spans": [
+            "cache_get",
+            "decode_workbook",
+            "gc.gen0",
+            "gc.gen1",
+            "gc.gen2",
+            "parse_document"
+          ],
+          "gc_overlap_ms": 65.34460000693798
+        },
+        {
+          "start_seconds": 8.522397699998692,
+          "end_seconds": 8.647192500007804,
+          "gap_ms": 124.7948000091128,
+          "owner_spans": [],
+          "worker_spans": [
+            "cache_get",
+            "cooperative_pause",
+            "detach_cells",
+            "gc.gen0",
+            "gc.gen1",
+            "gc.gen2",
+            "parse_document"
+          ],
+          "gc_overlap_ms": 95.71630001300946
+        }
+      ],
+      "gc_total_ms": 452.44259980972856,
+      "gc_max_ms": 95.24980001151562
+    },
+    {
+      "case_id": "sales-rows-10000",
+      "phase": "warm_refresh",
+      "seconds": 0.08933250000700355,
+      "python_allocation_peak_bytes": 21000959,
+      "heartbeat_samples": 21,
+      "heartbeat_p95_ms": 64.08740003826097,
+      "heartbeat_max_ms": 64.15470002684742,
+      "heartbeat_healthy": true,
+      "counts": {},
+      "observed": {
+        "files": 1,
+        "valid_files": 1,
+        "detail_rows": 10000,
+        "income_cents": 10000000,
+        "cost_cents": 4000000,
+        "profit_cents": 6000000,
+        "correct": true
+      },
+      "events_dropped": 0,
+      "unfinished_gc": 0,
+      "major_spans": [
+        {
+          "name": "deliver_state",
+          "thread": "owner",
+          "start_seconds": 0.04139269998995587,
+          "end_seconds": 0.04314749996410683,
+          "wall_seconds": 0.0017547999741509557,
+          "thread_cpu_seconds": 0.0
+        },
+        {
+          "name": "render_file_list",
+          "thread": "owner",
+          "start_seconds": 0.04316180001478642,
+          "end_seconds": 0.0432936999714002,
+          "wall_seconds": 0.00013189995661377907,
+          "thread_cpu_seconds": 0.0
+        }
+      ],
+      "cooperative_pauses": {
+        "count": 0,
+        "wall_seconds": 0,
+        "max_seconds": 0,
+        "all_worker": true
+      },
+      "over_100_ms_gaps": [],
+      "gc_total_ms": 0,
+      "gc_max_ms": 0
+    },
+    {
+      "case_id": "sales-rows-10000",
+      "phase": "open_view",
+      "seconds": 1.2531185999978334,
+      "python_allocation_peak_bytes": 5851984,
+      "heartbeat_samples": 23,
+      "heartbeat_p95_ms": 77.59569998597726,
+      "heartbeat_max_ms": 97.22749999491498,
+      "heartbeat_healthy": true,
+      "counts": {},
+      "observed": null,
+      "events_dropped": 0,
+      "unfinished_gc": 0,
+      "major_spans": [
+        {
+          "name": "build_view",
+          "thread": "worker",
+          "start_seconds": 0.002260000037495047,
+          "end_seconds": 1.1318267000024207,
+          "wall_seconds": 1.1295666999649256,
+          "thread_cpu_seconds": 0.890625
+        },
+        {
+          "name": "deliver_state",
+          "thread": "owner",
+          "start_seconds": 1.1460424000397325,
+          "end_seconds": 1.1460554000223055,
+          "wall_seconds": 1.2999982573091984e-05,
+          "thread_cpu_seconds": 0.0
+        },
+        {
+          "name": "deliver_view",
+          "thread": "owner",
+          "start_seconds": 1.1460735000437126,
+          "end_seconds": 1.1544208000414073,
+          "wall_seconds": 0.00834729999769479,
+          "thread_cpu_seconds": 0.0
+        }
+      ],
+      "cooperative_pauses": {
+        "count": 113,
+        "wall_seconds": 0.2164752000826411,
+        "max_seconds": 0.0020252999966032803,
+        "all_worker": true
+      },
+      "over_100_ms_gaps": [],
+      "gc_total_ms": 2.385399944614619,
+      "gc_max_ms": 0.6326999864540994
+    },
+    {
+      "case_id": "sales-rows-10000",
+      "phase": "all_pages",
+      "seconds": 2.4420284999650903,
+      "python_allocation_peak_bytes": 170302,
+      "heartbeat_samples": 35,
+      "heartbeat_p95_ms": 96.76990000298247,
+      "heartbeat_max_ms": 97.38430002471432,
+      "heartbeat_healthy": true,
+      "counts": {},
+      "observed": {
+        "visible_rows": 10000,
+        "detail_rows": 10000,
+        "pages": 50,
+        "all_rows_reachable": true,
+        "exact_income_cents": 10000000
+      },
+      "events_dropped": 0,
+      "unfinished_gc": 0,
+      "major_spans": [],
+      "cooperative_pauses": {
+        "count": 0,
+        "wall_seconds": 0,
+        "max_seconds": 0,
+        "all_worker": true
+      },
+      "over_100_ms_gaps": [],
+      "gc_total_ms": 0.1810999820008874,
+      "gc_max_ms": 0.1810999820008874
+    },
+    {
+      "case_id": "sales-rows-10000",
+      "phase": "filter_last_detail",
+      "seconds": 0.14240890002110973,
+      "python_allocation_peak_bytes": 40985,
+      "heartbeat_samples": 21,
+      "heartbeat_p95_ms": 64.0756999491714,
+      "heartbeat_max_ms": 64.0774000203237,
+      "heartbeat_healthy": true,
+      "counts": {},
+      "observed": {
+        "last_detail_reachable": true,
+        "source_row": 10006
+      },
+      "events_dropped": 0,
+      "unfinished_gc": 0,
+      "major_spans": [
+        {
+          "name": "deliver_state",
+          "thread": "owner",
+          "start_seconds": 0.11045239999657497,
+          "end_seconds": 0.11047160002635792,
+          "wall_seconds": 1.9200029782950878e-05,
+          "thread_cpu_seconds": 0.0
+        }
+      ],
+      "cooperative_pauses": {
+        "count": 10,
+        "wall_seconds": 0.019367999921087176,
+        "max_seconds": 0.002000699983909726,
+        "all_worker": true
+      },
+      "over_100_ms_gaps": [],
+      "gc_total_ms": 0,
+      "gc_max_ms": 0
+    }
+  ],
+  "prior_single_round_observations": [
+    {
+      "case_id": "manager-rows-10000",
+      "phase": "first_refresh",
+      "previous_seconds": 10.492496899998514,
+      "current_seconds": 11.230781499994919,
+      "previous_heartbeat_p95_ms": 143.65649997489527,
+      "current_heartbeat_p95_ms": 75.20719995955005
+    },
+    {
+      "case_id": "manager-rows-10000",
+      "phase": "open_view",
+      "previous_seconds": 0.875591699994402,
+      "current_seconds": 1.0813666000030935,
+      "previous_heartbeat_p95_ms": 143.1391999940388,
+      "current_heartbeat_p95_ms": 69.51559998560697
+    },
+    {
+      "case_id": "sales-rows-10000",
+      "phase": "first_refresh",
+      "previous_seconds": 10.25462179997703,
+      "current_seconds": 11.15275060001295,
+      "previous_heartbeat_p95_ms": 128.12079998548143,
+      "current_heartbeat_p95_ms": 77.60820002295077
+    },
+    {
+      "case_id": "sales-rows-10000",
+      "phase": "open_view",
+      "previous_seconds": 0.9956870999885723,
+      "current_seconds": 1.2531185999978334,
+      "previous_heartbeat_p95_ms": 141.66489997296594,
+      "current_heartbeat_p95_ms": 77.59569998597726
+    }
+  ],
+  "comparison_scope": {
+    "same_reported_environment": true,
+    "same_workload_shape_and_exact_amounts": true,
+    "same_bytes_across_reports": false,
+    "reason": "Independent synthetic runs have different workbook hashes; no controlled byte-matched or causal percentage-speedup claim. Pause wall times are nested within parse/view spans and cannot be added to their duration.",
+    "elapsed_tradeoff": "Cold/large-view elapsed time increased in this one-round observation while heartbeat became healthy; formal multiple-round actual Tk/UNC evidence is needed."
+  },
+  "unchanged_implementation": true,
+  "prior_auxiliary_checks": "P04-04-cooperative-checks.json: final343 including37 passed; no repeat without code changes.",
+  "prior_full_failure": "P04-04-windows-evidence-04.json retains57 failures at f728c99; short diagnostic does not rewrite that result.",
+  "production_paths_accessed": false,
+  "production_files_read_or_modified": false,
+  "P04_acceptance": "pending",
+  "P05_started": false,
+  "next_command": "py -3 tools/p04_performance_check.py --gui-heartbeat --compare-legacy --shared-root '\\\\192.168.4.38\\14T共享盘\\葛宁\\PyInstaller' --output reports/p04-04-windows-05"
+}

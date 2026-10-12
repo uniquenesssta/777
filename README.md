@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于plans；P01/P02/P03归档，P04-01/02/03收尾。唯一stage/p04-performance；[短诊断01](docs/verification/P04-04-windows-latency-evidence-01.json)匹配07e5956的41项指纹/33个测试ID，母子10000行各一轮完成，金额/读取计数及清理通过，首读/查看4个阶段p95仍超限。现交付Windows读线程时间预算让步，[37项专项/完整343项辅助通过](docs/verification/P04-04-cooperative-checks.json)，待短诊断02复查。第四次全档57个超限结果保留，100/500ms及正式5轮门槛保持，暂不重跑全档；P04留now，P05未启动。
+规划位于plans；P01/P02/P03归档，P04-01/02/03收尾。唯一stage/p04-performance；[短诊断02](docs/verification/P04-04-windows-latency-evidence-02.json)匹配f40e72b的42项指纹/37测试ID，母子10000行各一轮、10阶段心跳全部达标，最大124.7948ms；金额/冷一次暖0/全页及清理通过，1028次让步均在读线程。程序实现保持，[343项含37专项辅助证据](docs/verification/P04-04-cooperative-checks.json)继续有效；进入正式本机/UNC全档5轮复验，输出windows-05。原正式57个失败记录保留，单轮不代替验收，P04留now，P05未启动。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -34,6 +34,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P04-04[短诊断02](docs/verification/P04-04-windows-latency-evidence-02.json)：f40e72b的42项LF指纹及37个测试ID一致，本机37项通过，母子10000行各一轮、10阶段心跳全部达标，最大124.7948ms；金额/完整明细/冷一次暖0/关闭/清理正常，1028次让步均为读线程事件。原报告按字节保留，全部原始心跳与重叠重新核算；两次独立合成运行工作簿哈希不同，不宣称严格配对改善百分比或统计因果。本次首读11.2308/11.1528秒、查看1.0814/1.2531秒，响应达标但总耗时有增加。[程序与343项辅助证据](docs/verification/P04-04-cooperative-checks.json)保持，无额外重测或继续调参；下一步正式本机及UNC全档各5轮，输出reports/p04-04-windows-05。单轮诊断不关闭P04，旧57个失败结果不改，P05未启动。
 
 - P04-04[短诊断01](docs/verification/P04-04-windows-latency-evidence-01.json)：41项指纹/33个测试ID匹配07e5956，母子10000行各一轮完成，金额/冷一次暖0/完整分页/清理通过；首读p95 143.6565/128.1208ms、查看143.1392/141.6649ms，最大255.2839ms，原报告完整保留。长间隔集中于后台脱离单元格/汇总/视图构造，GC只解释部分时间重叠；据此新增Windows读取通道8ms预算/1ms暂停，线程本地且异常还原，写通道/主线程不启用，不保证原生解码或GC硬时限。分段记录真实cooperative_pause，不修改金额/读取/原始心跳或回收设置。[37项专项及完整343项辅助通过](docs/verification/P04-04-cooperative-checks.json)，包括真实1000行各端视图/末行筛选及Tcl五阶段；实机效果待短诊断02，暂不重跑全档、不收尾P04。
 
