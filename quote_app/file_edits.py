@@ -119,6 +119,7 @@ class FileEditingMixin:
             req = request(operation, {"order_id": order_id, "order_revision": version, "content": content}, order_id=order_id)
             self._edit_pending = {"key": key, "path": path, "request": req, "unknown": False}
         req = self._edit_pending["request"]
+        self._report_io_request("edit", path, req)
         def mutate(book, ws, headers):
             detail = edit_order(book, ws, headers, req, version, text=content if operation == "append_remark" else None,
                                 reason=content if operation != "append_remark" else None)

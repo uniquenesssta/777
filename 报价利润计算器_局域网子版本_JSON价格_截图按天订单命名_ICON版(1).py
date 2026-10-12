@@ -22,7 +22,7 @@ import sys
 import re
 import time
 import tkinter as tk
-from quote_app import QuoteApplicationMixin
+from quote_app import QuoteApplicationMixin, BackgroundApplicationMixin
 from quote_app.connections import default_settings_file
 from tkinter import filedialog, messagebox, ttk
 
@@ -151,7 +151,7 @@ class TableRowHandle:
             pass
 
 
-class PriceCalculator(QuoteApplicationMixin):
+class PriceCalculator(BackgroundApplicationMixin, QuoteApplicationMixin):
     local_settings_file = default_settings_file('sales')
     legacy_data_root = APP_SAVE_ROOT
     quote_role = "sales"
@@ -210,6 +210,7 @@ class PriceCalculator(QuoteApplicationMixin):
         self.excel_sheet_var = tk.StringVar(value="")
         self.export_dir_var = tk.StringVar(value=self.report_dir)
 
+        self.initialize_background_io()
         self.initialize_quote_state()
         self._build_style()
         self._build_layout()
@@ -217,6 +218,7 @@ class PriceCalculator(QuoteApplicationMixin):
         self.refresh_item_selector()
 
         self.install_quote_controls()
+        self.install_background_controls()
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
     # ---------- 基础工具 ----------
@@ -273,6 +275,8 @@ class PriceCalculator(QuoteApplicationMixin):
         return getattr(self, "default_report_dir", "利润表")
 
     def ensure_directories(self):
+        if self._io_enabled():
+            return BackgroundApplicationMixin.ensure_directories(self)
         for folder in [self.report_dir, self.image_dir]:
             if not folder:
                 continue
@@ -908,6 +912,8 @@ class PriceCalculator(QuoteApplicationMixin):
         self.open_excel_path(selected[0])
 
     def open_excel_path(self, path):
+        if self._io_enabled():
+            return BackgroundApplicationMixin.open_excel_path(self, path)
         if load_workbook is None:
             messagebox.showerror("无法读取", "缺少 openpyxl，请先运行：pip install openpyxl")
             return
@@ -940,6 +946,8 @@ class PriceCalculator(QuoteApplicationMixin):
 
 
     def load_current_excel_sheet(self):
+        if self._io_enabled():
+            return BackgroundApplicationMixin.load_current_excel_sheet(self)
         path = self.current_excel_path
         if not path:
             return

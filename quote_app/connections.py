@@ -28,6 +28,10 @@ def absolute_root(text):
 
 class ConnectionMixin:
     def initialize_connections(self):
+        self._initialize_connection_fields()
+        self._restore_connection()
+
+    def _initialize_connection_fields(self):
         self.data_root = ""
         self._local_hash = self._shared_hash = None
         self._local_bad = self._shared_bad = False
@@ -41,6 +45,8 @@ class ConnectionMixin:
         self.config_source_var = self._new_text_var("")
         self.storage_status_var = self._new_text_var("尚未连接数据源，请选择目录并保存连接。")
         self.export_dir_var.set("")
+
+    def _restore_connection(self):
         try:
             raw = read_bytes(self.local_settings_file)
             if raw is not None:
@@ -202,7 +208,8 @@ class ConnectionMixin:
         try:
             pending = self._settings_pending["request"] if self._settings_pending and self._settings_pending["path"] == path else None
             result, req = save_config(path, raw, expected_hash=expected,
-                validator=lambda b: decode_settings(b, kind), pending=pending)
+                validator=lambda b: decode_settings(b, kind), pending=pending,
+                on_request=lambda req: self._report_io_request("settings", path, req))
             self.last_file_transaction = result
             self._settings_pending = {"path": path, "request": req, "unknown": False}
             return result

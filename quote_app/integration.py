@@ -74,6 +74,9 @@ def price_difference(old, new):
 class QuoteApplicationMixin(ConnectionMixin, FileReadingMixin, FileEditingMixin):
     quote_role = "manager"
 
+    def _report_io_request(self, kind, path, req):
+        pass
+
     def initialize_quote_state(self):
         self.quote_session = QuoteSession()
         self.active_price_config = None
@@ -319,7 +322,8 @@ class QuoteApplicationMixin(ConnectionMixin, FileReadingMixin, FileEditingMixin)
                 if parse_price_config(raw, price_version_id=price_version(raw)).status != "ok":
                     raise FileFailure("配置整份校验失败")
             self.last_file_transaction, self._config_pending = save_config(self.config_file, source,
-                expected_hash=expected, validator=validate, pending=self._config_pending)
+                expected_hash=expected, validator=validate, pending=self._config_pending,
+                on_request=lambda req: self._report_io_request("prices", self.config_file, req))
         except (OSError, FileFailure) as exc:
             self._config_pending = getattr(exc, "pending_request", self._config_pending)
             if isinstance(exc, UnknownCommit):
@@ -516,6 +520,7 @@ class QuoteApplicationMixin(ConnectionMixin, FileReadingMixin, FileEditingMixin)
         else:
             path = pending["path"]  # Retry remains bound to its original destination/day.
         req = pending["request"]
+        self._report_io_request("excel", path, req)
         def create():
             from openpyxl import Workbook
             book = Workbook()

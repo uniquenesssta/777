@@ -107,7 +107,9 @@ class ApplicationIntegrationTests(unittest.TestCase):
             for name in ("calculate", "export_to_excel", "save_screenshot", "get_settings_snapshot"):
                 self.assertNotIn(name, names)
             with application(e["role"]) as (app, *_):
-                self.assertIs(app.calculate.__func__, QuoteApplicationMixin.calculate)
+                from quote_app import BackgroundApplicationMixin
+                self.assertIs(app.calculate.__func__, BackgroundApplicationMixin.calculate)
+                self.assertIs(app._formal_output.__func__, QuoteApplicationMixin._formal_output)
 
     def test_both_live_adapters_match_all_shared_golden_amounts_or_whole_rejection(self):
         suite = json.loads((ROOT / "docs/baseline/p01-04-golden.json").read_text(encoding="utf-8"))

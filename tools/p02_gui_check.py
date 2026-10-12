@@ -54,6 +54,7 @@ def load_namespace(root, role, sandbox):
 def live_sandbox_type(namespace, sandbox):
     parent = baseline_check.sandbox_application_type(namespace, sandbox)
     class SandboxedCurrent(parent):
+        background_io_enabled = False  # Existing synchronous protocol fixtures; P04 has its own live async checker.
         def shared_settings_path(self, root=None):
             path = super().shared_settings_path(root)
             if (root or self.data_root) and not Path(path).resolve().is_relative_to(sandbox.resolve()):

@@ -5,9 +5,11 @@ import uuid
 from .transactions import digest, transact
 
 
-def save_png(path, image):
+def save_png(path, image, *, on_request=None):
     from PIL.PngImagePlugin import PngInfo
     request_id = str(uuid.uuid4())
+    if on_request:
+        on_request(request_id)
     metadata = PngInfo()
     metadata.add_text("777_request_id", request_id)
     source = BytesIO()

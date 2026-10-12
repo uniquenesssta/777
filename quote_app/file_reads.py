@@ -101,17 +101,20 @@ class FileReadingMixin:
             return
         self.excel_file_tree.delete(*self.excel_file_tree.get_children())
         for path, (result, modified) in results.items():
-            status = self._read_status(result)
-            if self.quote_role == "sales":
-                count = result.detail_count if result.status == "ok" else "—"
-                values = (os.path.basename(path), modified, count, status)
-            else:
-                values = {"income": "—", "cost": "—", "profit": "—", "margin": "—"}
-                if result.status == "ok":
-                    values = result.totals.display()
-                values = (os.path.basename(path), modified, values["income"], values["cost"],
-                          values["profit"], values["margin"] or "—", result.remark, status)
-            self.excel_file_tree.insert("", "end", iid=path, values=values)
+            self._insert_excel_file(path, result, modified)
+
+    def _insert_excel_file(self, path, result, modified):
+        status = self._read_status(result)
+        if self.quote_role == "sales":
+            count = result.detail_count if result.status == "ok" else "—"
+            values = (os.path.basename(path), modified, count, status)
+        else:
+            values = {"income": "—", "cost": "—", "profit": "—", "margin": "—"}
+            if result.status == "ok":
+                values = result.totals.display()
+            values = (os.path.basename(path), modified, values["income"], values["cost"],
+                      values["profit"], values["margin"] or "—", result.remark, status)
+        self.excel_file_tree.insert("", "end", iid=path, values=values)
 
     def refresh_excel_files(self):
         if not hasattr(self, "excel_file_tree"):
@@ -130,6 +133,9 @@ class FileReadingMixin:
                 getattr(self, "excel_total_" + name).set("—")
             self.set_feedback("统算失败：" + str(exc), is_error=True)
             return None
+        return self._aggregate_results(results, silent=silent)
+
+    def _aggregate_results(self, results, silent=False, render=True):
         good = [r for r, _ in results.values() if r.status == "ok"]
         errors = sum(r.status == "error" for r, _ in results.values())
         unsupported = sum(r.status == "unsupported" for r, _ in results.values())
@@ -146,7 +152,8 @@ class FileReadingMixin:
             amounts = {key: "—" for key in amounts}
         for key, value in amounts.items():
             getattr(self, "excel_total_" + key).set(value)
-        self._render_excel_files(results)
+        if render:
+            self._render_excel_files(results)
         self.set_feedback("统算：" + label, is_error=partial)
         if not silent:
             messagebox.showinfo("部分统算" if partial else "统算完成", label + "；金额仅包含读取成功的文件。")

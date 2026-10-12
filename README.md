@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于`plans`；**P01、P02、P03均已验收归档old**，P03确认见[阶段验收](docs/verification/P03-acceptance.json)。用户已授权P04-01，准备从本收尾提交建立唯一`stage/p04-performance`阶段分支；当前收尾分支`stage/p03-file-safety`。P04-02至04及P05至P08尚未启动。
+规划位于`plans`；**P01、P02、P03均已验收归档old**，见[P03确认](docs/verification/P03-acceptance.json)。当前唯一执行分支`stage/p04-performance`创建于P03收尾`823a487`。P04-01后台I/O、旧结果隔离与取消/关闭已实现，新增20项/完整257项辅助通过，待Windows本机及实际Tk复查；02至04及P05至P08未启动。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -17,6 +17,8 @@
 - [P03-03 Windows本机复查通过](docs/verification/P03-03-windows-evidence.json)
 - [P03-04订单备注、作废恢复与Windows一键检查](docs/verification/P03-04-order-contract.md)
 - [P03-04 Windows本机复查通过](docs/verification/P03-04-windows-evidence.json)
+- [当前P04性能任务书](docs/now/P04-performance.md)
+- [P04-01后台任务契约与Windows入口](docs/verification/P04-01-background-contract.md)
 - [文档与计划入口](docs/README.md)
 - [优化及迁移主任务书](docs/MASTER_PLAN.md)
 - [两份 Python 代码重新审计报告](docs/audit/python-audit.md)
@@ -24,6 +26,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P04-01：从P03收尾823a487建立唯一stage/p04-performance，任务书new→now；两版默认后台恢复连接/读取价格、共享检查、扫描、Excel视图/发布及配置/请求操作。2条读通道/4项等候与单写通道；主线程快照/after交付，按代次隔离旧结果，分批呈现，取消/超时不伪终止I/O，读关闭不等共享盘、写关闭保留原提交结果，失败备注保留。新增20项及完整257项辅助通过，[契约与Windows入口](docs/verification/P04-01-background-contract.md)、[证据](docs/verification/P04-01-checks.json)已交付；待Windows复查/用户验收，02至04未启动。
 
 - 用户“开始P4-01”：依据既有Windows回传[收尾P03-04](docs/verification/P03-04-acceptance.json)，四项完成，[P03阶段验收](docs/verification/P03-acceptance.json)登记并将任务书now→old；原实现、黄金与历史报告不改。P04-01已授权，从本收尾提交建立唯一阶段分支，后台I/O/取消与关闭按任务书执行。
 
