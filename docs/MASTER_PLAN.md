@@ -2,7 +2,7 @@
 
 版本：初始规划；日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P01/P02/P03已验收归档old。当前唯一分支stage/p04-performance；[P04-01](verification/P04-01-acceptance.json)及[P04-02](verification/P04-02-acceptance.json)已验收收尾。P04-03基于02收尾4f0f298实现完整分页/筛选、选择定位和明确附件范围，[23项GBK默认下/完整306项辅助通过](verification/P04-03-encoding-checks.json)，[Windows入口](verification/P04-03-pagination-contract.md)已交付，首次Windows清单编码失败已修复，待第二次本机实际Tk/HWND复查；04及P05至P08未启动。** 本任务书不自动授予后续任务实施权限。
+**P01/P02/P03已验收归档old。当前唯一分支stage/p04-performance；[P04-01](verification/P04-01-acceptance.json)及[P04-02](verification/P04-02-acceptance.json)已验收收尾。P04-03基于02收尾4f0f298实现完整分页/筛选、选择定位和明确附件范围，[23项GBK默认下/完整306项辅助通过](verification/P04-03-encoding-checks.json)，[第二次Windows本机23项及实际母子Tk联测16项通过](verification/P04-03-windows-evidence-02.json)，37项LF指纹匹配3c614c7。03具备收尾条件、待用户验收，无需重跑；440个短会话心跳样本、最大563ms保留至04性能核对。04及P05至P08未启动，P04留now。** 本任务书不自动授予后续任务实施权限。
 
 ## 1. 目标与边界
 
@@ -22,7 +22,7 @@ P01、P02、P03任务书均已归档old；P04已移入now，P05至P08仍在new�
 | P01 | [基线与规则确认](old/P01-baseline.md) | 本轮审计交付 | stage/p01-baseline | 已验收归档；[确认记录](baseline/p01-acceptance.json)，business-v1/numeric-v1/performance-v1已确认，53/53黄金、18/18格式及全部规模结构检查通过 |
 | P02 | [计算正确性与公共核心](old/P02-calculation.md) | P01已验收 | stage/p02-calculation | 四项均已验收归档；[P02确认](verification/P02-acceptance.json)，辅助130项及用户明确Windows复查通过 |
 | P03 | [文件数据安全与兼容](old/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 四项均已验收归档；[P03确认](verification/P03-acceptance.json)，原Windows及辅助237项证据保留 |
-| P04 | [后台任务与性能](now/P04-performance.md) | P03已验收 | stage/p04-performance | [01](verification/P04-01-acceptance.json)/[02](verification/P04-02-acceptance.json)已验收；03完整分页/筛选、位置及图片范围已实现，23项GBK默认下/306项辅助通过，首次清单编码失败已修复，待第二次Windows复查；04待启动 |
+| P04 | [后台任务与性能](now/P04-performance.md) | P03已验收 | stage/p04-performance | [01](verification/P04-01-acceptance.json)/[02](verification/P04-02-acceptance.json)已验收；03的[Windows23项/实际母子Tk16项通过](verification/P04-03-windows-evidence-02.json)，两端10000明细完整可达、报价图与关闭清理正常；03待用户验收、无需重跑，563ms诊断心跳留04核对，04待启动 |
 | P05 | [结构化存储与局域网服务](new/P05-data-service.md) | P04已验收 | stage/p05-data-service | 待启动；事务/鉴权/导入核对及恢复演练通过 |
 | P06 | [Rust业务核心与适配](new/P06-rust-core.md) | P05已验收 | stage/p06-rust-core | 待启动；黄金样本一致、服务适配和格式兼容通过 |
 | P07 | [Tauri界面与Windows交付](new/P07-tauri-desktop.md) | P06已验收 | stage/p07-tauri-desktop | 待启动；母子角色端到端、权限与安装验收通过 |

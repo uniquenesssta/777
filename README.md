@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于`plans`；P01/P02/P03已验收归档old。当前唯一分支`stage/p04-performance`；[P04-01](docs/verification/P04-01-acceptance.json)和[P04-02](docs/verification/P04-02-acceptance.json)已按用户指令验收收尾。P04-03已实现两端完整分页/筛选、选择定位保持、窗口截图及完整报价图，[23项GBK默认下/完整306项辅助通过](docs/verification/P04-03-encoding-checks.json)，[Windows一键入口](docs/verification/P04-03-pagination-contract.md)交付，首次Windows清单编码失败已修复，待第二次本机实际Tk/窗口截图复查；04及P05至P08未启动。
+规划位于`plans`；P01/P02/P03已验收归档old。当前唯一分支`stage/p04-performance`；[P04-01](docs/verification/P04-01-acceptance.json)和[P04-02](docs/verification/P04-02-acceptance.json)已按用户指令验收收尾。P04-03两端完整分页/筛选、选择定位保持、窗口截图及完整报价图已实现，[23项GBK默认下/完整306项辅助通过](docs/verification/P04-03-encoding-checks.json)，[第二次Windows本机23项及实际母子Tk联测16项通过](docs/verification/P04-03-windows-evidence-02.json)，37项LF指纹匹配3c614c7；03具备收尾条件、待用户验收，无需重跑。440个短会话心跳样本、最大563ms保留至P04-04性能核对；04及P05至P08未启动，P04留now。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -25,6 +25,7 @@
 - [P04-02统一读取、增量索引与Windows入口](docs/verification/P04-02-incremental-contract.md)
 - [P04-03完整分页、明确图片范围与Windows入口](docs/verification/P04-03-pagination-contract.md)
 - [P04-03首次Windows编码失败证据](docs/verification/P04-03-windows-evidence-01.json)及[修复检查](docs/verification/P04-03-encoding-checks.json)
+- [P04-03 Windows本机分页/图片及实际母子窗口联测通过](docs/verification/P04-03-windows-evidence-02.json)
 - [文档与计划入口](docs/README.md)
 - [优化及迁移主任务书](docs/MASTER_PLAN.md)
 - [两份 Python 代码重新审计报告](docs/audit/python-audit.md)
@@ -32,6 +33,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 登记[P04-03第二次Windows回传](docs/verification/P04-03-windows-evidence-02.json)：37项LF指纹匹配3c614c7，23/23本机检查与实际母子Tk联测16项全过。两端10000明细完整可达（母版含6行表头/汇总等，共51页；子版50页），筛选/跳转/返回定位与后段备注保留选择及金额；实际完整报价图母版42条/2张、子版1条/1张全覆盖。当前设备HWND截图及遮挡前后完整报价图一致通过，无回调错误，关闭/线程退出/临时清理正常。[原报告](docs/verification/P04-03-windows-report-02.json)按原值保存；440个短会话心跳样本、最大563ms留待P04-04核对，不登记规模/SMB性能通过。首次失败、两份306项辅助及业务代码保持，03待用户验收、无需重跑，04未启动，P04留now。
 
 - P04-03编码修复：首次Windows回传的37项LF指纹匹配1b03eb0，20/23通过、3处UTF-8清单被默认GBK解码，实际Tk未运行；[原报告](docs/verification/P04-03-windows-report-01.json)保留。诊断及测试6处清单读取现显式UTF-8，23项在GBK默认下/完整306项辅助通过，见[修复证据](docs/verification/P04-03-encoding-checks.json)。原3错误和母子控件同类问题可在旧实现复现，修复后通过；应用实现/金额/历史报告保持，03待第二次Windows复查，04未启动。
 
