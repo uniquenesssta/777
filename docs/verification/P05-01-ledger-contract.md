@@ -1,6 +1,6 @@
 # P05-01 本地主机结构化账本与备份契约
 
-状态：第三次Windows隔离检查及原生联测已通过，P05-01具备收尾条件，待用户接续收尾；已通过检查无需重跑。唯一分支`stage/p05-data-service`，基线`31c8784`；用户确认停电并授权先P05的[依赖例外](P04-04-deferral.json)保留P04共享复验，不伪造整阶段通过。
+状态：P05-01已按[用户接续指令](P05-01-acceptance.json)验收收尾，第三次Windows隔离检查及原生联测证据保持，无需重跑。唯一分支`stage/p05-data-service`，基线`31c8784`；用户确认停电并授权先P05的[依赖例外](P04-04-deferral.json)保留P04共享复验，不伪造整阶段通过。
 
 实现：`quote_ledger`＋Python标准库sqlite3，要求Python3.12和SQLite≥3.37。复用已有business-v1/numeric-v1及53例黄金集，不另算财务公式。全程只在显式本机普通路径创建新库，拒绝UNC/映射盘/链接/重解析、现有文件及占用的WAL/SHM；已有库以schema_version、application_id和实际schema指纹核对，不自动修复/覆盖未知或不兼容库。现有窗口、价格/Excel写链未切换，没有服务或生产数据库部署。
 
@@ -70,3 +70,5 @@ py -3 tools/p05_ledger_check.py --windows-smoke --output reports/p05-01-windows-
 技术依据（实施时复核）：[Python3.12 sqlite3](https://docs.python.org/3.12/library/sqlite3.html)、[SQLite事务](https://www.sqlite.org/lang_transaction.html)、[SQLite在线备份](https://www.sqlite.org/backup.html)、[网络文件数据库限制](https://www.sqlite.org/useovernet.html)、[Microsoft安全描述符](https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-getnamedsecurityinfow)、[SDDL](https://learn.microsoft.com/en-us/windows/win32/secauthz/security-descriptor-string-format)、[SetNamedSecurityInfoW](https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-setnamedsecurityinfow)、[SDDL转换](https://learn.microsoft.com/en-us/windows/win32/api/sddl/nf-sddl-convertstringsecuritydescriptortosecuritydescriptorw)、[读取DACL](https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-getsecuritydescriptordacl)。
 
 刷盘依据：[Python3.12 os.fsync](https://docs.python.org/3.12/library/os.html#os.fsync)、[Microsoft _commit](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/commit?view=msvc-170)、[FlushFileBuffers可写句柄要求](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-flushfilebuffers)。
+
+当前续接：P05-02由[认证服务边界](P05-02-service-contract.md)构造可信Principal和角色DTO；本轮ledger-v1源码保持，完整服务账户/TLS备份由02扩展，不改原财务快照和已验收证据。

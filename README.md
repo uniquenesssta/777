@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于plans；P01/P02/P03已验收；P04执行任务已按用户授权转接，[共享复验因停电延期](docs/verification/P04-04-deferral.json)，整阶段未验收。当前唯一stage/p05-data-service，真实基线31c8784；P05-01本机SQLite账本、幂等/revision/价格CAS、不可变快照、一致备份及独立恢复已实现，[385项完整辅助](docs/verification/P05-01-fsync-checks.json)保留；[第三次Windows回传](docs/verification/P05-01-windows-evidence-03.json)20项源码指纹及42测试ID匹配9ce9f16，42/42与原生事务/恢复、Hidden+System/DACL/额外授权移除和清理全部通过，具备01收尾条件、无需重跑。P05-02/03/04未实施，未切换客户端或迁移生产账本。
+规划位于plans；P01/P02/P03已验收；P04共享复验按[停电延期记录](docs/verification/P04-04-deferral.json)保留2026-10-14，整阶段未验收。当前唯一stage/p05-data-service；P05-01已按用户“收尾01开始02”[验收收尾](docs/verification/P05-01-acceptance.json)，原Windows42/42及恢复/权限通过证据不改。P05-02从84b881c实现[HTTPS认证服务与母子版适配](docs/verification/P05-02-service-contract.md)，主体/会话/角色DTO、原请求核查、子版只读继承目录、主机备份计划和完整服务恢复已交付，[42专项/427完整辅助](docs/verification/P05-02-checks.json)通过；Windows实际Tk/DPAPI、真实主机/E盘和物理双机部署仍待验证。P05-03/04未启动，未迁移或切换生产数据。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -34,6 +34,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 用户“收尾01开始02”：依据P05-01已通过的第三次Windows42/42及原生权限/恢复[收尾01](docs/verification/P05-01-acceptance.json)，同一stage/p05-data-service从84b881c交付[P05-02服务边界](docs/verification/P05-02-service-contract.md)。HTTPS证书链/主机名/指纹验证、scrypt账户与持久会话/epoch撤销、主体来源与角色允许字段、本人订单/备注/回执、CAS价格/目录和未知提交原请求查询重试；显式母子Tk服务入口复用原布局，提交/查询改走服务，子版输出目录只读自动继承，无共享成本读取或裸写Excel。主机私有目录与完整服务备份（账本/账户ID/设置/TLS）、独立维护恢复及旧会话/凭证失效、备份计划/本机失败状态已交付。[42专项/427完整辅助](docs/verification/P05-02-checks.json)通过真实TCP HTTPS双客户端和恢复、头部/JSON/角色与过期控制、原请求不重复和主线程交付；原20项P05-01及42项P04实现指纹保持。当前Windows隔离GUI/DPAPI待回传，未安装真实服务、移动旧账本或开启03/04；P04共享复验继续保留。
 
 - 登记P05-01[第三次Windows通过证据](docs/verification/P05-01-windows-evidence-03.json)：20项LF源码指纹及全部42测试ID匹配9ce9f16，42/42零失败/错误/跳过；原生本机SQLite/幂等回执、备注/作废恢复、一致备份与独立恢复通过，恢复收入/成本/利润分别3600/1600/2000分。Hidden+System、3个允许主体的受保护DACL、额外Everyone授权移除、原生锁及临时清理全部通过；[原报告](docs/verification/P05-01-windows-report-03.json)按字节保存。前两次失败及385项辅助证据保持，程序代码未改，已通过检查无需重跑；P05-01具备收尾条件，02/03/04未启动，真实主机/E盘服务身份与多客户端部署留后续，P04共享复验继续保留。
 

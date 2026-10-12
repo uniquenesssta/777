@@ -80,3 +80,7 @@ Python数值改造优先标准库Decimal，并从原始文本构造；精度和�
 ## P05-01已交付的结构化边界
 
 [账本v1契约](verification/P05-01-ledger-contract.md)和[实际DDL](verification/P05-01-schema.sql)已交付Python标准库SQLite过渡实现；复用business-v1/numeric-v1，金额SQL整数分、JSON整数分字符串，高精度参数保留原文及规范值。schema指纹为SQLite元数据排序数组的紧凑UTF-8 JSON SHA256，Rust可复现；这不是Rust项目已创建或跨语言兼容已实测的证据。P05-02完成真实认证主体/传输/销售字段过滤/客户端切换，P06再接同一模型与黄金集。P04共享正式复验按用户授权延期，P05-01隔离开发先行；生产SQLite仍不得置于SMB。
+
+## P05-02已实现的过渡服务边界
+
+[HTTPS业务协议v1](verification/P05-02-service-contract.md)供Rust替代服务和Tauri调用复用；quote_core/ledger-v1不改。Rust接替时须匹配主体/会话撤销、字段允许列表、原请求幂等/未知提交、整单重算、版本CAS与只追加备注/作废恢复；API输入与金额字符串不转JS浮点。Python服务客户端通过显式入口接入原Tk布局，未自动切换生产或提前接Tauri。账户/TLS/计划与账本完整恢复的稳定ID、旧会话失效和维护门禁同属交接资产。当前42专项/427辅助仅为过渡实现证据，Windows和现场部署、03/04及P06/P07仍按阶段门槛执行。

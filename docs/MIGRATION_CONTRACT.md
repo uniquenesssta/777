@@ -338,3 +338,9 @@ API依据：[Python 3.12 time.sleep](https://docs.python.org/3.12/library/time.h
 [ledger-v1契约](verification/P05-01-ledger-contract.md)建立订单/明细/追加备注/发布价格/导入批次/审计/请求回执。存储层收到QuoteSnapshot与可信内部Principal，由账本当前发布版本调用既有核心计算，不接收客户端金额结果；不同价格版本先重算确认，管理员价格发布带expected_price_version_id CAS。request_id绑定主体/操作/规范负载，同键同载荷重放原回执，冲突拒绝。订单/明细/价格不可变，状态和备注变更带revision审计；成功事务不因后续回执发送错误撤销，通过请求查询恢复未知结果。
 
 备份为完整一致SQLite快照及版本/哈希/核对清单，独立恢复后才登记成功；不兼容库拒绝写、独立新路径恢复，不覆盖现有文件或其WAL/SHM。高精度参数按原文/规范十进制字符串保留，金额对外字符串分而非JS浮点。Principal在当前模块是内部信任前提，不能把客户端自报role当认证；网络会话、角色DTO和实际客户端移交P05-02，ImportBatch实际填充及历史行归属移交03，附件移交04。
+
+## P05-02认证服务协议v1
+
+[P05-01已验收](verification/P05-01-acceptance.json)；[P05-02契约](verification/P05-02-service-contract.md)冻结HTTPS业务边界：服务端账户/会话恢复Principal，客户端actor/role/财务总额不可信。调用者以lossless字符串提供business-v1/numeric-v1输入、request_id/expected_revision/价格CAS；钱为字符串整数分。销售只获得本人销售数据和允许字段，不含成本/利润/其他归属，原参数/价格仍冻结。标准DraftDetails字段customer/order_ref/wechat不当登录身份。结果未知查询本人回执再用原ID原负载重试，客户端DPAPI保存并绑定原服务/身份。目录属于服务发布配置，不再由Excel文件路径决定权威账本。
+
+主机完整服务恢复包含财务库、Auth账户ID/设置/计划和TLS材料，独立新目录核对后为维护状态；旧会话/凭证失效，管理员新密码及其他账号重设/启用后按停旧写端与增量对账切换。42专项/427辅助通过；Windows原生Tk/DPAPI及真实主机/E盘/物理双机未完成。旧账本迁移在03，报表/附件任务在04，当前未生产切换。

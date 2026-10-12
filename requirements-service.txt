@@ -1,0 +1,6 @@
+# P05-02 HTTPS server and certificate creation, tested exact dependency set.
+# Existing Tk/Pillow/openpyxl remain in requirements-baseline.txt.
+uvicorn==0.50.0
+h11==0.16.0
+click==8.5.0
+cryptography==50.0.1

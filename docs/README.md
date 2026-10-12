@@ -9,8 +9,8 @@
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
 | 本轮授权 | 用户2026-10-13 00:12:35确认停电、授权先推进P05并延期共享复验；既有推送授权有效 |
 | 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P01/P02/P03已验收；P04执行任务已按用户授权转接，[共享复验因停电延期](verification/P04-04-deferral.json)，整阶段未验收。当前唯一stage/p05-data-service，真实基线31c8784；P05-01本机SQLite账本、幂等/revision/价格CAS、不可变快照、一致备份及独立恢复已实现，[385项完整辅助](verification/P05-01-fsync-checks.json)保留；[第三次Windows回传](verification/P05-01-windows-evidence-03.json)20项源码指纹及42测试ID匹配9ce9f16，42/42与原生事务/恢复、Hidden+System/DACL/额外授权移除和清理全部通过，具备01收尾条件、无需重跑。P05-02/03/04未实施，未切换客户端或迁移生产账本。 |
-| 下一项 | P05-01已具备收尾条件，已通过本机检查无需重跑，02按用户接续指令；P04共享复验保留2026-10-14待办 |
+| 当前开发阶段 / Atomic Task | P01/P02/P03已验收；P04共享复验按[停电延期记录](verification/P04-04-deferral.json)保留2026-10-14，整阶段未验收。当前唯一stage/p05-data-service；P05-01已按用户“收尾01开始02”[验收收尾](verification/P05-01-acceptance.json)，原Windows42/42及恢复/权限通过证据不改。P05-02从84b881c实现[HTTPS认证服务与母子版适配](verification/P05-02-service-contract.md)，主体/会话/角色DTO、原请求核查、子版只读继承目录、主机备份计划和完整服务恢复已交付，[42专项/427完整辅助](verification/P05-02-checks.json)通过；Windows实际Tk/DPAPI、真实主机/E盘和物理双机部署仍待验证。P05-03/04未启动，未迁移或切换生产数据。 |
+| 下一项 | P05-01已收尾；按[P05-02入口](verification/P05-02-service-contract.md)安装固定依赖并运行windows-01隔离检查；P04共享复验保留2026-10-14待办 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
@@ -42,4 +42,4 @@
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
 
-当前结论：P05-01第三次Windows检查及原生联测通过，具备收尾条件；P04共享性能仍待补，用户允许开发先行，未登记P04整阶段通过。
+当前结论：P05-01已验收，P05-02已实现待Windows与现场部署验证；P04共享性能仍待补，用户允许开发先行，未登记P04整阶段通过。
