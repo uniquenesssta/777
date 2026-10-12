@@ -5,6 +5,16 @@ from pathlib import Path
 PAGE_SIZE = 200
 
 
+def insert_page_items(tree, items):
+    """One bounded Tcl call; cell contents are list data, never Tcl source."""
+    if hasattr(tree, 'tk') and hasattr(tree, '_w'):
+        words = tuple(word for item in items for word in item)
+        tree.tk.call('apply', (('widget', 'rows'),
+            'foreach {iid values} $rows {$widget insert {} end -id $iid -values $values}'), tree._w, words)
+    else:
+        for iid, values in items:tree.insert('', 'end', iid=iid, values=values)
+
+
 def filter_view(view, query='', group=None, context=None):
     """Indices address original worksheet rows; amounts and edit identities stay intact."""
     needle = query.strip().casefold()
@@ -139,17 +149,21 @@ class PaginationMixin:
             self.load_current_excel_remark()
         tree.delete(*tree.get_children())
         columns = tuple(f'c{i}' for i in range(len(view.headings)))
-        tree.configure(columns=columns, show='headings')
-        for column, heading in zip(columns, view.headings):
-            tree.heading(column, text=heading)
-            tree.column(column, width=140, anchor='w')
+        if getattr(self, '_page_heading_state', None) != (tree, view.headings):
+            tree.configure(columns=columns, show='headings')
+            for column, heading in zip(columns, view.headings):
+                tree.heading(column, text=heading)
+                tree.column(column, width=140, anchor='w')
+            self._page_heading_state = (tree, view.headings)
         self.excel_view_row_map = {}
         begin = self._page_number * PAGE_SIZE
+        items = []
         for index in self._page_indices[begin:begin + PAGE_SIZE]:
             row, values = view.rows[index]
             item = f'row_{row}'
-            tree.insert('', 'end', iid=item, values=values)
+            items.append((item, values))
             self.excel_view_row_map[item] = row
+        insert_page_items(tree, items)
         row = (restore or {}).get('selected', self._page_selected)
         if row is not None and f'row_{row}' in self.excel_view_row_map:
             tree.selection_set(f'row_{row}')

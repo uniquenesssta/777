@@ -46,6 +46,48 @@ def configured_notebook(app, source):
 
 
 class PerformanceMeasurementTests(unittest.TestCase):
+    def test_paging_retains_user_column_width_and_reconfigures_changed_headings(self):
+        from dataclasses import replace
+        from test_application_integration import application
+        from test_background_io import asynchronous, wait_for
+        from test_pagination_images import page_controls
+        with application('sales') as (app, folder, _, _), asynchronous(app):
+            page_controls(app)
+            widths = {}
+            app.excel_view_tree.column = lambda name, **options: widths.update({name: options['width']})
+            path = folder / 'reports' / 'synthetic.xlsx';fixtures.workbook(path, 401)
+            task = app.open_excel_path(str(path))
+            wait_for(lambda: task.number not in app._io_callbacks, app._poll_io)
+            widths['c0'] = 321
+            app.change_excel_page(1)
+            self.assertEqual(widths['c0'], 321)
+            self.assertEqual(len(app.excel_view_row_map), 200)
+            app._page_view = replace(app._page_view, headings=('换名', *app._page_view.headings[1:]))
+            app._render_page()
+            self.assertEqual(widths['c0'], 140)
+
+    def test_windows_thread_policy_preserves_shorter_slice_and_other_platform_settings(self):
+        from quote_app.background import configure_ui_thread_scheduling
+        with patch.object(sys, 'platform', 'win32'), patch.object(sys, 'getswitchinterval', return_value=.005), patch.object(sys, 'setswitchinterval') as setter:
+            configure_ui_thread_scheduling();setter.assert_called_once_with(.001)
+        with patch.object(sys, 'platform', 'win32'), patch.object(sys, 'getswitchinterval', return_value=.0005), patch.object(sys, 'setswitchinterval') as setter:
+            configure_ui_thread_scheduling();setter.assert_called_once_with(.0005)
+        with patch.object(sys, 'platform', 'linux'), patch.object(sys, 'setswitchinterval') as setter:
+            configure_ui_thread_scheduling();setter.assert_not_called()
+
+    def test_bulk_tcl_page_insert_keeps_scriptlike_unicode_cells_as_data(self):
+        import tkinter as tk
+        from quote_app.pagination import insert_page_items
+        interpreter = tk.Tcl()
+        interpreter.eval('set captured {}; set injected 0; proc page_tree {command parent where id_flag iid values_flag values} {global captured; lappend captured [list $iid $values]}')
+        tree = SimpleNamespace(tk=interpreter.tk, _w='page_tree')
+        values = ('中文换行\n第二行', '[set injected 1]; $captured', 'a {b} "c"', '000123')
+        insert_page_items(tree, [('row_7', values), ('row_8', ('', '尾行'))])
+        captured = interpreter.tk.splitlist(interpreter.getvar('captured'))
+        self.assertEqual(interpreter.tk.splitlist(captured[0]), ('row_7', values))
+        self.assertEqual(interpreter.tk.splitlist(captured[1]), ('row_8', ('', '尾行')))
+        self.assertEqual(interpreter.getvar('injected'), '0')
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='777-p04-measurement-test-')
         self.root = Path(self.temp.name)

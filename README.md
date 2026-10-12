@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于`plans`；P01/P02/P03已验收归档old。唯一分支`stage/p04-performance`；P04-01/02及[P04-03](docs/verification/P04-03-acceptance.json)已收尾。P04-04第二次[Windows/UNC回传](docs/verification/P04-04-windows-evidence-02.json)20项检查通过，母版/原版完成80个进程、340个阶段，但6个子版进程超时，239个当前阶段样本不足，17个样本充足阶段p95超限。已修复子版误用母版汇总控件、启动延迟刷新混入首读及短阶段采样不足，[23项/完整329项辅助通过](docs/verification/P04-04-sampling-checks.json)，待[第三次Windows入口](docs/verification/P04-04-performance-contract.md)复查。原值和100/500ms门槛保持；P04留now，P05未启动。
+规划位于plans；P01/P02/P03已归档，P04-01/02/03已收尾。唯一分支stage/p04-performance；04第三次[Windows/UNC报告](docs/verification/P04-04-windows-evidence-03.json)的41项LF指纹/23项检查匹配2cd9887，110个进程全完成，两位置当前全档5轮、金额/明细/冷暖计数通过；450个当前阶段中60个p95超限，零样本不足，最大283.7558ms。已优化Windows线程调度及分页呈现，[26项/完整332项辅助通过](docs/verification/P04-04-latency-checks.json)，待[第四次实机复查](docs/verification/P04-04-performance-contract.md)。原值及100/500ms门槛保持；P04留now，P05未启动。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -34,6 +34,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P04-04第三次[Windows/UNC回传](docs/verification/P04-04-windows-evidence-03.json)：41项LF指纹匹配2cd9887，23/23检查通过，110个进程全完成、两位置当前全档5轮及原版小档完成；金额/完整明细/冷一次暖0通过，子版零超时、样本不足归零。450个当前阶段中60个p95超限、最大283.7558ms，[原报告](docs/verification/P04-04-windows-report-03.json)保留。Windows应用使用最多1ms解释器切换间隔，配对诊断原/新版一致且记录实值；仅为调度优化，不宣称已证明卡顿根因。分页复用未变列配置、每200行一次Tcl列表数据传递，保留用户列宽和原行身份，脚本样式文本不执行。[26项/332项辅助通过](docs/verification/P04-04-latency-checks.json)，待第四次实机性能复查，金额/写入/解析/缓存及门槛保持，P04不收尾、P05未启动。
 
 - P04-04第二次[Windows/UNC回传](docs/verification/P04-04-windows-evidence-02.json)：41项LF指纹匹配145c223，20/20本机检查通过；母版/原版80个进程及340个阶段完成，6个子版进程超时，当前239个阶段心跳样本不足、17个样本充足阶段p95超限，最大428.6243ms。输入未改、临时清理正常，[原报告](docs/verification/P04-04-windows-report-02.json)全部值保留。修复子版刷新误调母版汇总控件，真实缺失控件纳入回归；新旧启动300ms回调在空目录中完成，实际采够20次回调且至少1.1秒，异常交付立即报阶段/原因并保留超时日志。[23项/完整329项辅助通过](docs/verification/P04-04-sampling-checks.json)，金额/写入协议及旧后台样本保持；待第三次本机/UNC实测，门槛不变，04及整阶段不收尾，P05未启动。
 

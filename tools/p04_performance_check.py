@@ -210,6 +210,9 @@ def measure_headless(app, namespace, case, current, condition):
 
 def gui_measurements(namespace, folder, case, current):
     import tkinter as tk
+    from quote_app.background import configure_ui_thread_scheduling
+    # Matched original/current workers use the same process scheduling policy.
+    thread_slice = configure_ui_thread_scheduling()
     window = tk.Tk()
     # Diagnostic read-only windows: programmatic read controls still run, but
     # user input cannot start a save while the parent owns a read-only timeout.
@@ -358,6 +361,7 @@ def gui_measurements(namespace, folder, case, current):
         if error:raise RuntimeError(f'{active_phase}: {error}') from error_cause
         if errors:raise RuntimeError('TK_CALLBACK_ERRORS: ' + repr(errors))
         return measurements, {'callback_errors': errors, 'close': 'ok', 'user_input_disabled': True,
+            'python_thread_switch_interval_seconds': thread_slice,
             'tk_version': window.tk.call('package', 'provide', 'Tk'),
             'tcl_version': window.tk.call('info', 'patchlevel'), 'tk_scaling': float(window.tk.call('tk', 'scaling')),
             'scope': 'Actual Windows Tk mainloop; 50ms after; measured refresh/view/page/filter plus idle settling; no fixtures/verification/image capture inside phases'}

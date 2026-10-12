@@ -6,6 +6,18 @@ import time
 
 from .jobs import Jobs, QueueFull
 
+
+def configure_ui_thread_scheduling():
+    """Windows application policy; retain an already shorter interpreter slice.
+
+    This is process-wide CPython scheduling, not an I/O timeout or a guarantee
+    that a native call will release the interpreter within the interval.
+    """
+    import sys
+    if sys.platform == 'win32':
+        sys.setswitchinterval(min(sys.getswitchinterval(), .001))
+    return sys.getswitchinterval()
+
 FIELDS = ("quote_session", "quote_role", "local_settings_file", "legacy_data_root", "default_items",
     "data_root", "config_file", "report_dir", "image_dir", "default_report_dir", "active_price_config",
     "price_changes", "_config_load_problem", "_storage_version", "_local_hash", "_shared_hash",
@@ -192,6 +204,8 @@ class BackgroundApplicationMixin:
     io_timeout = 30
 
     def initialize_background_io(self):
+        if self.background_io_enabled:
+            configure_ui_thread_scheduling()
         self._io_owner = threading.get_ident()
         self._io_runtime = Jobs(timeout=self.io_timeout) if self.background_io_enabled else None
         from quote_files.cache import LedgerCache
