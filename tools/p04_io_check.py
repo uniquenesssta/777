@@ -37,12 +37,12 @@ def run_checks():
         "elapsed_seconds": round(time.monotonic() - start, 3), "test_ids": ids, "log": log.getvalue()}
 
 
-def run_gui(extra_steps=None):
+def run_gui(extra_steps=None, scope=None):
     import tkinter as tk
     from quote_files.reading import read_ledger
     from quote_files.metadata import file_version
     import quote_app.integration as integration
-    report = {"status": "running", "scope": "Actual Windows Tk, synthetic temporary local files and deliberately delayed I/O; no production share or screen capture", "checks": {}}
+    report = {"status": "running", "scope": scope or "Actual Windows Tk, synthetic temporary local files and deliberately delayed I/O; no production share or screen capture", "checks": {}}
     with tempfile.TemporaryDirectory(prefix="777-p04-io-") as folder:
         sandbox = Path(folder);owner = tk.Tk();owner.withdraw()
         errors = gui.track_callback_errors(owner)

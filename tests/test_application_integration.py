@@ -431,7 +431,7 @@ class ApplicationIntegrationTests(unittest.TestCase):
             with application(role) as (app, folder, *_):
                 app.add_fixture_row()
                 app.calculate(notify=False)
-                with patch.object(app.root, "winfo_rootx", return_value=0), patch.object(app.root, "winfo_rooty", return_value=0), patch.object(app.root, "winfo_width", return_value=1), patch.object(app.root, "winfo_height", return_value=1), patch("PIL.ImageGrab.grab", return_value=Image.new("RGB", (1, 1))) as grab:
+                with patch.object(app.root, "winfo_rootx", return_value=0), patch.object(app.root, "winfo_rooty", return_value=0), patch.object(app.root, "winfo_width", return_value=1), patch.object(app.root, "winfo_height", return_value=1), patch("quote_app.window_capture.capture_window", side_effect=lambda _: Image.new("RGB", (1, 1))) as grab:
                     path = app._capture_current_quote()
                     self.assertTrue(Path(path).is_relative_to(folder))
                     self.assertTrue(Path(path).is_file())

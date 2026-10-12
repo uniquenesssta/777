@@ -308,7 +308,11 @@ class PriceCalculator(BackgroundApplicationMixin, QuoteApplicationMixin):
         ttk.Button(buttons, text="开始计算", command=self.calculate, style="Accent.TButton").pack(side=tk.LEFT, padx=(0, 6))
         ttk.Button(buttons, text="查看输入反馈", command=self.go_to_feedback_page).pack(side=tk.LEFT, padx=6)
         ttk.Button(buttons, text="清空所有行", command=self.reset).pack(side=tk.LEFT, padx=6)
-        ttk.Button(buttons, text="保存计算截图", command=self.save_screenshot).pack(side=tk.LEFT, padx=6)
+        self.calc_screenshot_button = ttk.Button(buttons, text="保存窗口截图", command=self.save_screenshot)
+        self.calc_screenshot_button.pack(side=tk.LEFT, padx=6)
+        self.calc_quote_image_button = ttk.Button(buttons, text="保存完整报价图", command=self.save_quote_image)
+        self.calc_quote_image_button.pack(side=tk.LEFT, padx=6)
+        ttk.Label(self.calc_page, text="窗口截图仅保存当前可见内容，遮挡可能影响；保存全部明细请使用完整报价图。", foreground="#7f8c8d").pack(anchor=tk.W, padx=6, pady=(2, 0))
         self.calc_export_button = ttk.Button(buttons, text="导出 Excel", command=self.export_to_excel)
         self.calc_export_button.pack(side=tk.LEFT, padx=6)
 
@@ -895,6 +899,7 @@ class PriceCalculator(BackgroundApplicationMixin, QuoteApplicationMixin):
         self.excel_order_reason = tk.StringVar(self.root)
         ttk.Entry(reason_bar, textvariable=self.excel_order_reason).pack(side=tk.LEFT, fill=tk.X, expand=True)
 
+        self.install_excel_pagination(self.excel_detail_frame)
         view_body = ttk.Frame(self.excel_detail_frame)
         view_body.pack(fill=tk.BOTH, expand=True)
         self.excel_view_tree = ttk.Treeview(view_body, show="headings", height=13, selectmode="browse")
@@ -963,85 +968,11 @@ class PriceCalculator(BackgroundApplicationMixin, QuoteApplicationMixin):
         self.open_excel_path(selected[0])
 
     def open_excel_path(self, path):
-        if self._io_enabled():
-            return BackgroundApplicationMixin.open_excel_path(self, path)
-        if load_workbook is None:
-            messagebox.showerror("无法读取", "缺少 openpyxl，请先运行：pip install openpyxl")
-            return
-        if not os.path.exists(path):
-            messagebox.showerror("文件不存在", f"找不到文件：{path}")
-            return
-        wb = None
-        try:
-            wb = self.open_excel_for_view(path)
-            sheet_names = [ws.title for ws in wb.worksheets if ws.sheet_state == "visible"]
-            if not sheet_names:
-                messagebox.showwarning("无法查看", "这个 Excel 没有工作表。")
-                return
-            self.current_excel_path = path
-            self.excel_selected_file.set(path)
-            self.excel_sheet_combo.configure(values=sheet_names)
-            preferred = "利润明细" if "利润明细" in sheet_names else sheet_names[0]
-            self.excel_sheet_var.set(preferred)
-            self.load_current_excel_sheet()
-            self.load_current_excel_remark()
-            self.show_excel_detail()
-        except Exception as exc:
-            messagebox.showerror("读取失败", f"无法打开 Excel：{exc}")
-        finally:
-            if wb is not None:
-                wb.close()
+        return BackgroundApplicationMixin.open_excel_path(self, path)
+
 
     def load_current_excel_sheet(self):
-        if self._io_enabled():
-            return BackgroundApplicationMixin.load_current_excel_sheet(self)
-        path = self.current_excel_path
-        if not path:
-            return
-        sheet_name = self.excel_sheet_var.get().strip()
-        if not sheet_name:
-            return
-        wb = None
-        try:
-            wb = self.read_excel_view(path, sheet_name)
-            ws = wb[sheet_name]
-            max_cols = min(ws.max_column or 1, 36)
-            max_rows = min(ws.max_row or 1, 300)
-            source_columns = [i for i in range(1, max_cols + 1)
-                              if not ws.column_dimensions[get_column_letter(i)].hidden]
-            data_columns = [f"c{i}" for i in source_columns]
-            columns = ["row_no"] + data_columns
-            self.excel_view_row_map = {}
-            self.excel_view_tree.delete(*self.excel_view_tree.get_children())
-            self.excel_view_tree.configure(columns=columns, show="headings")
-            self.excel_view_tree.heading("row_no", text="行")
-            self.excel_view_tree.column("row_no", width=55, anchor=tk.CENTER, stretch=False)
-            for idx, col in zip(source_columns, data_columns):
-                letter = get_column_letter(idx)
-                self.excel_view_tree.heading(col, text=letter)
-                self.excel_view_tree.column(col, width=140, anchor=tk.W)
-            for row_idx, row in enumerate(ws.iter_rows(min_row=1, max_row=max_rows, max_col=max_cols, values_only=True), start=1):
-                values = [str(row_idx)]
-                for source_index in source_columns:
-                    value = row[source_index - 1]
-                    if value is None:
-                        values.append("")
-                    elif isinstance(value, float):
-                        values.append(self.format_display(value))
-                    else:
-                        values.append(str(value))
-                item_id = f"row_{row_idx}"
-                self.excel_view_row_map[item_id] = row_idx
-                self.excel_view_tree.insert("", tk.END, iid=item_id, values=values)
-            return True
-        except Exception as exc:
-            messagebox.showerror("读取失败", f"无法读取工作表：{exc}")
-            return False
-        finally:
-            if wb is not None:
-                wb.close()
-            self.load_current_excel_remark()
-
+        return BackgroundApplicationMixin.load_current_excel_sheet(self)
 
 
     def get_excel_id_column(self, headers):

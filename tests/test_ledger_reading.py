@@ -34,6 +34,9 @@ def codes(result):
 
 
 class ViewTree:
+    def selection(self):return ()
+    def selection_set(self,*_):pass
+    def see(self,*_):pass
     def __init__(self):
         self.rows = {}
     def get_children(self):
@@ -368,6 +371,9 @@ class LedgerAdapterTests(unittest.TestCase):
             app.current_excel_path = str(path)
             app.excel_sheet_var = tk.StringVar(app.root, "利润明细")
             app.excel_view_tree = ViewTree()
+            app.excel_selected_file = tk.StringVar(app.root)
+            app.excel_sheet_combo = Mock()
+            app.show_excel_detail = Mock()
             app.load_current_excel_sheet()
             self.assertEqual(len(app.excel_view_tree.rows), 2)
             self.assertTrue(all(row[-1] == "—（历史归属待核对）" for row in app.excel_view_tree.rows.values()))

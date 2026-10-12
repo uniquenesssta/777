@@ -237,7 +237,7 @@ class StorageConfigurationTests(unittest.TestCase):
                 return original_replace(source, target)
             app.add_fixture_row()
             app.calculate(notify=False)
-            with patch.object(app.root, "winfo_rootx", return_value=0), patch.object(app.root, "winfo_rooty", return_value=0), patch.object(app.root, "winfo_width", return_value=1), patch.object(app.root, "winfo_height", return_value=1), patch("PIL.ImageGrab.grab", return_value=Image.new("RGB", (1, 1))) as grab, patch("quote_files.transactions.os.replace", side_effect=fail_publish):
+            with patch.object(app.root, "winfo_rootx", return_value=0), patch.object(app.root, "winfo_rooty", return_value=0), patch.object(app.root, "winfo_width", return_value=1), patch.object(app.root, "winfo_height", return_value=1), patch("quote_app.window_capture.capture_window", side_effect=lambda _: Image.new("RGB", (1, 1))) as grab, patch("quote_files.transactions.os.replace", side_effect=fail_publish):
                 self.assertFalse(app._capture_current_quote())
                 self.assertIsNotNone(app._blocking_file_request)
                 self.assertFalse(app._capture_current_quote())
@@ -300,7 +300,7 @@ class StorageConfigurationTests(unittest.TestCase):
             with application(role) as (app, folder, *_):
                 app.add_fixture_row()
                 app.calculate(notify=False)
-                with patch.object(app.root, "winfo_rootx", return_value=0), patch.object(app.root, "winfo_rooty", return_value=0), patch.object(app.root, "winfo_width", return_value=1), patch.object(app.root, "winfo_height", return_value=1), patch("PIL.ImageGrab.grab", return_value=Image.new("RGB", (1, 1))), patch("quote_app.integration.time.time_ns", return_value=1):
+                with patch.object(app.root, "winfo_rootx", return_value=0), patch.object(app.root, "winfo_rooty", return_value=0), patch.object(app.root, "winfo_width", return_value=1), patch.object(app.root, "winfo_height", return_value=1), patch("quote_app.window_capture.capture_window", side_effect=lambda _: Image.new("RGB", (1, 1))), patch("quote_app.integration.time.time_ns", return_value=1):
                     first = app._capture_current_quote()
                     original = Path(first).read_bytes()
                     second = app._capture_current_quote()

@@ -79,19 +79,20 @@ def controller(parent, snapshot, context, cache=None):
                 cache.invalidate(path)
                 self._io_write_paths.add(str(path))
             context.progress({"kind": kind, "path": str(path), "request": req})
+        def _report_image_request(self, path, request_id):
+            context.progress({"kind":"quote_image","path":path,"request_id":request_id})
         def _write_quote_screenshot(self, payload):
             from quote_files.images import save_png
             folder = self.get_daily_screenshot_dir() if self.quote_role == "sales" else self.image_dir
             Path(folder).mkdir(parents=True, exist_ok=True)
-            from uuid import uuid4
-            name = self.clean_filename(payload.details.customer)[:60]
-            order = self.clean_filename(payload.details.order_ref)[:60] or "未填订单号"
-            path = Path(folder) / f"{name}_{order}_{time.time_ns()}_{uuid4().hex}.png"
+            from quote_files.images import unique_window_path
+            path = unique_window_path(folder,payload.details)
             try:
                 self.last_file_transaction = save_png(path, self.captured_image,
                     on_request=lambda rid: context.progress({"kind": "screenshot", "path": str(path), "request_id": rid}))
             except Exception as exc:
-                if getattr(exc, "request_id", None):
+                from quote_files.transactions import UnknownCommit
+                if isinstance(exc,UnknownCommit):
                     self._blocking_file_request = {"path": str(path), "request_id": exc.request_id}
                 raise
             return str(path)
@@ -148,8 +149,13 @@ def perform(worker, operation, arguments, context):
         from quote_files.views import read_view
         document = worker._ledger_cache.get(arguments[0], context) if worker._ledger_cache is not None else None
         value = read_view(arguments[0], arguments[1], worker.quote_role, context, document=document)
+    elif operation == "page_filter":
+        from .pagination import filter_view
+        value = filter_view(*arguments, context=context)
     elif operation == "excel":
         value = worker._formal_output("excel", worker._write_quote_excel)
+    elif operation == "quote_image":
+        value = worker._formal_output("quote_image", worker._write_quote_image)
     elif operation == "screenshot":
         worker.captured_image = arguments[0]
         value = worker._formal_output("screenshot", worker._write_quote_screenshot)
@@ -172,6 +178,8 @@ def run(parent, snapshot, operation, arguments, context, cache=None):
     except Exception as exc:
         error, value = exc, False
     finally:
+        if operation == "screenshot" and arguments:
+            arguments[0].close()
         if cache is not None:
             for path in worker._io_write_paths:cache.invalidate(path)
     return {"value": value, "error": error, "fields": {name: getattr(worker, name) for name in FIELDS if hasattr(worker, name)},
@@ -271,8 +279,11 @@ class BackgroundApplicationMixin:
                     self._apply_io_state(data, revision, operation, task.write, original_vars)
                     if data["error"]:
                         error = data["error"]
-                        self.set_feedback(f"任务{task.number}未确认：{error}" +
-                            (f"；请求{error.request_id}，请检查上次写入。" if getattr(error, "request_id", None) else ""), is_error=True)
+                        if operation == "quote_image" and hasattr(error, "published_paths"):
+                            self.set_feedback(f"完整报价图未全部确认保存；已保存{len(error.published_paths)}张，保留附件目录：{getattr(error, 'target_path', '')}；{error}", is_error=True)
+                        else:
+                            self.set_feedback(f"任务{task.number}未确认：{error}" +
+                                (f"；请求{error.request_id}，请检查上次写入。" if getattr(error, "request_id", None) else ""), is_error=True)
                     else:
                         callback(data["value"], self.quote_session.state.revision if fresh else revision, task)
                 except Exception as exc:
@@ -292,7 +303,7 @@ class BackgroundApplicationMixin:
         fields = data["fields"]
         stale_load = revision != self.quote_session.state.revision and operation in {
             "startup", "reload_price_settings_from_json", "save_settings", "apply_connection"}
-        if operation != "view" and (write or not self._io_runtime.writing):
+        if operation not in {"view", "page_filter"} and (write or not self._io_runtime.writing):
             changed = any(getattr(self, n, None) != fields.get(n) for n in ("data_root", "config_file", "report_dir"))
             for name in STORAGE:
                 if name in fields:
@@ -308,6 +319,7 @@ class BackgroundApplicationMixin:
                 self._excel_view_hash = self._excel_view_path = None
                 self.current_excel_path = None
                 self._io_last_view = None
+                self.reset_excel_pagination()
                 self._io_last_files = None
                 self._io_files_token = None
                 if hasattr(self, "excel_file_tree"):
@@ -325,7 +337,7 @@ class BackgroundApplicationMixin:
         if write or operation == "check_last_write":
             for name in PENDING:
                 setattr(self, name, fields[name])
-        if revision == self.quote_session.state.revision and operation not in {"scan", "view"}:
+        if revision == self.quote_session.state.revision and operation not in {"scan", "view", "page_filter"}:
             self.quote_session = fields["quote_session"]
             self._config_load_problem = fields["_config_load_problem"]
             self.price_changes = fields["price_changes"]
@@ -345,7 +357,7 @@ class BackgroundApplicationMixin:
             self.quote_session.observe_price_source(state.price_source, latest_price_version_id=state.latest_price_version_id)
             self.update_quote_status()
             self.set_feedback("文件读取/保存已完成，编辑已变化；保留当前草稿，请再次刷新并核对。")
-        if write or operation not in {"scan", "view"}:
+        if write or operation not in {"scan", "view", "page_filter"}:
             text, error = data["feedback"]
             if text and not stale_load:
                 self.set_feedback(text, is_error=error)
@@ -430,15 +442,20 @@ class BackgroundApplicationMixin:
         if not decision.allowed or self._blocking_file_request or self._io_runtime.writing:
             self.set_feedback("截图暂不可保存，请完成计算、价格确认和上次写入核查。", is_error=True)
             return False
-        from PIL import ImageGrab
-        x, y = self.root.winfo_rootx(), self.root.winfo_rooty()
+        from .window_capture import capture_window
         try:
-            image = ImageGrab.grab(bbox=(x, y, x + self.root.winfo_width(), y + self.root.winfo_height()))
+            image = capture_window(self.root)
         except Exception as exc:
             self.set_feedback("屏幕截取失败：" + str(exc), is_error=True)
             return False
-        return self._submit_io("screenshot", "write", lambda path, rev, task: self.set_feedback(
-            "截图已保存：" + str(path)) if path else None, write=True, arguments=(image,))
+        if self.quote_session.state.revision != decision.payload.revision:
+            image.close()
+            self.set_feedback("截图期间报价已变化，未保存；请重新计算并截取。", is_error=True)
+            return False
+        task = self._submit_io("screenshot", "write", lambda path, rev, task: self.set_feedback(
+            "窗口截图已保存（仅当前可见区域）：" + str(path)) if path else None, write=True, arguments=(image,))
+        if not task:image.close()
+        return task
 
     def check_last_write(self):
         if not self._io_enabled():
@@ -516,8 +533,8 @@ class BackgroundApplicationMixin:
         self._io_files_token = None
         self._io_starting = False
         previous = getattr(self, "_io_last_view", None)
-        if previous and not self._io_closing:
-            self._render_io_view(previous, object())
+        if previous and not self._io_closing and getattr(self, "_page_view", None) is previous and self._excel_view_hash is not None:
+            self._render_page()
         previous_files = getattr(self, "_io_last_files", None)
         if previous_files is not None and not self._io_closing:
             self._render_io_files(previous_files, object())
@@ -584,6 +601,9 @@ class BackgroundApplicationMixin:
                     self.set_feedback("当前文件已移除或读取失败，已停用旧读取版本；请重新选择文件。", is_error=True)
         self._io_files_token = task
         tree = self.excel_file_tree
+        selected = tuple(tree.selection())
+        y = tree.yview()[0] if hasattr(tree,"yview") else 0
+        x = tree.xview()[0] if hasattr(tree,"xview") else 0
         tree.delete(*tree.get_children())
         rows = list(results.items())
         epoch = self._io_epoch
@@ -596,21 +616,26 @@ class BackgroundApplicationMixin:
                 self.schedule_quote_callback(lambda: batch(start + 100), delay=1)
             else:
                 self._io_last_files = results
+                remaining = tuple(path for path in selected if path in results)
+                if remaining:tree.selection_set(remaining if len(remaining)>1 else remaining[0])
+                if hasattr(tree,"yview_moveto"):tree.yview_moveto(y)
+                if hasattr(tree,"xview_moveto"):tree.xview_moveto(x)
         batch()
 
     def open_excel_path(self, path):
         if not self._io_enabled():
-            return super().open_excel_path(path)
+            return self._open_paged_sync(path)
         return self._request_io_view(path, None)
 
     def load_current_excel_sheet(self):
         if not self._io_enabled():
-            return super().load_current_excel_sheet()
+            return self._open_paged_sync(self.current_excel_path, self.excel_sheet_var.get()) if self.current_excel_path else False
         if not self.current_excel_path:
             return False
         return self._request_io_view(self.current_excel_path, self.excel_sheet_var.get().strip())
 
     def _request_io_view(self, path, sheet):
+        self._remember_page_location()
         self._io_render_task = None
         self._excel_view_hash = self._excel_view_path = None
         self._excel_view_orders = {}
@@ -618,43 +643,4 @@ class BackgroundApplicationMixin:
 
     def _render_io_view(self, view, token):
         self._io_render_task = token
-        self.current_excel_path = view.path
-        self.excel_selected_file.set(view.path)
-        self.excel_sheet_combo.configure(values=view.sheets)
-        self.excel_sheet_var.set(view.sheet)
-        tree = self.excel_view_tree
-        tree.delete(*tree.get_children())
-        columns = tuple(f"c{i}" for i in range(len(view.headings)))
-        tree.configure(columns=columns, show="headings")
-        for column, heading in zip(columns, view.headings):
-            tree.heading(column, text=heading)
-            tree.column(column, width=140, anchor="w")
-        self.excel_view_row_map = {}
-        self._excel_view_orders = {}
-        epoch = self._io_epoch
-        self.show_excel_detail()
-        def batch(start=0):
-            if self._io_closing or epoch != self._io_epoch or self._io_render_task is not token:
-                return
-            for row, values in view.rows[start:start + 100]:
-                item = f"row_{row}"
-                tree.insert("", "end", iid=item, values=values)
-                self.excel_view_row_map[item] = row
-            if start + 100 < len(view.rows):
-                self.schedule_quote_callback(lambda: batch(start + 100), delay=1)
-                return
-            self._excel_view_orders = view.identities
-            self._excel_order_views = view.orders
-            self._excel_view_hash = view.ledger.source_sha256
-            self._excel_view_path = view.path
-            if view.ledger.status == "ok":
-                self._io_last_view = view
-            self.set_feedback(self._read_status(view.ledger), is_error=view.ledger.status != "ok")
-            if self.quote_role == "manager":
-                order_id = getattr(self, "_io_reselect", None)
-                if order_id:
-                    self.select_excel_order(order_id)
-                    self._io_reselect = None
-                else:
-                    self.load_current_excel_remark()
-        batch()
+        self._set_paged_view(view, token)

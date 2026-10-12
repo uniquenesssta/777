@@ -352,7 +352,7 @@ class WorkbookTransactionTests(unittest.TestCase):
                     def worksheets(self):
                         raise OSError('synthetic enumeration failure')
                 broken = BrokenBook()
-                with patch.object(app, 'open_excel_for_view', return_value=broken):
+                with patch('quote_files.reading.open_book', return_value=broken):
                     app.open_excel_path(str(path))
                 broken.close.assert_called_once()
 

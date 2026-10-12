@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于`plans`；**P01、P02、P03均已验收归档old**，见[P03确认](docs/verification/P03-acceptance.json)。当前唯一执行分支`stage/p04-performance`创建于P03收尾`823a487`。P04-01后台I/O、旧结果隔离与取消/关闭已实现；[Windows本机24/24及实际母子Tk联测7项通过](docs/verification/P04-01-windows-evidence-03.json)，24项LF实现指纹匹配cbaf87e，后台24项/完整261项辅助证据保留，[01已按用户指令验收收尾](docs/verification/P04-01-acceptance.json)，当前P04-02已实现：单次解码/双层有界索引/视图复用及增量统算，新增22项/完整283项辅助通过，[Windows本机22/22及实际母子Tk联测11项通过](docs/verification/P04-02-windows-evidence-01.json)，30项LF实现指纹匹配fe0c276；02已按用户指令验收收尾，本次无需重跑，03已授权启动，04及P05至P08未启动。
+规划位于`plans`；P01/P02/P03已验收归档old。当前唯一分支`stage/p04-performance`；[P04-01](docs/verification/P04-01-acceptance.json)和[P04-02](docs/verification/P04-02-acceptance.json)已按用户指令验收收尾。P04-03已实现两端完整分页/筛选、选择定位保持、窗口截图及完整报价图，[23项新增/完整306项辅助通过](docs/verification/P04-03-checks.json)，[Windows一键入口](docs/verification/P04-03-pagination-contract.md)交付，待本机实际Tk/窗口截图复查；04及P05至P08未启动。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -23,6 +23,7 @@
 - [P04-01第二次Windows回传](docs/verification/P04-01-windows-evidence-02.json)及[控件修复辅助检查](docs/verification/P04-01-controls-checks.json)
 - [P04-01 Windows本机与实际后台Tk联测通过](docs/verification/P04-01-windows-evidence-03.json)
 - [P04-02统一读取、增量索引与Windows入口](docs/verification/P04-02-incremental-contract.md)
+- [P04-03完整分页、明确图片范围与Windows入口](docs/verification/P04-03-pagination-contract.md)
 - [文档与计划入口](docs/README.md)
 - [优化及迁移主任务书](docs/MASTER_PLAN.md)
 - [两份 Python 代码重新审计报告](docs/audit/python-audit.md)
@@ -30,6 +31,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P04-03：两端共用200行分页/搜索/订单筛选，移除母版300行/36列限制，刷新和换文件保留选择/位置；分页不影响金额及Excel输出。区分窗口截图与冻结全单报价图，长文字换行、连续多张/全单合计、销售图片不含成本利润；独占UUID目录和原验证发布，部分失败保留已完成图片并提示。新增23项及完整306项辅助通过，[契约与Windows一键入口](docs/verification/P04-03-pagination-contract.md)交付，待实际Tk/HWND复查；金融核心/黄金/事务与历史报告保持，04未启动。
 
 - 用户“收尾02开始03”：依据既有Windows22项/实际母子Tk联测11项[收尾P04-02](docs/verification/P04-02-acceptance.json)，复用唯一stage/p04-performance开始P04-03完整分页/筛选、保留选择定位及明确附件范围。原报告和业务实现不改，已通过检查无需重跑；04未启动，P04留now。
 

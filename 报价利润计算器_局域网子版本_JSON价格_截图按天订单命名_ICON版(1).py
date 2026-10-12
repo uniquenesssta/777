@@ -372,7 +372,11 @@ class PriceCalculator(BackgroundApplicationMixin, QuoteApplicationMixin):
         ttk.Button(buttons, text="清空所有行", command=self.reset).pack(side=tk.LEFT, padx=6)
         self.calc_export_button = ttk.Button(buttons, text="导出 Excel", command=self.export_to_excel)
         self.calc_export_button.pack(side=tk.LEFT, padx=6)
-        ttk.Button(buttons, text="保存计算截图", command=self.save_screenshot).pack(side=tk.LEFT, padx=6)
+        self.calc_screenshot_button = ttk.Button(buttons, text="保存窗口截图", command=self.save_screenshot)
+        self.calc_screenshot_button.pack(side=tk.LEFT, padx=6)
+        self.calc_quote_image_button = ttk.Button(buttons, text="保存完整报价图", command=self.save_quote_image)
+        self.calc_quote_image_button.pack(side=tk.LEFT, padx=6)
+        ttk.Label(self.calc_page, text="窗口截图仅保存当前可见内容，遮挡可能影响；保存全部明细请使用完整报价图。", foreground="#7f8c8d").pack(anchor=tk.W, padx=6, pady=(2, 0))
 
         ttk.Label(bottom, textvariable=self.total_val, style="Total.TLabel", foreground="#2c3e50").pack(side=tk.RIGHT)
 
@@ -860,6 +864,7 @@ class PriceCalculator(BackgroundApplicationMixin, QuoteApplicationMixin):
         ttk.Button(sheet_bar, text="读取", command=self.load_current_excel_sheet).pack(side=tk.LEFT)
         ttk.Label(sheet_bar, text="只显示：淘宝ID、订单号、微信号、记录时间、项目名称、基础类型、高、宽、数量、销售单价、折扣、销售额、折前销售额、总销售额。", foreground="#7f8c8d").pack(side=tk.LEFT, padx=10)
 
+        self.install_excel_pagination(self.excel_detail_frame)
         view_body = ttk.Frame(self.excel_detail_frame)
         view_body.pack(fill=tk.BOTH, expand=True)
         self.excel_view_tree = ttk.Treeview(view_body, show="headings", height=16, selectmode="browse")
@@ -913,121 +918,11 @@ class PriceCalculator(BackgroundApplicationMixin, QuoteApplicationMixin):
         self.open_excel_path(selected[0])
 
     def open_excel_path(self, path):
-        if self._io_enabled():
-            return BackgroundApplicationMixin.open_excel_path(self, path)
-        if load_workbook is None:
-            messagebox.showerror("无法读取", "缺少 openpyxl，请先运行：pip install openpyxl")
-            return
-        if not os.path.exists(path):
-            messagebox.showerror("文件不存在", f"找不到文件：{path}")
-            return
-        wb = None
-        try:
-            wb = self.open_excel_for_view(path)
-            sheet_names = [ws.title for ws in wb.worksheets if ws.sheet_state == "visible"]
-            if not sheet_names:
-                messagebox.showwarning("无法查看", "这个 Excel 没有工作表。")
-                return
-            self.current_excel_path = path
-            # 前端“当前文件”只显示 Excel 文件名，不暴露完整局域网路径。
-            self.excel_selected_file.set(os.path.basename(path))
-            view_sheets = ["利润明细"] if "利润明细" in sheet_names else sheet_names
-            self.excel_sheet_combo.configure(values=view_sheets)
-            preferred = "利润明细" if "利润明细" in view_sheets else view_sheets[0]
-            self.excel_sheet_var.set(preferred)
-            self.load_current_excel_sheet()
-            self.load_current_excel_remark()
-            self.show_excel_detail()
-        except Exception as exc:
-            messagebox.showerror("读取失败", f"无法打开 Excel：{exc}")
-        finally:
-            if wb is not None:
-                wb.close()
-
+        return BackgroundApplicationMixin.open_excel_path(self, path)
 
 
     def load_current_excel_sheet(self):
-        if self._io_enabled():
-            return BackgroundApplicationMixin.load_current_excel_sheet(self)
-        path = self.current_excel_path
-        if not path:
-            return
-        sheet_name = self.excel_sheet_var.get().strip()
-        if not sheet_name:
-            return
-        wb = None
-        try:
-            wb = self.read_excel_view(path, sheet_name)
-            if sheet_name not in wb.sheetnames:
-                messagebox.showerror("读取失败", "当前工作表不存在。")
-                return
-            ws = wb[sheet_name]
-            header_row, headers = self.find_excel_table_header(ws)
-            self.excel_view_tree.delete(*self.excel_view_tree.get_children())
-            self.excel_view_row_map = {}
-
-            display_columns = [
-                "淘宝ID", "订单号", "微信号", "记录时间", "项目名称", "基础类型",
-                "高", "宽", "数量", "销售单价", "折扣", "销售额", "折前销售额", "总销售额",
-            ]
-            tree_columns = [f"c{i}" for i in range(len(display_columns))]
-            self.excel_view_tree.configure(columns=tree_columns, show="headings")
-            widths = [130, 150, 130, 170, 240, 120, 80, 80, 80, 100, 90, 110, 120, 120]
-            for col, heading, width in zip(tree_columns, display_columns, widths):
-                self.excel_view_tree.heading(col, text=heading)
-                self.excel_view_tree.column(col, width=width, anchor=tk.W if heading in {"淘宝ID", "订单号", "微信号", "项目名称", "基础类型"} else tk.CENTER)
-
-            if not header_row:
-                messagebox.showwarning("无法查看", "这个工作表没有识别到“记录时间 + 淘宝ID/用户 + 项目名称”表头。")
-                return
-
-            id_col = self.get_excel_id_column(headers)
-            col_map = {
-                "淘宝ID": id_col,
-                "订单号": headers.get("订单号"),
-                "微信号": headers.get("微信号"),
-                "记录时间": headers.get("记录时间"),
-                "项目名称": headers.get("项目名称"),
-                "基础类型": headers.get("基础类型"),
-                "高": headers.get("高度(m)") or headers.get("高度"),
-                "宽": headers.get("宽度(m)") or headers.get("宽度"),
-                "数量": headers.get("数量"),
-                "销售单价": headers.get("销售单价"),
-                "折扣": headers.get("折扣"),
-                "销售额": headers.get("销售额"),
-                "折前销售额": headers.get("折前销售额"),
-            }
-            money_fields = {"销售单价", "销售额", "折前销售额", "总销售额"}
-            group_totals = self.build_group_sales_totals(ws, headers, header_row)
-            shown = 0
-            for r in range(header_row + 1, (ws.max_row or 0) + 1):
-                item_text = str(ws.cell(row=r, column=col_map["项目名称"]).value or "").strip() if col_map["项目名称"] else ""
-                if not self.sales_record_visible(ws, headers, r):
-                    continue
-                taobao_id = str(ws.cell(row=r, column=id_col).value or "").strip() if id_col else ""
-                record_time = str(ws.cell(row=r, column=col_map["记录时间"]).value or "").strip() if col_map["记录时间"] else ""
-                group_total = group_totals.get(self.sales_group_key(ws, headers, r))
-
-                values = []
-                for field in display_columns:
-                    if field == "总销售额":
-                        values.append(format(group_total, ".2f") if group_total is not None else "—（历史归属待核对）")
-                        continue
-                    col_idx = col_map.get(field)
-                    cell_value = ws.cell(row=r, column=col_idx).value if col_idx else ""
-                    values.append(self._excel_cell_text(cell_value, money=field in money_fields))
-                item_id = f"row_{r}"
-                self.excel_view_row_map[item_id] = r
-                self.excel_view_tree.insert("", tk.END, iid=item_id, values=values)
-                shown += 1
-            if shown == 0:
-                messagebox.showinfo("没有可查看明细", "当前工作表没有可显示的销售明细行。")
-        except Exception as exc:
-            messagebox.showerror("读取失败", f"无法读取工作表：{exc}")
-        finally:
-            if wb is not None:
-                wb.close()
-
+        return BackgroundApplicationMixin.load_current_excel_sheet(self)
 
 
     def get_excel_id_column(self, headers):

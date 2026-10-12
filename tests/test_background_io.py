@@ -173,6 +173,15 @@ class BackgroundAdapterTests(unittest.TestCase):
                     wait_for(lambda: task.number not in app._io_callbacks, app._poll_io)
                     self.assertEqual(read_ledger(path).totals.income_cents, 2400)
                     self.assertIsNotNone(app.last_file_transaction)
+                    self.assertIs(app.calc_quote_image_button, controls["保存完整报价图"])
+                    self.assertIs(app.calc_screenshot_button, controls["保存窗口截图"])
+                    image_task = check.invoke_write_control(app,app.calc_quote_image_button)
+                    wait_for(lambda:image_task.number not in app._io_callbacks,app._poll_io)
+                    import json
+                    image_manifest = json.loads(Path(app.last_file_transaction.path).read_text())
+                    self.assertEqual(image_manifest['line_count'],1)
+                    self.assertEqual(image_manifest['totals']['销售额'],'12.00')
+                    self.assertEqual(read_ledger(path).totals.income_cents,2400)
 
     def test_gui_write_probe_rejects_disabled_control_or_reused_task(self):
         import p04_io_check as check

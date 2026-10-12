@@ -48,9 +48,9 @@ def read_view(path, sheet, role, context, document=None):
     rows = []
     if role == "manager":
         from openpyxl.utils import get_column_letter
-        columns = [i for i in range(1, min(ws.max_column, 36) + 1) if not ws.column_dimensions[get_column_letter(i)].hidden]
+        columns = [i for i in range(1, ws.max_column + 1) if not ws.column_dimensions[get_column_letter(i)].hidden]
         headings = ("行", *(get_column_letter(i) for i in columns))
-        for i, data in enumerate(ws.iter_rows(max_row=min(ws.max_row, 300), max_col=min(ws.max_column, 36), values_only=True), 1):
+        for i, data in enumerate(ws.iter_rows(max_row=ws.max_row, max_col=ws.max_column, values_only=True), 1):
             context.check()
             rows.append((i, (str(i), *(cell_text(data[c - 1]) for c in columns))))
     else:

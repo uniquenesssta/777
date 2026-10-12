@@ -26,6 +26,7 @@ from .storage import resolve_directory
 from .connections import ConnectionMixin
 from .file_edits import FileEditingMixin
 from .file_reads import FileReadingMixin
+from .pagination import PaginationMixin
 from quote_files.configuration import save_config
 from quote_files.transactions import FileFailure, UnknownCommit, digest, query_request
 from quote_files.workbooks import assign_order, inspect_receipt, request, workbook_transaction
@@ -71,7 +72,7 @@ def price_difference(old, new):
                  if a.get(name) != b.get(name))
 
 
-class QuoteApplicationMixin(ConnectionMixin, FileReadingMixin, FileEditingMixin):
+class QuoteApplicationMixin(PaginationMixin, ConnectionMixin, FileReadingMixin, FileEditingMixin):
     quote_role = "manager"
 
     def _report_io_request(self, kind, path, req):
@@ -652,18 +653,51 @@ class QuoteApplicationMixin(ConnectionMixin, FileReadingMixin, FileEditingMixin)
 
     def _write_quote_screenshot(self, payload):
         # Adapter renders the frozen result when calculating; no nested event loop.
-        from PIL import ImageGrab
+        from .window_capture import capture_window
         folder = self.get_daily_screenshot_dir() if self.quote_role == "sales" else self.image_dir
         os.makedirs(folder, exist_ok=True)
-        name = self.clean_filename(payload.details.customer)
-        order = self.clean_filename(payload.details.order_ref) or "未填订单号"
-        path = Path(folder) / f"{name[:60]}_{order[:60]}_{time.time_ns()}_{uuid.uuid4().hex}.png"
-        x, y = self.root.winfo_rootx(), self.root.winfo_rooty()
-        image = ImageGrab.grab(bbox=(x, y, x + self.root.winfo_width(), y + self.root.winfo_height()))
+        from quote_files.images import unique_window_path
+        path = unique_window_path(folder,payload.details)
+        image = capture_window(self.root)
+        if self.quote_session.state.revision != payload.revision:
+            image.close()
+            raise ValueError("截图期间报价已变化，未保存；请重新计算并截取")
         from quote_files.images import save_png
         try:
             self.last_file_transaction = save_png(path, image)
         except UnknownCommit as exc:
             self._blocking_file_request = {"path": str(path), "request_id": exc.request_id}
             raise
+        finally:
+            image.close()
         return str(path)
+
+    def save_quote_image(self):
+        if self._io_enabled():
+            def saved(value, revision, task):
+                if value:self.set_feedback('完整报价图已保存：' + value.directory + f'（{len(value.paths)}张）')
+            return self._submit_io('quote_image','write',saved,write=True)
+        try:
+            result = self._formal_output('quote_image',self._write_quote_image)
+            if result:self.set_feedback('完整报价图已保存：' + result.directory + f'（{len(result.paths)}张）')
+            return result
+        except Exception as exc:
+            self.set_feedback('完整报价图未全部确认保存：' + str(exc) +
+                              (f'；已保存{len(exc.published_paths)}张，保留附件目录。' if hasattr(exc,'published_paths') else ''),is_error=True)
+            return False
+
+    def _write_quote_image(self,payload):
+        from quote_files.quote_images import save_quote_images
+        folder = self.get_daily_screenshot_dir() if self.quote_role == 'sales' else self.image_dir
+        try:
+            result=save_quote_images(folder,payload,self.quote_role,
+                    on_request=lambda path,rid:self._report_image_request(path,rid))
+            self.last_file_transaction=result.last_commit
+            return result
+        except Exception as exc:
+            if isinstance(exc,UnknownCommit) and getattr(exc,'target_path',None):
+                self._blocking_file_request={'path':exc.target_path,'request_id':exc.request_id}
+            raise
+
+    def _report_image_request(self,path,request_id):
+        pass
