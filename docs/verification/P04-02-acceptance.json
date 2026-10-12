@@ -1,0 +1,13 @@
+{
+  "task": "P04-02",
+  "status": "accepted_by_user",
+  "accepted_at": "2026-10-12T15:21:30+08:00",
+  "user_instruction": "收尾02开始03",
+  "decision": "依据已通过的Windows22项及实际母子Tk联测11项收尾P04-02，复用stage/p04-performance开始P04-03。",
+  "implementation_commit": "fe0c2765a2f23dff729c227b7c912cf1394d5cfd",
+  "evidence_commit": "531c6a515c684cf364b3c9dd6cdc0a1e8a43fbce",
+  "evidence": "P04-02-windows-evidence-01.json",
+  "scope": "22项Windows本机检查、30项LF指纹、实际母子Tk联测11项；冷4/暖0/改单1/删除0及实际备注目标重读。沿用已通过证据，不新增实测或冒充P04-04规模/SMB性能验收。",
+  "next_task": "P04-03",
+  "phase_branch": "stage/p04-performance"
+}

@@ -9,8 +9,8 @@
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
 | 本轮授权 | 用户“开始P4-01”：收尾归档P03，开始P04-01；既有推送授权有效 |
 | 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P01/P02/P03已验收归档old；P04-01在stage/p04-performance实现后台I/O、旧结果隔离及取消关闭；[第三次Windows回传](verification/P04-01-windows-evidence-03.json)本机24/24及实际母子Tk联测7项通过，24项LF指纹匹配cbaf87e；[后台24项/完整261项辅助证据](verification/P04-01-controls-checks.json)保留，见[任务书](now/P04-performance.md)及[契约/Windows入口](verification/P04-01-background-contract.md)。[01已验收收尾](verification/P04-01-acceptance.json)；当前02已实现单次解析/双层索引/增量统算，[22项新增/283项辅助通过](verification/P04-02-checks.json)，[Windows入口](verification/P04-02-incremental-contract.md)交付；[Windows本机22/22及实际母子Tk联测11项通过](verification/P04-02-windows-evidence-01.json)，30项LF指纹匹配fe0c276，02具备收尾条件；03至04及P05至P08未启动 |
-| 下一项 | P04-02具备收尾条件、待用户验收；本次检查无需重跑，03/04未启动 |
+| 当前开发阶段 / Atomic Task | P01/P02/P03已验收归档old；P04-01在stage/p04-performance实现后台I/O、旧结果隔离及取消关闭；[第三次Windows回传](verification/P04-01-windows-evidence-03.json)本机24/24及实际母子Tk联测7项通过，24项LF指纹匹配cbaf87e；[后台24项/完整261项辅助证据](verification/P04-01-controls-checks.json)保留，见[任务书](now/P04-performance.md)及[契约/Windows入口](verification/P04-01-background-contract.md)。[01已验收收尾](verification/P04-01-acceptance.json)；当前02已实现单次解析/双层索引/增量统算，[22项新增/283项辅助通过](verification/P04-02-checks.json)，[Windows入口](verification/P04-02-incremental-contract.md)交付；[Windows本机22/22及实际母子Tk联测11项通过](verification/P04-02-windows-evidence-01.json)，30项LF指纹匹配fe0c276，02已按用户指令验收收尾；03已授权启动，04及P05至P08未启动 |
+| 下一项 | P04-03完整分页/筛选、选择定位与明确附件导出；沿用已通过01/02证据，04未启动 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
@@ -42,4 +42,4 @@
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
 
-当前结论：P01/P02/P03已归档；P04-01已验收收尾，当前P04-02 Windows本机及实际Tk检查通过、具备收尾条件，唯一步骤/分支按主任务书确认。
+当前结论：P01/P02/P03已归档；P04-01已验收收尾，P04-02已按用户指令验收收尾，当前P04-03执行中，唯一步骤/分支按主任务书确认。
