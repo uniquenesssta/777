@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于plans；P01/P02/P03归档，P04-01/02/03收尾。唯一stage/p04-performance；[正式05回传](docs/verification/P04-04-windows-evidence-05.json)匹配55f359e的42项指纹/37测试ID、检查通过，但共享根预检查失败，零性能实测；不是新增性能超限。已通过的[短诊断02](docs/verification/P04-04-windows-latency-evidence-02.json)十阶段及[343项辅助](docs/verification/P04-04-cooperative-checks.json)保持，程序不变。当前只读核查UNC目录状态，确认真实可访问普通目录后再用新输出windows-06复验；P04留now，P05未启动。
+规划位于plans；P01/P02/P03已验收；P04执行任务已按用户授权转接，整阶段验收未通过，[共享复验因停电延期](docs/verification/P04-04-deferral.json)。当前唯一stage/p05-data-service，真实基线31c8784；P05-01已实现本地SQLite账本、幂等/revision/价格CAS与不可变快照、一致备份及独立恢复，[31专项/374完整辅助检查](docs/verification/P05-01-checks.json)通过，Windows隔离检查待回传。P05-02/03/04未实施，未切换客户端或迁移生产账本。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -17,7 +17,7 @@
 - [P03-03 Windows本机复查通过](docs/verification/P03-03-windows-evidence.json)
 - [P03-04订单备注、作废恢复与Windows一键检查](docs/verification/P03-04-order-contract.md)
 - [P03-04 Windows本机复查通过](docs/verification/P03-04-windows-evidence.json)
-- [当前P04性能任务书](docs/now/P04-performance.md)
+- [当前P05数据与服务任务书](docs/now/P05-data-service.md)
 - [P04-01后台任务契约与Windows入口](docs/verification/P04-01-background-contract.md)
 - [P04-01首次Windows失败证据](docs/verification/P04-01-windows-evidence-01.json)及[清理修复辅助检查](docs/verification/P04-01-cleanup-checks.json)
 - [P04-01第二次Windows回传](docs/verification/P04-01-windows-evidence-02.json)及[控件修复辅助检查](docs/verification/P04-01-controls-checks.json)
@@ -34,6 +34,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 用户确认P04正式05共享预检查失败原因为停电，授权先推进P05并保留明日共享复验；[转接记录](docs/verification/P04-04-deferral.json)保留P04整阶段未验收事实，P04执行计划移old且注明延期，P05唯一stage/p05-data-service从31c8784启动。P05-01新增quote_ledger本机SQLite v1结构/索引/版本指纹，订单重算复用既有核心，整数分与原文/规范化高精度参数持久化；request_id幂等、不同负载冲突、原子整单/审计、价格CAS、只追加备注与revision、作废/恢复和未知提交查询。新增一致性备份/独立恢复、只清理清单内过期备份、最近成功副本及维护备份保留、单身份调度入口；新建Windows备份目录设置并核对Hidden+System与服务当前身份/SYSTEM/管理员DACL。[31专项/374完整辅助](docs/verification/P05-01-checks.json)通过，真实SQLite进程退出/并发/53黄金入库或拒绝及数据不变检查；Windows属性/ACL与隔离恢复待[本机入口](docs/verification/P05-01-ledger-contract.md)回传。无服务安装、真实E盘/共享修改或客户端切换，P05-02/03/04留后续。
 
 - P04-04[正式05回传](docs/verification/P04-04-windows-evidence-05.json)：42项LF指纹及37测试ID匹配55f359e，37本机检查通过；SHARED_ROOT_MUST_BE_EXISTING_DIRECTORY_WITHOUT_LINK发生于共享根预检查，本机/UNC零性能轮次，原报告按字节保存。不记为性能超限或通过；共享父目录元数据检查曾尝试，未读写生产文件。现有组合报错没有目录属性或底层WinError，无法区分不可访问/不存在与链接/联接点。先Get-Item只读核查指定根，确认真实可访问普通目录后再新建windows-06输出；不放宽路径门禁、不修改程序或重复已通过辅助测试，短诊断02十阶段及343项辅助仍有效，P04待正式证据，P05未启动。
 

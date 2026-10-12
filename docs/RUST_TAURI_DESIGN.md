@@ -76,3 +76,7 @@ Python数值改造优先标准库Decimal，并从原始文本构造；精度和�
 [Python连接与价格契约](verification/P03-03-storage-contract.md)现已拆分本机连接777-local-v1、母版共享目录777-shared-v1与商品价格。P05/P06迁移显式来源与失败状态，Tauri用系统用户配置目录保存服务连接，保留目录字段的用途；不按安装盘符推导业务根。订单价格快照附表按订单/请求关联，在结构化存储中保留原版本，不用后续当前价格覆盖旧单。PNG请求、唯一目标和未知提交语义作为附件适配参考；服务数据库和隐藏独立备份仍按后续阶段实现。
 
 [P04-03分页/附件契约](verification/P04-03-pagination-contract.md)已实现与Tk独立的完整视图/原行号筛选索引及冻结报价图投影，供后续Rust/Tauri迁移行为对照。页码不进入账本金额计算；PNG完整清单保留页范围/哈希/草稿revision，后续由服务绑定订单/附件身份。当前Windows应用HWND截图与数据生成的完整报价图是两个明确入口，屏幕像素不作为完整报价数据来源。
+
+## P05-01已交付的结构化边界
+
+[账本v1契约](verification/P05-01-ledger-contract.md)和[实际DDL](verification/P05-01-schema.sql)已交付Python标准库SQLite过渡实现；复用business-v1/numeric-v1，金额SQL整数分、JSON整数分字符串，高精度参数保留原文及规范值。schema指纹为SQLite元数据排序数组的紧凑UTF-8 JSON SHA256，Rust可复现；这不是Rust项目已创建或跨语言兼容已实测的证据。P05-02完成真实认证主体/传输/销售字段过滤/客户端切换，P06再接同一模型与黄金集。P04共享正式复验按用户授权延期，P05-01隔离开发先行；生产SQLite仍不得置于SMB。

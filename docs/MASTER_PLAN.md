@@ -2,7 +2,7 @@
 
 版本：初始规划；日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P01/P02/P03归档，P04-01/02/03收尾。唯一stage/p04-performance；[正式05回传](verification/P04-04-windows-evidence-05.json)匹配55f359e的42项指纹/37测试ID、检查通过，但共享根预检查失败，零性能实测；不是新增性能超限。已通过的[短诊断02](verification/P04-04-windows-latency-evidence-02.json)十阶段及[343项辅助](verification/P04-04-cooperative-checks.json)保持，程序不变。当前只读核查UNC目录状态，确认真实可访问普通目录后再用新输出windows-06复验；P04留now，P05未启动。** 本任务书不自动授予后续任务实施权限。
+**P01/P02/P03已验收；P04执行任务已按用户授权转接，整阶段验收未通过，[共享复验因停电延期](verification/P04-04-deferral.json)。当前唯一stage/p05-data-service，真实基线31c8784；P05-01已实现本地SQLite账本、幂等/revision/价格CAS与不可变快照、一致备份及独立恢复，[31专项/374完整辅助检查](verification/P05-01-checks.json)通过，Windows隔离检查待回传。P05-02/03/04未实施，未切换客户端或迁移生产账本。** 后续任务按阶段验收与授权推进。
 
 ## 1. 目标与边界
 
@@ -15,15 +15,15 @@
 
 ## 2. 阶段索引
 
-P01、P02、P03任务书均已归档old；P04已移入now，P05至P08仍在new。每阶段一个开发分支；P01实际分支为stage/p01-baseline，创建于plans@78a1e1d；P02实际分支stage/p02-calculation创建于P01验收提交7099303；P03实际分支stage/p03-file-safety创建于P02收尾96735ad；P04实际分支stage/p04-performance创建于P03收尾823a487；P05至P08名称仍为建议，尚未创建。
+P01/P02/P03已验收归档old；P04按用户明确授权转接old，标记共享复验延期而非整阶段通过。P05任务书在now，P06至P08在new。当前唯一开发分支stage/p05-data-service基于P04记录提交31c8784创建；历史stage/p04-performance不再作为当前开发分支，其42项实现保持。每阶段Atomic Task复用所属唯一分支。
 
 | 阶段 | 任务书 | 前置 | 建议分支 | 状态 / 核心退出门槛 |
 | --- | --- | --- | --- | --- |
 | P01 | [基线与规则确认](old/P01-baseline.md) | 本轮审计交付 | stage/p01-baseline | 已验收归档；[确认记录](baseline/p01-acceptance.json)，business-v1/numeric-v1/performance-v1已确认，53/53黄金、18/18格式及全部规模结构检查通过 |
 | P02 | [计算正确性与公共核心](old/P02-calculation.md) | P01已验收 | stage/p02-calculation | 四项均已验收归档；[P02确认](verification/P02-acceptance.json)，辅助130项及用户明确Windows复查通过 |
 | P03 | [文件数据安全与兼容](old/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 四项均已验收归档；[P03确认](verification/P03-acceptance.json)，原Windows及辅助237项证据保留 |
-| P04 | [后台任务与性能](now/P04-performance.md) | P03已验收 | stage/p04-performance | 01/02/03已验收；[正式05](verification/P04-04-windows-evidence-05.json)共享根预检查失败、零测量；先只读核查UNC，短诊断02通过及程序保持，确认目录后正式06 |
-| P05 | [结构化存储与局域网服务](new/P05-data-service.md) | P04已验收 | stage/p05-data-service | 待启动；事务/鉴权/导入核对及恢复演练通过 |
+| P04 | [后台任务与性能](old/P04-performance.md) | P03已验收 | stage/p04-performance（已转接） | 01/02/03已验收，04短诊断通过；用户确认停电、授权先P05，共享正式复验保留为2026-10-14待办，整阶段未验收 |
+| P05 | [结构化存储与局域网服务](now/P05-data-service.md) | 用户允许先行；P04共享复验待补 | stage/p05-data-service | 01本地账本/事务/备份已实现，31专项/374辅助通过，Windows隔离检查待回传；02/03/04待实施 |
 | P06 | [Rust业务核心与适配](new/P06-rust-core.md) | P05已验收 | stage/p06-rust-core | 待启动；黄金样本一致、服务适配和格式兼容通过 |
 | P07 | [Tauri界面与Windows交付](new/P07-tauri-desktop.md) | P06已验收 | stage/p07-tauri-desktop | 待启动；母子角色端到端、权限与安装验收通过 |
 | P08 | [迁移演练与正式切换](new/P08-cutover.md) | P07已验收 | stage/p08-cutover | 待启动；全量对账、恢复演练及用户验收后才切换 |

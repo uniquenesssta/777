@@ -1,6 +1,6 @@
 # P04 后台任务、增量读取和完整查看
 
-状态：执行中。P01/P02/P03归档，P04-01/02/03收尾。唯一stage/p04-performance；[正式05回传](../verification/P04-04-windows-evidence-05.json)匹配55f359e的42项指纹/37测试ID、检查通过，但共享根预检查失败，零性能实测；不是新增性能超限。已通过的[短诊断02](../verification/P04-04-windows-latency-evidence-02.json)十阶段及[343项辅助](../verification/P04-04-cooperative-checks.json)保持，程序不变。当前只读核查UNC目录状态，确认真实可访问普通目录后再用新输出windows-06复验；P04留now，P05未启动。
+状态：已转接P05执行计划，P04-04共享正式复验延期，整阶段未验收。[用户授权/停电原因与保留待办](../verification/P04-04-deferral.json)是当前状态依据；本文件以下历史实施与失败证据保留，不从此旧任务书继续开发。
 
 P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。P01已按[批准记录](../baseline/p01-acceptance.json)采纳numeric-v1/performance-v1，历史候选/黄金元数据保留并映射；实施时读取同一黄金JSON，不复制期望。本阶段01已按用户“开始P4-01”授权实施。
 
@@ -122,3 +122,7 @@ API依据：[Python 3.12 time.sleep](https://docs.python.org/3.12/library/time.h
 已验证的工具先构造两个storage父目录列表，shared_parent失败会早于本机/UNC测量临时目录创建；37个检查自身仍使用隔离合成夹具。原报告production_paths_accessed=true与explicit_shared_root_requested=true保持，说明显式共享根元数据检查曾尝试；production_files_read_or_modified=false，不写成“完全没有共享路径访问”。现有门禁将is_symlink、is_junction和not is_dir合并报错，附件未记录实参、具体属性或底层Windows错误，不能据此断定目录不存在、权限不足或实际链接。程序/工具没有变化，不在缺少现场信息时放宽目录门禁。
 
 下一步只读查看指定UNC根的FullName/PSIsContainer/Attributes/LinkType/Target或实际访问错误。普通目录且可访问后才继续正式本机/UNC各5轮复验；如路径不同，使用实际已确认的普通目录，不自动扫描/猜目录，不移除或改造共享目录。正式05输出已存在，重试必须使用新的reports/p04-04-windows-06，保留原失败报告。[短诊断02十阶段通过](../verification/P04-04-windows-latency-evidence-02.json)、[343项含37专项辅助](../verification/P04-04-cooperative-checks.json)和历史完整报告保持原值，已通过无变动检查不另跑。P04-04及整阶段待正式证据，P05未启动。
+
+## 2026-10-13执行转接
+
+用户已确认正式05预检查失败来自停电，并明确授权先推进P05。原失败报告不改；明日（按消息本地日期为2026-10-14）先确认供电恢复和普通UNC根可访问，再使用windows-06新输出完成正式本机/UNC五轮复验。P04整阶段尚未通过，不补写通过记录；待办由[now/P05](../now/P05-data-service.md)继续跟踪，当前开发仅stage/p05-data-service。

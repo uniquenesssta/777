@@ -332,3 +332,9 @@ API依据：[Python 3.12 time.sleep](https://docs.python.org/3.12/library/time.h
 已验证的工具先构造两个storage父目录列表，shared_parent失败会早于本机/UNC测量临时目录创建；37个检查自身仍使用隔离合成夹具。原报告production_paths_accessed=true与explicit_shared_root_requested=true保持，说明显式共享根元数据检查曾尝试；production_files_read_or_modified=false，不写成“完全没有共享路径访问”。现有门禁将is_symlink、is_junction和not is_dir合并报错，附件未记录实参、具体属性或底层Windows错误，不能据此断定目录不存在、权限不足或实际链接。程序/工具没有变化，不在缺少现场信息时放宽目录门禁。
 
 下一步只读查看指定UNC根的FullName/PSIsContainer/Attributes/LinkType/Target或实际访问错误。普通目录且可访问后才继续正式本机/UNC各5轮复验；如路径不同，使用实际已确认的普通目录，不自动扫描/猜目录，不移除或改造共享目录。正式05输出已存在，重试必须使用新的reports/p04-04-windows-06，保留原失败报告。[短诊断02十阶段通过](verification/P04-04-windows-latency-evidence-02.json)、[343项含37专项辅助](verification/P04-04-cooperative-checks.json)和历史完整报告保持原值，已通过无变动检查不另跑。P04-04及整阶段待正式证据，P05未启动。
+
+## P05-01本地账本接口
+
+[ledger-v1契约](verification/P05-01-ledger-contract.md)建立订单/明细/追加备注/发布价格/导入批次/审计/请求回执。存储层收到QuoteSnapshot与可信内部Principal，由账本当前发布版本调用既有核心计算，不接收客户端金额结果；不同价格版本先重算确认，管理员价格发布带expected_price_version_id CAS。request_id绑定主体/操作/规范负载，同键同载荷重放原回执，冲突拒绝。订单/明细/价格不可变，状态和备注变更带revision审计；成功事务不因后续回执发送错误撤销，通过请求查询恢复未知结果。
+
+备份为完整一致SQLite快照及版本/哈希/核对清单，独立恢复后才登记成功；不兼容库拒绝写、独立新路径恢复，不覆盖现有文件或其WAL/SHM。高精度参数按原文/规范十进制字符串保留，金额对外字符串分而非JS浮点。Principal在当前模块是内部信任前提，不能把客户端自报role当认证；网络会话、角色DTO和实际客户端移交P05-02，ImportBatch实际填充及历史行归属移交03，附件移交04。

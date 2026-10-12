@@ -1,0 +1,23 @@
+{
+  "task": "P04-04",
+  "status": "shared_verification_deferred_by_user_P05_authorized",
+  "user_message_at": "2026-10-13T00:12:35+08:00",
+  "user_instruction": "预查失败是因为停电了，继续推进P05吧 保留到明天再验证共享",
+  "cause": "power_outage_reported_by_user",
+  "independent_host_power_or_recovery_verification": false,
+  "source_formal_report": "P04-04-windows-report-05.json",
+  "prior_valid_short_diagnostic": "P04-04-windows-latency-evidence-02.json",
+  "source_commit": "31c8784efb69e237fe68b5f21fb91db2c6c7dc37",
+  "formal_shared_acceptance": "pending",
+  "P04_entire_stage_accepted": false,
+  "P04_plan_transfer": "old/P04-performance.md: transferred execution with explicitly pending verification, not accepted",
+  "active_phase": "P05",
+  "active_atomic_task": "P05-01",
+  "active_branch": "stage/p05-data-service",
+  "dependency_exception": "User explicitly authorizes isolated P05 work before P04 shared verification. Existing reports/limits stay unchanged; no production cutover is authorized by this exception.",
+  "deferred_verification_date": "2026-10-14",
+  "date_basis": "Tomorrow relative to the user local message date2026-10-13 in Asia/Shanghai",
+  "reminder_created": true,
+  "reminder_time": "Asia/Shanghai morning, flexible window",
+  "later_command": "py -3 tools/p04_performance_check.py --gui-heartbeat --compare-legacy --shared-root '\\\\192.168.4.38\\14T共享盘\\葛宁\\PyInstaller' --output reports/p04-04-windows-06"
+}
