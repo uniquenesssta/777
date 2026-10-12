@@ -1,6 +1,6 @@
 # P04-01 后台I/O与窗口生命周期
 
-状态：待用户验收；[Windows本机24/24及实际母子Tk联测7项通过](P04-01-windows-evidence-03.json)，24项LF实现指纹匹配cbaf87e；后台24项/完整261项辅助证据保留，具备01收尾条件，已通过检查无需重跑。唯一分支`stage/p04-performance`，创建于P03收尾提交`823a487c249a1d05627a1f2b6a7e95fe0cc360fd`。P03已[验收归档](P03-acceptance.json)，原检查无需重跑。缓存、完整分页和性能对照分别按P04-02/03/04实施。
+状态：[已验收收尾](P04-01-acceptance.json)，用户于2026-10-12 14:11:23（Asia/Shanghai）指令“收尾01开始02”；[Windows本机24/24及实际母子Tk联测7项通过](P04-01-windows-evidence-03.json)，24项LF实现指纹匹配cbaf87e；后台24项/完整261项辅助证据保留，具备01收尾条件，已通过检查无需重跑。唯一分支`stage/p04-performance`，创建于P03收尾提交`823a487c249a1d05627a1f2b6a7e95fe0cc360fd`。P03已[验收归档](P03-acceptance.json)，原检查无需重跑。缓存、完整分页和性能对照分别按P04-02/03/04实施。
 
 ## 行为
 
