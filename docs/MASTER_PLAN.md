@@ -2,7 +2,7 @@
 
 版本：初始规划；日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P01/P02/P03已验收归档old。当前唯一分支stage/p04-performance；P04-01/02及[P04-03](verification/P04-03-acceptance.json)已验收收尾。P04-04首次[Windows/UNC回传](verification/P04-04-windows-evidence-01.json)17项检查通过，但22个窗口进程采样前退出，无性能数据。诊断页面定位已修复，[20项/完整326项辅助通过](verification/P04-04-startup-checks.json)，待[第二次Windows复查](verification/P04-04-performance-contract.md)。原全档辅助样本、563ms及冻结门槛保持；P04留now，P05至P08未启动。** 本任务书不自动授予后续任务实施权限。
+**P01/P02/P03已验收归档old。唯一分支stage/p04-performance；P04-01/02及[P04-03](verification/P04-03-acceptance.json)已收尾。P04-04第二次[Windows/UNC回传](verification/P04-04-windows-evidence-02.json)20项检查通过，80个母版/原版进程完成、6个子版进程超时；当前239个阶段样本不足、17个样本充足阶段p95超限。已修复子版控件/启动回调/采样问题，[23项/完整329项辅助通过](verification/P04-04-sampling-checks.json)，待[第三次实机复查](verification/P04-04-performance-contract.md)。100/500ms门槛、563ms及原报告保持；P04留now，P05至P08未启动。** 本任务书不自动授予后续任务实施权限。
 
 ## 1. 目标与边界
 
@@ -22,7 +22,7 @@ P01、P02、P03任务书均已归档old；P04已移入now，P05至P08仍在new�
 | P01 | [基线与规则确认](old/P01-baseline.md) | 本轮审计交付 | stage/p01-baseline | 已验收归档；[确认记录](baseline/p01-acceptance.json)，business-v1/numeric-v1/performance-v1已确认，53/53黄金、18/18格式及全部规模结构检查通过 |
 | P02 | [计算正确性与公共核心](old/P02-calculation.md) | P01已验收 | stage/p02-calculation | 四项均已验收归档；[P02确认](verification/P02-acceptance.json)，辅助130项及用户明确Windows复查通过 |
 | P03 | [文件数据安全与兼容](old/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 四项均已验收归档；[P03确认](verification/P03-acceptance.json)，原Windows及辅助237项证据保留 |
-| P04 | [后台任务与性能](now/P04-performance.md) | P03已验收 | stage/p04-performance | 01/02及[03](verification/P04-03-acceptance.json)已验收；04首次Windows17项通过、22个窗口采样前退出；[诊断修复20项/326项辅助通过](verification/P04-04-startup-checks.json)，待[Windows/UNC第二次复查](verification/P04-04-performance-contract.md) |
+| P04 | [后台任务与性能](now/P04-performance.md) | P03已验收 | stage/p04-performance | 01/02及[03](verification/P04-03-acceptance.json)已验收；04第二次Windows20项通过，母版/原版采样完成、子版超时，部分心跳不足/超限；[23项/329项修复辅助通过](verification/P04-04-sampling-checks.json)，待第三次Windows/UNC复查 |
 | P05 | [结构化存储与局域网服务](new/P05-data-service.md) | P04已验收 | stage/p05-data-service | 待启动；事务/鉴权/导入核对及恢复演练通过 |
 | P06 | [Rust业务核心与适配](new/P06-rust-core.md) | P05已验收 | stage/p06-rust-core | 待启动；黄金样本一致、服务适配和格式兼容通过 |
 | P07 | [Tauri界面与Windows交付](new/P07-tauri-desktop.md) | P06已验收 | stage/p07-tauri-desktop | 待启动；母子角色端到端、权限与安装验收通过 |

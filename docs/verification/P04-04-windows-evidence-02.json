@@ -1,0 +1,382 @@
+{
+  "task": "P04-04",
+  "status": "Windows_UNC_partial_measurements_failed_pending_fix_and_recheck",
+  "phase_branch": "stage/p04-performance",
+  "received_at": "2026-10-12T19:29:25+08:00",
+  "recorded_at": "2026-10-12T19:36:04.076778+08:00",
+  "source": "user_uploaded_JSON",
+  "source_attachment": {
+    "name": "report(1).json",
+    "sha256": "ca1bab062553c78ba5d4b6c4838c22e33d36061983ae2682a90165211a6c739e",
+    "size_bytes": 1605912,
+    "library_file_id": "libfile_543824f7672c819190bba3db11d02bbb"
+  },
+  "source_commit": "145c2238cea33d0b899746bb4dfbe9ee3391a761",
+  "implementation_verification": {
+    "sha256_LF_count": 41,
+    "matched": 41,
+    "mismatches": [],
+    "test_ids_matched": 20
+  },
+  "environment": {
+    "os": "Windows",
+    "release": "10",
+    "python": "3.12.10",
+    "python_executable": "C:\\Users\\uniqu\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "openpyxl": "3.1.5",
+    "pillow": "11.2.1",
+    "machine": "AMD64",
+    "processor": "AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD",
+    "device": "DESKTOP-JK3H2F5"
+  },
+  "limits": {
+    "profile": "performance-v1",
+    "heartbeat_p95_ms": 100,
+    "heartbeat_max_ms": 500,
+    "minimum_rounds": 5
+  },
+  "checks": {
+    "status": "passed",
+    "tests_run": 20,
+    "failures": 0,
+    "errors": 0,
+    "skipped": [],
+    "test_ids": [
+      "test_performance_measurement.PerformanceMeasurementTests.test_actual_current_and_archived_notebooks_expose_existing_excel_page_with_padded_labels",
+      "test_performance_measurement.PerformanceMeasurementTests.test_actual_current_small_read_counts_and_exact_amounts_with_fresh_round_reset",
+      "test_performance_measurement.PerformanceMeasurementTests.test_actual_original_matched_small_preserves_known_cost_defect_and_five_n_reads",
+      "test_performance_measurement.PerformanceMeasurementTests.test_changed_synthetic_inputs_refuse_measurement",
+      "test_performance_measurement.PerformanceMeasurementTests.test_cli_off_windows_reports_blocked_without_probing_shared_root",
+      "test_performance_measurement.PerformanceMeasurementTests.test_fixture_bytes_are_identical_for_manager_sales_and_rounds_are_not_regenerated",
+      "test_performance_measurement.PerformanceMeasurementTests.test_gui_sequence_preflight_uses_real_background_adapters_and_all_phase_gates",
+      "test_performance_measurement.PerformanceMeasurementTests.test_missing_native_phases_or_headless_samples_cannot_pass_windows_performance",
+      "test_performance_measurement.PerformanceMeasurementTests.test_negative_and_nonfinite_clock_samples_are_errors",
+      "test_performance_measurement.PerformanceMeasurementTests.test_non_windows_gui_block_precedes_all_input_and_widget_access",
+      "test_performance_measurement.PerformanceMeasurementTests.test_p95_cannot_hide_single_563ms_maximum",
+      "test_performance_measurement.PerformanceMeasurementTests.test_phase_boundary_includes_work_before_first_callback_and_rejects_short_sampling",
+      "test_performance_measurement.PerformanceMeasurementTests.test_preparation_failure_emits_failed_report_instead_of_successful_checks_snapshot",
+      "test_performance_measurement.PerformanceMeasurementTests.test_readonly_cell_reopens_are_observed_and_all_hooks_restore_after_error",
+      "test_performance_measurement.PerformanceMeasurementTests.test_real_current_decode_is_one_open_one_xml_and_one_source_iteration",
+      "test_performance_measurement.PerformanceMeasurementTests.test_requested_full_scale_without_completed_rounds_is_not_measured_full_scale",
+      "test_performance_measurement.PerformanceMeasurementTests.test_stage_reset_excludes_preparation_but_preserves_every_stage_gap",
+      "test_performance_measurement.PerformanceMeasurementTests.test_summary_recomputes_raw_gaps_instead_of_trusting_passed_flag",
+      "test_performance_measurement.PerformanceMeasurementTests.test_timeout_is_unavailable_sample_and_cannot_be_matched_baseline",
+      "test_performance_measurement.PerformanceMeasurementTests.test_worker_failure_preserves_entire_original_exception_traceback"
+    ],
+    "elapsed_seconds": 13.90700000000652
+  },
+  "storage_results": [
+    {
+      "storage": "local",
+      "processes": 43,
+      "measured_processes": 40,
+      "current_manager_measured_processes": 30,
+      "original_measured_processes": 10,
+      "completed_phases": 170,
+      "current_manager_phases": 150,
+      "current_heartbeat_statuses": {
+        "insufficient_samples": 119,
+        "passed": 21,
+        "failed": 10
+      },
+      "current_max_gap_ms": 428.44570000306703,
+      "worker_failures": [
+        {
+          "status": "timeout",
+          "case_id": "sales-rows-100",
+          "version": "current",
+          "timeout_seconds": 120,
+          "scope": "Read-only diagnostic subprocess terminated; metrics unavailable, not a successful sample. No write transaction runs in this worker.",
+          "round": 1
+        },
+        {
+          "status": "timeout",
+          "case_id": "sales-rows-1000",
+          "version": "current",
+          "timeout_seconds": 120,
+          "scope": "Read-only diagnostic subprocess terminated; metrics unavailable, not a successful sample. No write transaction runs in this worker.",
+          "round": 1
+        },
+        {
+          "status": "timeout",
+          "case_id": "sales-rows-10000",
+          "version": "current",
+          "timeout_seconds": 120,
+          "scope": "Read-only diagnostic subprocess terminated; metrics unavailable, not a successful sample. No write transaction runs in this worker.",
+          "round": 1
+        }
+      ],
+      "extra_first_refresh_decodes": [
+        {
+          "case_id": "manager-files-100",
+          "round": 1,
+          "opens": 101,
+          "expected": 100
+        },
+        {
+          "case_id": "manager-files-100",
+          "round": 2,
+          "opens": 101,
+          "expected": 100
+        },
+        {
+          "case_id": "manager-files-100",
+          "round": 3,
+          "opens": 101,
+          "expected": 100
+        },
+        {
+          "case_id": "manager-files-100",
+          "round": 4,
+          "opens": 101,
+          "expected": 100
+        },
+        {
+          "case_id": "manager-files-100",
+          "round": 5,
+          "opens": 101,
+          "expected": 100
+        },
+        {
+          "case_id": "manager-rows-1000",
+          "round": 1,
+          "opens": 2,
+          "expected": 1
+        },
+        {
+          "case_id": "manager-rows-1000",
+          "round": 2,
+          "opens": 2,
+          "expected": 1
+        },
+        {
+          "case_id": "manager-rows-1000",
+          "round": 3,
+          "opens": 2,
+          "expected": 1
+        },
+        {
+          "case_id": "manager-rows-1000",
+          "round": 4,
+          "opens": 2,
+          "expected": 1
+        },
+        {
+          "case_id": "manager-rows-1000",
+          "round": 5,
+          "opens": 2,
+          "expected": 1
+        },
+        {
+          "case_id": "manager-files-1000",
+          "round": 1,
+          "opens": 1001,
+          "expected": 1000
+        },
+        {
+          "case_id": "manager-files-1000",
+          "round": 2,
+          "opens": 1001,
+          "expected": 1000
+        },
+        {
+          "case_id": "manager-files-1000",
+          "round": 3,
+          "opens": 1001,
+          "expected": 1000
+        },
+        {
+          "case_id": "manager-files-1000",
+          "round": 4,
+          "opens": 1001,
+          "expected": 1000
+        },
+        {
+          "case_id": "manager-files-1000",
+          "round": 5,
+          "opens": 1001,
+          "expected": 1000
+        },
+        {
+          "case_id": "manager-rows-10000",
+          "round": 1,
+          "opens": 2,
+          "expected": 1
+        },
+        {
+          "case_id": "manager-rows-10000",
+          "round": 2,
+          "opens": 2,
+          "expected": 1
+        },
+        {
+          "case_id": "manager-rows-10000",
+          "round": 3,
+          "opens": 2,
+          "expected": 1
+        },
+        {
+          "case_id": "manager-rows-10000",
+          "round": 4,
+          "opens": 2,
+          "expected": 1
+        },
+        {
+          "case_id": "manager-rows-10000",
+          "round": 5,
+          "opens": 2,
+          "expected": 1
+        }
+      ],
+      "all_current_manager_observations_correct": true,
+      "all_current_warm_decodes_zero": true,
+      "matched_legacy_rounds_complete": true,
+      "inputs_unchanged": true,
+      "sandbox_cleaned": true,
+      "summary_passed": false
+    },
+    {
+      "storage": "UNC_synthetic",
+      "processes": 43,
+      "measured_processes": 40,
+      "current_manager_measured_processes": 30,
+      "original_measured_processes": 10,
+      "completed_phases": 170,
+      "current_manager_phases": 150,
+      "current_heartbeat_statuses": {
+        "insufficient_samples": 120,
+        "passed": 23,
+        "failed": 7
+      },
+      "current_max_gap_ms": 428.6242999951355,
+      "worker_failures": [
+        {
+          "status": "timeout",
+          "case_id": "sales-rows-100",
+          "version": "current",
+          "timeout_seconds": 120,
+          "scope": "Read-only diagnostic subprocess terminated; metrics unavailable, not a successful sample. No write transaction runs in this worker.",
+          "round": 1
+        },
+        {
+          "status": "timeout",
+          "case_id": "sales-rows-1000",
+          "version": "current",
+          "timeout_seconds": 120,
+          "scope": "Read-only diagnostic subprocess terminated; metrics unavailable, not a successful sample. No write transaction runs in this worker.",
+          "round": 1
+        },
+        {
+          "status": "timeout",
+          "case_id": "sales-rows-10000",
+          "version": "current",
+          "timeout_seconds": 120,
+          "scope": "Read-only diagnostic subprocess terminated; metrics unavailable, not a successful sample. No write transaction runs in this worker.",
+          "round": 1
+        }
+      ],
+      "extra_first_refresh_decodes": [
+        {
+          "case_id": "manager-files-10",
+          "round": 1,
+          "opens": 11,
+          "expected": 10
+        },
+        {
+          "case_id": "manager-files-10",
+          "round": 2,
+          "opens": 11,
+          "expected": 10
+        },
+        {
+          "case_id": "manager-files-10",
+          "round": 3,
+          "opens": 11,
+          "expected": 10
+        },
+        {
+          "case_id": "manager-files-10",
+          "round": 4,
+          "opens": 11,
+          "expected": 10
+        },
+        {
+          "case_id": "manager-files-10",
+          "round": 5,
+          "opens": 11,
+          "expected": 10
+        },
+        {
+          "case_id": "manager-rows-100",
+          "round": 2,
+          "opens": 2,
+          "expected": 1
+        },
+        {
+          "case_id": "manager-rows-100",
+          "round": 4,
+          "opens": 2,
+          "expected": 1
+        },
+        {
+          "case_id": "manager-rows-100",
+          "round": 5,
+          "opens": 2,
+          "expected": 1
+        },
+        {
+          "case_id": "manager-files-100",
+          "round": 4,
+          "opens": 101,
+          "expected": 100
+        },
+        {
+          "case_id": "manager-files-100",
+          "round": 5,
+          "opens": 101,
+          "expected": 100
+        },
+        {
+          "case_id": "manager-rows-1000",
+          "round": 1,
+          "opens": 2,
+          "expected": 1
+        },
+        {
+          "case_id": "manager-rows-1000",
+          "round": 3,
+          "opens": 2,
+          "expected": 1
+        },
+        {
+          "case_id": "manager-rows-10000",
+          "round": 1,
+          "opens": 2,
+          "expected": 1
+        },
+        {
+          "case_id": "manager-rows-10000",
+          "round": 3,
+          "opens": 2,
+          "expected": 1
+        }
+      ],
+      "all_current_manager_observations_correct": true,
+      "all_current_warm_decodes_zero": true,
+      "matched_legacy_rounds_complete": true,
+      "inputs_unchanged": true,
+      "sandbox_cleaned": true,
+      "summary_passed": false
+    }
+  ],
+  "production_files_read_or_modified": false,
+  "explicit_shared_root_accessed": true,
+  "report_snapshot": "P04-04-windows-report-02.json",
+  "confirmed_causes": {
+    "sales_refresh": "_render_io_files calls manager _aggregate_results for indexed Scan; real sales entrypoint has no excel_total_count/income/cost/profit/margin controls. Poll catches AttributeError and list render does not finish. Old fixtures supplied these absent controls. Reproduced before fix with real background adapters and controls removed.",
+    "short_heartbeat": "At-least-1.1s settling does not guarantee 20 gaps when Windows 50ms after callbacks arrive around 64ms; 239/300 current phases insufficient. Keep minimum and raw maxima, wait for actual callback count.",
+    "cold_read_overlap": "Live and archived entrypoints queue an initial 300ms refresh. Previous startup condition checked only running tasks; delayed callback can run after synthetic inputs are enabled. Actual cold counts sometimes have one extra decode. Drain original startup callbacks before changing input directory."
+  },
+  "remaining_performance_findings": "17 current phases have enough samples but exceed p95 100ms. Largest current gap 428.6243ms (<500ms); longer cold decode/view phases still need accurate third-run assessment after measurement fixes. No automatic pass or retrospective cause assignment for old563ms.",
+  "acceptance": "First startup-label problem resolved in this run; full current matrix incomplete due 6 sales timeouts. P04-04/P04 not closed; P05 not started; prior reports and thresholds retained."
+}

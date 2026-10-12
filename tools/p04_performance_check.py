@@ -220,6 +220,7 @@ def gui_measurements(namespace, folder, case, current):
         class Live(cls):background_io_enabled = True
         cls = Live
     app = None
+    startup_jobs, feedback_errors = set(), []
     measurements, heartbeat_jobs = [], []
     accepted = limits()
     heart = Heartbeat(accepted['heartbeat_p95_ms'], accepted['heartbeat_max_ms'])
@@ -231,10 +232,16 @@ def gui_measurements(namespace, folder, case, current):
     def completed(task):
         if not task or not hasattr(task, 'number'):
             raise AssertionError('READ_REQUEST_NOT_QUEUED')
-        return lambda: task.number not in app._io_callbacks
+        def delivered():
+            if feedback_errors:
+                raise RuntimeError('APPLICATION_READ_FAILED: ' + feedback_errors[-1])
+            return task.number not in app._io_callbacks
+        return delivered
     def phase(name, action, *, observed=None):
         nonlocal active_phase
         active_phase = name
+        feedback_errors.clear()
+        print('P04_PHASE ' + json.dumps({'phase': name, 'state': 'started'}), file=sys.stderr, flush=True)
         before = app._ledger_cache.metrics() if current else {}
         with instrumentation(None if current else namespace) as counts:
             tracemalloc.start()
@@ -246,7 +253,7 @@ def gui_measurements(namespace, folder, case, current):
                 seconds = time.perf_counter() - started
                 _, peak = tracemalloc.get_traced_memory()
                 # Fast work still has enough heartbeat samples; retain maxima.
-                yield lambda: time.perf_counter() - started >= 1.1
+                yield lambda: heart.ready(time.perf_counter())
                 hb = heart.finish(time.perf_counter())
             finally:
                 tracemalloc.stop()
@@ -257,6 +264,8 @@ def gui_measurements(namespace, folder, case, current):
             'cache_after': after, 'heartbeat': hb}
         if observed is not None:row['observed'] = observed()
         measurements.append(row)
+        print('P04_PHASE ' + json.dumps({'phase': name, 'state': 'completed',
+            'seconds': seconds, 'heartbeat_samples': hb['samples'], 'max_gap_ms': hb['max_gap_ms']}), file=sys.stderr, flush=True)
     def refresh():
         if current:
             yield completed(app.refresh_excel_files())
@@ -300,8 +309,12 @@ def gui_measurements(namespace, folder, case, current):
             raise AssertionError('FILTER_DID_NOT_REACH_LAST_DETAIL')
         return {'last_detail_reachable': True, 'source_row': case['detail_rows_per_file'] + 6}
     def sequence():
+        # Constructors queue a delayed refresh (300ms) in both archived and
+        # live entrypoints. It must finish on the empty startup directory,
+        # before synthetic inputs/cache and phase instrumentation are enabled.
+        yield lambda: not startup_jobs.intersection(window.tk.splitlist(window.tk.call('after', 'info')))
         if current:
-            yield lambda: not app._io_starting and app._storage_valid and not app._io_callbacks and not app._io_runtime.tasks
+            yield lambda: not app._io_starting and app._storage_valid and not app._io_callbacks and not app._io_runtime.tasks and not app._after_jobs
         else:
             yield lambda: True
         point_at_inputs(app, folder, current)
@@ -318,6 +331,14 @@ def gui_measurements(namespace, folder, case, current):
             yield from phase('filter_last_detail', filter_rows, observed=filter_observation)
     try:
         app = cls(window)
+        startup_jobs = set(window.tk.splitlist(window.tk.call('after', 'info'))) - {getattr(app, '_io_poll_job', None)}
+        if current:
+            original_feedback = app.set_feedback
+            def tracked_feedback(text, is_error=False):
+                original_feedback(text, is_error=is_error)
+                if is_error:feedback_errors.append(str(text))
+            app.set_feedback = tracked_feedback
+        print('P04_PHASE ' + json.dumps({'phase': 'startup', 'state': 'started'}), file=sys.stderr, flush=True)
         window.protocol('WM_DELETE_WINDOW', lambda: None)
         active_context = sequence()
         deadline = time.monotonic() + 120
@@ -391,8 +412,16 @@ def launch_worker(root, case, version, native, timeout):
             return {'status': 'worker_failed', 'case_id': case['id'], 'version': version,
                     'returncode': result.returncode, 'stderr': result.stderr}
         return json.loads(result.stdout)
-    except subprocess.TimeoutExpired:
+    except subprocess.TimeoutExpired as exc:
+        stderr = exc.stderr or ''
+        if isinstance(stderr, bytes):stderr = stderr.decode('utf-8', errors='replace')
+        phases = []
+        for line in stderr.splitlines():
+            if line.startswith('P04_PHASE '):
+                try:phases.append(json.loads(line[len('P04_PHASE '):]))
+                except ValueError:pass
         return {'status': 'timeout', 'case_id': case['id'], 'version': version, 'timeout_seconds': timeout,
+            'stderr': stderr, 'last_phase': phases[-1].get('phase') if phases else None,
             'scope': 'Read-only diagnostic subprocess terminated; metrics unavailable, not a successful sample. No write transaction runs in this worker.'}
 
 

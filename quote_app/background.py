@@ -581,7 +581,7 @@ class BackgroundApplicationMixin:
 
     def _render_io_files(self, results, task):
         self.excel_read_results = results
-        if getattr(results, "aggregate", None) is not None:
+        if self.quote_role == "manager" and getattr(results, "aggregate", None) is not None:
             self._aggregate_results(results, silent=True, render=False)
         current = getattr(self, "current_excel_path", None)
         if current and self._excel_view_hash is not None:

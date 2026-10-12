@@ -210,6 +210,38 @@ class PerformanceMeasurementTests(unittest.TestCase):
         self.assertEqual(result['status'], 'worker_failed')
         self.assertEqual(result['stderr'], stderr)
 
+    def test_sales_background_file_list_without_manager_amount_controls(self):
+        from test_application_integration import application
+        from test_background_io import asynchronous, wait_for
+        with application('sales') as (app, folder, _, _), asynchronous(app):
+            fixtures.workbook(folder / 'reports' / 'synthetic.xlsx', 3)
+            for name in ('count', 'income', 'cost', 'profit', 'margin'):
+                delattr(app, 'excel_total_' + name)
+            task = app.refresh_excel_files()
+            wait_for(lambda: task.number not in app._io_callbacks, app._poll_io)
+            self.assertEqual(len(app.excel_file_tree.get_children()), 1, getattr(app, 'feedback', ''))
+            self.assertIs(app._io_last_files, app.excel_read_results)
+            self.assertEqual(next(iter(app.excel_file_tree.rows.values()))[2], 3)
+            self.assertFalse(any(hasattr(app, 'excel_total_' + name) for name in ('income', 'cost', 'profit')))
+
+    def test_observation_waits_for_actual_twenty_callbacks_under_windows_timer_rounding(self):
+        heart = Heartbeat();heart.start(0)
+        for index in range(1, 18):heart.pulse(index * .064)
+        self.assertFalse(heart.ready(1.11))
+        for index in range(18, 21):heart.pulse(index * .064)
+        self.assertTrue(heart.ready(1.281))
+        self.assertTrue(healthy_heartbeat(heart.finish(1.281)))
+
+    def test_readonly_worker_timeout_preserves_phase_diagnostics(self):
+        import subprocess
+        stderr = b'P04_PHASE {"phase":"open_view","state":"started"}\n'
+        failure = subprocess.TimeoutExpired('synthetic', 5, stderr=stderr)
+        with patch.object(perf.subprocess, 'run', side_effect=failure):
+            result = perf.launch_worker(self.root, {'id': 'synthetic'}, 'current', True, 5)
+        self.assertEqual(result['status'], 'timeout')
+        self.assertEqual(result['stderr'], stderr.decode('utf-8'))
+        self.assertEqual(result['last_phase'], 'open_view')
+
     def test_gui_sequence_preflight_uses_real_background_adapters_and_all_phase_gates(self):
         # Tcl/replacement controls validate the diagnostic workflow only. No
         # Tk widgets, Windows heartbeat/DPI or native performance acceptance.
@@ -217,18 +249,28 @@ class PerformanceMeasurementTests(unittest.TestCase):
         from test_background_io import asynchronous
         from test_pagination_images import page_controls
         from quote_app.background import BackgroundApplicationMixin
-        for role in ('manager', 'sales'):
-            with self.subTest(role=role), application(role) as (app, folder, ns, _), asynchronous(app):
+        for role, failing_delivery in (('manager', False), ('sales', False), ('sales', True)):
+            with self.subTest(role=role, failing_delivery=failing_delivery), application(role) as (app, folder, ns, _), asynchronous(app):
                 inputs = folder / 'inputs';inputs.mkdir();fixtures.workbook(inputs / 'synthetic.xlsx', 401)
                 case = {'role': role, 'files': 1, 'detail_rows_per_file': 401,
                         'income_cents': 401000, 'cost_cents': 160400, 'profit_cents': 240600}
                 page_controls(app)
                 app.excel_next_button.invoke = lambda a=app: a.change_excel_page(1)
                 app.excel_filter_button = Mock();app.excel_filter_button.invoke = app.filter_excel_view
+                if role == 'sales':
+                    for name in ('count', 'income', 'cost', 'profit', 'margin'):
+                        delattr(app, 'excel_total_' + name)
                 notebook = configured_notebook(app, (ROOT / next(e['path'] for e in json.loads(
                     (ROOT / 'docs/baseline/manifest.json').read_text(encoding='utf-8'))['files'] if e['role'] == role)).read_bytes())
                 alive = [True]
                 window = app.root
+                # Real entrypoints queue an initial refresh for 300ms; real
+                # Windows 50ms timers commonly deliver around 64ms.
+                real_after = window.after
+                window.after = lambda ms, *args: real_after(64 if ms == 50 else ms, *args)
+                app.schedule_quote_callback(app.refresh_excel_files, delay=300)
+                if failing_delivery:
+                    app._insert_excel_file = Mock(side_effect=RuntimeError('synthetic render failure'))
                 original_tcl = window.tk
                 class TclProxy:
                     def call(self, *args):
@@ -252,16 +294,22 @@ class PerformanceMeasurementTests(unittest.TestCase):
                     def __new__(cls, _):return app
                 try:
                     with patch('tkinter.Tk', return_value=window), patch.object(perf.gui, 'live_sandbox_type', return_value=Factory):
-                        measured, _ = perf.gui_measurements(ns, folder, case, True)
+                        if failing_delivery:
+                            with self.assertRaisesRegex(RuntimeError, 'first_refresh: RuntimeError: APPLICATION_READ_FAILED: .*synthetic render failure'):
+                                perf.gui_measurements(ns, folder, case, True)
+                        else:
+                            measured, _ = perf.gui_measurements(ns, folder, case, True)
                     window.attributes.assert_called_once_with('-disabled', True)
                     self.assertEqual(window.destroy.call_count, 2)
                 finally:
                     # The shared fixture pumps its closed runtime on teardown.
                     window.destroy.side_effect = None
+                if failing_delivery:continue
                 self.assertIs(notebook.selected, app.excel_page)
                 self.assertEqual([m['phase'] for m in measured], ['first_refresh', 'warm_refresh', 'open_view', 'all_pages', 'filter_last_detail'])
                 self.assertEqual(measured[0]['counts']['workbook_opens'], 1)
                 self.assertEqual(measured[1]['counts'].get('workbook_opens', 0), 0)
+                self.assertTrue(all(m['heartbeat']['samples'] >= 20 for m in measured))
                 self.assertEqual(measured[3]['observed']['visible_rows'], 407 if role == 'manager' else 401)
                 self.assertEqual(measured[3]['observed']['pages'], 3)
                 self.assertEqual(measured[4]['observed']['source_row'], 407)

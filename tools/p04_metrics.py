@@ -40,7 +40,13 @@ class Heartbeat:
         self.last, self.gaps = None, []
 
     def start(self, now):
+        self.started = now
         self.last, self.gaps = now, []
+
+    def ready(self, now):
+        # Timer delivery can be slower than the requested 50ms (e.g. Windows
+        # clock rounding). Elapsed time alone cannot establish sample count.
+        return self.last is not None and now - self.started >= 1.1 and len(self.gaps) >= 20
 
     def pulse(self, now):
         if self.last is not None:
@@ -61,7 +67,8 @@ class Heartbeat:
                 'over_100_ms': sum(g > self.p95_limit for g in gaps),
                 'over_500_ms': sum(g > self.max_limit for g in gaps),
                 'status': 'passed' if passed else 'failed' if enough else 'insufficient_samples',
-                'scope': '50ms actual Tk heartbeat during operation and at least 1.1s observation; includes phase boundary gaps and idle settling. Preparation and post-measurement validation are separate.'}
+                'observation_seconds': now - self.started,
+                'scope': '50ms actual Tk heartbeat during operation, at least 1.1s observation and 20 timer callbacks; includes every phase boundary gap and idle settling. Preparation and post-measurement validation are separate.'}
 
 
 @contextmanager
