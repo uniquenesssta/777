@@ -18,6 +18,16 @@ import p02_gui_check as gui
 from p03_format_check import case_ids
 
 
+def invoke_write_control(app, control):
+    """Require an enabled actual control to queue a new write for its owner."""
+    assert str(control.cget("state")) != "disabled", "write control is disabled"
+    previous = app._io_runtime.latest.get("write")
+    control.invoke()
+    task = app._io_runtime.latest.get("write")
+    assert task is not None and task is not previous, "control did not queue a new write"
+    return task
+
+
 def run_checks():
     suite = unittest.defaultTestLoader.loadTestsFromName("test_background_io")
     ids = list(case_ids(suite));log = io.StringIO();start = time.monotonic()
@@ -48,9 +58,9 @@ def run_gui():
                     background_io_enabled = True
                 app = Live(tk.Toplevel(owner));apps.append(app)
             manager, sales = apps
-            def await_task(task):
+            def await_task(app, task):
                 assert task and hasattr(task, "number"), "request was not queued"
-                yield lambda: task.number not in manager._io_callbacks and task.number not in sales._io_callbacks
+                yield lambda: task.number not in app._io_callbacks
             def window_exists(app):
                 try:return bool(app.root.winfo_exists())
                 except tk.TclError:return False
@@ -58,35 +68,42 @@ def run_gui():
                 yield lambda: all(a._storage_valid and a.active_price_config and not a._io_starting for a in apps)
                 report["checks"]["async_startup_restores_role_connections"] = "passed"
                 for app in apps:
+                    report["active_step"] = app.quote_role + ": calculate/confirm/export"
                     app.add_calc_row("后台测试订单", "P02面积", False)
                     app.user_name.set("P04背景测试")
-                    yield from await_task(app.calculate(notify=False))
+                    yield from await_task(app, app.calculate(notify=False))
                     assert app.summary_income.get() == "12.00"
-                    yield from await_task(app.confirm_current_prices())
-                    app.calc_export_button.invoke()
-                    yield from await_task(app._io_runtime.latest["write"])
+                    yield from await_task(app, app.confirm_current_prices())
+                    yield from await_task(app, invoke_write_control(app, app.calc_export_button))
                 path = Path(sales.last_file_transaction.path)
                 assert read_ledger(path).totals.income_cents == 2400
                 report["checks"]["async_calculate_confirm_real_export_buttons"] = "passed"
-                yield from await_task(manager.open_excel_path(str(path)))
+                report["active_step"] = "manager: note/void/restore"
+                yield from await_task(manager, manager.open_excel_path(str(path)))
                 manager.excel_view_tree.selection_set("row_7");manager.load_current_excel_remark()
+                order_id = manager._excel_view_orders[7][0]
                 manager.excel_remark_text.insert("1.0", "后台追加备注")
-                manager.excel_note_button.invoke();yield from await_task(manager._io_runtime.latest["write"])
+                yield from await_task(manager, invoke_write_control(manager, manager.excel_note_button))
                 yield lambda: bool(manager._excel_view_orders) and not manager._io_callbacks
                 manager.excel_view_tree.selection_set("row_7");manager.load_current_excel_remark()
                 assert "后台追加备注" in manager.excel_order_history.get("1.0", "end")
                 manager.excel_order_reason.set("后台作废测试")
-                manager.excel_void_button.invoke();yield from await_task(manager._io_runtime.latest["write"])
+                yield from await_task(manager, invoke_write_control(manager, manager.excel_void_button))
                 yield lambda: bool(manager._excel_view_orders) and not manager._io_callbacks
+                assert manager._excel_order_views[order_id].state == "void"
+                assert read_ledger(path).totals.income_cents == 1200
                 manager.excel_order_reason.set("后台恢复测试")
-                manager.excel_restore_button.invoke();yield from await_task(manager._io_runtime.latest["write"])
+                yield from await_task(manager, invoke_write_control(manager, manager.excel_restore_button))
                 yield lambda: bool(manager._excel_view_orders) and not manager._io_callbacks
+                assert manager._excel_order_views[order_id].state == "active"
                 assert read_ledger(path).totals.income_cents == 2400
                 report["checks"]["async_order_note_void_restore_preserves_money"] = "passed"
-                yield from await_task(sales.open_excel_path(str(path)))
+                report["active_step"] = "sales: view"
+                yield from await_task(sales, sales.open_excel_path(str(path)))
                 assert len(sales.excel_view_tree.get_children()) == 2
                 report["checks"]["async_sales_view_is_correct"] = "passed"
                 started, release = Event(), Event();releases.append(release)
+                report["active_step"] = "manager: slow scan/cancel"
                 original = read_ledger
                 def slow_read(path):started.set();release.wait(5);return original(path)
                 delayed = patch("quote_files.reading.read_ledger", side_effect=slow_read);delayed.start();active_patches.append(delayed)
@@ -100,6 +117,7 @@ def run_gui():
                 delayed.stop();active_patches.remove(delayed)
                 report["checks"]["slow_scan_owner_editing_heartbeat_and_cancel"] = "passed"
                 started, release = Event(), Event();releases.append(release)
+                report["active_step"] = "manager: close during read"
                 delayed = patch("quote_files.reading.read_ledger", side_effect=slow_read);delayed.start();active_patches.append(delayed)
                 task = manager.refresh_excel_files();yield started.is_set
                 manager.on_close();assert not window_exists(manager)
@@ -107,8 +125,9 @@ def run_gui():
                 delayed.stop();active_patches.remove(delayed)
                 report["checks"]["close_read_window_while_io_is_running"] = "passed"
                 sales.order_no.set("关闭中提交状态测试")
-                yield from await_task(sales.calculate(notify=False))
-                yield from await_task(sales.confirm_current_prices())
+                report["active_step"] = "sales: close during write"
+                yield from await_task(sales, sales.calculate(notify=False))
+                yield from await_task(sales, sales.confirm_current_prices())
                 started, release = Event(), Event();releases.append(release)
                 original_transaction = integration.workbook_transaction
                 def slow_write(*args, **kwargs):started.set();release.wait(5);return original_transaction(*args, **kwargs)

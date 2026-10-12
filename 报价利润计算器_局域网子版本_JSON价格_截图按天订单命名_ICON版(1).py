@@ -370,7 +370,8 @@ class PriceCalculator(BackgroundApplicationMixin, QuoteApplicationMixin):
         ttk.Button(buttons, text="开始计算", command=self.calculate, style="Accent.TButton").pack(side=tk.LEFT, padx=(0, 6))
         ttk.Button(buttons, text="查看输入反馈", command=self.go_to_feedback_page).pack(side=tk.LEFT, padx=6)
         ttk.Button(buttons, text="清空所有行", command=self.reset).pack(side=tk.LEFT, padx=6)
-        ttk.Button(buttons, text="导出 Excel", command=self.export_to_excel).pack(side=tk.LEFT, padx=6)
+        self.calc_export_button = ttk.Button(buttons, text="导出 Excel", command=self.export_to_excel)
+        self.calc_export_button.pack(side=tk.LEFT, padx=6)
         ttk.Button(buttons, text="保存计算截图", command=self.save_screenshot).pack(side=tk.LEFT, padx=6)
 
         ttk.Label(bottom, textvariable=self.total_val, style="Total.TLabel", foreground="#2c3e50").pack(side=tk.RIGHT)

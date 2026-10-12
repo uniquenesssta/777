@@ -145,6 +145,45 @@ class JobsTests(unittest.TestCase):
 
 
 class BackgroundAdapterTests(unittest.TestCase):
+    def test_both_calculation_pages_wire_export_control_to_background_commit(self):
+        from tkinter import ttk
+        import p04_io_check as check
+        for role in ("manager", "sales"):
+            with self.subTest(role=role), application(role) as (app, folder, ns, _):
+                path = export_one(app);app.calculate(notify=False)
+                with asynchronous(app), ExitStack() as widgets:
+                    app.calc_page = Mock()
+                    app.feedback_var = tk.StringVar(app.root)
+                    controls = {}
+                    def button(*args, **kwargs):
+                        control = Mock()
+                        control.invoke = kwargs["command"]
+                        control.cget.side_effect = lambda name: kwargs.get(name, "normal")
+                        controls[kwargs["text"]] = control
+                        return control
+                    for module, names in ((ttk, ("Frame", "LabelFrame", "Label", "Entry", "Combobox")), (tk, ("Frame", "Label"))):
+                        for name in names:
+                            widgets.enter_context(patch.object(module, name, side_effect=lambda *a, **k: Mock()))
+                    widgets.enter_context(patch.object(ttk, "Button", side_effect=button))
+                    widgets.enter_context(patch.dict(ns, {"ScrollableFrame": lambda *a, **k: Mock()}))
+                    app.setup_calc_page()
+                    self.assertIs(app.calc_export_button, controls["导出 Excel"])
+                    task = check.invoke_write_control(app, app.calc_export_button)
+                    wait_for(lambda: task.number not in app._io_callbacks, app._poll_io)
+                    self.assertEqual(read_ledger(path).totals.income_cents, 2400)
+                    self.assertIsNotNone(app.last_file_transaction)
+
+    def test_gui_write_probe_rejects_disabled_control_or_reused_task(self):
+        import p04_io_check as check
+        app, control = Mock(), Mock()
+        app._io_runtime.latest = {"write": object()}
+        control.cget.return_value = "disabled"
+        with self.assertRaises(AssertionError):check.invoke_write_control(app, control)
+        control.invoke.assert_not_called()
+        control.cget.return_value = "normal"
+        with self.assertRaises(AssertionError):check.invoke_write_control(app, control)
+        control.invoke.assert_called_once()
+
     def test_diagnostic_teardown_finishes_unobserved_reader_before_sandbox_cleanup(self):
         started, release, finished = Event(), Event(), Event()
         jobs = None

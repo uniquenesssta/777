@@ -1,0 +1,79 @@
+{
+  "task": "P04-01",
+  "status": "Windows_local_checks_passed_GUI_failed",
+  "phase_branch": "stage/p04-performance",
+  "recorded_at": "2026-10-12T10:56:14.494493+08:00",
+  "received_at": "2026-10-12T10:51:40+08:00",
+  "source": "user_uploaded_console_text",
+  "source_attachment": {
+    "name": "粘贴的文本 (1)(20261012-025137).txt",
+    "sha256": "5072ae952f40662f23cb3492cfaec6e4dc3ba638634150e578eeb02cf80a7e7e",
+    "library_file_id": "libfile_dd2832691ce0819191a64655d835d726"
+  },
+  "source_commit": "2d14df9affd1213e4f72c25a6c9492b9ca21ae2a",
+  "command": "py -3 tools/p04_io_check.py --gui-smoke --output reports/p04-01-windows-02.json",
+  "environment": {
+    "os": "Windows",
+    "python": "3.12.10"
+  },
+  "implementation_verification": {
+    "sha256_LF_count": 24,
+    "matched": 24,
+    "mismatches": [],
+    "all_expected_ids_matched": true
+  },
+  "tests": {
+    "status": "passed",
+    "tests_run": 22,
+    "failures": 0,
+    "errors": 0,
+    "skipped": [],
+    "elapsed_seconds": 2.187,
+    "test_ids": [
+      "test_background_io.BackgroundAdapterTests.test_background_excel_commit_uses_frozen_quote_not_later_widget_edits",
+      "test_background_io.BackgroundAdapterTests.test_background_json_save_retains_directory_and_exact_prices",
+      "test_background_io.BackgroundAdapterTests.test_background_view_keeps_stable_edit_lease_and_sales_projection",
+      "test_background_io.BackgroundAdapterTests.test_broken_shared_directory_is_visible_failure_not_zero_total",
+      "test_background_io.BackgroundAdapterTests.test_cancel_scan_prevents_late_rows_from_overwriting_last_verified_list",
+      "test_background_io.BackgroundAdapterTests.test_close_read_window_is_immediate_and_late_worker_never_updates_ui",
+      "test_background_io.BackgroundAdapterTests.test_close_write_keeps_window_alive_until_commit_state_delivered",
+      "test_background_io.BackgroundAdapterTests.test_cold_start_restores_connection_in_worker_then_delivers_owner_prices",
+      "test_background_io.BackgroundAdapterTests.test_diagnostic_teardown_finishes_unobserved_reader_before_sandbox_cleanup",
+      "test_background_io.BackgroundAdapterTests.test_directory_editor_changed_during_observation_is_not_overwritten",
+      "test_background_io.BackgroundAdapterTests.test_directory_epoch_discards_old_scan_after_source_change",
+      "test_background_io.BackgroundAdapterTests.test_failed_note_task_preserves_editor_until_original_request_succeeds",
+      "test_background_io.BackgroundAdapterTests.test_price_reload_does_not_overwrite_user_editor_changed_during_read",
+      "test_background_io.BackgroundAdapterTests.test_real_entrypoint_worker_reads_prices_without_touching_any_tk_variable",
+      "test_background_io.BackgroundAdapterTests.test_slow_excel_scan_does_not_block_editing_or_tcl_owner_heartbeat",
+      "test_background_io.BackgroundAdapterTests.test_unknown_excel_result_queries_original_request_then_replays_without_duplicate",
+      "test_background_io.BackgroundAdapterTests.test_windows_gui_entry_is_blocked_elsewhere_without_constructing_any_window",
+      "test_background_io.JobsTests.test_diagnostic_wait_requires_closed_queue_and_timeout_does_not_terminate_reader",
+      "test_background_io.JobsTests.test_latest_task_supersedes_queued_task_without_running_it",
+      "test_background_io.JobsTests.test_reader_queue_is_bounded_while_native_call_is_still_blocked",
+      "test_background_io.JobsTests.test_timeout_does_not_free_running_slot_or_claim_io_terminated",
+      "test_background_io.JobsTests.test_write_is_serial_not_cancellable_and_result_delivered_before_close"
+    ]
+  },
+  "GUI": {
+    "status": "failed",
+    "scope": "Actual Windows Tk, synthetic temporary local files and deliberately delayed I/O; no production share or screen capture",
+    "checks": {
+      "async_startup_restores_role_connections": "passed"
+    },
+    "error": "AttributeError: 'Live' object has no attribute 'calc_export_button'",
+    "worker_shutdown": "completed_before_sandbox_cleanup",
+    "callback_errors": [],
+    "heartbeat_samples": 10,
+    "max_heartbeat_gap_ms": 109.0,
+    "heartbeat_scope": "Short deliberately blocked-I/O diagnostic; not P04-04 production performance acceptance",
+    "close": "ok",
+    "sandbox_cleaned": true
+  },
+  "diagnosis": "22项Windows本机检查全部通过，旧WinError 32清理竞争已消失；实际母子Tk启动恢复通过，随后工具调用子版未保存的calc_export_button引用而失败。母版保存了该引用；子版按钮已有正确export_to_excel命令，但未赋给实例属性。后续导出/备注/作废恢复/慢读关闭联测未获完整通过证据。",
+  "production_paths_accessed": false,
+  "scope": "Windows 3.12.10，临时合成文件与实际Tk窗口；仅已完成步骤登记通过，短心跳不是P04-04性能验收。",
+  "task_acceptance": "未通过；P04-01留now，不收尾或启动02。",
+  "report_snapshot": "P04-01-windows-report-02.json",
+  "snapshot_policy": "按回传原值保存所有报告字段，原附件未修改；第一次失败与原辅助报告保留。",
+  "follow_up": "保存子版原导出控件引用，检查实际命令必须产生新任务，并按所属窗口等待；修复后使用reports/p04-01-windows-03.json复查。"
+}
