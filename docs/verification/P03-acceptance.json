@@ -1,0 +1,47 @@
+{
+  "phase": "P03",
+  "status": "accepted_and_archived",
+  "accepted_at": "2026-10-12T09:11:16+08:00",
+  "user_instruction": "开始P4-01",
+  "phase_branch": "stage/p03-file-safety",
+  "implementation_commit": "02b62f0df9496ecad9b7e2e7133f808c27b31934",
+  "task_book": "docs/old/P03-file-safety.md",
+  "tasks": [
+    {
+      "id": "P03-01",
+      "acceptance": "docs/verification/P03-01-acceptance.json"
+    },
+    {
+      "id": "P03-02",
+      "acceptance": "docs/verification/P03-02-acceptance.json"
+    },
+    {
+      "id": "P03-03",
+      "acceptance": "docs/verification/P03-03-acceptance.json"
+    },
+    {
+      "id": "P03-04",
+      "acceptance": "docs/verification/P03-04-acceptance.json"
+    }
+  ],
+  "evidence": [
+    "docs/verification/P03-01-windows-evidence.json",
+    "docs/verification/P03-02-windows-evidence.json",
+    "docs/verification/P03-03-windows-evidence.json",
+    "docs/verification/P03-04-windows-evidence.json",
+    "docs/verification/P03-04-checks.json"
+  ],
+  "exit_scope": [
+    "完整文件事务、稳定订单/请求身份及回执核查",
+    "已知schema兼容、未知格式只读和typed金额读取",
+    "显式母子目录继承、价格来源保护及逐单快照",
+    "追加备注历史、原因确认及可恢复作废，恢复不重复金额"
+  ],
+  "boundaries": [
+    "验收范围按各项已登记用户决定与原实测报告；不新增SMB/生产/认证测量主张",
+    "E盘根独立隐藏备份、成本隔离、认证服务及完整历史迁移留P05/P08",
+    "后台任务、缓存、完整分页及性能实测交接P04"
+  ],
+  "next_task": "P04-01",
+  "historical_assets_unchanged": true
+}

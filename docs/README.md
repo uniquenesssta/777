@@ -7,10 +7,10 @@
 | 项目 | 状态 |
 | --- | --- |
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
-| 本轮授权 | 用户回传P03-04 Windows检查，登记结果及更新任务书；既有推送授权有效 |
+| 本轮授权 | 用户“开始P4-01”：收尾归档P03，开始P04-01；既有推送授权有效 |
 | 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P03-01/02/03已验收收尾；04订单备注浏览、原因确认及作废恢复已实现，新增22项/完整237项辅助通过，见[契约/Windows入口](verification/P03-04-order-contract.md)、[证据](verification/P03-04-checks.json)及[任务书](now/P03-file-safety.md)。[Windows本机22项/母子Tk联测通过](verification/P03-04-windows-evidence.json)，21项指纹匹配02b62f0，具备收尾条件；整阶段留now，P04至P08未启动 |
-| 下一项 | 04本机复查通过，具备收尾条件，已通过检查无需重跑；未自动进入P04 |
+| 当前开发阶段 / Atomic Task | P01/P02/P03已验收归档old，见[P03确认](verification/P03-acceptance.json)；P04-01已授权，准备建立stage/p04-performance并将[性能任务书](new/P04-performance.md)移入now，02至04及P05至P08未启动 |
+| 下一项 | 按P04-01任务书实施后台I/O、主线程更新、取消与关闭；旧检查无需重跑 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
@@ -42,4 +42,4 @@
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
 
-当前结论：P01/P02已归档，P03-01/02已验收收尾；P03-03已实施、215项辅助及Windows本机23项/母子Tk联测通过，具备收尾条件。04及P04至P08未启动，P03整阶段仍在now。
+当前结论：P01/P02/P03已归档；P04-01已授权准备启动，阶段依据与分支按主任务书确认。

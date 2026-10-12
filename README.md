@@ -2,14 +2,14 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于 `plans`；当前执行分支为 `stage/p03-file-safety`，创建于P02收尾提交 `96735ad`。**P01、P02均已验收归档；P03-01已验收通过。P03-02已依据“开始03”验收收尾。P03-03已依据“开始04”验收收尾。P03-04订单备注浏览、原因确认、作废与恢复已实现，新增22项/完整237项辅助及Windows本机22项/母子Tk联测通过，具备收尾条件。P04至P08未启动。**
+规划位于`plans`；**P01、P02、P03均已验收归档old**，P03确认见[阶段验收](docs/verification/P03-acceptance.json)。用户已授权P04-01，准备从本收尾提交建立唯一`stage/p04-performance`阶段分支；当前收尾分支`stage/p03-file-safety`。P04-02至04及P05至P08尚未启动。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
 - [P01-03只读样本采集与部署登记](docs/baseline/P01-03-data-deployment.md)
 - [P01-04黄金样本、技术参数与Windows验收](docs/baseline/P01-04-validation.md)
 - [P02计算核心与归档任务书](docs/old/P02-calculation.md)
-- [当前P03文件安全任务书与Windows入口](docs/now/P03-file-safety.md)
+- [P03文件安全归档任务书](docs/old/P03-file-safety.md)
 - [P03-01验收记录](docs/verification/P03-01-acceptance.json)
 - [P03-02格式契约与本机入口](docs/verification/P03-02-format-contract.md)
 - [P03-02 Windows复查通过](docs/verification/P03-02-windows-evidence.json)
@@ -24,6 +24,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 用户“开始P4-01”：依据既有Windows回传[收尾P03-04](docs/verification/P03-04-acceptance.json)，四项完成，[P03阶段验收](docs/verification/P03-acceptance.json)登记并将任务书now→old；原实现、黄金与历史报告不改。P04-01已授权，从本收尾提交建立唯一阶段分支，后台I/O/取消与关闭按任务书执行。
 
 - 登记[P03-04 Windows回传](docs/verification/P03-04-windows-evidence.json)：22/22本机检查、21项实现LF指纹匹配02b62f0；实际母子Tk备注历史/草稿分离、取消零写、原因确认与作废恢复按钮、原金额/备注/输入/价格保留及销售视图恢复通过，无回调错误，关闭与清理正常。原报告按回传保存，辅助237项证据不改；04具备收尾条件，已通过检查无需重跑，P03继续留now，未自动启动P04。
 
