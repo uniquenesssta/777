@@ -1,6 +1,6 @@
 # P04-02 统一读取与增量索引
 
-状态：已实现待Windows复查。唯一分支`stage/p04-performance`，实施基线为P04-01收尾`796d74defb9dedbfcd522ad8730cfa06a12e49b5`；[01已按用户指令验收](P04-01-acceptance.json)。当前[22项新增/完整283项辅助检查](P04-02-checks.json)通过；本轮不启动03/04。
+状态：Windows本机22/22及实际母子Tk联测11项通过，具备收尾条件、待用户验收。唯一分支`stage/p04-performance`，实施基线为P04-01收尾`796d74defb9dedbfcd522ad8730cfa06a12e49b5`；[01已按用户指令验收](P04-01-acceptance.json)。当前[22项新增/完整283项辅助检查](P04-02-checks.json)通过；本轮不启动03/04。
 
 ## 行为与边界
 
@@ -29,9 +29,11 @@
 
 [辅助计数样本](P04-02-read-profile.json)为合成数据：5文件冷读5次workbook，暖刷新0次，完整视图LRU只保留2文件仍不重解析摘要；单文件变化1次、删除0次；20/40行XML打开各1次。Linux/Tcl辅助证据与原P01/P04-01机器报告各自保留，不把它们改成Windows或生产SMB实测。
 
-## Windows一键复查
+## Windows入口与通过结果
 
-当前已在P04分支，执行：
+[Windows通过证据](P04-02-windows-evidence-01.json)及[原报告](P04-02-windows-report-01.json)已登记：fe0c276的30项LF实现指纹匹配，22项本机检查与实际母子Tk联测11项全过。4文件冷读4次、暖刷新0次，源读取次数/字节数不增加；Windows文件身份/变更时间后端实际使用，外部改单一次解码、删除零解码、真实备注写入仅重读目标。视图与精确金额、无回调错误、关闭及后台退出后临时目录清理通过。67个短会话心跳样本、最大110ms仅作诊断，不是P04-04规模/SMB性能验收。
+
+本次无需重跑；保留原诊断入口供后续排查，已在P04分支时使用：
 
 ```powershell
 git pull --ff-only
@@ -39,6 +41,6 @@ if ($LASTEXITCODE -ne 0) { throw '拉取失败，先停止' }
 py -3 tools/p04_cache_check.py --gui-smoke --output reports/p04-02-windows-01.json
 ```
 
-工具检查新增22项，再以当前母子后台Tk窗口复查原生命周期7项及缓存4项：4文件冷读4次、暖统算0次；母子视图复用及销售40行；外部改单文件1次/删除0次；真实备注按钮写入只重读目标文件。报告区分缓存读取次数与完整事务必需的CAS读取，含当前提交/LF指纹、元数据后端、缓存预算/淘汰/回读计数及精确金额。窗口、元数据句柄和后台线程真实结束后才清理临时目录，不访问生产盘或实际屏幕截图。只有实际Windows回传通过后登记本机验收。
+工具检查新增22项，再以当前母子后台Tk窗口复查原生命周期7项及缓存4项：4文件冷读4次、暖统算0次；母子视图复用及销售40行；外部改单文件1次/删除0次；真实备注按钮写入只重读目标文件。报告区分缓存读取次数与完整事务必需的CAS读取，含当前提交/LF指纹、元数据后端、缓存预算/淘汰/回读计数及精确金额。窗口、元数据句柄和后台线程真实结束后才清理临时目录，不访问生产盘或实际屏幕截图。本次实际Windows回传已通过；02具备收尾条件，03/04未启动。
 
 依据：[FILE_BASIC_INFO](https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_basic_info)、[GetFileInformationByHandleEx](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getfileinformationbyhandleex)、[CreateFileW](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew)、[FILE_ID_INFO](https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_id_info)。依据字段组合及不可信时回读属于本项目缓存策略，不声称所有文件系统都提供相同时间/身份语义。
