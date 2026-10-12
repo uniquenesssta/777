@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from dataclasses import replace
 import json
+import io
 from pathlib import Path
 import tempfile
 import tkinter as tk
@@ -55,7 +56,17 @@ def page_controls(app):
     app.excel_prev_button=Mock();app.excel_next_button=Mock();app.excel_jump_button=Mock()
 
 
-class PaginationTests(unittest.TestCase):
+class GBKTextDefaults(unittest.TestCase):
+    def setUp(self):
+        # Exercise the Windows non-UTF8 default on every host. The actual UTF8
+        # manifest publisher and all financial/file assertions remain in use.
+        codec = patch('io.text_encoding', side_effect=lambda encoding, stacklevel=2:
+                      'gbk' if encoding in (None, 'locale') else encoding)
+        codec.start()
+        self.addCleanup(codec.stop)
+
+
+class PaginationTests(GBKTextDefaults):
     def test_ten_thousand_rows_reachable_in_both_roles_no_duplicates_or_truncation(self):
         with tempfile.TemporaryDirectory() as folder:
             path=Path(folder)/'完整.xlsx';fixtures.workbook(path,10000)
@@ -216,7 +227,7 @@ class PaginationTests(unittest.TestCase):
             self.assertEqual(check.main(['--gui-smoke']),2);gui.assert_not_called()
 
 
-class QuoteImageTests(unittest.TestCase):
+class QuoteImageTests(GBKTextDefaults):
     def test_ten_thousand_lines_layout_complete_and_total_never_uses_a_page_subtotal(self):
         class Font:
             def getlength(self,text):return len(text)*11
@@ -232,7 +243,7 @@ class QuoteImageTests(unittest.TestCase):
         self.assertEqual(len(head),5);self.assertTrue(all(len(row)==5 for row in rows))
         self.assertEqual(set(totals),{'销售额'})
         with tempfile.TemporaryDirectory() as folder:
-            result=save_quote_images(folder,p,'sales');manifest=json.loads(Path(result.manifest).read_text())
+            result=save_quote_images(folder,p,'sales');manifest=json.loads(Path(result.manifest).read_text(encoding="utf-8"))
             self.assertEqual(manifest['line_count'],41)
             self.assertNotIn('成本',json.dumps(manifest,ensure_ascii=False));self.assertNotIn('利润',json.dumps(manifest,ensure_ascii=False))
             self.assertEqual(manifest['pages'][0]['first_line'],1)
@@ -319,7 +330,7 @@ class QuoteImageTests(unittest.TestCase):
                         task=app.save_quote_image();self.assertTrue(started.wait(1))
                         app.user_name.set('后来的草稿');release.set()
                         wait_for(lambda:task.number not in app._io_callbacks,app._poll_io)
-                    report=json.loads(Path(app.last_file_transaction.path).read_text())
+                    report=json.loads(Path(app.last_file_transaction.path).read_text(encoding="utf-8"))
                     self.assertEqual(report['draft_revision'],revision);self.assertEqual(report['totals']['销售额'],expected)
                     self.assertEqual(ledger.read_bytes(),before)
                     self.assertIsNone(app.quote_session.state.result)

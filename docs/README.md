@@ -9,8 +9,8 @@
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
 | 本轮授权 | 用户“收尾02开始03”：收尾P04-02，同分支开始P04-03；既有推送授权有效 |
 | 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P01/P02/P03已归档；P04-[01](verification/P04-01-acceptance.json)/[02](verification/P04-02-acceptance.json)已验收。03已实现完整分页/筛选、选择定位及窗口/完整报价图片，[23项新增/306项辅助通过](verification/P04-03-checks.json)；[契约与Windows入口](verification/P04-03-pagination-contract.md)交付，待实际Tk/HWND复查，04及后续阶段未启动 |
-| 下一项 | P04-03 Windows一键复查新增分页、图片及当前Tk路径，无需单独重跑01/02工具 |
+| 当前开发阶段 / Atomic Task | P01/P02/P03已归档；P04-[01](verification/P04-01-acceptance.json)/[02](verification/P04-02-acceptance.json)已验收。03已实现完整分页/筛选、选择定位及窗口/完整报价图片，[23项GBK默认下/306项辅助通过](verification/P04-03-encoding-checks.json)；[契约与Windows入口](verification/P04-03-pagination-contract.md)交付，首次Windows清单编码失败已修复，待第二次实际Tk/HWND复查，04及后续阶段未启动 |
+| 下一项 | P04-03第二次Windows复查，使用新报告名p04-03-windows-02.json，无需单独重跑01/02工具 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
@@ -42,4 +42,4 @@
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
 
-当前结论：P01/P02/P03已归档；P04-01/02已验收，P04-03已实现待Windows复查，唯一执行分支stage/p04-performance。
+当前结论：P01/P02/P03已归档；P04-01/02已验收，P04-03清单编码修复后待第二次Windows复查，唯一执行分支stage/p04-performance。

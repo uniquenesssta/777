@@ -116,7 +116,7 @@ def pagination_steps(manager,sales,sandbox,report,await_task,*,native_capture=Tr
     attachments={};complete_manifests={}
     for app in (manager,sales):
         yield from await_task(app,background.invoke_write_control(app,app.calc_quote_image_button))
-        manifest_path=Path(app.last_file_transaction.path);manifest=json.loads(manifest_path.read_text())
+        manifest_path=Path(app.last_file_transaction.path);manifest=json.loads(manifest_path.read_text(encoding="utf-8"))
         assert manifest['line_count']==len(app.quote_session.state.result.lines)
         assert manifest['totals']['销售额']==app.quote_session.state.result.totals.display()['income']
         covered=[]
@@ -162,11 +162,11 @@ def pagination_steps(manager,sales,sandbox,report,await_task,*,native_capture=Tr
         finally:image.close()
         # The documented full-output option must remain pixel-identical while
         # the window is occluded; screen captures do not establish completeness.
-        before_manifest=json.loads(complete_manifests['manager'].read_text())
+        before_manifest=json.loads(complete_manifests['manager'].read_text(encoding="utf-8"))
         with Image.open(complete_manifests['manager'].parent/before_manifest['pages'][0]['file']) as first:
             before_pixels=hashlib.sha256(first.tobytes()).hexdigest()
         yield from await_task(manager,background.invoke_write_control(manager,manager.calc_quote_image_button))
-        after_path=Path(manager.last_file_transaction.path);after_manifest=json.loads(after_path.read_text())
+        after_path=Path(manager.last_file_transaction.path);after_manifest=json.loads(after_path.read_text(encoding="utf-8"))
         with Image.open(after_path.parent/after_manifest['pages'][0]['file']) as first:
             after_pixels=hashlib.sha256(first.tobytes()).hexdigest()
         assert before_pixels==after_pixels

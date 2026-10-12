@@ -3,6 +3,7 @@ from contextlib import contextmanager, ExitStack
 from pathlib import Path
 from threading import Event, get_ident
 import time
+import io
 import tkinter as tk
 import unittest
 from unittest.mock import Mock, patch
@@ -167,6 +168,8 @@ class BackgroundAdapterTests(unittest.TestCase):
                             widgets.enter_context(patch.object(module, name, side_effect=lambda *a, **k: Mock()))
                     widgets.enter_context(patch.object(ttk, "Button", side_effect=button))
                     widgets.enter_context(patch.dict(ns, {"ScrollableFrame": lambda *a, **k: Mock()}))
+                    widgets.enter_context(patch('io.text_encoding', side_effect=lambda encoding, stacklevel=2:
+                                                 'gbk' if encoding in (None, 'locale') else encoding))
                     app.setup_calc_page()
                     self.assertIs(app.calc_export_button, controls["导出 Excel"])
                     task = check.invoke_write_control(app, app.calc_export_button)
@@ -178,7 +181,7 @@ class BackgroundAdapterTests(unittest.TestCase):
                     image_task = check.invoke_write_control(app,app.calc_quote_image_button)
                     wait_for(lambda:image_task.number not in app._io_callbacks,app._poll_io)
                     import json
-                    image_manifest = json.loads(Path(app.last_file_transaction.path).read_text())
+                    image_manifest = json.loads(Path(app.last_file_transaction.path).read_text(encoding="utf-8"))
                     self.assertEqual(image_manifest['line_count'],1)
                     self.assertEqual(image_manifest['totals']['销售额'],'12.00')
                     self.assertEqual(read_ledger(path).totals.income_cents,2400)

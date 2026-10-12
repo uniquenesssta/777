@@ -1,6 +1,6 @@
 # P04-03 完整分页、筛选与报价附件
 
-状态：已实现待Windows复查。唯一分支`stage/p04-performance`，实施基线为[P04-02收尾](P04-02-acceptance.json)提交`4f0f2984afa79e5fe6e6d4babeee35e78cb98f10`；用户“收尾02开始03”已授权，04未启动，P04留now。
+状态：首次Windows清单编码失败已修复，待第二次Windows复查。唯一分支`stage/p04-performance`，实施基线为[P04-02收尾](P04-02-acceptance.json)提交`4f0f2984afa79e5fe6e6d4babeee35e78cb98f10`；用户“收尾02开始03”已授权，04未启动，P04留now。
 
 ## 完整查看
 
@@ -39,6 +39,12 @@ PNG和清单继续通过既有锁事务/哈希CAS/回读/回执发布；原文�
 
 金额核心、53例黄金、P01原版/材料、P03归档、事务/CAS协议与所有既有机器报告保持原值；P04-04同设备/规模/SMB性能验收另行实施。
 
+## Windows回传与编码修复
+
+[首次Windows证据](P04-03-windows-evidence-01.json)及[原报告](P04-03-windows-report-01.json)按回传保留：37项LF指纹匹配1b03eb0，23项检查中20通过、无断言失败、3处UnicodeDecodeError；实际Tk/HWND尚未开始。清单本来按UTF-8发布，新增检查用`Path.read_text()`时漏显式编码，Windows默认GBK解码失败。
+
+实际报价按钮、遮挡前/后工具清单、销售投影/后台冻结测试及母子控件构造测试共6处现用`encoding="utf-8"`。23项P04-03检查在每台辅助主机都强制GBK文本默认值，原断言和真实UTF-8清单继续使用；母子控件同样覆盖GBK。旧实现可复现原3处及控件两角色错误，修复后[23项/完整306项辅助通过](P04-03-encoding-checks.json)。没有要求用户更改系统编码或全局启用UTF8模式，应用/金融/原事务实现与历史报告不变；待本机实际Tk复查，03不收尾、04不启动。
+
 ## Windows入口
 
 已在原P04分支，执行：
@@ -46,7 +52,7 @@ PNG和清单继续通过既有锁事务/哈希CAS/回读/回执发布；原文�
 ```powershell
 git pull --ff-only
 if ($LASTEXITCODE -ne 0) { throw '拉取失败，先停止' }
-py -3 tools/p04_pagination_check.py --gui-smoke --output reports/p04-03-windows-01.json
+py -3 tools/p04_pagination_check.py --gui-smoke --output reports/p04-03-windows-02.json
 ```
 
 先运行23项本机检查，再以实际母子Tk检查原7项生命周期、P04-02的4项缓存路径以及03的5项：实际Treeview遍历10000明细、搜索/跳转/换文件位置、300行后备注且金额/选择保留、真实完整报价图按钮覆盖全单/角色金额、自己合成窗口的HWND截图范围/遮挡颜色观察，以及遮挡期间完整报价图像素保持一致。记录当前缩放/像素尺寸、源码LF指纹、字体与窗口清理；未在本机回传前不登记Windows通过。

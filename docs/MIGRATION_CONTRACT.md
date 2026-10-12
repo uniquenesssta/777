@@ -260,3 +260,5 @@ Excel保留原26列与normal/discount/order_total行类型，新单额外列为�
 窗口截图仅取当前可见应用窗口，Windows用HWND避免逻辑桌面坐标，遮挡可能影响且界面明确提示，截取期间revision变化则拒绝保存。完整报价图只从冻结OutputPayload投影并逐页渲染，与Tk/屏幕/筛选无关；销售字段不含成本利润，每张标全单金额及完整明细范围。独占UUID目录/已验证PNG/最终complete清单与部分失败保留，沿用原事务/回执；草稿revision不是已持久化服务订单身份，P05/P07另做附件归属和接口鉴权。
 
 23项新增/306项辅助通过，Windows实际Tk/自己的合成HWND截取待复查；当前缩放/窗口配置之外不冒充实测，P04-04规模/SMB性能另验。金额核心、黄金和历史原报告保持。
+
+P04-03首次Windows回传的报价清单诊断读取按默认GBK出错，实际GUI未开始；[原证据](verification/P04-03-windows-evidence-01.json)保留。诊断/测试6处改为显式UTF-8并覆盖GBK默认，见[修复检查](verification/P04-03-encoding-checks.json)；清单发布协议、应用/金额及旧报告不变，第二次Windows复查待完成。
