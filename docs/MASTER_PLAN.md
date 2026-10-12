@@ -2,7 +2,7 @@
 
 版本：初始规划；日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P01/P02/P03已验收归档old。当前唯一分支stage/p04-performance；[P04-01](verification/P04-01-acceptance.json)及[P04-02](verification/P04-02-acceptance.json)已验收收尾。P04-03基于02收尾4f0f298实现完整分页/筛选、选择定位和明确附件范围，[23项GBK默认下/完整306项辅助通过](verification/P04-03-encoding-checks.json)，[第二次Windows本机23项及实际母子Tk联测16项通过](verification/P04-03-windows-evidence-02.json)，37项LF指纹匹配3c614c7。03具备收尾条件、待用户验收，无需重跑；440个短会话心跳样本、最大563ms保留至04性能核对。04及P05至P08未启动，P04留now。** 本任务书不自动授予后续任务实施权限。
+**P01/P02/P03已验收归档old。当前唯一分支stage/p04-performance；P04-01/02及[P04-03](verification/P04-03-acceptance.json)已验收收尾。用户“开始04”授权P04-04，已交付[同数据性能对照与Windows入口](verification/P04-04-performance-contract.md)、[17项新增/完整323项辅助通过](verification/P04-04-checks.json)和[9种工作负载各5轮辅助样本](verification/P04-04-read-profile.json)。Windows/UNC阶段性能待回传，原563ms不回写、冻结门槛不变；P04留now，P05至P08未启动。** 本任务书不自动授予后续任务实施权限。
 
 ## 1. 目标与边界
 
@@ -22,7 +22,7 @@ P01、P02、P03任务书均已归档old；P04已移入now，P05至P08仍在new�
 | P01 | [基线与规则确认](old/P01-baseline.md) | 本轮审计交付 | stage/p01-baseline | 已验收归档；[确认记录](baseline/p01-acceptance.json)，business-v1/numeric-v1/performance-v1已确认，53/53黄金、18/18格式及全部规模结构检查通过 |
 | P02 | [计算正确性与公共核心](old/P02-calculation.md) | P01已验收 | stage/p02-calculation | 四项均已验收归档；[P02确认](verification/P02-acceptance.json)，辅助130项及用户明确Windows复查通过 |
 | P03 | [文件数据安全与兼容](old/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 四项均已验收归档；[P03确认](verification/P03-acceptance.json)，原Windows及辅助237项证据保留 |
-| P04 | [后台任务与性能](now/P04-performance.md) | P03已验收 | stage/p04-performance | [01](verification/P04-01-acceptance.json)/[02](verification/P04-02-acceptance.json)已验收；03的[Windows23项/实际母子Tk16项通过](verification/P04-03-windows-evidence-02.json)，两端10000明细完整可达、报价图与关闭清理正常；03待用户验收、无需重跑，563ms诊断心跳留04核对，04待启动 |
+| P04 | [后台任务与性能](now/P04-performance.md) | P03已验收 | stage/p04-performance | 01/02及[03](verification/P04-03-acceptance.json)已验收；04已实现[同数据采样入口](verification/P04-04-performance-contract.md)，9种工作负载5轮辅助计数/金额通过，Windows/UNC阶段性能待回传 |
 | P05 | [结构化存储与局域网服务](new/P05-data-service.md) | P04已验收 | stage/p05-data-service | 待启动；事务/鉴权/导入核对及恢复演练通过 |
 | P06 | [Rust业务核心与适配](new/P06-rust-core.md) | P05已验收 | stage/p06-rust-core | 待启动；黄金样本一致、服务适配和格式兼容通过 |
 | P07 | [Tauri界面与Windows交付](new/P07-tauri-desktop.md) | P06已验收 | stage/p07-tauri-desktop | 待启动；母子角色端到端、权限与安装验收通过 |
@@ -56,7 +56,7 @@ P01-02的金额/权限现状、16个复核示例、D01–D06确认状态见[决�
 - 金额UI、订单持久化、Excel、日/月汇总使用同一权威结果。黄金样本区分旧行为、已知缺陷、确认后的目标行为；正确性不采用模糊金额误差阈值。
 - Windows本机：启动/退出、无管理员权限、中文路径、UNC/映射盘、不同DPI、多窗口/多实例；网络验证按对应阶段及用户批准范围记录。P03-01按用户确认验收通过，实测范围按原报告保存；保留读取/写入失败保护及合成故障检查，无额外补测待办。
 - CI只承载可复现的单元/合成格式/构建检查；当前仓库没有CI，本轮不创建。真实局域网和真实数据演练不能以CI替代。没有Linux/macOS产品门槛。
-- 性能目标以P01登记的硬件/数据集/冷暖条件为基准。拟定健康环境UI心跳p95≤100ms、无持续>500ms主线程阻塞；网络故障任务有明确取消/状态出口。阈值在实施前确认，达不到则分析或批准调目标，不能事后改数掩盖失败。
+- 性能目标以P01登记的硬件/数据集/冷暖条件为基准。已按P01 performance-v1确认健康环境UI心跳p95≤100ms、最大间隔≤500ms；任务有明确取消/状态出口，实体断网/双机占用按用户既有决定不重新安排。达不到门槛先定位，不能事后改数掩盖失败。
 - 绝对性能目标不针对不受控SMB系统调用作无依据保证；线程超时不等于底层I/O停止，不能对仍在写的任务直接重试。必要时在确认的任务边界使用可终止工作进程。
 
 ## 5. 依赖、范围和回退
