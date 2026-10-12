@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于 `plans`；当前执行分支为 `stage/p03-file-safety`，创建于P02收尾提交 `96735ad`。**P01、P02均已验收归档；P03-01已验收通过。P03-02已依据“开始03”验收收尾。P03-03已依据“开始04”验收收尾。P03-04订单备注浏览、原因确认、作废与恢复已实现，新增22项/完整237项辅助通过，待Windows本机复查与用户验收。P04至P08未启动。**
+规划位于 `plans`；当前执行分支为 `stage/p03-file-safety`，创建于P02收尾提交 `96735ad`。**P01、P02均已验收归档；P03-01已验收通过。P03-02已依据“开始03”验收收尾。P03-03已依据“开始04”验收收尾。P03-04订单备注浏览、原因确认、作废与恢复已实现，新增22项/完整237项辅助及Windows本机22项/母子Tk联测通过，具备收尾条件。P04至P08未启动。**
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -16,6 +16,7 @@
 - [P03-03设置契约、使用方式与Windows一键检查](docs/verification/P03-03-storage-contract.md)
 - [P03-03 Windows本机复查通过](docs/verification/P03-03-windows-evidence.json)
 - [P03-04订单备注、作废恢复与Windows一键检查](docs/verification/P03-04-order-contract.md)
+- [P03-04 Windows本机复查通过](docs/verification/P03-04-windows-evidence.json)
 - [文档与计划入口](docs/README.md)
 - [优化及迁移主任务书](docs/MASTER_PLAN.md)
 - [两份 Python 代码重新审计报告](docs/audit/python-audit.md)
@@ -23,6 +24,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 登记[P03-04 Windows回传](docs/verification/P03-04-windows-evidence.json)：22/22本机检查、21项实现LF指纹匹配02b62f0；实际母子Tk备注历史/草稿分离、取消零写、原因确认与作废恢复按钮、原金额/备注/输入/价格保留及销售视图恢复通过，无回调错误，关闭与清理正常。原报告按回传保存，辅助237项证据不改；04具备收尾条件，已通过检查无需重跑，P03继续留now，未自动启动P04。
 
 - 按用户“开始04”[收尾P03-03](docs/verification/P03-03-acceptance.json)，同分支实施P03-04：稳定订单备注/操作历史、追加更正与逐单草稿、原因必填及取消确认、作废恢复不重复金额；确认期间换单/外部写入拒绝，关联输入检查补订单/请求，异常关联拒写，未知请求核查与保存后刷新失败提示。新增22项及完整237项辅助通过，[契约与Windows入口](docs/verification/P03-04-order-contract.md)、[证据](docs/verification/P03-04-checks.json)已交付；04待Windows复查/用户验收，整阶段留now，P04未启动。
 
