@@ -37,9 +37,10 @@ def run_checks():
         "elapsed_seconds": round(time.monotonic() - start, 3), "test_ids": ids, "log": log.getvalue()}
 
 
-def run_gui():
+def run_gui(extra_steps=None):
     import tkinter as tk
     from quote_files.reading import read_ledger
+    from quote_files.metadata import file_version
     import quote_app.integration as integration
     report = {"status": "running", "scope": "Actual Windows Tk, synthetic temporary local files and deliberately delayed I/O; no production share or screen capture", "checks": {}}
     with tempfile.TemporaryDirectory(prefix="777-p04-io-") as folder:
@@ -102,11 +103,13 @@ def run_gui():
                 yield from await_task(sales, sales.open_excel_path(str(path)))
                 assert len(sales.excel_view_tree.get_children()) == 2
                 report["checks"]["async_sales_view_is_correct"] = "passed"
+                if extra_steps is not None:
+                    yield from extra_steps(manager, sales, sandbox, report, await_task)
                 started, release = Event(), Event();releases.append(release)
                 report["active_step"] = "manager: slow scan/cancel"
-                original = read_ledger
+                original = file_version
                 def slow_read(path):started.set();release.wait(5);return original(path)
-                delayed = patch("quote_files.reading.read_ledger", side_effect=slow_read);delayed.start();active_patches.append(delayed)
+                delayed = patch("quote_files.cache.file_version", side_effect=slow_read);delayed.start();active_patches.append(delayed)
                 task = manager.refresh_excel_files();yield started.is_set
                 prior_ticks = len(ticks)
                 manager.user_name.set("慢扫描期间编辑成功")
@@ -118,7 +121,7 @@ def run_gui():
                 report["checks"]["slow_scan_owner_editing_heartbeat_and_cancel"] = "passed"
                 started, release = Event(), Event();releases.append(release)
                 report["active_step"] = "manager: close during read"
-                delayed = patch("quote_files.reading.read_ledger", side_effect=slow_read);delayed.start();active_patches.append(delayed)
+                delayed = patch("quote_files.cache.file_version", side_effect=slow_read);delayed.start();active_patches.append(delayed)
                 task = manager.refresh_excel_files();yield started.is_set
                 manager.on_close();assert not window_exists(manager)
                 release.set();yield lambda: task.state == "cancelled"

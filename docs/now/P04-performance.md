@@ -1,6 +1,6 @@
 # P04 后台任务、增量读取和完整查看
 
-状态：执行中。P04-01已验收收尾：Windows本机24/24及实际母子Tk联测7项通过，24项LF实现指纹匹配cbaf87e；后台24项/完整261项辅助证据保留，[收尾确认](../verification/P04-01-acceptance.json)，本次检查无需重跑；P04-02执行中，复用9f25629基线及同一分支；03至04待启动。前置：[P03已验收](../verification/P03-acceptance.json)。唯一分支`stage/p04-performance`，创建于P03收尾`823a487c249a1d05627a1f2b6a7e95fe0cc360fd`。问题：A12–A14、A17、A19、A20及A09统计状态。依据：[主任务书](../MASTER_PLAN.md)。
+状态：执行中。P04-01已验收收尾：Windows本机24/24及实际母子Tk联测7项通过，24项LF实现指纹匹配cbaf87e；后台24项/完整261项辅助证据保留，[收尾确认](../verification/P04-01-acceptance.json)，本次检查无需重跑；P04-02已实现单次解析/双层有界索引/视图复用与增量统算，22项新增/283项辅助通过，待Windows复查；实施基线为01收尾796d74d，同一分支；03至04待启动。前置：[P03已验收](../verification/P03-acceptance.json)。唯一分支`stage/p04-performance`，创建于P03收尾`823a487c249a1d05627a1f2b6a7e95fe0cc360fd`。问题：A12–A14、A17、A19、A20及A09统计状态。依据：[主任务书](../MASTER_PLAN.md)。
 
 P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。P01已按[批准记录](../baseline/p01-acceptance.json)采纳numeric-v1/performance-v1，历史候选/黄金元数据保留并映射；实施时读取同一黄金JSON，不复制期望。本阶段01已按用户“开始P4-01”授权实施。
 
@@ -11,7 +11,7 @@ Windows原小档基线已在[P01-04回传](../baseline/p01-04-windows-evidence.j
 | ID | 实施与交付 | 可执行验收 | 恢复方式 |
 | --- | --- | --- | --- |
 | P04-01 | 已验收收尾：主线程快照→2条读/单写通道→after交付；目录/价格/Excel/共享核查后台化、任务代次/输入revision、分批更新、取消/关闭；[契约](../verification/P04-01-background-contract.md) | 后台24项/完整261项辅助通过，[修复证据](../verification/P04-01-controls-checks.json)：慢扫描中编辑和心跳、真实连接切换隔离旧结果、后台零Tk变量访问、超时仍占槽、冻结报价与未知请求、读关闭/写关闭交付、失败备注保留、临时文件清理前读线程退出及母子导出控件原命令；[Windows本机24/24及实际母子Tk联测7项通过](../verification/P04-01-windows-evidence-03.json)，[01确认](../verification/P04-01-acceptance.json) | 取消读任务并恢复上次已验证显示；写关闭保持事件循环、等待原提交状态，不伪终止或丢弃请求 |
-| P04-02 | 执行中：一次iter_rows生成摘要/备注/分组；每文件一次解析，多视图复用；元数据索引和按变更失效缓存；修改单文件增量统算；失败/不支持独立显示 | 冷读每变更文件一次workbook解析（必要重试单记）；暖刷新未变文件零workbook打开；一单写入不触发N个历史重读；20/40行不再逐cell重开XML；删/改/外部替换缓存及时失效 | 缓存可重建，永远不是账本；版本不可信时重新校验，不复用错误零值 |
+| P04-02 | 已实现：脱离句柄行快照、一次解码、多视图复用；摘要/完整视图双层有界索引、Windows文件身份/写入/变更时间与弱元数据回读、parser失效、并发合并；目标写前后失效、变动金额差额、外部视图改变/删除撤销租约；[契约](../verification/P04-02-incremental-contract.md) | [22项新增/283项辅助通过](../verification/P04-02-checks.json)；[样本](../verification/P04-02-read-profile.json)冷5/暖0/改单1/删除0、20/40行XML各1；公式附加打开/必要重试分别计数。暖刷新在摘要索引预算内零workbook打开，完整视图淘汰不重读摘要；超预算/不可信元数据明示。待Windows本机/实际Tk复查 | 缓存可重建，永远不是账本；版本不可信时重新校验，不复用错误零值 |
 | P04-03 | 订单分页/筛选取代母版300行硬截断与子版全量渲染；保留选中和定位；明确窗口截图或完整报价图，附件唯一名与独占创建 | 10000明细每页可达，总数正确，无重复遗漏；列表切换不丢定位；截图重名并发、中文长名、DPI/多显示器/遮挡按确定范围实测；导出金额不受分页影响 | 附件失败不影响已保存订单；性能路径可回退实现，保留安全读写层 |
 | P04-04 | 按P01同设备同数据规模比较冷/暖耗时、心跳、打开次数、内存及网络故障恢复；只为风险补回归 | 消除约5N读取链；满足已冻结响应指标；价格、金额、删单和备注回归不退化；输出实测结果和环境而非百分比猜测 | 未满足指标先定位；不得放宽正确性换速度或事后改指标 |
 
@@ -29,4 +29,8 @@ Windows原小档基线已在[P01-04回传](../baseline/p01-04-windows-evidence.j
 
 第三次[Windows通过记录](../verification/P04-01-windows-evidence-03.json)及[原报告](../verification/P04-01-windows-report-03.json)按回传登记：cbaf87e的24项LF指纹匹配，本机24/24与实际母子Tk联测7项全过，无回调错误，读关闭/写关闭交付、后台线程退出及临时清理正常。短会话54个心跳样本、最大125ms仅作诊断，P04-04同设备/规模/SMB性能门槛另验。
 
-金额核心、53例黄金、P01材料、P03归档、原261项辅助与前两次失败报告保持原值。[01已按用户指令收尾](../verification/P04-01-acceptance.json)，已通过检查无需重跑；当前02执行中，03至04未启动，整阶段留now。
+金额核心、53例黄金、P01材料、P03归档、原261项辅助与前两次失败报告保持原值。[01已按用户指令收尾](../verification/P04-01-acceptance.json)，已通过检查无需重跑；当前02已实现待Windows本机/实际Tk复查，03至04未启动，整阶段留now。
+
+## P04-02 交付与当前状态
+
+[契约与Windows入口](../verification/P04-02-incremental-contract.md)、[283项辅助证据](../verification/P04-02-checks.json)及[冷热计数样本](../verification/P04-02-read-profile.json)已交付。01已收尾；02已实现待本机复查/用户验收，03至04未启动，整阶段留now。Windows执行`py -3 tools/p04_cache_check.py --gui-smoke --output reports/p04-02-windows-01.json`；该入口包含新缓存步骤和受影响的当前后台Tk路径，无需分别运行旧工具。辅助预演没有实际Tk，不能冒充Windows通过。

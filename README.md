@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于`plans`；**P01、P02、P03均已验收归档old**，见[P03确认](docs/verification/P03-acceptance.json)。当前唯一执行分支`stage/p04-performance`创建于P03收尾`823a487`。P04-01后台I/O、旧结果隔离与取消/关闭已实现；[Windows本机24/24及实际母子Tk联测7项通过](docs/verification/P04-01-windows-evidence-03.json)，24项LF实现指纹匹配cbaf87e，后台24项/完整261项辅助证据保留，[01已按用户指令验收收尾](docs/verification/P04-01-acceptance.json)，当前P04-02执行中（统一解析/变更失效缓存/增量刷新）；03至04及P05至P08未启动。
+规划位于`plans`；**P01、P02、P03均已验收归档old**，见[P03确认](docs/verification/P03-acceptance.json)。当前唯一执行分支`stage/p04-performance`创建于P03收尾`823a487`。P04-01后台I/O、旧结果隔离与取消/关闭已实现；[Windows本机24/24及实际母子Tk联测7项通过](docs/verification/P04-01-windows-evidence-03.json)，24项LF实现指纹匹配cbaf87e，后台24项/完整261项辅助证据保留，[01已按用户指令验收收尾](docs/verification/P04-01-acceptance.json)，当前P04-02已实现：单次解码/双层有界索引/视图复用及增量统算，新增22项/完整283项辅助通过，待Windows本机及实际Tk复查；03至04及P05至P08未启动。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -22,6 +22,7 @@
 - [P04-01首次Windows失败证据](docs/verification/P04-01-windows-evidence-01.json)及[清理修复辅助检查](docs/verification/P04-01-cleanup-checks.json)
 - [P04-01第二次Windows回传](docs/verification/P04-01-windows-evidence-02.json)及[控件修复辅助检查](docs/verification/P04-01-controls-checks.json)
 - [P04-01 Windows本机与实际后台Tk联测通过](docs/verification/P04-01-windows-evidence-03.json)
+- [P04-02统一读取、增量索引与Windows入口](docs/verification/P04-02-incremental-contract.md)
 - [文档与计划入口](docs/README.md)
 - [优化及迁移主任务书](docs/MASTER_PLAN.md)
 - [两份 Python 代码重新审计报告](docs/audit/python-audit.md)
@@ -29,6 +30,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P04-02：基于01收尾796d74d复用同一分支；普通工作簿一次解码/每源Sheet一次遍历，摘要/分组/身份/历史及母子视图共用脱离句柄快照。双层有界索引（摘要2048文件/估算16MiB，完整视图64文件/估算64MiB）、文件身份/写入与变更时间/parser版本失效、不可信元数据回读、并发合并、目标写前后失效、目录切换/删除检测及变动金额差额；当前外部改变视图自动重读，删除撤销旧租约。新增22项/完整283项辅助通过，[计数样本](docs/verification/P04-02-read-profile.json)冷5/暖0/改单1/删除0、20/40行XML各1；[契约与Windows一键入口](docs/verification/P04-02-incremental-contract.md)交付，实际Tk步骤已用替代控件预演，待Windows复查。财务核心、53黄金、事务/CAS/回执与历史机器报告未改；03/04未启动。
 
 - 用户“收尾01开始02”：依据既有Windows24项及实际母子Tk联测7项[收尾P04-01](docs/verification/P04-01-acceptance.json)，已通过检查无需重跑；在唯一stage/p04-performance复用已验收实现和9f25629证据提交，开始P04-02统一Excel解析、共享视图及按变更增量刷新。原报告/业务代码在收尾提交中不改，03至04未启动。
 

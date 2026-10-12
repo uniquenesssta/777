@@ -85,7 +85,10 @@ def inspect_schema(book):
         if sheet.max_column > 64 or sheet.max_row > 100000:
             reasons.append(sheet.title + "超过读取范围")
             continue
-        if any(c.data_type == "f" for cells in sheet.iter_rows() for c in cells):
+        has_formulas = getattr(sheet, "has_formulas", None)
+        if has_formulas is None:
+            has_formulas = any(c.data_type == "f" for cells in sheet.iter_rows() for c in cells)
+        if has_formulas:
             reasons.append(sheet.title + "含公式；只读取已有缓存，不保存公式工作簿")
         if getattr(sheet, "_images", None) or getattr(sheet, "_charts", None):
             reasons.append(sheet.title + "含未支持图形扩展")

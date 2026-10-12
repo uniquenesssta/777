@@ -136,19 +136,25 @@ class FileReadingMixin:
         return self._aggregate_results(results, silent=silent)
 
     def _aggregate_results(self, results, silent=False, render=True):
-        good = [r for r, _ in results.values() if r.status == "ok"]
-        errors = sum(r.status == "error" for r, _ in results.values())
-        unsupported = sum(r.status == "unsupported" for r, _ in results.values())
+        indexed = getattr(results, "aggregate", None)
+        if indexed is not None:
+            good_count, errors, unsupported = (indexed[name] for name in ("valid_files", "errors", "unsupported"))
+            income, cost = indexed["income_cents"], indexed["cost_cents"]
+        else:
+            good = [r for r, _ in results.values() if r.status == "ok"]
+            good_count = len(good)
+            errors = sum(r.status == "error" for r, _ in results.values())
+            unsupported = sum(r.status == "unsupported" for r, _ in results.values())
+            income = sum(r.totals.income_cents for r in good)
+            cost = sum(r.totals.cost_cents for r in good)
         partial = bool(errors or unsupported)
-        label = f"{len(good)} 个文件" + (f"（部分：失败{errors}，不支持{unsupported}）" if partial else "")
+        label = f"{good_count} 个文件" + (f"（部分：失败{errors}，不支持{unsupported}）" if partial else "")
         self.excel_total_count.set(label)
-        income = sum(r.totals.income_cents for r in good)
-        cost = sum(r.totals.cost_cents for r in good)
         amounts = {"income": money_text(income), "cost": money_text(cost), "profit": money_text(income - cost)}
         margin = None if not income else rounded_ratio((income - cost) * 100, income, 1)
         text = "—" if margin is None else ("-" if margin < 0 else "") + f"{abs(margin)//10}.{abs(margin)%10}%"
         amounts["margin"] = text
-        if partial and not good:
+        if partial and not good_count:
             amounts = {key: "—" for key in amounts}
         for key, value in amounts.items():
             getattr(self, "excel_total_" + key).set(value)
@@ -157,6 +163,6 @@ class FileReadingMixin:
         self.set_feedback("统算：" + label, is_error=partial)
         if not silent:
             messagebox.showinfo("部分统算" if partial else "统算完成", label + "；金额仅包含读取成功的文件。")
-        return {"status": "partial" if partial else "ok", "valid_files": len(good),
+        return {"status": "partial" if partial else "ok", "valid_files": good_count,
                 "errors": errors, "unsupported": unsupported, "income_cents": income,
                 "cost_cents": cost, "profit_cents": income - cost}

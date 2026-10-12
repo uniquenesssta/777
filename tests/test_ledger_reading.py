@@ -208,15 +208,15 @@ class LedgerReadingTests(unittest.TestCase):
 
     def test_missing_or_corrupt_files_are_errors_and_workbooks_close_on_failed_analysis(self):
         self.assertEqual(read_ledger(self.path).status, "error")
-        primary, cached = Mock(), Mock()
-        ws = Mock(max_row=7, max_column=26)
-        ws.iter_rows.return_value = [(Mock(data_type="f"),)]
-        primary.worksheets = [ws]
-        with patch("quote_files.reading.open_book", side_effect=[primary, cached]), patch("quote_files.reading.analyze", side_effect=ValueError("synthetic")):
-            result = analyze_raw(b"synthetic")
+        self.fixture(1, "formula")
+        raw = self.path.read_bytes()
+        primary, cached = open_book(raw, for_write=False), open_book(raw, data_only=True, for_write=False)
+        with patch.object(primary, "close", wraps=primary.close), patch.object(cached, "close", wraps=cached.close), patch("quote_files.reading.open_book", side_effect=[primary, cached]), patch("quote_files.reading.analyze", side_effect=ValueError("synthetic")) as analysis:
+            result = analyze_raw(raw)
+            analysis.assert_called_once()
+            primary.close.assert_called_once()
+            cached.close.assert_called_once()
         self.assertEqual(result.status, "error")
-        primary.close.assert_called_once()
-        cached.close.assert_called_once()
 
 
 class LedgerAdapterTests(unittest.TestCase):

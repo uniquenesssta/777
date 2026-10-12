@@ -1,9 +1,7 @@
 """Typed ledger reads: ok/error/unsupported; no default-zero failures or writes."""
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 from decimal import Decimal, InvalidOperation
 from functools import cached_property
-import io
-from zipfile import ZipFile
 
 from quote_core import Amounts
 from quote_core.numbers import exact_context, scaled_decimal, settle
@@ -42,10 +40,11 @@ class LedgerRead:
     source_sha256: str | None = None
     summary_source: str | None = None
     remark: str = ""
+    _detail_count: int | None = field(default=None, repr=False)
 
     @property
     def detail_count(self):
-        return len(self.visible_rows)
+        return len(self.visible_rows) if self._detail_count is None else self._detail_count
 
     @cached_property
     def visible_rows(self):
@@ -99,17 +98,17 @@ def analyze(book, cached_book=None):
         cached = cached_book["利润明细"] if cached_book is not None else None
         issues.extend(ReadIssue("READ_ONLY", reason) for reason in schema.readonly_reasons)
         rows, prefixes = [], {}
-        for index in range(schema.header_row + 1, ws.max_row + 1):
-            if all(c.value is None for c in ws[index]):
+        for index, cells in enumerate(ws.iter_rows(min_row=schema.header_row + 1), schema.header_row + 1):
+            if all(c.value is None for c in cells):
                 continue
-            value = lambda key: ws.cell(index, h[key]).value
+            value = lambda key: cells[h[key] - 1].value
             if schema.tagged:
                 kind = value("行类型")
                 if kind not in {"normal", "discount", "order_total"}:
                     raise InvalidLedger("UNKNOWN_ROW_KIND", "行类型缺失或未知", str(index))
             else:
                 name = value("项目名称")
-                marker = name == TOTAL_NAME or (ws.cell(index, 1).value == TOTAL_NAME and name is None)
+                marker = name == TOTAL_NAME or (cells[0].value == TOTAL_NAME and name is None)
                 if marker:
                     # Exact legacy footer shape, never a generic name-prefix guess.
                     nonmoney = ("基础类型", "是否单件", "数量", "销售单价", "成本单价", "K系数")
@@ -242,34 +241,17 @@ def groups(ws, headers, rows, prefixes, issues):
 
 
 def analyze_raw(raw):
-    book = cached = None
+    from .documents import parse_document
+    return parse_document(raw, opener=open_book, analyzer=analyze).ledger()
+
+
+def read_document(path):
+    from .documents import failed_document, parse_document
     try:
-        book = open_book(raw, for_write=False)
-        has_formula = any(c.data_type == "f" for ws in book.worksheets if ws.max_row <= 100000 and ws.max_column <= 64 for row in ws.iter_rows() for c in row)
-        if has_formula:
-            cached = open_book(raw, data_only=True, for_write=False)
-        result = analyze(book, cached)
-        with ZipFile(io.BytesIO(raw)) as package:
-            extensions = any(any(token in name.lower() for token in ("externallinks", "vbaproject", "customxml", "embeddings", "drawings", "vml")) for name in package.namelist())
-        if extensions and result.schema is not None:
-            reason = "含未支持扩展/外链/宏/图片，原件只读保留"
-            result.schema = replace(result.schema, writable=False, readonly_reasons=(*result.schema.readonly_reasons, reason))
-            result.issues += (ReadIssue("READ_ONLY", reason),)
-        result.source_sha256 = digest(raw)
-        return result
+        return parse_document(read_bytes(path), opener=open_book, analyzer=analyze)
     except Exception as exc:
-        return LedgerRead("error", issues=(ReadIssue("READ_ERROR", f"{type(exc).__name__}: {exc}"),), source_sha256=digest(raw))
-    finally:
-        try:
-            if cached is not None:
-                cached.close()
-        finally:
-            if book is not None:
-                book.close()
+        return failed_document(exc)
 
 
 def read_ledger(path):
-    try:
-        return analyze_raw(read_bytes(path))
-    except Exception as exc:
-        return LedgerRead("error", issues=(ReadIssue("READ_ERROR", f"{type(exc).__name__}: {exc}"),))
+    return read_document(path).ledger()

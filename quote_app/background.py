@@ -44,7 +44,7 @@ def clone_value(name, value):
     return copy(value) if name in {"quote_session", "_excel_view_orders", "_excel_order_views"} else deepcopy(value)
 
 
-def controller(parent, snapshot, context):
+def controller(parent, snapshot, context, cache=None):
     # Only pure entrypoint helpers (format/style/path) are inherited. UI methods
     # used by the existing transaction controller are replaced explicitly.
     class Worker(parent):
@@ -75,6 +75,9 @@ def controller(parent, snapshot, context):
             self.last_file_transaction = committed
             self.set_feedback(f"请求{committed.request_id}已保存。")
         def _report_io_request(self, kind, path, req):
+            if cache is not None and kind in {"excel", "edit"}:
+                cache.invalidate(path)
+                self._io_write_paths.add(str(path))
             context.progress({"kind": kind, "path": str(path), "request": req})
         def _write_quote_screenshot(self, payload):
             from quote_files.images import save_png
@@ -94,6 +97,8 @@ def controller(parent, snapshot, context):
             return str(path)
     worker = Worker.__new__(Worker)
     worker._io_runtime = None
+    worker._ledger_cache = cache
+    worker._io_write_paths = set()
     worker._loading_prices = False
     worker.feedback = ("", False)
     worker.calc_rows = []
@@ -123,9 +128,12 @@ def perform(worker, operation, arguments, context):
         stamps = {}
         paths = [os.path.join(worker.report_dir, name) for name in os.listdir(worker.report_dir)
                  if not name.startswith("~$") and name.lower().endswith(".xlsx")]
+        if worker._ledger_cache is not None:
+            worker._ledger_cache.prune(worker.report_dir, paths)
         for path in paths:
             context.check()
-            result = read_ledger(path)
+            result = (worker._ledger_cache.get(path, context, detail=False).ledger()
+                      if worker._ledger_cache is not None else read_ledger(path))
             try:
                 stamps[path] = os.path.getmtime(path)
                 modified = time.strftime("%Y-%m-%d %H:%M", time.localtime(stamps[path]))
@@ -134,9 +142,12 @@ def perform(worker, operation, arguments, context):
                 modified = "无法获取"
             results[path] = (result, modified)
         value = dict(sorted(results.items(), key=lambda pair: stamps[pair[0]], reverse=True))
+        if worker._ledger_cache is not None:
+            value = worker._ledger_cache.directory_result(worker.report_dir, value)
     elif operation == "view":
         from quote_files.views import read_view
-        value = read_view(arguments[0], arguments[1], worker.quote_role, context)
+        document = worker._ledger_cache.get(arguments[0], context) if worker._ledger_cache is not None else None
+        value = read_view(arguments[0], arguments[1], worker.quote_role, context, document=document)
     elif operation == "excel":
         value = worker._formal_output("excel", worker._write_quote_excel)
     elif operation == "screenshot":
@@ -153,13 +164,16 @@ def perform(worker, operation, arguments, context):
     return value
 
 
-def run(parent, snapshot, operation, arguments, context):
-    worker = controller(parent, snapshot, context)
+def run(parent, snapshot, operation, arguments, context, cache=None):
+    worker = controller(parent, snapshot, context, cache)
     error = None
     try:
         value = perform(worker, operation, arguments, context)
     except Exception as exc:
         error, value = exc, False
+    finally:
+        if cache is not None:
+            for path in worker._io_write_paths:cache.invalidate(path)
     return {"value": value, "error": error, "fields": {name: getattr(worker, name) for name in FIELDS if hasattr(worker, name)},
             "variables": {name: getattr(worker, name).get() for name in VARS if hasattr(worker, name)},
             "feedback": worker.feedback}
@@ -172,6 +186,8 @@ class BackgroundApplicationMixin:
     def initialize_background_io(self):
         self._io_owner = threading.get_ident()
         self._io_runtime = Jobs(timeout=self.io_timeout) if self.background_io_enabled else None
+        from quote_files.cache import LedgerCache
+        self._ledger_cache = LedgerCache() if self._io_runtime is not None else None
         self._io_callbacks, self._io_epoch = {}, 0
         self._io_closing = False
         self._io_starting = False
@@ -207,10 +223,10 @@ class BackgroundApplicationMixin:
         if write and (self._blocking_file_request or any(p and p.get("unknown") for p in (self._excel_pending, self._edit_pending, self._settings_pending))):
             self.set_feedback("存在结果不明的写入；请先检查上次写入，保留原请求。", is_error=True)
             return False
-        parent, snapshot = type(self), capture(self)
+        parent, snapshot, cache = type(self), capture(self), self._ledger_cache
         try:
             task = self._io_runtime.submit(channel,
-                lambda context: run(parent, snapshot, operation, arguments, context), write=write)
+                lambda context: run(parent, snapshot, operation, arguments, context, cache), write=write)
         except QueueFull as exc:
             self.background_status_var.set(str(exc))
             self.set_feedback(str(exc), is_error=True)
@@ -285,6 +301,7 @@ class BackgroundApplicationMixin:
                 if name in data["variables"] and getattr(self, name).get() == original_vars.get(name):
                     getattr(self, name).set(data["variables"][name])
             if changed:
+                self._ledger_cache.clear()
                 self._io_epoch += 1
                 self._io_runtime.cancel_reads()
                 self._excel_view_orders = {}
@@ -517,6 +534,7 @@ class BackgroundApplicationMixin:
             self._destroy_after_io()
 
     def _destroy_after_io(self):
+        self._ledger_cache.clear()
         self._io_runtime.close()
         self.root.after_cancel(self._io_poll_job)
         self._io_callbacks.clear()
@@ -546,6 +564,24 @@ class BackgroundApplicationMixin:
 
     def _render_io_files(self, results, task):
         self.excel_read_results = results
+        if getattr(results, "aggregate", None) is not None:
+            self._aggregate_results(results, silent=True, render=False)
+        current = getattr(self, "current_excel_path", None)
+        if current and self._excel_view_hash is not None:
+            from quote_files.metadata import canonical
+            latest = next((result for path, (result, _) in results.items() if canonical(path) == canonical(current)), None)
+            if latest is None or latest.source_sha256 != self._excel_view_hash:
+                row = self.get_selected_excel_row_index()
+                identity = self._excel_view_orders.get(row)
+                self._io_reselect = identity[0] if identity else None
+                self._io_render_task = None
+                self._excel_view_hash = self._excel_view_path = None
+                self._excel_view_orders = {};self._excel_order_views = {}
+                self.load_current_excel_remark()
+                if latest is not None and latest.status == "ok":
+                    self._request_io_view(current, self.excel_sheet_var.get())
+                else:
+                    self.set_feedback("当前文件已移除或读取失败，已停用旧读取版本；请重新选择文件。", is_error=True)
         self._io_files_token = task
         tree = self.excel_file_tree
         tree.delete(*tree.get_children())

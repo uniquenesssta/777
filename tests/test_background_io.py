@@ -12,6 +12,7 @@ from test_workbook_transactions import export_one, bind_view
 from quote_app.background import BackgroundApplicationMixin, capture, run
 from quote_app.jobs import Jobs, QueueFull
 from quote_files.reading import read_ledger
+from quote_files.metadata import file_version
 
 
 def wait_for(predicate, pump=lambda: None, seconds=3):
@@ -232,10 +233,10 @@ class BackgroundAdapterTests(unittest.TestCase):
             export_one(app)
             with asynchronous(app):
                 started, release = Event(), Event()
-                original = read_ledger
+                original = file_version
                 def slow(path):started.set();release.wait(2);return original(path)
                 try:
-                    with patch("quote_files.reading.read_ledger", side_effect=slow):
+                    with patch("quote_files.cache.file_version", side_effect=slow):
                         task = app.refresh_excel_files()
                         self.assertTrue(started.wait(1))
                         app.user_name.set("扫描中编辑")
@@ -255,10 +256,10 @@ class BackgroundAdapterTests(unittest.TestCase):
                 first = app.refresh_excel_files();wait_for(lambda: first.number not in app._io_callbacks, app._poll_io)
                 original_rows = dict(app.excel_file_tree.rows)
                 started, release = Event(), Event()
-                original = read_ledger
+                original = file_version
                 def slow(path):started.set();release.wait(2);return original(path)
                 try:
-                    with patch("quote_files.reading.read_ledger", side_effect=slow):
+                    with patch("quote_files.cache.file_version", side_effect=slow):
                         task = app.refresh_excel_files();self.assertTrue(started.wait(1))
                         app.cancel_background_reads();release.set()
                         wait_for(lambda: task.number not in app._io_runtime.tasks, app._poll_io)
@@ -274,10 +275,10 @@ class BackgroundAdapterTests(unittest.TestCase):
                 (new_root / name).write_bytes((folder / name).read_bytes())
             with asynchronous(app):
                 started, release = Event(), Event()
-                original = read_ledger
+                original = file_version
                 def slow(path):started.set();release.wait(2);return original(path)
                 try:
-                    with patch("quote_files.reading.read_ledger", side_effect=slow):
+                    with patch("quote_files.cache.file_version", side_effect=slow):
                         task = app.refresh_excel_files();self.assertTrue(started.wait(1))
                         app.excel_total_income.set("12.00")
                         app.data_source_var.set(str(new_root))
@@ -369,10 +370,10 @@ class BackgroundAdapterTests(unittest.TestCase):
             with asynchronous(app):
                 started, release = Event(), Event()
                 app.root.destroy = Mock()
-                original = read_ledger
+                original = file_version
                 def slow(path):started.set();release.wait(2);return original(path)
                 try:
-                    with patch("quote_files.reading.read_ledger", side_effect=slow):
+                    with patch("quote_files.cache.file_version", side_effect=slow):
                         app.refresh_excel_files();self.assertTrue(started.wait(1))
                         app.on_close()
                         app.root.destroy.assert_called_once()
