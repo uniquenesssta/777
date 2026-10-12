@@ -1,5 +1,6 @@
 """Measurement boundaries and real synthetic read counts, not Windows claims."""
 from copy import deepcopy
+import ast
 import io
 import json
 from pathlib import Path
@@ -7,6 +8,7 @@ import sys
 import tempfile
 import time
 import unittest
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 import openpyxl
@@ -21,6 +23,26 @@ import p01_fixtures as fixtures
 from p04_metrics import Heartbeat, distribution, healthy_heartbeat, input_hashes, instrumentation
 import p04_performance_check as perf
 from quote_files.documents import parse_document
+
+
+def configured_notebook(app, source):
+    """Execute the actual four entrypoints' notebook-add statements unchanged."""
+    calculator = next(n for n in ast.parse(source).body if isinstance(n, ast.ClassDef) and n.name == 'PriceCalculator')
+    statements = [n for n in ast.walk(calculator) if isinstance(n, ast.Expr) and isinstance(n.value, ast.Call)
+        and isinstance(n.value.func, ast.Attribute) and n.value.func.attr == 'add'
+        and isinstance(n.value.func.value, ast.Attribute) and n.value.func.value.attr == 'notebook']
+    class Notebook:
+        def __init__(self):self.labels = {};self.selected = None
+        def add(self, page, text):self.labels[page] = text
+        def tabs(self):return tuple(self.labels)
+        def tab(self, page, option):return self.labels[page]
+        def select(self, page):
+            if page not in self.labels:raise ValueError('Unknown notebook page')
+            self.selected = page
+    app.notebook = Notebook()
+    for statement in statements:setattr(app, statement.value.args[0].attr, object())
+    exec(compile(ast.Module(body=statements, type_ignores=[]), '<actual notebook configuration>', 'exec'), {'self': app})
+    return app.notebook
 
 
 class PerformanceMeasurementTests(unittest.TestCase):
@@ -164,6 +186,30 @@ class PerformanceMeasurementTests(unittest.TestCase):
         self.assertFalse(native['Windows_healthy_performance_passed'])
         self.assertFalse(native['current_correctness_and_read_counts_passed'])
 
+    def test_actual_current_and_archived_notebooks_expose_existing_excel_page_with_padded_labels(self):
+        manifest = json.loads((ROOT / 'docs/baseline/manifest.json').read_text(encoding='utf-8'))
+        for entry in manifest['files']:
+            for path in (ROOT / entry['path'], perf.baseline_check.source_path(ROOT, entry)):
+                with self.subTest(role=entry['role'], path=path.name):
+                    app = SimpleNamespace();notebook = configured_notebook(app, path.read_bytes())
+                    self.assertEqual(notebook.tab(app.excel_page, 'text'), ' Excel记录 ')
+                    self.assertEqual(len(notebook.tabs()), 5 if entry['role'] == 'manager' else 3)
+
+    def test_requested_full_scale_without_completed_rounds_is_not_measured_full_scale(self):
+        cases = [{'id': str(index), 'files': 1} for index in range(9)]
+        runs = [{'case_id': c['id'], 'version': 'current', 'status': 'worker_failed', 'round': 1} for c in cases]
+        summary = perf.summarize(runs, cases, 5, True)
+        self.assertFalse(summary['full_scale_five_rounds'])
+        self.assertFalse(summary['Windows_healthy_performance_passed'])
+
+    def test_worker_failure_preserves_entire_original_exception_traceback(self):
+        stderr = 'Root failure: real notebook page missing\n' + 'context\n' * 1000 + 'RuntimeError: startup failed\n'
+        child = SimpleNamespace(returncode=1, stdout='', stderr=stderr)
+        with patch.object(perf.subprocess, 'run', return_value=child):
+            result = perf.launch_worker(self.root, {'id': 'synthetic'}, 'current', True, 5)
+        self.assertEqual(result['status'], 'worker_failed')
+        self.assertEqual(result['stderr'], stderr)
+
     def test_gui_sequence_preflight_uses_real_background_adapters_and_all_phase_gates(self):
         # Tcl/replacement controls validate the diagnostic workflow only. No
         # Tk widgets, Windows heartbeat/DPI or native performance acceptance.
@@ -179,7 +225,8 @@ class PerformanceMeasurementTests(unittest.TestCase):
                 page_controls(app)
                 app.excel_next_button.invoke = lambda a=app: a.change_excel_page(1)
                 app.excel_filter_button = Mock();app.excel_filter_button.invoke = app.filter_excel_view
-                app.notebook = Mock();app.notebook.tabs.return_value = ('excel',);app.notebook.tab.return_value = 'Excel记录'
+                notebook = configured_notebook(app, (ROOT / next(e['path'] for e in json.loads(
+                    (ROOT / 'docs/baseline/manifest.json').read_text(encoding='utf-8'))['files'] if e['role'] == role)).read_bytes())
                 alive = [True]
                 window = app.root
                 original_tcl = window.tk
@@ -203,13 +250,15 @@ class PerformanceMeasurementTests(unittest.TestCase):
                 app._poll_io = BackgroundApplicationMixin._poll_io.__get__(app)
                 class Factory:
                     def __new__(cls, _):return app
-                with patch('tkinter.Tk', return_value=window), patch.object(perf.gui, 'live_sandbox_type', return_value=Factory):
-                    measured, _ = perf.gui_measurements(ns, folder, case, True)
-                window.attributes.assert_called_once_with('-disabled', True)
-                self.assertEqual(window.destroy.call_count, 2)
-                # The shared Tcl fixture also pumps its closed runtime during
-                # teardown. Its extra destroy is outside this diagnostic.
-                window.destroy.side_effect = None
+                try:
+                    with patch('tkinter.Tk', return_value=window), patch.object(perf.gui, 'live_sandbox_type', return_value=Factory):
+                        measured, _ = perf.gui_measurements(ns, folder, case, True)
+                    window.attributes.assert_called_once_with('-disabled', True)
+                    self.assertEqual(window.destroy.call_count, 2)
+                finally:
+                    # The shared fixture pumps its closed runtime on teardown.
+                    window.destroy.side_effect = None
+                self.assertIs(notebook.selected, app.excel_page)
                 self.assertEqual([m['phase'] for m in measured], ['first_refresh', 'warm_refresh', 'open_view', 'all_pages', 'filter_last_detail'])
                 self.assertEqual(measured[0]['counts']['workbook_opens'], 1)
                 self.assertEqual(measured[1]['counts'].get('workbook_opens', 0), 0)

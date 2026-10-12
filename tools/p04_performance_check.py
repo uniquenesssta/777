@@ -226,7 +226,7 @@ def gui_measurements(namespace, folder, case, current):
     def pulse():
         heart.pulse(time.perf_counter())
         heartbeat_jobs[:] = [window.after(50, pulse)]
-    error, waiting, active_phase = None, None, 'startup'
+    error, error_cause, waiting, active_phase = None, None, None, 'startup'
     active_context = None
     def completed(task):
         if not task or not hasattr(task, 'number'):
@@ -306,7 +306,9 @@ def gui_measurements(namespace, folder, case, current):
             yield lambda: True
         point_at_inputs(app, folder, current)
         # Startup has no test inputs. Hash checking/setup are outside phases.
-        app.notebook.select(next(tab for tab in app.notebook.tabs() if app.notebook.tab(tab, 'text') == 'Excel记录'))
+        # Both live and immutable original entrypoints own this frame. Display
+        # labels include padding and are not a stable page identifier.
+        app.notebook.select(app.excel_page)
         yield lambda: True
         yield from phase('first_refresh', refresh, observed=lambda: observations(app, case, current))
         yield from phase('warm_refresh', refresh, observed=lambda: observations(app, case, current))
@@ -320,7 +322,7 @@ def gui_measurements(namespace, folder, case, current):
         active_context = sequence()
         deadline = time.monotonic() + 120
         def drive():
-            nonlocal waiting, error, deadline
+            nonlocal waiting, error, error_cause, deadline
             try:
                 if time.monotonic() > deadline:raise TimeoutError('GUI_PHASE_DEADLINE')
                 if waiting is None or waiting():
@@ -328,11 +330,11 @@ def gui_measurements(namespace, folder, case, current):
                 window.after(10, drive)
             except StopIteration:window.quit()
             except Exception as exc:
-                error = f'{type(exc).__name__}: {exc}';window.quit()
+                error = f'{type(exc).__name__}: {exc}';error_cause = exc;window.quit()
         with patch('tkinter.messagebox.showinfo'), patch('tkinter.messagebox.showerror'), patch('tkinter.messagebox.showwarning'):
             heartbeat_jobs[:] = [window.after(50, pulse)]
             window.after(10, drive);window.mainloop()
-        if error:raise RuntimeError(f'{active_phase}: {error}')
+        if error:raise RuntimeError(f'{active_phase}: {error}') from error_cause
         if errors:raise RuntimeError('TK_CALLBACK_ERRORS: ' + repr(errors))
         return measurements, {'callback_errors': errors, 'close': 'ok', 'user_input_disabled': True,
             'tk_version': window.tk.call('package', 'provide', 'Tk'),
@@ -387,7 +389,7 @@ def launch_worker(root, case, version, native, timeout):
             cwd=ROOT, env={**os.environ, 'PYTHONIOENCODING': 'utf-8'})
         if result.returncode:
             return {'status': 'worker_failed', 'case_id': case['id'], 'version': version,
-                    'returncode': result.returncode, 'stderr': result.stderr[-4000:]}
+                    'returncode': result.returncode, 'stderr': result.stderr}
         return json.loads(result.stdout)
     except subprocess.TimeoutExpired:
         return {'status': 'timeout', 'case_id': case['id'], 'version': version, 'timeout_seconds': timeout,
@@ -425,10 +427,12 @@ def summarize(runs, cases, rounds, native):
     all_current = bool(current_rows) and len(current_runs) == len(cases) * rounds and all(
         r['status'] == 'measured' and r['inputs_unchanged'] and {m['phase'] for m in r['measurements']} == wanted for r in current_runs)
     current_correct = all_current and all(r['correct'] and r['expected_cold_warm_decodes'] for r in current_rows)
-    full = len(cases) == 9 and rounds >= 5
+    full_requested = len(cases) == 9 and rounds >= 5
+    full = full_requested and all_current and all(r['complete_five_rounds'] for r in current_rows)
     healthy = native and full and current_correct and all(r['complete_five_rounds'] and r['heartbeat_healthy_each_round'] for r in current_rows)
     return {'phases': rows, 'current_correctness_and_read_counts_passed': current_correct,
-        'full_scale_five_rounds': full, 'Windows_healthy_performance_passed': healthy,
+        'full_scale_five_rounds_requested': full_requested, 'full_scale_five_rounds': full,
+        'Windows_healthy_performance_passed': healthy,
         'memory_scope': 'tracemalloc Python allocations during each phase, not process RSS; retained cache estimates also in raw samples',
         'comparison_scope': 'Matched workbook bytes, device/process settings, counts and tracemalloc. Original known cost defect remains; no financial equivalence or inferred percentage speedup.'}
 

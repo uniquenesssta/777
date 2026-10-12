@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于`plans`；P01/P02/P03已验收归档old。当前唯一分支`stage/p04-performance`；P04-01/02及[P04-03](docs/verification/P04-03-acceptance.json)已验收收尾。用户“开始04”后，P04-04同数据冷暖对照、分阶段心跳与本机/UNC临时数据采样已实现，[17项新增/完整323项辅助通过](docs/verification/P04-04-checks.json)及[9种工作负载各5轮辅助计数](docs/verification/P04-04-read-profile.json)见证据；[Windows入口](docs/verification/P04-04-performance-contract.md)已交付，实际性能待回传。原563ms诊断记录与冻结门槛保持，P04留now，P05未启动。
+规划位于`plans`；P01/P02/P03已验收归档old。当前唯一分支`stage/p04-performance`；P04-01/02及[P04-03](docs/verification/P04-03-acceptance.json)已验收收尾。P04-04首次[Windows/UNC回传](docs/verification/P04-04-windows-evidence-01.json)的17项检查通过，但22个窗口进程均在采样前因页面定位错误退出，尚无性能数据。诊断已修复，[20项/完整326项辅助通过](docs/verification/P04-04-startup-checks.json)，待按[第二次Windows入口](docs/verification/P04-04-performance-contract.md)复查。原[全档辅助样本](docs/verification/P04-04-read-profile.json)、563ms记录及冻结门槛保持；P04留now，P05未启动。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -34,6 +34,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P04-04首次[Windows回传](docs/verification/P04-04-windows-evidence-01.json)：41项LF指纹匹配b84d774，17/17检查通过；本机和UNC各11个窗口进程在页面定位时退出，0个性能阶段完成，输入未改且临时目录清理正常。[原报告](docs/verification/P04-04-windows-report-01.json)保留全部字段。诊断现直接选择既有excel_page，预演执行新旧四份入口实际标签配置，保留异常链/完整stderr，并区分请求全档与实际完成。旧实现可复现原错误，修复后[20项/完整326项辅助通过](docs/verification/P04-04-startup-checks.json)；业务源码/旧样本不改，待Windows第二次复查，100/500ms门槛不变，04和整阶段不收尾，P05未启动。
 
 - 用户“开始04”：沿用已通过的Windows23项/实际母子Tk16项[收尾P04-03](docs/verification/P04-03-acceptance.json)，同分支交付[P04-04自动性能入口](docs/verification/P04-04-performance-contract.md)。9种工作负载各5轮辅助计数通过，冷读每文件一次、暖刷新零解码，金额和全部明细正确；新增17项/完整323项辅助通过及最终指纹另存。实际Windows阶段心跳及UNC性能待测；原563ms、最大500ms门槛和既有报告保留，业务源码不改，P04留now，P05未启动。
 

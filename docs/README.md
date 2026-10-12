@@ -9,8 +9,8 @@
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
 | 本轮授权 | 用户“开始04”：依据已通过报告收尾P04-03，继续同分支执行P04-04；既有推送授权有效 |
 | 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P01/P02/P03已归档；P04-01/02及[03](verification/P04-03-acceptance.json)已验收。04同数据对照/阶段心跳采样入口已实现，[17项新增/完整323项辅助通过](verification/P04-04-checks.json)及[9种工作负载5轮辅助样本](verification/P04-04-read-profile.json)见证据，实际Windows/UNC性能待回传；P04留now，P05未启动 |
-| 下一项 | 执行[P04-04 Windows入口](verification/P04-04-performance-contract.md)，回传新目录report.json；无需单独重跑01/02/03工具，原563ms与冻结门槛保持 |
+| 当前开发阶段 / Atomic Task | P01/P02/P03已归档；P04-01/02及[03](verification/P04-03-acceptance.json)已验收。04首次[Windows/UNC回传](verification/P04-04-windows-evidence-01.json)17项通过、22个窗口采样前退出，无性能数据；[诊断修复20项/完整326项辅助通过](verification/P04-04-startup-checks.json)，待第二次实机复查；P04留now，P05未启动 |
+| 下一项 | 执行[P04-04第二次Windows入口](verification/P04-04-performance-contract.md)，回传reports/p04-04-windows-02/report.json；首次原报告保留，无需单独重跑01/02/03，原563ms与冻结门槛保持 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
@@ -42,4 +42,4 @@
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
 
-当前结论：P04-01/02/03已验收收尾，04采样入口已交付、Windows/UNC性能待回传；唯一执行分支stage/p04-performance，P04仍留now。
+当前结论：P04-01/02/03已验收收尾；04首次实机采样前失败已登记，诊断修复后待Windows/UNC第二次复查；唯一执行分支stage/p04-performance，P04仍留now。

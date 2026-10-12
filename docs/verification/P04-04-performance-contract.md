@@ -1,6 +1,6 @@
 # P04-04 同数据性能对照与Windows入口
 
-状态：已实现待验证，Windows/UNC性能待回传。用户于2026-10-12 16:56:40（Asia/Shanghai）“开始04”，依据已有通过报告[收尾P04-03](P04-03-acceptance.json)，继续唯一`stage/p04-performance`；实施基线为证据提交`95c008da4b3f4f662f512ef930adc02509c69f47`。P04仍在now，P05未启动。
+状态：首次Windows/UNC采样在启动阶段失败，诊断已修复，待第二次实机复查。用户于2026-10-12 16:56:40（Asia/Shanghai）“开始04”，依据已有通过报告[收尾P04-03](P04-03-acceptance.json)，继续唯一`stage/p04-performance`；实施基线95c008d，本次诊断修复基线b84d774。P04仍在now，P05未启动。
 
 ## 测量范围和固定门槛
 
@@ -43,14 +43,22 @@
 
 [最终检查证据](P04-04-checks.json)记录新增17项GBK默认下检查、完整323项辅助回归、非Windows入口阻断、Tcl/替代控件预演及最终源码指纹。全档辅助样本先于Windows只读窗口/重复销毁清理的最后核对；原报告不重写，差异与未变化的后台测量函数在检查证据列明。无需重复测量未变的后台链。
 
+## 首次Windows结果及修复
+
+[首次证据](P04-04-windows-evidence-01.json)确认41项LF指纹匹配b84d774、17/17本机检查通过；本机/UNC各11个窗口进程均在采样前退出，没有实际性能数据。输入未改，临时目录已清理。[原报告](P04-04-windows-report-01.json)全部字段保持；旧full_scale_five_rounds=true仅来自请求矩阵，不能作为完成测量的证据。
+
+诊断原按精确文本Excel记录查标签，而新旧四份入口均配置为两端带空格的标签；生成器中next无匹配造成startup: RuntimeError: generator raised StopIteration。现直接选择已有excel_page，Tcl预演执行实际Notebook.add配置并保留原文本，异常链与worker完整stderr保存。请求全档由full_scale_five_rounds_requested表示，full_scale_five_rounds仅在全档当前轮次/阶段实际完成时为true。
+
+[修复检查](P04-04-startup-checks.json)记录旧实现复现原错误、20项针对性及完整326项辅助通过。没有实际Windows/Tk/UNC复查结论；业务源码和未变化的全档后台测量保持，旧样本不重写、不重复测量。首次结果不能说明性能门槛失败/通过，也不能定位原563ms；门槛仍为p95≤100ms、最大≤500ms，至少5轮及每阶段20个心跳样本。
+
 ## Windows执行
 
-在当前P04分支执行一次，工具会自动运行新增检查、本机及共享盘三档5轮对照。窗口会自动打开、切页和关闭，禁止人工输入；控制台持续显示轮次。完整流程通常需要十几分钟，依硬盘/共享盘速度可能更久。
+在当前P04分支执行一次，工具会自动运行20项检查、本机及共享盘三档5轮对照。窗口会自动打开、切页和关闭，禁止人工输入；控制台持续显示轮次。完整流程通常需要十几分钟，依硬盘/共享盘速度可能更久。
 
 ```powershell
 git pull --ff-only
 if ($LASTEXITCODE -ne 0) { throw '拉取失败，先停止' }
-py -3 tools/p04_performance_check.py --gui-heartbeat --compare-legacy --shared-root '\\192.168.4.38\14T共享盘\葛宁\PyInstaller' --output reports/p04-04-windows-01
+py -3 tools/p04_performance_check.py --gui-heartbeat --compare-legacy --shared-root '\\192.168.4.38\14T共享盘\葛宁\PyInstaller' --output reports/p04-04-windows-02
 ```
 
-完成后回传`reports/p04-04-windows-01/report.json`。保留当轮源指纹、原始样本与失败状态；不在回传前登记P04-04或整阶段通过，不启动P05。
+完成后回传`reports/p04-04-windows-02/report.json`。保留当轮源指纹、原始样本与失败状态；不在回传前登记P04-04或整阶段通过，不启动P05。
