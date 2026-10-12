@@ -2,7 +2,7 @@
 
 版本：初始规划；日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P01/P02/P03已验收；P04执行任务已按用户授权转接，整阶段验收未通过，[共享复验因停电延期](verification/P04-04-deferral.json)。当前唯一stage/p05-data-service，真实基线31c8784；P05-01已实现本地SQLite账本、幂等/revision/价格CAS与不可变快照、一致备份及独立恢复，初版[31专项/374完整辅助检查](verification/P05-01-checks.json)通过；[首次Windows回传](verification/P05-01-windows-evidence-01.json)31项中21通过/10错误，备份DACL及测试连接关闭已修复，[40专项/383完整辅助回归](verification/P05-01-security-fix-checks.json)通过；[第二次Windows回传](verification/P05-01-windows-evidence-02.json)40项32通过/8处同源刷盘错误，已改为非截断可写句柄，[42专项/385完整辅助](verification/P05-01-fsync-checks.json)通过，待windows-03复验。P05-02/03/04未实施，未切换客户端或迁移生产账本。** 后续任务按阶段验收与授权推进。
+**P01/P02/P03已验收；P04执行任务已按用户授权转接，[共享复验因停电延期](verification/P04-04-deferral.json)，整阶段未验收。当前唯一stage/p05-data-service，真实基线31c8784；P05-01本机SQLite账本、幂等/revision/价格CAS、不可变快照、一致备份及独立恢复已实现，[385项完整辅助](verification/P05-01-fsync-checks.json)保留；[第三次Windows回传](verification/P05-01-windows-evidence-03.json)20项源码指纹及42测试ID匹配9ce9f16，42/42与原生事务/恢复、Hidden+System/DACL/额外授权移除和清理全部通过，具备01收尾条件、无需重跑。P05-02/03/04未实施，未切换客户端或迁移生产账本。** 后续任务按阶段验收与授权推进。
 
 ## 1. 目标与边界
 
@@ -23,7 +23,7 @@ P01/P02/P03已验收归档old；P04按用户明确授权转接old，标记共享
 | P02 | [计算正确性与公共核心](old/P02-calculation.md) | P01已验收 | stage/p02-calculation | 四项均已验收归档；[P02确认](verification/P02-acceptance.json)，辅助130项及用户明确Windows复查通过 |
 | P03 | [文件数据安全与兼容](old/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 四项均已验收归档；[P03确认](verification/P03-acceptance.json)，原Windows及辅助237项证据保留 |
 | P04 | [后台任务与性能](old/P04-performance.md) | P03已验收 | stage/p04-performance（已转接） | 01/02/03已验收，04短诊断通过；用户确认停电、授权先P05，共享正式复验保留为2026-10-14待办，整阶段未验收 |
-| P05 | [结构化存储与局域网服务](now/P05-data-service.md) | 用户允许先行；P04共享复验待补 | stage/p05-data-service | 01刷盘句柄修复，42专项/385辅助通过；第二次Windows32通过/8处刷盘错误，待03复验；02/03/04待实施 |
+| P05 | [结构化存储与局域网服务](now/P05-data-service.md) | 用户允许先行；P04共享复验待补 | stage/p05-data-service | 01第三次Windows42/42及原生备份/恢复/权限通过，385辅助保留；具备收尾条件，无需重跑；02/03/04待实施 |
 | P06 | [Rust业务核心与适配](new/P06-rust-core.md) | P05已验收 | stage/p06-rust-core | 待启动；黄金样本一致、服务适配和格式兼容通过 |
 | P07 | [Tauri界面与Windows交付](new/P07-tauri-desktop.md) | P06已验收 | stage/p07-tauri-desktop | 待启动；母子角色端到端、权限与安装验收通过 |
 | P08 | [迁移演练与正式切换](new/P08-cutover.md) | P07已验收 | stage/p08-cutover | 待启动；全量对账、恢复演练及用户验收后才切换 |

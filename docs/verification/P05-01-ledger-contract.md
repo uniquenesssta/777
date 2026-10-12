@@ -1,6 +1,6 @@
 # P05-01 本地主机结构化账本与备份契约
 
-状态：第二次Windows暴露备份快照只读句柄刷盘失败，已修复待第三次复验，尚未用户验收。唯一分支`stage/p05-data-service`，基线`31c8784`；用户确认停电并授权先P05的[依赖例外](P04-04-deferral.json)保留P04共享复验，不伪造整阶段通过。
+状态：第三次Windows隔离检查及原生联测已通过，P05-01具备收尾条件，待用户接续收尾；已通过检查无需重跑。唯一分支`stage/p05-data-service`，基线`31c8784`；用户确认停电并授权先P05的[依赖例外](P04-04-deferral.json)保留P04共享复验，不伪造整阶段通过。
 
 实现：`quote_ledger`＋Python标准库sqlite3，要求Python3.12和SQLite≥3.37。复用已有business-v1/numeric-v1及53例黄金集，不另算财务公式。全程只在显式本机普通路径创建新库，拒绝UNC/映射盘/链接/重解析、现有文件及占用的WAL/SHM；已有库以schema_version、application_id和实际schema指纹核对，不自动修复/覆盖未知或不兼容库。现有窗口、价格/Excel写链未切换，没有服务或生产数据库部署。
 
@@ -47,15 +47,17 @@
 
 ## 验证证据和剩余门槛
 
-[31专项/374项完整辅助证据](P05-01-checks.json)记录真实本机合成SQLite：同请求两连接只有一单、锁失败无半单、第二条明细失败整单回滚、真实子进程在提交前退出后恢复、已提交回复丢失查询/重放、价格CAS/冻结与备注revision、作废恢复对账、实际并发未提交写入时的一致性备份、独立恢复、坏包/坏库/过期清理/计划锁、全部53黄金入库或拒绝与原资料保护。辅助环境不是目标Windows/真实E盘或真实多客户端服务。[首次Windows报告](P05-01-windows-report-01.json)中31项21通过/10错误，19项源码和测试清单均匹配94f4d89；[核对与修复记录](P05-01-windows-evidence-01.json)保留具体边界。9处备份DACL组合门禁失败，实际SDDL未采集，不能区分保护位和主体数；另1处文件SQLite连接未显式关闭导致WinError32。修复后[40专项/383完整辅助](P05-01-security-fix-checks.json)通过；新增7项精确权限/Win32调用边界及2项控制台失败证据检查，模拟调用不当原生权限证据。Windows入口现运行40项及原生属性/DACL、账本与恢复联测；另外在新建临时目录预置Everyone完全控制，再用实际原生API移除并读回核验。真实认证客户端在P05-02。
+[31专项/374项完整辅助证据](P05-01-checks.json)记录真实本机合成SQLite：同请求两连接只有一单、锁失败无半单、第二条明细失败整单回滚、真实子进程在提交前退出后恢复、已提交回复丢失查询/重放、价格CAS/冻结与备注revision、作废恢复对账、实际并发未提交写入时的一致性备份、独立恢复、坏包/坏库/过期清理/计划锁、全部53黄金入库或拒绝与原资料保护。辅助环境不是目标Windows/真实E盘或真实多客户端服务。[首次Windows报告](P05-01-windows-report-01.json)中31项21通过/10错误，19项源码和测试清单均匹配94f4d89；[核对与修复记录](P05-01-windows-evidence-01.json)保留具体边界。9处备份DACL组合门禁失败，实际SDDL未采集，不能区分保护位和主体数；另1处文件SQLite连接未显式关闭导致WinError32。修复后[40专项/383完整辅助](P05-01-security-fix-checks.json)通过；新增7项精确权限/Win32调用边界及2项控制台失败证据检查，模拟调用不当原生权限证据。该轮Windows入口运行40项及原生属性/DACL、账本与恢复联测；另外在新建临时目录预置Everyone完全控制，再用实际原生API移除并读回核验。真实认证客户端在P05-02。
 
-[第二次Windows原报告](P05-01-windows-report-02.json)的20项指纹及40测试ID匹配877e8af，32通过/8错误，前次DACL和清理错误未再出现；全部8处发生于快照rb句柄执行fsync，详见[核对记录](P05-01-windows-evidence-02.json)。已改为不截断快照的可写r+b句柄，保持刷盘失败传播；[42专项/385完整辅助](P05-01-fsync-checks.json)通过。新增两项用真实文件/SQLite/独立恢复，辅助守卫在旧实现复现只读刷盘失败；注入刷盘EIO验证旧成功备份、原订单/回执和幂等性保留。模拟守卫不证明Windows已通过，独立原生联测仍待windows-03。
+[第二次Windows原报告](P05-01-windows-report-02.json)的20项指纹及40测试ID匹配877e8af，32通过/8错误，前次DACL和清理错误未再出现；全部8处发生于快照rb句柄执行fsync，详见[核对记录](P05-01-windows-evidence-02.json)。已改为不截断快照的可写r+b句柄，保持刷盘失败传播；[42专项/385完整辅助](P05-01-fsync-checks.json)通过。新增两项用真实文件/SQLite/独立恢复，辅助守卫在旧实现复现只读刷盘失败；注入刷盘EIO验证旧成功备份、原订单/回执和幂等性保留。当时模拟守卫不作Windows通过证据；该待办现由下述第三次真实Windows联测关闭。
+
+[第三次Windows回传](P05-01-windows-evidence-03.json)的20项LF源码指纹及42测试ID匹配9ce9f16，42/42零失败/错误/跳过。实际本机SQLite、原始及恢复库幂等回执、精确金额与作废恢复、一致备份及独立恢复全部通过；恢复收入3600分、成本1600分、利润2000分，1单2明细1备注5审计/回执，revision=5。Hidden+System、3个允许主体的受保护DACL、额外Everyone授权移除、原生锁及临时清理全部通过。[原报告](P05-01-windows-report-03.json)按字节保留；旧失败与385项辅助证据保持。P05-01具备收尾条件，无需重跑；真实主机/E盘安装身份、多认证客户端及整阶段验收仍属后续范围。
 
 P04整阶段尚未验收；用户确认停电原因并授权开发先行，明日共享复验保留为2026-10-14待办。不要把本地SQLite通过当P04共享性能通过，或自动开启生产切换。
 
-## Windows执行入口
+## 已完成的Windows执行记录
 
-当前已在stage/p05-data-service，拉取修复即可。检查只创建临时本机目录及新的reports输出；真实E盘/共享目录不触碰。首次报告保留，使用新输出目录，不覆盖或删除旧报告。
+第三次隔离检查已完成并通过，下列命令仅记录本次执行方式，当前无需重跑。需要后续复现时另选不存在的输出目录，既有报告不能覆盖；检查只创建临时本机数据，真实E盘/共享目录不触碰。
 
 ```powershell
 git pull --ff-only
@@ -63,7 +65,7 @@ if ($LASTEXITCODE -ne 0) { throw '拉取失败，先停止' }
 py -3 tools/p05_ledger_check.py --windows-smoke --output reports/p05-01-windows-03
 ```
 
-预计约1～3分钟，完成后回传`reports/p05-01-windows-03/report.json`。控制台会显示检查数量、失败测试摘要或原生异常与报告位置；报告保留完整检查日志和原生异常链。核对20项LF源码指纹、42个测试ID、原生属性/DACL（包含额外授权移除）、事务/恢复及清理后再决定01收尾；本阶段留now，02/03/04未实施。
+`reports/p05-01-windows-03/report.json`已回传并完成上述核对，原报告已归档。P05-01具备收尾条件；本阶段留now，02/03/04未实施。控制台和报告的完整失败诊断仍保留供后续复现使用。
 
 技术依据（实施时复核）：[Python3.12 sqlite3](https://docs.python.org/3.12/library/sqlite3.html)、[SQLite事务](https://www.sqlite.org/lang_transaction.html)、[SQLite在线备份](https://www.sqlite.org/backup.html)、[网络文件数据库限制](https://www.sqlite.org/useovernet.html)、[Microsoft安全描述符](https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-getnamedsecurityinfow)、[SDDL](https://learn.microsoft.com/en-us/windows/win32/secauthz/security-descriptor-string-format)、[SetNamedSecurityInfoW](https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-setnamedsecurityinfow)、[SDDL转换](https://learn.microsoft.com/en-us/windows/win32/api/sddl/nf-sddl-convertstringsecuritydescriptortosecuritydescriptorw)、[读取DACL](https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-getsecuritydescriptordacl)。
 

@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于plans；P01/P02/P03已验收；P04执行任务已按用户授权转接，整阶段验收未通过，[共享复验因停电延期](docs/verification/P04-04-deferral.json)。当前唯一stage/p05-data-service，真实基线31c8784；P05-01已实现本地SQLite账本、幂等/revision/价格CAS与不可变快照、一致备份及独立恢复，初版[31专项/374完整辅助检查](docs/verification/P05-01-checks.json)通过；[首次Windows回传](docs/verification/P05-01-windows-evidence-01.json)31项中21通过/10错误，备份DACL及测试连接关闭已修复，[40专项/383完整辅助回归](docs/verification/P05-01-security-fix-checks.json)通过；[第二次Windows回传](docs/verification/P05-01-windows-evidence-02.json)40项32通过/8处同源刷盘错误，已改为非截断可写句柄，[42专项/385完整辅助](docs/verification/P05-01-fsync-checks.json)通过，待windows-03复验。P05-02/03/04未实施，未切换客户端或迁移生产账本。
+规划位于plans；P01/P02/P03已验收；P04执行任务已按用户授权转接，[共享复验因停电延期](docs/verification/P04-04-deferral.json)，整阶段未验收。当前唯一stage/p05-data-service，真实基线31c8784；P05-01本机SQLite账本、幂等/revision/价格CAS、不可变快照、一致备份及独立恢复已实现，[385项完整辅助](docs/verification/P05-01-fsync-checks.json)保留；[第三次Windows回传](docs/verification/P05-01-windows-evidence-03.json)20项源码指纹及42测试ID匹配9ce9f16，42/42与原生事务/恢复、Hidden+System/DACL/额外授权移除和清理全部通过，具备01收尾条件、无需重跑。P05-02/03/04未实施，未切换客户端或迁移生产账本。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -34,6 +34,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 登记P05-01[第三次Windows通过证据](docs/verification/P05-01-windows-evidence-03.json)：20项LF源码指纹及全部42测试ID匹配9ce9f16，42/42零失败/错误/跳过；原生本机SQLite/幂等回执、备注/作废恢复、一致备份与独立恢复通过，恢复收入/成本/利润分别3600/1600/2000分。Hidden+System、3个允许主体的受保护DACL、额外Everyone授权移除、原生锁及临时清理全部通过；[原报告](docs/verification/P05-01-windows-report-03.json)按字节保存。前两次失败及385项辅助证据保持，程序代码未改，已通过检查无需重跑；P05-01具备收尾条件，02/03/04未启动，真实主机/E盘服务身份与多客户端部署留后续，P04共享复验继续保留。
 
 - P05-01[第二次Windows回传](docs/verification/P05-01-windows-evidence-02.json)：20项LF指纹、40测试ID及schema匹配877e8af，32通过/8错误；前次DACL/连接清理错误消失，8处均为新快照只读rb句柄调用fsync导致EBADF，[原报告](docs/verification/P05-01-windows-report-02.json)按字节保存。仅将该应用新建快照改为不截断的r+b句柄，保持真实刷盘和失败阻断；新增受限句柄回归在旧实现复现同类失败，修复后内容不变/独立恢复通过，刷盘失败保留最近成功包、原订单和幂等回执。[42专项/385完整辅助](docs/verification/P05-01-fsync-checks.json)通过，现有P05分支拉取后用windows-03复验；原权限保护/计算/DDL/P04实现与历史证据保持，01及整阶段尚未验收。
 

@@ -1,6 +1,6 @@
 # 文档与计划入口
 
-日期：2026-10-12（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；当前执行分支：`stage/p04-performance`；P01收尾提交：`7099303`。
+日期：2026-10-13（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；当前执行分支：`stage/p05-data-service`；P01收尾提交：`7099303`。
 
 ## 当前状态
 
@@ -9,8 +9,8 @@
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
 | 本轮授权 | 用户2026-10-13 00:12:35确认停电、授权先推进P05并延期共享复验；既有推送授权有效 |
 | 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P01/P02/P03已验收；P04执行任务已按用户授权转接，整阶段验收未通过，[共享复验因停电延期](verification/P04-04-deferral.json)。当前唯一stage/p05-data-service，真实基线31c8784；P05-01已实现本地SQLite账本、幂等/revision/价格CAS与不可变快照、一致备份及独立恢复，初版[31专项/374完整辅助检查](verification/P05-01-checks.json)通过；[首次Windows回传](verification/P05-01-windows-evidence-01.json)31项中21通过/10错误，备份DACL及测试连接关闭已修复，[40专项/383完整辅助回归](verification/P05-01-security-fix-checks.json)通过；[第二次Windows回传](verification/P05-01-windows-evidence-02.json)40项32通过/8处同源刷盘错误，已改为非截断可写句柄，[42专项/385完整辅助](verification/P05-01-fsync-checks.json)通过，待windows-03复验。P05-02/03/04未实施，未切换客户端或迁移生产账本。 |
-| 下一项 | 现有stage/p05-data-service拉取修复，按[P05-01隔离入口](verification/P05-01-ledger-contract.md)回传reports/p05-01-windows-03/report.json；P04共享复验保留明日待办，不阻塞本次本地实现 |
+| 当前开发阶段 / Atomic Task | P01/P02/P03已验收；P04执行任务已按用户授权转接，[共享复验因停电延期](verification/P04-04-deferral.json)，整阶段未验收。当前唯一stage/p05-data-service，真实基线31c8784；P05-01本机SQLite账本、幂等/revision/价格CAS、不可变快照、一致备份及独立恢复已实现，[385项完整辅助](verification/P05-01-fsync-checks.json)保留；[第三次Windows回传](verification/P05-01-windows-evidence-03.json)20项源码指纹及42测试ID匹配9ce9f16，42/42与原生事务/恢复、Hidden+System/DACL/额外授权移除和清理全部通过，具备01收尾条件、无需重跑。P05-02/03/04未实施，未切换客户端或迁移生产账本。 |
+| 下一项 | P05-01已具备收尾条件，已通过本机检查无需重跑，02按用户接续指令；P04共享复验保留2026-10-14待办 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
@@ -42,4 +42,4 @@
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
 
-当前结论：P05-01第二次Windows刷盘失败已修复，待第三次隔离验证；P04共享性能仍待补，用户允许开发先行，未登记P04整阶段通过。
+当前结论：P05-01第三次Windows检查及原生联测通过，具备收尾条件；P04共享性能仍待补，用户允许开发先行，未登记P04整阶段通过。
