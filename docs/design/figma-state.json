@@ -5,7 +5,7 @@
   "branch": "Figma",
   "baselineCommit": "11ffd173f9ab12633d6c98b1549e1d7f55357a76",
   "businessBaseline": "223e86e0bef90dfef083281a42f8d7919b13c07d",
-  "status": "Compact redesign extended with order list, read-only detail and confirmation; awaiting visual review",
+  "status": "Compact violet/graphite visual direction approved; admin lifecycle and sales prototype expanded",
   "fileKey": "2ek9bkIz5ldyhjZnnvIuNu",
   "fileUrl": "https://www.figma.com/design/2ek9bkIz5ldyhjZnnvIuNu",
   "pages": {
@@ -606,7 +606,7 @@
     "pageId": "21:2",
     "frameId": "21:3",
     "url": "https://www.figma.com/design/2ek9bkIz5ldyhjZnnvIuNu?node-id=21-3",
-    "scope": "Admin quotation, order list, read-only detail and confirmation prototype",
+    "scope": "Admin and sales quotation/order prototypes, append-only sample notes, admin void/restore with reasons",
     "prototypeConnected": true,
     "collectionId": "VariableCollectionId:22:253",
     "variables": {
@@ -720,11 +720,13 @@
       "adminConfirm": "32:818"
     },
     "limitations": [
-      "Static sample values; no production APIs",
-      "Only first list row opens the sample detail",
-      "Search, filters, pagination and append-note button are static",
-      "Sales and exception states have not been migrated to the redesign",
-      "No browser click playback, keyboard or Windows DPI validation"
+      "Static sample values and fixed single-note state; no arbitrary text input or production APIs",
+      "Only the first order row has a linked detail sample",
+      "Filters, pagination, product editing and realtime calculation remain static",
+      "Note and void state retained on the illustrated detail/list branch; starting a new quote returns to initial sample state",
+      "Restore returns to the corresponding saved sample; persistent audit-history viewer not implemented",
+      "No browser click playback, keyboard, Windows DPI or backend permission validation",
+      "Price maintenance, reports/jobs, settings and new exception states remain pending"
     ],
     "listLayout": {
       "visibleRows": 8,
@@ -736,78 +738,630 @@
     },
     "prototypeConnections": [
       {
-        "node": "32:365",
-        "type": "NODE",
-        "destinationId": "32:499",
-        "navigation": "NAVIGATE",
-        "transition": null,
-        "resetScrollPosition": false,
-        "resetInteractiveComponents": false
-      },
-      {
-        "node": "32:814",
+        "node": "22:279",
+        "root": "21:3",
         "type": "NODE",
         "destinationId": "32:96",
         "navigation": "NAVIGATE",
         "transition": null,
+        "resetVideoPosition": false,
         "resetScrollPosition": false,
         "resetInteractiveComponents": false
       },
       {
         "node": "22:501",
+        "root": "21:3",
         "type": "NODE",
         "destinationId": "32:818",
         "navigation": "OVERLAY",
         "transition": null,
-        "resetScrollPosition": false,
-        "resetInteractiveComponents": false
-      },
-      {
-        "node": "32:829",
-        "type": "CLOSE"
-      },
-      {
-        "node": "32:831",
-        "type": "NODE",
-        "destinationId": "32:499",
-        "navigation": "NAVIGATE",
-        "transition": null,
-        "resetScrollPosition": false,
-        "resetInteractiveComponents": false
-      },
-      {
-        "node": "22:279",
-        "type": "NODE",
-        "destinationId": "32:96",
-        "navigation": "NAVIGATE",
-        "transition": null,
+        "resetVideoPosition": false,
         "resetScrollPosition": false,
         "resetInteractiveComponents": false
       },
       {
         "node": "32:103",
+        "root": "32:96",
         "type": "NODE",
         "destinationId": "21:3",
         "navigation": "NAVIGATE",
         "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "32:365",
+        "root": "32:96",
+        "type": "NODE",
+        "destinationId": "32:499",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
         "resetScrollPosition": false,
         "resetInteractiveComponents": false
       },
       {
         "node": "32:506",
+        "root": "32:499",
         "type": "NODE",
         "destinationId": "21:3",
         "navigation": "NAVIGATE",
         "transition": null,
+        "resetVideoPosition": false,
         "resetScrollPosition": false,
         "resetInteractiveComponents": false
       },
       {
         "node": "32:507",
+        "root": "32:499",
         "type": "NODE",
         "destinationId": "32:96",
         "navigation": "NAVIGATE",
         "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "32:814",
+        "root": "32:499",
+        "type": "NODE",
+        "destinationId": "32:96",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "32:816",
+        "root": "32:499",
+        "type": "NODE",
+        "destinationId": "39:2907",
+        "navigation": "OVERLAY",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:1606",
+        "root": "32:499",
+        "type": "NODE",
+        "destinationId": "39:2931",
+        "navigation": "OVERLAY",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "32:829",
+        "root": "32:818",
+        "type": "CLOSE"
+      },
+      {
+        "node": "32:831",
+        "root": "32:818",
+        "type": "NODE",
+        "destinationId": "32:499",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:1615",
+        "root": "39:1608",
+        "type": "NODE",
+        "destinationId": "21:3",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:1616",
+        "root": "39:1608",
+        "type": "NODE",
+        "destinationId": "39:2298",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:1813",
+        "root": "39:1608",
+        "type": "NODE",
+        "destinationId": "39:2298",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:1815",
+        "root": "39:1608",
+        "type": "NODE",
+        "destinationId": "39:2907",
+        "navigation": "OVERLAY",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:1816",
+        "root": "39:1608",
+        "type": "NODE",
+        "destinationId": "39:2943",
+        "navigation": "OVERLAY",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:1845",
+        "root": "39:1838",
+        "type": "NODE",
+        "destinationId": "21:3",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:1846",
+        "root": "39:1838",
+        "type": "NODE",
+        "destinationId": "39:2501",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2043",
+        "root": "39:1838",
+        "type": "NODE",
+        "destinationId": "39:2501",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2045",
+        "root": "39:1838",
+        "type": "NODE",
+        "destinationId": "39:2919",
+        "navigation": "OVERLAY",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2046",
+        "root": "39:1838",
+        "type": "NODE",
+        "destinationId": "39:2955",
+        "navigation": "OVERLAY",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2075",
+        "root": "39:2068",
+        "type": "NODE",
+        "destinationId": "21:3",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2076",
+        "root": "39:2068",
+        "type": "NODE",
+        "destinationId": "39:2704",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2273",
+        "root": "39:2068",
+        "type": "NODE",
+        "destinationId": "39:2704",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2275",
+        "root": "39:2068",
+        "type": "NODE",
+        "destinationId": "39:2919",
+        "navigation": "OVERLAY",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2276",
+        "root": "39:2068",
+        "type": "NODE",
+        "destinationId": "39:2967",
+        "navigation": "OVERLAY",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2305",
+        "root": "39:2298",
+        "type": "NODE",
+        "destinationId": "21:3",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2351",
+        "root": "39:2298",
+        "type": "NODE",
+        "destinationId": "39:1608",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2508",
+        "root": "39:2501",
+        "type": "NODE",
+        "destinationId": "21:3",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2554",
+        "root": "39:2501",
+        "type": "NODE",
+        "destinationId": "39:1838",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2711",
+        "root": "39:2704",
+        "type": "NODE",
+        "destinationId": "21:3",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2757",
+        "root": "39:2704",
+        "type": "NODE",
+        "destinationId": "39:2068",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2914",
+        "root": "39:2907",
+        "type": "CLOSE"
+      },
+      {
+        "node": "39:2915",
+        "root": "39:2907",
+        "type": "NODE",
+        "destinationId": "39:1608",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2926",
+        "root": "39:2919",
+        "type": "CLOSE"
+      },
+      {
+        "node": "39:2927",
+        "root": "39:2919",
+        "type": "NODE",
+        "destinationId": "39:2068",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2938",
+        "root": "39:2931",
+        "type": "CLOSE"
+      },
+      {
+        "node": "39:2939",
+        "root": "39:2931",
+        "type": "NODE",
+        "destinationId": "39:1838",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2950",
+        "root": "39:2943",
+        "type": "CLOSE"
+      },
+      {
+        "node": "39:2951",
+        "root": "39:2943",
+        "type": "NODE",
+        "destinationId": "39:2068",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2962",
+        "root": "39:2955",
+        "type": "CLOSE"
+      },
+      {
+        "node": "39:2963",
+        "root": "39:2955",
+        "type": "NODE",
+        "destinationId": "32:499",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "39:2974",
+        "root": "39:2967",
+        "type": "CLOSE"
+      },
+      {
+        "node": "39:2975",
+        "root": "39:2967",
+        "type": "NODE",
+        "destinationId": "39:1608",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "40:1612",
+        "root": "40:1604",
+        "type": "NODE",
+        "destinationId": "40:2145",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "40:1818",
+        "root": "40:1604",
+        "type": "NODE",
+        "destinationId": "40:2681",
+        "navigation": "OVERLAY",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "40:1922",
+        "root": "40:1915",
+        "type": "NODE",
+        "destinationId": "40:1604",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "40:1923",
+        "root": "40:1915",
+        "type": "NODE",
+        "destinationId": "40:2145",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "40:2120",
+        "root": "40:1915",
+        "type": "NODE",
+        "destinationId": "40:2145",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "40:2122",
+        "root": "40:1915",
+        "type": "NODE",
+        "destinationId": "40:2692",
+        "navigation": "OVERLAY",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "40:2152",
+        "root": "40:2145",
+        "type": "NODE",
+        "destinationId": "40:1604",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "40:2198",
+        "root": "40:2145",
+        "type": "NODE",
+        "destinationId": "40:1915",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "40:2355",
+        "root": "40:2348",
+        "type": "NODE",
+        "destinationId": "40:1604",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "40:2356",
+        "root": "40:2348",
+        "type": "NODE",
+        "destinationId": "40:2558",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "40:2539",
+        "root": "40:2348",
+        "type": "NODE",
+        "destinationId": "40:2558",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "40:2541",
+        "root": "40:2348",
+        "type": "NODE",
+        "destinationId": "40:2692",
+        "navigation": "OVERLAY",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "40:2565",
+        "root": "40:2558",
+        "type": "NODE",
+        "destinationId": "40:1604",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "40:2604",
+        "root": "40:2558",
+        "type": "NODE",
+        "destinationId": "40:2348",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "40:2688",
+        "root": "40:2681",
+        "type": "CLOSE"
+      },
+      {
+        "node": "40:2689",
+        "root": "40:2681",
+        "type": "NODE",
+        "destinationId": "40:1915",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "40:2699",
+        "root": "40:2692",
+        "type": "CLOSE"
+      },
+      {
+        "node": "40:2700",
+        "root": "40:2692",
+        "type": "NODE",
+        "destinationId": "40:2348",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetVideoPosition": false,
         "resetScrollPosition": false,
         "resetInteractiveComponents": false
       }
@@ -823,6 +1377,43 @@
         "total",
         "return and confirm"
       ]
-    }
+    },
+    "styleApproved": true,
+    "styleApprovedAt": "2026-10-14",
+    "pageName": "当前 · 紫灰紧凑版",
+    "additionalScreens": {
+      "订单详情 · 已追加备注": "39:1608",
+      "订单详情 · 已作废": "39:1838",
+      "订单详情 · 备注保留 / 已作废": "39:2068",
+      "订单记录 · 备注已追加": "39:2298",
+      "订单记录 · 订单已作废": "39:2501",
+      "订单记录 · 作废并保留备注": "39:2704",
+      "追加备注 · 管理员": "39:2907",
+      "追加备注 · 作废订单": "39:2919",
+      "作废确认 · 无备注": "39:2931",
+      "作废确认 · 保留备注": "39:2943",
+      "恢复确认 · 无备注": "39:2955",
+      "恢复确认 · 保留备注": "39:2967",
+      "销售 · 报价工作台": "40:1604",
+      "销售 · 订单详情": "40:1915",
+      "销售 · 我的订单": "40:2145",
+      "销售 · 备注已追加": "40:2348",
+      "销售 · 我的订单 / 备注保留": "40:2558",
+      "销售 · 提交确认": "40:2681",
+      "销售 · 追加备注": "40:2692"
+    },
+    "audit": {
+      "rootCount": 23,
+      "invalidTargets": [],
+      "salesCrossLinks": [],
+      "salesSensitive": [],
+      "fonts": [
+        "Noto Sans SC",
+        "Inter"
+      ],
+      "overflowFindings": "Eight discount inner containers were 32 px for 36 px content; fixed to 36 px and bounds returned.",
+      "visualReview": "Screenshots inspected for admin void detail, void dialog, sales quote/list/note/detail; duplicate glyphs and role labels fixed and rechecked."
+    },
+    "latestBusinessRead": "fee8ea3380c9a39fc29804096b6cbbe47afb341c"
   }
 }
