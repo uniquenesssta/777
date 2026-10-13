@@ -32,7 +32,7 @@ class ServiceApplicationMixin:
         self._svc_closing=False;self._svc_client=None;self._svc_prices=None;self._svc_result=None
         self._svc_submitted=None
         self._svc_snapshot=None;self._svc_details=None;self._svc_confirmed=True;self._svc_orders={}
-        self._svc_preferences=None;self._svc_token_epoch=0
+        self._svc_preferences=None;self._svc_token_epoch=0;self._svc_view=None
         self._svc_price_diff='当前没有价格差异。'
         self._svc_journal=Journal(Path(self.service_settings_file).with_suffix('.pending.bin')) if not hasattr(self,'_svc_journal') else self._svc_journal
         self.background_status_var=self._new_text_var('服务客户端就绪，请登录')
@@ -108,6 +108,13 @@ class ServiceApplicationMixin:
         if self.quote_role=='manager':
             ttk.Button(actions,text='作废',command=self.delete_current_excel_row).pack(side='left')
             ttk.Button(actions,text='恢复',command=self.restore_current_excel_order).pack(side='left')
+        output_actions=ttk.Frame(wrapper);output_actions.pack(fill='x')
+        for label,command in [('导出Excel',lambda:self.request_service_output('excel_quote')),('生成报价图片',lambda:self.request_service_output('quote_png')),('输出任务',self.show_output_tasks)]:
+            ttk.Button(output_actions,text=label,command=command).pack(side='left',padx=2)
+        if self.quote_role=='manager':ttk.Button(output_actions,text='内部明细（私有）',command=lambda:self.request_service_output('excel_admin')).pack(side='left')
+        self._svc_search=self._new_text_var('')
+        ttk.Entry(output_actions,textvariable=self._svc_search,width=20).pack(side='left',padx=6)
+        ttk.Button(output_actions,text='搜索客户/订单号',command=self.refresh_excel_files).pack(side='left')
         columns=('order_id','time','external_order','income','state','revision')
         if self.quote_role=='manager':columns+=('cost','profit')
         self.service_order_tree=ttk.Treeview(wrapper,columns=columns,show='headings',height=10,selectmode='browse')
@@ -124,7 +131,7 @@ class ServiceApplicationMixin:
         ttk.Button(page,text='下一页',command=lambda:self._service_page(100)).pack(side='left')
 
     def _service_page(self,delta):
-        self._svc_offset=max(0,self._svc_offset+delta);return self.refresh_excel_files()
+        self._svc_offset=max(0,self._svc_offset+delta);return self.refresh_excel_files(page=True)
 
     def _service_submit(self,channel,action,callback,*,write=False,fresh=False):
         if threading.get_ident()!=self._svc_owner:raise RuntimeError('仅主线程可操作服务界面')
@@ -148,6 +155,8 @@ class ServiceApplicationMixin:
             if state=='failed':
                 self.set_feedback(('请求结果未确认，请核查上次提交。' if isinstance(value,CommitUnknown) else '请求失败：'+str(value)),is_error=True)
                 if isinstance(value,APIError) and value.status==401:self._svc_result=None;self._storage_valid=False
+                if isinstance(value,APIError) and value.code=='QUERY_VIEW_CHANGED':
+                    self._svc_offset=0;self._svc_view=None;self.set_feedback('账本已更新，请点刷新订单重新查看。',is_error=True)
                 if task.channel=='calculate':self._svc_result=None
             elif state=='completed':
                 if not fresh or revision==self.quote_session.state.revision:
@@ -228,8 +237,8 @@ class ServiceApplicationMixin:
     def browse_excel_file(self):self.set_feedback('服务账本请使用订单列表查询。')
     def delete_excel_path(self,path):raise APIError(403,'服务模式禁止裸删报表文件')
     def _write_quote_excel(self,*args):raise APIError(403,'服务模式禁止裸写Excel')
-    def save_screenshot(self):self.set_feedback('当前服务版本未开放附件导出。')
-    def save_quote_image(self):self.set_feedback('当前服务版本未开放附件导出。')
+    def save_screenshot(self):return self.request_service_output('quote_png',current=True)
+    def save_quote_image(self):return self.save_screenshot()
 
     def _price_mapping(self):
         if not self._svc_prices:raise APIError(409,'请先刷新已发布价格')
@@ -345,10 +354,15 @@ class ServiceApplicationMixin:
     def apply_settings_to_calc(self):return self.save_settings()
     def save_and_apply_settings(self):return self.save_settings()
 
-    def refresh_excel_files(self):
+    def refresh_excel_files(self,*,page=False):
         if not self._svc_client or not hasattr(self,'service_order_tree'):return False
+        from urllib.parse import urlencode
+        if not page:self._svc_offset=0;self._svc_view=None
         client=self._svc_client;offset=self._svc_offset
+        query={'offset':offset,'limit':100,'q':self._svc_search.get() if hasattr(self,'_svc_search') else ''}
+        if page and self._svc_view:query['view']=self._svc_view
         def listed(value):
+            self._svc_view=value.get('view')
             selected=self.service_order_tree.selection();self.service_order_tree.delete(*self.service_order_tree.get_children())
             self._svc_orders={row['order_id']:row for row in value['orders']}
             for row in value['orders']:
@@ -356,8 +370,58 @@ class ServiceApplicationMixin:
                 if self.quote_role=='manager':values.extend(money_text(int(row[k])) for k in ('cost_cents','profit_cents'))
                 self.service_order_tree.insert('', 'end',iid=row['order_id'],values=values)
             if selected and selected[0] in self._svc_orders:self.service_order_tree.selection_set(selected[0])
-            self.set_feedback(f"本页{len(value['orders'])}单，范围内共{value['total']}单。")
-        return self._service_submit('orders',lambda:client.request('GET',f'/v1/orders?offset={offset}&limit=100'),listed)
+            self.set_feedback(f"本页{len(value['orders'])}单，范围内共{value['total']}单；有效收入 {money_text(int(value['totals']['income_cents']))} 元。")
+            if self.quote_role=='manager':
+                self.set_feedback(f"本页{len(value['orders'])}单，范围内共{value['total']}单；有效收入 {money_text(int(value['totals']['income_cents']))} 元；有效成本 {money_text(int(value['totals']['cost_cents']))} 元；有效利润 {money_text(int(value['totals']['profit_cents']))} 元。")
+        return self._service_submit('orders',lambda:client.request('GET','/v1/orders?'+urlencode(query)),listed)
+
+    def request_service_output(self,kind,*,current=False):
+        try:
+            self._require_client()
+            if current:
+                if not self._svc_submitted:raise APIError(409,'请先提交当前报价；已保存订单可从服务账本选择。')
+                row=self._svc_submitted
+            else:row=self._selected_order()
+        except Exception as exc:self.set_feedback(str(exc),is_error=True);return False
+        return self._mutate('/v1/outputs',{'order_id':row['order_id'],'expected_revision':row['revision'],'kind':kind,'format':'777-output-v1'},
+                            lambda value:self.set_feedback('报表任务已保存：'+value['job_id']+'；可在输出任务中查看或补导出。'))
+
+    def show_output_tasks(self):
+        try:client=self._require_client()
+        except Exception as exc:self.set_feedback(str(exc),is_error=True);return False
+        def show(value):
+            import tkinter as tk
+            window=tk.Toplevel(self.root);window.title('输出任务（补导出不会重复提交订单）')
+            tree=ttk.Treeview(window,columns=('kind','state','error'),show='headings',height=12)
+            for col,label in [('kind','类型'),('state','状态'),('error','原因')]:tree.heading(col,text=label)
+            tree.pack(fill='both',expand=True)
+            labels={'excel_quote':'Excel报价','quote_png':'报价图片','excel_admin':'内部明细'}
+            states={'queued':'待处理','running':'处理中','failed':'失败，可补导出','done':'已完成'}
+            reasons={'OUTPUT_DIRECTORY_NOT_PUBLISHED':'母版尚未发布输出目录','OUTPUT_FILE_CONFLICT':'同名文件内容不同，已保留原件','OUTPUT_IO_FAILED:PermissionError':'文件被占用或目录不可写','OUTPUT_IO_FAILED:FileNotFoundError':'输出目录不可用','OUTPUT_ACCOUNT_CHANGED':'账户权限已变化','OUTPUT_IMAGE_TOO_TALL':'内容过长，请使用Excel'}
+            for row in value['jobs']:tree.insert('', 'end',iid=row['job_id'],values=(labels.get(row['kind'],row['kind']),states.get(row['state'],row['state']),reasons.get(row['error'],'输出失败，订单已保存' if row['error'] else '')))
+            def selected():
+                values=tree.selection()
+                if not values:raise APIError(422,'请选择输出任务')
+                return values[0]
+            def retry():
+                try:key=selected()
+                except Exception as exc:self.set_feedback(str(exc),is_error=True);return
+                self._mutate('/v1/outputs/'+key+'/retry',{},lambda _:window.destroy())
+            def download():
+                try:key=selected()
+                except Exception as exc:self.set_feedback(str(exc),is_error=True);return
+                def ready(value):
+                    extension='.png' if value['media_type']=='image/png' else '.xlsx'
+                    path=filedialog.asksaveasfilename(parent=window,initialfile=value['filename'],defaultextension=extension)
+                    if not path:return
+                    def save():
+                        return save_output_content(value,Path(path))
+                    self._service_submit('output_download',save,lambda _:self.set_feedback('输出副本已保存。'),write=True)
+                self._service_submit('output_content',lambda:client.request('GET','/v1/outputs/'+key+'/content'),ready)
+            ttk.Button(window,text='补导出原任务',command=retry).pack(side='left')
+            ttk.Button(window,text='另存输出副本',command=download).pack(side='left')
+            ttk.Button(window,text='刷新',command=lambda:(window.destroy(),self.show_output_tasks())).pack(side='left')
+        return self._service_submit('output_tasks',lambda:client.request('GET','/v1/outputs'),show)
 
     def aggregate_all_excels(self,silent=False):return self.refresh_excel_files()
     def _selected_order(self):
@@ -484,3 +548,15 @@ def application_type(role,settings_file):
     class ServiceCalculator(ServiceApplicationMixin,parent):
         service_settings_file=str(settings_file)
     return ServiceCalculator
+
+
+def save_output_content(value,path):
+    """Only a selected new local copy; no workbook mutation or order submission."""
+    import base64
+    from quote_service.output_render import FORMAT,MAX_BYTES
+    if value.get('format')!=FORMAT:raise APIError(409,'OUTPUT_VERSION_CONFLICT')
+    try:raw=base64.b64decode(value['data_base64'],validate=True)
+    except (ValueError,TypeError):raise APIError(422,'OUTPUT_CONTENT_INVALID') from None
+    if len(raw)>MAX_BYTES or len(raw)!=value['size'] or hashlib.sha256(raw).hexdigest()!=value['sha256']:raise APIError(422,'OUTPUT_CONTENT_INVALID')
+    with open(path,'xb') as stream:stream.write(raw);stream.flush();os.fsync(stream.fileno())
+    return {'saved':True,'sha256':value['sha256']}

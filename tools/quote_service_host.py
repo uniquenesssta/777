@@ -15,6 +15,7 @@ def main(argv=None):
     init.add_argument('--host',action='append',required=True,help='Actual client-facing IP/DNS for certificate SAN; repeat as needed')
     init.add_argument('--bind',default='127.0.0.1');init.add_argument('--port',type=int,default=8477);init.add_argument('--admin',default='manager')
     run=sub.add_parser('run');run.add_argument('--root',type=Path,required=True)
+    outputs=sub.add_parser('enable-outputs');outputs.add_argument('--root',type=Path,required=True);outputs.add_argument('--admin',required=True)
     recover=sub.add_parser('restore');recover.add_argument('--package',type=Path,required=True);recover.add_argument('--root',type=Path,required=True);recover.add_argument('--admin',required=True)
     activate=sub.add_parser('activate-restored');activate.add_argument('--root',type=Path,required=True);activate.add_argument('--old-host-stopped',action='store_true',required=True)
     args=parser.parse_args(argv)
@@ -25,6 +26,12 @@ def main(argv=None):
         print('主机初始化完成；当前未启动服务。')
         print('公开证书：',args.root/'service-cert.pem')
         print('证书指纹：',config['certificate_sha256'])
+    elif args.command=='enable-outputs':
+        import os
+        if os.name!='nt':parser.error('Only actual Windows host activation is supported')
+        from quote_service.hosting import enable_outputs
+        enable_outputs(args.root,args.admin,getpass.getpass('主机管理员密码：'))
+        print('输出任务已启用；原账本schema不变，完整维护备份已验证。未启动服务。')
     elif args.command=='restore':
         from quote_service.recovery import restore
         secret=getpass.getpass('恢复管理员的新密码：')

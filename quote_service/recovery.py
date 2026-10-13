@@ -13,6 +13,7 @@ import shutil
 import sqlite3
 import ssl
 import uuid
+import re
 
 from quote_files.transactions import file_lock
 from quote_ledger import Ledger
@@ -51,14 +52,31 @@ def accounts_cover_ledger(ledger,auth):
 def manifest(folder):
     folder=local_path(folder,directory=True);value=read_json(folder/'manifest.json')
     fields(value,{'format','backup_id','ledger_id','files','inventory'})
-    if value['format']!='777-service-bundle-v1' or str(uuid.UUID(value['backup_id']))!=value['backup_id'] or value['files'].keys()!=FILES:
+    if value['format'] not in {'777-service-bundle-v1','777-service-bundle-v2'} or str(uuid.UUID(value['backup_id']))!=value['backup_id']:
         raise APIError(422,'SERVICE_BACKUP_FORMAT_INVALID')
-    if {p.name for p in folder.iterdir()}!=FILES|{'manifest.json'}:raise APIError(422,'SERVICE_BACKUP_FILES_INVALID')
+    names=set(value['files'])
+    if value['format']=='777-service-bundle-v1':
+        if names!=FILES:raise APIError(422,'SERVICE_BACKUP_FORMAT_INVALID')
+        roots=FILES|{'manifest.json'}
+    else:
+        if not FILES|{'outputs.sqlite3'}<=names or any(name not in FILES|{'outputs.sqlite3'} and not re.fullmatch(r'output-blobs/[0-9a-f-]{36}\.(xlsx|png)',name) for name in names):
+            raise APIError(422,'SERVICE_BACKUP_FORMAT_INVALID')
+        roots=FILES|{'outputs.sqlite3','output-blobs','manifest.json'}
+        blobs=local_path(folder/'output-blobs',directory=True)
+        if {p.name for p in blobs.iterdir()}!={name.split('/')[1] for name in names if name.startswith('output-blobs/')}:raise APIError(422,'SERVICE_BACKUP_FILES_INVALID')
+    if {p.name for p in folder.iterdir()}!=roots:raise APIError(422,'SERVICE_BACKUP_FILES_INVALID')
     for name,expected in value['files'].items():
         if hash_file(local_path(folder/name))!=expected:raise APIError(422,'SERVICE_BACKUP_HASH_INVALID')
     ledger=Ledger(folder/'ledger.sqlite3');auth=Auth(folder/'auth.sqlite3')
     if ledger.inventory()!=value['inventory']:raise APIError(422,'SERVICE_BACKUP_INVENTORY_INVALID')
     accounts_cover_ledger(ledger,auth)
+    if value['format']=='777-service-bundle-v2':
+        from .outputs import Outputs
+        outputs=Outputs(folder/'outputs.sqlite3',value['ledger_id'])
+        outputs.validate_ledger(ledger)
+        with outputs.connection(readonly=True) as c:
+            expected={'output-blobs/'+outputs.blob_path(row).name for row in c.execute('SELECT * FROM jobs WHERE blob_sha256 IS NOT NULL')}
+        if expected!={name for name in names if name.startswith('output-blobs/')}:raise APIError(422,'SERVICE_BACKUP_OUTPUT_INDEX_INVALID')
     return value
 
 
@@ -73,7 +91,8 @@ def restore(folder,target,admin_name,new_password,*,auxiliary=False):
     if os.name!='nt' and not auxiliary:raise APIError(400,'WINDOWS_HOST_REQUIRED')
     target.mkdir(mode=0o700);private=target/'private';private.mkdir(mode=0o700)
     security=protect_directory(private) if os.name=='nt' else {'status':'auxiliary_no_native_security_claim'}
-    for name in FILES:
+    if value['format']=='777-service-bundle-v2':(private/'output-blobs').mkdir(mode=0o700)
+    for name in value['files']:
         shutil.copyfile(local_path(folder/name),private/name)
         with open(private/name,'r+b') as stream:os.fsync(stream.fileno())
     ledger=Ledger(private/'ledger.sqlite3');auth=Auth(private/'auth.sqlite3')
@@ -119,8 +138,12 @@ def bundle(service,ledger_entry,host_root,*,auxiliary=False):
             for name in FILES:
                 with open(partial/name,'r+b') as stream:os.fsync(stream.fileno())
             inventory=Ledger(partial/'ledger.sqlite3').inventory()
-            value={'format':'777-service-bundle-v1','backup_id':identifier,'ledger_id':inventory['ledger_id'],
-                   'files':{name:hash_file(partial/name) for name in FILES},'inventory':inventory}
+            names=set(FILES);format='777-service-bundle-v1'
+            if service.outputs is not None:
+                service.outputs.backup(partial);format='777-service-bundle-v2';names.add('outputs.sqlite3')
+                names.update('output-blobs/'+p.name for p in (partial/'output-blobs').iterdir())
+            value={'format':format,'backup_id':identifier,'ledger_id':inventory['ledger_id'],
+                   'files':{name:hash_file(partial/name) for name in sorted(names)},'inventory':inventory}
             publish_json(partial/'manifest.json',value);manifest(partial)
             validation=parent/('.verify-'+identifier)
             try:

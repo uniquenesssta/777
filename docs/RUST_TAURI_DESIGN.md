@@ -87,3 +87,8 @@ Python数值改造优先标准库Decimal，并从原始文本构造；精度和�
 
 
 P05-03交接补充：[导入契约](verification/P05-03-import-contract.md)提供legacy-import-v1适配、源哈希/预演SHA/归属绑定、原件字节及逐源行映射、原子批次与原请求核查。Rust接替须保留精确核心对账和未知/歧义隔离，不能把格式猜测、当前价格或客户字符串当作历史事实/账户；Source证据与销售DTO边界独立。当前本机管理CLI不等于Tauri导入页面已接入，页面与附件/报表在后续阶段交付。
+
+
+### P05-04已实现的报表与查询适配
+
+Rust保持ledger-v1、business-v1、numeric-v1与现有认证边界；接替[输出扩展DDL](verification/P05-04-output-schema.sql)、[777-output/query-v1样例](verification/P05-04-protocol.json)与[完整契约](verification/P05-04-output-contract.md)。报表从冻结的已提交订单生成，金融分按字符串传输，内部成本报表不能发布公共共享目录；持久任务回执/恢复与财务事务分离。备份v2包含任务和原缓存文件，v1兼容；签名view分页变化拒绝、审计增量统计的精确结果须一致。Tauri界面可替换现有服务账本/输出任务窗口，不重新实现计算或让前端直接改SQLite/Excel。

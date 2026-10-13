@@ -64,6 +64,8 @@ def initialize(root,backup_dir,user,secret,*,hosts,bind='127.0.0.1',port=8477,au
     private=root/'private';private.mkdir(mode=0o700)
     security=protect_directory(private) if os.name=='nt' else {'status':'auxiliary_no_native_security_claim'}
     ledger=Ledger.create(private/'ledger.sqlite3');auth=Auth.create(private/'auth.sqlite3',user,secret)
+    from .outputs import Outputs
+    Outputs.create(private/'outputs.sqlite3', ledger.inventory()['ledger_id'])
     backups=Backups.create(backup_dir,auxiliary=auxiliary)
     fingerprint=certificate(private,hosts)
     config={'schema':'777-host-v1','ledger_id':ledger.inventory()['ledger_id'],'backup_store_id':backups.status()['store_id'],
@@ -96,6 +98,9 @@ def load(root,*,auxiliary=False,allow_maintenance=False):
     if hashlib.sha256(ssl.PEM_cert_to_DER_cert(pem)).hexdigest()!=config['certificate_sha256']:raise APIError(503,'CERTIFICATE_IDENTITY_CONFLICT')
     local_path(private/'tls-key.pem')
     service=Service(ledger,auth,backups);service.host_root=root;service.auxiliary=auxiliary
+    if (private/'outputs.sqlite3').exists():
+        from .outputs import Outputs
+        service.outputs=Outputs(private/'outputs.sqlite3', config['ledger_id'])
     return root,config,service
 
 
@@ -113,3 +118,18 @@ def serve(root):
     root,config,service=load(root)
     with file_lock(root/'service-owner'):
         server(service,root/'private/tls-cert.pem',root/'private/tls-key.pem',host=config['bind'],port=config['port']).run()
+
+
+def enable_outputs(root, user, secret, *, auxiliary=False):
+    """Explicit offline extension activation for an existing v1 host."""
+    root, config, service = load(root, auxiliary=auxiliary)
+    with file_lock(root/'service-owner'):
+        if service.outputs is not None: raise APIError(409, 'OUTPUTS_ALREADY_INITIALIZED')
+        identity = service.auth.login(user, secret, 'local-output-enable')
+        try:
+            actor = service.auth.authenticate(identity['token']); service.auth.admin(actor)
+            service.backup(kind='maintenance')
+            from .outputs import Outputs
+            Outputs.create(root/'private/outputs.sqlite3', config['ledger_id'])
+        finally: service.auth.logout(identity['token'])
+    return {'format': '777-output-store-v1', 'ledger_schema_unchanged': True}

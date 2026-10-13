@@ -91,7 +91,7 @@ def prices(value):
 
 def financial(value, actor):
     # Allow-list: do not recursively redact unknown future fields.
-    keys = {'order_id', 'note_id', 'revision', 'request_id', 'price_version_id', 'state', 'reason', 'income_cents'}
+    keys = {'order_id', 'note_id', 'revision', 'request_id', 'price_version_id', 'state', 'reason', 'income_cents', 'job_id', 'order_revision', 'kind', 'format'}
     if actor.role == 'admin':
         keys |= {'cost_cents', 'profit_cents', 'ledger_revision'}
     return {k: v for k, v in value.items() if k in keys}

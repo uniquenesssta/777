@@ -15,6 +15,8 @@ from .protocol import APIError, BODY_LIMIT, decode, fields, quote, details, pric
 class Service:
     def __init__(self, ledger, auth, backups=None):
         self.ledger, self.auth, self.backups = ledger, auth, backups
+        from .query import Queries
+        self.queries = Queries(); self.outputs = None
 
     def backup(self,**kwargs):
         try:
@@ -60,6 +62,7 @@ class Service:
             except (Forbidden,LedgerError):raise APIError(404,'NOT_FOUND') from None
             value={'order_id':row['order_id'],'revision':row['revision'],'state':row['state'],
                    'price_version_id':row['price_id'],'created_at':row['created_at'],
+                   'rule_version':row['rule_version'],'numeric_profile':row['numeric_profile'],
                    'details':json.loads(row['details_json']),**financial({k:str(row[k]) for k in ('income_cents','cost_cents','profit_cents')},actor)}
             if actor.role=='admin':value['owner_id']=row['owner_id']
             lines=[]
@@ -75,35 +78,23 @@ class Service:
             return value
 
     def listing(self, actor, params):
-        if params.keys()-{'offset','limit','state'}:raise APIError(422,'INVALID_QUERY')
-        try:offset=int(params.get('offset',['0'])[0]);limit=int(params.get('limit',['100'])[0])
-        except (ValueError,TypeError):raise APIError(422,'INVALID_QUERY') from None
-        if not 0<=offset<=1000000 or not 1<=limit<=200 or any(len(v)!=1 for v in params.values()):raise APIError(422,'INVALID_QUERY')
-        state=params.get('state',[None])[0]
-        if state not in (None,'active','void'):raise APIError(422,'INVALID_QUERY')
-        clauses=[];values=[]
-        if actor.role!='admin':clauses.append('owner_id=?');values.append(actor.subject)
-        if state:clauses.append('state=?');values.append(state)
-        where=' WHERE '+' AND '.join(clauses) if clauses else ''
-        with self.ledger.connection(readonly=True) as c:
-            c.execute('BEGIN')
-            rows=c.execute('SELECT * FROM orders'+where+' ORDER BY created_at DESC,order_id DESC LIMIT ? OFFSET ?',(*values,limit,offset)).fetchall()
-            total=c.execute('SELECT count(*) FROM orders'+where,values).fetchone()[0]
-            summary=[0,0,0]
-            for row in c.execute('SELECT income_cents,cost_cents,profit_cents,state FROM orders'+where,values):
-                if row['state']=='active':
-                    for i,key in enumerate(('income_cents','cost_cents','profit_cents')):summary[i]+=row[key]
-            projected=[]
-            for row in rows:
-                value={'order_id':row['order_id'],'revision':row['revision'],'state':row['state'],
-                       'created_at':row['created_at'],'details':json.loads(row['details_json']),
-                       **financial({k:str(row[k]) for k in ('income_cents','cost_cents','profit_cents')},actor)}
-                if actor.role=='admin':value['owner_id']=row['owner_id']
-                projected.append(value)
-            value={'orders':projected,'offset':offset,'limit':limit,'total':total,
-                   'totals':financial(dict(zip(('income_cents','cost_cents','profit_cents'),map(str,summary))),actor)}
-            if actor.role=='admin':value['ledger_revision']=verify(c)['revision']
-            return value
+        return self.queries.listing(self.ledger, actor, params)
+
+    def output_task(self, actor, data):
+        from .output_render import FORMAT, KINDS, payload_hash
+        from quote_ledger.store import identifier
+        fields(data, {'request_id', 'order_id', 'expected_revision', 'kind'}, {'format'})
+        data = {**data, 'format': data.get('format', FORMAT)}
+        if data['format'] != FORMAT: raise APIError(409, 'OUTPUT_VERSION_CONFLICT')
+        identifier(data['request_id']); identifier(data['order_id'])
+        if type(data['kind']) is not str or data['kind'] not in KINDS or type(data['expected_revision']) is not int or data['expected_revision'] < 1: raise APIError(422, 'INVALID_OUTPUT_REQUEST')
+        if data['kind'] == 'excel_admin': self.auth.admin(actor)
+        if self.outputs is None: raise APIError(503, 'OUTPUTS_NOT_INITIALIZED')
+        previous = self.outputs.receipt(actor, data['request_id'], payload_hash({'actor': actor.subject, 'role': actor.role, **data}))
+        if previous is not None: return previous
+        order = self.order(actor, data['order_id'])
+        if order['revision'] != data['expected_revision']: raise APIError(409, 'ORDER_REVISION_CHANGED')
+        return self.outputs.enqueue(actor, data, order)
 
     def handle(self, method, path, token='', data=None, query='', peer='local'):
         # Account revocations and authorizations are serialized with dispatch;
@@ -113,6 +104,28 @@ class Service:
                 fields(data,{'username','password'})
                 return self.auth.login(data['username'],data['password'],peer)
             actor=self.auth.authenticate(token)
+            if method == 'POST' and type(data) is dict and 'request_id' in data:
+                from quote_ledger.store import identifier
+                identifier(data['request_id'])
+                if path == '/v1/outputs' or path.startswith('/v1/outputs/'):
+                    with self.ledger.connection(readonly=True) as c:
+                        if c.execute('SELECT 1 FROM requests WHERE request_id=?', (data['request_id'],)).fetchone(): raise Conflict('Financial request ID already used')
+                elif self.outputs and self.outputs.has_request(data['request_id']): raise Conflict('Output request ID already used')
+            if method == 'GET' and path == '/v1/capabilities':
+                from quote_core.numbers import RULE_VERSION, NUMERIC_PROFILE
+                return {'protocol': '777-service-v1', 'output_format': '777-output-v1', 'query_format': '777-query-v1', 'rule_version': RULE_VERSION, 'numeric_profile': NUMERIC_PROFILE, 'cents_encoding': 'decimal-string'}
+            if path == '/v1/outputs' and method == 'POST': return self.output_task(actor, data)
+            if path == '/v1/outputs' and method == 'GET':
+                if self.outputs is None: raise APIError(503, 'OUTPUTS_NOT_INITIALIZED')
+                return self.outputs.listing(actor)
+            if path.startswith('/v1/outputs/'):
+                if self.outputs is None: raise APIError(503, 'OUTPUTS_NOT_INITIALIZED')
+                parts = path.removeprefix('/v1/outputs/').split('/')
+                if len(parts) == 1 and method == 'GET': return self.outputs.status(actor, parts[0])
+                if len(parts) == 2 and parts[1] == 'content' and method == 'GET': return self.outputs.content(actor, parts[0])
+                if len(parts) == 2 and parts[1] == 'retry' and method == 'POST':
+                    fields(data, {'request_id'}); return self.outputs.retry(actor, parts[0], data['request_id'])
+                raise APIError(404, 'NOT_FOUND')
             if method=='POST' and path=='/v1/logout':
                 fields(data,set());self.auth.logout(token);return {'logged_out':True}
             if method=='GET' and path=='/v1/me':return {'subject':actor.subject,'role':actor.role,'protocol':'777-service-v1'}
@@ -136,7 +149,11 @@ class Service:
                 self.auth.admin(actor);fields(data,{'request_id','order_id','state','reason','expected_revision'})
                 return financial(self.ledger.set_state(data['request_id'],actor,data['order_id'],data['state'],data['reason'],expected_revision=data['expected_revision']),actor)
             if method=='GET' and path.startswith('/v1/requests/'):
-                try:return {'result':financial(result,actor) if (result:=self.ledger.query_request(path.removeprefix('/v1/requests/'),actor)) else None}
+                try:
+                    key = path.removeprefix('/v1/requests/')
+                    result = self.ledger.query_request(key, actor)
+                    if result is None and self.outputs: result = self.outputs.receipt(actor, key)
+                    return {'result':financial(result,actor) if result else None}
                 except Forbidden:raise APIError(404,'NOT_FOUND') from None
             if method=='GET' and path=='/v1/settings':return self.auth.preferences()
             if method=='POST' and path=='/v1/settings':
@@ -173,14 +190,20 @@ class Application:
 
     async def __call__(self, scope, receive, send):
         if scope['type']=='lifespan':
-            scheduler=None
+            scheduler=None; output_worker=None; self._outputs_stop=False
             while True:
                 message=await receive()
                 if message['type']=='lifespan.startup':
                     self._capacity=asyncio.Semaphore(8)
                     if self.service.backups:scheduler=asyncio.create_task(self._schedule())
+                    if self.service.outputs:
+                        await asyncio.to_thread(self.service.outputs.recover)
+                        output_worker=asyncio.create_task(self._output_schedule())
                     await send({'type':'lifespan.startup.complete'})
                 elif message['type']=='lifespan.shutdown':
+                    self._outputs_stop=True
+                    if output_worker:
+                        await output_worker  # Finish the real write before releasing host ownership.
                     if scheduler:
                         scheduler.cancel()
                         try:await scheduler
@@ -236,3 +259,9 @@ class Application:
                 # Failure details remain in the private backup index; no
                 # credentials or customer data are printed by the scheduler.
                 pass
+
+    async def _output_schedule(self):
+        while not self._outputs_stop:
+            try: worked = await asyncio.to_thread(self.service.outputs.run_one, self.service)
+            except Exception: worked = False
+            if not worked and not self._outputs_stop: await asyncio.sleep(0.5)

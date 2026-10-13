@@ -1,0 +1,54 @@
+{
+  "service_protocol": "777-service-v1",
+  "query_format": "777-query-v1",
+  "output_format": "777-output-v1",
+  "output_store_format": "777-output-store-v1",
+  "compatible_backup_formats": [
+    "777-service-bundle-v1",
+    "777-service-bundle-v2"
+  ],
+  "cents_encoding": "decimal-string",
+  "public_workbook_sheets": [
+    "Protocol",
+    "Order",
+    "Lines",
+    "Notes"
+  ],
+  "kinds": {
+    "excel_quote": {
+      "extension": ".xlsx",
+      "cost_allowed": false,
+      "shared_publication": true
+    },
+    "quote_png": {
+      "extension": ".png",
+      "cost_allowed": false,
+      "shared_publication": true
+    },
+    "excel_admin": {
+      "extension": ".xlsx",
+      "cost_allowed": true,
+      "shared_publication": false
+    }
+  },
+  "request": {
+    "request_id": "71146cf4-5cbb-5d58-9841-3e0a57770004",
+    "order_id": "71146cf4-5cbb-5d58-9841-3e0a57770005",
+    "expected_revision": 1,
+    "kind": "excel_quote",
+    "format": "777-output-v1"
+  },
+  "precision_samples": [
+    {
+      "income_cents": "3600",
+      "expected_yuan": "36.00"
+    },
+    {
+      "income_cents": "9007199254740993",
+      "expected_yuan": "90071992547409.93"
+    }
+  ],
+  "precision_sample_scope": "Export/wire representation only; the large sample does not change accepted business limits or claim an actual sale.",
+  "invalid_future_output_format": "777-output-v2",
+  "invalid_future_query_format": "777-query-v2"
+}

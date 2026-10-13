@@ -73,7 +73,7 @@ class Client:
         return self.mutate('/v1/orders',{'snapshot':asdict(snapshot),'details':asdict(details)},journal)
 
     def mutate(self,path,payload,journal):
-        if path not in {'/v1/orders','/v1/notes','/v1/state','/v1/prices'}:raise APIError(422,'INVALID_MUTATION')
+        if not mutation_path(path):raise APIError(422,'INVALID_MUTATION')
         if 'request_id' in payload:raise APIError(422,'REQUEST_ID_ASSIGNED_BY_JOURNAL')
         if journal.read() is not None:raise APIError(409,'PENDING_REQUEST_REQUIRES_QUERY')
         body={'request_id':str(uuid.uuid4()),**payload}
@@ -94,7 +94,7 @@ class Client:
 
     def _check_pending(self,pending):
         fields(pending,{'schema','path','body','subject','url','certificate_sha256'})
-        if pending['schema']!='777-pending-v1' or pending['path'] not in {'/v1/orders','/v1/notes','/v1/state','/v1/prices'} or pending['subject']!=self.subject or pending['url']!=self.settings['url'] or pending['certificate_sha256']!=self.settings['certificate_sha256']:raise APIError(403,'PENDING_IDENTITY_MISMATCH')
+        if pending['schema']!='777-pending-v1' or not mutation_path(pending['path']) or pending['subject']!=self.subject or pending['url']!=self.settings['url'] or pending['certificate_sha256']!=self.settings['certificate_sha256']:raise APIError(403,'PENDING_IDENTITY_MISMATCH')
 
     def check_pending(self,journal,*,retry=False):
         pending=journal.read()
@@ -104,3 +104,11 @@ class Client:
         if receipt['result'] is not None:journal.clear();return {'result':receipt['result'],'pending':False}
         if retry:return {'result':self._send_pending(pending,journal),'pending':False}
         return {'result':None,'pending':True,'request_id':pending['body']['request_id']}
+
+
+def mutation_path(path):
+    if path in {'/v1/orders', '/v1/notes', '/v1/state', '/v1/prices', '/v1/outputs'}: return True
+    if type(path) is not str or not path.startswith('/v1/outputs/') or not path.endswith('/retry'): return False
+    value = path.removeprefix('/v1/outputs/').removesuffix('/retry')
+    try: return str(uuid.UUID(value)) == value
+    except ValueError: return False

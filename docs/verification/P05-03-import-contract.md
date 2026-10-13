@@ -1,6 +1,6 @@
 # P05-03 旧数据识别、预演与原子导入
 
-当前唯一分支为`stage/p05-data-service`，实施基线`6a041f4`。用户“继续R5-03”按当前777任务书映射为P05-03，见[启动记录](P05-03-start.json)；[P04](P04-acceptance.json)及[P05-02隔离交付](P05-02-acceptance.json)按接续意图收尾。真实主机身份/E盘/物理双机与安装交接仍保留，未迁移真实数据，P05-04未启动。
+当前唯一分支为`stage/p05-data-service`，实施基线`6a041f4`。用户“继续R5-03”按当前777任务书映射为P05-03，见[启动记录](P05-03-start.json)；[P04](P04-acceptance.json)及[P05-02隔离交付](P05-02-acceptance.json)按接续意图收尾。真实主机身份/E盘/物理双机与安装交接仍保留，未迁移真实数据；03现已[验收收尾](P05-03-acceptance.json)，[P05-04](P05-04-output-contract.md)已按用户指令接续。
 
 ## 导入边界
 
@@ -30,7 +30,7 @@
 
 ## Windows隔离验证已通过
 
-[完整Windows核对](P05-03-windows-evidence-01.json)及[原报告](P05-03-windows-report-01.json)确认5a791d6的41项LF指纹、50测试ID与源码/成功日志一致，50/50零失败/错误/跳过；原生导入、重复批次、完整备份/独立主机恢复、private权限和清理均通过。2单3明细1备注，revision=5，有效金额7500/3000/4500分一致。03具备收尾条件，待用户验收；实际历史和现场部署仍留后续。以下命令已完成，无需重跑；[50专项/477完整辅助](P05-03-checks.json)原证据保持：
+[完整Windows核对](P05-03-windows-evidence-01.json)及[原报告](P05-03-windows-report-01.json)确认5a791d6的41项LF指纹、50测试ID与源码/成功日志一致，50/50零失败/错误/跳过；原生导入、重复批次、完整备份/独立主机恢复、private权限和清理均通过。2单3明细1备注，revision=5，有效金额7500/3000/4500分一致。03已按[用户指令](P05-03-acceptance.json)验收收尾，当前[04](P05-04-output-contract.md)在同一分支推进；实际历史和现场部署仍留后续。以下命令已完成，无需重跑；[50专项/477完整辅助](P05-03-checks.json)原证据保持：
 
 ```powershell
 git pull --ff-only
@@ -38,7 +38,7 @@ if ($LASTEXITCODE -ne 0) { throw '拉取失败，先停止' }
 py -3 tools/p05_import_check.py --windows-smoke --output reports/p05-03-windows-01
 ```
 
-本次范围为合成源件与临时主机；报告确认源哈希/mtime不变、预演零账本写入、同秒两单、备注/作废与精确金额、重复批次、完整维护备份、独立主机恢复后的原字节/映射/账户ID和旧会话清理，以及当前执行身份的private原生权限和临时清理。不访问真实共享、E盘或已有账本；原报告Windows_acceptance=pending保持，未代替用户验收、生产导入或现场部署验收。
+本次范围为合成源件与临时主机；报告确认源哈希/mtime不变、预演零账本写入、同秒两单、备注/作废与精确金额、重复批次、完整维护备份、独立主机恢复后的原字节/映射/账户ID和旧会话清理，以及当前执行身份的private原生权限和临时清理。不访问真实共享、E盘或已有账本；原报告Windows_acceptance=pending原值保持；当前用户验收见[收尾记录](P05-03-acceptance.json)，没有生产导入或现场部署验收。
 
 ## 后续显式管理入口（当前不要求执行真实导入）
 

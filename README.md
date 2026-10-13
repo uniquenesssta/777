@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于plans；P01/P02/P03已验收；P04已依据[接续指令](docs/verification/P04-acceptance.json)验收收尾，原正式06本机/UNC全档通过证据保持。当前唯一stage/p05-data-service；P05-01已按用户“收尾01开始02”[验收收尾](docs/verification/P05-01-acceptance.json)，原Windows42/42及恢复/权限通过证据不改。P05-02从84b881c实现[HTTPS认证服务与母子版适配](docs/verification/P05-02-service-contract.md)，主体/会话/角色DTO、原请求核查、子版只读继承目录、主机备份计划和完整服务恢复已交付，[42专项/427完整辅助](docs/verification/P05-02-checks.json)通过；[完整Windows核对](docs/verification/P05-02-windows-report-verification-01.json)确认60项源码指纹、42测试ID一致，42/42零失败/错误/跳过及实际母子Tk/DPAPI/恢复/权限/清理通过，无需重跑；真实主机/E盘和物理双机部署仍待验证。P05-02隔离交付已[收尾](docs/verification/P05-02-acceptance.json)；P05-03已实现[旧数据预演/原子导入](docs/verification/P05-03-import-contract.md)，[50专项/477完整辅助](docs/verification/P05-03-checks.json)通过，[Windows核对](docs/verification/P05-03-windows-evidence-01.json)确认41项指纹/50测试ID一致，50/50及原生导入/恢复/权限/清理通过，具备收尾条件，待用户验收。P05-04未启动，未迁移或切换生产数据。
+规划位于plans；P01/P02/P03已验收；P04已依据[接续指令](docs/verification/P04-acceptance.json)验收收尾，原正式06本机/UNC全档通过证据保持。当前唯一stage/p05-data-service；P05-01已按用户“收尾01开始02”[验收收尾](docs/verification/P05-01-acceptance.json)，原Windows42/42及恢复/权限通过证据不改。P05-02从84b881c实现[HTTPS认证服务与母子版适配](docs/verification/P05-02-service-contract.md)，主体/会话/角色DTO、原请求核查、子版只读继承目录、主机备份计划和完整服务恢复已交付，[42专项/427完整辅助](docs/verification/P05-02-checks.json)通过；[完整Windows核对](docs/verification/P05-02-windows-report-verification-01.json)确认60项源码指纹、42测试ID一致，42/42零失败/错误/跳过及实际母子Tk/DPAPI/恢复/权限/清理通过，无需重跑；真实主机/E盘和物理双机部署仍待验证。P05-02隔离交付已[收尾](docs/verification/P05-02-acceptance.json)；P05-03已实现[旧数据预演/原子导入](docs/verification/P05-03-import-contract.md)，[50专项/477完整辅助](docs/verification/P05-03-checks.json)通过，原Windows50/50及41项指纹核对已按[用户指令](docs/verification/P05-03-acceptance.json)验收收尾，无需重跑。当前P05-04已实现[报表/附件任务与增量查询](docs/verification/P05-04-output-contract.md)，[50专项/527完整辅助](docs/verification/P05-04-checks.json)通过，38项验证入口指纹，待本轮Windows隔离验证。P05-04已交付待Windows/用户验收，P06未启动，未迁移或切换生产数据。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -34,6 +34,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 按用户“收尾03开始04”登记[P05-03验收](docs/verification/P05-03-acceptance.json)，同一stage/p05-data-service实现P05-04：[账本报表/报价PNG、持久任务/补导出与完整v2恢复、认证搜索/签名分页和审计增量统计](docs/verification/P05-04-output-contract.md)，共用目录只发布报价字段，内部成本报表私有，原ledger-v1 DDL/财务revision和计算规则不改。原请求跨回执核查、文件失败/中断不撤销订单、未知同名不覆盖；[跨语言样例](docs/verification/P05-04-protocol.json)保留精度/版本/权限/备份v1兼容。[50专项/527完整辅助](docs/verification/P05-04-checks.json)通过，38项实现指纹；待本轮Windows排他锁/Tk/CJK/权限/完整恢复验收，P05留now、P06未启动，不切换真实数据或部署。
 
 - 登记[P05-03完整Windows核对](docs/verification/P05-03-windows-evidence-01.json)：41项LF指纹/50测试ID及全部成功日志匹配5a791d6，50/50零失败/错误/跳过；原生只读预演/原子导入、重复批次、原字节与映射、完整备份/独立主机恢复、Hidden+System受保护DACL和清理通过。2单3明细1备注、revision5、有效金额7500/3000/4500分一致；[原报告](docs/verification/P05-03-windows-report-01.json)按字节归档，源码和50/477辅助证据不改。03具备收尾条件待用户验收，04未启动，无需重跑已通过检查；真实历史及现场部署留后续。
 

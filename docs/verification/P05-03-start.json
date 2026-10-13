@@ -10,8 +10,9 @@
   "scope": "只读识别与预演、管理员原子幂等导入、源行/原件证据和隔离演练；真实数据不自动迁移。",
   "P05_04_started": false,
   "real_history_presence_still_unknown": true,
-  "implementation_status": "delivered_auxiliary_and_Windows_isolated_passed_user_acceptance_pending",
+  "implementation_status": "accepted_by_user_P05_04_started",
   "checks": "P05-03-checks.json",
   "contract": "P05-03-import-contract.md",
-  "Windows_evidence": "P05-03-windows-evidence-01.json"
+  "Windows_evidence": "P05-03-windows-evidence-01.json",
+  "acceptance": "P05-03-acceptance.json"
 }
