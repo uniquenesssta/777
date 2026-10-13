@@ -37,6 +37,8 @@ P06-01已按[用户接续](docs/verification/P06-01-acceptance.json)验收收尾
 
 ## Change Log
 
+- `Figma` 设计准备分支新增 [Agent 入口](AGENTS.md)与[设计到软件交接流程](docs/design/figma-handoff.md)：编排 UI/UX Pro Max、shadcn、Hallmark、Open Design、Taste 的适用职责，登记上游版本、Figma 变量/组件/动作映射和真实接入门槛。本次仅文档，未安装技能或生产依赖，未创建 Figma 页面，未提前启动 P07。
+
 - P06-02第二轮Windows完整核对通过：bf18f45的83项LF指纹、65个专项ID/成功日志、25项Rust测试/构建及561精确比较匹配，逐项独立重算Python期望；原生DPAPI未知提交/原回执、旧HTTPS/角色投影、v3原生恢复/旧会话撤销与Hidden/System/ACL及清理通过。[原报告与独立核对](docs/verification/P06-02-windows-evidence-02.json)按原字节保存，首轮失败及修复辅助证据保持。02具备收尾条件待用户验收，无需重跑；03/04未启动，没有GUI/安装或真实数据切换。
 
 - P06-02 Windows首轮：83指纹/65测试ID、Rust25项与561精确对照匹配，专项63通过/2处验证代码错误；[原报告与独立核对](docs/verification/P06-02-windows-evidence-01.json)保留。修复schema夹具SQLite连接关闭及平台模拟Path错误，65专项辅助回归全过；[第二轮Windows入口](docs/verification/P06-02-storage-contract.md#windows隔离检查)使用新02目录，原生DPAPI/ACL/备份恢复待验证，02不收尾、03未启动。
