@@ -27,7 +27,7 @@ def fingerprints():
            ROOT/'requirements-service.txt',ROOT/'docs/verification/P05-04-protocol.json',
            ROOT/'tests/service_fixture.py',ROOT/'tests/test_service_controller.py'}
     paths.update(ROOT/'tests'/name for name in ['test_service_outputs.py','test_service_query.py','test_output_protocol.py','test_output_controller.py','test_p05_output_check.py'])
-    manifest=json.loads((ROOT/'docs/baseline/manifest.json').read_text())
+    manifest=json.loads((ROOT/'docs/baseline/manifest.json').read_text(encoding='utf-8'))
     paths.update(ROOT/entry['path'] for entry in manifest['files'])
     return {p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes().replace(b'\r\n',b'\n')).hexdigest() for p in sorted(paths)}
 
@@ -105,7 +105,7 @@ def windows_smoke():
         wait(lambda:client.request('GET','/v1/outputs/'+key)['state']=='done')
         assert host.service.ledger.inventory()==original_inventory
         for role,user in [('manager','manager'),('sales','sales-one')]:
-            profile=host.root/(role+'-ui.json');profile.write_text(json.dumps(host.client(user).settings))
+            profile=host.root/(role+'-ui.json');profile.write_text(json.dumps(host.client(user).settings),encoding='utf-8')
             root=tk.Tk();root.report_callback_exception=lambda kind,value,tb:errors.append(kind.__name__+': '+str(value));app=None
             try:
                 with patch('quote_app.integration.QuoteApplicationMixin._write_quote_excel',side_effect=AssertionError('legacy workbook write')):

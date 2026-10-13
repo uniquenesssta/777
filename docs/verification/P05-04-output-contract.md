@@ -47,7 +47,9 @@ Excel是新的777-output-v1报表，固定Protocol/Order/Lines/Notes四表。所
 ```powershell
 git pull --ff-only
 if ($LASTEXITCODE -ne 0) { throw '拉取失败，先停止' }
-py -3 tools/p05_output_check.py --windows-smoke --output reports/p05-04-windows-01
+py -3 tools/p05_output_check.py --windows-smoke --output reports/p05-04-windows-02
 ```
 
-预计约2～4分钟。脚本只创建合成源件/临时主机与本地输出目录，通过真实回环HTTPS、DPAPI和母子Tk检查新报表按钮/报价PNG/私有成本/只读继承/搜索统计；用Windows排他句柄真实锁定同SHA目标文件，解锁后补原任务，确认订单数/金额不变，再完整v2备份与独立维护主机恢复。回传`reports/p05-04-windows-01/report.json`。真实192主机、E盘、UNC部署、物理双机及历史切换仍为现场待办，不由本报告代替。
+预计约2～4分钟。脚本只创建合成源件/临时主机与本地输出目录，通过真实回环HTTPS、DPAPI和母子Tk检查新报表按钮/报价PNG/私有成本/只读继承/搜索统计；用Windows排他句柄真实锁定同SHA目标文件，解锁后补原任务，确认订单数/金额不变，再完整v2备份与独立维护主机恢复。回传`reports/p05-04-windows-02/report.json`。真实192主机、E盘、UNC部署、物理双机及历史切换仍为现场待办，不由本报告代替。
+
+首次Windows在清单指纹读取时因默认GBK失败，见[控制台记录](P05-04-windows-evidence-01.json)；未运行业务/原生检查，也未写报告。现文本读写显式UTF-8，[52项修复专项](P05-04-encoding-checks.json)及GBK默认读取回归通过，原50/527证据不改。本次使用新的windows-02目录，保留原已创建的windows-01；无需环境编码开关或删除目录。

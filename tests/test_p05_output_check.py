@@ -17,7 +17,7 @@ class OutputCheckTests(unittest.TestCase):
             from p01_validation import new_output
             with patch.object(tool,'new_output',side_effect=lambda path:new_output(path,root=root)),patch('sys.stdout',new=io.StringIO()),patch.object(tool.platform,'system',return_value=system),patch.object(tool,'run_checks',return_value=checks or {'status':'passed','tests_run':1}),patch.object(tool,'windows_smoke',side_effect=native or (lambda:{'status':'passed'})):
                 result=tool.main([mode,'--output',str(p)])
-            return result,json.loads((p/'report.json').read_text())
+            return result,json.loads((p/'report.json').read_text(encoding='utf-8'))
     def test_non_windows_blocks_before_any_checks_or_native_access(self):
         def forbidden():raise AssertionError('native called')
         code,report=self.run_tool('--windows-smoke',native=forbidden,system='Linux')
@@ -35,7 +35,22 @@ class OutputCheckTests(unittest.TestCase):
         self.assertEqual(code,0);self.assertIsNone(report['native_smoke']);self.assertEqual(report['Windows_acceptance'],'pending')
     def test_existing_output_is_refused_and_original_content_kept(self):
         with tempfile.TemporaryDirectory() as temp:
-            root=Path(temp);p=root/'reports/existing';p.mkdir(parents=True);marker=p/'report.json';marker.write_text('original')
+            root=Path(temp);p=root/'reports/existing';p.mkdir(parents=True);marker=p/'report.json';marker.write_text('original',encoding='utf-8')
             from p01_validation import new_output
             with patch.object(tool,'new_output',side_effect=lambda path:new_output(path,root=root)),self.assertRaises(FileExistsError):tool.main(['--checks-only','--output',str(p)])
-            self.assertEqual(marker.read_text(),'original')
+            self.assertEqual(marker.read_text(encoding='utf-8'),'original')
+
+    def test_fingerprints_reads_UTF8_manifest_under_GBK_default(self):
+        original=Path.read_text
+        def gbk_default(path,encoding=None,errors=None):return original(path,encoding=encoding or 'gbk',errors=errors)
+        expected=tool.fingerprints()
+        with self.assertRaises(UnicodeDecodeError):original(tool.ROOT/'docs/baseline/manifest.json',encoding='gbk')
+        with patch.object(Path,'read_text',new=gbk_default):self.assertEqual(tool.fingerprints(),expected)
+
+    def test_UTF8_report_round_trip_under_GBK_default(self):
+        original=Path.read_text
+        def gbk_default(path,encoding=None,errors=None):return original(path,encoding=encoding or 'gbk',errors=errors)
+        expected=tool.fingerprints()
+        with patch.object(Path,'read_text',new=gbk_default):
+            code,report=self.run_tool('--checks-only',system='Linux')
+        self.assertEqual(code,0);self.assertEqual(report['implementation_sha256_LF'],expected)

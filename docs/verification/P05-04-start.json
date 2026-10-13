@@ -11,5 +11,7 @@
   "P06_started": false,
   "implementation_status": "delivered_auxiliary_passed_Windows_pending",
   "checks": "P05-04-checks.json",
-  "contract": "P05-04-output-contract.md"
+  "contract": "P05-04-output-contract.md",
+  "encoding_fix_evidence": "P05-04-encoding-checks.json",
+  "Windows_startup_failure": "P05-04-windows-evidence-01.json"
 }

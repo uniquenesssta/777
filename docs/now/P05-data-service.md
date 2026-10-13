@@ -1,6 +1,6 @@
 # P05 结构化账本、局域网服务与旧数据导入
 
-状态：执行中。P05-01已按[用户指令](../verification/P05-01-acceptance.json)验收收尾；P05-02已实现[认证服务与客户端适配](../verification/P05-02-service-contract.md)，42专项/427完整辅助通过；[完整Windows核对](../verification/P05-02-windows-report-verification-01.json)60项指纹/42测试ID匹配，42/42及实际Tk/DPAPI/恢复通过，现场部署待验证。唯一stage/p05-data-service，02真实基线84b881c；P04已[验收收尾](../verification/P04-acceptance.json)，02隔离交付已[收尾](../verification/P05-02-acceptance.json)；03已按[用户指令](../verification/P05-03-acceptance.json)验收收尾。04已实现[账本报表/附件任务与增量查询](../verification/P05-04-output-contract.md)，50专项/527完整辅助通过，38项指纹，待Windows隔离与用户验收；P06未启动。
+状态：执行中。P05-01已按[用户指令](../verification/P05-01-acceptance.json)验收收尾；P05-02已实现[认证服务与客户端适配](../verification/P05-02-service-contract.md)，42专项/427完整辅助通过；[完整Windows核对](../verification/P05-02-windows-report-verification-01.json)60项指纹/42测试ID匹配，42/42及实际Tk/DPAPI/恢复通过，现场部署待验证。唯一stage/p05-data-service，02真实基线84b881c；P04已[验收收尾](../verification/P04-acceptance.json)，02隔离交付已[收尾](../verification/P05-02-acceptance.json)；03已按[用户指令](../verification/P05-03-acceptance.json)验收收尾。04已实现[账本报表/附件任务与增量查询](../verification/P05-04-output-contract.md)，原50专项/527完整辅助及[本次52项编码修复专项](../verification/P05-04-encoding-checks.json)通过，38项当前指纹；首次Windows启动读取GBK失败，待windows-02隔离复验与用户验收；P06未启动。
 
 目标：建立唯一写入方、可追溯账本和跨语言业务协议。默认过渡实现复用Python核心与标准库sqlite3；具体服务依赖引入前评估，不先写第二套计算规则。本阶段不对真实账本自动迁移，演练用副本。
 
@@ -9,7 +9,7 @@
 | P05-01 | 已验收：[收尾记录](../verification/P05-01-acceptance.json)；本机SQLite账本、事务/幂等/revision/价格CAS、不可变快照、一致备份及独立恢复 | 第三次Windows42/42及原生恢复/权限/清理已通过，旧失败和385辅助证据保留，无需重跑 | 不兼容旧库拒绝；恢复独立新路径、不自动覆盖；已提交订单不因备份失败撤销，服务真实身份/E盘及客户端接入留02 |
 | P05-02 | 隔离交付已[收尾](../verification/P05-02-acceptance.json)，现场部署待办保留：[认证HTTPS与接口/客户端契约](../verification/P05-02-service-contract.md)；服务端核心重验、持久会话/角色允许字段、请求核查重试、原母子Tk显式服务入口、只读继承目录、备份计划/状态与完整服务维护恢复 | [42专项/427辅助](../verification/P05-02-checks.json)通过真实TCP HTTPS角色/越权/会话、双客户端同请求、恢复/原请求和控制器；[完整Windows核对](../verification/P05-02-windows-report-verification-01.json)42/42与实际Tk/DPAPI/恢复/清理通过，60指纹/42测试ID一致，真实192主机/E盘/物理双机待现场证据 | 服务试用使用隔离账本；未切换前可回旧客户端；切换后回退必须带增量对账，不能恢复过期备份 |
 | P05-03 | 已[验收](../verification/P05-03-acceptance.json)：[版本适配/私有预演/原子幂等导入](../verification/P05-03-import-contract.md)，源行→订单/明细/备注及原字节/事件；差异/歧义/公式隔离、归属显式、现价不替换 | [50专项/477辅助](../verification/P05-03-checks.json)与完整主机恢复通过，原件不变/重复不入账/整批回滚/原请求核查；[Windows完整核对](../verification/P05-03-windows-evidence-01.json)50/50及原生私有目录/文件清理/完整恢复通过，已按用户指令验收，无需重跑；合成不宣称真实历史已迁移 | 原文件只读；单来源全事务；管理员持主机锁、完整维护备份先行；部分隔离需显式认可，恢复保留原字节与映射 |
-| P05-04 | 已交付：[独立持久输出任务/Excel与PNG/私有内部明细](../verification/P05-04-output-contract.md)、任务回执/补导出/恢复，认证搜索与签名分页、审计增量统计；[协议样例](../verification/P05-04-protocol.json)/备份v1与v2兼容 | [50专项/527完整辅助](../verification/P05-04-checks.json)通过真实HTTPS、文件失败/进程中断/完整恢复与精度/角色检查；本轮Windows实际锁、Tk按钮/CJK/权限/清理待windows-01，04未验收 | ledger-v1财务schema不变；报表可由冻结快照/私有缓存再生；失败不撤销订单；恢复维护状态，新旧主机不自动双写 |
+| P05-04 | 已交付：[独立持久输出任务/Excel与PNG/私有内部明细](../verification/P05-04-output-contract.md)、任务回执/补导出/恢复，认证搜索与签名分页、审计增量统计；[协议样例](../verification/P05-04-protocol.json)/备份v1与v2兼容 | [50专项/527完整辅助](../verification/P05-04-checks.json)通过真实HTTPS、文件失败/进程中断/完整恢复与精度/角色检查；本轮Windows实际锁、Tk按钮/CJK/权限/清理待windows-02，04未验收 | ledger-v1财务schema不变；报表可由冻结快照/私有缓存再生；失败不撤销订单；恢复维护状态，新旧主机不自动双写 |
 
 认证/传输方案在实施前记录：主体如何注册、会话如何失效、管理员凭证如何存储、局域网通信如何保护、备份由谁访问；不把“在内网”当作无需鉴权。单机模式如果被确认采用，可实现同一业务授权/存储接口的本地适配，仍须满足business-v1已确认的角色/字段权限；实际写端数量与服务主机以[P01-03部署登记](../baseline/P01-03-data-deployment.md)为准，不从母子版源码推断部署台数。
 
@@ -61,4 +61,9 @@ P05-01已收尾，以上01“具备收尾条件”文字为当时通过记录，
 
 按[启动记录](../verification/P05-04-start.json)复用本分支实施；原核心/ledger-v1 DDL与历史报告不改。[50专项/527完整辅助](../verification/P05-04-checks.json)通过：真实HTTPS原请求回执/双客户端单任务、文件占用与缺目录/权限/拷贝中断只影响任务、同SHA发布中断恢复、队列/附件完整备份v2独立恢复和v1兼容、销售字段/路径权限、文字公式隔离、超过JS整数范围的输出表示、签名游标及审计增量统计。首次4项检查器夹具错误（临时输出位置不满足reports新子目录策略）原样保留，改夹具后通过，未放宽正式输出策略。
 
-当前只运行tools/p05_output_check.py --windows-smoke --output reports/p05-04-windows-01，见[契约与命令](../verification/P05-04-output-contract.md)。本机临时主机/输出目录，实际Windows排他锁、回环HTTPS/DPAPI、母子Tk新按钮、CJK报价图片、销售只读继承/私有成本、搜索统计与完整v2维护恢复均由该入口验证。输出容量与原生SMB关闭边界见契约；不要求操作真实E/UNC/历史账本。P05整阶段继续留now，04待Windows和用户验收，P06不自动开始；真实部署、安装身份、物理双机及历史切换仍保留现场门槛。
+当前只运行tools/p05_output_check.py --windows-smoke --output reports/p05-04-windows-02，见[契约与命令](../verification/P05-04-output-contract.md)。本机临时主机/输出目录，实际Windows排他锁、回环HTTPS/DPAPI、母子Tk新按钮、CJK报价图片、销售只读继承/私有成本、搜索统计与完整v2维护恢复均由该入口验证。输出容量与原生SMB关闭边界见契约；不要求操作真实E/UNC/历史账本。P05整阶段继续留now，04待Windows和用户验收，P06不自动开始；真实部署、安装身份、物理双机及历史切换仍保留现场门槛。
+
+
+## P05-04首次Windows启动读取修复
+
+[用户控制台失败](../verification/P05-04-windows-evidence-01.json)发生在fingerprints读取UTF-8清单时，默认GBK解码报错；52项专项和原生Tk/锁/恢复尚未运行，未产生报告文件，输出目录已创建。现在诊断清单、临时客户端JSON和新测试文件读写均显式UTF-8；[修复证据](../verification/P05-04-encoding-checks.json)保留旧函数GBK默认环境复现，并记录52/52零失败/错误/跳过，两项新增GBK默认读回归通过。业务代码/账本/计算及原50/527结果保持；只重跑本项windows-02，原空目录不删或覆盖。

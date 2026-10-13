@@ -12,7 +12,7 @@ from quote_core.numbers import money_text
 
 class ProtocolTests(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):cls.fixture=json.loads((Path(__file__).resolve().parents[1]/'docs/verification/P05-04-protocol.json').read_text())
+    def setUpClass(cls):cls.fixture=json.loads((Path(__file__).resolve().parents[1]/'docs/verification/P05-04-protocol.json').read_text(encoding='utf-8'))
     def payload(self,cents):
         order={'order_id':self.fixture['request']['order_id'],'revision':1,'state':'active','price_version_id':'historical-v1','rule_version':'business-v1','numeric_profile':'numeric-v1','created_at':'2026-01-01T00:00:00+00:00','details':{'customer':'=SUM(1,2)','order_ref':'000001','wechat':'@identifier'},'income_cents':cents,'cost_cents':'0','profit_cents':cents,'notes':[],'lines':[]}
         return {'format':FORMAT,'job_id':self.fixture['request']['request_id'],'kind':'excel_quote','order':public_order(order)}
