@@ -1,6 +1,6 @@
 # P05 结构化账本、局域网服务与旧数据导入
 
-状态：执行中。P05-01已按[用户指令](../verification/P05-01-acceptance.json)验收收尾；P05-02已实现[认证服务与客户端适配](../verification/P05-02-service-contract.md)，42专项/427完整辅助通过；[完整Windows核对](../verification/P05-02-windows-report-verification-01.json)60项指纹/42测试ID匹配，42/42及实际Tk/DPAPI/恢复通过，现场部署待验证。唯一stage/p05-data-service，02真实基线84b881c；P04已[验收收尾](../verification/P04-acceptance.json)，02隔离交付已[收尾](../verification/P05-02-acceptance.json)；03已实现[旧数据预演/导入](../verification/P05-03-import-contract.md)，50专项/477辅助通过待Windows隔离，04未启动。
+状态：执行中。P05-01已按[用户指令](../verification/P05-01-acceptance.json)验收收尾；P05-02已实现[认证服务与客户端适配](../verification/P05-02-service-contract.md)，42专项/427完整辅助通过；[完整Windows核对](../verification/P05-02-windows-report-verification-01.json)60项指纹/42测试ID匹配，42/42及实际Tk/DPAPI/恢复通过，现场部署待验证。唯一stage/p05-data-service，02真实基线84b881c；P04已[验收收尾](../verification/P04-acceptance.json)，02隔离交付已[收尾](../verification/P05-02-acceptance.json)；03已实现[旧数据预演/导入](../verification/P05-03-import-contract.md)，50专项/477辅助通过；[Windows核对](../verification/P05-03-windows-evidence-01.json)确认41项指纹/50测试ID一致，50/50及原生导入/恢复/权限/清理通过，待用户验收，04未启动。
 
 目标：建立唯一写入方、可追溯账本和跨语言业务协议。默认过渡实现复用Python核心与标准库sqlite3；具体服务依赖引入前评估，不先写第二套计算规则。本阶段不对真实账本自动迁移，演练用副本。
 
@@ -8,7 +8,7 @@
 | --- | --- | --- | --- |
 | P05-01 | 已验收：[收尾记录](../verification/P05-01-acceptance.json)；本机SQLite账本、事务/幂等/revision/价格CAS、不可变快照、一致备份及独立恢复 | 第三次Windows42/42及原生恢复/权限/清理已通过，旧失败和385辅助证据保留，无需重跑 | 不兼容旧库拒绝；恢复独立新路径、不自动覆盖；已提交订单不因备份失败撤销，服务真实身份/E盘及客户端接入留02 |
 | P05-02 | 隔离交付已[收尾](../verification/P05-02-acceptance.json)，现场部署待办保留：[认证HTTPS与接口/客户端契约](../verification/P05-02-service-contract.md)；服务端核心重验、持久会话/角色允许字段、请求核查重试、原母子Tk显式服务入口、只读继承目录、备份计划/状态与完整服务维护恢复 | [42专项/427辅助](../verification/P05-02-checks.json)通过真实TCP HTTPS角色/越权/会话、双客户端同请求、恢复/原请求和控制器；[完整Windows核对](../verification/P05-02-windows-report-verification-01.json)42/42与实际Tk/DPAPI/恢复/清理通过，60指纹/42测试ID一致，真实192主机/E盘/物理双机待现场证据 | 服务试用使用隔离账本；未切换前可回旧客户端；切换后回退必须带增量对账，不能恢复过期备份 |
-| P05-03 | 已交付：[版本适配/私有预演/原子幂等导入](../verification/P05-03-import-contract.md)，源行→订单/明细/备注及原字节/事件；差异/歧义/公式隔离、归属显式、现价不替换 | [50专项/477辅助](../verification/P05-03-checks.json)与完整主机恢复通过，原件不变/重复不入账/整批回滚/原请求核查；Windows私有目录和文件清理待windows-01；合成不宣称真实历史已迁移 | 原文件只读；单来源全事务；管理员持主机锁、完整维护备份先行；部分隔离需显式认可，恢复保留原字节与映射 |
+| P05-03 | 已交付：[版本适配/私有预演/原子幂等导入](../verification/P05-03-import-contract.md)，源行→订单/明细/备注及原字节/事件；差异/歧义/公式隔离、归属显式、现价不替换 | [50专项/477辅助](../verification/P05-03-checks.json)与完整主机恢复通过，原件不变/重复不入账/整批回滚/原请求核查；[Windows完整核对](../verification/P05-03-windows-evidence-01.json)50/50及原生私有目录/文件清理/完整恢复通过，具备收尾条件待用户验收；合成不宣称真实历史已迁移 | 原文件只读；单来源全事务；管理员持主机锁、完整维护备份先行；部分隔离需显式认可，恢复保留原字节与映射 |
 | P05-04 | 账本生成Excel与附件任务；提交和报表分离；检索分页与增量统计；建立协议/版本兼容测试供Rust接替 | Excel锁定/输出目录断网不撤销订单；补导出不重复提交；日志无凭证；服务重启恢复任务状态；跨客户端目录不再决定账本权威 | 报表可再生；数据库为唯一来源。禁用旧Excel裸写入口，避免双权威 |
 
 认证/传输方案在实施前记录：主体如何注册、会话如何失效、管理员凭证如何存储、局域网通信如何保护、备份由谁访问；不把“在内网”当作无需鉴权。单机模式如果被确认采用，可实现同一业务授权/存储接口的本地适配，仍须满足business-v1已确认的角色/字段权限；实际写端数量与服务主机以[P01-03部署登记](../baseline/P01-03-data-deployment.md)为准，不从母子版源码推断部署台数。
@@ -35,7 +35,7 @@ P05-01复用quote_core，不建立新计算规则；quote_ledger的Principal仍�
 
 ## Windows本机隔离验证
 
-[第三次通过证据](../verification/P05-01-windows-evidence-03.json)及[原报告](../verification/P05-01-windows-report-03.json)已核对：9ce9f16的20项源码指纹和42测试ID一致，42/42与原生联测全过。1单2明细/1备注/5审计与回执、revision=5，恢复收入/成本/利润为3600/1600/2000分，幂等重放不重复入账。Hidden+System、3允许主体的受保护DACL和显式Everyone额外授权移除均通过，关闭与清理正常。P05-01已验收收尾，无需重跑；本段为01当时结果，当前02隔离已收尾、03已交付待Windows、04未启动，P04已收尾，以本文件顶部索引为准。
+[第三次通过证据](../verification/P05-01-windows-evidence-03.json)及[原报告](../verification/P05-01-windows-report-03.json)已核对：9ce9f16的20项源码指纹和42测试ID一致，42/42与原生联测全过。1单2明细/1备注/5审计与回执、revision=5，恢复收入/成本/利润为3600/1600/2000分，幂等重放不重复入账。Hidden+System、3允许主体的受保护DACL和显式Everyone额外授权移除均通过，关闭与清理正常。P05-01已验收收尾，无需重跑；本段为01当时结果，当前02隔离已收尾、03的Windows隔离已核对通过、待用户验收、04未启动，P04已收尾，以本文件顶部索引为准。
 
 首次报告19项LF指纹及31测试ID匹配94f4d89，schema相同；9处卡在DACL保护/主体数量组合门禁，报告未保存实际SDDL，不能区分具体字段；另1处是拒绝未知schema测试未关闭文件连接导致Windows清理失败。修复完整替换新目录DACL并独立读回，不通过放宽权限核验解决；连接显式关闭。新Windows联测额外创建应用专属临时目录，预置Everyone授权，再确认完整替换后该授权消失。原31检查保留，新增9项后共40；辅助权限策略/调用模拟不替代真实Windows属性和ACL通过。
 
@@ -45,7 +45,7 @@ P05-01复用quote_core，不建立新计算规则；quote_ledger的Principal仍�
 
 ## 当前P05-02验证入口
 
-P05-01已收尾，以上01“具备收尾条件”文字为当时通过记录，当前以验收JSON为准。02复用原界面，仅显式run_quote_client服务入口改变权威链路；未自动替换旧客户端、价格或历史账本。[完整Windows核对](../verification/P05-02-windows-report-verification-01.json)确认60项源码指纹及42测试ID匹配884c8cb，42/42零失败/错误/跳过；实际母子Tk、DPAPI、HTTPS、恢复/权限/关闭/清理通过，3单5明细金额核对一致。原报告按字节归档，无需重跑01或02；P04正式性能复验已核对通过，无需重跑；现场部署待办继续保留；03已交付待Windows，04未实施。
+P05-01已收尾，以上01“具备收尾条件”文字为当时通过记录，当前以验收JSON为准。02复用原界面，仅显式run_quote_client服务入口改变权威链路；未自动替换旧客户端、价格或历史账本。[完整Windows核对](../verification/P05-02-windows-report-verification-01.json)确认60项源码指纹及42测试ID匹配884c8cb，42/42零失败/错误/跳过；实际母子Tk、DPAPI、HTTPS、恢复/权限/关闭/清理通过，3单5明细金额核对一致。原报告按字节归档，无需重跑01或02；P04正式性能复验已核对通过，无需重跑；现场部署待办继续保留；03的Windows隔离已核对通过、待用户验收，04未实施。
 
 恢复包保留账户ID与TLS材料，旧会话/凭证失效，独立恢复目录默认维护状态，未停旧主机/核对增量前不能自动开始第二个写端。实时原订单不因备份失败撤销，财务快照与完整服务成功分别记录。实际主机OS/长期账户、真实E盘目录权限与物理双机验收仍为现场待办；当前本机合成网络客户端检查不冒充已部署。
 
@@ -54,4 +54,4 @@ P05-01已收尾，以上01“具备收尾条件”文字为当时通过记录，
 
 按[启动记录](../verification/P05-03-start.json)从6a041f4实施，原01/02/P04源码和报告保持。50项专项、477完整辅助及主机独立恢复通过；环境缺失uvicorn引起的首次3组错误在[证据](../verification/P05-03-checks.json)保留，补齐原固定依赖后通过，不作为应用缺陷。
 
-当前只运行tools/p05_import_check.py --windows-smoke --output reports/p05-03-windows-01，详见[导入契约](../verification/P05-03-import-contract.md)。自动用合成源件/临时主机核对来源/mtime/预演零写/精确金额、重复批次、备注/作废、完整备份/恢复、原字节/映射与当前Windows身份的private保护及清理；不访问真实共享/E盘/历史账本。通过后按用户指令收尾03，04尚未启动；实际历史首次只读识别和副本迁移仍在后续切换门槛。
+[原报告](../verification/P05-03-windows-report-01.json)已按21535原字节保存，[完整核对](../verification/P05-03-windows-evidence-01.json)确认源码5a791d6的41项LF指纹、50测试ID与全部成功日志一致，50/50零失败/错误/跳过。合成源件/临时主机的哈希及mtime不变、预演零写、重复批次零新增、备注/作废、完整维护备份及独立主机恢复后的原字节/映射/账户ID与旧会话清理均通过；private与host目录Hidden+System、仅当前身份/SYSTEM/管理员的受保护DACL及临时清理通过。2单/3明细/1备注，revision=5，有效收入/成本/利润7500/3000/4500分与夹具一致。无需重跑已通过检查；03具备收尾条件，待用户验收，04尚未启动。实际历史首次只读识别和副本迁移仍在后续切换门槛。
