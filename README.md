@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于plans；P01/P02/P03已验收；P04共享根已恢复可访问，用户已授权[立即正式复验06](docs/verification/P04-04-resume-06.json)，待Windows/UNC结果，整阶段未验收。当前唯一stage/p05-data-service；P05-01已按用户“收尾01开始02”[验收收尾](docs/verification/P05-01-acceptance.json)，原Windows42/42及恢复/权限通过证据不改。P05-02从84b881c实现[HTTPS认证服务与母子版适配](docs/verification/P05-02-service-contract.md)，主体/会话/角色DTO、原请求核查、子版只读继承目录、主机备份计划和完整服务恢复已交付，[42专项/427完整辅助](docs/verification/P05-02-checks.json)通过；[完整Windows核对](docs/verification/P05-02-windows-report-verification-01.json)确认60项源码指纹、42测试ID一致，42/42零失败/错误/跳过及实际母子Tk/DPAPI/恢复/权限/清理通过，无需重跑；真实主机/E盘和物理双机部署仍待验证。P05-03/04未启动，未迁移或切换生产数据。
+规划位于plans；P01/P02/P03已验收；[P04正式06](docs/verification/P04-04-windows-evidence-06.json)已核对Windows本机/UNC全档各5轮通过：43项源码指纹、37测试ID一致，110进程/450当前阶段全部完成并达标；整阶段具备收尾条件，待用户收尾确认。当前唯一stage/p05-data-service；P05-01已按用户“收尾01开始02”[验收收尾](docs/verification/P05-01-acceptance.json)，原Windows42/42及恢复/权限通过证据不改。P05-02从84b881c实现[HTTPS认证服务与母子版适配](docs/verification/P05-02-service-contract.md)，主体/会话/角色DTO、原请求核查、子版只读继承目录、主机备份计划和完整服务恢复已交付，[42专项/427完整辅助](docs/verification/P05-02-checks.json)通过；[完整Windows核对](docs/verification/P05-02-windows-report-verification-01.json)确认60项源码指纹、42测试ID一致，42/42零失败/错误/跳过及实际母子Tk/DPAPI/恢复/权限/清理通过，无需重跑；真实主机/E盘和物理双机部署仍待验证。P05-03/04未启动，未迁移或切换生产数据。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -34,6 +34,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- [P04正式06核对通过](docs/verification/P04-04-windows-evidence-06.json)：[原报告](docs/verification/P04-04-windows-report-06.json)2259815字节及SHA256 fd3c7cb14b54fdc736ce98e87c8b5583f71c968f0a9ad2abb16794ccde49fca8按字节归档，43项LF指纹/37测试ID匹配824ffe7。实际Windows本机/UNC各55进程，全档各5轮与旧版小档配对完成，450当前阶段全部达标；独立重算18080个原始间隔及全部轮次汇总。本机最差阶段p95/最大98.2681/144.1439ms，共享97.1443/145.6611ms；金额/完整页/末行/冷每文件一次/暖0/关闭/清理通过。打开中、大档目录明细的20个阶段各额外解码1文件如实保留，符合既有缓存契约；旧失败与563ms不撤销。P04正式共享待办已完成，整阶段具备收尾条件待用户确认，已停用明日重复验证提醒；程序/门槛不改，无需重跑，当前唯一P05分支及03/04未启动状态保持。
 
 - 核对并按字节归档[P05-02完整Windows报告](docs/verification/P05-02-windows-report-01.json)：22811字节、SHA256 dbcb149a1da4b5a96b7b909fcc4f6cab529b62fc2f4a31de0ec0f5e180f74020，884c8cb的60项LF指纹和全部42测试ID一致，42/42零失败/错误/跳过，原生联测与前次控制台完全一致；[核对记录](docs/verification/P05-02-windows-report-verification-01.json)补齐隔离证据，旧摘要和历史JSON保持。用户授权[P04立即正式复验06](docs/verification/P04-04-resume-06.json)，不再等待原14日执行日期；当前唯一stage/p05-data-service无新分支，原42项P04源码指纹和门槛不变，原收集器额外记录P05显式适配文件后共43项。按原全档各5轮/小档旧版配对测本机和UNC合成临时目录，结果待本机回传；不重跑其他已通过任务、不声明共享性能或真实服务部署已通过。
 
