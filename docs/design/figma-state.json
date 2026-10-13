@@ -648,13 +648,13 @@
       "Inter"
     ],
     "counts": {
-      "FRAME": 85,
-      "TEXT": 84,
-      "INSTANCE": 29,
-      "VECTOR": 26
+      "FRAME": 113,
+      "TEXT": 109,
+      "INSTANCE": 47,
+      "VECTOR": 41
     },
     "images": [],
-    "feedback": "用户：这个还行；删除顶部整条标题说明区。",
+    "feedback": "已认可重做方向；移除顶部说明和底部页脚文字，压缩客户区域以显示更多商品。",
     "removedNodes": [
       "22:289",
       "22:290",
@@ -666,6 +666,52 @@
       "22:296",
       "22:297",
       "22:298"
+    ],
+    "compactCustomerField": {
+      "id": "29:99",
+      "properties": {
+        "label": "Label#29:0",
+        "value": "Value#29:1"
+      }
+    },
+    "layout": {
+      "customerInputHeight": 40,
+      "cardHeight": 748,
+      "tableHeight": 458,
+      "productRowHeight": 60,
+      "visibleProductRows": 6
+    },
+    "sampleRows": [
+      {
+        "product": "户外写真",
+        "qty": "1",
+        "amount": "120.00"
+      },
+      {
+        "product": "户外写真",
+        "qty": "1",
+        "amount": "120.00"
+      },
+      {
+        "product": "户外写真",
+        "qty": "2",
+        "amount": "240.00"
+      },
+      {
+        "product": "PVC 硬板",
+        "qty": "1",
+        "amount": "244.80"
+      },
+      {
+        "product": "PVC 硬板",
+        "qty": "2",
+        "amount": "489.60"
+      },
+      {
+        "product": "安装服务",
+        "qty": "1",
+        "amount": "100.00"
+      }
     ]
   }
 }
