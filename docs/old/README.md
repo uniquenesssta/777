@@ -9,3 +9,7 @@
 [P03文件安全、身份与格式](P03-file-safety.md)于2026-10-12 09:11按用户“开始P4-01”验收归档，见[阶段验收](../verification/P03-acceptance.json)。原辅助237项及四项Windows材料保持，后台性能、服务权限和独立备份交接后续任务。
 
 [P04性能](P04-performance.md)按用户2026-10-13授权转接P05执行计划。01/02/03已验收、04本机短诊断通过，共享正式复验因停电延期；这是执行计划转接，**不是P04整阶段验收通过**。见[延期/依赖例外](../verification/P04-04-deferral.json)。
+
+[P04正式06复验](../verification/P04-acceptance.json)随后已按用户接续指令验收收尾，上述延期是历史状态。
+
+[P05数据与服务](P05-data-service.md)按用户“收尾P05-04开始P06-01”归档，见[阶段范围交接](../verification/P05-acceptance.json)。真实部署/历史切换交接后续，原报告保持。

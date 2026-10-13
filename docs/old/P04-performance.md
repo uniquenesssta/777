@@ -125,4 +125,4 @@ API依据：[Python 3.12 time.sleep](https://docs.python.org/3.12/library/time.h
 
 ## 2026-10-13执行转接
 
-用户已确认正式05预检查失败来自停电，并明确授权先推进P05。原失败报告不改；明日（按消息本地日期为2026-10-14）先确认供电恢复和普通UNC根可访问，再使用windows-06新输出完成正式本机/UNC五轮复验。P04整阶段尚未通过，不补写通过记录；待办由[now/P05](../now/P05-data-service.md)继续跟踪，当前开发仅stage/p05-data-service。
+用户已确认正式05预检查失败来自停电，并明确授权先推进P05。原失败报告不改；明日（按消息本地日期为2026-10-14）先确认供电恢复和普通UNC根可访问，再使用windows-06新输出完成正式本机/UNC五轮复验。P04整阶段尚未通过，不补写通过记录；待办由[now/P05](../old/P05-data-service.md)继续跟踪，当前开发仅stage/p05-data-service。

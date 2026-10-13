@@ -1,6 +1,6 @@
 # P05 结构化账本、局域网服务与旧数据导入
 
-状态：执行中。P05-01已按[用户指令](../verification/P05-01-acceptance.json)验收收尾；P05-02已实现[认证服务与客户端适配](../verification/P05-02-service-contract.md)，42专项/427完整辅助通过；[完整Windows核对](../verification/P05-02-windows-report-verification-01.json)60项指纹/42测试ID匹配，42/42及实际Tk/DPAPI/恢复通过，现场部署待验证。唯一stage/p05-data-service，02真实基线84b881c；P04已[验收收尾](../verification/P04-acceptance.json)，02隔离交付已[收尾](../verification/P05-02-acceptance.json)；03已按[用户指令](../verification/P05-03-acceptance.json)验收收尾。04已实现[账本报表/附件任务与增量查询](../verification/P05-04-output-contract.md)，原50/527及本次52专项辅助保持；[完整Windows核对](../verification/P05-04-windows-evidence-02.json)确认38项指纹/52测试ID匹配959d5d6，52/52与实际锁/Tk/DPAPI/v2恢复/权限/清理通过，具备收尾条件，待用户验收；P06未启动。
+状态：已按用户2026-10-13“收尾P05-04开始P06-01”归档，见[04验收](../verification/P05-04-acceptance.json)和[阶段范围/交接](../verification/P05-acceptance.json)。01至04的隔离交付已收尾，04 Windows52/52及38项源码指纹已核对。真实服务部署/E盘/服务身份/物理多客户端和首次历史迁移继续交接P07/P08；不作为已执行记录。下文保留各交付当时的状态与原报告，当前结论以本段及验收JSON为准。
 
 目标：建立唯一写入方、可追溯账本和跨语言业务协议。默认过渡实现复用Python核心与标准库sqlite3；具体服务依赖引入前评估，不先写第二套计算规则。本阶段不对真实账本自动迁移，演练用副本。
 
@@ -72,3 +72,7 @@ P05-01已收尾，以上01“具备收尾条件”文字为当时通过记录，
 ## P05-04第二次Windows完整通过
 
 [原报告](../verification/P05-04-windows-report-02.json)及[完整核对](../verification/P05-04-windows-evidence-02.json)确认959d5d6的38项LF指纹/52测试ID与成功日志一致；52/52零失败/错误/跳过。实际排他文件锁阻断输出时订单不变，解锁补原任务保持同SHA且不重复订单；实际HTTPS/DPAPI原输出回执恢复、母子Tk的Excel/PNG/私有内部明细按钮、销售只读继承、搜索/范围统计均通过，无回调错误，关闭与临时清理正常。完整v2独立维护主机恢复任务/文件/账户ID，旧会话失效；Hidden+System及仅当前身份/SYSTEM/管理员的受保护DACL匹配。3单5明细，revision4，收入/成本/利润9200/4000/5200分与夹具一致，输出回执不增加财务revision。04具备收尾条件，待用户验收；整阶段留now，P06未启动，真实UNC/E/服务身份/物理双机与历史切换仍为现场待办。原GBK启动失败与原50/527、编码52项辅助证据不改。
+
+## P06交接
+
+用户已授权P06-01从本阶段收尾提交建立唯一stage/p06-rust-core；复用business-v1/numeric-v1、53例黄金、ledger-v1与P05协议。P06-01仅领域影子验证，不替换服务写端。真实部署及历史切换项见[阶段交接](../verification/P05-acceptance.json)。
