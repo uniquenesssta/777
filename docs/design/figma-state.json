@@ -654,7 +654,7 @@
       "VECTOR": 41
     },
     "images": [],
-    "feedback": "已认可重做方向；移除顶部说明和底部页脚文字，压缩客户区域以显示更多商品。",
+    "feedback": "已认可重做方向；移除顶部说明和底部页脚文字，压缩客户区域以显示更多商品。 删除订单列表新建报价按钮，收紧提交确认弹窗。",
     "removedNodes": [
       "22:289",
       "22:290",
@@ -730,18 +730,11 @@
       "visibleRows": 8,
       "rowHeight": 60,
       "tableHeight": 520,
-      "panelGap": 12
+      "panelGap": 12,
+      "headerHeight": 28,
+      "newQuoteButton": false
     },
     "prototypeConnections": [
-      {
-        "node": "32:318",
-        "type": "NODE",
-        "destinationId": "21:3",
-        "navigation": "NAVIGATE",
-        "transition": null,
-        "resetScrollPosition": false,
-        "resetInteractiveComponents": false
-      },
       {
         "node": "32:365",
         "type": "NODE",
@@ -818,6 +811,18 @@
         "resetScrollPosition": false,
         "resetInteractiveComponents": false
       }
-    ]
+    ],
+    "confirmLayout": {
+      "width": 380,
+      "height": 194,
+      "buttonWidth": 96,
+      "buttonHeight": 36,
+      "content": [
+        "title",
+        "customer and order",
+        "total",
+        "return and confirm"
+      ]
+    }
   }
 }
