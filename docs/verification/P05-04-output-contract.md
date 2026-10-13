@@ -40,9 +40,9 @@ Excel是新的777-output-v1报表，固定Protocol/Order/Lines/Notes四表。所
 
 签名cursor绑定主体/角色、过滤、页大小、数据view与末行(created_at,order_id)，不含明文全局revision；数据变更、换账户/过滤/页大小或服务重启拒绝旧游标，避免静默漏页/重页。原offset分页也可提交view，母子窗口翻页沿当前view，变化后提示刷新首页。接口所有分金额继续为字符串。`GET /v1/capabilities`与[静态协议样例](P05-04-protocol.json)固定跨语言格式、允许类型、未来版本拒绝和超过JS整数范围的输出表示（该精度样例不改变业务容量，不宣称真实成交）。
 
-## 当前Windows验证入口
+## Windows隔离验证已通过
 
-[辅助检查](P05-04-checks.json)记录专项/完整回归和源码指纹。本项原生Excel锁、Tk按钮、Windows字体/权限/关闭与完整服务恢复需本轮实机报告；无需重跑P04或P05-01/02/03。原环境依赖已安装，本轮未增加依赖。
+[完整Windows核对](P05-04-windows-evidence-02.json)与[原报告](P05-04-windows-report-02.json)确认959d5d6的38项LF指纹/52测试ID与源码/成功日志一致，52/52零失败/错误/跳过；实际Windows排他文件锁、解锁补原任务、母子Tk的Excel/PNG/私有明细与销售只读继承、HTTPS/DPAPI、搜索/范围统计、v2维护恢复、权限/关闭/清理均通过。3单5明细、revision4，金额9200/4000/5200分一致；04具备收尾条件，待用户验收。原辅助/失败证据保持，以下命令已完成，无需重跑本项或旧通过任务。
 
 ```powershell
 git pull --ff-only
@@ -50,6 +50,6 @@ if ($LASTEXITCODE -ne 0) { throw '拉取失败，先停止' }
 py -3 tools/p05_output_check.py --windows-smoke --output reports/p05-04-windows-02
 ```
 
-预计约2～4分钟。脚本只创建合成源件/临时主机与本地输出目录，通过真实回环HTTPS、DPAPI和母子Tk检查新报表按钮/报价PNG/私有成本/只读继承/搜索统计；用Windows排他句柄真实锁定同SHA目标文件，解锁后补原任务，确认订单数/金额不变，再完整v2备份与独立维护主机恢复。回传`reports/p05-04-windows-02/report.json`。真实192主机、E盘、UNC部署、物理双机及历史切换仍为现场待办，不由本报告代替。
+本次脚本只创建合成源件/临时主机与本地输出目录，通过真实回环HTTPS、DPAPI和母子Tk检查新报表按钮/报价PNG/私有成本/只读继承/搜索统计；用Windows排他句柄真实锁定同SHA目标文件，解锁后补原任务，确认订单数/金额不变，再完整v2备份与独立维护主机恢复。`reports/p05-04-windows-02/report.json`已收到并按字节归档。真实192主机、E盘、UNC部署、物理双机及历史切换仍为现场待办，不由本报告代替。
 
-首次Windows在清单指纹读取时因默认GBK失败，见[控制台记录](P05-04-windows-evidence-01.json)；未运行业务/原生检查，也未写报告。现文本读写显式UTF-8，[52项修复专项](P05-04-encoding-checks.json)及GBK默认读取回归通过，原50/527证据不改。本次使用新的windows-02目录，保留原已创建的windows-01；无需环境编码开关或删除目录。
+首次Windows在清单指纹读取时因默认GBK失败，见[控制台记录](P05-04-windows-evidence-01.json)；未运行业务/原生检查，也未写报告。现文本读写显式UTF-8，[52项修复专项](P05-04-encoding-checks.json)及GBK默认读取回归通过，原50/527证据不改。本次windows-02已通过，原已创建的windows-01保留，旧失败不覆盖；无需环境编码开关、删除目录或再次重跑。

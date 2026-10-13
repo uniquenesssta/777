@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于plans；P01/P02/P03已验收；P04已依据[接续指令](docs/verification/P04-acceptance.json)验收收尾，原正式06本机/UNC全档通过证据保持。当前唯一stage/p05-data-service；P05-01已按用户“收尾01开始02”[验收收尾](docs/verification/P05-01-acceptance.json)，原Windows42/42及恢复/权限通过证据不改。P05-02从84b881c实现[HTTPS认证服务与母子版适配](docs/verification/P05-02-service-contract.md)，主体/会话/角色DTO、原请求核查、子版只读继承目录、主机备份计划和完整服务恢复已交付，[42专项/427完整辅助](docs/verification/P05-02-checks.json)通过；[完整Windows核对](docs/verification/P05-02-windows-report-verification-01.json)确认60项源码指纹、42测试ID一致，42/42零失败/错误/跳过及实际母子Tk/DPAPI/恢复/权限/清理通过，无需重跑；真实主机/E盘和物理双机部署仍待验证。P05-02隔离交付已[收尾](docs/verification/P05-02-acceptance.json)；P05-03已实现[旧数据预演/原子导入](docs/verification/P05-03-import-contract.md)，[50专项/477完整辅助](docs/verification/P05-03-checks.json)通过，原Windows50/50及41项指纹核对已按[用户指令](docs/verification/P05-03-acceptance.json)验收收尾，无需重跑。当前P05-04已实现[报表/附件任务与增量查询](docs/verification/P05-04-output-contract.md)，原[50专项/527完整辅助](docs/verification/P05-04-checks.json)及[本次52项编码修复专项](docs/verification/P05-04-encoding-checks.json)通过，38项当前指纹；Windows首次因清单读取误用GBK而在检查前中断，待windows-02复验。P05-04已交付待Windows/用户验收，P06未启动，未迁移或切换生产数据。
+规划位于plans；P01/P02/P03已验收；P04已依据[接续指令](docs/verification/P04-acceptance.json)验收收尾，原正式06本机/UNC全档通过证据保持。当前唯一stage/p05-data-service；P05-01已按用户“收尾01开始02”[验收收尾](docs/verification/P05-01-acceptance.json)，原Windows42/42及恢复/权限通过证据不改。P05-02从84b881c实现[HTTPS认证服务与母子版适配](docs/verification/P05-02-service-contract.md)，主体/会话/角色DTO、原请求核查、子版只读继承目录、主机备份计划和完整服务恢复已交付，[42专项/427完整辅助](docs/verification/P05-02-checks.json)通过；[完整Windows核对](docs/verification/P05-02-windows-report-verification-01.json)确认60项源码指纹、42测试ID一致，42/42零失败/错误/跳过及实际母子Tk/DPAPI/恢复/权限/清理通过，无需重跑；真实主机/E盘和物理双机部署仍待验证。P05-02隔离交付已[收尾](docs/verification/P05-02-acceptance.json)；P05-03已实现[旧数据预演/原子导入](docs/verification/P05-03-import-contract.md)，[50专项/477完整辅助](docs/verification/P05-03-checks.json)通过，原Windows50/50及41项指纹核对已按[用户指令](docs/verification/P05-03-acceptance.json)验收收尾，无需重跑。当前P05-04已实现[报表/附件任务与增量查询](docs/verification/P05-04-output-contract.md)，原50/527及本次52专项辅助证据保持；[完整Windows核对](docs/verification/P05-04-windows-evidence-02.json)确认959d5d6的38项指纹/52测试ID一致，52/52与实际锁/母子Tk按钮/DPAPI/完整v2恢复/权限/清理通过，具备收尾条件，待用户验收。P05-04的Windows隔离已通过、待用户验收，P06未启动，未迁移或切换生产数据。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -34,6 +34,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 登记[P05-04第二次完整Windows核对](docs/verification/P05-04-windows-evidence-02.json)：38项LF源码指纹/52测试ID及成功日志匹配959d5d6，52/52零失败/错误/跳过；实际排他文件锁/解锁原任务同SHA、订单不变、HTTPS/DPAPI回执、母子Tk的Excel/PNG/私有明细与只读继承、搜索统计、完整v2维护恢复、权限/关闭/清理全部通过。3单5明细、revision4、金额9200/4000/5200分一致；[原报告](docs/verification/P05-04-windows-report-02.json)按字节保存，原GBK失败、50/527及编码52项辅助证据保持。04具备收尾条件待用户验收，无需重跑，P05继续留now、P06未启动；真实部署与历史切换留后续。
 
 - P05-04首次[Windows启动失败](docs/verification/P05-04-windows-evidence-01.json)：UTF-8清单误用默认GBK解码，尚未进入测试/原生流程、未产生报告。诊断清单/临时配置及新测试文本读写显式UTF-8，旧函数默认GBK复现；新增2项GBK读取/报告读回回归，[52/52专项](docs/verification/P05-04-encoding-checks.json)通过。业务/核心/账本和原50/527证据不改，使用新的windows-02目录复验，04不收尾、P06不启动。
 

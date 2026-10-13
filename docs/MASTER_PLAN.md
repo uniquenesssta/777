@@ -2,7 +2,7 @@
 
 版本：初始规划；日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P01/P02/P03已验收；P04已依据[接续指令](verification/P04-acceptance.json)验收收尾，原正式06本机/UNC全档通过证据保持。当前唯一stage/p05-data-service；P05-01已按用户“收尾01开始02”[验收收尾](verification/P05-01-acceptance.json)，原Windows42/42及恢复/权限通过证据不改。P05-02从84b881c实现[HTTPS认证服务与母子版适配](verification/P05-02-service-contract.md)，主体/会话/角色DTO、原请求核查、子版只读继承目录、主机备份计划和完整服务恢复已交付，[42专项/427完整辅助](verification/P05-02-checks.json)通过；[完整Windows核对](verification/P05-02-windows-report-verification-01.json)确认60项源码指纹、42测试ID一致，42/42零失败/错误/跳过及实际母子Tk/DPAPI/恢复/权限/清理通过，无需重跑；真实主机/E盘和物理双机部署仍待验证。P05-02隔离交付已[收尾](verification/P05-02-acceptance.json)；P05-03已实现[旧数据预演/原子导入](verification/P05-03-import-contract.md)，[50专项/477完整辅助](verification/P05-03-checks.json)通过，原Windows50/50及41项指纹核对已按[用户指令](verification/P05-03-acceptance.json)验收收尾，无需重跑。当前P05-04已实现[报表/附件任务与增量查询](verification/P05-04-output-contract.md)，原[50专项/527完整辅助](verification/P05-04-checks.json)及[本次52项编码修复专项](verification/P05-04-encoding-checks.json)通过，38项当前指纹；Windows首次因清单读取误用GBK而在检查前中断，待windows-02复验。P05-04已交付待Windows/用户验收，P06未启动，未迁移或切换生产数据。** 后续任务按阶段验收与授权推进。
+**P01/P02/P03已验收；P04已依据[接续指令](verification/P04-acceptance.json)验收收尾，原正式06本机/UNC全档通过证据保持。当前唯一stage/p05-data-service；P05-01已按用户“收尾01开始02”[验收收尾](verification/P05-01-acceptance.json)，原Windows42/42及恢复/权限通过证据不改。P05-02从84b881c实现[HTTPS认证服务与母子版适配](verification/P05-02-service-contract.md)，主体/会话/角色DTO、原请求核查、子版只读继承目录、主机备份计划和完整服务恢复已交付，[42专项/427完整辅助](verification/P05-02-checks.json)通过；[完整Windows核对](verification/P05-02-windows-report-verification-01.json)确认60项源码指纹、42测试ID一致，42/42零失败/错误/跳过及实际母子Tk/DPAPI/恢复/权限/清理通过，无需重跑；真实主机/E盘和物理双机部署仍待验证。P05-02隔离交付已[收尾](verification/P05-02-acceptance.json)；P05-03已实现[旧数据预演/原子导入](verification/P05-03-import-contract.md)，[50专项/477完整辅助](verification/P05-03-checks.json)通过，原Windows50/50及41项指纹核对已按[用户指令](verification/P05-03-acceptance.json)验收收尾，无需重跑。当前P05-04已实现[报表/附件任务与增量查询](verification/P05-04-output-contract.md)，原50/527及本次52专项辅助证据保持；[完整Windows核对](verification/P05-04-windows-evidence-02.json)确认959d5d6的38项指纹/52测试ID一致，52/52与实际锁/母子Tk按钮/DPAPI/完整v2恢复/权限/清理通过，具备收尾条件，待用户验收。P05-04的Windows隔离已通过、待用户验收，P06未启动，未迁移或切换生产数据。** 后续任务按阶段验收与授权推进。
 
 ## 1. 目标与边界
 
@@ -23,7 +23,7 @@ P01/P02/P03已验收归档old；P04先按用户明确授权转接old，后依据
 | P02 | [计算正确性与公共核心](old/P02-calculation.md) | P01已验收 | stage/p02-calculation | 四项均已验收归档；[P02确认](verification/P02-acceptance.json)，辅助130项及用户明确Windows复查通过 |
 | P03 | [文件数据安全与兼容](old/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 四项均已验收归档；[P03确认](verification/P03-acceptance.json)，原Windows及辅助237项证据保留 |
 | P04 | [后台任务与性能](old/P04-performance.md) | P03已验收 | stage/p04-performance（已转接） | 01/02/03已验收，04短诊断通过；用户确认停电、授权先P05；正式06全档通过已按[用户接续](verification/P04-acceptance.json)验收收尾，无需重跑 |
-| P05 | [结构化存储与局域网服务](now/P05-data-service.md) | P04已验收；用户授权收尾03并开始04 | stage/p05-data-service | 01/02/03已按相应用户指令收尾，现场部署待办保留；04报表/附件任务、增量检索统计已交付，50专项/527完整辅助通过，待Windows隔离与用户验收 |
+| P05 | [结构化存储与局域网服务](now/P05-data-service.md) | P04已验收；用户授权收尾03并开始04 | stage/p05-data-service | 01/02/03已按相应用户指令收尾，现场部署待办保留；04报表/附件任务、增量检索统计已交付；[Windows52/52及原生核对](verification/P05-04-windows-evidence-02.json)通过，38项指纹一致，具备收尾条件待用户验收 |
 | P06 | [Rust业务核心与适配](new/P06-rust-core.md) | P05已验收 | stage/p06-rust-core | 待启动；黄金样本一致、服务适配和格式兼容通过 |
 | P07 | [Tauri界面与Windows交付](new/P07-tauri-desktop.md) | P06已验收 | stage/p07-tauri-desktop | 待启动；母子角色端到端、权限与安装验收通过 |
 | P08 | [迁移演练与正式切换](new/P08-cutover.md) | P07已验收 | stage/p08-cutover | 待启动；全量对账、恢复演练及用户验收后才切换 |
