@@ -34,7 +34,7 @@ def run_checks():
 
 
 def windows_smoke():
-    if os.name!='nt':raise RuntimeError('ACTUAL_WINDOWS_REQUIRED')
+    if os.name!='nt' or platform.system()!='Windows':raise RuntimeError('ACTUAL_WINDOWS_REQUIRED')
     from rust_service_fixture import Hosted
     from quote_service.journal import Journal
     from quote_service.client import CommitUnknown
@@ -76,7 +76,7 @@ def main(argv=None):
     args=p.parse_args(argv);output=new_output(args.output)
     report=dict(task='P06-02',status='running',environment=dict(os=platform.system(),python=platform.python_version()),source_commit=None,implementation_sha256_LF=None,commands=[],checks=None,shadow_comparison=None,native_smoke=None,production_paths_accessed=False,production_writer_replaced=False,Windows_acceptance='pending')
     try:
-        if args.windows_smoke and os.name!='nt':raise RuntimeError('ACTUAL_WINDOWS_REQUIRED')
+        if args.windows_smoke and (os.name!='nt' or platform.system()!='Windows'):raise RuntimeError('ACTUAL_WINDOWS_REQUIRED')
         report['source_commit']=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,encoding='utf-8').strip()
         report['worktree_dirty']=bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True,encoding='utf-8').strip())
         report['implementation_sha256_LF']=fingerprints();cargo=shutil.which('cargo');rustc=shutil.which('rustc')

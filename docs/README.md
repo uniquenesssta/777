@@ -9,8 +9,8 @@
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
 | 本轮授权 | 用户2026-10-13 21:26:19“收尾01开始02”；既有推送授权有效 |
 | 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P06-01已按[用户接续](verification/P06-01-acceptance.json)验收收尾，原Windows证据保持。当前同一stage/p06-rust-core从c8ad540执行P06-02：[Rust账本与兼容服务适配](verification/P06-02-storage-contract.md)已实现，65专项/594完整辅助、Rust25项与561精确对照通过，待本轮Windows/用户验收；03/04未启动。真实部署与历史切换待办保留。 |
-| 下一项 | P06-02 Windows隔离原生账本/协议/恢复验证及用户验收；03/04未启动 |
+| 当前开发阶段 / Atomic Task | P06-01已按[用户接续](verification/P06-01-acceptance.json)验收收尾，原Windows证据保持。当前同一stage/p06-rust-core从c8ad540执行P06-02：[Rust账本与兼容服务适配](verification/P06-02-storage-contract.md)已实现，原65专项/594完整辅助、Rust25项与561精确对照通过；Windows首轮63通过/2处验证代码错误，已修复并通过65专项辅助回归，待Windows复查/用户验收；03/04未启动。真实部署与历史切换待办保留。 |
+| 下一项 | P06-02 Windows第二轮隔离复查：reports/p06-02-windows-02；通过后用户验收，03/04未启动 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 

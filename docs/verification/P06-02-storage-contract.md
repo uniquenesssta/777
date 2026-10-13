@@ -39,9 +39,12 @@ CLI要求绝对本机路径，实际使用将root换为已明确的主机绝对�
 ```powershell
 git pull --ff-only
 if ($LASTEXITCODE -ne 0) { throw '拉取失败，先停止' }
-py -3 tools/p06_ledger_check.py --windows-smoke --output reports/p06-02-windows-01
+py -3 tools/p06_ledger_check.py --windows-smoke --output reports/p06-02-windows-02
 ```
 
 沿用01已验证Rustup/MSVC与现有服务Python依赖，首次SQLite C源码编译会比缓存构建慢。入口核验真正Windows AMD64 MSVC和固定工具链，执行全部65项与561对照，并额外验证真实DPAPI、Rust提交后退出/原回执、原HTTPS客户端、v3原生恢复、Windows私有目录属性/ACL和临时清理。不启动GUI，不访问真实共享/E盘、安装服务或切换生产。辅助`--checks-only`不记录Windows通过。输出必须新reports子目录，复查换02编号，保留失败文件。
 
 完成回传`report.json`与`comparisons.json`。本轮Windows通过前不启动03；原01/P05入口无需重跑。
+
+
+首轮7338d7a的[原报告](P06-02-windows-report-01.json)/[比较文件](P06-02-windows-comparisons-01.json)保留。83项LF指纹、Rust25项、65个完整测试ID与561对照已独立核对；专项63通过/2错误，均为验证代码：SQLite连接未关闭导致Windows清理失败、模拟os.name导致Path类型错误。[修复证据](P06-02-windows-evidence-01.json)及[65项辅助回归](P06-02-windows-fix-checks.json)登记。当前使用上方02输出目录复查，重点补齐尚未执行的Windows原生DPAPI/ACL/备份恢复；P06-01和P05已通过入口无需重跑。

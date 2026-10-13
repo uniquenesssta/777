@@ -9,7 +9,7 @@ from unittest.mock import patch
 import p06_ledger_check as check
 class P06LedgerCheckTests(unittest.TestCase):
     def test_windows_mode_refuses_auxiliary_platform_before_native_execution(self):
-        with tempfile.TemporaryDirectory() as folder,redirect_stdout(io.StringIO()),patch.object(check,'new_output',return_value=Path(folder)),patch.object(check.os,'name','posix'),patch.object(check,'run',side_effect=AssertionError('native started')):
+        with tempfile.TemporaryDirectory() as folder,redirect_stdout(io.StringIO()),patch.object(check,'new_output',return_value=Path(folder)),patch.object(check.platform,'system',return_value='Linux'),patch.object(check,'run',side_effect=AssertionError('native started')):
             self.assertEqual(check.main(['--windows-smoke','--output',folder]),1)
             r=json.loads((Path(folder)/'report.json').read_text(encoding='utf-8'));self.assertEqual(r['failure']['reason'],'ACTUAL_WINDOWS_REQUIRED')
     def test_source_fingerprints_are_bytes_based_without_default_gbk_reads(self):
@@ -19,5 +19,5 @@ class P06LedgerCheckTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             with self.assertRaises(ValueError):check.new_output(folder)
     def test_windows_smoke_cannot_be_run_as_a_platform_simulation(self):
-        with patch.object(check.os,'name','posix'):
+        with patch.object(check.platform,'system',return_value='Linux'):
             with self.assertRaisesRegex(RuntimeError,'ACTUAL_WINDOWS_REQUIRED'):check.windows_smoke()

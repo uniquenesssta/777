@@ -1,0 +1,82 @@
+{
+  "task": "P06-02",
+  "status": "Windows_failed_validation_fixture_errors_fixed_recheck_pending",
+  "received_at": "2026-10-13T22:38:43+08:00",
+  "phase_branch": "stage/p06-rust-core",
+  "source_commit": "7338d7ac85f99a5e9242e27bf121a48241593f64",
+  "original_report": "P06-02-windows-report-01.json",
+  "original_comparisons": "P06-02-windows-comparisons-01.json",
+  "original_bytes_preserved": true,
+  "environment": {
+    "os": "Windows",
+    "python": "3.12.10",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6"
+  },
+  "reported_worktree_dirty": false,
+  "independent_verification": {
+    "source_commit": "7338d7ac85f99a5e9242e27bf121a48241593f64",
+    "implementation_fingerprints_verified": 83,
+    "test_ids_verified": 65,
+    "successful_tests": 63,
+    "errors": 2,
+    "rust_tests_verified": 25,
+    "locked_dependencies_verified": 48,
+    "exact_comparisons_verified": 561,
+    "comparison_python_results_independently_recomputed": true,
+    "comparisons_equal_prior_shadow_asset": true,
+    "report_bytes": 46849,
+    "report_sha256": "e911cbb2ecf6fc544036b2e6d0df4b1b42d9cdd8847ac32514cb70394df7d0dd",
+    "comparisons_bytes": 220370,
+    "comparisons_sha256": "9d99c86e4de0dcaa50108faa02f995e54a4a74ef6675977e299e234913b23507",
+    "failure_details": [
+      {
+        "test_id": "test_rust_ledger.RustLedgerTests.test_schema_unknown_or_altered_is_rejected_without_overwriting",
+        "error": "PermissionError: [WinError 32] 另一个程序正在使用此文件，进程无法访问。: 'C:\\\\Users\\\\uniqu\\\\AppData\\\\Local\\\\Temp\\\\777-p06-ledger-m_84dl5l\\\\ledger.sqlite3'"
+      },
+      {
+        "test_id": "test_p06_ledger_check.P06LedgerCheckTests.test_windows_mode_refuses_auxiliary_platform_before_native_execution",
+        "error": "NotImplementedError: cannot instantiate 'PosixPath' on your system"
+      }
+    ]
+  },
+  "Windows_check_summary": {
+    "tests_run": 65,
+    "passed": 63,
+    "failures": 0,
+    "errors": 2,
+    "skipped": 0,
+    "native_smoke_executed": false
+  },
+  "fixes": [
+    {
+      "test_id": "test_rust_ledger.RustLedgerTests.test_schema_unknown_or_altered_is_rejected_without_overwriting",
+      "cause": "sqlite3.Connection context manager commits or rolls back but does not close; the retained handle prevented Windows temporary directory cleanup",
+      "change": "Explicit contextlib.closing around the schema mutation connection, preserving its transaction context and all rejection/hash assertions"
+    },
+    {
+      "test_id": "test_p06_ledger_check.P06LedgerCheckTests.test_windows_mode_refuses_auxiliary_platform_before_native_execution",
+      "cause": "Patching the shared os.name changed pathlib concrete path selection and reconstruction on actual Windows",
+      "change": "Mock platform.system for refusal tests; require both native os.name nt and platform.system Windows without mutating process OS identity"
+    }
+  ],
+  "auxiliary_fix_checks": "P06-02-windows-fix-checks.json",
+  "reported_worker_sha256": "0d06c1164173672dcdc1c524076aeca935fab7c46fbea1aef77836a4ca3a36dd",
+  "worker_binary_uploaded": false,
+  "production_paths_accessed": false,
+  "production_writer_replaced": false,
+  "Windows_acceptance": "pending; DPAPI/private ACL/native backup restoration not executed after functional failure",
+  "user_acceptance": "not_recorded",
+  "recheck": {
+    "command": "py -3 tools/p06_ledger_check.py --windows-smoke --output reports/p06-02-windows-02",
+    "required_files": [
+      "report.json",
+      "comparisons.json"
+    ]
+  },
+  "not_started": [
+    "P06-03",
+    "P06-04",
+    "P07",
+    "P08"
+  ]
+}

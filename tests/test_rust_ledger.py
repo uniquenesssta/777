@@ -1,5 +1,6 @@
 """P06-02 real native-process/SQLite transaction and cross-backend compatibility."""
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import closing
 from dataclasses import replace
 from pathlib import Path
 import hashlib
@@ -104,7 +105,8 @@ class RustLedgerTests(unittest.TestCase):
         with self.assertRaises(LedgerError):self.ledger.submit_order(rid(),SALES,quote('v2','922337203.6854775808'))
         self.assertEqual(self.ledger.inventory(),before)
     def test_schema_unknown_or_altered_is_rejected_without_overwriting(self):
-        with sqlite3.connect(self.ledger.path) as c:c.execute('PRAGMA user_version=999')
+        with closing(sqlite3.connect(self.ledger.path)) as c:
+            with c:c.execute('PRAGMA user_version=999')
         before=hashlib.sha256(self.ledger.path.read_bytes()).hexdigest()
         with self.assertRaises(InvalidDatabase):self.ledger.inventory()
         self.assertEqual(hashlib.sha256(self.ledger.path.read_bytes()).hexdigest(),before)

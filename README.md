@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P06-01已按[用户接续](docs/verification/P06-01-acceptance.json)验收收尾，原Windows证据保持。当前同一stage/p06-rust-core从c8ad540执行P06-02：[Rust账本与兼容服务适配](docs/verification/P06-02-storage-contract.md)已实现，65专项/594完整辅助、Rust25项与561精确对照通过，待本轮Windows/用户验收；03/04未启动。真实部署与历史切换待办保留。
+P06-01已按[用户接续](docs/verification/P06-01-acceptance.json)验收收尾，原Windows证据保持。当前同一stage/p06-rust-core从c8ad540执行P06-02：[Rust账本与兼容服务适配](docs/verification/P06-02-storage-contract.md)已实现，原65专项/594完整辅助、Rust25项与561精确对照通过；Windows首轮63通过/2处验证代码错误，已修复并通过65专项辅助回归，待Windows复查/用户验收；03/04未启动。真实部署与历史切换待办保留。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -36,6 +36,8 @@ P06-01已按[用户接续](docs/verification/P06-01-acceptance.json)验收收尾
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P06-02 Windows首轮：83指纹/65测试ID、Rust25项与561精确对照匹配，专项63通过/2处验证代码错误；[原报告与独立核对](docs/verification/P06-02-windows-evidence-01.json)保留。修复schema夹具SQLite连接关闭及平台模拟Path错误，65专项辅助回归全过；[第二轮Windows入口](docs/verification/P06-02-storage-contract.md#windows隔离检查)使用新02目录，原生DPAPI/ACL/备份恢复待验证，02不收尾、03未启动。
 
 - P06-02：交付同schema的Rust事务账本/精确指纹重放、原生备份与内存导入计划、保持既有认证HTTPS的领域适配及离线后端选择；完整包v3保留worker/许可/输出队列，旧v1/v2兼容。65专项/594完整辅助、Rust25项与561精确对照通过；待Windows隔离验证，未切换真实数据或启动03。
 
