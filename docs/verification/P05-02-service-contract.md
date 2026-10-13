@@ -1,6 +1,6 @@
 # P05-02 认证服务、母子版客户端与部署契约
 
-状态：已实现，首次Windows隔离控制台42/42及原生联测通过；原完整报告/60项指纹及真实部署仍待核对。唯一分支`stage/p05-data-service`，真实基线`84b881c`。用户“收尾01开始02”已登记[P05-01验收](P05-01-acceptance.json)。P04共享正式复验仍保留2026-10-14，P05-03/04尚未实施。
+状态：已实现，[完整Windows核对](P05-02-windows-report-verification-01.json)60项源码指纹/42测试ID一致，42/42及原生联测通过，隔离证据已齐；真实部署待验证。唯一分支`stage/p05-data-service`，真实基线`84b881c`。用户“收尾01开始02”已登记[P05-01验收](P05-01-acceptance.json)。P04共享正式复验已获[即刻执行授权](P04-04-resume-06.json)，P05-03/04尚未实施。
 
 ## 交付与依赖选择
 
@@ -62,7 +62,7 @@ snapshot为price_version_id、lines及可选business-v1/numeric-v1版本。norma
 
 ## Windows隔离验证（首次已通过，无需重跑）
 
-[42专项/427完整辅助证据](P05-02-checks.json)通过真实本机TCP HTTPS/SQLite、认证失效、越权与字段过滤、未知回执和双连接同请求、完整恢复及账户ID/会话处理；主线程控制器用替代控件检查，不冒充真实Tk。此前辅助运行没有Windows显示/DPAPI；现已收到[Windows首次通过控制台](P05-02-windows-evidence-01.json)，42/42、实际TLS1.3、DPAPI、母子Tk、恢复/权限/关闭/清理通过。以下为已执行入口，不要求重跑。
+[42专项/427完整辅助证据](P05-02-checks.json)通过真实本机TCP HTTPS/SQLite、认证失效、越权与字段过滤、未知回执和双连接同请求、完整恢复及账户ID/会话处理；主线程控制器用替代控件检查，不冒充真实Tk。此前辅助运行没有Windows显示/DPAPI；现已收到[完整Windows报告](P05-02-windows-report-01.json)并[核对60指纹/42测试ID](P05-02-windows-report-verification-01.json)，42/42、实际TLS1.3、DPAPI、母子Tk、恢复/权限/关闭/清理通过。以下为已执行入口，不要求重跑。
 
 ```powershell
 git pull --ff-only
@@ -72,7 +72,7 @@ if ($LASTEXITCODE -ne 0) { throw '服务依赖安装失败，先停止' }
 py -3 tools/p05_service_check.py --windows-smoke --output reports/p05-02-windows-01
 ```
 
-预计约1～3分钟。报告保存42项检查与60项源码指纹；原生环回HTTPS、DPAPI待核查请求、实际母子Tk登录/计算/提交/查询/只读目录、关闭/清理及完整备份/独立恢复。临时主机/账户自动清理，不访问真实E盘、共享数据或192.168.4.38。本次已收到控制台摘要，原`reports/p05-02-windows-01/report.json`尚未收到；补交已有文件即可核对60项源码指纹、42测试ID/跳过及日志，不要求重跑。返回账本3单5明细、revision4、收入/成本/利润11200/4800/6400分与隔离样例一致；两窗口依次运行，不是物理双机部署。共享Get-Item元数据另见[观察记录](P04-04-shared-directory-observation-01.json)，P04正式性能复验仍保留。
+预计约1～3分钟。报告保存42项检查与60项源码指纹；原生环回HTTPS、DPAPI待核查请求、实际母子Tk登录/计算/提交/查询/只读目录、关闭/清理及完整备份/独立恢复。临时主机/账户自动清理，不访问真实E盘、共享数据或192.168.4.38。原`reports/p05-02-windows-01/report.json`已以report(10).json回传并按字节归档（22811字节）；源码指纹/测试清单/零跳过及日志核对通过，不要求重跑。返回账本3单5明细、revision4、收入/成本/利润11200/4800/6400分与隔离样例一致；两窗口依次运行，不是物理双机部署。共享Get-Item元数据另见[观察记录](P04-04-shared-directory-observation-01.json)，P04正式性能复验仍保留。
 
 ## 真实主机部署入口（尚未执行）
 

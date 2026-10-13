@@ -1,6 +1,6 @@
 # P04 后台任务、增量读取和完整查看
 
-状态：已转接P05执行计划，P04-04共享正式复验延期，整阶段未验收。[用户授权/停电原因与保留待办](../verification/P04-04-deferral.json)是当前状态依据；本文件以下历史实施与失败证据保留，不从此旧任务书继续开发。
+状态：已转接P05执行计划；用户现已[授权立即正式复验06](../verification/P04-04-resume-06.json)，当前唯一stage/p05-data-service直接运行，不切回或新建分支。正式Windows/UNC结果待回传，整阶段未验收。[原停电延期](../verification/P04-04-deferral.json)和本文件以下历史实施/失败证据保留，当前入口见[性能契约](../verification/P04-04-performance-contract.md)，不从旧任务书另开开发线。
 
 P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。P01已按[批准记录](../baseline/p01-acceptance.json)采纳numeric-v1/performance-v1，历史候选/黄金元数据保留并映射；实施时读取同一黄金JSON，不复制期望。本阶段01已按用户“开始P4-01”授权实施。
 

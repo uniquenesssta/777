@@ -2,7 +2,7 @@
 
 版本：初始规划；日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P01/P02/P03已验收；P04共享复验按[停电延期记录](verification/P04-04-deferral.json)保留2026-10-14，整阶段未验收。当前唯一stage/p05-data-service；P05-01已按用户“收尾01开始02”[验收收尾](verification/P05-01-acceptance.json)，原Windows42/42及恢复/权限通过证据不改。P05-02从84b881c实现[HTTPS认证服务与母子版适配](verification/P05-02-service-contract.md)，主体/会话/角色DTO、原请求核查、子版只读继承目录、主机备份计划和完整服务恢复已交付，[42专项/427完整辅助](verification/P05-02-checks.json)通过；[首次Windows回传](verification/P05-02-windows-evidence-01.json)确认42/42及实际母子Tk/DPAPI/恢复/权限/清理通过；完整报告及60项源码指纹尚待归档核对，真实主机/E盘和物理双机部署仍待验证。P05-03/04未启动，未迁移或切换生产数据。** 后续任务按阶段验收与授权推进。
+**P01/P02/P03已验收；P04共享根已恢复可访问，用户已授权[立即正式复验06](verification/P04-04-resume-06.json)，待Windows/UNC结果，整阶段未验收。当前唯一stage/p05-data-service；P05-01已按用户“收尾01开始02”[验收收尾](verification/P05-01-acceptance.json)，原Windows42/42及恢复/权限通过证据不改。P05-02从84b881c实现[HTTPS认证服务与母子版适配](verification/P05-02-service-contract.md)，主体/会话/角色DTO、原请求核查、子版只读继承目录、主机备份计划和完整服务恢复已交付，[42专项/427完整辅助](verification/P05-02-checks.json)通过；[完整Windows核对](verification/P05-02-windows-report-verification-01.json)确认60项源码指纹、42测试ID一致，42/42零失败/错误/跳过及实际母子Tk/DPAPI/恢复/权限/清理通过，无需重跑；真实主机/E盘和物理双机部署仍待验证。P05-03/04未启动，未迁移或切换生产数据。** 后续任务按阶段验收与授权推进。
 
 ## 1. 目标与边界
 
@@ -22,8 +22,8 @@ P01/P02/P03已验收归档old；P04按用户明确授权转接old，标记共享
 | P01 | [基线与规则确认](old/P01-baseline.md) | 本轮审计交付 | stage/p01-baseline | 已验收归档；[确认记录](baseline/p01-acceptance.json)，business-v1/numeric-v1/performance-v1已确认，53/53黄金、18/18格式及全部规模结构检查通过 |
 | P02 | [计算正确性与公共核心](old/P02-calculation.md) | P01已验收 | stage/p02-calculation | 四项均已验收归档；[P02确认](verification/P02-acceptance.json)，辅助130项及用户明确Windows复查通过 |
 | P03 | [文件数据安全与兼容](old/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 四项均已验收归档；[P03确认](verification/P03-acceptance.json)，原Windows及辅助237项证据保留 |
-| P04 | [后台任务与性能](old/P04-performance.md) | P03已验收 | stage/p04-performance（已转接） | 01/02/03已验收，04短诊断通过；用户确认停电、授权先P05，共享正式复验保留为2026-10-14待办，整阶段未验收 |
-| P05 | [结构化存储与局域网服务](now/P05-data-service.md) | 用户允许先行；P04共享复验待补 | stage/p05-data-service | 01已验收；02认证服务/客户端及完整备份恢复已实现，42专项/427辅助通过，Windows和现场部署待验证；03/04待实施 |
+| P04 | [后台任务与性能](old/P04-performance.md) | P03已验收 | stage/p04-performance（已转接） | 01/02/03已验收，04短诊断通过；用户确认停电、授权先P05；现授权[立即正式复验06](verification/P04-04-resume-06.json)，结果待回传，整阶段未验收 |
+| P05 | [结构化存储与局域网服务](now/P05-data-service.md) | 用户允许先行；P04共享复验待补 | stage/p05-data-service | 01已验收；02认证服务/客户端及完整备份恢复已实现，42专项/427辅助与Windows42/42原生联测通过，60项指纹已核对，现场部署待验证；03/04待实施 |
 | P06 | [Rust业务核心与适配](new/P06-rust-core.md) | P05已验收 | stage/p06-rust-core | 待启动；黄金样本一致、服务适配和格式兼容通过 |
 | P07 | [Tauri界面与Windows交付](new/P07-tauri-desktop.md) | P06已验收 | stage/p07-tauri-desktop | 待启动；母子角色端到端、权限与安装验收通过 |
 | P08 | [迁移演练与正式切换](new/P08-cutover.md) | P07已验收 | stage/p08-cutover | 待启动；全量对账、恢复演练及用户验收后才切换 |
