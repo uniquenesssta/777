@@ -52,12 +52,14 @@ def accounts_cover_ledger(ledger,auth):
 def manifest(folder,*,auxiliary=False):
     folder=local_path(folder,directory=True);value=read_json(folder/'manifest.json')
     fields(value,{'format','backup_id','ledger_id','files','inventory'})
-    if value['format'] not in {'777-service-bundle-v1','777-service-bundle-v2','777-service-bundle-v3'} or str(uuid.UUID(value['backup_id']))!=value['backup_id']:
+    if value['format'] not in {'777-service-bundle-v1','777-service-bundle-v2','777-service-bundle-v3','777-service-bundle-v4'} or str(uuid.UUID(value['backup_id']))!=value['backup_id']:
         raise APIError(422,'SERVICE_BACKUP_FORMAT_INVALID')
     names=set(value['files'])
     from .rust_ledger import RUST_FILES,WORKER,file_hash
-    native=value['format']=='777-service-bundle-v3'
+    native=value['format'] in {'777-service-bundle-v3','777-service-bundle-v4'}
     basics=FILES|RUST_FILES if native else FILES
+    from .native_host import HOST_FILES,validate_resources
+    if value['format']=='777-service-bundle-v4':basics|=HOST_FILES
     outputs='outputs.sqlite3' in names
     if native and not basics<=names:raise APIError(422,'SERVICE_BACKUP_FORMAT_INVALID')
     if value['format']=='777-service-bundle-v1' and names!=FILES:raise APIError(422,'SERVICE_BACKUP_FORMAT_INVALID')
@@ -72,6 +74,8 @@ def manifest(folder,*,auxiliary=False):
     for name,expected in value['files'].items():
         if hash_file(local_path(folder/name))!=expected:raise APIError(422,'SERVICE_BACKUP_HASH_INVALID')
     config=read_json(folder/'service.json')
+    validate_resources(folder,config)
+    if value['format']=='777-service-bundle-v4' and 'rust_host_sha256' not in config:raise APIError(422,'SERVICE_BACKUP_HOST_INVALID')
     if native:
         if config.get('rust_worker_sha256')!=file_hash(folder/WORKER):raise APIError(422,'SERVICE_BACKUP_WORKER_INVALID')
     elif config.get('ledger_backend','python')!='python' or 'rust_worker_sha256' in config:raise APIError(422,'SERVICE_BACKUP_BACKEND_INVALID')
@@ -104,7 +108,7 @@ def restore(folder,target,admin_name,new_password,*,auxiliary=False):
     for name in value['files']:
         shutil.copyfile(local_path(folder/name),private/name)
         with open(private/name,'r+b') as stream:os.fsync(stream.fileno())
-        if name=='rust-ledger-worker.exe' and os.name!='nt' and auxiliary:(private/name).chmod(0o700)
+        if name in {'rust-ledger-worker.exe','rust-service-host.exe'} and os.name!='nt' and auxiliary:(private/name).chmod(0o700)
     config=read_json(private/'service.json')
     from .backend import selected
     ledger=selected(private,config,auxiliary=auxiliary);auth=Auth(private/'auth.sqlite3')
@@ -162,6 +166,13 @@ def bundle(service,ledger_entry,host_root,*,auxiliary=False):
             if service.outputs is not None:
                 service.outputs.backup(partial);format='777-service-bundle-v3' if 'rust_worker_sha256' in config else '777-service-bundle-v2';names.add('outputs.sqlite3')
                 names.update('output-blobs/'+p.name for p in (partial/'output-blobs').iterdir())
+            if 'rust_host_sha256' in config:
+                from .native_host import HOST_FILES
+                for name in HOST_FILES:
+                    shutil.copyfile(local_path(Path(host_root)/'private'/name),partial/name)
+                    with open(partial/name,'r+b') as stream:os.fsync(stream.fileno())
+                if os.name!='nt' and auxiliary:(partial/'rust-service-host.exe').chmod(0o700)
+                names|=HOST_FILES;format='777-service-bundle-v4'
             value={'format':format,'backup_id':identifier,'ledger_id':inventory['ledger_id'],
                    'files':{name:hash_file(partial/name) for name in sorted(names)},'inventory':inventory}
             publish_json(partial/'manifest.json',value);manifest(partial,auxiliary=auxiliary)

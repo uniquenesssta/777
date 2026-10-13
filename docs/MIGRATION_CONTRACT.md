@@ -379,3 +379,10 @@ Rust账本保持ledger-v1、已确认P05 API/客户端及角色过滤；[02契�
 [03契约](verification/P06-03-excel-contract.md)在保持ledger-v1、legacy-import-v1、777-output-v1及原角色/发布规则下，以Rust保留受限OOXML原数字并生成新报表。正常旧源的完整Plan/review SHA和批次身份不变；数字浮点兼容会有损时明确复核定位，公式即使有缓存也拒绝，未知/扩展格式不写原件。新输出按冻结字段/整数分文本/前导零/字面字符串及样式核对，来源Excel仍不成为另一个财务写端。
 
 新worker声明rust-excel-v1；已知旧财务版v1的能力未知命令回复只协商明确的python-v1-compatibility格式桥接，财务仍由原生执行文件负责，缺失/坏hash/未知能力形状拒绝。恢复保留v3原资源/输出/回执/账本，不自动覆盖旧执行文件。依赖与临时Python桥接及04退出门槛见[私有协议](verification/P06-03-protocol.json)，当前未部署或切换真实资源。
+
+
+## P06-04原生宿主与完整包v4
+
+[04协议](verification/P06-04-protocol.json)保留ledger/auth/output-v1与777-service/query/output-v1，Rust宿主直接链接领域/账本/Excel并执行当前会话角色过滤；原请求/金额文本、目录继承/成本隔离及批次身份不变。host-v1可选service_backend/rust_host_sha256明确选择一个监听宿主，原owner锁/完整维护备份及资源登记约束切换；已选Rust主机不能启动Python监听或隐式回退。
+
+完整v4只增加已登记宿主/许可，旧v1/v2/v3可读；原包不改，独立新目录恢复撤旧会话、禁用其他旧凭证、默认维护，显式确认旧主机停写后才启动副本。离线历史字段映射与独立Python验证器保留为兼容工具，运行服务与原生完整备份不调用Python。真实部署/迁移仍按P08交接执行。

@@ -1,0 +1,48 @@
+name: P06 Windows native host
+on:
+  push:
+    branches: [stage/p06-rust-core]
+  pull_request:
+    branches: [stage/p06-rust-core]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p06-windows-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-contracts:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      PYTHONUTF8: '1'
+      CARGO_BUILD_JOBS: '2'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12.10'
+      - name: Pinned Rust and existing verification dependencies
+        shell: pwsh
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rustfmt,clippy
+          if ($LASTEXITCODE -ne 0) { throw 'Rust install failed' }
+          python -m pip install -r requirements-baseline.txt -r requirements-service.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Python verification dependencies failed' }
+      - name: Hash-pinned CI-only CJK fixture (no font installation)
+        shell: pwsh
+        run: |
+          python tools/p06_ci_fonts.py --root "$env:RUNNER_TEMP/777-p06-ci-font"
+          if ($LASTEXITCODE -ne 0) { throw 'CJK fixture failed' }
+      - name: Native MSVC, golden, synthetic formats, TLS, DPAPI and resources
+        shell: pwsh
+        run: |
+          python tools/p06_host_check.py --ci-checks --font-fixture "$env:RUNNER_TEMP/777-p06-ci-font" --output reports/p06-04-ci
+          if ($LASTEXITCODE -ne 0) { throw 'Native contracts failed' }
+      - name: Upload isolated evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: p06-04-windows-evidence
+          path: reports/p06-04-ci
+          if-no-files-found: warn

@@ -1,0 +1,13 @@
+{
+  "task": "P06-03",
+  "status": "accepted_by_user",
+  "accepted_at": "2026-10-14T02:38:15+08:00",
+  "user_instruction": "收尾03 开始04",
+  "source_commit": "fee8ea3380c9a39fc29804096b6cbbe47afb341c",
+  "evidence_commit": "89f71386a4c98a34302026661f26e1e0f44bb4b3",
+  "evidence": "P06-03-windows-evidence-01.json",
+  "phase_branch": "stage/p06-rust-core",
+  "decision": "按98指纹、165 Python/32 Rust/561对照及Windows原生Excel/DPAPI/HTTPS/v3恢复/ACL收尾03；原始/辅助证据保持，无需重跑通过检查。",
+  "scope": "isolated native Excel import/output and compatible service recovery; no production activation, GUI or installed service acceptance",
+  "next_task": "P06-04"
+}

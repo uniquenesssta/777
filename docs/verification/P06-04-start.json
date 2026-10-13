@@ -1,0 +1,15 @@
+{
+  "task": "P06-04",
+  "status": "in_progress",
+  "authorized_at": "2026-10-14T02:38:15+08:00",
+  "user_instruction": "收尾03 开始04",
+  "source_commit": "89f71386a4c98a34302026661f26e1e0f44bb4b3",
+  "phase_branch": "stage/p06-rust-core",
+  "scope": "standalone Rust HTTPS service replacing Python host in isolation, same authenticated protocol/schema/receipts/roles, full backup recovery and Windows original-client exercise, reproducible resource comparison and Windows-only CI",
+  "prior_passed_checks_need_not_be_repeated": true,
+  "production_cutover": false,
+  "not_started": [
+    "P07",
+    "P08"
+  ]
+}

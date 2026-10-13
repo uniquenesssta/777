@@ -98,6 +98,7 @@ class Service:
         return self.outputs.enqueue(actor, data, order)
 
     def handle(self, method, path, token='', data=None, query='', peer='local'):
+        if getattr(self,'host_backend','python')!='python':raise APIError(409,'RUST_HOST_SELECTED')
         # Account revocations and authorizations are serialized with dispatch;
         # one service process owns this ledger (also enforced by host file lock).
         with self.auth._lock:

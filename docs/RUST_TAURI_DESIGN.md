@@ -113,3 +113,10 @@ Rust保持ledger-v1、business-v1、numeric-v1与现有认证边界；接替[输
 独立crates/quote-excel保留OOXML原始数字、类型/坐标/样式/纪元并生成新的777-output-v1四表文本报表；不编辑旧文件、不执行公式、不计算财务或发布路径。既有受校验worker的私有能力协商/字节操作接入导入内存计划及输出队列，全字段/样式独立读回，源原字节和v1批次绑定保持。见[03契约](verification/P06-03-excel-contract.md)及[检查证据](verification/P06-03-checks.json)。旧v3财务版worker格式能力为明确的python-v1-compatibility，原生财务写端不变；Python映射/日期及独立备份核对/PNG的桥接退出留04，未宣称已完成纯Rust宿主。
 
 [03 Windows独立核对](verification/P06-03-windows-evidence-01.json)已通过98项源码指纹、165项Python/32项Rust/561项对照及临时主机原生Excel/DPAPI/HTTPS/v3恢复/ACL。03具备收尾条件待用户验收；完整Rust宿主仍归04，真实GUI/安装/共享和生产切换按后续阶段执行。原626项完整辅助与旧v3兼容证据保持。
+
+
+## P06-04已实现的独立Rust宿主
+
+quote-host负责TLS/当前会话鉴权/API/查询/队列与原生完整恢复，直接依赖quote-ledger→quote-core和quote-excel；HTTP调用不再派生财务worker或运行Python。SQLite账本仍是唯一财务来源，auth/输出为原辅助库；慢输出IO在派发锁外进行。原owner锁和明确宿主配置阻断并行监听，v4增加可恢复宿主资源；旧Python入口仅按登记程序转交运行，旧维护/验证工具保持。详见[04契约](verification/P06-04-host-contract.md)。
+
+PNG使用有字形检查的fontdue/png与Windows现有CJK字体，系统字体不随包分发；CI只下载固定OFL临时字体。Windows CI只做本轮核心/合成链路，不操作真实数据或安装字体。资源比较单独说明主进程/工作负载范围，不能由Rust构建推断SMB、整应用内存或安装包体积。Tauri/界面/安装包仍归P07，真实切换归P08，未提前启动。

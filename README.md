@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P06-01/02已按[用户接续](docs/verification/P06-02-acceptance.json)验收收尾，原Windows及失败证据保持。同一stage/p06-rust-core从223e86e执行P06-03：[Rust Excel适配](docs/verification/P06-03-excel-contract.md)已实现；[本轮Windows核对](docs/verification/P06-03-windows-evidence-01.json)通过98项源码指纹、165项Python测试、32项Rust测试及561项精确对照，原生Excel/DPAPI/HTTPS/v3恢复/目录权限通过。03具备收尾条件待用户验收，04未启动，已通过检查无需重跑。原626项完整辅助与旧v3兼容证据保持，真实部署及历史切换交接后续。
+P06-01/02/03已验收，见[03收尾](docs/verification/P06-03-acceptance.json)。同一stage/p06-rust-core从89f7138执行P06-04：[独立Rust HTTPS宿主](docs/verification/P06-04-host-contract.md)已实现，兼容鉴权/查询/输出与v4完整恢复；[检查证据](docs/verification/P06-04-checks.json)记录127指纹、195专项/656完整辅助、42 Rust/561对照及原生HTTPS/输出/恢复/200单资源验证。[Windows CI](.github/workflows/p06-windows.yml)已配置，本机原窗口/DPAPI/ACL/系统字体及用户验收待回传。原03资料保持，不重跑通过入口，P07/P08未启动。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -36,6 +36,8 @@ P06-01/02已按[用户接续](docs/verification/P06-02-acceptance.json)验收收
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 用户“收尾03 开始04”：登记[03验收](docs/verification/P06-03-acceptance.json)，同一分支交付[04独立Rust HTTPS宿主](docs/verification/P06-04-host-contract.md)，鉴权/查询/原生输出/v4恢复与原协议、单写账本兼容；127指纹、195专项/656完整辅助、42 Rust/561对照通过。[证据](docs/verification/P06-04-checks.json)保留初期失败与资源结果，辅助查询尾延迟仍待Windows核对；Windows-only CI已配置，本机原窗口/DPAPI/ACL/系统字体及用户验收待回传，P07/P08未启动。
 
 - P06-03 Windows核对通过：fee8ea3干净源码的98项指纹、165项Python/32项Rust/561项对照与完整日志一致，原生Excel/DPAPI回执/HTTPS/v3恢复/目录权限通过；[原报告与独立核对](docs/verification/P06-03-windows-evidence-01.json)按原字节归档。03具备收尾条件待用户验收，无需重跑；04未启动，原辅助及历史证据保持。
 

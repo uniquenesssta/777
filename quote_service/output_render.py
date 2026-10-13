@@ -14,6 +14,15 @@ MAX_BYTES = 4 * 1024 * 1024
 KINDS = {'excel_quote': '.xlsx', 'excel_admin': '.xlsx', 'quote_png': '.png'}
 
 
+def _cjk_font():
+    from PIL import ImageFont
+    fonts = [Path(os.environ.get('WINDIR', 'C:/Windows'))/'Fonts'/name
+             for name in ('msyh.ttc', 'simhei.ttf')]
+    font = next((ImageFont.truetype(str(p), 24) for p in fonts if p.is_file()), None)
+    if font is None and os.name == 'nt': raise APIError(503, 'OUTPUT_CJK_FONT_UNAVAILABLE')
+    return font if font is not None else ImageFont.load_default(size=22)
+
+
 def payload_hash(payload):
     return hashlib.sha256(json.dumps(payload, ensure_ascii=False, sort_keys=True,
                                     separators=(',', ':'), allow_nan=False).encode()).hexdigest()
@@ -73,13 +82,9 @@ def render(payload, native=None):
             for column in ws.columns:ws.column_dimensions[column[0].column_letter].width=24
         workbook.save(output);workbook.close()
     else:
-        from PIL import Image, ImageDraw, ImageFont, PngImagePlugin
+        from PIL import Image, ImageDraw, PngImagePlugin
         # Windows system CJK fonts; do not silently emit unreadable Chinese.
-        fonts = [Path(os.environ.get('WINDIR', 'C:/Windows'))/'Fonts'/name
-                 for name in ('msyh.ttc', 'simhei.ttf')]
-        font = next((ImageFont.truetype(str(p), 24) for p in fonts if p.is_file()), None)
-        if font is None and os.name == 'nt': raise APIError(503, 'OUTPUT_CJK_FONT_UNAVAILABLE')
-        if font is None: font = ImageFont.load_default(size=22)  # Auxiliary only.
+        font = _cjk_font()
         lines = ['Quotation / 报价', order['order_id'], 'Revision / 版本: '+str(order['revision']),
                  'State / 状态: '+order['state'], '客户: '+order['details']['customer'],
                  '订单号: '+order['details']['order_ref'], '微信: '+order['details']['wechat'],

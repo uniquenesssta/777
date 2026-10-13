@@ -92,6 +92,8 @@ class Outputs:
         if fingerprint is not None and row['fingerprint'] != fingerprint: raise Conflict('Output request payload changed')
         result=json.loads(row['result_json'])
         if result.get('kind')=='excel_admin' and actor.role!='admin':raise APIError(404,'NOT_FOUND')
+        if actor.role!='admin' and result.get('job_id'):
+            with self.connection(readonly=True) as c:self._job(c,actor,result['job_id'])
         return result
 
     def enqueue(self, actor, data, order):

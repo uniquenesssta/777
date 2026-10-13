@@ -1,0 +1,86 @@
+{
+  "task": "P06-04",
+  "host": "quote-host.exe standalone Rust process; core/ledger/Excel are linked, no Python ASGI server or worker subprocess during API dispatch",
+  "frozen_contracts": [
+    "777-service-v1",
+    "777-query-v1",
+    "777-output-v1",
+    "777-output-store-v1",
+    "ledger-v1",
+    "legacy-import-v1",
+    "business-v1",
+    "numeric-v1"
+  ],
+  "host_config": {
+    "schema": "777-host-v1",
+    "optional_fields": [
+      "service_backend",
+      "rust_host_sha256"
+    ],
+    "default_legacy_host": "python",
+    "financial_backend": "single selected rust ledger for native host"
+  },
+  "resources": [
+    "rust-service-host.exe",
+    "rust-host-notices.txt",
+    "rust-ledger-worker.exe",
+    "rust-notices.txt"
+  ],
+  "resource_registration": "offline owner lock, administrator, complete maintenance backup, known hash/probe and ledger inventory; upgrade requires explicit flag, failure restores previous resources/config; unavailable or altered known resource never enables fallback",
+  "backup": {
+    "new_format": "777-service-bundle-v4",
+    "readable_legacy_formats": [
+      "777-service-bundle-v1",
+      "777-service-bundle-v2",
+      "777-service-bundle-v3"
+    ],
+    "v4_extension": "original stores, TLS and frozen output blobs plus registered native host and license; new-directory restore only, sessions revoked, other accounts disabled, maintenance default"
+  },
+  "authentication": {
+    "scrypt": {
+      "N": 32768,
+      "r": 8,
+      "p": 1,
+      "salt_bytes": 16,
+      "derived_bytes": 32
+    },
+    "token_bytes": 32,
+    "token_wire_characters": 43,
+    "token_at_rest": "SHA-256 only",
+    "session_ttl_seconds": 28800,
+    "login_window_seconds": 300,
+    "failed_username_peer_limit": 5,
+    "failed_peer_limit": 20,
+    "rate_buckets": 2048,
+    "Unicode_casefold": "frozen Python3.12 Unicode15.0 full mapping, 1530 changed codepoints"
+  },
+  "transport": {
+    "TLS": [
+      "1.2",
+      "1.3"
+    ],
+    "HTTP": "1.1 only",
+    "body_bytes": 1048576,
+    "header_buffer_bytes": 32768,
+    "header_and_body_timeout_seconds": 10,
+    "dispatch_capacity": 8,
+    "duplicate_sensitive_headers": "refused",
+    "browser_origin": "refused",
+    "duplicate_JSON_keys_and_invalid_Unicode": "refused",
+    "proxy_headers": "never trusted",
+    "connections_before_TLS_and_through_request": 16
+  },
+  "queries": "existing signed snapshot cursor, owner/role/filter/limit binding, literal full-casefold search, audit-delta rows and 32-summary LRU, BigInt totals rendered as decimal strings",
+  "outputs": {
+    "queue_limit": 64,
+    "snapshot_bytes": 2097152,
+    "blob_bytes": 4194304,
+    "Excel": "quote-excel-v1 new four-sheet all-text output, original payload and independent reader semantics",
+    "PNG": "native fontdue+png, Windows msyh.ttc/simhei.ttf referenced without redistribution; missing glyph/font explicit failure, old 1200 width/40-char wrap/metadata binding",
+    "publication": "temporary fsync + atomic exclusive final publish; Windows MoveFileEx WRITE_THROUGH without REPLACE_EXISTING; conflicting target preserved",
+    "slow_output_IO": "outside service dispatch mutex, same frozen preferences revision"
+  },
+  "ownership": "same .service-owner.777.lock protocol as previous Python host; native or Python listener selected explicitly, concurrent start/maintenance refused",
+  "compatibility_tools": "Python original clients, independent readers and offline legacy import mapping remain verification/migration tools; no Python in running native host; historical financial-only v3 worker is retained until explicit reviewed resource upgrade",
+  "scope": "Windows isolated implementation/CI/client exercise/resources; no installed service, actual shared/E paths, history cutover, Tauri UI or installer acceptance"
+}

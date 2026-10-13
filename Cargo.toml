@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/quote-core", "crates/quote-ledger", "crates/quote-excel"]
+members = ["crates/quote-core", "crates/quote-ledger", "crates/quote-excel", "crates/quote-host"]
 resolver = "2"
 
 [workspace.package]

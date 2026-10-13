@@ -1,6 +1,6 @@
 # P06 Rust领域核心与存储/服务适配
 
-状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02已按[用户接续](../verification/P06-02-acceptance.json)验收，原Windows证据保持；P06-03从223e86e在同一分支执行，现[Windows核对](../verification/P06-03-windows-evidence-01.json)通过，具备收尾条件待用户验收；04未启动。
+状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02已按[用户接续](../verification/P06-02-acceptance.json)验收，原Windows证据保持；P06-03已按[用户接续](../verification/P06-03-acceptance.json)验收；P06-04从89f7138按[启动记录](../verification/P06-04-start.json)执行，独立Rust宿主已实现，656完整辅助/42 Rust通过，本机Windows及用户验收待回传。
 
 P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。P01已按[批准记录](../baseline/p01-acceptance.json)采纳numeric-v1/performance-v1，历史候选/黄金元数据保留并映射；实施时读取同一黄金JSON，不复制期望。当前01按同一资产开展影子核对。
 
@@ -87,3 +87,14 @@ P02-04补充输入资产：[窗口适配契约第11节](../MIGRATION_CONTRACT.md
 Windows临时主机覆盖Rust原生读取/导入重放/新报表、独立读取器全字段/前导零/文本/样式、原源hash/mtime不变、实际HTTPS客户端与母版位置/销售成本隔离、原生提交后退出→DPAPI加密待核查→原回执恢复、v3新主机账本/Excel文件/回执一致及旧会话撤销。库存独立核对为revision7、3单/4明细/1备注、2价格版本、1导入批次、7回执/7审计，有效金额11500/4600/6900分；Hidden/System、保护DACL及明确SID名单和清理通过。原生执行文件仅报告SHA，未随附件上传，不宣称已独立检查二进制。
 
 本轮范围为Windows临时主机和原生进程/HTTPS/DPAPI/Excel/恢复，没有GUI、已安装服务、真实E盘/共享或生产切换。03具备收尾条件待用户验收，已通过检查无需重跑；原165/626辅助、开发运行器失败及02验收证据保持。P06继续留now，04/07/08未启动。
+
+
+## P06-03已收尾、P06-04当前交付
+
+用户2026-10-14 02:38:15“收尾03 开始04”按[03验收](../verification/P06-03-acceptance.json)收尾，原98指纹/165 Python/32 Rust/561对照和Windows原生Excel/DPAPI/HTTPS/v3恢复/ACL材料保持，无需重跑；04按[启动记录](../verification/P06-04-start.json)复用同一分支。
+
+新增quote-host独立HTTPS程序直接链接三个既有Rust crate，移植兼容scrypt/会话/角色、增量查询/精确大整数、输出队列/原生PNG及完整v4备份恢复；host-v1可选宿主登记和原owner锁阻断双启动，明确离线选择持管理员/完整备份/库存与资源校验，可恢复原选择。原ledger/auth/output schema与业务/数值规则保持。成本报表所有重试回执在账户降级后也限制读取，保留Python读取边界同步修正。
+
+[完整宿主契约与唯一Windows入口](../verification/P06-04-host-contract.md)、[协议](../verification/P06-04-protocol.json)、[178个外部包/许可](../verification/P06-04-dependencies.json)及[Windows-only CI](../../.github/workflows/p06-windows.yml)交付。[检查证据](../verification/P06-04-checks.json)记录127指纹、195专项/656完整辅助、42 Rust/561对照，无失败/错误/跳过；真实辅助Rust HTTPS/旧客户端/原生CJK图片/导入后v4恢复及200单资源通过。末次两处验证/IO委托变动另由30项原生/入口、42 Rust及共同协议核对覆盖，原完整报告保持。辅助临时字体不冒充Windows系统字体，DPAPI/ACL/GUI仍需实际Windows。
+
+本项不安装服务、不访问真实共享/E盘或切换生产；原Python客户端/独立读取器/离线历史迁移工具保留，监听宿主无Python依赖。P06继续留now，04未验收，P07/P08未启动；只需回传本项新Windows报告，原通过入口无需重跑。

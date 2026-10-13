@@ -49,3 +49,5 @@ py -3 tools/p06_excel_check.py --windows-smoke --output reports/p06-03-windows-0
 沿用已验证的Rust1.97.1/MSVC及现有Python依赖；Cargo按锁定文件获取新Excel依赖，旧v1兼容夹具只用已缓存依赖离线编译。入口核验实际Windows AMD64/MSVC，执行专项/原生库检查及完整比较，再用临时主机、Rust读取/生成、旧HTTPS客户端、DPAPI原回执、原源hash/mtime、母版位置/成本过滤、独立读取器和v3恢复/权限/清理联测。不启动GUI，不访问真实E盘/共享或安装服务，不切换生产。[原报告](P06-03-windows-report-01.json)与[原比较文件](P06-03-windows-comparisons-01.json)已按原字节归档；输出不得覆盖，后续若改动确需复查使用新编号。02及P05已通过入口无需重跑。
 
 [Windows独立核对](P06-03-windows-evidence-01.json)通过fee8ea3的98项LF源码指纹、165项Python/32项Rust/561项对照及原生Excel/DPAPI/HTTPS/v3恢复/ACL；原源hash/mtime、独立读取器文本/精度/样式和旧v3原执行文件兼容通过。03具备收尾条件待用户验收，已通过检查无需重跑；P06仍留now，04/07/08未启动。
+
+用户已于2026-10-14 02:38:15按[03验收](P06-03-acceptance.json)收尾并接续[04独立宿主](P06-04-host-contract.md)。以上本轮03结果为原证据，当前无需重跑。

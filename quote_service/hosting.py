@@ -85,7 +85,7 @@ def load(root,*,auxiliary=False,allow_maintenance=False):
     if len(raw)>65536:raise APIError(422,'HOST_CONFIG_TOO_LARGE')
     from .protocol import decode
     config=decode(raw)
-    fields(config,{'schema','ledger_id','backup_store_id','backup_dir','bind','port','certificate_sha256','private_security','maintenance'},{'ledger_backend','rust_worker_sha256'})
+    fields(config,{'schema','ledger_id','backup_store_id','backup_dir','bind','port','certificate_sha256','private_security','maintenance'},{'ledger_backend','rust_worker_sha256','service_backend','rust_host_sha256'})
     if type(config['maintenance']) is not bool:raise APIError(422,'HOST_CONFIG_INVALID')
     if config['maintenance'] and not allow_maintenance:raise APIError(503,'RECOVERY_MAINTENANCE_REQUIRED')
     if config['schema']!='777-host-v1' or type(config['port']) is not int or not 1<=config['port']<=65535:raise APIError(422,'HOST_CONFIG_INVALID')
@@ -98,7 +98,10 @@ def load(root,*,auxiliary=False,allow_maintenance=False):
     pem=local_path(private/'tls-cert.pem').read_text(encoding='ascii')
     if hashlib.sha256(ssl.PEM_cert_to_DER_cert(pem)).hexdigest()!=config['certificate_sha256']:raise APIError(503,'CERTIFICATE_IDENTITY_CONFLICT')
     local_path(private/'tls-key.pem')
+    from .native_host import validate_resources
+    validate_resources(private, config)
     service=Service(ledger,auth,backups);service.host_root=root;service.auxiliary=auxiliary
+    service.host_backend=config.get('service_backend','python')
     if (private/'outputs.sqlite3').exists():
         from .outputs import Outputs
         service.outputs=Outputs(private/'outputs.sqlite3', config['ledger_id'], native=getattr(ledger,'native_formats',None))
@@ -106,6 +109,7 @@ def load(root,*,auxiliary=False,allow_maintenance=False):
 
 
 def server(service,cert,key,*,host='127.0.0.1',port=8477):
+    if getattr(service,'host_backend','python')!='python':raise APIError(409,'RUST_HOST_SELECTED')
     import uvicorn
     config=uvicorn.Config(Application(service),host=host,port=port,workers=1,loop='asyncio',http='h11',ws='none',
         lifespan='on',access_log=False,log_level='warning',proxy_headers=False,limit_concurrency=16,
@@ -117,6 +121,10 @@ def server(service,cert,key,*,host='127.0.0.1',port=8477):
 
 def serve(root):
     root,config,service=load(root)
+    if config.get('service_backend','python')=='rust':
+        import subprocess
+        subprocess.run([str(root/'private/rust-service-host.exe'),'run','--root',str(root)],check=True)
+        return
     with file_lock(root/'service-owner'):
         server(service,root/'private/tls-cert.pem',root/'private/tls-key.pem',host=config['bind'],port=config['port']).run()
 
