@@ -2,11 +2,11 @@
 
 ## 当前状态
 
-2026-10-13：按用户要求建立 `Figma` 分支的[仓库 agent](../../AGENTS.md)，纳入 Hallmark、Open Design、UI/UX Pro Max、Taste、shadcn 五项来源及职责。分支基线为 `223e86e0bef90dfef083281a42f8d7919b13c07d`。续接核对发现远端仅有基线，尚无 agent 文档，因此本次补齐并提交。
+2026-10-13：按用户要求建立 `Figma` 分支的[仓库 agent](../../AGENTS.md)，纳入 Hallmark、Open Design、UI/UX Pro Max、Taste、shadcn 五项来源及职责。分支基线为 `223e86e0bef90dfef083281a42f8d7919b13c07d`。Agent 与流程已在 `e916efa` 提交；随后按用户要求清理继承的业务文件，当前分支仅保留 `AGENTS.md` 和本交接文档。后续只在此分支维护 Figma / agent 相关内容，业务材料通过原开发分支链接读取，不复制进来。
 
 本交付是项目级组合流程及上游来源登记，**不是五个 skill 的本地安装或源码镜像**。未执行上游安装脚本、未新增生产依赖，也没有创建 Figma 设计或实现 Tauri 页面。实际使用时从登记版本读取完整 skill 及相关引用；若需安装脚本/数据，先核对权限、依赖和许可，不仅复制一个 SKILL.md 后声称工具可用。
 
-[主任务书](../MASTER_PLAN.md)和[P07](../new/P07-tauri-desktop.md)仍约束正式接入；本设计准备不更新 P06 验收结论、不提前启动 P07。未来续接先检查当前开发分支，不能把此基线快照当最新业务状态。
+[主任务书](https://github.com/uniquenesssta/777/blob/stage/p06-rust-core/docs/MASTER_PLAN.md)和[P07](https://github.com/uniquenesssta/777/blob/stage/p06-rust-core/docs/new/P07-tauri-desktop.md)仍约束正式接入；本设计准备不更新 P06 验收结论、不提前启动 P07。未来续接先检查当前开发分支，不能把此基线快照当最新业务状态。
 
 ## Skill 来源与适用边界
 
@@ -36,12 +36,12 @@ Open Design 同名项目较多，本流程明确采用 `nexu-io/open-design`，�
 
 ## 设计范围与业务依据
 
-从[迁移契约](../MIGRATION_CONTRACT.md)、[P07](../new/P07-tauri-desktop.md)、[架构方案](../RUST_TAURI_DESIGN.md)和当前已实现接口派生设计。至少覆盖：
+从[迁移契约](https://github.com/uniquenesssta/777/blob/stage/p06-rust-core/docs/MIGRATION_CONTRACT.md)、[P07](https://github.com/uniquenesssta/777/blob/stage/p06-rust-core/docs/new/P07-tauri-desktop.md)、[架构方案](https://github.com/uniquenesssta/777/blob/stage/p06-rust-core/docs/RUST_TAURI_DESIGN.md)和当前已实现接口派生设计。至少覆盖：
 
 - 报价编辑、输入校验、计算反馈、价格快照与过期重算。
 - 管理员价格与利润视图、订单分页查询/详情、追加备注、作废/恢复；销售仅获授权的本人订单和追加备注，不接收成本/利润。
 - 报表/报价图任务进度、成功/失败/可重试、未知提交核查，订单成功与附件失败分开呈现。
-- 设置 → 存储与备份：完整路径、用途、来源和真实状态；角色权限依照[目录/备份定义](../baseline/P01-03-directory-backup.md)。
+- 设置 → 存储与备份：完整路径、用途、来源和真实状态；角色权限依照[目录/备份定义](https://github.com/uniquenesssta/777/blob/stage/p06-rust-core/docs/baseline/P01-03-directory-backup.md)。
 - 登录/会话失效等支撑状态依现有认证接口设计；离线仅草稿。截图与完整报价图依据 P07 确认要求，不擅自删除任一已有入口。
 
 不新增店铺分红、库存、税务、云同步、移动端、营销网站或跨平台验收。
@@ -91,6 +91,7 @@ Open Design 同名项目较多，本流程明确采用 `nexu-io/open-design`，�
 ## 续接记录
 
 - 已完成：远端 `Figma` 基线与干净工作区核对；通用规则、主任务书、P07 与架构阅读；五项上游来源、职责和适用边界核对；agent 与映射字段建立。
-- 本次验证：文档相对路径、固定上游链接、分支基线、变更差异及空白字符检查。未更改业务源码，因此未重跑 Rust/Python 业务测试；未实施 UI，不存在 UI 或 Windows 验收通过结论。
+- 清理记录：按用户明确要求，从 `Figma` 分支移除所有非 Figma / agent 文件及文件夹，包括业务源码、测试、依赖、阶段任务书和业务 README；只保留两个上述文档。修复被移除文档的链接，改为指向原开发分支；其他分支不修改。
+- 本次验证：完整提交树只含上述两个文件，保留文档的相对链接有效；业务文档链接目标在清理前基线存在。此为设计分支内容整理，不运行该分支已移除的业务测试；未实施 UI，不存在 UI 或 Windows 验收通过结论。
 - 待后续授权范围内执行：按设计请求创建/登记本项目 Figma 文件、明确视觉依据与角色状态并绘制；P06 硬性前置及 P07 授权满足后才接入正式客户端。
-- 恢复：此交付仅含文档，可独立撤销其提交，不改业务数据；不能用回退设计文档覆盖后续 P06 源码进展。
+- 恢复：清理保留 Git 历史，可通过撤销本次清理提交恢复原分支内容；不改写历史、不改业务数据，不将清理提交合并至业务开发分支。后续软件接入只选取所需设计资产，避免传播删除。

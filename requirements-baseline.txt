@@ -1,4 +1,0 @@
-# P01-01: observed auxiliary environment; Windows deployment versions pending.
-# Existing app dependencies only; not a production compatibility certification.
-openpyxl==3.1.5
-Pillow==12.3.0
