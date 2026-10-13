@@ -9,6 +9,14 @@ fn run(path: &Path, input: Value, crash: Option<&str>) -> Result<Value> {
     let op = input["op"]
         .as_str()
         .ok_or_else(|| Error::new("VALIDATION"))?;
+    if op == "xlsx_capabilities" {
+        return Ok(
+            json!({"implementation":"quote-excel-v1","formats":["777-excel-read-v1","777-output-v1"]}),
+        );
+    }
+    if matches!(op, "xlsx_read" | "xlsx_write") {
+        return Ok(quote_excel::dispatch(&input));
+    }
     if op == "create" {
         return create(path);
     }

@@ -105,4 +105,9 @@ Rust保持ledger-v1、business-v1、numeric-v1与现有认证边界；接替[输
 
 已新增`crates/quote-ledger`，依赖`quote-core`单向计算，并通过rusqlite内嵌SQLite复用ledger-v1；Python HTTPS/Auth保留为当前认证边界。`rust_ledger`私有进程桥接将金额计算与真实金融事务交给Rust，Python只读投影和内存格式预演，后端由离线维护配置选择。完整备份v3保存相同worker及许可，恢复仍维护。HTTP库整体验证/接替留P06-04，Rust Excel选型留03；当前不创建Tauri项目或双账本。
 
-[02依赖登记](verification/P06-02-dependencies.json)固定全部48外部包及SQLite3.50.2公共领域源码指纹，根许可全文随源/主机包保存；原01依赖登记为当时领域crate快照，未修改历史报告。原辅助65专项/594完整与25 Rust/561对照保持；[第二轮Windows核对](verification/P06-02-windows-evidence-02.json)已通过83指纹/65专项/25 Rust/561对照及临时主机原生DPAPI/HTTPS/v3恢复/ACL，02待用户验收。真实主机、GUI与安装包验收仍按后续任务执行。
+[02依赖登记](verification/P06-02-dependencies.json)固定全部48外部包及SQLite3.50.2公共领域源码指纹，根许可全文随源/主机包保存；原01依赖登记为当时领域crate快照，未修改历史报告。原辅助65专项/594完整与25 Rust/561对照保持；[第二轮Windows核对](verification/P06-02-windows-evidence-02.json)已通过83指纹/65专项/25 Rust/561对照及临时主机原生DPAPI/HTTPS/v3恢复/ACL，02已按[用户接续](verification/P06-02-acceptance.json)验收收尾。真实主机、GUI与安装包验收仍按后续任务执行。
+
+
+## P06-03已实现的Excel适配
+
+独立crates/quote-excel保留OOXML原始数字、类型/坐标/样式/纪元并生成新的777-output-v1四表文本报表；不编辑旧文件、不执行公式、不计算财务或发布路径。既有受校验worker的私有能力协商/字节操作接入导入内存计划及输出队列，全字段/样式独立读回，源原字节和v1批次绑定保持。见[03契约](verification/P06-03-excel-contract.md)及[检查证据](verification/P06-03-checks.json)。旧v3财务版worker格式能力为明确的python-v1-compatibility，原生财务写端不变；Python映射/日期及独立备份核对/PNG的桥接退出留04，未宣称已完成纯Rust宿主。

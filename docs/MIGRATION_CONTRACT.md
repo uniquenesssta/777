@@ -372,3 +372,10 @@ business-v1/numeric-v1规则不变。Rust领域影子协议见[P06-01 JSON契约
 Rust账本保持ledger-v1、已确认P05 API/客户端及角色过滤；[02契约](verification/P06-02-storage-contract.md)登记原请求指纹的Python排序紧凑JSON、事务/revision/价格CAS和原生备份。私有native JSON不是外部认证API；主体只能由现有会话恢复。显式后端配置只选择一个财务写端，未知/损坏Rust不自动回退；同v1交接不升级schema，不覆盖未知库。导入的Python格式桥接仅内存预演，最终Rust重验全账本并提交。
 
 完整包v3包含已登记私有worker/许可与输出队列，旧v1/v2可读；新目录恢复保留后端与账户/TLS身份，撤销旧会话，默认维护。真实切换仍需P08停止旧写端及增量对账；本轮只隔离实现/验证。
+
+
+## P06-03已实现的Excel格式接入
+
+[03契约](verification/P06-03-excel-contract.md)在保持ledger-v1、legacy-import-v1、777-output-v1及原角色/发布规则下，以Rust保留受限OOXML原数字并生成新报表。正常旧源的完整Plan/review SHA和批次身份不变；数字浮点兼容会有损时明确复核定位，公式即使有缓存也拒绝，未知/扩展格式不写原件。新输出按冻结字段/整数分文本/前导零/字面字符串及样式核对，来源Excel仍不成为另一个财务写端。
+
+新worker声明rust-excel-v1；已知旧财务版v1的能力未知命令回复只协商明确的python-v1-compatibility格式桥接，财务仍由原生执行文件负责，缺失/坏hash/未知能力形状拒绝。恢复保留v3原资源/输出/回执/账本，不自动覆盖旧执行文件。依赖与临时Python桥接及04退出门槛见[私有协议](verification/P06-03-protocol.json)，当前未部署或切换真实资源。

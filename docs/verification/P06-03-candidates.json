@@ -1,0 +1,39 @@
+{
+  "task": "P06-03",
+  "selected": [
+    {
+      "crate": "quick-xml",
+      "version": "0.41.0",
+      "role": "Bounded OOXML event parsing with original numeric tokens",
+      "reference": "https://docs.rs/quick-xml/0.41.0/quick_xml/",
+      "reason": "Same pinned parser version as candidate, without float conversion"
+    },
+    {
+      "crate": "zip",
+      "version": "8.6.0",
+      "role": "Bounded ZIP read with CRC/size checks",
+      "reference": "https://docs.rs/zip/8.6.0/zip/",
+      "reason": "Same lock version as writer/candidate, avoiding a second ZIP version"
+    },
+    {
+      "crate": "rust_xlsxwriter",
+      "version": "0.99.1",
+      "role": "New workbook only; no old workbook editing",
+      "reference": "https://docs.rs/rust_xlsxwriter/0.99.1/rust_xlsxwriter/",
+      "reason": "Explicit strings/styles checked by independent openpyxl reader"
+    }
+  ],
+  "evaluated": [
+    {
+      "crate": "calamine",
+      "version": "0.36.1",
+      "role": "Dev-only technical evaluation, not authoritative import reader",
+      "reference": "https://docs.rs/calamine/0.36.1/calamine/enum.Data.html",
+      "test": "calamine_candidate_loses_decimal_token_while_selected_reader_retains_it",
+      "evidence": "Actual Data::Float reading changes numeric 9007199254740993.25; selected reader retains its original token",
+      "decision": "Useful independent reader, insufficient for original numeric-token preservation"
+    }
+  ],
+  "scope": "Recognized .xlsx/new reports only; no .xls/.xlsb/ODS or lossless arbitrary workbook editing promise",
+  "dependencies": "P06-03-dependencies.json"
+}

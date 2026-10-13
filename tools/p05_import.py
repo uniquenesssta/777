@@ -34,8 +34,8 @@ def main(argv=None):
         child.add_argument('--legacy-single', nargs='*', default=None,
                            help='Explicit single-item names for legacy price JSON; empty list means all area products')
         child.add_argument('--output', type=Path, required=True)
+        child.add_argument('--host-root', type=Path, required=command=='apply', help='Selected local host; preview uses its explicit backend without financial writes')
         if command == 'apply':
-            child.add_argument('--host-root', type=Path, required=True)
             child.add_argument('--username', required=True)
             child.add_argument('--owner', required=True, help='Existing archival custodian account, not the legacy customer')
             child.add_argument('--review-sha256', required=True)
@@ -52,17 +52,23 @@ def main(argv=None):
         if kind is None:
             raise ValueError('只支持显式选择的.xlsx或.json')
         raw = read_source(args.source)
-        plan = preview_bytes(raw, kind, legacy_single_names=args.legacy_single)
         if args.command == 'preview':
+            native=None
+            if args.host_root is not None:
+                _,_,preview_host=load(args.host_root,allow_maintenance=True)
+                native=getattr(preview_host.ledger,'native_formats',None)
+            plan=preview_bytes(raw,kind,legacy_single_names=args.legacy_single,native=native)
             report = write_review(output, plan, raw)
+            report['excel_backend']=getattr(preview_host.ledger,'format_backend','python-reference-v1') if args.host_root is not None else 'python-reference-v1'
         else:
-            report = {**plan.report(), 'mode': 'apply', 'status': 'failed'}
-            if plan.review_sha256 != args.review_sha256:
-                raise ValueError('来源/适配结果已改变，请重新预演')
             # This is the same owner lock held by quote_service_host.run.
             validated_root, _, _ = load(args.host_root, allow_maintenance=True)
             with file_lock(validated_root / 'service-owner'):
                 root, config, service = load(args.host_root, allow_maintenance=True)
+                native=getattr(service.ledger,'native_formats',None)
+                plan=preview_bytes(raw,kind,legacy_single_names=args.legacy_single,native=native)
+                report={**plan.report(),'mode':'apply','status':'failed'}
+                if plan.review_sha256 != args.review_sha256:raise ValueError('来源/适配结果已改变，请重新预演')
                 login = service.auth.login(args.username, getpass.getpass('管理员密码（不显示、不保存）：'), 'local-import')
                 token = login['token']
                 actor = service.auth.authenticate(token)
@@ -82,7 +88,8 @@ def main(argv=None):
                                          allow_quarantine=args.allow_quarantine,
                                          legacy_single_names=args.legacy_single)
                 report = {**committed, 'mode': 'apply', 'complete_pre_import_backup': True,
-                          'backup_id': backup.get('backup_id'), 'host_ledger_id': service.ledger.inventory()['ledger_id']}
+                          'backup_id': backup.get('backup_id'), 'host_ledger_id': service.ledger.inventory()['ledger_id'],
+                          'excel_backend':getattr(service.ledger,'format_backend','python-reference-v1')}
     except UnknownCommit as exc:
         report.update(status='commit_unknown', request_id=exc.request_id,
                       reason='保留原来源/归属/预演SHA并重试；批次按原ID核查，不新建请求')

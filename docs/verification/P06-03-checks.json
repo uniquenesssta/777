@@ -1,0 +1,1004 @@
+{
+  "task": "P06-03",
+  "status": "auxiliary_native_excel_passed_Windows_acceptance_pending",
+  "implementation_parent": "223e86e0bef90dfef083281a42f8d7919b13c07d",
+  "implementation_sha256_LF": {
+    "Cargo.lock": "eff65eb97539dccaba6c31556ff3bcb6caefec7b7ebd36e0b4e1ff2b1e7df209",
+    "Cargo.toml": "82586765ab08b648dcffa4ff7903415c592e66728f269efc0b97172892babcd9",
+    "THIRD_PARTY_NOTICES.md": "f4ecfaef3f22bc599aa44b88640157b86bea31da807ea61b0765ad21a93c0431",
+    "crates/quote-core/Cargo.toml": "76e14d102f5ee24043c1c5e0c0b1b78ee13b831b4680d5edc9559f39adc5a390",
+    "crates/quote-core/src/bin/quote-shadow.rs": "84dc57cda725bbb643afd9a3366f40254b27e6ff46f7ca037a2638f22ab40e5a",
+    "crates/quote-core/src/calculation.rs": "c058322fec81b22a9f3f62ef03d6a8c62e827fac6a60a59ea7ba24b2dfe7d564",
+    "crates/quote-core/src/configuration.rs": "273bcb4171309b146ffd020ac80fbd8496a192ab7d4f2dabc7596bb9e11ee46a",
+    "crates/quote-core/src/lib.rs": "c90c4bf93211c7b0eb0d016344f22c47b725931d94e979cbea014a5cd6500d90",
+    "crates/quote-core/src/models.rs": "f7bd537baa71784bceac468e29df2b24edd5f1b51a048887a13621ec6a35a356",
+    "crates/quote-core/src/numbers.rs": "14ff6f0a78732294347b9025a68c56d9e78b1803433ac0d2d979eeb440d0d9d2",
+    "crates/quote-core/src/session.rs": "7e54fd6e111c6a6260f32db7694c549fb52079c03178c910a24fb4d767d183c6",
+    "crates/quote-core/tests/domain.rs": "d2ebf7dbc77809190e6143f74aabd7dd19236ea5085657f0af6de7504fdb457c",
+    "crates/quote-excel/Cargo.toml": "bbbab0196198f3d1e3f0e67679dca3bbff24b5a49cbc3f806327378c57ea68b9",
+    "crates/quote-excel/src/lib.rs": "5e54a69bad470a96fa9cf80ceca95296334d4c69e24e2009816ff736b7997c39",
+    "crates/quote-excel/src/read.rs": "7649852bf3a11182211a23f32cc36968d8076cbacd5d51019b467e3bb8f20d1b",
+    "crates/quote-excel/src/write.rs": "cc82df45a10bb38db93e7a7330dc61ceaed2467fb704ccfe90f9bbca581d0d88",
+    "crates/quote-excel/tests/format.rs": "3b7a3c31db533926f36dacfa6f9ebc7cb97cb929c8c44e1b3e7c0e903b22fde2",
+    "crates/quote-ledger/Cargo.toml": "73714cd98ef4103258e3b1976c47cc1c54a1242a8c06fb160079354f962ea7ab",
+    "crates/quote-ledger/src/integrity.rs": "2bf622a492d1c9d853c1a685899797b090e0f96a1d1ebd1d2102524f80713e73",
+    "crates/quote-ledger/src/lib.rs": "cb084fe1fef7a9cc60836ca4551578b2fd11a42c781f295d13ef95655c04406a",
+    "crates/quote-ledger/src/main.rs": "06242b3f96bc6d0095b2ab15e0aa2b398953d9a409c1dc2e97804a849e271854",
+    "crates/quote-ledger/src/paths.rs": "b0d9322aa61daa01e877c05cd58bef5888192c04b205595ae512e22255e64f14",
+    "crates/quote-ledger/src/store.rs": "c6aaa4b6a145a1bb69ef1897e0978598f15645098b67e3fe8a0bd275a370a925",
+    "docs/baseline/p01-04-golden.json": "dc7ee8ee1689aa4af2e35801eac8eeb90a6a321a05d70f8f921a28695a91eb64",
+    "docs/verification/P05-01-schema.sql": "66f252bca5bc420ddef841c9ba761ee05cbcf9006e48f62dbf084308220fb8e0",
+    "docs/verification/P06-02-dependencies.json": "445bb5d6e87f18cfb0c422e3940e4b44dfb0b6c46a8ca2d5f6031000b87a6886",
+    "docs/verification/P06-02-protocol.json": "3fe4fcd55bc2943037059582cce8daccee2ad4d1ae9c22e28ea3b500ac358382",
+    "docs/verification/P06-03-candidates.json": "e4b679cffcb676cca5d822a4c74e90985044509a1c86449754b19bec8abf5da9",
+    "docs/verification/P06-03-dependencies.json": "6902b874ef178d9c96626c02cc83b4af2c9b097f4840636ab23f4bedb955c760",
+    "docs/verification/P06-03-protocol.json": "3476fffbcc32e4670d6cdcb1cbb316e81b60b053f4e57176867e01371063f807",
+    "quote_core/__init__.py": "3f515c88484f84a4349a48f107e12d83db966ce55ed1efb729a38bcf88d52683",
+    "quote_core/calculation.py": "f9b0355a2d84005ea09a7c7038bbd61882f13656baf2796d4addd387d6eab6b6",
+    "quote_core/configuration.py": "d307eb507cd0f424516b681bc8bf2a56a71c93d6015779ee14a9e75b5f156ff7",
+    "quote_core/models.py": "d4339ceb5e017d5f38f6c4e6454a17e96ea4b846b95b0ee379ddd065764910a5",
+    "quote_core/numbers.py": "321c6448b2ebb603e5462ffcbb985465a29f69d0e9a8e03946fd1a436a7005e3",
+    "quote_core/session.py": "d48cc3abe46250a5e5e58cf62bd00deb3f9e2759b10ae6279550abeaadf5d02d",
+    "quote_core/snapshot.py": "e4e525917a3c1fe4dd21478942552b2fca595defad8ffbde4fa3d84223c3e8ba",
+    "quote_files/__init__.py": "df245ae88782f9067a0d9735547d30025a36fc9c5f659de124a076c081434329",
+    "quote_files/cache.py": "3c1ce3b974bb731af7b76a7d2ab0d976a5c9838daae3e5cedc77bd7e7aa9fe38",
+    "quote_files/configuration.py": "463d759e09f89c9ff1bc4796652502e1d6972dc65f988eb3f17e4a457204097c",
+    "quote_files/documents.py": "486d917f0dc3fdb7ae1e2e6654b4bc79b34dcb7f756988c925b6331aaa02648e",
+    "quote_files/images.py": "ba5f2535c11a313840b9d064088ada77f131086f38810ae70aacc3061a0fd523",
+    "quote_files/metadata.py": "5bbdecfb880b2f3d9c30b78d8eaeb8d2860fa8b0c827af9fa4097217e060bf0b",
+    "quote_files/native_excel.py": "c5a3e3cecb1247c60c4ac4d097ed3338502559bcc13ad43941b976e8a2a8adda",
+    "quote_files/orders.py": "51dcc41972fd7e4cf7d703ff1f84529a643dc3df2dfa8fac0d8fa2d9c32e8c73",
+    "quote_files/quote_images.py": "42e7a39584b71b0e0227ca81ccc001192bb318612e40b36eef987ed23a7f1148",
+    "quote_files/reading.py": "714f478d6b966029baa6a3c9c19cd8d79d9e108bfd29574c1cb421de5729544f",
+    "quote_files/scheduling.py": "52f8a13ae9046cf7c583e48b162dba08fa461c04cc4588831975fb6069279517",
+    "quote_files/schema.py": "59795f6213e446bf4208db87119a5117329c02e9e60e0727ec16ec094f9eb2b1",
+    "quote_files/settings.py": "bfa84beef5ef8bb97530187058bb9f360789c883ae70a3c9fe31adba32a900c4",
+    "quote_files/transactions.py": "848e6bb73cf5b1ed4f988493ea63b0017de2772edafb2a4597b6e5bf8983477c",
+    "quote_files/views.py": "c9e98eb93795f4843abdd6004ff90aa2c1bebc6b5f134977234d01d77f37f5f3",
+    "quote_files/workbooks.py": "078b71265520b8ebac9d28a0e624a8c1fbca3484c9cfb16eba0c0a6da2099620",
+    "quote_import/__init__.py": "812eb1f7d833b62272e0cce4fed71093d9035e070c71f782ca796f7faad97ad1",
+    "quote_import/adapters.py": "122a71374bf3569558f781e4a7176587e394a2d438341f30989bdc2ee6628a6f",
+    "quote_import/review.py": "2362db1f95ef2b1dba12424f33050380000f2cc6a2c96f09bc52357e49122426",
+    "quote_import/store.py": "78ff3170bc3ddf0be4c8e8558b4760d730a128b314a9cb937d93ec93e4dfb1fc",
+    "quote_ledger/__init__.py": "363f8b0589f93a7ed86bd6c0d6a3188ff4675a243a50f46703ec34a827f8a50f",
+    "quote_ledger/backup.py": "6ded9ba6eb835d7285f5853d1a3a6944cd7f5a14031c6cb927921a49e3cebdd6",
+    "quote_ledger/paths.py": "a1ae6ca24ca018532715e36238daac74f1d35dec61e3fd5a7d1dd074aaad1032",
+    "quote_ledger/schema.py": "6a340565412ff7ed81bea8cc99342ba615a158727b47324a49dd91094f248f66",
+    "quote_ledger/security.py": "bbca95610cdb319c1ac1facb7292068bd3e85a365ef6c9f7546d4506b21cb035",
+    "quote_ledger/store.py": "9b2216b2c108237785a3738dab0326f10c3a963417992043e17c303dd6c46cac",
+    "quote_service/__init__.py": "036a887fb3d9d16613e464c53851effe27dde5212e859f95b09899dcfb2b3643",
+    "quote_service/app.py": "24a1144acf315c151655a63c5d705310d876577bb88a5ee350d6fa69cd0863b2",
+    "quote_service/auth.py": "9559eb53703a179f579dac755aa07ec512719e60f9971a46c82c9d9c23e315a2",
+    "quote_service/backend.py": "fe02d0a96fad1bb5d1ca1f4ffcb1694266b8e035667ca0e91474759f20b7188c",
+    "quote_service/client.py": "0081546d545c34239d8f49fe5d6f4a6897af061189f182b7c3b05ca26b614e6b",
+    "quote_service/hosting.py": "c4b8a12d5045abcab1842f7c6f9121c08c56b4665740aa4aa5802378380dd2a0",
+    "quote_service/journal.py": "838f913940e740e8b01b54eed148191c5b048e95d738e2ec3b30d76001f4fb48",
+    "quote_service/output_render.py": "bbecd648cae17f9f291c40d28234e099d4641aee6be428acdece8fd3e647731d",
+    "quote_service/outputs.py": "88a63c695e7e0097f06851e83449b0f58259f65b700f3545683f8be0998e5623",
+    "quote_service/protocol.py": "0ea0d0156782a5543f3898a8ab25940023b22e329770761f9ae0a0f3b3fb6c60",
+    "quote_service/query.py": "96fd898985841b050981dd363bd2591047c3b3985fc59fd953655fc719a1556e",
+    "quote_service/recovery.py": "ab10e07945cd356f549adcd6fcc5d51a03575ed0dff65dd8aabdf5e7634e33ed",
+    "quote_service/rust_ledger.py": "71a5f1b33dfd94276a514662b24c72ab727df408e63b53e88f0351608dc8950b",
+    "requirements-service.txt": "f94fab36ee22b8768e33055b1bd2a8dda466eed6130b33ee7735a10b3613b220",
+    "rust-toolchain.toml": "559f488c181e0e9e77cf17c29de663977f036ec7ff2e2060585714bf53c52d62",
+    "tests/import_fixture.py": "6e12cceb6bf5d421cd3ef4fd586bad296158986821e7d3b068058374bba4ddc3",
+    "tests/legacy_worker_fixture.py": "6091929b8f7610a752039418f9d4a8364a9bf1076046def265e521e7ae97cea1",
+    "tests/rust_service_fixture.py": "2cf40a1f5b1cd6da9095dbf74447c6871390bc0877f3e30e6ed859f639a5af09",
+    "tests/service_fixture.py": "bf18f7042695dc9886e80043819c641e3776c2f46233021552e1b042788352c5",
+    "tests/test_native_excel.py": "01d24e6bf96ea986c6d46167e06e477062217c25cf3451552d58e97023ab7344",
+    "tests/test_p05_import_entry.py": "4e8fe3340b8dd8e9a84b46ea578194c2c4b612e06dff293b393136ec979b3a44",
+    "tests/test_p06_excel_check.py": "dbfd43a88ce727d77df3158c87048a410c913e2f8e3fd9835d9ff311f750a74a",
+    "tests/test_p06_ledger_check.py": "871855700bdbaaeb81ce32ef9478748a03b4cc2274a1df7490f2b8e1ad4cfa23",
+    "tests/test_rust_ledger.py": "aca1c3a89a52feb0dbbd6aa59ed7e59fc6e75694f1538afac2948e6e0c6727d4",
+    "tests/test_rust_service.py": "1a37487c5d698c141e4b4663a2856d43d1907bdecfe9f81a64a334ee5ed0edc9",
+    "tests/test_service_boundary.py": "a285d1e02021ba58eb03a746bf757d5147002ce758f188b39572e8bf7500fc2f",
+    "tests/test_service_outputs.py": "c8d470756d05a9aad6a5df4d6383846414674c19cad7394db31f2b02999af7c1",
+    "tests/test_service_query.py": "854572482d1e8452b6e28e041738d54c229a5e06d1ea9816d5664695d095ee8f",
+    "tools/p01_oracle.py": "8217df29596b2b49fc0d6b4800ee97ca160907f6e6cd735fc2f0c2b733875816",
+    "tools/p05_import.py": "5737c5f1833549d7d2e8b8fc8c51345dcf0fb8b63bb9e9480a7a7fa304e84d1e",
+    "tools/p06_cases.py": "bcc7d8966b4862d46a297b833e78b3118e83a71b2604abcde6644a2e09ccbd87",
+    "tools/p06_core_check.py": "0fdbee292d07824a7090ca08d1c160c268cb1ecefff95d82b8d7bd41149fb94d",
+    "tools/p06_excel_check.py": "a7071b7c28e5f57e91f585318c06caabb5322555a8f9795440be54dd5903b460",
+    "tools/p06_ledger_check.py": "5db42787afc25b38fc881d0d4f450ebab62711f60840e4732e88e4745a9816c5",
+    "tools/quote_service_host.py": "28302ae9a967d817c4f1dff8a4d6fc51107a9d321044736016abf0ba16ee19f4"
+  },
+  "source_scope": "Original targeted report is preserved; final tool/CLI and common protocol changes covered by final seven cases and auxiliary protocol rehearsal. No Windows/GUI/production claims.",
+  "original_auxiliary_report": "P06-03-auxiliary-report-01.json",
+  "commands": [
+    {
+      "command": [
+        "/tmp/777-p06-cargo/bin/rustc",
+        "+1.97.1",
+        "-vV"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.021208048005064484,
+      "stdout": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-unknown-linux-gnu\nrelease: 1.97.1\nLLVM version: 22.1.6\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/tmp/777-p06-cargo/bin/cargo",
+        "+1.97.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.08967242400103714,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/tmp/777-p06-cargo/bin/cargo",
+        "+1.97.1",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.5913834149978356,
+      "stdout": "",
+      "stderr": "    Checking quote-excel v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-excel)\n    Checking quote-ledger v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-ledger)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.55s\n"
+    },
+    {
+      "command": [
+        "/tmp/777-p06-cargo/bin/cargo",
+        "+1.97.1",
+        "test",
+        "--locked",
+        "--workspace"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.2024062920027063,
+      "stdout": "\nrunning 5 tests\ntest session::integrity_tests::incorrect_result_versions_are_blocked ... ok\ntest session::integrity_tests::incorrect_result_totals_are_blocked ... ok\ntest session::integrity_tests::incomplete_results_are_blocked ... ok\ntest session::integrity_tests::revision_overflow_is_atomic ... ok\ntest session::integrity_tests::invalid_observation_is_atomic ... ok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 16 tests\ntest duplicate_keys_and_boolean_flags_block_whole_candidate ... ok\ntest intermediate_capacity_checked_before_cancellation ... ok\ntest field_and_ast_limits_are_not_rounded_away ... ok\ntest division_rounds_each_operator ... ok\ntest malformed_model_cannot_become_formal_result ... ok\ntest money_capacity_checks_profit_and_symmetric_limit ... ok\ntest config_numeric_tokens_bom_and_invalid_surrogate ... ok\ntest negative_half_ties_and_exact_remainder ... ok\ntest unicode_discount_digits_match_python_decimal ... ok\ntest second_line_failure_has_no_partial_results ... ok\ntest price_refresh_requires_current_recalculation_and_confirmation ... ok\ntest unavailable_prices_only_allow_draft_preview ... ok\ntest blocked_dispatch_calls_zero_and_all_outputs_freeze_same_cents ... ok\ntest old_and_same_identity_other_generation_completions_are_discarded ... ok\ntest writer_errors_propagate_without_invalidating_result ... ok\ntest wire_cents_are_strings_above_javascript_integer_limit ... ok\n\ntest result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 7 tests\ntest output_version_and_financial_capacity_are_rejected ... ok\ntest external_relationships_fail_closed ... ok\ntest calamine_candidate_loses_decimal_token_while_selected_reader_retains_it ... ok\ntest formulas_are_refused_even_with_a_cached_value ... ok\ntest duplicate_cells_and_capacity_fail_instead_of_truncation ... ok\ntest corrupt_encoding_entities_and_unknown_namespace_are_refused ... ok\ntest text_roles_precision_and_new_workbook_styles_are_stable ... ok\n\ntest result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s\n\n\nrunning 4 tests\ntest tests::native_principal_requires_known_role_and_bounded_identity ... ok\ntest tests::generated_identifiers_are_canonical_and_distinct ... ok\ntest tests::frozen_schema_hash_matches_native_sqlite_metadata ... ok\ntest tests::version_or_extra_trigger_is_not_repaired ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+      "stderr": "   Compiling quote-excel v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-excel)\n   Compiling quote-ledger v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-ledger)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.97s\n     Running unittests src/lib.rs (target/debug/deps/quote_core-4b404c66001d3d8e)\n     Running unittests src/bin/quote-shadow.rs (target/debug/deps/quote_shadow-eac0f484eee02143)\n     Running tests/domain.rs (target/debug/deps/domain-716fef4a1dc4c478)\n     Running unittests src/lib.rs (target/debug/deps/quote_excel-eac9b36aa5ed7a97)\n     Running tests/format.rs (target/debug/deps/format-90abadc7a04686ab)\n     Running unittests src/lib.rs (target/debug/deps/quote_ledger-2061bbfc64ddf9d7)\n     Running unittests src/main.rs (target/debug/deps/quote_ledger-666cd27bd16dfd11)\n   Doc-tests quote_core\n   Doc-tests quote_excel\n   Doc-tests quote_ledger\n"
+    },
+    {
+      "command": [
+        "/tmp/777-p06-cargo/bin/cargo",
+        "+1.97.1",
+        "build",
+        "--locked",
+        "--release",
+        "--workspace"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.0654502359975595,
+      "stdout": "",
+      "stderr": "    Finished `release` profile [optimized] target(s) in 0.04s\n"
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "atoi_simd",
+      "version": "0.18.1",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "autocfg",
+      "version": "1.5.1",
+      "license": "Apache-2.0 OR MIT"
+    },
+    {
+      "name": "base64",
+      "version": "0.22.1",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "bitflags",
+      "version": "2.13.2",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "block-buffer",
+      "version": "0.10.4",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "bumpalo",
+      "version": "3.20.3",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "byteorder",
+      "version": "1.5.0",
+      "license": "Unlicense OR MIT"
+    },
+    {
+      "name": "calamine",
+      "version": "0.36.1",
+      "license": "MIT"
+    },
+    {
+      "name": "cc",
+      "version": "1.8.0",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "cfg-if",
+      "version": "1.0.5",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "codepage",
+      "version": "0.1.3",
+      "license": "Apache-2.0 OR MIT"
+    },
+    {
+      "name": "core_detect",
+      "version": "1.0.0",
+      "license": "MIT/Apache-2.0"
+    },
+    {
+      "name": "cpufeatures",
+      "version": "0.2.17",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "crc32fast",
+      "version": "1.5.2",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "crypto-common",
+      "version": "0.1.7",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "debug_unsafe",
+      "version": "0.1.4",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "deranged",
+      "version": "0.5.9",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "digest",
+      "version": "0.10.7",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "encoding_rs",
+      "version": "0.8.42",
+      "license": "(Apache-2.0 OR MIT) AND BSD-3-Clause"
+    },
+    {
+      "name": "equivalent",
+      "version": "1.0.2",
+      "license": "Apache-2.0 OR MIT"
+    },
+    {
+      "name": "fallible-iterator",
+      "version": "0.3.0",
+      "license": "MIT/Apache-2.0"
+    },
+    {
+      "name": "fallible-streaming-iterator",
+      "version": "0.1.9",
+      "license": "MIT/Apache-2.0"
+    },
+    {
+      "name": "fast-float2",
+      "version": "0.2.4",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "find-msvc-tools",
+      "version": "0.1.14",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "flate2",
+      "version": "1.1.10",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "foldhash",
+      "version": "0.1.5",
+      "license": "Zlib"
+    },
+    {
+      "name": "generic-array",
+      "version": "0.14.7",
+      "license": "MIT"
+    },
+    {
+      "name": "getrandom",
+      "version": "0.2.16",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "hashbrown",
+      "version": "0.15.5",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "hashbrown",
+      "version": "0.17.1",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "hashlink",
+      "version": "0.10.0",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "indexmap",
+      "version": "2.14.2",
+      "license": "Apache-2.0 OR MIT"
+    },
+    {
+      "name": "itoa",
+      "version": "1.0.18",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "libc",
+      "version": "0.2.190",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "libsqlite3-sys",
+      "version": "0.35.0",
+      "license": "MIT"
+    },
+    {
+      "name": "log",
+      "version": "0.4.34",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "memchr",
+      "version": "2.8.3",
+      "license": "Unlicense OR MIT"
+    },
+    {
+      "name": "multiversion_no_op",
+      "version": "1.0.0",
+      "license": "Apache-2.0 OR MIT"
+    },
+    {
+      "name": "num-bigint",
+      "version": "0.4.6",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "num-conv",
+      "version": "0.1.0",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "num-integer",
+      "version": "0.1.46",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "num-traits",
+      "version": "0.2.19",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "pkg-config",
+      "version": "0.3.34",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "powerfmt",
+      "version": "0.2.1",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "proc-macro2",
+      "version": "1.0.107",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "quick-xml",
+      "version": "0.41.0",
+      "license": "MIT"
+    },
+    {
+      "name": "quote",
+      "version": "1.0.47",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "rusqlite",
+      "version": "0.37.0",
+      "license": "MIT"
+    },
+    {
+      "name": "rust_xlsxwriter",
+      "version": "0.99.1",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "rustversion",
+      "version": "1.0.23",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "scopeguard",
+      "version": "1.2.0",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "serde",
+      "version": "1.0.228",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "serde_core",
+      "version": "1.0.228",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "serde_derive",
+      "version": "1.0.228",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "serde_json",
+      "version": "1.0.151",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "sha2",
+      "version": "0.10.9",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "shlex",
+      "version": "2.0.1",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "simd-adler32",
+      "version": "0.3.10",
+      "license": "MIT"
+    },
+    {
+      "name": "simdutf8",
+      "version": "0.1.5",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "smallvec",
+      "version": "1.16.3",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "syn",
+      "version": "2.0.119",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "time",
+      "version": "0.3.44",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "time-core",
+      "version": "0.1.6",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "time-macros",
+      "version": "0.2.24",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "typed-path",
+      "version": "0.12.3",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "typenum",
+      "version": "1.20.1",
+      "license": "MIT OR Apache-2.0"
+    },
+    {
+      "name": "unicode-ident",
+      "version": "1.0.27",
+      "license": "(MIT OR Apache-2.0) AND Unicode-3.0"
+    },
+    {
+      "name": "vcpkg",
+      "version": "0.2.15",
+      "license": "MIT/Apache-2.0"
+    },
+    {
+      "name": "version_check",
+      "version": "0.9.5",
+      "license": "MIT/Apache-2.0"
+    },
+    {
+      "name": "wasi",
+      "version": "0.11.1+wasi-snapshot-preview1",
+      "license": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"
+    },
+    {
+      "name": "zip",
+      "version": "8.6.0",
+      "license": "MIT"
+    },
+    {
+      "name": "zlib-rs",
+      "version": "0.6.8",
+      "license": "Zlib"
+    },
+    {
+      "name": "zmij",
+      "version": "1.0.23",
+      "license": "MIT"
+    },
+    {
+      "name": "zopfli",
+      "version": "0.8.4",
+      "license": "Apache-2.0"
+    }
+  ],
+  "service_dependencies": [
+    {
+      "package": "uvicorn",
+      "expected": "0.50.0",
+      "version": "0.50.0",
+      "status": "available"
+    },
+    {
+      "package": "h11",
+      "expected": "0.16.0",
+      "version": "0.16.0",
+      "status": "available"
+    },
+    {
+      "package": "click",
+      "expected": "8.5.0",
+      "version": "8.5.0",
+      "status": "available"
+    },
+    {
+      "package": "cryptography",
+      "expected": "50.0.1",
+      "version": "50.0.1",
+      "status": "available"
+    }
+  ],
+  "targeted_checks": {
+    "status": "passed",
+    "tests_run": 165,
+    "failures": 0,
+    "errors": 0,
+    "skipped": [],
+    "test_ids": [
+      "test_native_excel.LegacyWorkerCompatibilityTests.test_actual_accepted_financial_only_worker_uses_explicit_format_bridge",
+      "test_native_excel.LegacyWorkerCompatibilityTests.test_missing_legacy_worker_never_negotiates_a_financial_or_format_fallback",
+      "test_native_excel.LegacyWorkerCompatibilityTests.test_old_v3_full_package_restores_output_and_keeps_original_worker",
+      "test_native_excel.NativeEntryTests.test_apply_uses_selected_native_reader_and_complete_backup_gate",
+      "test_native_excel.NativeEntryTests.test_changed_native_review_does_not_request_password_or_write_ledger",
+      "test_native_excel.NativeEntryTests.test_explicit_native_preview_keeps_source_private_and_ledger_unchanged",
+      "test_native_excel.NativeOutputTests.test_big_integer_controls_leading_zero_and_formula_like_text_remain_text",
+      "test_native_excel.NativeOutputTests.test_body_tampering_with_unchanged_protocol_is_refused_by_both_validators",
+      "test_native_excel.NativeOutputTests.test_failed_native_worker_never_falls_back_or_rebooks_order",
+      "test_native_excel.NativeOutputTests.test_full_cell_matrix_and_styles_match_independent_python_report",
+      "test_native_excel.NativeOutputTests.test_native_bytes_are_reproducible_and_no_existing_source_is_edited",
+      "test_native_excel.NativeOutputTests.test_native_generation_download_and_private_role_projection_skip_python_workbook_io",
+      "test_native_excel.NativeReadTests.test_all_p01_workbook_shapes_keep_recognition_and_quarantine",
+      "test_native_excel.NativeReadTests.test_corrupt_duplicate_zip_entities_utf16_and_cell_duplicates_fail_closed",
+      "test_native_excel.NativeReadTests.test_date_iso_serial_and_1904_epoch_equal_independent_reader",
+      "test_native_excel.NativeReadTests.test_exact_numeric_tokens_and_lossy_legacy_numeric_cells_are_traceable",
+      "test_native_excel.NativeReadTests.test_formula_cache_or_orphan_sheet_is_always_refused",
+      "test_native_excel.NativeReadTests.test_large_sparse_source_is_complete_and_not_silently_truncated",
+      "test_native_excel.NativeReadTests.test_mapped_columns_and_raw_prices_keep_independent_plan",
+      "test_native_excel.NativeReadTests.test_native_import_replays_v1_batch_without_python_excel_decoder",
+      "test_native_excel.NativeReadTests.test_original_identified_legacy_and_note_void_plans_keep_full_binding",
+      "test_native_excel.NativeReadTests.test_row_column_source_and_declared_expansion_limits_are_enforced",
+      "test_native_excel.NativeReadTests.test_unknown_schema_and_extensions_cannot_change_ledger",
+      "test_p06_excel_check.P06ExcelCheckTests.test_fingerprints_use_bytes_and_cover_format_paths_and_cli",
+      "test_p06_excel_check.P06ExcelCheckTests.test_native_smoke_does_not_accept_simulated_platform_identity",
+      "test_p06_excel_check.P06ExcelCheckTests.test_non_windows_refuses_before_native_commands",
+      "test_p06_excel_check.P06ExcelCheckTests.test_original_reports_and_data_directories_cannot_be_overwritten",
+      "test_rust_ledger.RustLedgerTests.test_binary_hash_failure_does_not_fall_back_to_python",
+      "test_rust_ledger.RustLedgerTests.test_concurrent_note_and_void_have_one_revision_winner",
+      "test_rust_ledger.RustLedgerTests.test_concurrent_price_publication_preserves_cas",
+      "test_rust_ledger.RustLedgerTests.test_direct_python_financial_write_is_blocked_in_rust_adapter",
+      "test_rust_ledger.RustLedgerTests.test_import_native_process_interruption_is_atomic_and_retry_safe",
+      "test_rust_ledger.RustLedgerTests.test_legacy_import_is_only_previewed_in_memory_and_rust_commits_atomically",
+      "test_rust_ledger.RustLedgerTests.test_missing_worker_is_unavailable_without_an_implicit_financial_fallback",
+      "test_rust_ledger.RustLedgerTests.test_money_above_js_integer_range_remains_exact_in_db_and_json",
+      "test_rust_ledger.RustLedgerTests.test_native_online_snapshot_and_independent_python_restore_match",
+      "test_rust_ledger.RustLedgerTests.test_native_role_and_owner_checks_do_not_trust_display_fields",
+      "test_rust_ledger.RustLedgerTests.test_native_schema_and_all_frozen_snapshots_match_python_reader",
+      "test_rust_ledger.RustLedgerTests.test_process_exit_after_commit_recovers_original_without_duplicate",
+      "test_rust_ledger.RustLedgerTests.test_process_exit_before_commit_and_after_first_line_roll_back",
+      "test_rust_ledger.RustLedgerTests.test_request_fingerprint_and_replay_are_equal_in_both_directions",
+      "test_rust_ledger.RustLedgerTests.test_same_request_after_price_change_returns_original_receipt",
+      "test_rust_ledger.RustLedgerTests.test_schema_unknown_or_altered_is_rejected_without_overwriting",
+      "test_rust_ledger.RustLedgerTests.test_two_native_processes_same_request_commit_once",
+      "test_rust_service.BackendSelectionTests.test_after_publication_unknown_outcome_is_read_back_and_retry_does_not_duplicate",
+      "test_rust_service.BackendSelectionTests.test_backend_migration_is_explicit_reversible_and_single_selected_writer",
+      "test_rust_service.BackendSelectionTests.test_live_owner_lock_blocks_migration_before_config_changes",
+      "test_rust_service.BackendSelectionTests.test_no_implicit_python_fallback_when_registered_worker_is_corrupt",
+      "test_rust_service.BackendSelectionTests.test_prepublication_process_failure_preserves_old_selection_and_database",
+      "test_rust_service.BackendSelectionTests.test_unknown_native_resource_is_not_adopted_or_overwritten",
+      "test_rust_service.RustHTTPS.test_actual_tls_hostname_verification_rejects_wrong_server_name",
+      "test_rust_service.RustHTTPS.test_anonymous_invalid_token_and_client_claimed_role_cannot_authorize",
+      "test_rust_service.RustHTTPS.test_authenticated_pagination_is_bounded_and_sales_scope_totals_are_exact",
+      "test_rust_service.RustHTTPS.test_backup_failure_is_persisted_locally_and_does_not_undo_order",
+      "test_rust_service.RustHTTPS.test_backup_plan_is_persisted_cas_and_admin_only",
+      "test_rust_service.RustHTTPS.test_calculation_submission_and_listing_never_call_python_calculator",
+      "test_rust_service.RustHTTPS.test_certificate_replacement_and_cleartext_urls_are_refused_before_credentials",
+      "test_rust_service.RustHTTPS.test_client_financial_totals_prices_and_actor_fields_are_rejected",
+      "test_rust_service.RustHTTPS.test_complete_v3_restore_preserves_worker_ledger_identity_and_maintenance",
+      "test_rust_service.RustHTTPS.test_cross_owner_orders_notes_receipts_and_state_are_denied",
+      "test_rust_service.RustHTTPS.test_duplicate_request_conflict_and_stale_price_gate_are_service_enforced",
+      "test_rust_service.RustHTTPS.test_logout_revocation_role_change_and_restart_authentication",
+      "test_rust_service.RustHTTPS.test_lost_reply_persists_original_then_queries_without_duplicate_or_repricing",
+      "test_rust_service.RustHTTPS.test_malformed_duplicate_nonfinite_and_oversized_json_are_rejected",
+      "test_rust_service.RustHTTPS.test_manager_directory_cas_and_sales_inherited_values_are_same",
+      "test_rust_service.RustHTTPS.test_native_commit_unknown_202_recovers_receipt_after_process_exit",
+      "test_rust_service.RustHTTPS.test_owner_note_revision_and_admin_void_restore_keep_original_financial_history",
+      "test_rust_service.RustHTTPS.test_sales_cannot_publish_prices_settings_accounts_plan_or_read_backups",
+      "test_rust_service.RustHTTPS.test_sales_catalog_calculation_order_receipt_and_list_never_contain_finances",
+      "test_rust_service.RustHTTPS.test_two_actual_https_clients_same_request_create_one_order",
+      "test_rust_service.RustHTTPS.test_unsubmitted_pending_retries_same_id_and_other_identity_cannot_replay",
+      "test_rust_service.RustOutputs.test_native_output_error_keeps_order_and_original_sha",
+      "test_rust_service.RustOutputs.test_native_output_financial_revision_unchanged",
+      "test_rust_service.RustOutputs.test_native_png_frozen_payload",
+      "test_rust_service.RustOutputs.test_native_price_changes_keep_original_output",
+      "test_rust_service.RustOutputs.test_native_private_cost_output_boundary",
+      "test_rust_service.RustOutputs.test_native_quote_workbook_exact_and_filtered",
+      "test_rust_service.RustOutputs.test_v3_restore_keeps_output_queue_files_receipts_and_backend",
+      "test_rust_service.RustQueries.test_bounds_duplicate_query_future_versions_and_cursor_offset_rejected",
+      "test_rust_service.RustQueries.test_changed_view_and_restart_refuse_cursor_without_silent_page_drift",
+      "test_rust_service.RustQueries.test_cursor_tamper_cross_actor_filter_or_limit_are_refused",
+      "test_rust_service.RustQueries.test_first_scan_then_page_hits_do_not_rescan_full_ledger",
+      "test_rust_service.RustQueries.test_literal_unicode_and_sql_wildcard_queries_do_not_change_scope",
+      "test_rust_service.RustQueries.test_sales_scope_search_and_total_never_expose_other_owner_or_cost",
+      "test_rust_service.RustQueries.test_signed_cursor_same_snapshot_returns_each_order_once",
+      "test_rust_service.RustQueries.test_state_filter_total_counts_void_but_effective_totals_are_zero",
+      "test_rust_service.RustQueries.test_submit_note_void_restore_are_exact_audit_deltas",
+      "test_rust_service.RustQueries.test_summary_cache_is_bounded_and_rebuilds_without_financial_change",
+      "test_p06_ledger_check.P06LedgerCheckTests.test_report_output_cannot_adopt_an_existing_or_real_data_directory",
+      "test_p06_ledger_check.P06LedgerCheckTests.test_source_fingerprints_are_bytes_based_without_default_gbk_reads",
+      "test_p06_ledger_check.P06LedgerCheckTests.test_windows_mode_refuses_auxiliary_platform_before_native_execution",
+      "test_p06_ledger_check.P06LedgerCheckTests.test_windows_smoke_cannot_be_run_as_a_platform_simulation",
+      "test_service_outputs.OutputHTTPS.test_actual_service_worker_and_journal_receipt_recovery_do_not_repeat_orders",
+      "test_service_outputs.OutputHTTPS.test_http_output_wrong_owner_version_and_forged_fields_are_rejected",
+      "test_service_outputs.OutputHTTPS.test_request_id_cannot_cross_financial_and_output_namespaces",
+      "test_service_outputs.OutputHTTPS.test_two_real_https_clients_same_output_request_converge_to_one_job",
+      "test_service_outputs.OutputTests.test_admin_public_report_also_excludes_cost_but_internal_stays_private",
+      "test_service_outputs.OutputTests.test_backup_v1_remains_readable_without_silent_output_creation",
+      "test_service_outputs.OutputTests.test_backup_v2_restores_queue_original_files_and_receipts_in_maintenance",
+      "test_service_outputs.OutputTests.test_blob_tamper_and_link_are_refused",
+      "test_service_outputs.OutputTests.test_corrupt_output_blob_prevents_new_complete_backup_success",
+      "test_service_outputs.OutputTests.test_download_new_copy_verifies_bytes_and_cannot_replace_existing_file",
+      "test_service_outputs.OutputTests.test_excel_permission_failure_retry_never_books_or_changes_original_order",
+      "test_service_outputs.OutputTests.test_existing_host_extension_backup_failure_creates_no_output_store",
+      "test_service_outputs.OutputTests.test_foreign_existing_file_is_not_overwritten",
+      "test_service_outputs.OutputTests.test_later_note_state_and_price_do_not_rewrite_original_output_snapshot",
+      "test_service_outputs.OutputTests.test_legacy_host_activation_requires_admin_owner_lock_and_complete_backup",
+      "test_service_outputs.OutputTests.test_missing_directory_keeps_order_and_cached_bytes_retry_uses_new_published_directory",
+      "test_service_outputs.OutputTests.test_output_enqueue_and_duplicate_do_not_write_financial_ledger",
+      "test_service_outputs.OutputTests.test_output_queue_bound_and_format_negotiation_reject_before_write",
+      "test_service_outputs.OutputTests.test_png_is_based_on_saved_order_and_has_payload_metadata",
+      "test_service_outputs.OutputTests.test_public_workbook_is_exact_role_filtered_and_formula_free",
+      "test_service_outputs.OutputTests.test_publish_failure_leaves_no_partial_or_claim_of_done",
+      "test_service_outputs.OutputTests.test_reply_or_process_loss_after_publish_recovers_same_file_without_duplication",
+      "test_service_outputs.OutputTests.test_restart_reopens_original_failed_queue_and_cached_blob",
+      "test_service_outputs.OutputTests.test_revoked_or_changed_role_account_job_cannot_be_published",
+      "test_service_outputs.OutputTests.test_sales_other_owner_and_internal_report_are_denied",
+      "test_service_outputs.OutputTests.test_same_request_changed_kind_revision_or_actor_is_refused",
+      "test_service_outputs.OutputTests.test_snapshot_payload_and_receipt_are_immutable",
+      "test_service_outputs.OutputTests.test_unknown_output_schema_refused_without_repair_or_overwrite",
+      "test_legacy_import.LegacyImportTests.test_backup_restore_retains_exact_source_rows_prices_and_original_retry",
+      "test_legacy_import.LegacyImportTests.test_before_commit_failure_is_not_a_partial_import",
+      "test_legacy_import.LegacyImportTests.test_changed_ooxml_same_stable_orders_reuses_orders_without_duplication",
+      "test_legacy_import.LegacyImportTests.test_changed_stable_order_is_refused_without_overwriting_existing_rows",
+      "test_legacy_import.LegacyImportTests.test_corrupt_duplicate_zip_and_xml_entities_are_refused_without_default_zero",
+      "test_legacy_import.LegacyImportTests.test_discount_coefficient_and_subtotal_must_match_core_order_sequence",
+      "test_legacy_import.LegacyImportTests.test_duplicate_source_same_bytes_other_path_has_one_batch_and_original_receipt",
+      "test_legacy_import.LegacyImportTests.test_empty_P01_evidence_shape_imports_zero_orders_and_preserves_appendices",
+      "test_legacy_import.LegacyImportTests.test_formula_with_and_without_cached_value_is_never_opened_or_evaluated",
+      "test_legacy_import.LegacyImportTests.test_identified_note_reimport_reuses_original_note_id",
+      "test_legacy_import.LegacyImportTests.test_identified_same_second_orders_keep_distinct_ids_and_exact_rows",
+      "test_legacy_import.LegacyImportTests.test_invalid_identity_summary_receipt_and_unknown_sheet_are_source_quarantines",
+      "test_legacy_import.LegacyImportTests.test_items_and_legacy_json_import_historical_catalog_without_publication",
+      "test_legacy_import.LegacyImportTests.test_json_duplicate_invalid_boolean_and_unknown_format_do_not_import",
+      "test_legacy_import.LegacyImportTests.test_legacy_tagged_alias_and_reordered_variants_match_exact_amounts",
+      "test_legacy_import.LegacyImportTests.test_mid_batch_failure_rolls_back_prices_orders_lines_receipts_and_batch",
+      "test_legacy_import.LegacyImportTests.test_missing_summary_uses_exact_details_without_inventing_a_footer",
+      "test_legacy_import.LegacyImportTests.test_new_hash_legacy_lookalike_is_refused_rather_than_merged_or_duplicated",
+      "test_legacy_import.LegacyImportTests.test_normalized_quantity_cannot_disagree_with_preserved_raw_expression",
+      "test_legacy_import.LegacyImportTests.test_note_void_event_history_and_source_time_are_preserved",
+      "test_legacy_import.LegacyImportTests.test_numeric_raw_expression_and_exact_integer_cents_survive_import",
+      "test_legacy_import.LegacyImportTests.test_partial_quarantine_requires_explicit_ack_and_keeps_source_difference",
+      "test_legacy_import.LegacyImportTests.test_preview_does_not_touch_source_or_database_and_public_report_hides_customer",
+      "test_legacy_import.LegacyImportTests.test_reply_loss_uses_original_batch_query_and_exact_retry_without_duplicates",
+      "test_legacy_import.LegacyImportTests.test_review_digest_and_owner_are_bound_not_caller_financials",
+      "test_legacy_import.LegacyImportTests.test_review_source_snapshot_is_private_and_original_bytes_are_preserved",
+      "test_legacy_import.LegacyImportTests.test_row_and_file_remarks_are_not_assigned_by_last_customer_guess",
+      "test_legacy_import.LegacyImportTests.test_sales_role_cannot_import_or_obtain_a_batch_receipt",
+      "test_legacy_import.LegacyImportTests.test_same_named_footer_typed_product_remains_normal_line",
+      "test_legacy_import.LegacyImportTests.test_source_size_and_link_policy_reject_before_reading",
+      "test_legacy_import.LegacyImportTests.test_tampered_provenance_is_refused_against_immutable_batch_receipt",
+      "test_legacy_import.LegacyImportTests.test_two_same_prefix_without_footer_are_quarantined_not_merged",
+      "test_legacy_import.LegacyImportTests.test_two_sqlite_connections_same_source_converge_to_one_batch",
+      "test_legacy_import.LegacyImportTests.test_two_unidentified_same_prefix_with_explicit_footers_are_distinct",
+      "test_legacy_import.LegacyImportTests.test_unknown_recorded_rule_version_is_quarantined_even_if_amounts_match",
+      "test_legacy_import.LegacyImportTests.test_zip_expansion_and_sheet_dimension_limits_reject_before_materializing_cells",
+      "test_p05_import_entry.ImportEntryTests.test_actual_sales_login_is_denied_before_backup_or_ledger_write",
+      "test_p05_import_entry.ImportEntryTests.test_changed_review_hash_does_not_open_host_or_ask_password",
+      "test_p05_import_entry.ImportEntryTests.test_failed_complete_backup_keeps_ledger_unchanged",
+      "test_p05_import_entry.ImportEntryTests.test_off_windows_blocks_before_source_or_output_access",
+      "test_p05_import_entry.ImportEntryTests.test_owner_must_exist_and_be_enabled",
+      "test_p05_import_entry.ImportEntryTests.test_preview_report_failure_never_claims_a_completed_import",
+      "test_p05_import_entry.ImportEntryTests.test_real_login_owner_and_complete_backup_gate_import",
+      "test_p05_import_entry.ImportEntryTests.test_report_failure_cannot_disguise_a_committed_batch",
+      "test_p05_import_entry.ImportEntryTests.test_running_host_owner_lock_refuses_cli_before_import"
+    ],
+    "log": "test_actual_accepted_financial_only_worker_uses_explicit_format_bridge (test_native_excel.LegacyWorkerCompatibilityTests.test_actual_accepted_financial_only_worker_uses_explicit_format_bridge) ... ok\ntest_missing_legacy_worker_never_negotiates_a_financial_or_format_fallback (test_native_excel.LegacyWorkerCompatibilityTests.test_missing_legacy_worker_never_negotiates_a_financial_or_format_fallback) ... ok\ntest_old_v3_full_package_restores_output_and_keeps_original_worker (test_native_excel.LegacyWorkerCompatibilityTests.test_old_v3_full_package_restores_output_and_keeps_original_worker) ... ok\ntest_apply_uses_selected_native_reader_and_complete_backup_gate (test_native_excel.NativeEntryTests.test_apply_uses_selected_native_reader_and_complete_backup_gate) ... ok\ntest_changed_native_review_does_not_request_password_or_write_ledger (test_native_excel.NativeEntryTests.test_changed_native_review_does_not_request_password_or_write_ledger) ... ok\ntest_explicit_native_preview_keeps_source_private_and_ledger_unchanged (test_native_excel.NativeEntryTests.test_explicit_native_preview_keeps_source_private_and_ledger_unchanged) ... ok\ntest_big_integer_controls_leading_zero_and_formula_like_text_remain_text (test_native_excel.NativeOutputTests.test_big_integer_controls_leading_zero_and_formula_like_text_remain_text) ... ok\ntest_body_tampering_with_unchanged_protocol_is_refused_by_both_validators (test_native_excel.NativeOutputTests.test_body_tampering_with_unchanged_protocol_is_refused_by_both_validators) ... ok\ntest_failed_native_worker_never_falls_back_or_rebooks_order (test_native_excel.NativeOutputTests.test_failed_native_worker_never_falls_back_or_rebooks_order) ... ok\ntest_full_cell_matrix_and_styles_match_independent_python_report (test_native_excel.NativeOutputTests.test_full_cell_matrix_and_styles_match_independent_python_report) ... ok\ntest_native_bytes_are_reproducible_and_no_existing_source_is_edited (test_native_excel.NativeOutputTests.test_native_bytes_are_reproducible_and_no_existing_source_is_edited) ... ok\ntest_native_generation_download_and_private_role_projection_skip_python_workbook_io (test_native_excel.NativeOutputTests.test_native_generation_download_and_private_role_projection_skip_python_workbook_io) ... ok\ntest_all_p01_workbook_shapes_keep_recognition_and_quarantine (test_native_excel.NativeReadTests.test_all_p01_workbook_shapes_keep_recognition_and_quarantine) ... ok\ntest_corrupt_duplicate_zip_entities_utf16_and_cell_duplicates_fail_closed (test_native_excel.NativeReadTests.test_corrupt_duplicate_zip_entities_utf16_and_cell_duplicates_fail_closed) ... ok\ntest_date_iso_serial_and_1904_epoch_equal_independent_reader (test_native_excel.NativeReadTests.test_date_iso_serial_and_1904_epoch_equal_independent_reader) ... ok\ntest_exact_numeric_tokens_and_lossy_legacy_numeric_cells_are_traceable (test_native_excel.NativeReadTests.test_exact_numeric_tokens_and_lossy_legacy_numeric_cells_are_traceable) ... ok\ntest_formula_cache_or_orphan_sheet_is_always_refused (test_native_excel.NativeReadTests.test_formula_cache_or_orphan_sheet_is_always_refused) ... ok\ntest_large_sparse_source_is_complete_and_not_silently_truncated (test_native_excel.NativeReadTests.test_large_sparse_source_is_complete_and_not_silently_truncated) ... ok\ntest_mapped_columns_and_raw_prices_keep_independent_plan (test_native_excel.NativeReadTests.test_mapped_columns_and_raw_prices_keep_independent_plan) ... ok\ntest_native_import_replays_v1_batch_without_python_excel_decoder (test_native_excel.NativeReadTests.test_native_import_replays_v1_batch_without_python_excel_decoder) ... ok\ntest_original_identified_legacy_and_note_void_plans_keep_full_binding (test_native_excel.NativeReadTests.test_original_identified_legacy_and_note_void_plans_keep_full_binding) ... ok\ntest_row_column_source_and_declared_expansion_limits_are_enforced (test_native_excel.NativeReadTests.test_row_column_source_and_declared_expansion_limits_are_enforced) ... ok\ntest_unknown_schema_and_extensions_cannot_change_ledger (test_native_excel.NativeReadTests.test_unknown_schema_and_extensions_cannot_change_ledger) ... ok\ntest_fingerprints_use_bytes_and_cover_format_paths_and_cli (test_p06_excel_check.P06ExcelCheckTests.test_fingerprints_use_bytes_and_cover_format_paths_and_cli) ... ok\ntest_native_smoke_does_not_accept_simulated_platform_identity (test_p06_excel_check.P06ExcelCheckTests.test_native_smoke_does_not_accept_simulated_platform_identity) ... ok\ntest_non_windows_refuses_before_native_commands (test_p06_excel_check.P06ExcelCheckTests.test_non_windows_refuses_before_native_commands) ... ok\ntest_original_reports_and_data_directories_cannot_be_overwritten (test_p06_excel_check.P06ExcelCheckTests.test_original_reports_and_data_directories_cannot_be_overwritten) ... ok\ntest_binary_hash_failure_does_not_fall_back_to_python (test_rust_ledger.RustLedgerTests.test_binary_hash_failure_does_not_fall_back_to_python) ... ok\ntest_concurrent_note_and_void_have_one_revision_winner (test_rust_ledger.RustLedgerTests.test_concurrent_note_and_void_have_one_revision_winner) ... ok\ntest_concurrent_price_publication_preserves_cas (test_rust_ledger.RustLedgerTests.test_concurrent_price_publication_preserves_cas) ... ok\ntest_direct_python_financial_write_is_blocked_in_rust_adapter (test_rust_ledger.RustLedgerTests.test_direct_python_financial_write_is_blocked_in_rust_adapter) ... ok\ntest_import_native_process_interruption_is_atomic_and_retry_safe (test_rust_ledger.RustLedgerTests.test_import_native_process_interruption_is_atomic_and_retry_safe) ... ok\ntest_legacy_import_is_only_previewed_in_memory_and_rust_commits_atomically (test_rust_ledger.RustLedgerTests.test_legacy_import_is_only_previewed_in_memory_and_rust_commits_atomically) ... ok\ntest_missing_worker_is_unavailable_without_an_implicit_financial_fallback (test_rust_ledger.RustLedgerTests.test_missing_worker_is_unavailable_without_an_implicit_financial_fallback) ... ok\ntest_money_above_js_integer_range_remains_exact_in_db_and_json (test_rust_ledger.RustLedgerTests.test_money_above_js_integer_range_remains_exact_in_db_and_json) ... ok\ntest_native_online_snapshot_and_independent_python_restore_match (test_rust_ledger.RustLedgerTests.test_native_online_snapshot_and_independent_python_restore_match) ... ok\ntest_native_role_and_owner_checks_do_not_trust_display_fields (test_rust_ledger.RustLedgerTests.test_native_role_and_owner_checks_do_not_trust_display_fields) ... ok\ntest_native_schema_and_all_frozen_snapshots_match_python_reader (test_rust_ledger.RustLedgerTests.test_native_schema_and_all_frozen_snapshots_match_python_reader) ... ok\ntest_process_exit_after_commit_recovers_original_without_duplicate (test_rust_ledger.RustLedgerTests.test_process_exit_after_commit_recovers_original_without_duplicate) ... ok\ntest_process_exit_before_commit_and_after_first_line_roll_back (test_rust_ledger.RustLedgerTests.test_process_exit_before_commit_and_after_first_line_roll_back) ... ok\ntest_request_fingerprint_and_replay_are_equal_in_both_directions (test_rust_ledger.RustLedgerTests.test_request_fingerprint_and_replay_are_equal_in_both_directions) ... ok\ntest_same_request_after_price_change_returns_original_receipt (test_rust_ledger.RustLedgerTests.test_same_request_after_price_change_returns_original_receipt) ... ok\ntest_schema_unknown_or_altered_is_rejected_without_overwriting (test_rust_ledger.RustLedgerTests.test_schema_unknown_or_altered_is_rejected_without_overwriting) ... ok\ntest_two_native_processes_same_request_commit_once (test_rust_ledger.RustLedgerTests.test_two_native_processes_same_request_commit_once) ... ok\ntest_after_publication_unknown_outcome_is_read_back_and_retry_does_not_duplicate (test_rust_service.BackendSelectionTests.test_after_publication_unknown_outcome_is_read_back_and_retry_does_not_duplicate) ... ok\ntest_backend_migration_is_explicit_reversible_and_single_selected_writer (test_rust_service.BackendSelectionTests.test_backend_migration_is_explicit_reversible_and_single_selected_writer) ... ok\ntest_live_owner_lock_blocks_migration_before_config_changes (test_rust_service.BackendSelectionTests.test_live_owner_lock_blocks_migration_before_config_changes) ... ok\ntest_no_implicit_python_fallback_when_registered_worker_is_corrupt (test_rust_service.BackendSelectionTests.test_no_implicit_python_fallback_when_registered_worker_is_corrupt) ... ok\ntest_prepublication_process_failure_preserves_old_selection_and_database (test_rust_service.BackendSelectionTests.test_prepublication_process_failure_preserves_old_selection_and_database) ... ok\ntest_unknown_native_resource_is_not_adopted_or_overwritten (test_rust_service.BackendSelectionTests.test_unknown_native_resource_is_not_adopted_or_overwritten) ... ok\ntest_actual_tls_hostname_verification_rejects_wrong_server_name (test_rust_service.RustHTTPS.test_actual_tls_hostname_verification_rejects_wrong_server_name) ... ok\ntest_anonymous_invalid_token_and_client_claimed_role_cannot_authorize (test_rust_service.RustHTTPS.test_anonymous_invalid_token_and_client_claimed_role_cannot_authorize) ... ok\ntest_authenticated_pagination_is_bounded_and_sales_scope_totals_are_exact (test_rust_service.RustHTTPS.test_authenticated_pagination_is_bounded_and_sales_scope_totals_are_exact) ... ok\ntest_backup_failure_is_persisted_locally_and_does_not_undo_order (test_rust_service.RustHTTPS.test_backup_failure_is_persisted_locally_and_does_not_undo_order) ... ok\ntest_backup_plan_is_persisted_cas_and_admin_only (test_rust_service.RustHTTPS.test_backup_plan_is_persisted_cas_and_admin_only) ... ok\ntest_calculation_submission_and_listing_never_call_python_calculator (test_rust_service.RustHTTPS.test_calculation_submission_and_listing_never_call_python_calculator) ... ok\ntest_certificate_replacement_and_cleartext_urls_are_refused_before_credentials (test_rust_service.RustHTTPS.test_certificate_replacement_and_cleartext_urls_are_refused_before_credentials) ... ok\ntest_client_financial_totals_prices_and_actor_fields_are_rejected (test_rust_service.RustHTTPS.test_client_financial_totals_prices_and_actor_fields_are_rejected) ... ok\ntest_complete_v3_restore_preserves_worker_ledger_identity_and_maintenance (test_rust_service.RustHTTPS.test_complete_v3_restore_preserves_worker_ledger_identity_and_maintenance) ... ok\ntest_cross_owner_orders_notes_receipts_and_state_are_denied (test_rust_service.RustHTTPS.test_cross_owner_orders_notes_receipts_and_state_are_denied) ... ok\ntest_duplicate_request_conflict_and_stale_price_gate_are_service_enforced (test_rust_service.RustHTTPS.test_duplicate_request_conflict_and_stale_price_gate_are_service_enforced) ... ok\ntest_logout_revocation_role_change_and_restart_authentication (test_rust_service.RustHTTPS.test_logout_revocation_role_change_and_restart_authentication) ... ok\ntest_lost_reply_persists_original_then_queries_without_duplicate_or_repricing (test_rust_service.RustHTTPS.test_lost_reply_persists_original_then_queries_without_duplicate_or_repricing) ... ok\ntest_malformed_duplicate_nonfinite_and_oversized_json_are_rejected (test_rust_service.RustHTTPS.test_malformed_duplicate_nonfinite_and_oversized_json_are_rejected) ... ok\ntest_manager_directory_cas_and_sales_inherited_values_are_same (test_rust_service.RustHTTPS.test_manager_directory_cas_and_sales_inherited_values_are_same) ... ok\ntest_native_commit_unknown_202_recovers_receipt_after_process_exit (test_rust_service.RustHTTPS.test_native_commit_unknown_202_recovers_receipt_after_process_exit) ... ok\ntest_owner_note_revision_and_admin_void_restore_keep_original_financial_history (test_rust_service.RustHTTPS.test_owner_note_revision_and_admin_void_restore_keep_original_financial_history) ... ok\ntest_sales_cannot_publish_prices_settings_accounts_plan_or_read_backups (test_rust_service.RustHTTPS.test_sales_cannot_publish_prices_settings_accounts_plan_or_read_backups) ... ok\ntest_sales_catalog_calculation_order_receipt_and_list_never_contain_finances (test_rust_service.RustHTTPS.test_sales_catalog_calculation_order_receipt_and_list_never_contain_finances) ... ok\ntest_two_actual_https_clients_same_request_create_one_order (test_rust_service.RustHTTPS.test_two_actual_https_clients_same_request_create_one_order) ... ok\ntest_unsubmitted_pending_retries_same_id_and_other_identity_cannot_replay (test_rust_service.RustHTTPS.test_unsubmitted_pending_retries_same_id_and_other_identity_cannot_replay) ... ok\ntest_native_output_error_keeps_order_and_original_sha (test_rust_service.RustOutputs.test_native_output_error_keeps_order_and_original_sha) ... ok\ntest_native_output_financial_revision_unchanged (test_rust_service.RustOutputs.test_native_output_financial_revision_unchanged) ... ok\ntest_native_png_frozen_payload (test_rust_service.RustOutputs.test_native_png_frozen_payload) ... ok\ntest_native_price_changes_keep_original_output (test_rust_service.RustOutputs.test_native_price_changes_keep_original_output) ... ok\ntest_native_private_cost_output_boundary (test_rust_service.RustOutputs.test_native_private_cost_output_boundary) ... ok\ntest_native_quote_workbook_exact_and_filtered (test_rust_service.RustOutputs.test_native_quote_workbook_exact_and_filtered) ... ok\ntest_v3_restore_keeps_output_queue_files_receipts_and_backend (test_rust_service.RustOutputs.test_v3_restore_keeps_output_queue_files_receipts_and_backend) ... ok\ntest_bounds_duplicate_query_future_versions_and_cursor_offset_rejected (test_rust_service.RustQueries.test_bounds_duplicate_query_future_versions_and_cursor_offset_rejected) ... ok\ntest_changed_view_and_restart_refuse_cursor_without_silent_page_drift (test_rust_service.RustQueries.test_changed_view_and_restart_refuse_cursor_without_silent_page_drift) ... ok\ntest_cursor_tamper_cross_actor_filter_or_limit_are_refused (test_rust_service.RustQueries.test_cursor_tamper_cross_actor_filter_or_limit_are_refused) ... ok\ntest_first_scan_then_page_hits_do_not_rescan_full_ledger (test_rust_service.RustQueries.test_first_scan_then_page_hits_do_not_rescan_full_ledger) ... ok\ntest_literal_unicode_and_sql_wildcard_queries_do_not_change_scope (test_rust_service.RustQueries.test_literal_unicode_and_sql_wildcard_queries_do_not_change_scope) ... ok\ntest_sales_scope_search_and_total_never_expose_other_owner_or_cost (test_rust_service.RustQueries.test_sales_scope_search_and_total_never_expose_other_owner_or_cost) ... ok\ntest_signed_cursor_same_snapshot_returns_each_order_once (test_rust_service.RustQueries.test_signed_cursor_same_snapshot_returns_each_order_once) ... ok\ntest_state_filter_total_counts_void_but_effective_totals_are_zero (test_rust_service.RustQueries.test_state_filter_total_counts_void_but_effective_totals_are_zero) ... ok\ntest_submit_note_void_restore_are_exact_audit_deltas (test_rust_service.RustQueries.test_submit_note_void_restore_are_exact_audit_deltas) ... ok\ntest_summary_cache_is_bounded_and_rebuilds_without_financial_change (test_rust_service.RustQueries.test_summary_cache_is_bounded_and_rebuilds_without_financial_change) ... ok\ntest_report_output_cannot_adopt_an_existing_or_real_data_directory (test_p06_ledger_check.P06LedgerCheckTests.test_report_output_cannot_adopt_an_existing_or_real_data_directory) ... ok\ntest_source_fingerprints_are_bytes_based_without_default_gbk_reads (test_p06_ledger_check.P06LedgerCheckTests.test_source_fingerprints_are_bytes_based_without_default_gbk_reads) ... ok\ntest_windows_mode_refuses_auxiliary_platform_before_native_execution (test_p06_ledger_check.P06LedgerCheckTests.test_windows_mode_refuses_auxiliary_platform_before_native_execution) ... ok\ntest_windows_smoke_cannot_be_run_as_a_platform_simulation (test_p06_ledger_check.P06LedgerCheckTests.test_windows_smoke_cannot_be_run_as_a_platform_simulation) ... ok\ntest_actual_service_worker_and_journal_receipt_recovery_do_not_repeat_orders (test_service_outputs.OutputHTTPS.test_actual_service_worker_and_journal_receipt_recovery_do_not_repeat_orders) ... ok\ntest_http_output_wrong_owner_version_and_forged_fields_are_rejected (test_service_outputs.OutputHTTPS.test_http_output_wrong_owner_version_and_forged_fields_are_rejected) ... ok\ntest_request_id_cannot_cross_financial_and_output_namespaces (test_service_outputs.OutputHTTPS.test_request_id_cannot_cross_financial_and_output_namespaces) ... ok\ntest_two_real_https_clients_same_output_request_converge_to_one_job (test_service_outputs.OutputHTTPS.test_two_real_https_clients_same_output_request_converge_to_one_job) ... ok\ntest_admin_public_report_also_excludes_cost_but_internal_stays_private (test_service_outputs.OutputTests.test_admin_public_report_also_excludes_cost_but_internal_stays_private) ... ok\ntest_backup_v1_remains_readable_without_silent_output_creation (test_service_outputs.OutputTests.test_backup_v1_remains_readable_without_silent_output_creation) ... ok\ntest_backup_v2_restores_queue_original_files_and_receipts_in_maintenance (test_service_outputs.OutputTests.test_backup_v2_restores_queue_original_files_and_receipts_in_maintenance) ... ok\ntest_blob_tamper_and_link_are_refused (test_service_outputs.OutputTests.test_blob_tamper_and_link_are_refused) ... ok\ntest_corrupt_output_blob_prevents_new_complete_backup_success (test_service_outputs.OutputTests.test_corrupt_output_blob_prevents_new_complete_backup_success) ... ok\ntest_download_new_copy_verifies_bytes_and_cannot_replace_existing_file (test_service_outputs.OutputTests.test_download_new_copy_verifies_bytes_and_cannot_replace_existing_file) ... ok\ntest_excel_permission_failure_retry_never_books_or_changes_original_order (test_service_outputs.OutputTests.test_excel_permission_failure_retry_never_books_or_changes_original_order) ... ok\ntest_existing_host_extension_backup_failure_creates_no_output_store (test_service_outputs.OutputTests.test_existing_host_extension_backup_failure_creates_no_output_store) ... ok\ntest_foreign_existing_file_is_not_overwritten (test_service_outputs.OutputTests.test_foreign_existing_file_is_not_overwritten) ... ok\ntest_later_note_state_and_price_do_not_rewrite_original_output_snapshot (test_service_outputs.OutputTests.test_later_note_state_and_price_do_not_rewrite_original_output_snapshot) ... ok\ntest_legacy_host_activation_requires_admin_owner_lock_and_complete_backup (test_service_outputs.OutputTests.test_legacy_host_activation_requires_admin_owner_lock_and_complete_backup) ... ok\ntest_missing_directory_keeps_order_and_cached_bytes_retry_uses_new_published_directory (test_service_outputs.OutputTests.test_missing_directory_keeps_order_and_cached_bytes_retry_uses_new_published_directory) ... ok\ntest_output_enqueue_and_duplicate_do_not_write_financial_ledger (test_service_outputs.OutputTests.test_output_enqueue_and_duplicate_do_not_write_financial_ledger) ... ok\ntest_output_queue_bound_and_format_negotiation_reject_before_write (test_service_outputs.OutputTests.test_output_queue_bound_and_format_negotiation_reject_before_write) ... ok\ntest_png_is_based_on_saved_order_and_has_payload_metadata (test_service_outputs.OutputTests.test_png_is_based_on_saved_order_and_has_payload_metadata) ... ok\ntest_public_workbook_is_exact_role_filtered_and_formula_free (test_service_outputs.OutputTests.test_public_workbook_is_exact_role_filtered_and_formula_free) ... ok\ntest_publish_failure_leaves_no_partial_or_claim_of_done (test_service_outputs.OutputTests.test_publish_failure_leaves_no_partial_or_claim_of_done) ... ok\ntest_reply_or_process_loss_after_publish_recovers_same_file_without_duplication (test_service_outputs.OutputTests.test_reply_or_process_loss_after_publish_recovers_same_file_without_duplication) ... ok\ntest_restart_reopens_original_failed_queue_and_cached_blob (test_service_outputs.OutputTests.test_restart_reopens_original_failed_queue_and_cached_blob) ... ok\ntest_revoked_or_changed_role_account_job_cannot_be_published (test_service_outputs.OutputTests.test_revoked_or_changed_role_account_job_cannot_be_published) ... ok\ntest_sales_other_owner_and_internal_report_are_denied (test_service_outputs.OutputTests.test_sales_other_owner_and_internal_report_are_denied) ... ok\ntest_same_request_changed_kind_revision_or_actor_is_refused (test_service_outputs.OutputTests.test_same_request_changed_kind_revision_or_actor_is_refused) ... ok\ntest_snapshot_payload_and_receipt_are_immutable (test_service_outputs.OutputTests.test_snapshot_payload_and_receipt_are_immutable) ... ok\ntest_unknown_output_schema_refused_without_repair_or_overwrite (test_service_outputs.OutputTests.test_unknown_output_schema_refused_without_repair_or_overwrite) ... ok\ntest_backup_restore_retains_exact_source_rows_prices_and_original_retry (test_legacy_import.LegacyImportTests.test_backup_restore_retains_exact_source_rows_prices_and_original_retry) ... ok\ntest_before_commit_failure_is_not_a_partial_import (test_legacy_import.LegacyImportTests.test_before_commit_failure_is_not_a_partial_import) ... ok\ntest_changed_ooxml_same_stable_orders_reuses_orders_without_duplication (test_legacy_import.LegacyImportTests.test_changed_ooxml_same_stable_orders_reuses_orders_without_duplication) ... ok\ntest_changed_stable_order_is_refused_without_overwriting_existing_rows (test_legacy_import.LegacyImportTests.test_changed_stable_order_is_refused_without_overwriting_existing_rows) ... ok\ntest_corrupt_duplicate_zip_and_xml_entities_are_refused_without_default_zero (test_legacy_import.LegacyImportTests.test_corrupt_duplicate_zip_and_xml_entities_are_refused_without_default_zero) ... ok\ntest_discount_coefficient_and_subtotal_must_match_core_order_sequence (test_legacy_import.LegacyImportTests.test_discount_coefficient_and_subtotal_must_match_core_order_sequence) ... ok\ntest_duplicate_source_same_bytes_other_path_has_one_batch_and_original_receipt (test_legacy_import.LegacyImportTests.test_duplicate_source_same_bytes_other_path_has_one_batch_and_original_receipt) ... ok\ntest_empty_P01_evidence_shape_imports_zero_orders_and_preserves_appendices (test_legacy_import.LegacyImportTests.test_empty_P01_evidence_shape_imports_zero_orders_and_preserves_appendices) ... ok\ntest_formula_with_and_without_cached_value_is_never_opened_or_evaluated (test_legacy_import.LegacyImportTests.test_formula_with_and_without_cached_value_is_never_opened_or_evaluated) ... ok\ntest_identified_note_reimport_reuses_original_note_id (test_legacy_import.LegacyImportTests.test_identified_note_reimport_reuses_original_note_id) ... ok\ntest_identified_same_second_orders_keep_distinct_ids_and_exact_rows (test_legacy_import.LegacyImportTests.test_identified_same_second_orders_keep_distinct_ids_and_exact_rows) ... ok\ntest_invalid_identity_summary_receipt_and_unknown_sheet_are_source_quarantines (test_legacy_import.LegacyImportTests.test_invalid_identity_summary_receipt_and_unknown_sheet_are_source_quarantines) ... ok\ntest_items_and_legacy_json_import_historical_catalog_without_publication (test_legacy_import.LegacyImportTests.test_items_and_legacy_json_import_historical_catalog_without_publication) ... ok\ntest_json_duplicate_invalid_boolean_and_unknown_format_do_not_import (test_legacy_import.LegacyImportTests.test_json_duplicate_invalid_boolean_and_unknown_format_do_not_import) ... ok\ntest_legacy_tagged_alias_and_reordered_variants_match_exact_amounts (test_legacy_import.LegacyImportTests.test_legacy_tagged_alias_and_reordered_variants_match_exact_amounts) ... ok\ntest_mid_batch_failure_rolls_back_prices_orders_lines_receipts_and_batch (test_legacy_import.LegacyImportTests.test_mid_batch_failure_rolls_back_prices_orders_lines_receipts_and_batch) ... ok\ntest_missing_summary_uses_exact_details_without_inventing_a_footer (test_legacy_import.LegacyImportTests.test_missing_summary_uses_exact_details_without_inventing_a_footer) ... ok\ntest_new_hash_legacy_lookalike_is_refused_rather_than_merged_or_duplicated (test_legacy_import.LegacyImportTests.test_new_hash_legacy_lookalike_is_refused_rather_than_merged_or_duplicated) ... ok\ntest_normalized_quantity_cannot_disagree_with_preserved_raw_expression (test_legacy_import.LegacyImportTests.test_normalized_quantity_cannot_disagree_with_preserved_raw_expression) ... ok\ntest_note_void_event_history_and_source_time_are_preserved (test_legacy_import.LegacyImportTests.test_note_void_event_history_and_source_time_are_preserved) ... ok\ntest_numeric_raw_expression_and_exact_integer_cents_survive_import (test_legacy_import.LegacyImportTests.test_numeric_raw_expression_and_exact_integer_cents_survive_import) ... ok\ntest_partial_quarantine_requires_explicit_ack_and_keeps_source_difference (test_legacy_import.LegacyImportTests.test_partial_quarantine_requires_explicit_ack_and_keeps_source_difference) ... ok\ntest_preview_does_not_touch_source_or_database_and_public_report_hides_customer (test_legacy_import.LegacyImportTests.test_preview_does_not_touch_source_or_database_and_public_report_hides_customer) ... ok\ntest_reply_loss_uses_original_batch_query_and_exact_retry_without_duplicates (test_legacy_import.LegacyImportTests.test_reply_loss_uses_original_batch_query_and_exact_retry_without_duplicates) ... ok\ntest_review_digest_and_owner_are_bound_not_caller_financials (test_legacy_import.LegacyImportTests.test_review_digest_and_owner_are_bound_not_caller_financials) ... ok\ntest_review_source_snapshot_is_private_and_original_bytes_are_preserved (test_legacy_import.LegacyImportTests.test_review_source_snapshot_is_private_and_original_bytes_are_preserved) ... ok\ntest_row_and_file_remarks_are_not_assigned_by_last_customer_guess (test_legacy_import.LegacyImportTests.test_row_and_file_remarks_are_not_assigned_by_last_customer_guess) ... ok\ntest_sales_role_cannot_import_or_obtain_a_batch_receipt (test_legacy_import.LegacyImportTests.test_sales_role_cannot_import_or_obtain_a_batch_receipt) ... ok\ntest_same_named_footer_typed_product_remains_normal_line (test_legacy_import.LegacyImportTests.test_same_named_footer_typed_product_remains_normal_line) ... ok\ntest_source_size_and_link_policy_reject_before_reading (test_legacy_import.LegacyImportTests.test_source_size_and_link_policy_reject_before_reading) ... ok\ntest_tampered_provenance_is_refused_against_immutable_batch_receipt (test_legacy_import.LegacyImportTests.test_tampered_provenance_is_refused_against_immutable_batch_receipt) ... ok\ntest_two_same_prefix_without_footer_are_quarantined_not_merged (test_legacy_import.LegacyImportTests.test_two_same_prefix_without_footer_are_quarantined_not_merged) ... ok\ntest_two_sqlite_connections_same_source_converge_to_one_batch (test_legacy_import.LegacyImportTests.test_two_sqlite_connections_same_source_converge_to_one_batch) ... ok\ntest_two_unidentified_same_prefix_with_explicit_footers_are_distinct (test_legacy_import.LegacyImportTests.test_two_unidentified_same_prefix_with_explicit_footers_are_distinct) ... ok\ntest_unknown_recorded_rule_version_is_quarantined_even_if_amounts_match (test_legacy_import.LegacyImportTests.test_unknown_recorded_rule_version_is_quarantined_even_if_amounts_match) ... ok\ntest_zip_expansion_and_sheet_dimension_limits_reject_before_materializing_cells (test_legacy_import.LegacyImportTests.test_zip_expansion_and_sheet_dimension_limits_reject_before_materializing_cells) ... ok\ntest_actual_sales_login_is_denied_before_backup_or_ledger_write (test_p05_import_entry.ImportEntryTests.test_actual_sales_login_is_denied_before_backup_or_ledger_write) ... ok\ntest_changed_review_hash_does_not_open_host_or_ask_password (test_p05_import_entry.ImportEntryTests.test_changed_review_hash_does_not_open_host_or_ask_password) ... ok\ntest_failed_complete_backup_keeps_ledger_unchanged (test_p05_import_entry.ImportEntryTests.test_failed_complete_backup_keeps_ledger_unchanged) ... ok\ntest_off_windows_blocks_before_source_or_output_access (test_p05_import_entry.ImportEntryTests.test_off_windows_blocks_before_source_or_output_access) ... ok\ntest_owner_must_exist_and_be_enabled (test_p05_import_entry.ImportEntryTests.test_owner_must_exist_and_be_enabled) ... ok\ntest_preview_report_failure_never_claims_a_completed_import (test_p05_import_entry.ImportEntryTests.test_preview_report_failure_never_claims_a_completed_import) ... ok\ntest_real_login_owner_and_complete_backup_gate_import (test_p05_import_entry.ImportEntryTests.test_real_login_owner_and_complete_backup_gate_import) ... ok\ntest_report_failure_cannot_disguise_a_committed_batch (test_p05_import_entry.ImportEntryTests.test_report_failure_cannot_disguise_a_committed_batch) ... ok\ntest_running_host_owner_lock_refuses_cli_before_import (test_p05_import_entry.ImportEntryTests.test_running_host_owner_lock_refuses_cli_before_import) ... ok\n\n----------------------------------------------------------------------\nRan 165 tests in 106.451s\n\nOK\n",
+    "failure_details": []
+  },
+  "legacy_worker_build": {
+    "source_commit": "223e86e0bef90dfef083281a42f8d7919b13c07d",
+    "command": [
+      "/tmp/777-p06-cargo/bin/cargo",
+      "+1.97.1",
+      "build",
+      "--locked",
+      "--offline",
+      "--release",
+      "--bin",
+      "quote-ledger",
+      "--manifest-path",
+      "/tmp/777-p06-legacy-worker-jmxs7hby/Cargo.toml"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "   Compiling version_check v0.9.5\n   Compiling proc-macro2 v1.0.107\n   Compiling autocfg v1.5.1\n   Compiling unicode-ident v1.0.27\n   Compiling quote v1.0.47\n   Compiling find-msvc-tools v0.1.14\n   Compiling shlex v2.0.1\n   Compiling typenum v1.20.1\n   Compiling serde_core v1.0.228\n   Compiling cc v1.8.0\n   Compiling pkg-config v0.3.34\n   Compiling vcpkg v0.2.15\n   Compiling generic-array v0.14.7\n   Compiling zmij v1.0.23\n   Compiling num-traits v0.2.19\n   Compiling itoa v1.0.18\n   Compiling serde_json v1.0.151\n   Compiling serde v1.0.228\n   Compiling syn v2.0.119\n   Compiling libc v0.2.190\n   Compiling foldhash v0.1.5\n   Compiling hashbrown v0.15.5\n   Compiling powerfmt v0.2.1\n   Compiling cfg-if v1.0.5\n   Compiling memchr v2.8.3\n   Compiling deranged v0.5.9\n   Compiling block-buffer v0.10.4\n   Compiling crypto-common v0.1.7\n   Compiling num-integer v0.1.46\n   Compiling digest v0.10.7\n   Compiling num-bigint v0.4.6\n   Compiling libsqlite3-sys v0.35.0\n   Compiling hashlink v0.10.0\n   Compiling fallible-iterator v0.3.0\n   Compiling time-core v0.1.6\n   Compiling num-conv v0.1.0\n   Compiling cpufeatures v0.2.17\n   Compiling bitflags v2.13.2\n   Compiling fallible-streaming-iterator v0.1.9\n   Compiling smallvec v1.16.3\n   Compiling sha2 v0.10.9\n   Compiling getrandom v0.2.16\n   Compiling time v0.3.44\n   Compiling base64 v0.22.1\n   Compiling serde_derive v1.0.228\n   Compiling quote-core v0.1.0 (/tmp/777-p06-legacy-worker-jmxs7hby/crates/quote-core)\n   Compiling rusqlite v0.37.0\n   Compiling quote-ledger v0.1.0 (/tmp/777-p06-legacy-worker-jmxs7hby/crates/quote-ledger)\n    Finished `release` profile [optimized] target(s) in 44.48s\n"
+  },
+  "shadow_comparison": {
+    "status": "passed",
+    "cases_run": 561,
+    "categories": {
+      "golden": 53,
+      "rational_corpus": 200,
+      "numbers": 114,
+      "empty_k": 3,
+      "percent": 18,
+      "core_limits": 3,
+      "core_edges": 7,
+      "json_integer_precision": 1,
+      "config": 111,
+      "config_encoding": 3,
+      "config_version": 5,
+      "config_legacy": 24,
+      "config_refresh": 2,
+      "session": 17
+    },
+    "failed": [],
+    "full_comparison_artifact": "comparisons.json",
+    "artifact_sha256": "a99552a82f88d7521c7541f2464e6d2fd332685044ed1836d2ad127fa76a228b",
+    "stderr": ""
+  },
+  "comparisons_equal_existing_asset": true,
+  "final_changed_fingerprints": [
+    "THIRD_PARTY_NOTICES.md",
+    "tools/p05_import.py",
+    "tools/p06_excel_check.py"
+  ],
+  "final_tool_checks": {
+    "status": "passed",
+    "tests_run": 7,
+    "failures": 0,
+    "errors": 0,
+    "log": "test_fingerprints_use_bytes_and_cover_format_paths_and_cli (test_p06_excel_check.P06ExcelCheckTests.test_fingerprints_use_bytes_and_cover_format_paths_and_cli) ... ok\ntest_native_smoke_does_not_accept_simulated_platform_identity (test_p06_excel_check.P06ExcelCheckTests.test_native_smoke_does_not_accept_simulated_platform_identity) ... ok\ntest_non_windows_refuses_before_native_commands (test_p06_excel_check.P06ExcelCheckTests.test_non_windows_refuses_before_native_commands) ... ok\ntest_original_reports_and_data_directories_cannot_be_overwritten (test_p06_excel_check.P06ExcelCheckTests.test_original_reports_and_data_directories_cannot_be_overwritten) ... ok\ntest_apply_uses_selected_native_reader_and_complete_backup_gate (test_native_excel.NativeEntryTests.test_apply_uses_selected_native_reader_and_complete_backup_gate) ... ok\ntest_changed_native_review_does_not_request_password_or_write_ledger (test_native_excel.NativeEntryTests.test_changed_native_review_does_not_request_password_or_write_ledger) ... ok\ntest_explicit_native_preview_keeps_source_private_and_ledger_unchanged (test_native_excel.NativeEntryTests.test_explicit_native_preview_keeps_source_private_and_ledger_unchanged) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 2.500s\n\nOK\n",
+    "implementation_sha256_LF": {
+      "Cargo.lock": "eff65eb97539dccaba6c31556ff3bcb6caefec7b7ebd36e0b4e1ff2b1e7df209",
+      "Cargo.toml": "82586765ab08b648dcffa4ff7903415c592e66728f269efc0b97172892babcd9",
+      "THIRD_PARTY_NOTICES.md": "c78a4c03ca9c9cc958f8c017c134967b73f350b4b1c2e017de5af5d59768959a",
+      "crates/quote-core/Cargo.toml": "76e14d102f5ee24043c1c5e0c0b1b78ee13b831b4680d5edc9559f39adc5a390",
+      "crates/quote-core/src/bin/quote-shadow.rs": "84dc57cda725bbb643afd9a3366f40254b27e6ff46f7ca037a2638f22ab40e5a",
+      "crates/quote-core/src/calculation.rs": "c058322fec81b22a9f3f62ef03d6a8c62e827fac6a60a59ea7ba24b2dfe7d564",
+      "crates/quote-core/src/configuration.rs": "273bcb4171309b146ffd020ac80fbd8496a192ab7d4f2dabc7596bb9e11ee46a",
+      "crates/quote-core/src/lib.rs": "c90c4bf93211c7b0eb0d016344f22c47b725931d94e979cbea014a5cd6500d90",
+      "crates/quote-core/src/models.rs": "f7bd537baa71784bceac468e29df2b24edd5f1b51a048887a13621ec6a35a356",
+      "crates/quote-core/src/numbers.rs": "14ff6f0a78732294347b9025a68c56d9e78b1803433ac0d2d979eeb440d0d9d2",
+      "crates/quote-core/src/session.rs": "7e54fd6e111c6a6260f32db7694c549fb52079c03178c910a24fb4d767d183c6",
+      "crates/quote-core/tests/domain.rs": "d2ebf7dbc77809190e6143f74aabd7dd19236ea5085657f0af6de7504fdb457c",
+      "crates/quote-excel/Cargo.toml": "bbbab0196198f3d1e3f0e67679dca3bbff24b5a49cbc3f806327378c57ea68b9",
+      "crates/quote-excel/src/lib.rs": "5e54a69bad470a96fa9cf80ceca95296334d4c69e24e2009816ff736b7997c39",
+      "crates/quote-excel/src/read.rs": "7649852bf3a11182211a23f32cc36968d8076cbacd5d51019b467e3bb8f20d1b",
+      "crates/quote-excel/src/write.rs": "cc82df45a10bb38db93e7a7330dc61ceaed2467fb704ccfe90f9bbca581d0d88",
+      "crates/quote-excel/tests/format.rs": "3b7a3c31db533926f36dacfa6f9ebc7cb97cb929c8c44e1b3e7c0e903b22fde2",
+      "crates/quote-ledger/Cargo.toml": "73714cd98ef4103258e3b1976c47cc1c54a1242a8c06fb160079354f962ea7ab",
+      "crates/quote-ledger/src/integrity.rs": "2bf622a492d1c9d853c1a685899797b090e0f96a1d1ebd1d2102524f80713e73",
+      "crates/quote-ledger/src/lib.rs": "cb084fe1fef7a9cc60836ca4551578b2fd11a42c781f295d13ef95655c04406a",
+      "crates/quote-ledger/src/main.rs": "06242b3f96bc6d0095b2ab15e0aa2b398953d9a409c1dc2e97804a849e271854",
+      "crates/quote-ledger/src/paths.rs": "b0d9322aa61daa01e877c05cd58bef5888192c04b205595ae512e22255e64f14",
+      "crates/quote-ledger/src/store.rs": "c6aaa4b6a145a1bb69ef1897e0978598f15645098b67e3fe8a0bd275a370a925",
+      "docs/baseline/p01-04-golden.json": "dc7ee8ee1689aa4af2e35801eac8eeb90a6a321a05d70f8f921a28695a91eb64",
+      "docs/verification/P05-01-schema.sql": "66f252bca5bc420ddef841c9ba761ee05cbcf9006e48f62dbf084308220fb8e0",
+      "docs/verification/P06-02-dependencies.json": "445bb5d6e87f18cfb0c422e3940e4b44dfb0b6c46a8ca2d5f6031000b87a6886",
+      "docs/verification/P06-02-protocol.json": "3fe4fcd55bc2943037059582cce8daccee2ad4d1ae9c22e28ea3b500ac358382",
+      "docs/verification/P06-03-candidates.json": "e4b679cffcb676cca5d822a4c74e90985044509a1c86449754b19bec8abf5da9",
+      "docs/verification/P06-03-dependencies.json": "6902b874ef178d9c96626c02cc83b4af2c9b097f4840636ab23f4bedb955c760",
+      "docs/verification/P06-03-protocol.json": "3476fffbcc32e4670d6cdcb1cbb316e81b60b053f4e57176867e01371063f807",
+      "quote_core/__init__.py": "3f515c88484f84a4349a48f107e12d83db966ce55ed1efb729a38bcf88d52683",
+      "quote_core/calculation.py": "f9b0355a2d84005ea09a7c7038bbd61882f13656baf2796d4addd387d6eab6b6",
+      "quote_core/configuration.py": "d307eb507cd0f424516b681bc8bf2a56a71c93d6015779ee14a9e75b5f156ff7",
+      "quote_core/models.py": "d4339ceb5e017d5f38f6c4e6454a17e96ea4b846b95b0ee379ddd065764910a5",
+      "quote_core/numbers.py": "321c6448b2ebb603e5462ffcbb985465a29f69d0e9a8e03946fd1a436a7005e3",
+      "quote_core/session.py": "d48cc3abe46250a5e5e58cf62bd00deb3f9e2759b10ae6279550abeaadf5d02d",
+      "quote_core/snapshot.py": "e4e525917a3c1fe4dd21478942552b2fca595defad8ffbde4fa3d84223c3e8ba",
+      "quote_files/__init__.py": "df245ae88782f9067a0d9735547d30025a36fc9c5f659de124a076c081434329",
+      "quote_files/cache.py": "3c1ce3b974bb731af7b76a7d2ab0d976a5c9838daae3e5cedc77bd7e7aa9fe38",
+      "quote_files/configuration.py": "463d759e09f89c9ff1bc4796652502e1d6972dc65f988eb3f17e4a457204097c",
+      "quote_files/documents.py": "486d917f0dc3fdb7ae1e2e6654b4bc79b34dcb7f756988c925b6331aaa02648e",
+      "quote_files/images.py": "ba5f2535c11a313840b9d064088ada77f131086f38810ae70aacc3061a0fd523",
+      "quote_files/metadata.py": "5bbdecfb880b2f3d9c30b78d8eaeb8d2860fa8b0c827af9fa4097217e060bf0b",
+      "quote_files/native_excel.py": "c5a3e3cecb1247c60c4ac4d097ed3338502559bcc13ad43941b976e8a2a8adda",
+      "quote_files/orders.py": "51dcc41972fd7e4cf7d703ff1f84529a643dc3df2dfa8fac0d8fa2d9c32e8c73",
+      "quote_files/quote_images.py": "42e7a39584b71b0e0227ca81ccc001192bb318612e40b36eef987ed23a7f1148",
+      "quote_files/reading.py": "714f478d6b966029baa6a3c9c19cd8d79d9e108bfd29574c1cb421de5729544f",
+      "quote_files/scheduling.py": "52f8a13ae9046cf7c583e48b162dba08fa461c04cc4588831975fb6069279517",
+      "quote_files/schema.py": "59795f6213e446bf4208db87119a5117329c02e9e60e0727ec16ec094f9eb2b1",
+      "quote_files/settings.py": "bfa84beef5ef8bb97530187058bb9f360789c883ae70a3c9fe31adba32a900c4",
+      "quote_files/transactions.py": "848e6bb73cf5b1ed4f988493ea63b0017de2772edafb2a4597b6e5bf8983477c",
+      "quote_files/views.py": "c9e98eb93795f4843abdd6004ff90aa2c1bebc6b5f134977234d01d77f37f5f3",
+      "quote_files/workbooks.py": "078b71265520b8ebac9d28a0e624a8c1fbca3484c9cfb16eba0c0a6da2099620",
+      "quote_import/__init__.py": "812eb1f7d833b62272e0cce4fed71093d9035e070c71f782ca796f7faad97ad1",
+      "quote_import/adapters.py": "122a71374bf3569558f781e4a7176587e394a2d438341f30989bdc2ee6628a6f",
+      "quote_import/review.py": "2362db1f95ef2b1dba12424f33050380000f2cc6a2c96f09bc52357e49122426",
+      "quote_import/store.py": "78ff3170bc3ddf0be4c8e8558b4760d730a128b314a9cb937d93ec93e4dfb1fc",
+      "quote_ledger/__init__.py": "363f8b0589f93a7ed86bd6c0d6a3188ff4675a243a50f46703ec34a827f8a50f",
+      "quote_ledger/backup.py": "6ded9ba6eb835d7285f5853d1a3a6944cd7f5a14031c6cb927921a49e3cebdd6",
+      "quote_ledger/paths.py": "a1ae6ca24ca018532715e36238daac74f1d35dec61e3fd5a7d1dd074aaad1032",
+      "quote_ledger/schema.py": "6a340565412ff7ed81bea8cc99342ba615a158727b47324a49dd91094f248f66",
+      "quote_ledger/security.py": "bbca95610cdb319c1ac1facb7292068bd3e85a365ef6c9f7546d4506b21cb035",
+      "quote_ledger/store.py": "9b2216b2c108237785a3738dab0326f10c3a963417992043e17c303dd6c46cac",
+      "quote_service/__init__.py": "036a887fb3d9d16613e464c53851effe27dde5212e859f95b09899dcfb2b3643",
+      "quote_service/app.py": "24a1144acf315c151655a63c5d705310d876577bb88a5ee350d6fa69cd0863b2",
+      "quote_service/auth.py": "9559eb53703a179f579dac755aa07ec512719e60f9971a46c82c9d9c23e315a2",
+      "quote_service/backend.py": "fe02d0a96fad1bb5d1ca1f4ffcb1694266b8e035667ca0e91474759f20b7188c",
+      "quote_service/client.py": "0081546d545c34239d8f49fe5d6f4a6897af061189f182b7c3b05ca26b614e6b",
+      "quote_service/hosting.py": "c4b8a12d5045abcab1842f7c6f9121c08c56b4665740aa4aa5802378380dd2a0",
+      "quote_service/journal.py": "838f913940e740e8b01b54eed148191c5b048e95d738e2ec3b30d76001f4fb48",
+      "quote_service/output_render.py": "bbecd648cae17f9f291c40d28234e099d4641aee6be428acdece8fd3e647731d",
+      "quote_service/outputs.py": "88a63c695e7e0097f06851e83449b0f58259f65b700f3545683f8be0998e5623",
+      "quote_service/protocol.py": "0ea0d0156782a5543f3898a8ab25940023b22e329770761f9ae0a0f3b3fb6c60",
+      "quote_service/query.py": "96fd898985841b050981dd363bd2591047c3b3985fc59fd953655fc719a1556e",
+      "quote_service/recovery.py": "ab10e07945cd356f549adcd6fcc5d51a03575ed0dff65dd8aabdf5e7634e33ed",
+      "quote_service/rust_ledger.py": "71a5f1b33dfd94276a514662b24c72ab727df408e63b53e88f0351608dc8950b",
+      "requirements-service.txt": "f94fab36ee22b8768e33055b1bd2a8dda466eed6130b33ee7735a10b3613b220",
+      "rust-toolchain.toml": "559f488c181e0e9e77cf17c29de663977f036ec7ff2e2060585714bf53c52d62",
+      "tests/import_fixture.py": "6e12cceb6bf5d421cd3ef4fd586bad296158986821e7d3b068058374bba4ddc3",
+      "tests/legacy_worker_fixture.py": "6091929b8f7610a752039418f9d4a8364a9bf1076046def265e521e7ae97cea1",
+      "tests/rust_service_fixture.py": "2cf40a1f5b1cd6da9095dbf74447c6871390bc0877f3e30e6ed859f639a5af09",
+      "tests/service_fixture.py": "bf18f7042695dc9886e80043819c641e3776c2f46233021552e1b042788352c5",
+      "tests/test_native_excel.py": "01d24e6bf96ea986c6d46167e06e477062217c25cf3451552d58e97023ab7344",
+      "tests/test_p05_import_entry.py": "4e8fe3340b8dd8e9a84b46ea578194c2c4b612e06dff293b393136ec979b3a44",
+      "tests/test_p06_excel_check.py": "dbfd43a88ce727d77df3158c87048a410c913e2f8e3fd9835d9ff311f750a74a",
+      "tests/test_p06_ledger_check.py": "871855700bdbaaeb81ce32ef9478748a03b4cc2274a1df7490f2b8e1ad4cfa23",
+      "tests/test_rust_ledger.py": "aca1c3a89a52feb0dbbd6aa59ed7e59fc6e75694f1538afac2948e6e0c6727d4",
+      "tests/test_rust_service.py": "1a37487c5d698c141e4b4663a2856d43d1907bdecfe9f81a64a334ee5ed0edc9",
+      "tests/test_service_boundary.py": "a285d1e02021ba58eb03a746bf757d5147002ce758f188b39572e8bf7500fc2f",
+      "tests/test_service_outputs.py": "c8d470756d05a9aad6a5df4d6383846414674c19cad7394db31f2b02999af7c1",
+      "tests/test_service_query.py": "854572482d1e8452b6e28e041738d54c229a5e06d1ea9816d5664695d095ee8f",
+      "tools/p01_oracle.py": "8217df29596b2b49fc0d6b4800ee97ca160907f6e6cd735fc2f0c2b733875816",
+      "tools/p05_import.py": "5737c5f1833549d7d2e8b8fc8c51345dcf0fb8b63bb9e9480a7a7fa304e84d1e",
+      "tools/p06_cases.py": "bcc7d8966b4862d46a297b833e78b3118e83a71b2604abcde6644a2e09ccbd87",
+      "tools/p06_core_check.py": "0fdbee292d07824a7090ca08d1c160c268cb1ecefff95d82b8d7bd41149fb94d",
+      "tools/p06_excel_check.py": "a7071b7c28e5f57e91f585318c06caabb5322555a8f9795440be54dd5903b460",
+      "tools/p06_ledger_check.py": "5db42787afc25b38fc881d0d4f450ebab62711f60840e4732e88e4745a9816c5",
+      "tools/quote_service_host.py": "28302ae9a967d817c4f1dff8a4d6fc51107a9d321044736016abf0ba16ee19f4"
+    }
+  },
+  "auxiliary_protocol_rehearsal": {
+    "status": "passed",
+    "backend": "rust",
+    "excel_backend": "rust-excel-v1",
+    "source_hash_and_mtime_unchanged": true,
+    "complete_native_and_reference_import_plan_equal": true,
+    "native_repeat_batch_single_commit": true,
+    "DPAPI_native_unknown_commit_and_original_receipt_recovered": false,
+    "actual_HTTPS_original_clients_native_excel": true,
+    "independent_reader_all_text_money_front_zero_and_styles": true,
+    "private_cost_output_restricted": true,
+    "public_directory_only_quote_excel": true,
+    "v3_native_excel_files_receipts_and_ledger_restore_equal": true,
+    "old_sessions_removed_on_restore": true,
+    "inventory": {
+      "active_cost_cents": "4600",
+      "active_income_cents": "11500",
+      "active_profit_cents": "6900",
+      "counts": {
+        "audit_events": 7,
+        "import_batches": 1,
+        "lines": 4,
+        "notes": 1,
+        "orders": 3,
+        "price_versions": 2,
+        "requests": 7
+      },
+      "ledger_id": "9ecd4eb8-3495-4273-ab09-247f709a645b",
+      "revision": 7,
+      "schema_hash": "96619d105269c85fa0d0354050ca97af0af290ba6485913867ed070962aff003",
+      "schema_version": 1
+    },
+    "host_private_directory_native_security": {
+      "status": "auxiliary_no_native_security_claim"
+    },
+    "scope": "Auxiliary native workbook/real HTTPS/import/output/backup protocol rehearsal with memory journal; no Windows DPAPI/ACL, GUI, installed service, real E/share or production claims",
+    "sandbox_cleaned": true
+  },
+  "full_checks": {
+    "status": "passed",
+    "tests_run": 626,
+    "failures": 0,
+    "errors": 0,
+    "skipped": [],
+    "report": "P06-03-full-checks.json"
+  },
+  "development_observations": [
+    {
+      "issue": "Missing explicit close of absent inlineStr content changed review SHA in initial native preview",
+      "resolution": "Distinguish absent inline content from real/shared empty strings, preserving scalar bindings"
+    },
+    {
+      "issue": "Native preview final provenance call still used Python decoder",
+      "resolution": "Route both existing-batch and final provenance verification through the selected format worker"
+    },
+    {
+      "issue": "First new fixture called path-based append_note_and_void with Workbook",
+      "resolution": "Use original fixture Path, preserving genuine notes/void events"
+    },
+    {
+      "issue": "Dimension endpoint alone accepted malformed/out-of-range start",
+      "resolution": "Validate both endpoints and range shape before cells"
+    },
+    {
+      "issue": "Full tests launched from stdin caused three multiprocessing spawn failures",
+      "resolution": "Guarded physical runner completed all626; source tests were unchanged",
+      "original_report": "P06-03-full-runner-failure-01.json"
+    },
+    {
+      "issue": "Auxiliary protocol rehearsal compared download name with shared published name",
+      "resolution": "Assert original distinct download/job name and 777-order-job published name; production naming unchanged"
+    }
+  ],
+  "development_logs": {
+    "first": "test_legacy_import_is_only_previewed_in_memory_and_rust_commits_atomically (test_rust_ledger.RustLedgerTests.test_legacy_import_is_only_previewed_in_memory_and_rust_commits_atomically) ... ERROR\ntest_native_quote_workbook_exact_and_filtered (test_rust_service.RustOutputs.test_native_quote_workbook_exact_and_filtered) ... ok\ntest_native_private_cost_output_boundary (test_rust_service.RustOutputs.test_native_private_cost_output_boundary) ... ok\n\n======================================================================\nERROR: test_legacy_import_is_only_previewed_in_memory_and_rust_commits_atomically (test_rust_ledger.RustLedgerTests.test_legacy_import_is_only_previewed_in_memory_and_rust_commits_atomically)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/workspace/scratch/7a12e3cfd885/repo777/tests/test_rust_ledger.py\", line 127, in test_legacy_import_is_only_previewed_in_memory_and_rust_commits_atomically\n    result=apply_source(self.ledger,ADMIN,owner,raw,'xlsx',expected_review_sha256=plan.review_sha256)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/7a12e3cfd885/repo777/quote_import/store.py\", line 85, in apply_source\n    return ledger.native_import(actor,owner_id,raw,kind,expected_review_sha256=expected_review_sha256,allow_quarantine=allow_quarantine,legacy_single_names=legacy_single_names)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/7a12e3cfd885/repo777/quote_service/rust_ledger.py\", line 149, in native_import\n    result=apply_source(Preview(),actor,owner_id,raw,kind,**kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/7a12e3cfd885/repo777/quote_import/store.py\", line 93, in apply_source\n    raise Conflict('来源或导入适配结果已改变；请重新只读预演')\nquote_ledger.paths.Conflict: 来源或导入适配结果已改变；请重新只读预演\n\n----------------------------------------------------------------------\nRan 3 tests in 1.535s\n\nFAILED (errors=1)\n",
+    "python-first": "test_big_integer_controls_leading_zero_and_formula_like_text_remain_text (test_native_excel.NativeOutputTests.test_big_integer_controls_leading_zero_and_formula_like_text_remain_text) ... ok\ntest_body_tampering_with_unchanged_protocol_is_refused_by_both_validators (test_native_excel.NativeOutputTests.test_body_tampering_with_unchanged_protocol_is_refused_by_both_validators) ... ok\ntest_failed_native_worker_never_falls_back_or_rebooks_order (test_native_excel.NativeOutputTests.test_failed_native_worker_never_falls_back_or_rebooks_order) ... ok\ntest_full_cell_matrix_and_styles_match_independent_python_report (test_native_excel.NativeOutputTests.test_full_cell_matrix_and_styles_match_independent_python_report) ... ok\ntest_native_bytes_are_reproducible_and_no_existing_source_is_edited (test_native_excel.NativeOutputTests.test_native_bytes_are_reproducible_and_no_existing_source_is_edited) ... ok\ntest_native_generation_download_and_private_role_projection_skip_python_workbook_io (test_native_excel.NativeOutputTests.test_native_generation_download_and_private_role_projection_skip_python_workbook_io) ... ok\ntest_all_p01_workbook_shapes_keep_recognition_and_quarantine (test_native_excel.NativeReadTests.test_all_p01_workbook_shapes_keep_recognition_and_quarantine) ... ok\ntest_corrupt_duplicate_zip_entities_utf16_and_cell_duplicates_fail_closed (test_native_excel.NativeReadTests.test_corrupt_duplicate_zip_entities_utf16_and_cell_duplicates_fail_closed) ... ok\ntest_date_iso_serial_and_1904_epoch_equal_independent_reader (test_native_excel.NativeReadTests.test_date_iso_serial_and_1904_epoch_equal_independent_reader) ... ok\ntest_exact_numeric_tokens_and_lossy_legacy_numeric_cells_are_traceable (test_native_excel.NativeReadTests.test_exact_numeric_tokens_and_lossy_legacy_numeric_cells_are_traceable) ... ok\ntest_formula_cache_or_orphan_sheet_is_always_refused (test_native_excel.NativeReadTests.test_formula_cache_or_orphan_sheet_is_always_refused) ... ok\ntest_large_sparse_source_is_complete_and_not_silently_truncated (test_native_excel.NativeReadTests.test_large_sparse_source_is_complete_and_not_silently_truncated) ... ok\ntest_mapped_columns_and_raw_prices_keep_independent_plan (test_native_excel.NativeReadTests.test_mapped_columns_and_raw_prices_keep_independent_plan) ... ok\ntest_native_import_replays_v1_batch_without_python_excel_decoder (test_native_excel.NativeReadTests.test_native_import_replays_v1_batch_without_python_excel_decoder) ... ERROR\ntest_original_identified_legacy_and_note_void_plans_keep_full_binding (test_native_excel.NativeReadTests.test_original_identified_legacy_and_note_void_plans_keep_full_binding) ... ERROR\ntest_row_column_source_and_declared_expansion_limits_are_enforced (test_native_excel.NativeReadTests.test_row_column_source_and_declared_expansion_limits_are_enforced) ... FAIL\ntest_unknown_schema_and_extensions_cannot_change_ledger (test_native_excel.NativeReadTests.test_unknown_schema_and_extensions_cannot_change_ledger) ... ok\n\n======================================================================\nERROR: test_native_import_replays_v1_batch_without_python_excel_decoder (test_native_excel.NativeReadTests.test_native_import_replays_v1_batch_without_python_excel_decoder)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/workspace/scratch/7a12e3cfd885/repo777/quote_import/store.py\", line 58, in verify_provenance\n    raise ValueError('Review mismatch')\nValueError: Review mismatch\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/workspace/scratch/7a12e3cfd885/repo777/tests/test_native_excel.py\", line 59, in test_native_import_replays_v1_batch_without_python_excel_decoder\n    first=apply_source(self.ledger,ADMIN,owner,self.raw,'xlsx',expected_review_sha256=plan.review_sha256)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/7a12e3cfd885/repo777/quote_import/store.py\", line 85, in apply_source\n    return ledger.native_import(actor,owner_id,raw,kind,expected_review_sha256=expected_review_sha256,allow_quarantine=allow_quarantine,legacy_single_names=legacy_single_names)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/7a12e3cfd885/repo777/quote_service/rust_ledger.py\", line 149, in native_import\n    result=apply_source(Preview(),actor,owner_id,raw,kind,**kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/7a12e3cfd885/repo777/quote_import/store.py\", line 260, in apply_source\n    verify_provenance(c)\n  File \"/workspace/scratch/7a12e3cfd885/repo777/quote_import/store.py\", line 73, in verify_provenance\n    raise LedgerError('导入来源/映射/不可变回执核对失败；原库保留') from exc\nquote_ledger.paths.LedgerError: 导入来源/映射/不可变回执核对失败；原库保留\n\n======================================================================\nERROR: test_original_identified_legacy_and_note_void_plans_keep_full_binding (test_native_excel.NativeReadTests.test_original_identified_legacy_and_note_void_plans_keep_full_binding)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/workspace/scratch/7a12e3cfd885/repo777/tests/test_native_excel.py\", line 44, in test_original_identified_legacy_and_note_void_plans_keep_full_binding\n    cases=[self.raw,legacy_bytes(self.raw),mutate_bytes(self.raw,append_note_and_void)]\n                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/7a12e3cfd885/repo777/tests/import_fixture.py\", line 106, in mutate_bytes\n    mutate(book)\n  File \"/workspace/scratch/7a12e3cfd885/repo777/tests/import_fixture.py\", line 63, in append_note_and_void\n    book = open_book(path.read_bytes())\n                     ^^^^^^^^^^^^^^^\nAttributeError: 'Workbook' object has no attribute 'read_bytes'\n\n======================================================================\nFAIL: test_row_column_source_and_declared_expansion_limits_are_enforced (test_native_excel.NativeReadTests.test_row_column_source_and_declared_expansion_limits_are_enforced)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/workspace/scratch/7a12e3cfd885/repo777/tests/test_native_excel.py\", line 115, in test_row_column_source_and_declared_expansion_limits_are_enforced\n    with self.assertRaises(FormatReview):self.ledger.excel_document(raw)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: FormatReview not raised\n\n----------------------------------------------------------------------\nRan 17 tests in 5.636s\n\nFAILED (failures=1, errors=2)\n",
+    "cli": "test_apply_uses_selected_native_reader_and_complete_backup_gate (test_native_excel.NativeEntryTests.test_apply_uses_selected_native_reader_and_complete_backup_gate) ... ok\ntest_explicit_native_preview_keeps_source_private_and_ledger_unchanged (test_native_excel.NativeEntryTests.test_explicit_native_preview_keeps_source_private_and_ledger_unchanged) ... ok\ntest_actual_sales_login_is_denied_before_backup_or_ledger_write (test_p05_import_entry.ImportEntryTests.test_actual_sales_login_is_denied_before_backup_or_ledger_write) ... ok\ntest_changed_review_hash_does_not_open_host_or_ask_password (test_p05_import_entry.ImportEntryTests.test_changed_review_hash_does_not_open_host_or_ask_password) ... ok\ntest_failed_complete_backup_keeps_ledger_unchanged (test_p05_import_entry.ImportEntryTests.test_failed_complete_backup_keeps_ledger_unchanged) ... ok\ntest_off_windows_blocks_before_source_or_output_access (test_p05_import_entry.ImportEntryTests.test_off_windows_blocks_before_source_or_output_access) ... ok\ntest_owner_must_exist_and_be_enabled (test_p05_import_entry.ImportEntryTests.test_owner_must_exist_and_be_enabled) ... ok\ntest_preview_report_failure_never_claims_a_completed_import (test_p05_import_entry.ImportEntryTests.test_preview_report_failure_never_claims_a_completed_import) ... ok\ntest_real_login_owner_and_complete_backup_gate_import (test_p05_import_entry.ImportEntryTests.test_real_login_owner_and_complete_backup_gate_import) ... ok\ntest_report_failure_cannot_disguise_a_committed_batch (test_p05_import_entry.ImportEntryTests.test_report_failure_cannot_disguise_a_committed_batch) ... ok\ntest_running_host_owner_lock_refuses_cli_before_import (test_p05_import_entry.ImportEntryTests.test_running_host_owner_lock_refuses_cli_before_import) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 6.002s\n\nOK\n",
+    "python-03": "test_actual_accepted_financial_only_worker_uses_explicit_format_bridge (test_native_excel.LegacyWorkerCompatibilityTests.test_actual_accepted_financial_only_worker_uses_explicit_format_bridge) ... ok\ntest_missing_legacy_worker_never_negotiates_a_financial_or_format_fallback (test_native_excel.LegacyWorkerCompatibilityTests.test_missing_legacy_worker_never_negotiates_a_financial_or_format_fallback) ... ok\ntest_old_v3_full_package_restores_output_and_keeps_original_worker (test_native_excel.LegacyWorkerCompatibilityTests.test_old_v3_full_package_restores_output_and_keeps_original_worker) ... ok\ntest_apply_uses_selected_native_reader_and_complete_backup_gate (test_native_excel.NativeEntryTests.test_apply_uses_selected_native_reader_and_complete_backup_gate) ... ok\ntest_changed_native_review_does_not_request_password_or_write_ledger (test_native_excel.NativeEntryTests.test_changed_native_review_does_not_request_password_or_write_ledger) ... ok\ntest_explicit_native_preview_keeps_source_private_and_ledger_unchanged (test_native_excel.NativeEntryTests.test_explicit_native_preview_keeps_source_private_and_ledger_unchanged) ... ok\ntest_big_integer_controls_leading_zero_and_formula_like_text_remain_text (test_native_excel.NativeOutputTests.test_big_integer_controls_leading_zero_and_formula_like_text_remain_text) ... ok\ntest_body_tampering_with_unchanged_protocol_is_refused_by_both_validators (test_native_excel.NativeOutputTests.test_body_tampering_with_unchanged_protocol_is_refused_by_both_validators) ... ok\ntest_failed_native_worker_never_falls_back_or_rebooks_order (test_native_excel.NativeOutputTests.test_failed_native_worker_never_falls_back_or_rebooks_order) ... ok\ntest_full_cell_matrix_and_styles_match_independent_python_report (test_native_excel.NativeOutputTests.test_full_cell_matrix_and_styles_match_independent_python_report) ... ok\ntest_native_bytes_are_reproducible_and_no_existing_source_is_edited (test_native_excel.NativeOutputTests.test_native_bytes_are_reproducible_and_no_existing_source_is_edited) ... ok\ntest_native_generation_download_and_private_role_projection_skip_python_workbook_io (test_native_excel.NativeOutputTests.test_native_generation_download_and_private_role_projection_skip_python_workbook_io) ... ok\ntest_all_p01_workbook_shapes_keep_recognition_and_quarantine (test_native_excel.NativeReadTests.test_all_p01_workbook_shapes_keep_recognition_and_quarantine) ... ok\ntest_corrupt_duplicate_zip_entities_utf16_and_cell_duplicates_fail_closed (test_native_excel.NativeReadTests.test_corrupt_duplicate_zip_entities_utf16_and_cell_duplicates_fail_closed) ... ok\ntest_date_iso_serial_and_1904_epoch_equal_independent_reader (test_native_excel.NativeReadTests.test_date_iso_serial_and_1904_epoch_equal_independent_reader) ... ok\ntest_exact_numeric_tokens_and_lossy_legacy_numeric_cells_are_traceable (test_native_excel.NativeReadTests.test_exact_numeric_tokens_and_lossy_legacy_numeric_cells_are_traceable) ... ok\ntest_formula_cache_or_orphan_sheet_is_always_refused (test_native_excel.NativeReadTests.test_formula_cache_or_orphan_sheet_is_always_refused) ... ok\ntest_large_sparse_source_is_complete_and_not_silently_truncated (test_native_excel.NativeReadTests.test_large_sparse_source_is_complete_and_not_silently_truncated) ... ok\ntest_mapped_columns_and_raw_prices_keep_independent_plan (test_native_excel.NativeReadTests.test_mapped_columns_and_raw_prices_keep_independent_plan) ... ok\ntest_native_import_replays_v1_batch_without_python_excel_decoder (test_native_excel.NativeReadTests.test_native_import_replays_v1_batch_without_python_excel_decoder) ... ok\ntest_original_identified_legacy_and_note_void_plans_keep_full_binding (test_native_excel.NativeReadTests.test_original_identified_legacy_and_note_void_plans_keep_full_binding) ... ok\ntest_row_column_source_and_declared_expansion_limits_are_enforced (test_native_excel.NativeReadTests.test_row_column_source_and_declared_expansion_limits_are_enforced) ... ok\ntest_unknown_schema_and_extensions_cannot_change_ledger (test_native_excel.NativeReadTests.test_unknown_schema_and_extensions_cannot_change_ledger) ... ok\n\n----------------------------------------------------------------------\nRan 23 tests in 56.985s\n\nOK\n",
+    "auxiliary_protocol_failure": "Traceback (most recent call last):\n  File \"<stdin>\", line 5, in <module>\n  File \"/workspace/scratch/7a12e3cfd885/repo777/tools/p06_excel_check.py\", line 89, in protocol_smoke\n    assert (export/contents[0]['filename']).read_bytes()==base64.b64decode(contents[0]['data_base64'])\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py\", line 1019, in read_bytes\n    with self.open(mode='rb') as f:\n         ^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py\", line 1013, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/tmp/777-p05-service-eqc8noiy/public-excel/1a1c1c37-e879-4561-a376-fe59cd03890e.xlsx'\n",
+    "auxiliary_journal_refusal": "First auxiliary protocol harness used Journal for output tasks on Linux and correctly raised WINDOWS_DPAPI_REQUIRED; changed only the auxiliary path to MemoryJournal, retaining real DPAPI in Windows mode."
+  },
+  "production_paths_accessed": false,
+  "production_writer_replaced": false,
+  "Windows_acceptance": "pending; run new P06-03 Windows entry only",
+  "not_started": [
+    "P06-04",
+    "P07",
+    "P08"
+  ],
+  "comparison_asset": "P06-01-shadow-comparisons.json",
+  "post_check_documentation_change": {
+    "file": "THIRD_PARTY_NOTICES.md",
+    "reason": "Normalize only newly quoted license whitespace/line endings; original P06-02 notice content and crate license file hashes remain intact",
+    "prior_LF_sha256": "c78a4c03ca9c9cc958f8c017c134967b73f350b4b1c2e017de5af5d59768959a",
+    "final_LF_sha256": "f4ecfaef3f22bc599aa44b88640157b86bea31da807ea61b0765ad21a93c0431",
+    "runtime_code_changed": false
+  }
+}

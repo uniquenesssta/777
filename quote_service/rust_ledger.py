@@ -6,6 +6,7 @@ format planning remain; the latter writes an in-memory preview, never the ledger
 from contextlib import contextmanager
 from dataclasses import asdict
 import hashlib
+import base64
 import json
 import os
 from pathlib import Path
@@ -52,6 +53,14 @@ class RustLedger:
         self.path=local_path(path);self.binary=local_path(binary);self.auxiliary=auxiliary
         self.expected_sha256=expected_sha256;self.timeout=timeout;self.test_fault=test_fault;self.fault=None
         self._call({'op':'inventory'})
+        capabilities=self._call({'op':'xlsx_capabilities'})
+        if capabilities=={'implementation':'legacy-financial-v1','formats':[]}:
+            self.format_backend='python-v1-compatibility'
+            self.native_formats=None
+        elif capabilities=={'implementation':'quote-excel-v1','formats':['777-excel-read-v1','777-output-v1']}:
+            self.format_backend='rust-excel-v1'
+            self.native_formats=self
+        else:raise InvalidDatabase('未知Rust格式能力；不自动回退')
     @classmethod
     def create(cls,path,binary,*,auxiliary=False):
         # Native creation is exclusive. Use a temporary adapter without opening the absent DB.
@@ -78,6 +87,11 @@ class RustLedger:
             raise InvalidDatabase('Rust核心不可用；不自动回退') from None
         if not reply['ok']:
             code=reply.get('error')
+            if code=='VALIDATION' and payload.get('op')=='xlsx_capabilities':
+                # P06-02 v3 packages carry the financial-only v1 executable.
+                # Its known unknown-operation reply negotiates an explicit
+                # format bridge; the authoritative writer remains native.
+                return {'implementation':'legacy-financial-v1','formats':[]}
             if code=='COMMIT_UNKNOWN' and request_id is not None:raise UnknownCommit(request_id)
             if code=='PRICES_NOT_PUBLISHED':
                 from .protocol import APIError
@@ -116,6 +130,21 @@ class RustLedger:
         r=self._call({'op':'active_prices'});return PriceSnapshot(r['price_version_id'],tuple(PriceItem(**p) for p in r['items']))
     def calculate(self,snapshot):return result_model(self._call(dict(op='calculate',snapshot=snapshot_wire(snapshot))))
     def backup_snapshot(self,target,*,timeout=30):return self._call(dict(op='backup',target=str(local_path(target,exists=False))),timeout=timeout)
+    def _excel(self, payload):
+        from quote_files.native_excel import FormatReview
+        result=self._call(payload)
+        if result.get('status')!='ok':
+            error=result.get('error',{})
+            raise FormatReview(error.get('code','NATIVE_FORMAT_INVALID'),error.get('sheet',''),error.get('cell',''))
+        return result['value']
+    def excel_document(self, raw):
+        return self._excel(dict(op='xlsx_read',data_base64=base64.b64encode(raw).decode()))
+    def excel_book(self, raw):
+        from quote_files.native_excel import book
+        return book(self.excel_document(raw))
+    def excel_render(self, payload):
+        result=self._excel(dict(op='xlsx_write',payload=payload))
+        return base64.b64decode(result['data_base64'],validate=True)
     def native_import(self,actor,owner_id,raw,kind,**kwargs):
         require_admin(actor)
         from quote_import.store import apply_source,verify_provenance
@@ -127,10 +156,11 @@ class RustLedger:
             before={t:{row[0] for row in memory.execute('SELECT * FROM '+t)} for t in tables}
             class Preview:
                 fault=None
+                native_formats=self.native_formats
                 @contextmanager
                 def connection(self,readonly=False):yield memory
             result=apply_source(Preview(),actor,owner_id,raw,kind,**kwargs)
-            verify_provenance(memory)
+            verify_provenance(memory,native=self.native_formats)
             delta=dict(request_id=result['request_id'],expected_revision=meta['revision'],result=result,
                 final_inventory=inventory(memory),rows={t:[list(row) for row in memory.execute('SELECT * FROM '+t) if row[0] not in before[t]] for t in tables})
             return self._call(dict(op='import_apply',actor=self.actor(actor),delta=delta))

@@ -81,7 +81,7 @@ def manifest(folder,*,auxiliary=False):
     accounts_cover_ledger(ledger,auth)
     if outputs:
         from .outputs import Outputs
-        outputs=Outputs(folder/'outputs.sqlite3',value['ledger_id'])
+        outputs=Outputs(folder/'outputs.sqlite3',value['ledger_id'],native=getattr(ledger,'native_formats',None))
         outputs.validate_ledger(ledger)
         with outputs.connection(readonly=True) as c:
             expected={'output-blobs/'+outputs.blob_path(row).name for row in c.execute('SELECT * FROM jobs WHERE blob_sha256 IS NOT NULL')}

@@ -41,7 +41,7 @@ def order_id(plan, order):
     return uid('legacy-order:' + plan.source_sha256 + ':' + encoded(order['source_key']))
 
 
-def verify_provenance(connection):
+def verify_provenance(connection, native=None):
     """Verify source bytes and review binding against the immutable receipt."""
     count = 0
     for batch in connection.execute('SELECT * FROM import_batches'):
@@ -53,7 +53,7 @@ def verify_provenance(connection):
             raw = base64.b64decode(mapping['source_base64'], validate=True)
             if len(raw) != mapping['source_bytes'] or digest_bytes(raw) != batch['source_sha256']:
                 raise ValueError('Source hash mismatch')
-            plan = preview_bytes(raw, mapping['source_kind'], legacy_single_names=mapping['options']['legacy_single_names'])
+            plan = preview_bytes(raw, mapping['source_kind'], legacy_single_names=mapping['options']['legacy_single_names'], native=native)
             if plan.source_schema != batch['source_schema'] or plan.review_sha256 != mapping['binding']['review_sha256']:
                 raise ValueError('Review mismatch')
             if report['review_sha256'] != plan.review_sha256 or report['owner_id'] != mapping['binding']['owner_id']:
@@ -88,7 +88,7 @@ def apply_source(ledger, actor, owner_id, raw, kind, *, expected_review_sha256,
     if type(allow_quarantine) is not bool:
         raise LedgerError('隔离认可参数必须是布尔值')
     # Fresh decode and calculation, never a caller-edited plan/financial DTO.
-    plan = preview_bytes(raw, kind, legacy_single_names=legacy_single_names)
+    plan = preview_bytes(raw, kind, legacy_single_names=legacy_single_names, native=getattr(ledger,'native_formats',None))
     if plan.review_sha256 != expected_review_sha256:
         raise Conflict('来源或导入适配结果已改变；请重新只读预演')
     if plan.source_schema == 'unsupported':
@@ -102,7 +102,7 @@ def apply_source(ledger, actor, owner_id, raw, kind, *, expected_review_sha256,
     with ledger.connection() as c:
         try:
             c.execute('BEGIN IMMEDIATE')
-            verify_provenance(c)
+            verify_provenance(c, native=getattr(ledger,'native_formats',None))
             prior = c.execute('SELECT * FROM import_batches WHERE source_sha256=? AND adapter_version=?',
                               (plan.source_sha256, ADAPTER_VERSION)).fetchone()
             if prior:
@@ -257,7 +257,7 @@ def apply_source(ledger, actor, owner_id, raw, kind, *, expected_review_sha256,
                        encoded(mapping), encoded(result), now()))
             if inventory(c) != final_inventory:
                 raise LedgerError('导入前后完整账本核对失败；批次回滚')
-            verify_provenance(c)
+            verify_provenance(c, native=getattr(ledger,'native_formats',None))
             if ledger.fault:
                 ledger.fault('import_before_commit', c)
             commit_attempted = True

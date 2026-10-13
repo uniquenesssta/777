@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P06-01已按[用户接续](docs/verification/P06-01-acceptance.json)验收收尾，原Windows证据保持。当前同一stage/p06-rust-core从c8ad540执行P06-02：[Rust账本与兼容服务适配](docs/verification/P06-02-storage-contract.md)已实现，原594项完整辅助证据保持；[第二轮Windows核对](docs/verification/P06-02-windows-evidence-02.json)通过83指纹/65专项/25 Rust/561精确对照及原生DPAPI/HTTPS/备份恢复/ACL，具备收尾条件，待用户验收；03/04未启动。真实部署与历史切换待办保留。
+P06-01/02已按[用户接续](docs/verification/P06-02-acceptance.json)验收收尾，原Windows及失败证据保持。同一stage/p06-rust-core从223e86e执行P06-03：[Rust Excel适配](docs/verification/P06-03-excel-contract.md)已实现，165专项/626完整辅助、32 Rust与561精确对照通过，旧v3执行文件/格式桥接兼容及辅助HTTPS/恢复通过；待本轮Windows复查及用户验收，04未启动。真实部署与历史切换交接保持。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -36,6 +36,10 @@ P06-01已按[用户接续](docs/verification/P06-01-acceptance.json)验收收尾
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P06-03：Rust原始数字OOXML读取/新四表文本报表接入导入与输出，全字段/样式及原Plan/SHA/回执保持；未知/有损/公式源清楚复核。旧v3执行文件明确格式桥接，财务仍原生单写。165专项/626完整辅助、32 Rust/561对照及旧包/辅助HTTPS恢复通过，[本项Windows入口](docs/verification/P06-03-excel-contract.md#验证与windows入口)待复查；02已验收，无需重跑旧入口，04未启动。
+
+- 用户“收尾02开始03”：登记[P06-02验收](docs/verification/P06-02-acceptance.json)，原Windows83指纹/65专项/25 Rust/561对照及原生恢复证据保持；同一stage/p06-rust-core从223e86e开始P06-03 Excel适配，无需重跑02，04未启动。
 
 - P06-02第二轮Windows完整核对通过：bf18f45的83项LF指纹、65个专项ID/成功日志、25项Rust测试/构建及561精确比较匹配，逐项独立重算Python期望；原生DPAPI未知提交/原回执、旧HTTPS/角色投影、v3原生恢复/旧会话撤销与Hidden/System/ACL及清理通过。[原报告与独立核对](docs/verification/P06-02-windows-evidence-02.json)按原字节保存，首轮失败及修复辅助证据保持。02具备收尾条件待用户验收，无需重跑；03/04未启动，没有GUI/安装或真实数据切换。
 

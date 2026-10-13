@@ -1,0 +1,13 @@
+{
+  "task": "P06-02",
+  "status": "accepted_by_user",
+  "accepted_at": "2026-10-13T23:07:55+08:00",
+  "user_instruction": "收尾02开始03",
+  "source_commit": "bf18f45fec89e1e491411a306f5dd9f82e4952c6",
+  "evidence_commit": "223e86e0bef90dfef083281a42f8d7919b13c07d",
+  "evidence": "P06-02-windows-evidence-02.json",
+  "phase_branch": "stage/p06-rust-core",
+  "decision": "按已核对83指纹、Windows MSVC构建/25 Rust/65专项/561精确对照及原生DPAPI/HTTPS/v3恢复/ACL收尾02，不重复通过检查；复用同分支开始03。",
+  "scope": "isolated native ledger and compatible authenticated service; no production activation, GUI or installed service acceptance",
+  "next_task": "P06-03"
+}

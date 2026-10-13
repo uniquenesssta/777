@@ -1,0 +1,14 @@
+{
+  "task": "P06-03",
+  "status": "in_progress",
+  "authorized_at": "2026-10-13T23:07:55+08:00",
+  "user_instruction": "收尾02开始03",
+  "source_commit": "223e86e0bef90dfef083281a42f8d7919b13c07d",
+  "phase_branch": "stage/p06-rust-core",
+  "scope": "bounded Rust OOXML read and new Excel output adapter, explicit format library evaluation, exact field mapping and independent compatibility checks; no source workbook modification or production cutover",
+  "not_started": [
+    "P06-04",
+    "P07",
+    "P08"
+  ]
+}

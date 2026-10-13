@@ -42,8 +42,9 @@ def expected_signature():
 
 
 class Outputs:
-    def __init__(self, path, ledger_id):
+    def __init__(self, path, ledger_id, native=None):
         self.path = local_path(path); self.ledger_id = ledger_id
+        self.native=native
         self._lock = threading.RLock(); self._worker = threading.Lock()
         with self.connection(): pass
 
@@ -158,7 +159,7 @@ class Outputs:
         if len(raw) > MAX_BYTES or row['blob_sha256'] is not None and hashlib.sha256(raw).hexdigest() != row['blob_sha256']: raise APIError(503, 'OUTPUT_BLOB_CHANGED')
         payload = json.loads(row['payload_json'])
         if payload_hash(payload) != row['payload_sha256']: raise APIError(503, 'OUTPUT_SNAPSHOT_CHANGED')
-        validate(raw, payload); return raw
+        validate(raw, payload, native=self.native); return raw
 
     def content(self, actor, key):
         with self.connection(readonly=True) as c: row = self._job(c, actor, key)
@@ -191,7 +192,7 @@ class Outputs:
                 else:
                     payload = json.loads(row['payload_json'])
                     if payload_hash(payload) != row['payload_sha256']: raise APIError(503, 'OUTPUT_SNAPSHOT_CHANGED')
-                    raw = render(payload)
+                    raw = render(payload, native=self.native)
                     temporary=path.with_name('.'+path.name+'.'+str(uuid.uuid4())+'.partial')
                     try:
                         fd = os.open(temporary, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o600)
@@ -225,7 +226,7 @@ class Outputs:
     def backup(self, folder):
         with self._lock, self.connection(readonly=True) as origin, closing(sqlite3.connect(Path(folder)/'outputs.sqlite3')) as target:
             origin.backup(target); target.commit()
-        snapshot = Outputs(Path(folder)/'outputs.sqlite3', self.ledger_id)
+        snapshot = Outputs(Path(folder)/'outputs.sqlite3', self.ledger_id, native=self.native)
         (Path(folder)/'output-blobs').mkdir(mode=0o700)
         with snapshot.connection(readonly=True) as c:
             for row in c.execute('SELECT * FROM jobs WHERE blob_sha256 IS NOT NULL'):

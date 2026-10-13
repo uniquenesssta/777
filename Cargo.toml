@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/quote-core", "crates/quote-ledger"]
+members = ["crates/quote-core", "crates/quote-ledger", "crates/quote-excel"]
 resolver = "2"
 
 [workspace.package]
@@ -19,3 +19,6 @@ sha2 = "=0.10.9"
 getrandom = "=0.2.16"
 time = { version = "=0.3.44", features = ["formatting"] }
 base64 = "=0.22.1"
+quick-xml = "=0.41.0"
+zip = { version = "=8.6.0", default-features = false, features = ["deflate"] }
+rust_xlsxwriter = { version = "=0.99.1", default-features = false }

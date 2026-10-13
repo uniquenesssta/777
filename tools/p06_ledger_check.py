@@ -23,6 +23,7 @@ def fingerprints():
     for pattern in ['quote_core/*.py','quote_ledger/*.py','quote_service/*.py','quote_import/*.py','quote_files/*.py']:
         paths.update(ROOT.glob(pattern))
     paths.update((ROOT/'crates').rglob('*.rs'));paths.update((ROOT/'crates').rglob('Cargo.toml'))
+    if (ROOT/'docs/verification/P06-03-dependencies.json').exists():paths.add(ROOT/'docs/verification/P06-03-dependencies.json')
     paths.update(ROOT/p for p in ['tools/quote_service_host.py','tools/p06_core_check.py','tools/p06_cases.py','tools/p01_oracle.py','tests/test_rust_ledger.py','tests/test_rust_service.py','tests/rust_service_fixture.py','tests/test_p06_ledger_check.py','tests/service_fixture.py','tests/import_fixture.py','tests/test_service_boundary.py','tests/test_service_query.py','tests/test_service_outputs.py','docs/verification/P05-01-schema.sql','docs/verification/P06-02-dependencies.json','docs/verification/P06-02-protocol.json','docs/baseline/p01-04-golden.json','requirements-service.txt'])
     return {p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes().replace(b'\r\n',b'\n')).hexdigest() for p in sorted(paths)}
 
@@ -91,7 +92,9 @@ def main(argv=None):
         meta=run([cargo,'+1.97.1','metadata','--locked','--format-version','1'])
         if meta['exit_code']:raise RuntimeError('DEPENDENCY_METADATA_FAILED')
         packages=json.loads(meta['stdout'])['packages'];external=[dict(name=v['name'],version=v['version'],license=v['license']) for v in packages if v['source'] is not None]
-        expected=json.loads((ROOT/'docs/verification/P06-02-dependencies.json').read_text(encoding='utf-8'))['packages']
+        dependency_contract='P06-03-dependencies.json' if any(v['name']=='quote-excel' for v in packages) else 'P06-02-dependencies.json'
+        report['dependency_contract']=dependency_contract
+        expected=json.loads((ROOT/'docs/verification'/dependency_contract).read_text(encoding='utf-8'))['packages']
         if {(v['name'],v['version'],v['license']) for v in external}!={(v['name'],v['version'],v['license']) for v in expected}:raise RuntimeError('DEPENDENCY_LICENSE_MISMATCH')
         report['dependencies']=external
         from p05_service_check import dependencies

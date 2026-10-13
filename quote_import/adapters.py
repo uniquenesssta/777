@@ -338,15 +338,20 @@ def result_views(book, schema):
     return order_views(book, schema) if schema.identified else {}
 
 
-def xlsx_plan(raw, options):
-    preflight_xlsx(raw)
-    source = open_book(raw, for_write=False)
-    try:
-        if any(s.max_row > ROW_LIMIT or s.max_column > 64 or s.max_row * s.max_column > CELL_LIMIT for s in source.worksheets):
-            fail('WORKSHEET_DIMENSION_LIMIT')
-        book = Book(source)
-    finally:
-        source.close()
+def xlsx_plan(raw, options, native=None):
+    if native is None:
+        preflight_xlsx(raw)
+        source = open_book(raw, for_write=False)
+        try:
+            if any(s.max_row > ROW_LIMIT or s.max_column > 64 or s.max_row * s.max_column > CELL_LIMIT for s in source.worksheets):
+                fail('WORKSHEET_DIMENSION_LIMIT')
+            book = Book(source)
+        finally:
+            source.close()
+    else:
+        from quote_files.native_excel import FormatReview
+        try: book = native.excel_book(raw)
+        except FormatReview as exc: raise ReviewRequired(str(exc), exc.location) from None
     schema = inspect_schema(book)
     if any(reason for reason in schema.readonly_reasons if not reason.startswith('历史记录没有行类型')):
         fail('WORKBOOK_LAYOUT_OR_APPENDIX_REVIEW')
@@ -395,7 +400,7 @@ def xlsx_plan(raw, options):
     return Plan(sha(raw), 'xlsx', schema.name, tuple(orders), None, tuple(quarantine), evidence, options)
 
 
-def preview_bytes(raw, kind, *, legacy_single_names=None):
+def preview_bytes(raw, kind, *, legacy_single_names=None, native=None):
     options = {'legacy_single_names': sorted(legacy_single_names) if legacy_single_names is not None else None}
     if type(raw) is not bytes or len(raw) > SOURCE_LIMIT:
         raise ReviewRequired('SOURCE_TYPE_OR_SIZE_LIMIT')
@@ -403,7 +408,7 @@ def preview_bytes(raw, kind, *, legacy_single_names=None):
         raise ReviewRequired('SOURCE_KIND_UNSUPPORTED')
     try:
         if kind == 'xlsx':
-            return xlsx_plan(raw, options)
+            return xlsx_plan(raw, options, native)
         parsed = parse_price_config(raw, price_version_id='import-config-' + sha(raw), legacy_single_names=legacy_single_names)
         if parsed.status != 'ok':
             fail(parsed.issues[0].reason)
@@ -413,5 +418,6 @@ def preview_bytes(raw, kind, *, legacy_single_names=None):
                     {'original_json': parsed.config.original_json, 'directories_preserved_as_evidence_only': True}, options)
     except Exception as exc:
         code = str(exc) if isinstance(exc, ReviewRequired) else 'SOURCE_CORRUPT_OR_UNSUPPORTED'
-        return Plan(sha(raw), kind, 'unsupported', (), None,
-                    ({'code': code, 'scope': 'entire_source'},), {}, options)
+        issue={'code': code, 'scope': 'entire_source'}
+        if getattr(exc, 'difference', None): issue['difference']=exc.difference
+        return Plan(sha(raw), kind, 'unsupported', (), None, (issue,), {}, options)

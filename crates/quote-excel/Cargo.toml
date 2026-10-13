@@ -1,0 +1,19 @@
+[package]
+name = "quote-excel"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+quick-xml.workspace = true
+zip.workspace = true
+rust_xlsxwriter.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+base64.workspace = true
+
+[dev-dependencies]
+calamine = { version = "=0.36.1", default-features = false }

@@ -101,7 +101,7 @@ def load(root,*,auxiliary=False,allow_maintenance=False):
     service=Service(ledger,auth,backups);service.host_root=root;service.auxiliary=auxiliary
     if (private/'outputs.sqlite3').exists():
         from .outputs import Outputs
-        service.outputs=Outputs(private/'outputs.sqlite3', config['ledger_id'])
+        service.outputs=Outputs(private/'outputs.sqlite3', config['ledger_id'], native=getattr(ledger,'native_formats',None))
     return root,config,service
 
 

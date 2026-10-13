@@ -36,43 +36,42 @@ def public_order(order):
     return value
 
 
-def render(payload):
+def excel_rows(payload):
+    """Independent expected cell matrix for either renderer's byte validation."""
+    order=payload['order'];kind=payload['kind']
+    result={'Protocol':[['format',FORMAT],['job_id',payload['job_id']],['payload_sha256',payload_hash(payload)],['kind',kind]]}
+    result['Order']=[['field','value'],*[[k,str(order[k])] for k in ('order_id','revision','state','price_version_id','rule_version','numeric_profile','created_at')],*[[k,v] for k,v in order['details'].items()],['income_cents',order['income_cents']],['income_yuan',money_text(int(order['income_cents']))]]
+    if kind=='excel_admin':result['Order'] += [[k,order[k]] for k in ('cost_cents','profit_cents')]
+    headers=['sequence','raw','normalized','subtotal_before_cents','income_cents']
+    if kind=='excel_admin':headers += ['cost_cents','profit_cents']
+    result['Lines']=[headers,*[[json.dumps(line[k],ensure_ascii=False,sort_keys=True) if isinstance(line[k],dict) else str(line[k]) for k in headers] for line in order['lines']]]
+    result['Notes']=[['note_id','author','body','created_at'],*[[note[k] for k in ('note_id','author','body','created_at')] for note in order['notes']]]
+    return {name:[[cell_text(cell) for cell in row] for row in rows] for name,rows in result.items()}
+
+
+def render(payload, native=None):
     if payload.get('format') != FORMAT or payload.get('kind') not in KINDS: raise APIError(409,'OUTPUT_VERSION_CONFLICT')
     kind = payload['kind']; order = payload['order']; output = io.BytesIO()
     if kind.startswith('excel_'):
+        if native is not None:
+            from quote_files.native_excel import FormatReview
+            try: raw=native.excel_render(payload)
+            except FormatReview as exc: raise APIError(422,str(exc)) from None
+            validate(raw,payload,native=native)
+            return raw
         from openpyxl import Workbook
         from openpyxl.styles import Font
         workbook = Workbook(); workbook.remove(workbook.active)
         workbook.properties.created = workbook.properties.modified = datetime(2000, 1, 1)
-        def sheet(name, rows):
-            ws = workbook.create_sheet(name)
+        for name,rows in excel_rows(payload).items():
+            ws=workbook.create_sheet(name)
             for row in rows:
-                ws.append([cell_text(cell) for cell in row])
-                for cell in ws[ws.max_row]:
-                    # '='/'+'/'@' and customer text remain literal strings.
-                    cell.data_type = 's'; cell.number_format = '@'
-            for cell in ws[1]: cell.font = Font(bold=True)
-            ws.freeze_panes = 'A2'
-            for column in ws.columns: ws.column_dimensions[column[0].column_letter].width = 24
-            return ws
-        sheet('Protocol', [('format', FORMAT), ('job_id', payload['job_id']),
-                           ('payload_sha256', payload_hash(payload)), ('kind', kind)])
-        sheet('Order', [('field', 'value'), *[(k, order[k]) for k in
-              ('order_id', 'revision', 'state', 'price_version_id', 'rule_version', 'numeric_profile', 'created_at')],
-              *order['details'].items(), ('income_cents', order['income_cents']),
-              ('income_yuan', money_text(int(order['income_cents'])))])
-        if kind == 'excel_admin':
-            for k in ('cost_cents', 'profit_cents'): workbook['Order'].append([k, order[k]])
-            for row in workbook['Order']:
-                for cell in row: cell.data_type = 's'; cell.number_format = '@'
-        headers = ['sequence', 'raw', 'normalized', 'subtotal_before_cents', 'income_cents']
-        if kind == 'excel_admin': headers += ['cost_cents', 'profit_cents']
-        sheet('Lines', [headers, *[[json.dumps(line[k], ensure_ascii=False, sort_keys=True)
-                                  if isinstance(line[k], dict) else str(line[k]) for k in headers]
-                                  for line in order['lines']]])
-        sheet('Notes', [('note_id', 'author', 'body', 'created_at'),
-                        *[[note[k] for k in ('note_id', 'author', 'body', 'created_at')] for note in order['notes']]])
-        workbook.save(output); workbook.close()
+                ws.append(row)
+                for cell in ws[ws.max_row]: cell.data_type='s';cell.number_format='@'
+            for cell in ws[1]: cell.font=Font(bold=True)
+            ws.freeze_panes='A2'
+            for column in ws.columns:ws.column_dimensions[column[0].column_letter].width=24
+        workbook.save(output);workbook.close()
     else:
         from PIL import Image, ImageDraw, ImageFont, PngImagePlugin
         # Windows system CJK fonts; do not silently emit unreadable Chinese.
@@ -103,19 +102,45 @@ def render(payload):
     return raw
 
 
-def validate(raw, payload):
+def validate(raw, payload, native=None):
     if not 0 < len(raw) <= MAX_BYTES: raise APIError(422, 'OUTPUT_BLOB_INVALID')
     expected = payload_hash(payload)
     if payload['kind'].startswith('excel_'):
-        from openpyxl import load_workbook
-        workbook = load_workbook(io.BytesIO(raw), read_only=True, data_only=False, keep_links=False)
-        try:
-            if workbook.sheetnames != ['Protocol', 'Order', 'Lines', 'Notes']: raise ValueError()
-            values = dict(workbook['Protocol'].values)
-            if values != {'format': FORMAT, 'job_id': payload['job_id'], 'payload_sha256': expected, 'kind': payload['kind']}: raise ValueError()
-            if any(cell.data_type == 'f' for ws in workbook for row in ws for cell in row): raise ValueError()
-        except (ValueError, KeyError): raise APIError(422, 'OUTPUT_BLOB_INVALID') from None
-        finally: workbook.close()
+        rows=excel_rows(payload)
+        if native is not None:
+            from quote_files.native_excel import FormatReview
+            try:
+                doc=native.excel_document(raw)
+                if [s['name'] for s in doc['sheets']]!=list(rows):raise ValueError()
+                for sheet in doc['sheets']:
+                    expected_rows=rows[sheet['name']]
+                    if sheet['frozen_at']!='A2':raise ValueError()
+                    cells={(c['row'],c['column']):c for c in sheet['cells']}
+                    if sheet['max_row']!=len(expected_rows) or sheet['max_column']!=max(map(len,expected_rows)):raise ValueError()
+                    for r,line in enumerate(expected_rows,1):
+                        for c,wanted in enumerate(line,1):
+                            item=cells.get((r,c))
+                            actual='' if item is None or item['value'] is None else item['value']
+                            if actual!=wanted or actual and item['kind']!='s':raise ValueError()
+                            if item is not None:
+                                style=doc['styles'][item['style']]
+                                if style['num_fmt_id']!=49 and style['format_code']!='@':raise ValueError()
+                                if r==1 and not style['bold']:raise ValueError()
+            except (FormatReview,ValueError,KeyError,TypeError,IndexError):raise APIError(422,'OUTPUT_BLOB_INVALID') from None
+        else:
+            from openpyxl import load_workbook
+            workbook=load_workbook(io.BytesIO(raw),read_only=False,data_only=False,keep_links=False)
+            try:
+                if workbook.sheetnames!=list(rows):raise ValueError()
+                for name,expected_rows in rows.items():
+                    ws=workbook[name]
+                    if ws.freeze_panes!='A2' or ws.max_row!=len(expected_rows) or ws.max_column!=max(map(len,expected_rows)):raise ValueError()
+                    for r,line in enumerate(expected_rows,1):
+                        for c,wanted in enumerate(line,1):
+                            item=ws.cell(r,c);actual='' if item.value is None else item.value
+                            if actual!=wanted or item.data_type=='f' or actual and item.data_type!='s' or item.number_format!='@' or r==1 and not item.font.bold:raise ValueError()
+            except (ValueError,KeyError):raise APIError(422,'OUTPUT_BLOB_INVALID') from None
+            finally:workbook.close()
     else:
         from PIL import Image
         with Image.open(io.BytesIO(raw)) as image:

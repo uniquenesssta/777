@@ -8,6 +8,7 @@ publish = false
 
 [dependencies]
 quote-core = { path = "../quote-core" }
+quote-excel = { path = "../quote-excel" }
 rusqlite.workspace = true
 sha2.workspace = true
 getrandom.workspace = true

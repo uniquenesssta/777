@@ -9,8 +9,8 @@
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
 | 本轮授权 | 用户2026-10-13 21:26:19“收尾01开始02”；既有推送授权有效 |
 | 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P06-01已按[用户接续](verification/P06-01-acceptance.json)验收收尾，原Windows证据保持。当前同一stage/p06-rust-core从c8ad540执行P06-02：[Rust账本与兼容服务适配](verification/P06-02-storage-contract.md)已实现，原594项完整辅助证据保持；[第二轮Windows核对](verification/P06-02-windows-evidence-02.json)通过83指纹/65专项/25 Rust/561精确对照及原生DPAPI/HTTPS/备份恢复/ACL，具备收尾条件，待用户验收；03/04未启动。真实部署与历史切换待办保留。 |
-| 下一项 | P06-02已具备收尾条件，待用户验收；已通过入口无需重跑，03/04未启动 |
+| 当前开发阶段 / Atomic Task | P06-01/02已按[用户接续](verification/P06-02-acceptance.json)验收收尾，原Windows及失败证据保持。同一stage/p06-rust-core从223e86e执行P06-03：[Rust Excel适配](verification/P06-03-excel-contract.md)已实现，165专项/626完整辅助、32 Rust与561精确对照通过，旧v3执行文件/格式桥接兼容及辅助HTTPS/恢复通过；待本轮Windows复查及用户验收，04未启动。真实部署与历史切换交接保持。 |
+| 下一项 | P06-03 Windows隔离原生Excel/导入/输出/恢复复查及用户验收；已通过02/P05入口无需重跑，04未启动 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 

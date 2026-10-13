@@ -1,0 +1,65 @@
+{
+  "task": "P06-03",
+  "private_operations": {
+    "xlsx_capabilities": {
+      "implementation": "quote-excel-v1",
+      "formats": [
+        "777-excel-read-v1",
+        "777-output-v1"
+      ]
+    },
+    "xlsx_read": {
+      "input": "base64 bytes; no file path",
+      "output_format": "777-excel-read-v1",
+      "numeric_cells": "Original XML decimal token strings, coordinates/style/epoch retained; never f64"
+    },
+    "xlsx_write": {
+      "input": "Authenticated frozen 777-output-v1 snapshot",
+      "output": "base64 new workbook; no destination path"
+    }
+  },
+  "reply": {
+    "status": "ok or review_required",
+    "error_location": [
+      "code",
+      "sheet",
+      "cell"
+    ]
+  },
+  "limits": {
+    "source_bytes": 20971520,
+    "expanded_bytes": 67108864,
+    "zip_entries": 2048,
+    "sheet_rows": 50000,
+    "sheet_columns": 64,
+    "actual_cells_total": 1000000,
+    "rectangle_cells_per_sheet": 1000000,
+    "xml_depth": 64,
+    "merged_ranges": 128,
+    "new_output_bytes": 4194304
+  },
+  "policies": [
+    "Formula present: refuse even with cache; no evaluation/cache trust",
+    "External relationships/extensions/macros/drawings/unknown OOXML reviewed without writing",
+    "No existing workbook editing or source overwrite",
+    "Legacy numeric scalar requiring f64 loss: retain raw evidence and require exact text review; do not change P05-v1 binding",
+    "New reports keep full field matrix, front zeros, text amounts, literal formula-like strings, bold headers, A2 freeze and width24",
+    "Known financial-only v1 capability unknown-operation reply explicitly negotiates python-v1-compatibility for format only; financial writer remains native",
+    "Missing/hash-invalid worker or unknown capability shape fails; unavailable worker never negotiates compatibility"
+  ],
+  "frozen_contracts": [
+    "ledger-v1",
+    "777-service-bundle-v3",
+    "legacy-import-v1",
+    "777-output-v1",
+    "business-v1",
+    "numeric-v1"
+  ],
+  "scope": "Private IPC behind existing authenticated service; no client arbitrary path upload",
+  "temporary_bridges": {
+    "Python field mapping and date hydration": "Existing schema/provenance binding semantics, no Python workbook decoding/saving in native projection; exit in P06-04 full Rust host",
+    "Independent Python backup reference": "Old source provenance verification retained; no financial writes; move to verification-only with P06-04",
+    "Old financial-only worker format bridge": "Explicit python-v1-compatibility until reviewed native resource upgrade; no implicit resource replacement or financial fallback",
+    "PNG rendering": "Outside Excel scope, follows P06-04"
+  }
+}
