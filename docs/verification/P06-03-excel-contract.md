@@ -38,7 +38,7 @@ py -3 tools/p05_import.py preview --source '所选副本.xlsx' --host-root '所�
 
 [03检查证据](P06-03-checks.json)记录165专项、32项Rust/fmt/Clippy/release、同一561/561影子对照（原黄金53/53）、完整辅助回归、旧原生执行文件构建日志及开发中发现的问题。覆盖所有P01合成工作簿形状/既有导入回归，中文/前导零/原数字/日期两种纪元/公式缓存拒绝/未知schema/大表及容量、原请求重放、独立读取器/样式、角色/成本/完整恢复。辅助真实HTTPS链路包含内存待核查与11500/4600/6900分恢复，不冒充Windows DPAPI或ACL。
 
-在当前阶段分支运行唯一新入口：
+本轮唯一入口已完成且核对通过，保留命令供复现，当前无需重跑：
 
 ```powershell
 git pull --ff-only
@@ -46,6 +46,6 @@ if ($LASTEXITCODE -ne 0) { throw '拉取失败，先停止' }
 py -3 tools/p06_excel_check.py --windows-smoke --output reports/p06-03-windows-01
 ```
 
-沿用已验证的Rust1.97.1/MSVC及现有Python依赖；Cargo按锁定文件获取新Excel依赖，旧v1兼容夹具只用已缓存依赖离线编译。入口核验实际Windows AMD64/MSVC，执行专项/原生库检查及完整比较，再用临时主机、Rust读取/生成、旧HTTPS客户端、DPAPI原回执、原源hash/mtime、母版位置/成本过滤、独立读取器和v3恢复/权限/清理联测。不启动GUI，不访问真实E盘/共享或安装服务，不切换生产。回传新目录的report.json与comparisons.json；输出不得覆盖，后续复查改新编号。02及P05已通过入口无需重跑。
+沿用已验证的Rust1.97.1/MSVC及现有Python依赖；Cargo按锁定文件获取新Excel依赖，旧v1兼容夹具只用已缓存依赖离线编译。入口核验实际Windows AMD64/MSVC，执行专项/原生库检查及完整比较，再用临时主机、Rust读取/生成、旧HTTPS客户端、DPAPI原回执、原源hash/mtime、母版位置/成本过滤、独立读取器和v3恢复/权限/清理联测。不启动GUI，不访问真实E盘/共享或安装服务，不切换生产。[原报告](P06-03-windows-report-01.json)与[原比较文件](P06-03-windows-comparisons-01.json)已按原字节归档；输出不得覆盖，后续若改动确需复查使用新编号。02及P05已通过入口无需重跑。
 
-03当前已实现，待Windows复查及用户验收；P06仍留now，04/07/08未启动。
+[Windows独立核对](P06-03-windows-evidence-01.json)通过fee8ea3的98项LF源码指纹、165项Python/32项Rust/561项对照及原生Excel/DPAPI/HTTPS/v3恢复/ACL；原源hash/mtime、独立读取器文本/精度/样式和旧v3原执行文件兼容通过。03具备收尾条件待用户验收，已通过检查无需重跑；P06仍留now，04/07/08未启动。

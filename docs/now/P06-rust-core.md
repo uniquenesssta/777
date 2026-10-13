@@ -1,6 +1,6 @@
 # P06 Rust领域核心与存储/服务适配
 
-状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02已按[用户接续](../verification/P06-02-acceptance.json)验收，原Windows证据保持；P06-03从223e86e在同一分支执行中，04未启动。
+状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02已按[用户接续](../verification/P06-02-acceptance.json)验收，原Windows证据保持；P06-03从223e86e在同一分支执行，现[Windows核对](../verification/P06-03-windows-evidence-01.json)通过，具备收尾条件待用户验收；04未启动。
 
 P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。P01已按[批准记录](../baseline/p01-acceptance.json)采纳numeric-v1/performance-v1，历史候选/黄金元数据保留并映射；实施时读取同一黄金JSON，不复制期望。当前01按同一资产开展影子核对。
 
@@ -75,4 +75,15 @@ P02-04补充输入资产：[窗口适配契约第11节](../MIGRATION_CONTRACT.md
 
 [检查证据](../verification/P06-03-checks.json)记录165专项、626完整辅助、32项Rust/fmt/Clippy/release和同一561/561对照（原黄金53/53），当前98项LF指纹；最后工具/CLI变动另由7项验证及共同协议链路预演覆盖。真实从223e86e固定源离线编译旧执行文件，验证旧v3完整恢复/输出/账本保持。原辅助165报告及stdin运行器导致3项spawn失败的记录保留；改为有主入口保护的实文件运行器后626项全部通过，未改源测试来掩盖失败。
 
-辅助真实HTTPS临时主机覆盖原生读取/导入重放、原客户端Excel/成本过滤/母版位置、独立读回/样式、未知提交原回执及v3新主机恢复；revision7，3单4明细1备注，有效金额11500/4600/6900分，原源hash/mtime与清理正常。辅助使用内存日志，不冒充Windows DPAPI/ACL。当前03已实现待Windows复查与用户验收；真实GUI/安装/共享/E盘与生产切换未执行，04未启动。执行本项新Windows入口并回传report.json与comparisons.json，02/P05旧入口无需重跑。
+辅助真实HTTPS临时主机覆盖原生读取/导入重放、原客户端Excel/成本过滤/母版位置、独立读回/样式、未知提交原回执及v3新主机恢复；revision7，3单4明细1备注，有效金额11500/4600/6900分，原源hash/mtime与清理正常。辅助使用内存日志，不冒充Windows DPAPI/ACL。本轮Windows复查已通过，见下方核对记录；03具备收尾条件待用户验收。真实GUI/安装/共享/E盘与生产切换留后续，04未启动，已通过入口无需重跑。
+
+
+## P06-03 Windows完整核对通过
+
+用户2026-10-14 02:27:36（Asia/Shanghai）回传[原报告](../verification/P06-03-windows-report-01.json)80439字节及[原比较文件](../verification/P06-03-windows-comparisons-01.json)220370字节，按原始CRLF字节归档。[独立核对](../verification/P06-03-windows-evidence-01.json)确认fee8ea3干净工作区的98项LF指纹与提交blob、当前源码及最终辅助登记一致；165个完整测试ID与源码加载器、原辅助清单和成功日志逐项一致，零失败/错误/跳过。实际Windows AMD64/MSVC Rust1.97.1的fmt/Clippy/32项Rust测试/release构建通过，74个外部包版本/许可和原服务4个固定依赖匹配。
+
+561个有序case ID、请求SHA及Python参考结果逐项独立重算，全部等于上传Rust结果SHA，含原黄金53/53；比较原SHA匹配且解析结果等于01原影子资产。旧v3兼容夹具从223e86e固定源按锁定依赖离线构建原财务执行文件成功，旧资源格式桥接及完整包恢复测试通过。
+
+Windows临时主机覆盖Rust原生读取/导入重放/新报表、独立读取器全字段/前导零/文本/样式、原源hash/mtime不变、实际HTTPS客户端与母版位置/销售成本隔离、原生提交后退出→DPAPI加密待核查→原回执恢复、v3新主机账本/Excel文件/回执一致及旧会话撤销。库存独立核对为revision7、3单/4明细/1备注、2价格版本、1导入批次、7回执/7审计，有效金额11500/4600/6900分；Hidden/System、保护DACL及明确SID名单和清理通过。原生执行文件仅报告SHA，未随附件上传，不宣称已独立检查二进制。
+
+本轮范围为Windows临时主机和原生进程/HTTPS/DPAPI/Excel/恢复，没有GUI、已安装服务、真实E盘/共享或生产切换。03具备收尾条件待用户验收，已通过检查无需重跑；原165/626辅助、开发运行器失败及02验收证据保持。P06继续留now，04/07/08未启动。

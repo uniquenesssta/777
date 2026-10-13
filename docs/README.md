@@ -1,16 +1,16 @@
 # 文档与计划入口
 
-日期：2026-10-13（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；当前执行分支：`stage/p06-rust-core`；P01收尾提交：`7099303`。
+日期：2026-10-14（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；当前执行分支：`stage/p06-rust-core`；P01收尾提交：`7099303`。
 
 ## 当前状态
 
 | 项目 | 状态 |
 | --- | --- |
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
-| 本轮授权 | 用户2026-10-13 21:26:19“收尾01开始02”；既有推送授权有效 |
+| 本轮授权 | 用户2026-10-13 23:07:55“收尾02开始03”；本轮回传03 Windows结果，既有推送授权有效 |
 | 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P06-01/02已按[用户接续](verification/P06-02-acceptance.json)验收收尾，原Windows及失败证据保持。同一stage/p06-rust-core从223e86e执行P06-03：[Rust Excel适配](verification/P06-03-excel-contract.md)已实现，165专项/626完整辅助、32 Rust与561精确对照通过，旧v3执行文件/格式桥接兼容及辅助HTTPS/恢复通过；待本轮Windows复查及用户验收，04未启动。真实部署与历史切换交接保持。 |
-| 下一项 | P06-03 Windows隔离原生Excel/导入/输出/恢复复查及用户验收；已通过02/P05入口无需重跑，04未启动 |
+| 当前开发阶段 / Atomic Task | P06-01/02已按[用户接续](verification/P06-02-acceptance.json)验收收尾，原Windows及失败证据保持。同一stage/p06-rust-core从223e86e执行P06-03：[Rust Excel适配](verification/P06-03-excel-contract.md)已实现；[本轮Windows核对](verification/P06-03-windows-evidence-01.json)通过98项源码指纹、165项Python测试、32项Rust测试及561项精确对照，原生Excel/DPAPI/HTTPS/v3恢复/目录权限通过。03具备收尾条件待用户验收，04未启动，已通过检查无需重跑。原626项完整辅助与旧v3兼容证据保持，真实部署及历史切换交接后续。 |
+| 下一项 | P06-03具备收尾条件待用户验收；本轮Windows及02/P05已通过入口无需重跑，04未启动 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
