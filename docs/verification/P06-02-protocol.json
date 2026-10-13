@@ -1,0 +1,33 @@
+{
+  "task": "P06-02",
+  "native_protocol": "777-native-ledger-v1",
+  "transport": "one bounded private stdin/stdout request per host-owned process; no listening socket; trusted actor restored by unchanged HTTPS authentication",
+  "schema": "ledger-v1",
+  "schema_hash": "96619d105269c85fa0d0354050ca97af0af290ba6485913867ed070962aff003",
+  "ops": [
+    "create",
+    "inventory",
+    "active_prices",
+    "calculate",
+    "publish_prices",
+    "submit_order",
+    "append_note",
+    "set_state",
+    "query_request",
+    "backup",
+    "import_apply"
+  ],
+  "core": "business-v1/numeric-v1 from quote-core; raw snapshots use core kind internally and stored/API line_kind externally",
+  "financial_JSON": "decimal-string cents; existing P05 revisions/protocol unchanged",
+  "canonical_fingerprint": "SHA256 of UTF-8 ensure_ascii=false/sorted-keys/compact JSON {actor,operation,payload}; Python canonical snapshot mapping reproduced exactly",
+  "transaction": "BEGIN IMMEDIATE/WAL/FULL; receipt+audit+meta+all rows atomic, original request checked before price/revision revalidation",
+  "commit_unknown": "lost/timeout/exit native write response -> UnknownCommit, original request query before retry; no Python fallback",
+  "backup": "native SQLite online backup; new exclusive target, fsync and independent native inventory; P05 independent Python restore remains a second reader",
+  "backend_config": {
+    "ledger_backend": "python default or rust; selected offline under service-owner lock + admin + complete maintenance backup",
+    "rust_worker_sha256": "private fixed worker pin; checked before each native launch"
+  },
+  "bundle_formats": "old v1/v2 retained; v3 adds fixed private rust-ledger-worker.exe and rust-notices.txt, optional output store/blobs; independent restore maintains selected backend, resets sessions and requires maintenance",
+  "import_bridge": "existing format adapter redecodes original and plans only in-memory SQLite; native applies a fixed-table delta under revision guard and recomputes every stored order/line/price before commit; no arbitrary SQL RPC or Python financial write",
+  "scope": "isolated implementation; HTTP/auth/output rendering retained as documented transition adapters; Rust Excel evaluation P06-03, full Rust-host deployment rehearsal P06-04"
+}

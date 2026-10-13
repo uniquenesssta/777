@@ -18,6 +18,7 @@ def main(argv=None):
     outputs=sub.add_parser('enable-outputs');outputs.add_argument('--root',type=Path,required=True);outputs.add_argument('--admin',required=True)
     recover=sub.add_parser('restore');recover.add_argument('--package',type=Path,required=True);recover.add_argument('--root',type=Path,required=True);recover.add_argument('--admin',required=True)
     activate=sub.add_parser('activate-restored');activate.add_argument('--root',type=Path,required=True);activate.add_argument('--old-host-stopped',action='store_true',required=True)
+    backend=sub.add_parser('select-backend');backend.add_argument('--root',type=Path,required=True);backend.add_argument('--admin',required=True);backend.add_argument('--backend',choices=['python','rust'],required=True);backend.add_argument('--binary',type=Path);backend.add_argument('--notices',type=Path)
     args=parser.parse_args(argv)
     if args.command=='init':
         secret=getpass.getpass('首次管理员密码（12～128字；不显示、不写入命令行）：')
@@ -26,6 +27,13 @@ def main(argv=None):
         print('主机初始化完成；当前未启动服务。')
         print('公开证书：',args.root/'service-cert.pem')
         print('证书指纹：',config['certificate_sha256'])
+    elif args.command=='select-backend':
+        import os
+        if os.name!='nt':parser.error('Only actual Windows host selection is supported')
+        if args.backend=='rust' and (args.binary is None or args.notices is None):parser.error('Rust requires --binary and --notices')
+        from quote_service.backend import select_backend
+        select_backend(args.root,args.admin,getpass.getpass('主机管理员密码：'),args.backend,binary=args.binary,notices=args.notices)
+        print('后端选择已保存；维护备份及账本核对通过。当前未启动服务。')
     elif args.command=='enable-outputs':
         import os
         if os.name!='nt':parser.error('Only actual Windows host activation is supported')

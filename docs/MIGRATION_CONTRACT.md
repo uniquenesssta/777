@@ -365,3 +365,10 @@ API依据：[Python 3.12 time.sleep](https://docs.python.org/3.12/library/time.h
 business-v1/numeric-v1规则不变。Rust领域影子协议见[P06-01 JSON契约](verification/P06-01-protocol.json)；输入金融字段是原文本，原配置JSON数字保留token，输出金额及u64草稿revision用十进制字符串，不经JS或JSON浮点。原53例黄金的numeric-v1-proposed仅按P01批准映射，原文件与期望不改。
 
 草稿以稳定draft_id和revision标识；纯核心生成的私有请求/完成类型绑定同进程generation，拒绝迟到/跨草稿/同值变回工作。`price_source=current`只表示可信调用者观察，并非认证或价格发布凭证。现有Python服务仍执行认证、角色过滤和唯一账本写入；将领域成本DTO直接交给销售不符合P05边界。此轮没有改变ledger-v1、P05业务API或真实数据；接替留P06-02/04。
+
+
+## P06-02同schema原生存储与领域适配
+
+Rust账本保持ledger-v1、已确认P05 API/客户端及角色过滤；[02契约](verification/P06-02-storage-contract.md)登记原请求指纹的Python排序紧凑JSON、事务/revision/价格CAS和原生备份。私有native JSON不是外部认证API；主体只能由现有会话恢复。显式后端配置只选择一个财务写端，未知/损坏Rust不自动回退；同v1交接不升级schema，不覆盖未知库。导入的Python格式桥接仅内存预演，最终Rust重验全账本并提交。
+
+完整包v3包含已登记私有worker/许可与输出队列，旧v1/v2可读；新目录恢复保留后端与账户/TLS身份，撤销旧会话，默认维护。真实切换仍需P08停止旧写端及增量对账；本轮只隔离实现/验证。

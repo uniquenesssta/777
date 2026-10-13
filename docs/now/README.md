@@ -1,3 +1,3 @@
 # 当前执行计划
 
-[P06 Rust核心](P06-rust-core.md)为唯一当前任务书，唯一分支stage/p06-rust-core基于P05收尾7710132。01已实现，[Windows完整核对](../verification/P06-01-windows-evidence-01.json)32指纹/Rust21/Python58/561对照通过，待用户验收，无需重跑；02至04未启动。P05已[归档交接](../verification/P05-acceptance.json)，真实部署与历史切换待办保留。
+[P06 Rust核心](P06-rust-core.md)是唯一当前任务书，分支stage/p06-rust-core。01已按[用户接续](../verification/P06-01-acceptance.json)验收，02已实现[存储/服务适配](../verification/P06-02-storage-contract.md)，65专项/594完整辅助与25 Rust/561对照通过，待本轮Windows/用户验收；03/04未启动。P05真实部署与历史切换交接保持。

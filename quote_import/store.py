@@ -81,6 +81,8 @@ def digest_bytes(raw):
 
 def apply_source(ledger, actor, owner_id, raw, kind, *, expected_review_sha256,
                  allow_quarantine=False, legacy_single_names=None):
+    if getattr(ledger,'backend',None)=='rust':
+        return ledger.native_import(actor,owner_id,raw,kind,expected_review_sha256=expected_review_sha256,allow_quarantine=allow_quarantine,legacy_single_names=legacy_single_names)
     require_admin(actor)
     identifier(owner_id)
     if type(allow_quarantine) is not bool:

@@ -85,14 +85,15 @@ def load(root,*,auxiliary=False,allow_maintenance=False):
     if len(raw)>65536:raise APIError(422,'HOST_CONFIG_TOO_LARGE')
     from .protocol import decode
     config=decode(raw)
-    fields(config,{'schema','ledger_id','backup_store_id','backup_dir','bind','port','certificate_sha256','private_security','maintenance'})
+    fields(config,{'schema','ledger_id','backup_store_id','backup_dir','bind','port','certificate_sha256','private_security','maintenance'},{'ledger_backend','rust_worker_sha256'})
     if type(config['maintenance']) is not bool:raise APIError(422,'HOST_CONFIG_INVALID')
     if config['maintenance'] and not allow_maintenance:raise APIError(503,'RECOVERY_MAINTENANCE_REQUIRED')
     if config['schema']!='777-host-v1' or type(config['port']) is not int or not 1<=config['port']<=65535:raise APIError(422,'HOST_CONFIG_INVALID')
     ipaddress.ip_address(config['bind'])
     private=local_path(root/'private',directory=True)
     from .recovery import ConfiguredBackups
-    ledger=Ledger(private/'ledger.sqlite3');auth=Auth(private/'auth.sqlite3');backups=ConfiguredBackups(config['backup_dir'],config['backup_store_id'],auxiliary=auxiliary)
+    from .backend import selected
+    ledger=selected(private,config,auxiliary=auxiliary);auth=Auth(private/'auth.sqlite3');backups=ConfiguredBackups(config['backup_dir'],config['backup_store_id'],auxiliary=auxiliary)
     if ledger.inventory()['ledger_id']!=config['ledger_id']:raise APIError(503,'HOST_STORE_IDENTITY_CONFLICT')
     pem=local_path(private/'tls-cert.pem').read_text(encoding='ascii')
     if hashlib.sha256(ssl.PEM_cert_to_DER_cert(pem)).hexdigest()!=config['certificate_sha256']:raise APIError(503,'CERTIFICATE_IDENTITY_CONFLICT')

@@ -1,6 +1,6 @@
 # P06 Rust领域核心与存储/服务适配
 
-状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已实现，[Windows完整核对](../verification/P06-01-windows-evidence-01.json)通过，具备收尾条件待用户验收，无需重跑；02至04未启动。
+状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02从c8ad540在同一分支执行中；03/04未启动。
 
 P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。P01已按[批准记录](../baseline/p01-acceptance.json)采纳numeric-v1/performance-v1，历史候选/黄金元数据保留并映射；实施时读取同一黄金JSON，不复制期望。当前01按同一资产开展影子核对。
 
@@ -42,3 +42,10 @@ P02-04补充输入资产：[窗口适配契约第11节](../MIGRATION_CONTRACT.md
 561个有序case ID/请求SHA及Python参考结果独立重算，与上传Rust结果SHA全相同，原比较行还与辅助结果全相等；原报告的比较文件SHA匹配。含原黄金53/53、200有理数对照、数值/容量、配置原token/格式/失败保留以及17组草稿动作。全部15个外部依赖及本crate版本/许可证与锁定清单一致。
 
 本轮验证纯领域与本地JSON影子，没有GUI、真实共享/E盘访问、已安装服务或生产写端切换。P06-01已具备收尾条件待用户验收；本阶段仍留now，02至04未启动，无需重跑已通过入口。原辅助与开发差异、P05原报告保持。
+
+
+## P06-02当前交付
+
+02从c8ad540按[启动记录](../verification/P06-02-start.json)复用本分支。`crates/quote-ledger`交付ledger-v1事务、原请求幂等、revision/价格CAS、完整性重算与原生在线备份；原DDL/hash不变，未知版本拒绝。私有进程适配替换已认证服务的计算/价格/真实财务写入；现有HTTPS/Auth/查询投影/输出渲染保留，Rust后端拒绝Python真实账本写连接。旧导入仅在内存预演，Rust固定表delta重验全账本后原子提交。明确离线后端选择持owner锁/管理员/完整维护备份，失败不隐式启用另一后端；v3主机包保存执行文件、许可与输出，独立恢复保持后端并维护，旧v1/v2兼容。
+
+[完整契约与Windows入口](../verification/P06-02-storage-contract.md)、[私有JSON/兼容契约](../verification/P06-02-protocol.json)、[固定依赖/许可](../verification/P06-02-dependencies.json)及[检查证据](../verification/P06-02-checks.json)交付。65专项/594完整辅助、25 Rust测试/Clippy/release与同一561对照通过，原01报告不改；待本轮Windows临时主机/原生进程/DPAPI/协议/恢复验证与用户验收，03/04未启动。没有真实主机或账本切换。格式Rust选型留03，完整Rust HTTP宿主与实机窗口演练留04。

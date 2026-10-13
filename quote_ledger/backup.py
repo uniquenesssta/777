@@ -81,17 +81,20 @@ class Backups:
             partial.mkdir(mode=0o700)
             try:
                 target=partial/'ledger.sqlite3'
-                with ledger.connection(readonly=True) as source:
-                    destination=sqlite3.connect(target,isolation_level=None)
-                    try:
-                        deadline=time.monotonic()+timeout
-                        def progress(status,remaining,total):
-                            if time.monotonic()>deadline:raise LedgerError('备份快照超时；原账本不变')
-                        source.backup(destination,pages=128,progress=progress,sleep=.01)
-                        destination.execute('PRAGMA journal_mode=DELETE')
-                        destination.row_factory=sqlite3.Row
-                        checked=inventory(destination)
-                    finally:destination.close()
+                if getattr(ledger,'backend',None)=='rust':
+                    checked=ledger.backup_snapshot(target,timeout=timeout)
+                else:
+                    with ledger.connection(readonly=True) as source:
+                        destination=sqlite3.connect(target,isolation_level=None)
+                        try:
+                            deadline=time.monotonic()+timeout
+                            def progress(status,remaining,total):
+                                if time.monotonic()>deadline:raise LedgerError('备份快照超时；原账本不变')
+                            source.backup(destination,pages=128,progress=progress,sleep=.01)
+                            destination.execute('PRAGMA journal_mode=DELETE')
+                            destination.row_factory=sqlite3.Row
+                            checked=inventory(destination)
+                        finally:destination.close()
                 # Windows _commit/FlushFileBuffers requires write access.
                 # r+b opens the owned snapshot without creating/truncating it.
                 with open(target,'r+b') as stream:os.fsync(stream.fileno())

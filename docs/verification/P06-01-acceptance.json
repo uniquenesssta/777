@@ -1,0 +1,13 @@
+{
+  "task": "P06-01",
+  "status": "accepted_by_user",
+  "accepted_at": "2026-10-13T21:26:19+08:00",
+  "user_instruction": "收尾01开始02",
+  "source_commit": "ebf1a2c0ece79cd6ea44249105af6c7c71f8dc26",
+  "evidence_commit": "c8ad54007b55452b4b68306bfe5e78416235a10e",
+  "evidence": "P06-01-windows-evidence-01.json",
+  "phase_branch": "stage/p06-rust-core",
+  "decision": "按已核对32指纹、Windows MSVC构建/21项Rust/58项Python/561精确对照收尾01，不重复通过检查；复用同分支开始02。",
+  "scope": "pure Rust domain and JSON shadow; production service/storage switch not deployed",
+  "next_task": "P06-02"
+}

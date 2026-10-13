@@ -115,9 +115,13 @@ def main(argv=None):
             if record['exit_code']: raise RuntimeError('RUST_CHECK_FAILED: '+' '.join(command[2:]))
         metadata=run([cargo,'+'+TOOLCHAIN,'metadata','--locked','--format-version','1']);
         if metadata['exit_code']:raise RuntimeError('CARGO_METADATA_FAILED')
-        packages=json.loads(metadata['stdout'])['packages'];report['dependencies']=[dict(name=p['name'],version=p['version'],license=p['license']) for p in packages]
+        graph=json.loads(metadata['stdout']);packages=graph['packages'];report['dependencies']=[dict(name=p['name'],version=p['version'],license=p['license']) for p in packages]
         expected=json.loads((ROOT/'docs/verification/P06-01-dependencies.json').read_text(encoding='utf-8'))['packages']
-        external={p['name']:(p['version'],p['license']) for p in packages if p['source'] is not None}
+        nodes={n['id']:n for n in graph['resolve']['nodes']};core_id=next(p['id'] for p in packages if p['name']=='quote-core');pending=[core_id];core_ids=set()
+        while pending:
+            key=pending.pop()
+            if key not in core_ids:core_ids.add(key);pending.extend(d['pkg'] for d in nodes[key]['deps'])
+        external={p['name']:(p['version'],p['license']) for p in packages if p['source'] is not None and p['id'] in core_ids}
         if external!={p['name']:(p['version'],p['license']) for p in expected}:raise RuntimeError('LOCKED_DEPENDENCY_OR_LICENSE_MISMATCH')
         report['python_checks']=run_python_checks()
         binary=ROOT/'target/release'/('quote-shadow.exe' if platform.system()=='Windows' else 'quote-shadow')

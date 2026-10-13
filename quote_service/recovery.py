@@ -49,28 +49,37 @@ def accounts_cover_ledger(ledger,auth):
     if not actors<=users:raise APIError(503,'BACKUP_ACCOUNT_MAPPING_INCOMPLETE')
 
 
-def manifest(folder):
+def manifest(folder,*,auxiliary=False):
     folder=local_path(folder,directory=True);value=read_json(folder/'manifest.json')
     fields(value,{'format','backup_id','ledger_id','files','inventory'})
-    if value['format'] not in {'777-service-bundle-v1','777-service-bundle-v2'} or str(uuid.UUID(value['backup_id']))!=value['backup_id']:
+    if value['format'] not in {'777-service-bundle-v1','777-service-bundle-v2','777-service-bundle-v3'} or str(uuid.UUID(value['backup_id']))!=value['backup_id']:
         raise APIError(422,'SERVICE_BACKUP_FORMAT_INVALID')
     names=set(value['files'])
-    if value['format']=='777-service-bundle-v1':
-        if names!=FILES:raise APIError(422,'SERVICE_BACKUP_FORMAT_INVALID')
-        roots=FILES|{'manifest.json'}
-    else:
-        if not FILES|{'outputs.sqlite3'}<=names or any(name not in FILES|{'outputs.sqlite3'} and not re.fullmatch(r'output-blobs/[0-9a-f-]{36}\.(xlsx|png)',name) for name in names):
-            raise APIError(422,'SERVICE_BACKUP_FORMAT_INVALID')
-        roots=FILES|{'outputs.sqlite3','output-blobs','manifest.json'}
+    from .rust_ledger import RUST_FILES,WORKER,file_hash
+    native=value['format']=='777-service-bundle-v3'
+    basics=FILES|RUST_FILES if native else FILES
+    outputs='outputs.sqlite3' in names
+    if native and not basics<=names:raise APIError(422,'SERVICE_BACKUP_FORMAT_INVALID')
+    if value['format']=='777-service-bundle-v1' and names!=FILES:raise APIError(422,'SERVICE_BACKUP_FORMAT_INVALID')
+    if value['format']=='777-service-bundle-v2' and not outputs:raise APIError(422,'SERVICE_BACKUP_FORMAT_INVALID')
+    allowed=basics|({'outputs.sqlite3'} if outputs else set())
+    if not basics<=names or any(name not in allowed and (not outputs or not re.fullmatch(r'output-blobs/[0-9a-f-]{36}\.(xlsx|png)',name)) for name in names):raise APIError(422,'SERVICE_BACKUP_FORMAT_INVALID')
+    roots=allowed|{'manifest.json'}|({'output-blobs'} if outputs else set())
+    if outputs:
         blobs=local_path(folder/'output-blobs',directory=True)
         if {p.name for p in blobs.iterdir()}!={name.split('/')[1] for name in names if name.startswith('output-blobs/')}:raise APIError(422,'SERVICE_BACKUP_FILES_INVALID')
     if {p.name for p in folder.iterdir()}!=roots:raise APIError(422,'SERVICE_BACKUP_FILES_INVALID')
     for name,expected in value['files'].items():
         if hash_file(local_path(folder/name))!=expected:raise APIError(422,'SERVICE_BACKUP_HASH_INVALID')
-    ledger=Ledger(folder/'ledger.sqlite3');auth=Auth(folder/'auth.sqlite3')
+    config=read_json(folder/'service.json')
+    if native:
+        if config.get('rust_worker_sha256')!=file_hash(folder/WORKER):raise APIError(422,'SERVICE_BACKUP_WORKER_INVALID')
+    elif config.get('ledger_backend','python')!='python' or 'rust_worker_sha256' in config:raise APIError(422,'SERVICE_BACKUP_BACKEND_INVALID')
+    from .backend import selected
+    ledger=selected(folder,config,auxiliary=auxiliary);auth=Auth(folder/'auth.sqlite3')
     if ledger.inventory()!=value['inventory']:raise APIError(422,'SERVICE_BACKUP_INVENTORY_INVALID')
     accounts_cover_ledger(ledger,auth)
-    if value['format']=='777-service-bundle-v2':
+    if outputs:
         from .outputs import Outputs
         outputs=Outputs(folder/'outputs.sqlite3',value['ledger_id'])
         outputs.validate_ledger(ledger)
@@ -81,7 +90,7 @@ def manifest(folder):
 
 
 def restore(folder,target,admin_name,new_password,*,auxiliary=False):
-    value=manifest(folder);folder=Path(folder);target=local_path(target,directory=True,exists=False)
+    value=manifest(folder,auxiliary=auxiliary);folder=Path(folder);target=local_path(target,directory=True,exists=False)
     if target.exists():raise FileExistsError('恢复只允许独立新主机目录')
     admin_name=username(admin_name);new_password=password(new_password)
     with Auth(folder/'auth.sqlite3').connection() as c:
@@ -91,11 +100,14 @@ def restore(folder,target,admin_name,new_password,*,auxiliary=False):
     if os.name!='nt' and not auxiliary:raise APIError(400,'WINDOWS_HOST_REQUIRED')
     target.mkdir(mode=0o700);private=target/'private';private.mkdir(mode=0o700)
     security=protect_directory(private) if os.name=='nt' else {'status':'auxiliary_no_native_security_claim'}
-    if value['format']=='777-service-bundle-v2':(private/'output-blobs').mkdir(mode=0o700)
+    if 'outputs.sqlite3' in value['files']:(private/'output-blobs').mkdir(mode=0o700)
     for name in value['files']:
         shutil.copyfile(local_path(folder/name),private/name)
         with open(private/name,'r+b') as stream:os.fsync(stream.fileno())
-    ledger=Ledger(private/'ledger.sqlite3');auth=Auth(private/'auth.sqlite3')
+        if name=='rust-ledger-worker.exe' and os.name!='nt' and auxiliary:(private/name).chmod(0o700)
+    config=read_json(private/'service.json')
+    from .backend import selected
+    ledger=selected(private,config,auxiliary=auxiliary);auth=Auth(private/'auth.sqlite3')
     with auth.connection() as c:
         c.execute('BEGIN IMMEDIATE')
         try:
@@ -139,12 +151,20 @@ def bundle(service,ledger_entry,host_root,*,auxiliary=False):
                 with open(partial/name,'r+b') as stream:os.fsync(stream.fileno())
             inventory=Ledger(partial/'ledger.sqlite3').inventory()
             names=set(FILES);format='777-service-bundle-v1'
+            config=read_json(partial/'service.json')
+            if 'rust_worker_sha256' in config:
+                from .rust_ledger import RUST_FILES
+                for name in RUST_FILES:
+                    shutil.copyfile(local_path(Path(host_root)/'private'/name),partial/name)
+                    with open(partial/name,'r+b') as stream:os.fsync(stream.fileno())
+                if os.name!='nt' and auxiliary:(partial/'rust-ledger-worker.exe').chmod(0o700)
+                names|=RUST_FILES;format='777-service-bundle-v3'
             if service.outputs is not None:
-                service.outputs.backup(partial);format='777-service-bundle-v2';names.add('outputs.sqlite3')
+                service.outputs.backup(partial);format='777-service-bundle-v3' if 'rust_worker_sha256' in config else '777-service-bundle-v2';names.add('outputs.sqlite3')
                 names.update('output-blobs/'+p.name for p in (partial/'output-blobs').iterdir())
             value={'format':format,'backup_id':identifier,'ledger_id':inventory['ledger_id'],
                    'files':{name:hash_file(partial/name) for name in sorted(names)},'inventory':inventory}
-            publish_json(partial/'manifest.json',value);manifest(partial)
+            publish_json(partial/'manifest.json',value);manifest(partial,auxiliary=auxiliary)
             validation=parent/('.verify-'+identifier)
             try:
                 with Auth(partial/'auth.sqlite3').connection() as c:admin=c.execute("SELECT username FROM users WHERE role='admin' ORDER BY username LIMIT 1").fetchone()[0]
@@ -170,7 +190,7 @@ def retain(service):
         removed=[e for e in data['entries'] if e['backup_id'] not in current]
         folders=[]
         for entry in removed:
-            folder=root/'service-bundles'/entry['backup_id'];checked=manifest(folder)
+            folder=root/'service-bundles'/entry['backup_id'];checked=manifest(folder,auxiliary=service.auxiliary)
             if checked['backup_id']!=entry['backup_id']:raise APIError(503,'SERVICE_BACKUP_INDEX_INVALID')
             folders.append(folder)
         data['entries']=[e for e in data['entries'] if e['backup_id'] in current];publish_json(index,data)

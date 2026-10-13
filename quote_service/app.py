@@ -46,6 +46,7 @@ class Service:
             raise
 
     def active_prices(self):
+        if getattr(self.ledger,'backend',None)=='rust':return self.ledger.active_prices()
         with self.ledger.connection(readonly=True) as c:
             identifier=verify(c)['active_price_id']
             if identifier is None:raise APIError(409,'PRICES_NOT_PUBLISHED')
@@ -134,7 +135,11 @@ class Service:
                 self.auth.admin(actor);fields(data,{'request_id','prices','expected_price_version_id'})
                 return self.ledger.publish_prices(data['request_id'],actor,prices(data['prices']),expected_price_version_id=data['expected_price_version_id'])
             if method=='POST' and path=='/v1/calculate':
-                fields(data,{'snapshot'});snapshot=quote(data['snapshot']);current=self.active_prices()
+                fields(data,{'snapshot'});snapshot=quote(data['snapshot'])
+                if getattr(self.ledger,'backend',None)=='rust':
+                    try:return calculated(self.ledger.calculate(snapshot),actor)
+                    except Conflict:raise APIError(409,'PRICE_VERSION_CHANGED') from None
+                current=self.active_prices()
                 if snapshot.price_version_id!=current.price_version_id:raise APIError(409,'PRICE_VERSION_CHANGED')
                 return calculated(calculate_quote(snapshot,current),actor)
             if method=='POST' and path=='/v1/orders':
