@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-13",
+  "updatedAt": "2026-10-14",
   "repository": "uniquenesssta/777",
   "branch": "Figma",
   "baselineCommit": "11ffd173f9ab12633d6c98b1549e1d7f55357a76",
   "businessBaseline": "223e86e0bef90dfef083281a42f8d7919b13c07d",
-  "status": "Editable design proposal; not production UI",
+  "status": "First-batch visual design rejected by user; single-screen redesign proposal awaiting feedback",
   "fileKey": "2ek9bkIz5ldyhjZnnvIuNu",
   "fileUrl": "https://www.figma.com/design/2ek9bkIz5ldyhjZnnvIuNu",
   "pages": {
@@ -601,5 +601,60 @@
     "No production APIs or Code Connect",
     "No runtime keyboard/DPI/minimum-window verification",
     "No full browser click playback"
-  ]
+  ],
+  "currentReview": {
+    "pageId": "21:2",
+    "frameId": "21:3",
+    "url": "https://www.figma.com/design/2ek9bkIz5ldyhjZnnvIuNu?node-id=21-3",
+    "scope": "Single quotation screen; visual review only",
+    "prototypeConnected": false,
+    "collectionId": "VariableCollectionId:22:253",
+    "variables": {
+      "canvas": "VariableID:22:254",
+      "white": "VariableID:22:255",
+      "ink": "VariableID:22:256",
+      "muted": "VariableID:22:257",
+      "faint": "VariableID:22:258",
+      "line": "VariableID:22:259",
+      "soft": "VariableID:22:260",
+      "accent": "VariableID:22:261",
+      "accentSoft": "VariableID:22:262",
+      "accentInk": "VariableID:22:263",
+      "dark": "VariableID:22:264",
+      "darkMuted": "VariableID:22:265",
+      "success": "VariableID:22:266"
+    },
+    "dimensions": {
+      "radius8": "VariableID:22:267",
+      "radius16": "VariableID:22:268",
+      "space20": "VariableID:22:269",
+      "space40": "VariableID:22:270"
+    },
+    "palette": {
+      "canvas": "#F5F6F8",
+      "white": "#FFFFFF",
+      "ink": "#242630",
+      "muted": "#777C8B",
+      "faint": "#A3A7B2",
+      "line": "#E7E9EF",
+      "soft": "#F7F8FA",
+      "accent": "#5558E8",
+      "accentSoft": "#EEEEFF",
+      "accentInk": "#4945B8",
+      "dark": "#262935",
+      "darkMuted": "#B8BDCF",
+      "success": "#26765B"
+    },
+    "fonts": [
+      "Noto Sans SC",
+      "Inter"
+    ],
+    "counts": {
+      "FRAME": 90,
+      "TEXT": 89,
+      "INSTANCE": 29,
+      "VECTOR": 26
+    },
+    "images": []
+  }
 }
