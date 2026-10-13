@@ -1,6 +1,6 @@
 # P06 Rust领域核心与存储/服务适配
 
-状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已实现待Windows验证/用户验收；02至04未启动。
+状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已实现，[Windows完整核对](../verification/P06-01-windows-evidence-01.json)通过，具备收尾条件待用户验收，无需重跑；02至04未启动。
 
 P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。P01已按[批准记录](../baseline/p01-acceptance.json)采纳numeric-v1/performance-v1，历史候选/黄金元数据保留并映射；实施时读取同一黄金JSON，不复制期望。当前01按同一资产开展影子核对。
 
@@ -34,3 +34,11 @@ P02-04补充输入资产：[窗口适配契约第11节](../MIGRATION_CONTRACT.md
 检查入口：`py -3 tools/p06_core_check.py --windows-smoke --output reports/p06-01-windows-01`；辅助模式显式`--checks-only`。实际Windows AMD64/MSVC、固定工具链、fmt/Clippy/test/release构建与完整逐例比较通过后才登记Windows结果。当前Rust21项/Python58项与561/561逐例辅助核对（含原黄金53/53）通过，见[检查证据](../verification/P06-01-checks.json)，不能替代Windows验收；无需重跑P05已通过入口。
 
 回退：关闭影子程序即可继续当前Python核心/服务；没有数据库/schema/客户端切换。任一跨语言差异阻断后续替换，不移动P06到old，不提前开始02。
+
+## P06-01 Windows完整核对通过
+
+用户本轮回传[原报告](../verification/P06-01-windows-report-01.json)29958字节和[原比较文件](../verification/P06-01-windows-comparisons-01.json)220370字节，均按原CRLF字节归档。[核对记录](../verification/P06-01-windows-evidence-01.json)确认ebf1a2c干净工作区的32项LF源码指纹与当前及辅助记录一致；实际Windows AMD64/MSVC、Rust1.97.1，fmt/Clippy/21项Rust测试/release构建全通过。58项Python测试清单、源码AST和成功日志逐项相同，零失败/错误/跳过。
+
+561个有序case ID/请求SHA及Python参考结果独立重算，与上传Rust结果SHA全相同，原比较行还与辅助结果全相等；原报告的比较文件SHA匹配。含原黄金53/53、200有理数对照、数值/容量、配置原token/格式/失败保留以及17组草稿动作。全部15个外部依赖及本crate版本/许可证与锁定清单一致。
+
+本轮验证纯领域与本地JSON影子，没有GUI、真实共享/E盘访问、已安装服务或生产写端切换。P06-01已具备收尾条件待用户验收；本阶段仍留now，02至04未启动，无需重跑已通过入口。原辅助与开发差异、P05原报告保持。

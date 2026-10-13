@@ -9,8 +9,8 @@
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
 | 本轮授权 | 用户2026-10-13 20:25:31“收尾P05-04开始P06-01”；既有推送授权有效 |
 | 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P05隔离交付已[收尾归档](verification/P05-acceptance.json)，原Windows52/52报告保持。当前唯一stage/p06-rust-core基于P05收尾7710132；P06-01独立Rust领域核心已实现，跨语言/边界辅助核对通过，Windows原生构建与用户验收待回传。02至04未启动；真实部署与历史切换待办保留。 |
-| 下一项 | P06-01 Windows原生Rust核对及用户验收，02至04未启动 |
+| 当前开发阶段 / Atomic Task | P05隔离交付已[收尾归档](verification/P05-acceptance.json)，原Windows52/52报告保持。当前唯一stage/p06-rust-core基于P05收尾7710132；P06-01独立Rust领域核心已实现，[Windows完整核对](verification/P06-01-windows-evidence-01.json)确认32项指纹一致、Rust21项/Python58项及561/561对照通过，具备收尾条件待用户验收，无需重跑。02至04未启动；真实部署与历史切换待办保留。 |
+| 下一项 | P06-01已具备收尾条件，Windows检查无需重跑；待用户验收，02至04未启动 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
@@ -42,4 +42,4 @@
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
 
-当前结论：P05范围交付已归档，P06-01已实现，Windows原生构建/影子比较待回传；真实部署和历史切换门槛保留。
+当前结论：P05范围交付已归档，P06-01原生Windows构建/影子比较已核对通过，待用户验收；真实部署和历史切换门槛保留。

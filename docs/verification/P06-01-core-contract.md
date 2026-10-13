@@ -44,3 +44,8 @@ py -3 tools/p06_core_check.py --windows-smoke --output reports/p06-01-windows-01
 通过后回传新目录中的`report.json`与`comparisons.json`供完整指纹/清单核对。只验证本地构建和纯核心，无窗口需观察，不访问UNC、真实E盘、原件或生产账本。P06-01 Windows通过及用户验收前不启动02。
 
 回退：退出影子程序，继续现有Python；无schema/数据库/客户端切换，无需恢复真实数据。真实主机安装/身份、E盘权限与首次历史迁移继续按P05交接和P07/P08门槛处理。
+
+
+## 当前Windows结果
+
+[完整核对](P06-01-windows-evidence-01.json)已通过：ebf1a2c的32项LF指纹一致，原生Windows AMD64/MSVC固定Rust1.97.1的fmt/Clippy/21项Rust测试/release构建成功，Python58项零失败/错误/跳过；561/561请求与参考/输出SHA独立重算一致，含原黄金53/53。原[报告](P06-01-windows-report-01.json)与[比较文件](P06-01-windows-comparisons-01.json)按原字节保存。无需重复本轮入口；01具备收尾条件待用户验收，02未启动。上面的运行步骤供新环境或后续有实际改动时使用，不增加一次重复验收。

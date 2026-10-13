@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P05隔离交付已[收尾归档](docs/verification/P05-acceptance.json)，原Windows52/52报告保持。当前唯一stage/p06-rust-core基于P05收尾7710132；P06-01独立Rust领域核心已实现，跨语言/边界辅助核对通过，Windows原生构建与用户验收待回传。02至04未启动；真实部署与历史切换待办保留。
+P05隔离交付已[收尾归档](docs/verification/P05-acceptance.json)，原Windows52/52报告保持。当前唯一stage/p06-rust-core基于P05收尾7710132；P06-01独立Rust领域核心已实现，[Windows完整核对](docs/verification/P06-01-windows-evidence-01.json)确认32项指纹一致、Rust21项/Python58项及561/561对照通过，具备收尾条件待用户验收，无需重跑。02至04未启动；真实部署与历史切换待办保留。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -36,6 +36,8 @@ P05隔离交付已[收尾归档](docs/verification/P05-acceptance.json)，原Win
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P06-01 Windows完整核对通过：32项LF指纹匹配ebf1a2c，原生MSVC固定Rust1.97.1的fmt/Clippy/test/release构建通过，Rust21项/Python58项零失败/跳过；561/561对照逐例请求与双方结果SHA独立重算一致，含原黄金53/53。原报告和比较文件按字节归档，[核对证据](docs/verification/P06-01-windows-evidence-01.json)已保存；具备收尾条件待用户验收，无需重跑，02未启动。
 
 - P06-01：从P05收尾7710132建立唯一stage/p06-rust-core，任务书new→now；交付独立精确Rust金额/配置/草稿核心、锁定依赖许可与Python/Rust影子核对入口。黄金与Python生产链保持；53/53黄金在561/561精确对照中通过，Rust21项/Python58项与fmt/Clippy/release构建辅助通过，待Windows原生构建/用户验收；未启动02或Tauri。
 

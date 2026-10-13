@@ -98,4 +98,4 @@ Rust保持ledger-v1、business-v1、numeric-v1与现有认证边界；接替[输
 
 `crates/quote-core`是当前Rust实现，复用同一53例黄金和Python修正版。`numbers`精确BigInt/scale；`calculation/models`顺序金额和冻结快照；`configuration`有界原始token JSON；`session`稳定draft_id/revision与输出门槛。独立`quote-shadow`只把验证DTO映射到领域核心。依赖中没有数据库/HTTP/Tauri/GUI，生产Python服务未切换；存储/API适配留P06-02，Excel留03，真实Windows服务影子与资源对比留04。
 
-工具链固定1.97.1，直接依赖与全部15项传递包版本/许可/校验和见[P06依赖登记](verification/P06-01-dependencies.json)，锁文件与许可全文随源码保存。BigInt解决numeric-v1的1e45/60位中间容量，金额仍限制对称i64分；原JSON数字token不用f64解码。Windows MSVC构建入口见[核心契约](verification/P06-01-core-contract.md)；辅助检查不代表Windows/真实主机或安装包已验证。
+工具链固定1.97.1，直接依赖与全部15项传递包版本/许可/校验和见[P06依赖登记](verification/P06-01-dependencies.json)，锁文件与许可全文随源码保存。BigInt解决numeric-v1的1e45/60位中间容量，金额仍限制对称i64分；原JSON数字token不用f64解码。[Windows完整核对](verification/P06-01-windows-evidence-01.json)已确认32指纹/Rust21/Python58/561对照与原生MSVC release构建通过，01待用户验收；真实主机接替和安装包仍留对应后续任务。构建入口见[核心契约](verification/P06-01-core-contract.md)。
