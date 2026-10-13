@@ -5,7 +5,7 @@
   "branch": "Figma",
   "baselineCommit": "11ffd173f9ab12633d6c98b1549e1d7f55357a76",
   "businessBaseline": "223e86e0bef90dfef083281a42f8d7919b13c07d",
-  "status": "Redesign direction accepted with removal of redundant heading; single-screen visual proposal",
+  "status": "Compact redesign extended with order list, read-only detail and confirmation; awaiting visual review",
   "fileKey": "2ek9bkIz5ldyhjZnnvIuNu",
   "fileUrl": "https://www.figma.com/design/2ek9bkIz5ldyhjZnnvIuNu",
   "pages": {
@@ -606,8 +606,8 @@
     "pageId": "21:2",
     "frameId": "21:3",
     "url": "https://www.figma.com/design/2ek9bkIz5ldyhjZnnvIuNu?node-id=21-3",
-    "scope": "Single quotation screen; visual review only",
-    "prototypeConnected": false,
+    "scope": "Admin quotation, order list, read-only detail and confirmation prototype",
+    "prototypeConnected": true,
     "collectionId": "VariableCollectionId:22:253",
     "variables": {
       "canvas": "VariableID:22:254",
@@ -711,6 +711,112 @@
         "product": "安装服务",
         "qty": "1",
         "amount": "100.00"
+      }
+    ],
+    "screens": {
+      "adminQuote": "21:3",
+      "adminOrders": "32:96",
+      "adminDetail": "32:499",
+      "adminConfirm": "32:818"
+    },
+    "limitations": [
+      "Static sample values; no production APIs",
+      "Only first list row opens the sample detail",
+      "Search, filters, pagination and append-note button are static",
+      "Sales and exception states have not been migrated to the redesign",
+      "No browser click playback, keyboard or Windows DPI validation"
+    ],
+    "listLayout": {
+      "visibleRows": 8,
+      "rowHeight": 60,
+      "tableHeight": 520,
+      "panelGap": 12
+    },
+    "prototypeConnections": [
+      {
+        "node": "32:318",
+        "type": "NODE",
+        "destinationId": "21:3",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "32:365",
+        "type": "NODE",
+        "destinationId": "32:499",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "32:814",
+        "type": "NODE",
+        "destinationId": "32:96",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "22:501",
+        "type": "NODE",
+        "destinationId": "32:818",
+        "navigation": "OVERLAY",
+        "transition": null,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "32:829",
+        "type": "CLOSE"
+      },
+      {
+        "node": "32:831",
+        "type": "NODE",
+        "destinationId": "32:499",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "22:279",
+        "type": "NODE",
+        "destinationId": "32:96",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "32:103",
+        "type": "NODE",
+        "destinationId": "21:3",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "32:506",
+        "type": "NODE",
+        "destinationId": "21:3",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
+      },
+      {
+        "node": "32:507",
+        "type": "NODE",
+        "destinationId": "32:96",
+        "navigation": "NAVIGATE",
+        "transition": null,
+        "resetScrollPosition": false,
+        "resetInteractiveComponents": false
       }
     ]
   }
