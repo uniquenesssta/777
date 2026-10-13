@@ -86,3 +86,6 @@ py -3 tools/quote_service_host.py run --root 'E:\Quote777Service'
 客户端复制公开service-cert.pem，运行`py -3 tools/run_quote_client.py --role manager`或`--role sales`；在服务页设置https://192.168.4.38:8477、选择公开证书并核对指纹后登录。主机先发布价格/创建各操作人员账号，母版发布UNC报表/图片目录，子版自动继承。生产账本导入、安装自启动和切换按03/P07/P08执行；真实主机/E盘账户访问、不同物理机器并发部署验收仍待现场证据。
 
 技术依据：[Uvicorn设置](https://www.uvicorn.org/settings/)、[部署](https://www.uvicorn.org/deployment/)、[Python3.12 ssl](https://docs.python.org/3.12/library/ssl.html)、[hashlib scrypt](https://docs.python.org/3.12/library/hashlib.html)、[cryptography X.509](https://cryptography.io/en/stable/x509/tutorial/)、[Microsoft DPAPI](https://learn.microsoft.com/en-us/windows/win32/api/dpapi/nf-dpapi-cryptprotectdata)。
+
+
+当前续接：P05-02隔离交付已按[用户接续](P05-02-acceptance.json)收尾并推进[P05-03](P05-03-import-contract.md)。02已有Windows/DPAPI/GUI/恢复检查无需重跑，真实主机/E盘、物理部署、安装自启动/运维交接仍保留，整阶段未验收。

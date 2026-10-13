@@ -344,3 +344,10 @@ API依据：[Python 3.12 time.sleep](https://docs.python.org/3.12/library/time.h
 [P05-01已验收](verification/P05-01-acceptance.json)；[P05-02契约](verification/P05-02-service-contract.md)冻结HTTPS业务边界：服务端账户/会话恢复Principal，客户端actor/role/财务总额不可信。调用者以lossless字符串提供business-v1/numeric-v1输入、request_id/expected_revision/价格CAS；钱为字符串整数分。销售只获得本人销售数据和允许字段，不含成本/利润/其他归属，原参数/价格仍冻结。标准DraftDetails字段customer/order_ref/wechat不当登录身份。结果未知查询本人回执再用原ID原负载重试，客户端DPAPI保存并绑定原服务/身份。目录属于服务发布配置，不再由Excel文件路径决定权威账本。
 
 主机完整服务恢复包含财务库、Auth账户ID/设置/计划和TLS材料，独立新目录核对后为维护状态；旧会话/凭证失效，管理员新密码及其他账号重设/启用后按停旧写端与增量对账切换。42专项/427辅助通过；Windows原生Tk/DPAPI及真实主机/E盘/物理双机未完成。旧账本迁移在03，报表/附件任务在04，当前未生产切换。
+
+
+## P05-03 导入协议与来源守恒
+
+[legacy-import-v1](verification/P05-03-import-contract.md)只接受显式文件、只读预演SHA与管理员/保管人绑定。原钱/输入/价格逐行与共享核心核对；差异、未知格式、公式或无可靠边界的同秒记录隔离，不从显示名或时间补造业务身份。历史价格不成为当前发布版；源表/行到稳定新ID、原版本/状态/事件和完整源字节存于受保护ImportBatch，并与不可变请求回执核验。单来源全事务、相同来源/适配版本重放不重复，未知结果沿用原batch request_id。公开金额/差异分用十进制字符串，明确区分通过部分金额和源读取金额，未知金额不伪装零。
+
+本轮复用ledger-v1 DDL；本机管理员入口持主机锁并先验证完整维护备份，不提供客户端任意路径写入接口。具体跨语言适配、来源恢复验证及限制见契约，真实历史存在性与上线迁移仍待现场/副本证据。

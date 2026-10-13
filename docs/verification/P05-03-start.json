@@ -1,0 +1,16 @@
+{
+  "task": "P05-03",
+  "status": "implementation_started",
+  "user_message_at": "2026-10-13T13:23:31+08:00",
+  "user_instruction": "继续R5-03",
+  "context_mapping": "当前777项目的第五阶段第三项P05-03；不切换到其他项目R系列任务。",
+  "baseline_commit": "6a041f49f2d73f75943b03a50a85172e77da8b37",
+  "phase_branch": "stage/p05-data-service",
+  "additional_branch_created": false,
+  "scope": "只读识别与预演、管理员原子幂等导入、源行/原件证据和隔离演练；真实数据不自动迁移。",
+  "P05_04_started": false,
+  "real_history_presence_still_unknown": true,
+  "implementation_status": "delivered_auxiliary_passed_Windows_pending",
+  "checks": "P05-03-checks.json",
+  "contract": "P05-03-import-contract.md"
+}

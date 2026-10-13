@@ -9,8 +9,8 @@
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
 | 本轮授权 | 用户2026-10-13 00:12:35确认停电、授权先推进P05并延期共享复验；既有推送授权有效 |
 | 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P01/P02/P03已验收；[P04正式06](verification/P04-04-windows-evidence-06.json)已核对Windows本机/UNC全档各5轮通过：43项源码指纹、37测试ID一致，110进程/450当前阶段全部完成并达标；整阶段具备收尾条件，待用户收尾确认。当前唯一stage/p05-data-service；P05-01已按用户“收尾01开始02”[验收收尾](verification/P05-01-acceptance.json)，原Windows42/42及恢复/权限通过证据不改。P05-02从84b881c实现[HTTPS认证服务与母子版适配](verification/P05-02-service-contract.md)，主体/会话/角色DTO、原请求核查、子版只读继承目录、主机备份计划和完整服务恢复已交付，[42专项/427完整辅助](verification/P05-02-checks.json)通过；[完整Windows核对](verification/P05-02-windows-report-verification-01.json)确认60项源码指纹、42测试ID一致，42/42零失败/错误/跳过及实际母子Tk/DPAPI/恢复/权限/清理通过，无需重跑；真实主机/E盘和物理双机部署仍待验证。P05-03/04未启动，未迁移或切换生产数据。 |
-| 下一项 | P04正式06已通过，具备阶段收尾条件；P05-02隔离证据已齐，现场部署待办保持，P05-03/04未启动，无需重复验证 |
+| 当前开发阶段 / Atomic Task | P01/P02/P03已验收；P04已依据[接续指令](verification/P04-acceptance.json)验收收尾，原正式06本机/UNC全档通过证据保持。当前唯一stage/p05-data-service；P05-01已按用户“收尾01开始02”[验收收尾](verification/P05-01-acceptance.json)，原Windows42/42及恢复/权限通过证据不改。P05-02从84b881c实现[HTTPS认证服务与母子版适配](verification/P05-02-service-contract.md)，主体/会话/角色DTO、原请求核查、子版只读继承目录、主机备份计划和完整服务恢复已交付，[42专项/427完整辅助](verification/P05-02-checks.json)通过；[完整Windows核对](verification/P05-02-windows-report-verification-01.json)确认60项源码指纹、42测试ID一致，42/42零失败/错误/跳过及实际母子Tk/DPAPI/恢复/权限/清理通过，无需重跑；真实主机/E盘和物理双机部署仍待验证。P05-02隔离交付已[收尾](verification/P05-02-acceptance.json)；P05-03已实现[旧数据预演/原子导入](verification/P05-03-import-contract.md)，[50专项/477完整辅助](verification/P05-03-checks.json)通过，41项新验证入口指纹，待Windows隔离验证。P05-04未启动，未迁移或切换生产数据。 |
+| 下一项 | P04和P05-02隔离交付已收尾；运行[P05-03新Windows入口](verification/P05-03-import-contract.md)，04未启动；旧通过任务无需重复验证 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
@@ -42,4 +42,4 @@
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
 
-当前结论：P05-01已验收，P05-02完整Windows报告/60项指纹/42测试ID已核对通过，现场部署未验证；P04正式06本机/UNC性能已核对通过，阶段收尾待用户确认，原失败证据保留。
+当前结论：P05-01已验收，P05-02完整Windows报告/60项指纹/42测试ID已核对通过，现场部署未验证；P04正式06已按接续指令验收收尾；P05-03已交付待Windows，原失败与现场部署待办保留。
