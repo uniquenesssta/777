@@ -358,3 +358,10 @@ API依据：[Python 3.12 time.sleep](https://docs.python.org/3.12/library/time.h
 账本财务提交与输出任务独立；ledger-v1的schema/revision不因创建或补导出而改变。输出扩展777-output-store-v1绑定ledger_id，冻结订单版本/价格/规则/金额/备注、只追加回执和事件，queued/running/failed/done持久恢复。共有发布类型只含收入字段，内部成本/利润报表限管理员且仅在私有目录；客户端输入不能指定输出路径。完整备份v2包含扩展与索引文件，继续读取/恢复旧v1；恢复仍维护状态、旧会话失效。
 
 777-output-v1固定四表和PNG元数据；金融整数分始终十进制字符串，Excel文字不执行公式，XML控制字符显示码点且原输入不改。源价格与原snapshot冻结，重复请求/补导出不重新计价或入账。777-query-v1签名游标绑定身份/范围/view，变化拒绝旧页；范围统计只计active并通过审计增量重算，不建立第二套持久财务权威。静态样例、精度/版本拒绝、角色允许字段与备份兼容见[P05-04契约](verification/P05-04-output-contract.md)和[协议样例](verification/P05-04-protocol.json)，供Rust复用。
+
+
+## P06-01领域影子JSON边界
+
+business-v1/numeric-v1规则不变。Rust领域影子协议见[P06-01 JSON契约](verification/P06-01-protocol.json)；输入金融字段是原文本，原配置JSON数字保留token，输出金额及u64草稿revision用十进制字符串，不经JS或JSON浮点。原53例黄金的numeric-v1-proposed仅按P01批准映射，原文件与期望不改。
+
+草稿以稳定draft_id和revision标识；纯核心生成的私有请求/完成类型绑定同进程generation，拒绝迟到/跨草稿/同值变回工作。`price_source=current`只表示可信调用者观察，并非认证或价格发布凭证。现有Python服务仍执行认证、角色过滤和唯一账本写入；将领域成本DTO直接交给销售不符合P05边界。此轮没有改变ledger-v1、P05业务API或真实数据；接替留P06-02/04。

@@ -2,7 +2,7 @@
 
 版本：初始规划；日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P05-04已按用户接续指令[验收收尾](verification/P05-04-acceptance.json)，P05隔离交付已[归档并交接](verification/P05-acceptance.json)。Windows52/52及原报告保持，真实部署/E盘/服务身份/物理多客户端与历史切换仍待后续验证。P06-01已授权，下一步从P05收尾提交建立唯一stage/p06-rust-core。**
+**P05隔离交付已[收尾归档](verification/P05-acceptance.json)，原Windows52/52报告保持。当前唯一stage/p06-rust-core基于P05收尾7710132；P06-01独立Rust领域核心已实现，跨语言/边界辅助核对通过，Windows原生构建与用户验收待回传。02至04未启动；真实部署与历史切换待办保留。**
 
 ## 1. 目标与边界
 
@@ -15,7 +15,7 @@
 
 ## 2. 阶段索引
 
-P01至P05已归档old，P05真实部署交接项保留。P06-01获启动授权，P06任务书在建分支时移到now；阶段内Atomic Task复用唯一阶段分支。
+P01至P05已归档old，P05真实部署交接项保留。P06任务书在now，P07/P08在new。当前唯一开发分支stage/p06-rust-core基于P05收尾7710132；各Atomic Task复用阶段分支。
 
 | 阶段 | 任务书 | 前置 | 建议分支 | 状态 / 核心退出门槛 |
 | --- | --- | --- | --- | --- |
@@ -24,7 +24,7 @@ P01至P05已归档old，P05真实部署交接项保留。P06-01获启动授权�
 | P03 | [文件数据安全与兼容](old/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 四项均已验收归档；[P03确认](verification/P03-acceptance.json)，原Windows及辅助237项证据保留 |
 | P04 | [后台任务与性能](old/P04-performance.md) | P03已验收 | stage/p04-performance（已转接） | 01/02/03已验收，04短诊断通过；用户确认停电、授权先P05；正式06全档通过已按[用户接续](verification/P04-acceptance.json)验收收尾，无需重跑 |
 | P05 | [结构化存储与局域网服务](old/P05-data-service.md) | P04已验收 | stage/p05-data-service（历史） | [隔离交付已收尾](verification/P05-acceptance.json)，Windows52/52原证据保持；真实部署及历史切换交接后续 |
-| P06 | [Rust业务核心与适配](new/P06-rust-core.md) | 用户授权P05交接 | stage/p06-rust-core | P06-01已授权；02至04待启动 |
+| P06 | [Rust业务核心与适配](now/P06-rust-core.md) | 用户授权P05交接 | stage/p06-rust-core | 01已实现，辅助精确核对通过，待Windows/用户验收；02至04未启动 |
 | P07 | [Tauri界面与Windows交付](new/P07-tauri-desktop.md) | P06已验收 | stage/p07-tauri-desktop | 待启动；母子角色端到端、权限与安装验收通过 |
 | P08 | [迁移演练与正式切换](new/P08-cutover.md) | P07已验收 | stage/p08-cutover | 待启动；全量对账、恢复演练及用户验收后才切换 |
 

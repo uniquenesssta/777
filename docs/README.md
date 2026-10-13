@@ -1,16 +1,16 @@
 # 文档与计划入口
 
-日期：2026-10-13（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；当前执行分支：`stage/p05-data-service`；P01收尾提交：`7099303`。
+日期：2026-10-13（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；当前执行分支：`stage/p06-rust-core`；P01收尾提交：`7099303`。
 
 ## 当前状态
 
 | 项目 | 状态 |
 | --- | --- |
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
-| 本轮授权 | 用户2026-10-13 00:12:35确认停电、授权先推进P05并延期共享复验；既有推送授权有效 |
+| 本轮授权 | 用户2026-10-13 20:25:31“收尾P05-04开始P06-01”；既有推送授权有效 |
 | 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P05-04已按用户接续指令[验收收尾](verification/P05-04-acceptance.json)，P05隔离交付已[归档并交接](verification/P05-acceptance.json)。Windows52/52及原报告保持，真实部署/E盘/服务身份/物理多客户端与历史切换仍待后续验证。P06-01已授权，下一步从P05收尾提交建立唯一stage/p06-rust-core。 |
-| 下一项 | P06-01独立Rust领域核心与跨语言核对；02至04未启动 |
+| 当前开发阶段 / Atomic Task | P05隔离交付已[收尾归档](verification/P05-acceptance.json)，原Windows52/52报告保持。当前唯一stage/p06-rust-core基于P05收尾7710132；P06-01独立Rust领域核心已实现，跨语言/边界辅助核对通过，Windows原生构建与用户验收待回传。02至04未启动；真实部署与历史切换待办保留。 |
+| 下一项 | P06-01 Windows原生Rust核对及用户验收，02至04未启动 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
@@ -32,7 +32,7 @@
 
 - `plans` 仅承载规划及其记录；本轮从上述 master 基线创建。不得向 main/master 顺带提交。
 - 启动一个开发阶段时，先公告该阶段唯一分支名称和真实基线，再在授权内创建或复用；阶段内 Atomic Task 复用它。P01已在stage/p01-baseline收尾；P02在stage/p02-calculation收尾；P03在stage/p03-file-safety收尾；P04复用唯一stage/p04-performance。
-- P01实际分支 `stage/p01-baseline` 以已核验的 `plans@78a1e1d` 为基线，业务源码与master原始blob一致；P02实际分支stage/p02-calculation基于P01验收提交7099303；P03实际分支stage/p03-file-safety基于P02验收提交96735ad；P04实际分支stage/p04-performance基于P03验收提交823a487；P05已按用户依赖例外授权从31c8784建立stage/p05-data-service；P06至P08仍为拟议，不盲目从master重开。
+- P01实际分支 `stage/p01-baseline` 以已核验的 `plans@78a1e1d` 为基线，业务源码与master原始blob一致；P02实际分支stage/p02-calculation基于P01验收提交7099303；P03实际分支stage/p03-file-safety基于P02验收提交96735ad；P04实际分支stage/p04-performance基于P03验收提交823a487；P05已按用户依赖例外授权从31c8784建立stage/p05-data-service；P06已从7710132建立stage/p06-rust-core，P07/P08仍为拟议，不盲目从master重开。
 - 开发分支携带当前任务书记录。需同步 plans 索引时只同步文档且核对最新状态；不要把 plans 旧代码合并回开发分支，不为了同步文档制造第二条开发分支。
 - 恢复工作必须核对主任务书、now、真实分支/提交和工作区；三者不一致先查证，禁止从文件名推断完成。
 
@@ -42,4 +42,4 @@
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
 
-当前结论：P05隔离交付已按用户指令归档，P06-01获授权；真实部署和历史切换门槛继续保留。
+当前结论：P05范围交付已归档，P06-01已实现，Windows原生构建/影子比较待回传；真实部署和历史切换门槛保留。

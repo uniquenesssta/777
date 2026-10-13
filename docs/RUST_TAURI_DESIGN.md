@@ -1,6 +1,6 @@
 # Rust + Tauri 拟议架构与迁移方案
 
-状态：规划草案，不代表已经创建Rust项目、Tauri应用、服务或数据库。约束入口为[主任务书](MASTER_PLAN.md)，业务字段和公式以[迁移契约](MIGRATION_CONTRACT.md)为准。
+状态：完整Tauri拓扑仍为方案；Python过渡服务/账本已在P05交付，P06-01已创建独立Rust领域crate与影子核对入口，尚未接替生产服务或创建Tauri界面。约束入口为[主任务书](MASTER_PLAN.md)，业务字段和公式以[迁移契约](MIGRATION_CONTRACT.md)为准。
 
 ## 1. 为什么先优化数据与规则
 
@@ -92,3 +92,10 @@ P05-03交接补充：[导入契约](verification/P05-03-import-contract.md)提�
 ### P05-04已实现的报表与查询适配
 
 Rust保持ledger-v1、business-v1、numeric-v1与现有认证边界；接替[输出扩展DDL](verification/P05-04-output-schema.sql)、[777-output/query-v1样例](verification/P05-04-protocol.json)与[完整契约](verification/P05-04-output-contract.md)。报表从冻结的已提交订单生成，金融分按字符串传输，内部成本报表不能发布公共共享目录；持久任务回执/恢复与财务事务分离。备份v2包含任务和原缓存文件，v1兼容；签名view分页变化拒绝、审计增量统计的精确结果须一致。Tauri界面可替换现有服务账本/输出任务窗口，不重新实现计算或让前端直接改SQLite/Excel。
+
+
+## P06-01已实现的Rust领域边界
+
+`crates/quote-core`是当前Rust实现，复用同一53例黄金和Python修正版。`numbers`精确BigInt/scale；`calculation/models`顺序金额和冻结快照；`configuration`有界原始token JSON；`session`稳定draft_id/revision与输出门槛。独立`quote-shadow`只把验证DTO映射到领域核心。依赖中没有数据库/HTTP/Tauri/GUI，生产Python服务未切换；存储/API适配留P06-02，Excel留03，真实Windows服务影子与资源对比留04。
+
+工具链固定1.97.1，直接依赖与全部15项传递包版本/许可/校验和见[P06依赖登记](verification/P06-01-dependencies.json)，锁文件与许可全文随源码保存。BigInt解决numeric-v1的1e45/60位中间容量，金额仍限制对称i64分；原JSON数字token不用f64解码。Windows MSVC构建入口见[核心契约](verification/P06-01-core-contract.md)；辅助检查不代表Windows/真实主机或安装包已验证。

@@ -1,0 +1,17 @@
+{
+  "task": "P06-01",
+  "user_instruction": "收尾P05-04开始P06-01",
+  "authorized_at": "2026-10-13T20:25:31+08:00",
+  "phase_branch": "stage/p06-rust-core",
+  "source_commit": "77101320deda2f624a215ade67c8ea5306d1c0a4",
+  "phase_precondition": "P05 scoped delivery accepted; real deployment/cutover followups retained",
+  "scope": "independent domain + shared JSON shadow comparison; no production writer or full Tauri",
+  "status": "implemented_auxiliary_checks_passed_Windows_and_user_acceptance_pending",
+  "not_started": [
+    "P06-02",
+    "P06-03",
+    "P06-04",
+    "P07",
+    "P08"
+  ]
+}

@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P05-04已按用户接续指令[验收收尾](docs/verification/P05-04-acceptance.json)，P05隔离交付已[归档并交接](docs/verification/P05-acceptance.json)。Windows52/52及原报告保持，真实部署/E盘/服务身份/物理多客户端与历史切换仍待后续验证。P06-01已授权，下一步从P05收尾提交建立唯一stage/p06-rust-core。
+P05隔离交付已[收尾归档](docs/verification/P05-acceptance.json)，原Windows52/52报告保持。当前唯一stage/p06-rust-core基于P05收尾7710132；P06-01独立Rust领域核心已实现，跨语言/边界辅助核对通过，Windows原生构建与用户验收待回传。02至04未启动；真实部署与历史切换待办保留。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -17,6 +17,8 @@ P05-04已按用户接续指令[验收收尾](docs/verification/P05-04-acceptance
 - [P03-03 Windows本机复查通过](docs/verification/P03-03-windows-evidence.json)
 - [P03-04订单备注、作废恢复与Windows一键检查](docs/verification/P03-04-order-contract.md)
 - [P03-04 Windows本机复查通过](docs/verification/P03-04-windows-evidence.json)
+- [当前P06 Rust领域核心任务书](docs/now/P06-rust-core.md)
+- [P06-01契约与Windows运行步骤](docs/verification/P06-01-core-contract.md)
 - [P05数据与服务归档任务书](docs/old/P05-data-service.md)
 - [P04-01后台任务契约与Windows入口](docs/verification/P04-01-background-contract.md)
 - [P04-01首次Windows失败证据](docs/verification/P04-01-windows-evidence-01.json)及[清理修复辅助检查](docs/verification/P04-01-cleanup-checks.json)
@@ -34,6 +36,8 @@ P05-04已按用户接续指令[验收收尾](docs/verification/P05-04-acceptance
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P06-01：从P05收尾7710132建立唯一stage/p06-rust-core，任务书new→now；交付独立精确Rust金额/配置/草稿核心、锁定依赖许可与Python/Rust影子核对入口。黄金与Python生产链保持；53/53黄金在561/561精确对照中通过，Rust21项/Python58项与fmt/Clippy/release构建辅助通过，待Windows原生构建/用户验收；未启动02或Tauri。
 
 - 按用户“收尾P05-04开始P06-01”登记04验收与P05范围交接，P05任务书now→old；52/52 Windows和原报告保持，真实部署及历史切换交接后续，授权建立唯一P06阶段分支。
 
