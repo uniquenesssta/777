@@ -1,6 +1,6 @@
 # P06 Rust领域核心与存储/服务适配
 
-状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02从c8ad540在同一分支执行中；03/04未启动。
+状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02从c8ad540在同一分支执行，[第二轮Windows核对](../verification/P06-02-windows-evidence-02.json)全部通过，具备收尾条件待用户验收；03/04未启动。
 
 P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。P01已按[批准记录](../baseline/p01-acceptance.json)采纳numeric-v1/performance-v1，历史候选/黄金元数据保留并映射；实施时读取同一黄金JSON，不复制期望。当前01按同一资产开展影子核对。
 
@@ -48,7 +48,7 @@ P02-04补充输入资产：[窗口适配契约第11节](../MIGRATION_CONTRACT.md
 
 02从c8ad540按[启动记录](../verification/P06-02-start.json)复用本分支。`crates/quote-ledger`交付ledger-v1事务、原请求幂等、revision/价格CAS、完整性重算与原生在线备份；原DDL/hash不变，未知版本拒绝。私有进程适配替换已认证服务的计算/价格/真实财务写入；现有HTTPS/Auth/查询投影/输出渲染保留，Rust后端拒绝Python真实账本写连接。旧导入仅在内存预演，Rust固定表delta重验全账本后原子提交。明确离线后端选择持owner锁/管理员/完整维护备份，失败不隐式启用另一后端；v3主机包保存执行文件、许可与输出，独立恢复保持后端并维护，旧v1/v2兼容。
 
-[完整契约与Windows入口](../verification/P06-02-storage-contract.md)、[私有JSON/兼容契约](../verification/P06-02-protocol.json)、[固定依赖/许可](../verification/P06-02-dependencies.json)及[检查证据](../verification/P06-02-checks.json)交付。65专项/594完整辅助、25 Rust测试/Clippy/release与同一561对照通过，原01报告不改；Windows首轮63通过/2处验证代码错误，已修复；待第二轮Windows临时主机/原生进程/DPAPI/协议/恢复验证与用户验收，03/04未启动。没有真实主机或账本切换。格式Rust选型留03，完整Rust HTTP宿主与实机窗口演练留04。
+[完整契约与Windows入口](../verification/P06-02-storage-contract.md)、[私有JSON/兼容契约](../verification/P06-02-protocol.json)、[固定依赖/许可](../verification/P06-02-dependencies.json)及[检查证据](../verification/P06-02-checks.json)交付。65专项/594完整辅助、25 Rust测试/Clippy/release与同一561对照通过，原01报告不改；Windows首轮63通过/2处验证代码错误已修复；第二轮83指纹/65专项/25 Rust/561对照及临时主机原生DPAPI/HTTPS/恢复/ACL核对通过，具备收尾条件待用户验收，03/04未启动。没有真实主机或账本切换。格式Rust选型留03，完整Rust HTTP宿主与实机窗口演练留04。
 
 
 ## P06-02 Windows首轮验证代码修复
@@ -56,3 +56,12 @@ P02-04补充输入资产：[窗口适配契约第11节](../MIGRATION_CONTRACT.md
 [原报告](../verification/P06-02-windows-report-01.json)与[原比较文件](../verification/P06-02-windows-comparisons-01.json)按原始字节保存。[独立核对](../verification/P06-02-windows-evidence-01.json)确认7338d7a的83项LF指纹、完整65个测试ID、25项Rust测试/构建、48个固定依赖及561项比较（逐项重算Python期望）匹配。Windows专项63通过、0断言失败、2错误；DPAPI/ACL/原生恢复额外检查尚未执行，不能登记整体验收通过。
 
 错误分别是未知schema夹具保留SQLite连接导致WinError 32，以及模拟平台改变共享os.name导致Windows Path重建为PosixPath。前者用closing显式关闭原连接并保留事务与拒写/哈希检查，后者改为模拟platform.system，入口同时要求原生nt和Windows。[修复后65项辅助回归](../verification/P06-02-windows-fix-checks.json)全部通过；原594项完整辅助及原Rust/比较证据不改，本轮未重跑594项。继续同一分支，以[第二轮入口](../verification/P06-02-storage-contract.md#windows隔离检查)完成Windows复查；02不收尾，03/04未启动。
+
+
+## P06-02 Windows第二轮完整核对通过
+
+用户2026-10-13 23:00:02（Asia/Shanghai）回传[原报告](../verification/P06-02-windows-report-02.json)40217字节及[原比较文件](../verification/P06-02-windows-comparisons-02.json)220370字节，按原始字节归档。[独立核对](../verification/P06-02-windows-evidence-02.json)确认bf18f45干净工作区的83项LF源码指纹与当前源码、修复辅助证据一致；65个完整测试ID与源码加载器及成功日志逐项相同，零失败/错误/跳过，首轮两处错误均消失。实际Windows AMD64/MSVC Rust1.97.1的fmt/Clippy/25项Rust测试/release构建通过，48个外部包版本与许可及原服务4个固定依赖匹配。
+
+561个有序case ID/请求SHA与Python参考结果逐项独立重算，全部等于上传Rust结果SHA，含原黄金53/53；比较文件原SHA匹配且解析结果等于01原辅助资产。Windows原生Rust提交后退出→DPAPI加密待核查→原request_id恢复回执、旧HTTPS客户端/销售成本过滤/前导零、v3新目录原生恢复账本与原回执及旧会话撤销均通过。库存独立核对为revision2、1单/1行、2回执/2审计，收入4000分/成本1600分/利润2400分；私有目录Hidden/System、保护DACL及明确SID名单通过，临时服务停止与清理正常。
+
+本轮范围为Windows临时主机、原生Rust进程及HTTPS/DPAPI/备份恢复，没有GUI、已安装服务、真实E盘/共享路径或生产切换。02已具备收尾条件待用户验收，已通过检查无需重跑；首轮失败、修复辅助与原594项完整辅助证据保持。P06继续留now，03/04未启动。

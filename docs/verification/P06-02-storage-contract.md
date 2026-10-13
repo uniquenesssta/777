@@ -34,7 +34,7 @@ CLI要求绝对本机路径，实际使用将root换为已明确的主机绝对�
 
 65项专项涵盖Native进程并发/回滚/提交后丢回执、双方向Python请求重放、价格与订单CAS、明确后端切换中断/重启/owner锁、真实TCP HTTPS原客户端/鉴权/成本过滤、搜索与输出/完整v3恢复；原完整辅助594项通过。25项Rust测试、fmt/Clippy/release构建及同一561组影子对照通过（含原黄金53/53），[依赖许可证](P06-02-dependencies.json)锁定全部48外部包并保存许可全文。完整日志及初期夹具/辅助执行权限问题在[02证据](P06-02-checks.json)保留，不改01/P05原报告。
 
-在当前P06分支的PowerShell运行：
+第二轮已核对通过，以下保留已执行入口供复现；当前无需重跑：
 
 ```powershell
 git pull --ff-only
@@ -42,9 +42,12 @@ if ($LASTEXITCODE -ne 0) { throw '拉取失败，先停止' }
 py -3 tools/p06_ledger_check.py --windows-smoke --output reports/p06-02-windows-02
 ```
 
-沿用01已验证Rustup/MSVC与现有服务Python依赖，首次SQLite C源码编译会比缓存构建慢。入口核验真正Windows AMD64 MSVC和固定工具链，执行全部65项与561对照，并额外验证真实DPAPI、Rust提交后退出/原回执、原HTTPS客户端、v3原生恢复、Windows私有目录属性/ACL和临时清理。不启动GUI，不访问真实共享/E盘、安装服务或切换生产。辅助`--checks-only`不记录Windows通过。输出必须新reports子目录，复查换02编号，保留失败文件。
+沿用01已验证Rustup/MSVC与现有服务Python依赖，首次SQLite C源码编译会比缓存构建慢。入口核验真正Windows AMD64 MSVC和固定工具链，执行全部65项与561对照，并额外验证真实DPAPI、Rust提交后退出/原回执、原HTTPS客户端、v3原生恢复、Windows私有目录属性/ACL和临时清理。不启动GUI，不访问真实共享/E盘、安装服务或切换生产。辅助`--checks-only`不记录Windows通过。输出必须新reports子目录，后续若有相关变更复查须换新编号，保留已有文件。
 
-完成回传`report.json`与`comparisons.json`。本轮Windows通过前不启动03；原01/P05入口无需重跑。
+第二轮`report.json`与`comparisons.json`已回传并核对通过，具备收尾条件待用户验收；03/04未启动，原01/P05入口无需重跑。
 
 
-首轮7338d7a的[原报告](P06-02-windows-report-01.json)/[比较文件](P06-02-windows-comparisons-01.json)保留。83项LF指纹、Rust25项、65个完整测试ID与561对照已独立核对；专项63通过/2错误，均为验证代码：SQLite连接未关闭导致Windows清理失败、模拟os.name导致Path类型错误。[修复证据](P06-02-windows-evidence-01.json)及[65项辅助回归](P06-02-windows-fix-checks.json)登记。当前使用上方02输出目录复查，重点补齐尚未执行的Windows原生DPAPI/ACL/备份恢复；P06-01和P05已通过入口无需重跑。
+首轮7338d7a的[原报告](P06-02-windows-report-01.json)/[比较文件](P06-02-windows-comparisons-01.json)保留。83项LF指纹、Rust25项、65个完整测试ID与561对照已独立核对；专项63通过/2错误，均为验证代码：SQLite连接未关闭导致Windows清理失败、模拟os.name导致Path类型错误。[修复证据](P06-02-windows-evidence-01.json)及[65项辅助回归](P06-02-windows-fix-checks.json)登记。首轮当时尚未执行的Windows原生DPAPI/ACL/备份恢复现已由第二轮补齐；首轮失败与修复记录保持，P06-01和P05已通过入口无需重跑。
+
+
+[第二轮原报告](P06-02-windows-report-02.json)/[原比较文件](P06-02-windows-comparisons-02.json)按原始字节归档。[独立核对](P06-02-windows-evidence-02.json)确认bf18f45的83项LF指纹、65/65专项完整日志、25项Rust测试/fmt/Clippy/release、48个外部依赖及561/561精确比较匹配；Python参考结果已逐项重算，首轮两处错误消失。实际Windows原生Rust/DPAPI未知提交核查、旧HTTPS协议与角色/文本身份、v3原生恢复/原回执/旧会话撤销、Hidden/System/保护DACL及清理通过。02具备收尾条件待用户验收；当前无需重跑，03/04未启动。范围仍为临时主机，不包括GUI、安装服务或真实数据切换。
