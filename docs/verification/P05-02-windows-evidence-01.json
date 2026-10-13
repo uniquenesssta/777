@@ -1,0 +1,125 @@
+{
+  "task": "P05-02",
+  "status": "Windows_isolated_service_passed_console_received_full_report_pending",
+  "user_message_at": "2026-10-13T12:20:04+08:00",
+  "phase_branch": "stage/p05-data-service",
+  "reported_pull_target_commit": "884c8cba5c2d81860ee72b490f53bb8688e105e8",
+  "evidence_kind": "user_pasted_console_summary_not_original_report_file",
+  "console_summary": "P05-02-windows-console-01.json",
+  "console_summary_sha256": "989f30ef065858575e8549c25f7ebaec3c9150be32b520ba90c964fb15c349eb",
+  "console_summary_transcribed_semantically": true,
+  "original_report_received": false,
+  "original_report_preserved_byte_for_byte": false,
+  "reported_original_report_path": "O:\\Project\\liuliu\\777\\reports\\p05-02-windows-01\\report.json",
+  "source_fingerprints_received": false,
+  "all_60_source_fingerprints_verified": false,
+  "all_42_test_ids_received_and_matched": false,
+  "skip_details_received": false,
+  "environment": {
+    "os": "Windows",
+    "python": "3.12.10",
+    "sqlite": "3.49.1",
+    "openssl": "OpenSSL 3.0.16 11 Feb 2025"
+  },
+  "reported_dependency_install_versions": {
+    "uvicorn": "0.50.0",
+    "h11": "0.16.0",
+    "click": "8.5.0",
+    "cryptography": "50.0.1"
+  },
+  "checks_console_summary": {
+    "status": "passed",
+    "tests_run": 42,
+    "failures": 0,
+    "errors": 0,
+    "failure_details": []
+  },
+  "native_smoke": {
+    "status": "passed",
+    "transport": "actual loopback TCP HTTPS with pinned self-signed certificate",
+    "negotiated_TLS_version": "TLSv1.3",
+    "DPAPI_pending_encrypted_round_trip_and_receipt_recovery": true,
+    "applications": [
+      {
+        "role": "manager",
+        "startup": "ok",
+        "HTTPS_login": true,
+        "password_widget_cleared": true,
+        "remote_calculation_income_cents": "3600",
+        "submit_button_books_order": true,
+        "remote_listing_and_detail": true,
+        "sales_fields_and_directories_restricted": null,
+        "legacy_source_and_workbook_callbacks_not_reached": true,
+        "close": "ok"
+      },
+      {
+        "role": "sales",
+        "startup": "ok",
+        "HTTPS_login": true,
+        "password_widget_cleared": true,
+        "remote_calculation_income_cents": "3600",
+        "submit_button_books_order": true,
+        "remote_listing_and_detail": true,
+        "sales_fields_and_directories_restricted": true,
+        "legacy_source_and_workbook_callbacks_not_reached": true,
+        "close": "ok"
+      }
+    ],
+    "callback_errors": [],
+    "inventory": {
+      "ledger_id": "19ef4607-f6f3-4466-9f97-bf2fb393f7de",
+      "schema_version": 1,
+      "schema_hash": "96619d105269c85fa0d0354050ca97af0af290ba6485913867ed070962aff003",
+      "revision": 4,
+      "counts": {
+        "orders": 3,
+        "lines": 5,
+        "notes": 0,
+        "price_versions": 1,
+        "import_batches": 0,
+        "audit_events": 4,
+        "requests": 4
+      },
+      "active_income_cents": "11200",
+      "active_cost_cents": "4800",
+      "active_profit_cents": "6400"
+    },
+    "backup_independent_restore_equal": true,
+    "complete_host_bundle_restore_accounts_TLS_and_maintenance": true,
+    "old_sessions_removed_on_restore": true,
+    "host_private_directory_native_security": {
+      "hidden": true,
+      "system": true,
+      "protected_dacl": true,
+      "service_identity_sid": "S-1-5-21-1929784381-1237106348-1577708986-1001",
+      "allowed_sids": [
+        "S-1-5-18",
+        "S-1-5-21-1929784381-1237106348-1577708986-1001",
+        "S-1-5-32-544"
+      ]
+    },
+    "scope": "Windows temp host, two sequential live Tk clients and real HTTPS sessions; no installed service, real E/share paths or physical two-computer deployment.",
+    "sandbox_cleaned": true
+  },
+  "inventory_reconciliation": {
+    "schema_hash_matches_accepted_ledger_v1": true,
+    "expected_orders": 3,
+    "expected_lines": 5,
+    "expected_revision": 4,
+    "expected_income_cents": "11200",
+    "expected_cost_cents": "4800",
+    "expected_profit_cents": "6400",
+    "amount_identity_exact": true,
+    "basis": "One 4-item lost-reply fixture plus two 4-item/90% live GUI orders, catalog sale10/cost4; publishing prices plus three submissions yields revision4 and four requests/audits."
+  },
+  "P04_shared_directory_observation": "P04-04-shared-directory-observation-01.json",
+  "P04_shared_acceptance": "pending_formal_performance_retest_reserved_2026_10_14",
+  "Windows_isolated_checks_need_rerun": false,
+  "next_evidence": "Original reports/p05-02-windows-01/report.json may be provided without rerunning passed checks.",
+  "real_service_installed_or_clients_switched": false,
+  "real_E_backup_or_share_deployment_verified": false,
+  "physical_two_computer_deployment_verified": false,
+  "P05_02_user_acceptance_recorded": false,
+  "P05_03_04_started": false,
+  "scope": "按用户控制台登记Windows隔离通过，不冒充完整报告/源码指纹已核对或真实主机、E盘、共享、物理双机验收；不更改既有辅助及历史证据。"
+}

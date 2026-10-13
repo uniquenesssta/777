@@ -1,0 +1,23 @@
+{
+  "task": "P04-04",
+  "status": "shared_directory_metadata_observed_formal_performance_pending",
+  "user_message_at": "2026-10-13T12:20:04+08:00",
+  "evidence_kind": "user_pasted_PowerShell_Get_Item_output",
+  "command": "Get-Item -LiteralPath '\\\\192.168.4.38\\14T共享盘\\葛宁\\PyInstaller' -Force -ErrorAction Stop | Format-List FullName, PSIsContainer, Attributes, LinkType, Target",
+  "observed": {
+    "FullName": "\\\\192.168.4.38\\14T共享盘\\葛宁\\PyInstaller",
+    "PSIsContainer": true,
+    "Attributes": "Hidden, Directory",
+    "LinkType": null,
+    "Target": null
+  },
+  "interpretation": "用户本次能够读取共享根元数据；返回目录及Hidden属性，没有显示ReparsePoint、LinkType或Target。不证明历史失败时的状态，不替代P04正式工具门禁、共享读写或性能测量。",
+  "historical_failed_report_unchanged": "P04-04-windows-report-05.json",
+  "power_outage_cause_remains_user_reported": true,
+  "formal_shared_acceptance": "pending",
+  "P04_entire_stage_accepted": false,
+  "formal_performance_executed_in_this_message": false,
+  "deferred_verification_date": "2026-10-14",
+  "reserved_output": "reports/p04-04-windows-06",
+  "source_and_thresholds_changed": false
+}

@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-规划位于plans；P01/P02/P03已验收；P04共享复验按[停电延期记录](docs/verification/P04-04-deferral.json)保留2026-10-14，整阶段未验收。当前唯一stage/p05-data-service；P05-01已按用户“收尾01开始02”[验收收尾](docs/verification/P05-01-acceptance.json)，原Windows42/42及恢复/权限通过证据不改。P05-02从84b881c实现[HTTPS认证服务与母子版适配](docs/verification/P05-02-service-contract.md)，主体/会话/角色DTO、原请求核查、子版只读继承目录、主机备份计划和完整服务恢复已交付，[42专项/427完整辅助](docs/verification/P05-02-checks.json)通过；Windows实际Tk/DPAPI、真实主机/E盘和物理双机部署仍待验证。P05-03/04未启动，未迁移或切换生产数据。
+规划位于plans；P01/P02/P03已验收；P04共享复验按[停电延期记录](docs/verification/P04-04-deferral.json)保留2026-10-14，整阶段未验收。当前唯一stage/p05-data-service；P05-01已按用户“收尾01开始02”[验收收尾](docs/verification/P05-01-acceptance.json)，原Windows42/42及恢复/权限通过证据不改。P05-02从84b881c实现[HTTPS认证服务与母子版适配](docs/verification/P05-02-service-contract.md)，主体/会话/角色DTO、原请求核查、子版只读继承目录、主机备份计划和完整服务恢复已交付，[42专项/427完整辅助](docs/verification/P05-02-checks.json)通过；[首次Windows回传](docs/verification/P05-02-windows-evidence-01.json)确认42/42及实际母子Tk/DPAPI/恢复/权限/清理通过；完整报告及60项源码指纹尚待归档核对，真实主机/E盘和物理双机部署仍待验证。P05-03/04未启动，未迁移或切换生产数据。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -34,6 +34,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 登记[P05-02首次Windows控制台回传](docs/verification/P05-02-windows-evidence-01.json)：拉取至884c8cb并成功安装固定服务依赖，42/42零失败/错误；实际TLS1.3环回HTTPS、DPAPI原请求恢复、母子Tk提交/查询/只读目录、受保护Hidden+System目录、完整备份独立恢复和清理通过。3单5明细、revision4、收入/成本/利润11200/4800/6400分与隔离样例核对一致。仅收到控制台摘要，原report.json、60项源码指纹与完整测试清单尚未归档核对；不要求重跑。另登记[共享目录元数据](docs/verification/P04-04-shared-directory-observation-01.json)：目录可访问，Hidden/Directory，无显示的链接类型或目标；不替代P04共享性能验收，2026-10-14复验保留。程序和历史证据不改，真实服务部署及03/04尚未执行。
 
 - 用户“收尾01开始02”：依据P05-01已通过的第三次Windows42/42及原生权限/恢复[收尾01](docs/verification/P05-01-acceptance.json)，同一stage/p05-data-service从84b881c交付[P05-02服务边界](docs/verification/P05-02-service-contract.md)。HTTPS证书链/主机名/指纹验证、scrypt账户与持久会话/epoch撤销、主体来源与角色允许字段、本人订单/备注/回执、CAS价格/目录和未知提交原请求查询重试；显式母子Tk服务入口复用原布局，提交/查询改走服务，子版输出目录只读自动继承，无共享成本读取或裸写Excel。主机私有目录与完整服务备份（账本/账户ID/设置/TLS）、独立维护恢复及旧会话/凭证失效、备份计划/本机失败状态已交付。[42专项/427完整辅助](docs/verification/P05-02-checks.json)通过真实TCP HTTPS双客户端和恢复、头部/JSON/角色与过期控制、原请求不重复和主线程交付；原20项P05-01及42项P04实现指纹保持。当前Windows隔离GUI/DPAPI待回传，未安装真实服务、移动旧账本或开启03/04；P04共享复验继续保留。
 

@@ -1,0 +1,85 @@
+{
+  "task": "P05-02",
+  "status": "Windows_isolated_service_passed_acceptance_pending",
+  "environment": {
+    "os": "Windows",
+    "python": "3.12.10",
+    "sqlite": "3.49.1",
+    "openssl": "OpenSSL 3.0.16 11 Feb 2025"
+  },
+  "native_smoke": {
+    "status": "passed",
+    "transport": "actual loopback TCP HTTPS with pinned self-signed certificate",
+    "negotiated_TLS_version": "TLSv1.3",
+    "DPAPI_pending_encrypted_round_trip_and_receipt_recovery": true,
+    "applications": [
+      {
+        "role": "manager",
+        "startup": "ok",
+        "HTTPS_login": true,
+        "password_widget_cleared": true,
+        "remote_calculation_income_cents": "3600",
+        "submit_button_books_order": true,
+        "remote_listing_and_detail": true,
+        "sales_fields_and_directories_restricted": null,
+        "legacy_source_and_workbook_callbacks_not_reached": true,
+        "close": "ok"
+      },
+      {
+        "role": "sales",
+        "startup": "ok",
+        "HTTPS_login": true,
+        "password_widget_cleared": true,
+        "remote_calculation_income_cents": "3600",
+        "submit_button_books_order": true,
+        "remote_listing_and_detail": true,
+        "sales_fields_and_directories_restricted": true,
+        "legacy_source_and_workbook_callbacks_not_reached": true,
+        "close": "ok"
+      }
+    ],
+    "callback_errors": [],
+    "inventory": {
+      "ledger_id": "19ef4607-f6f3-4466-9f97-bf2fb393f7de",
+      "schema_version": 1,
+      "schema_hash": "96619d105269c85fa0d0354050ca97af0af290ba6485913867ed070962aff003",
+      "revision": 4,
+      "counts": {
+        "orders": 3,
+        "lines": 5,
+        "notes": 0,
+        "price_versions": 1,
+        "import_batches": 0,
+        "audit_events": 4,
+        "requests": 4
+      },
+      "active_income_cents": "11200",
+      "active_cost_cents": "4800",
+      "active_profit_cents": "6400"
+    },
+    "backup_independent_restore_equal": true,
+    "complete_host_bundle_restore_accounts_TLS_and_maintenance": true,
+    "old_sessions_removed_on_restore": true,
+    "host_private_directory_native_security": {
+      "hidden": true,
+      "system": true,
+      "protected_dacl": true,
+      "service_identity_sid": "S-1-5-21-1929784381-1237106348-1577708986-1001",
+      "allowed_sids": [
+        "S-1-5-18",
+        "S-1-5-21-1929784381-1237106348-1577708986-1001",
+        "S-1-5-32-544"
+      ]
+    },
+    "scope": "Windows temp host, two sequential live Tk clients and real HTTPS sessions; no installed service, real E/share paths or physical two-computer deployment.",
+    "sandbox_cleaned": true
+  },
+  "checks": {
+    "status": "passed",
+    "tests_run": 42,
+    "failures": 0,
+    "errors": 0,
+    "failure_details": []
+  },
+  "report_path": "O:\\Project\\liuliu\\777\\reports\\p05-02-windows-01\\report.json"
+}
