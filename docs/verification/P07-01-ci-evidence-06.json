@@ -1,0 +1,86 @@
+{
+  "task": "P07-01",
+  "run_id": 38569616227,
+  "job_id": 115871047421,
+  "head_sha": "76934b49629945362ae10241633518fe6be53181",
+  "worktree_dirty": false,
+  "status": "completed",
+  "conclusion": "success",
+  "html_url": "https://github.com/uniquenesssta/777/actions/runs/38569616227",
+  "artifact": {
+    "id": 11898288164,
+    "bytes": 399102,
+    "sha256": "b49dbc9ec12ecf3f4ac8e8d33d6c34f8dfaebda0f6f56816e6edbdc248058238",
+    "matches_provider_digest": true
+  },
+  "raw_report": "P07-01-ci-report-06.json",
+  "raw_report_sha256": "84ece3ca05e6e4e3a8a8808bea7c617f649ed9a8ce0529eaebb6d0cfa3e17915",
+  "native_API_startup_log": "P07-01-ci-native-process-06.log",
+  "regression_provider_excerpt": "P07-01-ci-regressions-06.log",
+  "independent_fingerprints": {
+    "source": "published Git objects, text LF normalization only",
+    "matched": 56,
+    "mismatches": []
+  },
+  "passed": {
+    "runner_Windows_tests": 24,
+    "runner_skips": 0,
+    "Rust_workspace_tests": 52,
+    "front_end_tests": 9,
+    "strict_fmt_Clippy_and_native_release": true,
+    "production_embedded_assets": true,
+    "Rust_HTTPS_protocol": 10,
+    "browser_interactions": {
+      "startTime": "2026-10-14T13:29:57.910Z",
+      "duration": 70170.45999999999,
+      "expected": 7,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "native_Tauri_WebView2": {
+      "status": "passed",
+      "actual_Tauri_WebView2": true,
+      "production_page_origin": "http://tauri.localhost",
+      "production_origin_checked_before_login": true,
+      "real_IPC_and_Rust_HTTPS": true,
+      "manager_submit": true,
+      "sales_cost_and_other_order_hidden": true,
+      "profile_isolated": true,
+      "UI_idle_before_native_close": true
+    },
+    "CDP": {
+      "status": "connected",
+      "endpoint": "http://127.0.0.1:53320",
+      "attempts": 6,
+      "browser_version": "153.0.4234.48",
+      "elapsed_ms": 1111
+    },
+    "actual_elevated_process": true,
+    "registered_WebView2_versions": [
+      "153.0.4234.48"
+    ],
+    "natural_desktop_exit_code": 0,
+    "natural_close_seconds": 0.109,
+    "forced_process_tree_cleanup": false,
+    "sandbox_cleanup": {
+      "status": "passed",
+      "timeout_seconds": 20,
+      "attempts": 2,
+      "transient_errors": [
+        {
+          "type": "PermissionError",
+          "errno": 13,
+          "winerror": 32,
+          "path": "desktop\\webview2\\EBWebView\\Default\\Favicons"
+        }
+      ],
+      "sandbox_cleaned": true,
+      "forced_browser_termination": false,
+      "temporary_root": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\777-p06-native-host-nc_6x9dc",
+      "elapsed_seconds": 0.39
+    }
+  },
+  "scope": "Real Windows MSVC builds and full source/unit/protocol/browser gates plus actual Tauri/WebView2 API-configured temporary window, genuine IPC/Rust HTTPS, role assertions, natural exit and complete temporary cleanup. No installed service, real share/E data or installer acceptance.",
+  "acceptance": "CI and local05 automatic gates passed. User visual/interaction acceptance remains pending; P07-01 stays in now, P07-02/03/04 and P08 not started."
+}

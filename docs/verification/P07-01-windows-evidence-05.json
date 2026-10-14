@@ -1,0 +1,97 @@
+{
+  "task": "P07-01",
+  "source_commit": "76934b49629945362ae10241633518fe6be53181",
+  "source_kind": "user uploaded full console with final report subset; full report.json/source fingerprints not attached",
+  "console": "P07-01-windows-console-05.txt",
+  "console_sha256": "ba56bcd021e95f4fa5ef04f913ffa61c31277f8ce3f5b5b1028b03f6fb4d13f8",
+  "console_report_subset": "P07-01-windows-report-05.json",
+  "worktree_dirty_reported": true,
+  "status": "Windows_native_automatic_verification_passed_user_visual_acceptance_pending",
+  "environment": {
+    "os": "Windows",
+    "python": "3.12.10"
+  },
+  "preflight": {
+    "status": "passed",
+    "node": "v24.16.0",
+    "rust": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6",
+    "cargo_jobs": 1,
+    "dependency_sources": "Cargo.toml/Cargo.lock and desktop/package-lock.json; download occurs after preflight",
+    "Windows_native_prerequisites": {
+      "MSVC_cpp_tools": true,
+      "Windows_SDK": true,
+      "WebView2_Runtime": true,
+      "WebView2_registered_versions": [
+        "155.0.4283.45"
+      ],
+      "process_elevated": false
+    }
+  },
+  "passed": {
+    "release_production_assets": {
+      "asset_count": 8,
+      "asset_names": [
+        "/icons/2eb61.svg",
+        "/icons/09c30.svg",
+        "/assets/index-HXoiUZaM.css",
+        "/icons/7bfb4.svg",
+        "/icons/a09ba.svg",
+        "/assets/index-BxhN8Caw.js",
+        "/icons/74181.svg",
+        "/index.html"
+      ],
+      "custom_protocol": true,
+      "embedded_index": true,
+      "entry_css": true,
+      "entry_js": true,
+      "index_sha256": "ceaa3238dd344561d7fe3e01816e609fd841404c7c7e36caff6aeb2709f31770",
+      "release": true,
+      "tauri_is_dev": false,
+      "windows": true
+    },
+    "real_Rust_HTTPS_checks": [
+      "certificate_pin_rejected_before_request",
+      "real_Rust_HTTPS_login_no_token_crosses_IPC",
+      "exact_cents_revision_and_frozen_draft_submission",
+      "append_only_note_void_restore_original_amount_and_revision",
+      "full_20_row_pagination_and_view_binding",
+      "native_output_task_does_not_rebook_financial_order",
+      "sales_DTO_other_actor_and_management_commands_restricted",
+      "native_host_and_desktop_restart_original_receipt_identity_and_no_duplicate",
+      "money_above_JavaScript_integer_limit_remains_exact_string",
+      "server_price_change_refuses_stale_confirmation_without_booking"
+    ],
+    "native_interactions": {
+      "status": "passed",
+      "actual_Tauri_WebView2": true,
+      "production_page_origin": "http://tauri.localhost",
+      "production_origin_checked_before_login": true,
+      "real_IPC_and_Rust_HTTPS": true,
+      "manager_submit": true,
+      "sales_cost_and_other_order_hidden": true,
+      "profile_isolated": true,
+      "UI_idle_before_native_close": true
+    },
+    "CDP_connection": {
+      "status": "connected",
+      "endpoint": "http://127.0.0.1:14422",
+      "attempts": 1,
+      "browser_version": "155.0.4283.45",
+      "elapsed_ms": 33
+    },
+    "natural_close_seconds": 0.047,
+    "desktop_exit_code": 0,
+    "force_termination_used": false,
+    "temporary_root_completely_cleaned": true,
+    "cleanup_seconds": 2.359,
+    "cleanup_attempts": 12,
+    "transient_lock_errors": 11,
+    "cleanup_interpretation": "11 temporary WinError5 lock failures were followed by successful complete cleanup on attempt12, not ignored or treated as a failure after successful retry."
+  },
+  "production_paths_accessed": false,
+  "evidence_limits": [
+    "Local console reports worktree_dirty=true; no full local source fingerprints were supplied, so a clean local source state is not inferred.",
+    "The separately downloaded successful CI report proves the exact clean published76934b4 source; local report is retained as the user-provided native observation."
+  ],
+  "acceptance": "Technical automatic native gate passed; user visual/interaction acceptance not stated in this upload. P07-01 remains in now, no P07-02/03/04 or P08 start."
+}

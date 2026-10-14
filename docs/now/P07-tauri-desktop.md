@@ -1,6 +1,6 @@
 # P07 Tauri桌面界面与Windows交付
 
-状态：执行中。用户2026-10-14 14:37:59（Asia/Shanghai）“开始P07”；前置P06已验收，基线为P06收尾`7a243d5d1d103ae968f27adb7f54fea41a64d9cb`。唯一阶段分支`stage/p07-tauri-desktop`。当前P07-01已实现，本机04原生交互/自然退出通过；最新Windows CI完整构建、24项工具回归、协议/浏览器通过，原生CDP未连上。验证启动已改为API参数并补诊断，待新CI/本机06及用户验收；P07-02至04/P08未启动。
+状态：执行中。用户2026-10-14 14:37:59（Asia/Shanghai）“开始P07”；前置P06已验收，基线为P06收尾`7a243d5d1d103ae968f27adb7f54fea41a64d9cb`。唯一阶段分支`stage/p07-tauri-desktop`。当前P07-01已通过Windows CI与本机05自动验证：原生API启动/交互、正常退出和临时目录清理全部通过，待用户视觉/交互确认；无需重跑自动检查。P07-02至04/P08未启动。
 
 设计权威来自本仓库`Figma@c517d8b3086932abe2dc01908e4dae3209b9f956`的[交接](../design/figma-handoff.md)、[状态](../design/figma-state.json)和[tokens](../design/figma-tokens.json)，Figma文件为[记账器](https://www.figma.com/design/2ek9bkIz5ldyhjZnnvIuNu)。只使用当前页21:2及其中已确认的紧凑紫灰横向布局，不使用归档旧稿；未改写Figma文件。实现映射见[P07组件映射](../design/P07-component-map.md)。
 
@@ -37,4 +37,12 @@ P07-02专项边界审计、P07-03多DPI/原生图片及字体、P07-04安装升�
 
 [清理修复检查](../verification/P07-01-cleanup-checks.json)只对本轮已标记临时根内占用限20秒等待/重试，目录实际移除才通过。[最新cf9d0a8 Windows CI](../verification/P07-01-ci-evidence-05.json)的24/24工具回归已全过（含真实Win32窗口/文件占用），完整构建/原生生产资源核对、10项协议和7项浏览器交互通过；原生CDP步骤失败，清理通过不冒充该次自然退出。
 
-[API启动修复](../verification/P07-01-cdp-checks.json)：验证构建仅在精确数字端口/已标记临时profile校验后，从原生产Context与窗口配置经WebView2 API设置回环调试和UDF，清除该子进程旧环境覆盖；普通发行构建不编译验证设置，不修改注册表或升级/降级依赖。微软Runtime150提权策略与现象一致，但旧CI未记录版本/提权，原因保留推断；新预检与CDP/进程日志补齐诊断。辅助Python24项22通过/2项留新CI、Rust桌面9项、9个不同前端测试及fmt/严格Clippy/无verification构建通过。新Windows实际API窗口仍待CI/本机06和用户视觉验收，05未收到本机回传；01继续留now，02至04/P08未启动。
+[API启动修复](../verification/P07-01-cdp-checks.json)：验证构建仅在精确数字端口/已标记临时profile校验后，从原生产Context与窗口配置经WebView2 API设置回环调试和UDF，清除该子进程旧环境覆盖；普通发行构建不编译验证设置，不修改注册表或升级/降级依赖。微软Runtime150提权策略与现象一致，但旧CI未记录版本/提权，原因保留推断；新预检与CDP/进程日志补齐诊断。辅助Python24项22通过/2项留新CI、Rust桌面9项、9个不同前端测试及fmt/严格Clippy/无verification构建通过。[新Windows CI](../verification/P07-01-ci-evidence-06.json)与[本机05回传](../verification/P07-01-windows-evidence-05.json)现已全部通过，见下方当前核对；历史失败和辅助证据保持。
+
+## P07-01当前核对结论
+
+[Windows CI原报告与核对](../verification/P07-01-ci-evidence-06.json)：76934b4干净源码的56项LF指纹逐项匹配，24工具/52 Rust/9前端测试、fmt/严格Clippy/MSVC release、内嵌生产资源、10项真实Rust HTTPS和7项浏览器交互通过。提权WebView2 153经直接API设置端口/UDF后，实际Tauri交互、自然退出和目录完整清理全部通过，无强制终止。
+
+[本机05原文与核对](../verification/P07-01-windows-evidence-05.json)：非提权WebView2 155首试CDP连接成功，真实交互/10项协议通过；主窗口0.047秒自然退出，码0。11次暂时WinError5后第12次清理完整成功，总2.359秒，无强制浏览器/进程树清理。这些是成功重试记录，不是失败被忽略。本机console报告dirty=true、未附完整指纹，原事实保留；完整源码核对由独立CI证据提供。
+
+P07-01状态：自动门槛已通过、待用户视觉/交互确认；本轮仅归档证据与同步状态，不改代码、不重跑已过检查、不推定用户已确认界面、不创建验收收尾文件。用户确认后可收尾01，02至04/P08尚未启动。

@@ -1,0 +1,656 @@
+{
+  "task": "P07-01",
+  "status": "Windows_CI_build_protocol_browser_and_native_window_passed_visual_acceptance_pending",
+  "environment": {
+    "os": "Windows",
+    "python": "3.12.10"
+  },
+  "mode": "full_CI",
+  "cargo_jobs": 2,
+  "commands": [
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\22.23.3\\x64\\node.EXE",
+        "--version"
+      ],
+      "label": "检查 Node.js",
+      "status": "passed",
+      "log": "command-01.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 7364,
+      "elapsed_seconds": 0.015000000000100044,
+      "stdout": "v22.23.3\r\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\22.23.3\\x64\\npm.CMD",
+        "--version"
+      ],
+      "label": "检查 npm",
+      "status": "passed",
+      "log": "command-02.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 7524,
+      "elapsed_seconds": 0.265999999999849,
+      "stdout": "10.9.9\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\runneradmin\\.cargo\\bin\\rustup.EXE",
+        "toolchain",
+        "list"
+      ],
+      "label": "检查已安装 Rust 工具链",
+      "status": "passed",
+      "log": "command-03.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 6116,
+      "elapsed_seconds": 0.03099999999994907,
+      "stdout": "stable-x86_64-pc-windows-msvc (default)\n1.97.1-x86_64-pc-windows-msvc (active)\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\runneradmin\\.cargo\\bin\\rustc.EXE",
+        "+1.97.1",
+        "-vV"
+      ],
+      "label": "检查 Rust 编译目标",
+      "status": "passed",
+      "log": "command-04.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 3108,
+      "elapsed_seconds": 1.030999999999949,
+      "stdout": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\runneradmin\\.cargo\\bin\\rustup.EXE",
+        "component",
+        "list",
+        "--toolchain",
+        "1.97.1",
+        "--installed"
+      ],
+      "label": "检查 rustfmt / Clippy",
+      "status": "passed",
+      "log": "command-05.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 6356,
+      "elapsed_seconds": 0.03099999999994907,
+      "stdout": "cargo-x86_64-pc-windows-msvc\nclippy-x86_64-pc-windows-msvc\nrust-std-x86_64-pc-windows-msvc\nrustc-x86_64-pc-windows-msvc\nrustfmt-x86_64-pc-windows-msvc\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\22.23.3\\x64\\npm.CMD",
+        "ci",
+        "--prefix",
+        "desktop",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "label": "安装锁定前端依赖",
+      "status": "passed",
+      "log": "command-06.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 3828,
+      "elapsed_seconds": 13.797000000000025,
+      "stdout": "\nadded 58 packages in 9s\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\runneradmin\\.cargo\\bin\\cargo.EXE",
+        "+1.97.1",
+        "fetch",
+        "--locked",
+        "--target",
+        "x86_64-pc-windows-msvc"
+      ],
+      "label": "下载锁定 Rust 依赖（已有缓存会复用）",
+      "status": "passed",
+      "log": "command-07.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 6892,
+      "elapsed_seconds": 32.016000000000076,
+      "stdout": "    Updating crates.io index\n Downloading crates ...\n  Downloaded rustc_version v0.4.1\n  Downloaded dunce v1.0.5\n  Downloaded synstructure v0.14.0\n  Downloaded writeable v0.6.4\n  Downloaded darling_macro v0.21.3\n  Downloaded try-lock v0.2.5\n  Downloaded x509-parser v0.18.1\n  Downloaded semver v1.0.28\n  Downloaded uuid v1.28.0\n  Downloaded icu_locale_core v2.3.0\n  Downloaded tauri-utils v2.10.1\n  Downloaded urlpattern v0.6.0\n  Downloaded url v2.5.8\n  Downloaded percent-encoding v2.3.2\n  Downloaded utf8_iter v1.0.4\n  Downloaded smallvec v1.16.3\n  Downloaded idna_adapter v1.2.2\n  Downloaded icu_properties v2.3.0\n  Downloaded zerofrom v0.1.8\n  Downloaded zerofrom-derive v0.1.8\n  Downloaded strsim v0.11.1\n  Downloaded zmij v1.0.23\n  Downloaded getrandom v0.4.3\n  Downloaded idna v1.1.0\n  Downloaded ident_case v1.0.1\n  Downloaded rustls-platform-verifier v0.7.1\n  Downloaded windows-targets v0.52.6\n  Downloaded fnv v1.0.7\n  Downloaded typeid v1.0.3\n  Downloaded precomputed-hash v0.1.1\n  Downloaded string_cache v0.9.0\n  Downloaded ipnet v2.12.2\n  Downloaded atomic-waker v1.1.2\n  Downloaded futures-channel v0.3.34\n  Downloaded http-body-util v0.1.5\n  Downloaded tokio-util v0.7.20\n  Downloaded httpdate v1.0.3\n  Downloaded pem v4.0.0\n  Downloaded scrypt v0.11.0\n  Downloaded potential_utf v0.1.6\n  Downloaded cssparser-macros v0.7.1\n  Downloaded hyper-rustls v0.27.10\n  Downloaded tokio-rustls v0.26.6\n  Downloaded hyper-util v0.1.21\n  Downloaded hyper v1.12.0\n  Downloaded salsa20 v0.10.2\n  Downloaded want v0.3.2\n  Downloaded fallible-streaming-iterator v0.1.9\n  Downloaded time-core v0.1.6\n  Downloaded syn v2.0.119\n  Downloaded tinystr v0.8.4\n  Downloaded form_urlencoded v1.2.2\n  Downloaded erased-serde v0.4.10\n  Downloaded httparse v1.10.1\n  Downloaded h2 v0.4.20\n  Downloaded rcgen v0.14.10\n  Downloaded cipher v0.4.4\n  Downloaded pbkdf2 v0.12.2\n  Downloaded hmac v0.12.1\n  Downloaded vcpkg v0.2.15\n  Downloaded pkg-config v0.3.34\n  Downloaded hashlink v0.10.0\n  Downloaded rtoolbox v0.0.6\n  Downloaded yoke-derive v0.8.4\n  Downloaded stable_deref_trait v1.2.1\n  Downloaded yasna v0.6.0\n  Downloaded bit-vec v0.9.1\n  Downloaded hashbrown v0.15.5\n  Downloaded allocator-api2 v0.2.21\n  Downloaded bumpalo v3.20.3\n  Downloaded multiversion_no_op v1.0.0\n  Downloaded fast-float2 v0.2.4\n  Downloaded num-conv v0.1.0\n  Downloaded itoa v1.0.18\n  Downloaded ref-cast-impl v1.0.27\n  Downloaded hex v0.4.3\n  Downloaded serde-untagged v0.1.9\n  Downloaded new_debug_unreachable v1.0.6\n  Downloaded dtoa-short v0.3.5\n  Downloaded string_cache_codegen v0.6.1\n  Downloaded mime v0.3.17\n  Downloaded siphasher v1.0.4\n  Downloaded phf_generator v0.13.1\n  Downloaded rustc-hash v2.1.3\n  Downloaded serde_repr v0.1.21\n  Downloaded codepage v0.1.3\n  Downloaded asn1-rs-impl v0.2.0\n  Downloaded asn1-rs-derive v0.6.0\n  Downloaded windows-link v0.2.1\n  Downloaded tokio-macros v2.7.2\n  Downloaded ref-cast v1.0.27\n  Downloaded dyn-clone v1.0.20\n  Downloaded serde_derive_internals v0.29.1\n  Downloaded phf_shared v0.13.1\n  Downloaded phf_macros v0.13.1\n  Downloaded fastrand v2.5.0\n  Downloaded json-patch v4.2.0\n  Downloaded infer v0.22.0\n  Downloaded web-time v1.1.0\n  Downloaded servo_arc v0.4.3\n  Downloaded phf_codegen v0.13.1\n  Downloaded dtoa v1.0.11\n  Downloaded lock_api v0.4.14\n  Downloaded scopeguard v1.2.0\n  Downloaded foldhash v0.2.0\n  Downloaded bit-set v0.8.0\n  Downloaded bit-vec v0.8.0\n  Downloaded windows-threading v0.2.1\n  Downloaded windows-collections v0.3.2\n  Downloaded fdeflate v0.3.7\n  Downloaded foldhash v0.1.5\n  Downloaded synstructure v0.13.2\n  Downloaded lazy_static v1.5.1\n  Downloaded num-integer v0.1.46\n  Downloaded data-encoding v2.11.1\n  Downloaded zerovec-derive v0.11.6\n  Downloaded yoke v0.8.3\n  Downloaded icu_provider v2.3.1\n  Downloaded litemap v0.8.3\n  Downloaded icu_normalizer_data v2.3.0\n  Downloaded serde_with_macros v3.17.0\n  Downloaded darling v0.21.3\n  Downloaded darling_core v0.21.3\n  Downloaded indexmap v1.9.3\n  Downloaded base64 v0.22.1\n  Downloaded schemars_derive v0.8.22\n  Downloaded plist v1.8.0\n  Downloaded phf v0.13.1\n  Downloaded log v0.4.34\n  Downloaded jsonptr v0.7.1\n  Downloaded glob v0.3.4\n  Downloaded tendril v0.5.1\n  Downloaded cssparser v0.37.0\n  Downloaded bitflags v2.13.2\n  Downloaded markup5ever v0.39.0\n  Downloaded web_atoms v0.2.6\n  Downloaded parking_lot v0.12.5\n  Downloaded parking_lot_core v0.9.12\n  Downloaded ctor v1.0.13\n  Downloaded cargo_metadata v0.19.2\n  Downloaded cargo-platform v0.1.9\n  Downloaded windows-future v0.3.2\n  Downloaded ico v0.5.0\n  Downloaded getrandom v0.3.4\n  Downloaded debug_unsafe v0.1.4\n  Downloaded fs2 v0.4.3\n  Downloaded powerfmt v0.2.1\n  Downloaded untrusted v0.9.0\n  Downloaded cfg-if v1.0.5\n  Downloaded der-parser v10.0.0\n  Downloaded num-bigint v0.4.6\n  Downloaded zerotrie v0.2.5\n  Downloaded icu_collections v2.3.0\n  Downloaded regex v1.13.1\n  Downloaded schemars v1.2.3\n  Downloaded schemars v0.9.0\n  Downloaded hashbrown v0.12.3\n  Downloaded schemars v0.8.22\n  Downloaded cfb v0.14.0\n  Downloaded http v1.5.0\n  Downloaded dom_query v0.28.0\n  Downloaded selectors v0.38.0\n  Downloaded derive_more v2.1.1\n  Downloaded derive_more-impl v2.1.1\n  Downloaded html5ever v0.39.0\n  Downloaded camino v1.2.6\n  Downloaded tauri-runtime v2.12.1\n  Downloaded subtle v2.6.1\n  Downloaded crypto-common v0.1.7\n  Downloaded generic-array v0.14.7\n  Downloaded serialize-to-javascript v0.1.2\n  Downloaded futures-io v0.3.34\n  Downloaded inout v0.1.4\n  Downloaded simdutf8 v0.1.5\n  Downloaded rustversion v1.0.23\n  Downloaded core_detect v1.0.0\n  Downloaded time-macros v0.2.24\n  Downloaded rusticata-macros v4.1.0\n  Downloaded find-msvc-tools v0.1.14\n  Downloaded winapi-util v0.1.11\n  Downloaded same-file v1.0.6\n  Downloaded equivalent v1.0.2\n  Downloaded vswhom v0.1.0\n  Downloaded zerovec v0.11.8\n  Downloaded icu_properties_data v2.3.0\n  Downloaded aho-corasick v1.1.5\n  Downloaded serde_with v3.17.0\n  Downloaded serde_json v1.0.151\n  Downloaded quick-xml v0.38.4\n  Downloaded windows-version v0.1.7\n  Downloaded webview2-com-macros v0.8.1\n  Downloaded dpi v0.1.2\n  Downloaded bitflags v1.3.2\n  Downloaded byteorder v1.5.0\n  Downloaded serialize-to-javascript-impl v0.1.2\n  Downloaded zeroize v1.9.1\n  Downloaded rustls-pki-types v1.15.1\n  Downloaded fallible-iterator v0.3.0\n  Downloaded atoi_simd v0.18.1\n  Downloaded fs-err v3.3.2\n  Downloaded either v1.19.0\n  Downloaded axum-core v0.5.6\n  Downloaded thiserror v2.0.21\n  Downloaded thiserror-impl v2.0.21\n  Downloaded shlex v2.0.1\n  Downloaded oid-registry v0.8.1\n  Downloaded autocfg v1.5.1\n  Downloaded displaydoc v0.2.7\n  Downloaded pin-project-lite v0.2.17\n  Downloaded walkdir v2.5.0\n  Downloaded tauri-winres v0.3.6\n  Downloaded toml_writer v1.1.3+spec-1.1.0\n  Downloaded toml_parser v1.1.5+spec-1.1.0\n  Downloaded toml_datetime v1.1.2+spec-1.1.0\n  Downloaded serde_spanned v1.1.2\n  Downloaded embed-resource v3.0.12\n  Downloaded vswhom-sys v0.1.3\n  Downloaded chrono v0.4.45\n  Downloaded alloc-stdlib v0.3.0\n  Downloaded dirs-sys v0.5.0\n  Downloaded raw-window-handle v0.6.2\n  Downloaded webview2-com v0.39.1\n  Downloaded typenum v1.20.1\n  Downloaded rustls-webpki v0.103.15\n  Downloaded zopfli v0.8.4\n  Downloaded matchit v0.8.4\n  Downloaded unicode-ident v1.0.27\n  Downloaded deranged v0.5.9\n  Downloaded num-traits v0.2.19\n  Downloaded socket2 v0.6.5\n  Downloaded tauri-build v2.7.2\n  Downloaded winreg v0.56.0\n  Downloaded regex-syntax v0.8.11\n  Downloaded alloc-no-stdlib v3.0.0\n  Downloaded dirs v7.0.0\n  Downloaded option-ext v0.2.0\n  Downloaded cargo_toml v1.0.1\n  Downloaded windows-numerics v0.3.1\n  Downloaded windows-strings v0.5.1\n  Downloaded windows-result v0.4.1\n  Downloaded windows-interface v0.59.3\n  Downloaded once_cell v1.21.4\n  Downloaded crossbeam-utils v0.8.23\n  Downloaded cookie v0.18.2\n  Downloaded version_check v0.9.5\n  Downloaded tao v0.37.1\n  Downloaded rustls v0.23.45\n  Downloaded reqwest v0.13.5\n  Downloaded rusqlite v0.37.0\n  Downloaded axum-server v0.8.0\n  Downloaded arc-swap v1.9.2\n  Downloaded serde_derive v1.0.228\n  Downloaded quote v1.0.47\n  Downloaded proc-macro2 v1.0.107\n  Downloaded serde_core v1.0.228\n  Downloaded getrandom v0.2.16\n  Downloaded anyhow v1.0.104\n  Downloaded heck v0.5.0\n  Downloaded windows-core v0.62.2\n  Downloaded tauri-runtime-wry v2.12.1\n  Downloaded miniz_oxide v0.8.9\n  Downloaded tower-service v0.3.3\n  Downloaded serde v1.0.228\n  Downloaded minimal-lexical v0.2.1\n  Downloaded memchr v2.8.3\n  Downloaded bytes v1.12.1\n  Downloaded toml v1.1.8+spec-1.1.0\n  Downloaded icu_normalizer v2.3.0\n  Downloaded tray-icon v0.25.1\n  Downloaded crossbeam-channel v0.5.17\n  Downloaded tracing-core v0.1.36\n  Downloaded mio v1.2.4\n  Downloaded brotli-decompressor v6.0.1\n  Downloaded keyboard-types v0.8.3\n  Downloaded softbuffer v0.4.8\n  Downloaded tauri-macros v2.7.2\n  Downloaded sha2 v0.10.9\n  Downloaded block-buffer v0.10.4\n  Downloaded cpufeatures v0.2.17\n  Downloaded png v0.17.16\n  Downloaded base64 v0.23.1\n  Downloaded futures-core v0.3.34\n  Downloaded futures-task v0.3.34\n  Downloaded futures-macro v0.3.34\n  Downloaded zip v8.6.0\n  Downloaded typed-path v0.12.3\n  Downloaded time v0.3.44\n  Downloaded nom v7.1.3\n  Downloaded cc v1.8.0\n  Downloaded asn1-rs v0.7.2\n  Downloaded indexmap v2.14.2\n  Downloaded regex-automata v0.4.18\n  Downloaded tauri-codegen v2.7.2\n  Downloaded png v0.18.1\n  Downloaded simd-adler32 v0.3.10\n  Downloaded tower-layer v0.3.3\n  Downloaded slab v0.4.12\n  Downloaded futures-sink v0.3.34\n  Downloaded http-body v1.1.0\n  Downloaded rpassword v7.4.0\n  Downloaded tauri v2.12.3\n  Downloaded windows-implement v0.60.2\n  Downloaded muda v0.20.0\n  Downloaded adler2 v2.0.1\n  Downloaded crc32fast v1.5.2\n  Downloaded sync_wrapper v1.0.2\n  Downloaded fontdue v0.9.3\n  Downloaded hashbrown v0.17.1\n  Downloaded unicode-segmentation v1.13.3\n  Downloaded digest v0.10.7\n  Downloaded miniz_oxide v0.9.1\n  Downloaded calamine v0.36.1\n  Downloaded ttf-parser v0.21.1\n  Downloaded axum v0.8.9\n  Downloaded flate2 v1.1.10\n  Downloaded winnow v1.0.4\n  Downloaded wry v0.57.0\n  Downloaded quick-xml v0.41.0\n  Downloaded zlib-rs v0.6.8\n  Downloaded futures-util v0.3.34\n  Downloaded tower-http v0.6.11\n  Downloaded tower v0.5.3\n  Downloaded syn v3.0.9\n  Downloaded tokio v1.52.3\n  Downloaded tracing v0.1.44\n  Downloaded encoding_rs v0.8.42\n  Downloaded windows_x86_64_msvc v0.52.6\n  Downloaded brotli v9.0.0\n  Downloaded window-vibrancy v0.8.1\n  Downloaded libc v0.2.190\n  Downloaded rust_xlsxwriter v0.99.1\n  Downloaded winapi v0.3.9\n  Downloaded ring v0.17.14\n  Downloaded windows-sys v0.59.0\n  Downloaded windows-sys v0.61.2\n  Downloaded webview2-com-sys v0.39.1\n  Downloaded libsqlite3-sys v0.35.0\n  Downloaded windows v0.62.2\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\22.23.3\\x64\\npm.CMD",
+        "--prefix",
+        "desktop",
+        "run",
+        "build"
+      ],
+      "label": "构建前端页面",
+      "status": "passed",
+      "log": "command-08.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 6384,
+      "elapsed_seconds": 3.375,
+      "stdout": "\n> quote-desktop@0.1.0 build\n> tsc --noEmit && vite build\n\n\u001b[36mvite v8.3.4 \u001b[32mbuilding client environment for production...\u001b[36m\u001b[39m\ntransforming...\n✓ 84 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.35 kB │ gzip:  0.28 kB\ndist/assets/index-HXoiUZaM.css   13.32 kB │ gzip:  3.35 kB\ndist/assets/index-BxhN8Caw.js   298.03 kB │ gzip: 93.37 kB\n\n\u001b[33m\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-dialog/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-dialog/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\u001b[39m\n\u001b[33m\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\u001b[39m\n\u001b[33m\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-focus-scope/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-focus-scope/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\u001b[39m\n\u001b[33m\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-primitive/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-primitive/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\u001b[39m\n\u001b[33m\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-portal/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-portal/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\u001b[39m\n\u001b[33m\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-focus-guards/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-focus-guards/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\u001b[39m\n\u001b[33m\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-presence/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-presence/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\u001b[39m\n\u001b[32m✓ built in 208ms\u001b[39m\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\22.23.3\\x64\\npm.CMD",
+        "--prefix",
+        "desktop",
+        "test"
+      ],
+      "label": "前端状态测试",
+      "status": "passed",
+      "log": "command-09.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 1496,
+      "elapsed_seconds": 1.0150000000001,
+      "stdout": "\n> quote-desktop@0.1.0 test\n> node --import tsx --test tests/*.test.ts\n\nTAP version 13\n# Subtest: late calculation cannot restore authority after any input or price change\nok 1 - late calculation cannot restore authority after any input or price change\n  ---\n  duration_ms: 7.4602\n  type: 'test'\n  ...\n# Subtest: revision and display cents never pass through JS floating point\nok 2 - revision and display cents never pass through JS floating point\n  ---\n  duration_ms: 0.3475\n  type: 'test'\n  ...\n# Subtest: only raw draft fields restore, never a claimed result or stored role\nok 3 - only raw draft fields restore, never a claimed result or stored role\n  ---\n  duration_ms: 0.3464\n  type: 'test'\n  ...\n# Subtest: confirmed original order clears only its own raw draft and preserves edits during submit\nok 4 - confirmed original order clears only its own raw draft and preserves edits during submit\n  ---\n  duration_ms: 11.3569\n  type: 'test'\n  ...\n# Subtest: native readiness preserves the underlying CDP error and attempt diagnostics\nok 5 - native readiness preserves the underlying CDP error and attempt diagnostics\n  ---\n  duration_ms: 26.1128\n  type: 'test'\n  ...\n# Subtest: native readiness succeeds after transient refusal and bounds each connect attempt\nok 6 - native readiness succeeds after transient refusal and bounds each connect attempt\n  ---\n  duration_ms: 1.6893\n  type: 'test'\n  ...\n# Subtest: a failed connection checkpoint closes the attached browser and does not retry\nok 7 - a failed connection checkpoint closes the attached browser and does not retry\n  ---\n  duration_ms: 0.5822\n  type: 'test'\n  ...\n# Subtest: actual Windows Tauri production origins accept embedded-page paths\nok 8 - actual Windows Tauri production origins accept embedded-page paths\n  ---\n  duration_ms: 0.959\n  type: 'test'\n  ...\n# Subtest: Vite, browser error pages and lookalike hosts fail before waiting for login\nok 9 - Vite, browser error pages and lookalike hosts fail before waiting for login\n  ---\n  duration_ms: 0.5627\n  type: 'test'\n  ...\n1..9\n# tests 9\n# suites 0\n# pass 9\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 570.8458\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\runneradmin\\.cargo\\bin\\cargo.EXE",
+        "+1.97.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "label": "Rust 格式检查",
+      "status": "passed",
+      "log": "command-10.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 7564,
+      "elapsed_seconds": 1.0779999999999745,
+      "stdout": "",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\runneradmin\\.cargo\\bin\\cargo.EXE",
+        "+1.97.1",
+        "clippy",
+        "--locked",
+        "-j",
+        "2",
+        "--workspace",
+        "--all-targets",
+        "--features",
+        "quote-desktop/verification",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "label": "Rust 严格 Clippy",
+      "status": "passed",
+      "log": "command-11.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 7668,
+      "elapsed_seconds": 182.85900000000015,
+      "stdout": "   Compiling proc-macro2 v1.0.107\n   Compiling quote v1.0.47\n   Compiling unicode-ident v1.0.27\n   Compiling serde_core v1.0.228\n    Checking windows-link v0.2.1\n   Compiling syn v2.0.119\n   Compiling syn v3.0.9\n   Compiling serde_derive v1.0.228\n   Compiling synstructure v0.14.0\n    Checking itoa v1.0.18\n   Compiling zerofrom-derive v0.1.8\n   Compiling yoke-derive v0.8.4\n    Checking memchr v2.8.3\n   Compiling displaydoc v0.2.7\n   Compiling zmij v1.0.23\n    Checking cfg-if v1.0.5\n   Compiling zerovec-derive v0.11.6\n   Compiling autocfg v1.5.1\n   Compiling shlex v2.0.1\n   Compiling version_check v0.9.5\n   Compiling find-msvc-tools v0.1.14\n   Compiling serde v1.0.228\n   Compiling cc v1.8.0\n    Checking windows-sys v0.61.2\n   Compiling time-core v0.1.6\n   Compiling num-conv v0.1.0\n   Compiling generic-array v0.14.7\n    Checking equivalent v1.0.2\n   Compiling siphasher v1.0.4\n   Compiling phf_shared v0.13.1\n   Compiling icu_properties_data v2.3.0\n    Checking smallvec v1.16.3\n   Compiling icu_normalizer_data v2.3.0\n   Compiling fastrand v2.5.0\n    Checking hashbrown v0.17.1\n   Compiling thiserror v2.0.21\n   Compiling crc32fast v1.5.2\n    Checking indexmap v2.14.2\n   Compiling phf_generator v0.13.1\n   Compiling thiserror-impl v2.0.21\n    Checking bytes v1.12.1\n   Compiling serde_json v1.0.151\n   Compiling stable_deref_trait v1.2.1\n   Compiling libc v0.2.190\n    Checking pin-project-lite v0.2.17\n   Compiling zerofrom v0.1.8\n    Checking powerfmt v0.2.1\n   Compiling yoke v0.8.3\n    Checking deranged v0.5.9\n   Compiling time-macros v0.2.24\n    Checking typenum v1.20.1\n    Checking log v0.4.34\n    Checking subtle v2.6.1\n    Checking time v0.3.44\n   Compiling num-traits v0.2.19\n    Checking once_cell v1.21.4\n   Compiling zerovec v0.11.8\n    Checking http v1.5.0\n   Compiling parking_lot_core v0.9.12\n    Checking scopeguard v1.2.0\n   Compiling phf_macros v0.13.1\n   Compiling fnv v1.0.7\n    Checking futures-core v0.3.34\n    Checking crypto-common v0.1.7\n    Checking socket2 v0.6.5\n    Checking mio v1.2.4\n    Checking getrandom v0.2.16\n   Compiling tokio-macros v2.7.2\n   Compiling rustversion v1.0.23\n   Compiling typeid v1.0.3\n    Checking percent-encoding v2.3.2\n    Checking tokio v1.52.3\n   Compiling tinystr v0.8.4\n   Compiling phf_codegen v0.13.1\n    Checking bitflags v2.13.2\n   Compiling writeable v0.6.4\n   Compiling ident_case v1.0.1\n   Compiling strsim v0.11.1\n   Compiling litemap v0.8.3\n   Compiling icu_locale_core v2.3.0\n   Compiling darling_core v0.21.3\n    Checking num-integer v0.1.46\n   Compiling potential_utf v0.1.6\n    Checking block-buffer v0.10.4\n   Compiling zerotrie v0.2.5\n   Compiling ring v0.17.14\n   Compiling erased-serde v0.4.10\n    Checking simd-adler32 v0.3.10\n    Checking base64 v0.22.1\n   Compiling utf8_iter v1.0.4\n   Compiling icu_collections v2.3.0\n   Compiling darling_macro v0.21.3\n   Compiling icu_provider v2.3.1\n    Checking digest v0.10.7\n    Checking num-bigint v0.4.6\n    Checking tracing-core v0.1.36\n   Compiling new_debug_unreachable v1.0.6\n   Compiling lock_api v0.4.14\n    Checking tracing v0.1.44\n   Compiling darling v0.21.3\n   Compiling phf v0.13.1\n   Compiling string_cache_codegen v0.6.1\n    Checking adler2 v2.0.1\n   Compiling anyhow v1.0.104\n   Compiling getrandom v0.4.3\n    Checking untrusted v0.9.0\n    Checking slab v0.4.12\n   Compiling precomputed-hash v0.1.1\n   Compiling icu_normalizer v2.3.0\n   Compiling icu_properties v2.3.0\n   Compiling web_atoms v0.2.6\n   Compiling parking_lot v0.12.5\n   Compiling serde_with_macros v3.17.0\n    Checking form_urlencoded v1.2.2\n    Checking http-body v1.1.0\n   Compiling semver v1.0.28\n   Compiling winnow v1.0.4\n    Checking cpufeatures v0.2.17\n    Checking zeroize v1.9.1\n   Compiling toml_parser v1.1.5+spec-1.1.0\n    Checking rustls-pki-types v1.15.1\n    Checking sha2 v0.10.9\n   Compiling idna_adapter v1.2.2\n   Compiling string_cache v0.9.0\n    Checking miniz_oxide v0.9.1\n   Compiling encoding_rs v0.8.42\n   Compiling toml_datetime v1.1.2+spec-1.1.0\n   Compiling serde_spanned v1.1.2\n    Checking futures-sink v0.3.34\n   Compiling toml_writer v1.1.3+spec-1.1.0\n   Compiling dtoa v1.0.11\n   Compiling httparse v1.10.1\n    Checking tower-service v0.3.3\n    Checking zlib-rs v0.6.8\n    Checking futures-task v0.3.34\n    Checking futures-util v0.3.34\n    Checking flate2 v1.1.10\n   Compiling toml v1.1.8+spec-1.1.0\n   Compiling dtoa-short v0.3.5\n    Checking tokio-util v0.7.20\n   Compiling uuid v1.28.0\n   Compiling idna v1.1.0\n   Compiling tendril v0.5.1\n    Checking quote-core v0.1.0 (D:\\a\\777\\777\\crates\\quote-core)\n   Compiling selectors v0.38.0\n   Compiling aho-corasick v1.1.5\n   Compiling indexmap v1.9.3\n   Compiling cssparser-macros v0.7.1\n   Compiling windows-implement v0.60.2\n   Compiling windows-interface v0.59.3\n   Compiling derive_more-impl v2.1.1\n    Checking windows-strings v0.5.1\n    Checking windows-result v0.4.1\n   Compiling rustls v0.23.45\n    Checking atomic-waker v1.1.2\n    Checking core_detect v1.0.0\n   Compiling multiversion_no_op v1.0.0\n   Compiling regex-syntax v0.8.11\n    Checking try-lock v0.2.5\n    Checking simdutf8 v0.1.5\n   Compiling alloc-no-stdlib v3.0.0\n   Compiling camino v1.2.6\n    Checking base64 v0.23.1\n    Checking bumpalo v3.20.3\n    Checking zopfli v0.8.4\n   Compiling regex-automata v0.4.18\n   Compiling alloc-stdlib v0.3.0\n    Checking want v0.3.2\n    Checking h2 v0.4.20\n   Compiling derive_more v2.1.1\n    Checking windows-core v0.62.2\n   Compiling cssparser v0.37.0\n   Compiling markup5ever v0.39.0\n   Compiling url v2.5.8\n    Checking rustls-webpki v0.103.15\n   Compiling winapi-util v0.1.11\n    Checking futures-channel v0.3.34\n   Compiling servo_arc v0.4.3\n   Compiling vswhom-sys v0.1.3\n   Compiling serde_derive_internals v0.29.1\n    Checking typed-path v0.12.3\n    Checking httpdate v1.0.3\n   Compiling rustc-hash v2.1.3\n   Compiling bit-vec v0.8.0\n   Compiling hashbrown v0.12.3\n   Compiling schemars v0.8.22\n   Compiling web-time v1.1.0\n   Compiling cfb v0.14.0\n   Compiling bit-set v0.8.0\n    Checking hyper v1.12.0\n    Checking zip v8.6.0\n   Compiling schemars_derive v0.8.22\n   Compiling same-file v1.0.6\n   Compiling html5ever v0.39.0\n   Compiling regex v1.13.1\n   Compiling brotli-decompressor v6.0.1\n   Compiling jsonptr v0.7.1\n   Compiling cargo-platform v0.1.9\n   Compiling quick-xml v0.38.4\n    Checking sync_wrapper v1.0.2\n    Checking ipnet v2.12.2\n   Compiling dyn-clone v1.0.20\n   Compiling dunce v1.0.5\n   Compiling foldhash v0.2.0\n    Checking tower-layer v0.3.3\n   Compiling dom_query v0.28.0\n    Checking hyper-util v0.1.21\n   Compiling plist v1.8.0\n   Compiling cargo_metadata v0.19.2\n   Compiling json-patch v4.2.0\n   Compiling brotli v9.0.0\n   Compiling urlpattern v0.6.0\n   Compiling serde-untagged v0.1.9\n   Compiling walkdir v2.5.0\n   Compiling infer v0.22.0\n    Checking quick-xml v0.41.0\n   Compiling serde_with v3.17.0\n    Checking windows-threading v0.2.1\n   Compiling vcpkg v0.2.15\n    Checking foldhash v0.1.5\n   Compiling pkg-config v0.3.34\n    Checking allocator-api2 v0.2.21\n   Compiling ctor v1.0.13\n   Compiling glob v0.3.4\n   Compiling libsqlite3-sys v0.35.0\n   Compiling tauri-utils v2.10.1\n    Checking hashbrown v0.15.5\n    Checking windows-future v0.3.2\n   Compiling vswhom v0.1.0\n    Checking tower v0.5.3\n    Checking tokio-rustls v0.26.6\n    Checking rust_xlsxwriter v0.99.1\n    Checking windows-numerics v0.3.1\n    Checking windows-collections v0.3.2\n   Compiling rustc_version v0.4.1\n    Checking http-body-util v0.1.5\n   Compiling winreg v0.56.0\n   Compiling option-ext v0.2.0\n    Checking mime v0.3.17\n   Compiling dirs-sys v0.5.0\n   Compiling embed-resource v3.0.12\n    Checking windows v0.62.2\n   Compiling webview2-com-sys v0.39.1\n   Compiling heck v0.5.0\n   Compiling crossbeam-utils v0.8.23\n    Checking raw-window-handle v0.6.2\n   Compiling tauri-winres v0.3.6\n   Compiling dirs v7.0.0\n    Checking quote-excel v0.1.0 (D:\\a\\777\\777\\crates\\quote-excel)\n    Checking hashlink v0.10.0\n   Compiling miniz_oxide v0.8.9\n   Compiling fdeflate v0.3.7\n   Compiling cargo_toml v1.0.1\n    Checking dpi v0.1.2\n   Compiling cookie v0.18.2\n    Checking fallible-streaming-iterator v0.1.9\n    Checking fallible-iterator v0.3.0\n   Compiling windows_x86_64_msvc v0.52.6\n    Checking minimal-lexical v0.2.1\n    Checking nom v7.1.3\n    Checking rusqlite v0.37.0\n   Compiling tauri-build v2.7.2\n   Compiling webview2-com-macros v0.8.1\n   Compiling synstructure v0.13.2\n    Checking windows-version v0.1.7\n   Compiling bitflags v1.3.2\n   Compiling png v0.17.16\n   Compiling asn1-rs-derive v0.6.0\n    Checking webview2-com v0.39.1\n    Checking crossbeam-channel v0.5.17\n    Checking rusticata-macros v4.1.0\n    Checking pem v4.0.0\n    Checking yasna v0.6.0\n    Checking inout v0.1.4\n   Compiling fs-err v3.3.2\n   Compiling asn1-rs-impl v0.2.0\n   Compiling tauri-runtime v2.12.1\n   Compiling wry v0.57.0\n   Compiling winapi v0.3.9\n   Compiling byteorder v1.5.0\n   Compiling ico v0.5.0\n    Checking asn1-rs v0.7.2\n    Checking rcgen v0.14.10\n    Checking cipher v0.4.4\n    Checking windows-targets v0.52.6\n   Compiling tauri v2.12.3\n    Checking quote-ledger v0.1.0 (D:\\a\\777\\777\\crates\\quote-ledger)\n   Compiling png v0.18.1\n    Checking hmac v0.12.1\n   Compiling tauri-runtime-wry v2.12.1\n   Compiling getrandom v0.3.4\n   Compiling oid-registry v0.8.1\n   Compiling muda v0.20.0\n    Checking unicode-segmentation v1.13.3\n   Compiling tauri-codegen v2.7.2\n    Checking tao v0.37.1\n    Checking pbkdf2 v0.12.2\n    Checking windows-sys v0.59.0\n    Checking salsa20 v0.10.2\n    Checking softbuffer v0.4.8\n    Checking axum-core v0.5.6\n    Checking arc-swap v1.9.2\n    Checking keyboard-types v0.8.3\n    Checking rtoolbox v0.0.6\n   Compiling serialize-to-javascript-impl v0.1.2\n    Checking matchit v0.8.4\n    Checking ttf-parser v0.21.1\n    Checking either v1.19.0\n    Checking axum-server v0.8.0\n    Checking axum v0.8.9\n    Checking fontdue v0.9.3\n    Checking serialize-to-javascript v0.1.2\n    Checking rpassword v7.4.0\n    Checking fs2 v0.4.3\n    Checking scrypt v0.11.0\n   Compiling tauri-macros v2.7.2\n    Checking der-parser v10.0.0\n    Checking window-vibrancy v0.8.1\n   Compiling quote-desktop v0.1.0 (D:\\a\\777\\777\\desktop\\src-tauri)\n    Checking hyper-rustls v0.27.10\n    Checking tower-http v0.6.11\n    Checking rustls-platform-verifier v0.7.1\n   Compiling serde_repr v0.1.21\n    Checking lazy_static v1.5.1\n    Checking data-encoding v2.11.1\n    Checking x509-parser v0.18.1\n    Checking reqwest v0.13.5\n    Checking debug_unsafe v0.1.4\n    Checking atoi_simd v0.18.1\n    Checking quote-host v0.1.0 (D:\\a\\777\\777\\crates\\quote-host)\n    Checking codepage v0.1.3\n    Checking fast-float2 v0.2.4\n    Checking calamine v0.36.1\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3m 01s\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\runneradmin\\.cargo\\bin\\cargo.EXE",
+        "+1.97.1",
+        "test",
+        "--locked",
+        "-j",
+        "2",
+        "--workspace",
+        "--features",
+        "quote-desktop/verification",
+        "--",
+        "--test-threads=2"
+      ],
+      "label": "Rust 工作区测试",
+      "status": "passed",
+      "log": "command-12.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 2988,
+      "elapsed_seconds": 258.0,
+      "stdout": "   Compiling windows-link v0.2.1\n   Compiling cfg-if v1.0.5\n   Compiling itoa v1.0.18\n   Compiling memchr v2.8.3\n   Compiling serde_core v1.0.228\n   Compiling zerofrom v0.1.8\n   Compiling equivalent v1.0.2\n   Compiling zmij v1.0.23\n   Compiling hashbrown v0.17.1\n   Compiling indexmap v2.14.2\n   Compiling serde v1.0.228\n   Compiling log v0.4.34\n   Compiling scopeguard v1.2.0\n   Compiling windows-sys v0.61.2\n   Compiling bytes v1.12.1\n   Compiling num-conv v0.1.0\n   Compiling fnv v1.0.7\n   Compiling powerfmt v0.2.1\n   Compiling time-core v0.1.6\n   Compiling deranged v0.5.9\n   Compiling litemap v0.8.3\n   Compiling writeable v0.6.4\n   Compiling siphasher v1.0.4\n   Compiling http v1.5.0\n   Compiling utf8_iter v1.0.4\n   Compiling simd-adler32 v0.3.10\n   Compiling typenum v1.20.1\n   Compiling smallvec v1.16.3\n   Compiling generic-array v0.14.7\n   Compiling phf_shared v0.13.1\n   Compiling serde_json v1.0.151\n   Compiling adler2 v2.0.1\n   Compiling base64 v0.22.1\n   Compiling phf_generator v0.13.1\n   Compiling crc32fast v1.5.2\n   Compiling icu_properties_data v2.3.0\n   Compiling icu_normalizer_data v2.3.0\n   Compiling miniz_oxide v0.9.1\n   Compiling crypto-common v0.1.7\n   Compiling pin-project-lite v0.2.17\n   Compiling thiserror v2.0.21\n   Compiling subtle v2.6.1\n   Compiling block-buffer v0.10.4\n   Compiling time-macros v0.2.24\n   Compiling libc v0.2.190\n   Compiling yoke v0.8.3\n   Compiling once_cell v1.21.4\n   Compiling num-traits v0.2.19\n   Compiling time v0.3.44\n   Compiling zerovec v0.11.8\n   Compiling futures-core v0.3.34\n   Compiling stable_deref_trait v1.2.1\n   Compiling phf_macros v0.13.1\n   Compiling socket2 v0.6.5\n   Compiling mio v1.2.4\n   Compiling getrandom v0.2.16\n   Compiling cpufeatures v0.2.17\n   Compiling percent-encoding v2.3.2\n   Compiling tokio v1.52.3\n   Compiling num-integer v0.1.46\n   Compiling bitflags v2.13.2\n   Compiling num-bigint v0.4.6\n   Compiling tinystr v0.8.4\n   Compiling digest v0.10.7\n   Compiling phf_codegen v0.13.1\n   Compiling lock_api v0.4.14\n   Compiling winnow v1.0.4\n   Compiling darling_core v0.21.3\n   Compiling toml_parser v1.1.5+spec-1.1.0\n   Compiling icu_locale_core v2.3.0\n   Compiling potential_utf v0.1.6\n   Compiling tracing-core v0.1.36\n   Compiling zerotrie v0.2.5\n   Compiling toml_writer v1.1.3+spec-1.1.0\n   Compiling icu_provider v2.3.1\n   Compiling tracing v0.1.44\n   Compiling icu_collections v2.3.0\n   Compiling darling_macro v0.21.3\n   Compiling typeid v1.0.3\n   Compiling aho-corasick v1.1.5\n   Compiling base64 v0.23.1\n   Compiling untrusted v0.9.0\n   Compiling slab v0.4.12\n   Compiling regex-syntax v0.8.11\n   Compiling web-time v1.1.0\n   Compiling ring v0.17.14\n   Compiling regex-automata v0.4.18\n   Compiling darling v0.21.3\n   Compiling sha2 v0.10.9\n   Compiling form_urlencoded v1.2.2\n   Compiling phf v0.13.1\n   Compiling parking_lot_core v0.9.12\n   Compiling string_cache_codegen v0.6.1\n   Compiling http-body v1.1.0\n   Compiling zlib-rs v0.6.8\n   Compiling zeroize v1.9.1\n   Compiling alloc-no-stdlib v3.0.0\n   Compiling alloc-stdlib v0.3.0\n   Compiling rustls-pki-types v1.15.1\n   Compiling flate2 v1.1.10\n   Compiling web_atoms v0.2.6\n   Compiling regex v1.13.1\n   Compiling parking_lot v0.12.5\n   Compiling serde_with_macros v3.17.0\n   Compiling icu_normalizer v2.3.0\n   Compiling icu_properties v2.3.0\n   Compiling quote-core v0.1.0 (D:\\a\\777\\777\\crates\\quote-core)\n   Compiling quick-xml v0.38.4\n   Compiling bumpalo v3.20.3\n   Compiling core_detect v1.0.0\n   Compiling tower-service v0.3.3\n   Compiling futures-sink v0.3.34\n   Compiling simdutf8 v0.1.5\n   Compiling futures-task v0.3.34\n   Compiling dunce v1.0.5\n   Compiling futures-util v0.3.34\n   Compiling encoding_rs v0.8.42\n   Compiling tokio-util v0.7.20\n   Compiling zopfli v0.8.4\n   Compiling idna_adapter v1.2.2\n   Compiling string_cache v0.9.0\n   Compiling brotli-decompressor v6.0.1\n   Compiling getrandom v0.4.3\n   Compiling miniz_oxide v0.8.9\n   Compiling fdeflate v0.3.7\n   Compiling toml_datetime v1.1.2+spec-1.1.0\n   Compiling serde_spanned v1.1.2\n   Compiling typed-path v0.12.3\n   Compiling atomic-waker v1.1.2\n   Compiling try-lock v0.2.5\n   Compiling want v0.3.2\n   Compiling h2 v0.4.20\n   Compiling zip v8.6.0\n   Compiling toml v1.1.8+spec-1.1.0\n   Compiling uuid v1.28.0\n   Compiling brotli v9.0.0\n   Compiling idna v1.1.0\n   Compiling anyhow v1.0.104\n   Compiling httparse v1.10.1\n   Compiling rustls-webpki v0.103.15\n   Compiling selectors v0.38.0\n   Compiling futures-channel v0.3.34\n   Compiling windows-strings v0.5.1\n   Compiling windows-result v0.4.1\n   Compiling ctor v1.0.13\n   Compiling glob v0.3.4\n   Compiling httpdate v1.0.3\n   Compiling hyper v1.12.0\n   Compiling windows-core v0.62.2\n   Compiling cssparser v0.37.0\n   Compiling markup5ever v0.39.0\n   Compiling rustls v0.23.45\n   Compiling url v2.5.8\n   Compiling quick-xml v0.41.0\n   Compiling winapi-util v0.1.11\n   Compiling sync_wrapper v1.0.2\n   Compiling ipnet v2.12.2\n   Compiling tower-layer v0.3.3\n   Compiling hyper-util v0.1.21\n   Compiling same-file v1.0.6\n   Compiling html5ever v0.39.0\n   Compiling cfb v0.14.0\n   Compiling rust_xlsxwriter v0.99.1\n   Compiling jsonptr v0.7.1\n   Compiling erased-serde v0.4.10\n   Compiling allocator-api2 v0.2.21\n   Compiling option-ext v0.2.0\n   Compiling foldhash v0.1.5\n   Compiling dom_query v0.28.0\n   Compiling hashbrown v0.15.5\n   Compiling schemars v0.8.22\n   Compiling plist v1.8.0\n   Compiling cargo_metadata v0.19.2\n   Compiling serde-untagged v0.1.9\n   Compiling json-patch v4.2.0\n   Compiling infer v0.22.0\n   Compiling walkdir v2.5.0\n   Compiling vswhom-sys v0.1.3\n   Compiling tower v0.5.3\n   Compiling tokio-rustls v0.26.6\n   Compiling urlpattern v0.6.0\n   Compiling serde_with v3.17.0\n   Compiling http-body-util v0.1.5\n   Compiling windows-threading v0.2.1\n   Compiling mime v0.3.17\n   Compiling windows-future v0.3.2\n   Compiling tauri-utils v2.10.1\n   Compiling vswhom v0.1.0\n   Compiling quote-excel v0.1.0 (D:\\a\\777\\777\\crates\\quote-excel)\n   Compiling windows-numerics v0.3.1\n   Compiling windows-collections v0.3.2\n   Compiling winreg v0.56.0\n   Compiling byteorder v1.5.0\n   Compiling embed-resource v3.0.12\n   Compiling windows v0.62.2\n   Compiling libsqlite3-sys v0.35.0\n   Compiling hashlink v0.10.0\n   Compiling dirs-sys v0.5.0\n   Compiling webview2-com-sys v0.39.1\n   Compiling heck v0.5.0\n   Compiling fallible-iterator v0.3.0\n   Compiling fallible-streaming-iterator v0.1.9\n   Compiling raw-window-handle v0.6.2\n   Compiling rusqlite v0.37.0\n   Compiling dirs v7.0.0\n   Compiling tauri-winres v0.3.6\n   Compiling cargo_toml v1.0.1\n   Compiling pem v4.0.0\n   Compiling yasna v0.6.0\n   Compiling dpi v0.1.2\n   Compiling minimal-lexical v0.2.1\n   Compiling nom v7.1.3\n   Compiling rcgen v0.14.10\n   Compiling tauri-build v2.7.2\n   Compiling crossbeam-utils v0.8.23\n   Compiling windows_x86_64_msvc v0.52.6\n   Compiling inout v0.1.4\n   Compiling windows-version v0.1.7\n   Compiling png v0.17.16\n   Compiling webview2-com v0.39.1\n   Compiling cipher v0.4.4\n   Compiling windows-targets v0.52.6\n   Compiling crossbeam-channel v0.5.17\n   Compiling cookie v0.18.2\n   Compiling rusticata-macros v4.1.0\n   Compiling quote-ledger v0.1.0 (D:\\a\\777\\777\\crates\\quote-ledger)\n   Compiling hmac v0.12.1\n   Compiling semver v1.0.28\n   Compiling asn1-rs v0.7.2\n   Compiling pbkdf2 v0.12.2\n   Compiling windows-sys v0.59.0\n   Compiling salsa20 v0.10.2\n   Compiling fs-err v3.3.2\n   Compiling winapi v0.3.9\n   Compiling ico v0.5.0\n   Compiling tauri v2.12.3\n   Compiling png v0.18.1\n   Compiling axum-core v0.5.6\n   Compiling arc-swap v1.9.2\n   Compiling rtoolbox v0.0.6\n   Compiling unicode-segmentation v1.13.3\n   Compiling matchit v0.8.4\n   Compiling ttf-parser v0.21.1\n   Compiling either v1.19.0\n   Compiling axum-server v0.8.0\n   Compiling fontdue v0.9.3\n   Compiling axum v0.8.9\n   Compiling tao v0.37.1\n   Compiling rpassword v7.4.0\n   Compiling tauri-codegen v2.7.2\n   Compiling fs2 v0.4.3\n   Compiling tauri-runtime v2.12.1\n   Compiling scrypt v0.11.0\n   Compiling wry v0.57.0\n   Compiling softbuffer v0.4.8\n   Compiling keyboard-types v0.8.3\n   Compiling serialize-to-javascript v0.1.2\n   Compiling muda v0.20.0\n   Compiling tauri-runtime-wry v2.12.1\n   Compiling tauri-macros v2.7.2\n   Compiling oid-registry v0.8.1\n   Compiling getrandom v0.3.4\n   Compiling der-parser v10.0.0\n   Compiling window-vibrancy v0.8.1\n   Compiling quote-desktop v0.1.0 (D:\\a\\777\\777\\desktop\\src-tauri)\n   Compiling tower-http v0.6.11\n   Compiling hyper-rustls v0.27.10\n   Compiling rustls-platform-verifier v0.7.1\n   Compiling lazy_static v1.5.1\n   Compiling debug_unsafe v0.1.4\n   Compiling data-encoding v2.11.1\n   Compiling atoi_simd v0.18.1\n   Compiling x509-parser v0.18.1\n   Compiling reqwest v0.13.5\n   Compiling quote-host v0.1.0 (D:\\a\\777\\777\\crates\\quote-host)\n   Compiling codepage v0.1.3\n   Compiling fast-float2 v0.2.4\n   Compiling calamine v0.36.1\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 4m 10s\n     Running unittests src\\lib.rs (target\\debug\\deps\\quote_core-27523ca11a26e55c.exe)\n\nrunning 5 tests\ntest session::integrity_tests::incorrect_result_totals_are_blocked ... ok\ntest session::integrity_tests::incomplete_results_are_blocked ... ok\ntest session::integrity_tests::incorrect_result_versions_are_blocked ... ok\ntest session::integrity_tests::invalid_observation_is_atomic ... ok\ntest session::integrity_tests::revision_overflow_is_atomic ... ok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running unittests src\\bin\\quote-shadow.rs (target\\debug\\deps\\quote_shadow-fbfc913f30e02ee1.exe)\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests\\domain.rs (target\\debug\\deps\\domain-322c40da2e91abce.exe)\n\nrunning 16 tests\ntest config_numeric_tokens_bom_and_invalid_surrogate ... ok\ntest division_rounds_each_operator ... ok\ntest duplicate_keys_and_boolean_flags_block_whole_candidate ... ok\ntest blocked_dispatch_calls_zero_and_all_outputs_freeze_same_cents ... ok\ntest field_and_ast_limits_are_not_rounded_away ... ok\ntest intermediate_capacity_checked_before_cancellation ... ok\ntest malformed_model_cannot_become_formal_result ... ok\ntest money_capacity_checks_profit_and_symmetric_limit ... ok\ntest negative_half_ties_and_exact_remainder ... ok\ntest price_refresh_requires_current_recalculation_and_confirmation ... ok\ntest old_and_same_identity_other_generation_completions_are_discarded ... ok\ntest second_line_failure_has_no_partial_results ... ok\ntest unavailable_prices_only_allow_draft_preview ... ok\ntest unicode_discount_digits_match_python_decimal ... ok\ntest wire_cents_are_strings_above_javascript_integer_limit ... ok\ntest writer_errors_propagate_without_invalidating_result ... ok\n\ntest result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n     Running unittests src\\lib.rs (target\\debug\\deps\\quote_desktop-ee71424a9700ea7a.exe)\n\nrunning 5 tests\ntest client::tests::display_preserves_exact_large_cents_and_safe_revision_strings ... ok\ntest client::tests::wire_rejects_arbitrary_paths_actor_and_unknown_commands ... ok\ntest tls::tests::invalid_destinations_and_bad_pin_never_build_a_client ... ok\ntest tls::tests::pinned_legacy_ca_and_leaf_certificates_require_exact_identity_name_and_time ... ok\ntest journal::tests::pending_is_exclusive_and_corruption_is_never_silently_discarded ... ok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n     Running unittests src\\main.rs (target\\debug\\deps\\quote_desktop-4e634fbe61c29d2c.exe)\n\nrunning 4 tests\ntest verification_window::tests::invalid_ports_unknown_switches_and_relative_profiles_are_refused ... ok\ntest verification_window::tests::normal_launch_has_no_verification_settings ... ok\ntest verification_window::tests::marked_temp_profile_has_fixed_api_arguments_and_private_data_directory ... ok\ntest verification_window::tests::production_marker_missing_marker_and_nonfixture_root_are_refused ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n     Running unittests src\\lib.rs (target\\debug\\deps\\quote_excel-efa52ef62bd8cd2c.exe)\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests\\format.rs (target\\debug\\deps\\format-4cccc625988feb38.exe)\n\nrunning 7 tests\ntest calamine_candidate_loses_decimal_token_while_selected_reader_retains_it ... ok\ntest corrupt_encoding_entities_and_unknown_namespace_are_refused ... ok\ntest duplicate_cells_and_capacity_fail_instead_of_truncation ... ok\ntest external_relationships_fail_closed ... ok\ntest output_version_and_financial_capacity_are_rejected ... ok\ntest formulas_are_refused_even_with_a_cached_value ... ok\ntest text_roles_precision_and_new_workbook_styles_are_stable ... ok\n\ntest result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s\n\n     Running unittests src\\lib.rs (target\\debug\\deps\\quote_host-859d47e52010d764.exe)\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running unittests src\\main.rs (target\\debug\\deps\\quote_host-856c0dfcf71d8b00.exe)\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests\\boundary.rs (target\\debug\\deps\\boundary-e334385c12edc8f2.exe)\n\nrunning 11 tests\ntest native_ace_identity_resolves_display_aliases_without_widening_the_allowlist ... ok\ntest exclusive_publish_preserves_an_existing_target_and_rejects_different_bytes ... ok\ntest native_scrypt_matches_accepted_python_verifier ... ok\ntest nested_duplicate_json_bad_unicode_and_nonfinite_are_rejected ... ok\ntest png_without_approved_readable_font_fails_explicitly ... ok\ntest protected_dacl_requires_exact_inheritable_allowlist ... ok\ntest public_quote_input_cannot_claim_actor_totals_or_boolean_numbers ... ok\ntest sales_projection_is_an_allowlist_and_exact_cents_stay_strings ... ok\ntest same_host_owner_lock_excludes_second_native_instance ... ok\ntest username_and_search_share_full_unicode_casefold ... ok\ntest native_auth_original_schema_rejects_extra_trigger_without_repair ... ok\n\ntest result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.79s\n\n     Running unittests src\\lib.rs (target\\debug\\deps\\quote_ledger-3de08bf8ac6351be.exe)\n\nrunning 4 tests\ntest tests::generated_identifiers_are_canonical_and_distinct ... ok\ntest tests::native_principal_requires_known_role_and_bounded_identity ... ok\ntest tests::frozen_schema_hash_matches_native_sqlite_metadata ... ok\ntest tests::version_or_extra_trigger_is_not_repaired ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n     Running unittests src\\main.rs (target\\debug\\deps\\quote_ledger-37b4e26d59bc7709.exe)\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n   Doc-tests quote_core\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n   Doc-tests quote_desktop\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n   Doc-tests quote_excel\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n   Doc-tests quote_host\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n   Doc-tests quote_ledger\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\runneradmin\\.cargo\\bin\\cargo.EXE",
+        "+1.97.1",
+        "build",
+        "--release",
+        "--locked",
+        "-j",
+        "2",
+        "-p",
+        "quote-host",
+        "-p",
+        "quote-ledger",
+        "-p",
+        "quote-desktop",
+        "--features",
+        "quote-desktop/verification,quote-desktop/custom-protocol"
+      ],
+      "label": "编译所需 release 程序（首次可能较久）",
+      "status": "passed",
+      "log": "command-13.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 7484,
+      "elapsed_seconds": 596.719,
+      "stdout": "   Compiling proc-macro2 v1.0.107\n   Compiling unicode-ident v1.0.27\n   Compiling quote v1.0.47\n   Compiling windows-link v0.2.1\n   Compiling serde_core v1.0.228\n   Compiling syn v3.0.9\n   Compiling syn v2.0.119\n   Compiling synstructure v0.14.0\n   Compiling zerofrom-derive v0.1.8\n   Compiling yoke-derive v0.8.4\n   Compiling serde_derive v1.0.228\n   Compiling displaydoc v0.2.7\n   Compiling zerovec-derive v0.11.6\n   Compiling itoa v1.0.18\n   Compiling find-msvc-tools v0.1.14\n   Compiling shlex v2.0.1\n   Compiling cc v1.8.0\n   Compiling version_check v0.9.5\n   Compiling windows-sys v0.61.2\n   Compiling zmij v1.0.23\n   Compiling autocfg v1.5.1\n   Compiling memchr v2.8.3\n   Compiling icu_properties_data v2.3.0\n   Compiling cfg-if v1.0.5\n   Compiling icu_normalizer_data v2.3.0\n   Compiling siphasher v1.0.4\n   Compiling phf_shared v0.13.1\n   Compiling time-core v0.1.6\n   Compiling num-conv v0.1.0\n   Compiling thiserror v2.0.21\n   Compiling fastrand v2.5.0\n   Compiling phf_generator v0.13.1\n   Compiling thiserror-impl v2.0.21\n   Compiling stable_deref_trait v1.2.1\n   Compiling generic-array v0.14.7\n   Compiling serde v1.0.228\n   Compiling zerofrom v0.1.8\n   Compiling bytes v1.12.1\n   Compiling smallvec v1.16.3\n   Compiling equivalent v1.0.2\n   Compiling yoke v0.8.3\n   Compiling libc v0.2.190\n   Compiling pin-project-lite v0.2.17\n   Compiling parking_lot_core v0.9.12\n   Compiling zerovec v0.11.8\n   Compiling crc32fast v1.5.2\n   Compiling phf_macros v0.13.1\n   Compiling fnv v1.0.7\n   Compiling hashbrown v0.17.1\n   Compiling typeid v1.0.3\n   Compiling indexmap v2.14.2\n   Compiling once_cell v1.21.4\n   Compiling powerfmt v0.2.1\n   Compiling deranged v0.5.9\n   Compiling tinystr v0.8.4\n   Compiling http v1.5.0\n   Compiling phf_codegen v0.13.1\n   Compiling time-macros v0.2.24\n   Compiling strsim v0.11.1\n   Compiling litemap v0.8.3\n   Compiling ident_case v1.0.1\n   Compiling erased-serde v0.4.10\n   Compiling writeable v0.6.4\n   Compiling time v0.3.44\n   Compiling icu_locale_core v2.3.0\n   Compiling darling_core v0.21.3\n   Compiling potential_utf v0.1.6\n   Compiling zerotrie v0.2.5\n   Compiling utf8_iter v1.0.4\n   Compiling futures-core v0.3.34\n   Compiling icu_collections v2.3.0\n   Compiling icu_provider v2.3.1\n   Compiling darling_macro v0.21.3\n   Compiling socket2 v0.6.5\n   Compiling mio v1.2.4\n   Compiling tokio-macros v2.7.2\n   Compiling percent-encoding v2.3.2\n   Compiling anyhow v1.0.104\n   Compiling scopeguard v1.2.0\n   Compiling serde_json v1.0.151\n   Compiling typenum v1.20.1\n   Compiling new_debug_unreachable v1.0.6\n   Compiling subtle v2.6.1\n   Compiling tokio v1.52.3\n   Compiling lock_api v0.4.14\n   Compiling darling v0.21.3\n   Compiling phf v0.13.1\n   Compiling string_cache_codegen v0.6.1\n   Compiling log v0.4.34\n   Compiling precomputed-hash v0.1.1\n   Compiling getrandom v0.4.3\n   Compiling web_atoms v0.2.6\n   Compiling serde_with_macros v3.17.0\n   Compiling parking_lot v0.12.5\n   Compiling icu_normalizer v2.3.0\n   Compiling icu_properties v2.3.0\n   Compiling getrandom v0.2.16\n   Compiling ring v0.17.14\n   Compiling semver v1.0.28\n   Compiling winnow v1.0.4\n   Compiling toml_parser v1.1.5+spec-1.1.0\n   Compiling idna_adapter v1.2.2\n   Compiling string_cache v0.9.0\n   Compiling tracing-core v0.1.36\n   Compiling num-traits v0.2.19\n   Compiling toml_datetime v1.1.2+spec-1.1.0\n   Compiling serde_spanned v1.1.2\n   Compiling bitflags v2.13.2\n   Compiling toml_writer v1.1.3+spec-1.1.0\n   Compiling dtoa v1.0.11\n   Compiling dtoa-short v0.3.5\n   Compiling toml v1.1.8+spec-1.1.0\n   Compiling form_urlencoded v1.2.2\n   Compiling tracing v0.1.44\n   Compiling uuid v1.28.0\n   Compiling idna v1.1.0\n   Compiling crypto-common v0.1.7\n   Compiling tendril v0.5.1\n   Compiling selectors v0.38.0\n   Compiling aho-corasick v1.1.5\n   Compiling indexmap v1.9.3\n   Compiling windows-interface v0.59.3\n   Compiling derive_more-impl v2.1.1\n   Compiling windows-implement v0.60.2\n   Compiling cssparser-macros v0.7.1\n   Compiling windows-result v0.4.1\n   Compiling windows-strings v0.5.1\n   Compiling alloc-no-stdlib v3.0.0\n   Compiling camino v1.2.6\n   Compiling regex-syntax v0.8.11\n   Compiling untrusted v0.9.0\n   Compiling slab v0.4.12\n   Compiling regex-automata v0.4.18\n   Compiling alloc-stdlib v0.3.0\n   Compiling windows-core v0.62.2\n   Compiling cssparser v0.37.0\n   Compiling derive_more v2.1.1\n   Compiling markup5ever v0.39.0\n   Compiling url v2.5.8\n   Compiling winapi-util v0.1.11\n   Compiling http-body v1.1.0\n   Compiling servo_arc v0.4.3\n   Compiling vswhom-sys v0.1.3\n   Compiling serde_derive_internals v0.29.1\n   Compiling zeroize v1.9.1\n   Compiling web-time v1.1.0\n   Compiling bit-vec v0.8.0\n   Compiling schemars v0.8.22\n   Compiling simd-adler32 v0.3.10\n   Compiling hashbrown v0.12.3\n   Compiling rustc-hash v2.1.3\n   Compiling bit-set v0.8.0\n   Compiling schemars_derive v0.8.22\n   Compiling cfb v0.14.0\n   Compiling rustls-pki-types v1.15.1\n   Compiling same-file v1.0.6\n   Compiling html5ever v0.39.0\n   Compiling brotli-decompressor v6.0.1\n   Compiling regex v1.13.1\n   Compiling jsonptr v0.7.1\n   Compiling block-buffer v0.10.4\n   Compiling cargo-platform v0.1.9\n   Compiling quick-xml v0.38.4\n   Compiling futures-sink v0.3.34\n   Compiling futures-task v0.3.34\n   Compiling dyn-clone v1.0.20\n   Compiling tower-service v0.3.3\n   Compiling base64 v0.22.1\n   Compiling dunce v1.0.5\n   Compiling foldhash v0.2.0\n   Compiling httparse v1.10.1\n   Compiling dom_query v0.28.0\n   Compiling plist v1.8.0\n   Compiling futures-util v0.3.34\n   Compiling tokio-util v0.7.20\n   Compiling cargo_metadata v0.19.2\n   Compiling digest v0.10.7\n   Compiling json-patch v4.2.0\n   Compiling urlpattern v0.6.0\n   Compiling brotli v9.0.0\n   Compiling serde-untagged v0.1.9\n   Compiling walkdir v2.5.0\n   Compiling infer v0.22.0\n   Compiling serde_with v3.17.0\n   Compiling windows-threading v0.2.1\n   Compiling try-lock v0.2.5\n   Compiling atomic-waker v1.1.2\n   Compiling ctor v1.0.13\n   Compiling adler2 v2.0.1\n   Compiling base64 v0.23.1\n   Compiling rustls v0.23.45\n   Compiling glob v0.3.4\n   Compiling h2 v0.4.20\n   Compiling tauri-utils v2.10.1\n   Compiling want v0.3.2\n   Compiling windows-future v0.3.2\n   Compiling vswhom v0.1.0\n   Compiling rustls-webpki v0.103.15\n   Compiling num-integer v0.1.46\n   Compiling windows-numerics v0.3.1\n   Compiling windows-collections v0.3.2\n   Compiling rustc_version v0.4.1\n   Compiling winreg v0.56.0\n   Compiling futures-channel v0.3.34\n   Compiling option-ext v0.2.0\n   Compiling httpdate v1.0.3\n   Compiling hyper v1.12.0\n   Compiling dirs-sys v0.5.0\n   Compiling windows v0.62.2\n   Compiling embed-resource v3.0.12\n   Compiling num-bigint v0.4.6\n   Compiling miniz_oxide v0.9.1\n   Compiling sync_wrapper v1.0.2\n   Compiling webview2-com-sys v0.39.1\n   Compiling cpufeatures v0.2.17\n   Compiling raw-window-handle v0.6.2\n   Compiling tower-layer v0.3.3\n   Compiling zlib-rs v0.6.8\n   Compiling crossbeam-utils v0.8.23\n   Compiling ipnet v2.12.2\n   Compiling heck v0.5.0\n   Compiling hyper-util v0.1.21\n   Compiling flate2 v1.1.10\n   Compiling sha2 v0.10.9\n   Compiling tauri-winres v0.3.6\n   Compiling dirs v7.0.0\n   Compiling miniz_oxide v0.8.9\n   Compiling fdeflate v0.3.7\n   Compiling cargo_toml v1.0.1\n   Compiling dpi v0.1.2\n   Compiling cookie v0.18.2\n   Compiling foldhash v0.1.5\n   Compiling bumpalo v3.20.3\n   Compiling pkg-config v0.3.34\n   Compiling vcpkg v0.2.15\n   Compiling allocator-api2 v0.2.21\n   Compiling minimal-lexical v0.2.1\n   Compiling nom v7.1.3\n   Compiling hashbrown v0.15.5\n   Compiling libsqlite3-sys v0.35.0\n   Compiling zopfli v0.8.4\n   Compiling tauri-build v2.7.2\n   Compiling tower v0.5.3\n   Compiling tokio-rustls v0.26.6\n   Compiling http-body-util v0.1.5\n   Compiling webview2-com-macros v0.8.1\n   Compiling synstructure v0.13.2\n   Compiling windows-version v0.1.7\n   Compiling typed-path v0.12.3\n   Compiling mime v0.3.17\n   Compiling bitflags v1.3.2\n   Compiling windows_x86_64_msvc v0.52.6\n   Compiling zip v8.6.0\n   Compiling png v0.17.16\n   Compiling asn1-rs-derive v0.6.0\n   Compiling webview2-com v0.39.1\n   Compiling crossbeam-channel v0.5.17\n   Compiling rusticata-macros v4.1.0\n   Compiling quote-core v0.1.0 (D:\\a\\777\\777\\crates\\quote-core)\n   Compiling asn1-rs-impl v0.2.0\n   Compiling tauri-runtime v2.12.1\n   Compiling rustversion v1.0.23\n   Compiling byteorder v1.5.0\n   Compiling wry v0.57.0\n   Compiling ico v0.5.0\n   Compiling asn1-rs v0.7.2\n   Compiling rust_xlsxwriter v0.99.1\n   Compiling tauri v2.12.3\n   Compiling hashlink v0.10.0\n   Compiling png v0.18.1\n   Compiling inout v0.1.4\n   Compiling quick-xml v0.41.0\n   Compiling fs-err v3.3.2\n   Compiling getrandom v0.3.4\n   Compiling winapi v0.3.9\n   Compiling fallible-iterator v0.3.0\n   Compiling oid-registry v0.8.1\n   Compiling fallible-streaming-iterator v0.1.9\n   Compiling muda v0.20.0\n   Compiling unicode-segmentation v1.13.3\n   Compiling tauri-runtime-wry v2.12.1\n   Compiling tauri-codegen v2.7.2\n   Compiling tao v0.37.1\n   Compiling rusqlite v0.37.0\n   Compiling quote-excel v0.1.0 (D:\\a\\777\\777\\crates\\quote-excel)\n   Compiling cipher v0.4.4\n   Compiling windows-targets v0.52.6\n   Compiling softbuffer v0.4.8\n   Compiling hmac v0.12.1\n   Compiling keyboard-types v0.8.3\n   Compiling serialize-to-javascript-impl v0.1.2\n   Compiling serialize-to-javascript v0.1.2\n   Compiling pbkdf2 v0.12.2\n   Compiling arc-swap v1.9.2\n   Compiling windows-sys v0.59.0\n   Compiling salsa20 v0.10.2\n   Compiling quote-ledger v0.1.0 (D:\\a\\777\\777\\crates\\quote-ledger)\n   Compiling tauri-macros v2.7.2\n   Compiling der-parser v10.0.0\n   Compiling axum-core v0.5.6\n   Compiling window-vibrancy v0.8.1\n   Compiling hyper-rustls v0.27.10\n   Compiling tower-http v0.6.11\n   Compiling quote-desktop v0.1.0 (D:\\a\\777\\777\\desktop\\src-tauri)\n   Compiling rustls-platform-verifier v0.7.1\n   Compiling pem v4.0.0\n   Compiling yasna v0.6.0\n   Compiling rtoolbox v0.0.6\n   Compiling serde_repr v0.1.21\n   Compiling data-encoding v2.11.1\n   Compiling ttf-parser v0.21.1\n   Compiling either v1.19.0\n   Compiling lazy_static v1.5.1\n   Compiling matchit v0.8.4\n   Compiling axum v0.8.9\n   Compiling x509-parser v0.18.1\n   Compiling axum-server v0.8.0\n   Compiling fontdue v0.9.3\n   Compiling rcgen v0.14.10\n   Compiling rpassword v7.4.0\n   Compiling reqwest v0.13.5\n   Compiling fs2 v0.4.3\n   Compiling scrypt v0.11.0\n   Compiling quote-host v0.1.0 (D:\\a\\777\\777\\crates\\quote-host)\n    Finished `release` profile [optimized] target(s) in 9m 56s\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "D:\\a\\777\\777\\target\\release\\quote-desktop.exe",
+        "--verification-build-info"
+      ],
+      "label": "核对 release exe 的实际生产协议和内嵌页面",
+      "status": "passed",
+      "log": "command-14.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 5180,
+      "elapsed_seconds": 0.04599999999982174,
+      "stdout": "{\"asset_count\":8,\"asset_names\":[\"/icons/2eb61.svg\",\"/icons/09c30.svg\",\"/assets/index-HXoiUZaM.css\",\"/icons/7bfb4.svg\",\"/icons/a09ba.svg\",\"/assets/index-BxhN8Caw.js\",\"/icons/74181.svg\",\"/index.html\"],\"custom_protocol\":true,\"embedded_index\":true,\"entry_css\":true,\"entry_js\":true,\"index_sha256\":\"ceaa3238dd344561d7fe3e01816e609fd841404c7c7e36caff6aeb2709f31770\",\"release\":true,\"tauri_is_dev\":false,\"windows\":true}\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\22.23.3\\x64\\npm.CMD",
+        "--prefix",
+        "desktop",
+        "run",
+        "test:ui"
+      ],
+      "label": "完整浏览器交互验证",
+      "status": "passed",
+      "log": "command-15.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 3132,
+      "elapsed_seconds": 72.59400000000005,
+      "stdout": "\n> quote-desktop@0.1.0 test:ui\n> playwright test\n\n\nRunning 7 tests using 1 worker\n\n  ok 1 tests\\ui\\workbench.spec.ts:80:1 › real Rust quote, compact confirmation, append note, void/restore and full pagination (16.9s)\n  ok 2 tests\\ui\\workbench.spec.ts:122:1 › input edit invalidates result and late calculation cannot reenable submit (7.7s)\n  ok 3 tests\\ui\\workbench.spec.ts:142:1 › sales DTO and pages contain no cost/profit and settings inherit (7.7s)\n  ok 4 tests\\ui\\workbench.spec.ts:175:1 › unknown commit requires original receipt check and restart never double books (8.0s)\n  ok 5 tests\\ui\\workbench.spec.ts:195:1 › current Figma quote geometry and all original assets load at their exported sizes (7.6s)\n  ok 6 tests\\ui\\workbench.spec.ts:255:1 › manager price publication, readonly inherited directories and real output task progress (10.0s)\n  ok 7 tests\\ui\\workbench.spec.ts:283:1 › confirmed write with failed detail refresh clears the original draft and never offers a duplicate submit (8.0s)\n\n  7 passed (1.2m)\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\22.23.3\\x64\\node.EXE",
+        "D:\\a\\777\\777\\desktop\\tests\\windows-smoke.mjs",
+        "D:\\a\\777\\777\\reports\\p07-01-ci\\private-window-fixture.json",
+        "53320",
+        "D:\\a\\777\\777\\reports\\p07-01-ci"
+      ],
+      "label": "node.EXE",
+      "status": "passed",
+      "log": "command-16.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 1048,
+      "elapsed_seconds": 5.485000000000127,
+      "stdout": "",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    }
+  ],
+  "native_window": {
+    "status": "passed",
+    "actual_Tauri_WebView2": true,
+    "production_page_origin": "http://tauri.localhost",
+    "production_origin_checked_before_login": true,
+    "real_IPC_and_Rust_HTTPS": true,
+    "manager_submit": true,
+    "sales_cost_and_other_order_hidden": true,
+    "profile_isolated": true,
+    "UI_idle_before_native_close": true,
+    "close": {
+      "status": "passed",
+      "pid": 3616,
+      "close_message_posted": true,
+      "process_exit_observed": true,
+      "exit_code": 0,
+      "forced_termination": false,
+      "windows_before": [
+        {
+          "hwnd": 393546,
+          "pid": 3616,
+          "title": "记账器",
+          "class_name": "Tauri Window",
+          "visible": true,
+          "width": 1044,
+          "height": 788
+        },
+        {
+          "hwnd": 524432,
+          "pid": 3616,
+          "title": "",
+          "class_name": "Tao Thread Event Target",
+          "visible": true,
+          "width": 16,
+          "height": 16
+        },
+        {
+          "hwnd": 393696,
+          "pid": 3616,
+          "title": "MSCTFIME UI",
+          "class_name": "MSCTFIME UI",
+          "visible": false,
+          "width": 0,
+          "height": 0
+        },
+        {
+          "hwnd": 655480,
+          "pid": 3616,
+          "title": "Default IME",
+          "class_name": "IME",
+          "visible": false,
+          "width": 0,
+          "height": 0
+        }
+      ],
+      "target": {
+        "hwnd": 393546,
+        "pid": 3616,
+        "title": "记账器",
+        "class_name": "Tauri Window",
+        "visible": true,
+        "width": 1044,
+        "height": 788
+      },
+      "elapsed_seconds": 0.109,
+      "windows_after": []
+    },
+    "native_window_close_and_process_exit": true,
+    "sandbox_cleaned": true,
+    "sandbox_cleanup": {
+      "status": "passed",
+      "timeout_seconds": 20,
+      "attempts": 2,
+      "transient_errors": [
+        {
+          "type": "PermissionError",
+          "errno": 13,
+          "winerror": 32,
+          "path": "desktop\\webview2\\EBWebView\\Default\\Favicons"
+        }
+      ],
+      "sandbox_cleaned": true,
+      "forced_browser_termination": false,
+      "temporary_root": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\777-p06-native-host-nc_6x9dc",
+      "elapsed_seconds": 0.39
+    }
+  },
+  "protocol": {
+    "status": "passed",
+    "checks": [
+      "certificate_pin_rejected_before_request",
+      "real_Rust_HTTPS_login_no_token_crosses_IPC",
+      "exact_cents_revision_and_frozen_draft_submission",
+      "append_only_note_void_restore_original_amount_and_revision",
+      "full_20_row_pagination_and_view_binding",
+      "native_output_task_does_not_rebook_financial_order",
+      "sales_DTO_other_actor_and_management_commands_restricted",
+      "native_host_and_desktop_restart_original_receipt_identity_and_no_duplicate",
+      "money_above_JavaScript_integer_limit_remains_exact_string",
+      "server_price_change_refuses_stale_confirmation_without_booking"
+    ],
+    "actual_transport": "Rust desktop IPC dispatcher -> Rustls pinned HTTPS -> standalone Rust host",
+    "production_paths_accessed": false,
+    "Windows_DPAPI": true,
+    "scope": "owned temporary profile, synthetic accounts/prices/orders, no installed service or real data",
+    "sandbox_cleaned": true
+  },
+  "production_paths_accessed": false,
+  "acceptance": "pending_actual_Windows_visual_and_interaction",
+  "source_commit": "76934b49629945362ae10241633518fe6be53181",
+  "worktree_dirty": false,
+  "implementation_sha256_LF": {
+    "Cargo.lock": "ed19947197eb57a1e48bfb911d2846c5e2a132e8108503132810bb014c6b0fab",
+    "Cargo.toml": "5642d853e1987beedabefc4e5db15e5caf2e1a11274db247a569211ded01b129",
+    "desktop/index.html": "2ac3223d9eae12e0920b8c40681e3774ddcdfce063ccf14792229a51fa6cb1cb",
+    "desktop/package-lock.json": "a8ae37040b5fb282eeb5e51160baa4c386a1f171ee77052230a5ff43be960727",
+    "desktop/package.json": "022e73f008f9824b4f32c39f26910a1477bc7ee56eb007e61d176bf080b414a9",
+    "desktop/playwright.config.ts": "810476ed077df6dc99eb1caabfbc6647f39f6c5b6eaa4f191036f66281e7fe24",
+    "desktop/public/icons/09c30.svg": "4675d28207183903aa226c31309ad5d21627aef900737cab226374c33de54530",
+    "desktop/public/icons/2eb61.svg": "fc026487878113a216b376a29afe78ea7cc972358a179b76478755e8efb7939b",
+    "desktop/public/icons/74181.svg": "ca6fbcb7772da09ace8e7114c68bcbae5ee4c0e341688b1abc11a2d97c3d8873",
+    "desktop/public/icons/7bfb4.svg": "8fcb17ad9bfa58ecc31856e7cfaaea4205c7b94b4ceb5d2bd9b30b9ce71764f7",
+    "desktop/public/icons/a09ba.svg": "fe9da9584ea1261b7fabd08829bffca2b5e1c8b8651681fdf3cc6dbfac54dff3",
+    "desktop/src/app.css": "13eb2aa96536f92ac26157933c735b18e404ff8e32834a9c08170c7eb9f7daf0",
+    "desktop/src/App.tsx": "222f351aa6a08b3edb91a8c66ff371e02cb28bbb8e332937f6705a8041608a47",
+    "desktop/src/bridge.ts": "531829d991ebfe54a1e9d141b1ed0516d33813ba47e7794db876b601535201c5",
+    "desktop/src/contracts.ts": "51007f48cf10f5e9632694a54def20244c38d294917f871a1a0725fd530abd1e",
+    "desktop/src/features/ConnectionPage.tsx": "fab3ba7138134613bab5e39bfb0b1795c0e7820ea6b40b7b0c5559b0580ef5e8",
+    "desktop/src/features/DetailPage.tsx": "122e0579143fe06fd8a8353d12f5744b5b33a99fca797215b94073a7193ed384",
+    "desktop/src/features/ManagementPages.tsx": "850a8f9a20100e9ad917e5e7eefccae444049cde5f0480c34bbfc093d5cf737f",
+    "desktop/src/features/OrdersPage.tsx": "54347d194cb3e75dd3200266be8047f2c5c3d7469cfc67c33bb2f1ea607fb56f",
+    "desktop/src/features/QuotePage.tsx": "d54f15e8cee4877248ef5121703e4865f715a7dfb0074bf2242da0223ffa8f31",
+    "desktop/src/main.tsx": "c4122a275b5a5c6101bb28fc1fa113f9356fb3d6064a4b899a9d20a0851fe570",
+    "desktop/src/state/draft.ts": "6488a349e91e1e7df7cb00de59651e93223beddb1a9afb6cb3eb6c5e44a13459",
+    "desktop/src/state/format.ts": "7294f9ccc7c866797c6a2bd510b29b54110191903b82dda88bef833a8bd14fb5",
+    "desktop/src/state/useWorkbench.ts": "cb804f96c9fa72b5cd8422965e1d357113cb809052487b999aa0b615db0657ff",
+    "desktop/src/tokens.css": "6e8608c761a0062a5e079c6ffd2f371b4226191a0cecbdb000795f4f98ad5f8e",
+    "desktop/src/ui/components.tsx": "b253fa9186d536c85fff11ff6fb3b02e8c2cd0ecf3db75f927b9a880a017d6a3",
+    "desktop/src-tauri/build.rs": "18068a9c3e5ce39adb0901f6c4ca794e87ac327ac60cd972d397f33a2dcb3532",
+    "desktop/src-tauri/capabilities/main.json": "0dc0fc54faa577dcd3a879ade5d2fb321e435fd69c34efcf19eba6c13aff273c",
+    "desktop/src-tauri/Cargo.toml": "1355354b4c8bcaefabeacbe43035347510a39089c169b0ea7e810cd4fbb5b632",
+    "desktop/src-tauri/icons/icon.ico": "01024936f46470cd1f92be7699fb541ebc4f49872ed117253d81ebbb0a522595",
+    "desktop/src-tauri/src/client.rs": "99e64a236190f288110db259079699fda32a58217f887218cd0f90c4b2244db4",
+    "desktop/src-tauri/src/journal.rs": "bb3b25c6119c6ab388f5cd8f9e1c0d15f826a127c0a5ec471698ba44a49b7404",
+    "desktop/src-tauri/src/lib.rs": "7fd20a8b804b10c5c0bace92f5861f5e7e3f286f1d423e45be8f00add9d27aac",
+    "desktop/src-tauri/src/main.rs": "a053a0cdf6392418a4f50bc3fb9c058356094140032864c75b402ced86d88105",
+    "desktop/src-tauri/src/tls.rs": "0bbfae71cebaf7abf11c9834cfa70736135379e87605a41a54426f59e68e6921",
+    "desktop/src-tauri/src/types.rs": "59f1ec5f45cfc1e8dede1f506053eb37a0329317d42a57fd5fa51e477bcfa11f",
+    "desktop/src-tauri/src/verification_window.rs": "728f4a82d2e346114b08627f9ae5f0481c5fa4d9c966ef4ff4632f122bc1e0eb",
+    "desktop/src-tauri/tauri.conf.json": "9720d92feb86785509d9fc3c45f76b771733cc7a8e5a1671cd00700c7d33cf25",
+    "desktop/tests/draft.test.ts": "324fd6e805e4093c4bdf7a6883f4b89e05d638da497396ff017bc98e958e4138",
+    "desktop/tests/native-cdp.mjs": "9417a30900c56d81d519decefa4d1c16d8397018aed27d9170791a4327153cd6",
+    "desktop/tests/native-cdp.test.ts": "c797eb40692491ef4452b6daeac71e9b757ad070f60eb283e8925c86f4392d8e",
+    "desktop/tests/native-origin.mjs": "825647bce9d1dd2be0f07e78012a767a82aa747aed6d75035c82245ffda6745a",
+    "desktop/tests/native-origin.test.ts": "dd116b2bf9e8d234505531cb93b100a44d6446636398869db497589577632be2",
+    "desktop/tests/ui/workbench.spec.ts": "043da3728c63f9d4e0472776e80bf75f56ef691066e6db55586a21bc9453d373",
+    "desktop/tests/windows-smoke.mjs": "1c5ea6cee605bfbecc113a7283a0d7d04a310dbcefe662dbc49d95c915192a2a",
+    "desktop/THIRD_PARTY_NOTICES.md": "d3e96c41fc584ea9f231f4f9071be6d80c1a6c113bc506a0f3cdc6ac906acb0b",
+    "desktop/tsconfig.json": "c16750f08c9ba56eef5cc8e6a4051e2fc8e808cc66e9882041983efba9520832",
+    "docs/design/figma-state.json": "a6715730594ba53d63acdf489099109da3541e53b7c3c0be341e81dc7d403f0f",
+    "docs/design/figma-tokens.json": "a05be392ebced447e3abd67fa6361f38c1d75e6a95f378f88f18cc82c7656d34",
+    "tests/p07_window_fixture.py": "c65dbb4b3ec291f41bbecf5fd08ebd14187d15ca573a5be732b5756b1a0a7654",
+    "tests/test_p07_check_runner.py": "13021b2ab692a4ece2916260bb91dd88c4abb6764a562cc6a94c8813657f506c",
+    "tests/test_p07_native_window.py": "90b5cd123332128f74e4abd4d5f9dccd523db7fb8470d178bd2e732b1f54ee45",
+    "tools/p07_check_runner.py": "d248ae97ce501ca22a192ff41ac0c30932ae3858fae57f3d9409cb0fbbb78e41",
+    "tools/p07_desktop_check.py": "a6639d8e7abc8e631a90f28ea4558bfb702e669262c9bc80e81e29feaef81850",
+    "tools/p07_desktop_fixture.py": "7d7851912488ff7b9b0024a7267ad4b3da1f0d1b2ebf124214b1dcdc3663367c",
+    "tools/p07_native_window.py": "17ffc27133324af97af1dd620faafeb326fe230eb3f7a74f92ec772995dd6f55"
+  },
+  "current_step": "等待 WebView2 释放临时目录并完成清理",
+  "preflight": {
+    "status": "passed",
+    "node": "v22.23.3",
+    "rust": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6",
+    "cargo_jobs": 2,
+    "dependency_sources": "Cargo.toml/Cargo.lock and desktop/package-lock.json; download occurs after preflight",
+    "Windows_native_prerequisites": {
+      "MSVC_cpp_tools": true,
+      "Windows_SDK": true,
+      "WebView2_Runtime": true,
+      "WebView2_registered_versions": [
+        "153.0.4234.48"
+      ],
+      "process_elevated": true
+    }
+  },
+  "reused_CI_scope": null,
+  "release_frontend": {
+    "asset_count": 8,
+    "asset_names": [
+      "/icons/2eb61.svg",
+      "/icons/09c30.svg",
+      "/assets/index-HXoiUZaM.css",
+      "/icons/7bfb4.svg",
+      "/icons/a09ba.svg",
+      "/assets/index-BxhN8Caw.js",
+      "/icons/74181.svg",
+      "/index.html"
+    ],
+    "custom_protocol": true,
+    "embedded_index": true,
+    "entry_css": true,
+    "entry_js": true,
+    "index_sha256": "ceaa3238dd344561d7fe3e01816e609fd841404c7c7e36caff6aeb2709f31770",
+    "release": true,
+    "tauri_is_dev": false,
+    "windows": true
+  },
+  "browser_font_fixture": {
+    "schema": "777-CI-font-v1",
+    "source": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/Variable/TTF/Subset/NotoSansSC-VF.ttf",
+    "sha256": "d68bafcb48a2707749396aa12bbbd833cb70401f3a9a689fd2902c7e0d295964",
+    "bytes": 17773132,
+    "license": "SIL Open Font License 1.1",
+    "scope": "CI-only explicit font fixture; not a system font installation or a product font selection"
+  },
+  "browser_tests": {
+    "startTime": "2026-10-14T13:29:57.910Z",
+    "duration": 70170.45999999999,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "native_window_interactions": {
+    "status": "passed",
+    "actual_Tauri_WebView2": true,
+    "production_page_origin": "http://tauri.localhost",
+    "production_origin_checked_before_login": true,
+    "real_IPC_and_Rust_HTTPS": true,
+    "manager_submit": true,
+    "sales_cost_and_other_order_hidden": true,
+    "profile_isolated": true,
+    "UI_idle_before_native_close": true
+  },
+  "native_window_close": {
+    "status": "passed",
+    "pid": 3616,
+    "close_message_posted": true,
+    "process_exit_observed": true,
+    "exit_code": 0,
+    "forced_termination": false,
+    "windows_before": [
+      {
+        "hwnd": 393546,
+        "pid": 3616,
+        "title": "记账器",
+        "class_name": "Tauri Window",
+        "visible": true,
+        "width": 1044,
+        "height": 788
+      },
+      {
+        "hwnd": 524432,
+        "pid": 3616,
+        "title": "",
+        "class_name": "Tao Thread Event Target",
+        "visible": true,
+        "width": 16,
+        "height": 16
+      },
+      {
+        "hwnd": 393696,
+        "pid": 3616,
+        "title": "MSCTFIME UI",
+        "class_name": "MSCTFIME UI",
+        "visible": false,
+        "width": 0,
+        "height": 0
+      },
+      {
+        "hwnd": 655480,
+        "pid": 3616,
+        "title": "Default IME",
+        "class_name": "IME",
+        "visible": false,
+        "width": 0,
+        "height": 0
+      }
+    ],
+    "target": {
+      "hwnd": 393546,
+      "pid": 3616,
+      "title": "记账器",
+      "class_name": "Tauri Window",
+      "visible": true,
+      "width": 1044,
+      "height": 788
+    },
+    "elapsed_seconds": 0.109,
+    "windows_after": []
+  },
+  "native_window_cleanup": {
+    "forced_process_tree_cleanup": false,
+    "exit_code": 0
+  },
+  "native_sandbox_cleanup": {
+    "status": "passed",
+    "timeout_seconds": 20,
+    "attempts": 2,
+    "transient_errors": [
+      {
+        "type": "PermissionError",
+        "errno": 13,
+        "winerror": 32,
+        "path": "desktop\\webview2\\EBWebView\\Default\\Favicons"
+      }
+    ],
+    "sandbox_cleaned": true,
+    "forced_browser_termination": false,
+    "temporary_root": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\777-p06-native-host-nc_6x9dc",
+    "elapsed_seconds": 0.39
+  },
+  "native_cdp_connection": {
+    "status": "connected",
+    "endpoint": "http://127.0.0.1:53320",
+    "attempts": 6,
+    "browser_version": "153.0.4234.48",
+    "elapsed_ms": 1111
+  },
+  "native_window_origin": {
+    "observed_url": "http://tauri.localhost/",
+    "status": "origin_checked",
+    "production_origin": "http://tauri.localhost"
+  }
+}

@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。当前P07-01已实现，本机04原生交互/自然退出通过；最新Windows CI完整构建、24项工具回归、协议/浏览器通过，原生CDP未连上。验证启动已改为API参数并补诊断，待新CI/本机06及用户验收；P07-02至04/P08未启动。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
+P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。当前P07-01已通过Windows CI与本机05自动验证：原生API启动/交互、正常退出和临时目录清理全部通过，待用户视觉/交互确认；无需重跑自动检查。P07-02至04/P08未启动。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -37,6 +37,8 @@ P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-ta
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P07-01自动门槛通过：[Windows CI](docs/verification/P07-01-ci-evidence-06.json)56项指纹匹配76934b4，24工具/52 Rust/9前端/10协议/7浏览器及真实Tauri交互、自然退出/清理全部通过，含提权WebView2 153 API启动。[本机05](docs/verification/P07-01-windows-evidence-05.json)非提权WebView2 155也通过：0.047秒自然退出、临时占用等待2.359秒后完整清理，无强制终止；原始日志保留，本机dirty状态不推定为干净源码。代码不改、无需重跑；01待用户视觉/交互确认，02至04/P08未启动。
 
 - P07-01 CI原生启动修复：[cf9d0a8原CI](docs/verification/P07-01-ci-evidence-05.json)53指纹匹配，24项Windows工具回归、完整构建/协议/7项浏览器通过，原生CDP未连上；环境覆盖不足及异常被吞已定位。验证模式改用WebView2 API设置固定回环端口/临时UDF，保留普通发行入口；记录运行时/提权、底层连接错误与清理前窗口。微软Runtime150提权策略与现象一致，原CI未记录版本/提权，保留为推断。[辅助检查](docs/verification/P07-01-cdp-checks.json)通过，待新Windows CI/本机06，01未收尾。
 
