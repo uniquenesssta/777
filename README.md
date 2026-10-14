@@ -38,6 +38,8 @@ P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-ta
 
 ## Change Log
 
+- P07-02修正原生检查的提交后等待：[第二轮CI](docs/verification/P07-02-ci-evidence-02.json)已通过SQLite清理及12项Windows设备协议，失败为详情页等待不存在的“重新读取”按钮。现在检查真实详情控件及空闲状态，全部完成后才写交互成功报告；母子详情与忙碌/禁用状态的3项浏览器回归通过，仍待Windows完整自然退出验收。
+
 - P07-02修复Windows检查清理失败：[原CI及定位](docs/verification/P07-02-ci-evidence-01.json)确认脚本未关闭SQLite连接导致WinError32；设备验证的三处连接与开发初始化连接现在显式释放，写入仍按事务提交。原始失败保留，新增初始化成功/异常释放回归；Windows无登录母子入口待重跑验收。
 
 - 用户收尾P07-01并启动02：[01验收](docs/verification/P07-01-acceptance.json)保留旧证据；[02自动连接/设备契约](docs/verification/P07-02-auth-contract.md)交付固定本机开发服务与指定账号、原生母子模式、一次性设备登记/自动会话/撤销、销售隔离和v5完整恢复。`npm --prefix desktop run tauri dev`自动启动固定本机服务，无需再填地址/证书/密码。辅助通过，待Windows实际母子无登录窗口验证；未部署真实主机，03/04/P08未启动。

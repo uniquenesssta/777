@@ -1,8 +1,25 @@
 import fs from 'node:fs';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { chromium, expect } from '@playwright/test';
 import { connectNativeBrowser } from './native-cdp.mjs';
 import { productionOrigin } from './native-origin.mjs';
+
+// Submission leaves both deliveries on DetailPage, whose return button is
+// disabled until useWorkbench finishes the original submission/refresh.
+export async function recordAutomaticEntry(page, output, report, timeout = 15000) {
+  await expect(page.locator('main.workspace')).toHaveAttribute('aria-busy', 'false', {timeout});
+  await expect(page.getByRole('button', {name:'返回订单记录', exact:true})).toBeEnabled({timeout});
+  await page.screenshot({path:output+'/native-autostart-'+report.delivery+'.png'});
+  const completed={...report,status:'passed',UI_idle_before_native_close:true};
+  fs.writeFileSync(output+'/native-autostart.json',JSON.stringify(completed,null,2));
+  return completed;
+}
+
+async function main() {
 const [port, output, delivery]=process.argv.slice(2);
+let report={status:'running',delivery};
+try {
 const browser=await connectNativeBrowser((endpoint,options)=>chromium.connectOverCDP(endpoint,options),`http://127.0.0.1:${port}`, {report:v=>fs.writeFileSync(output+'/native-cdp-connection.json',JSON.stringify(v,null,2))});
 try {
   let page;
@@ -33,8 +50,13 @@ try {
   if(!result.manualDenied)throw Error('FORMAL_MANUAL_LOGIN_REACHED');
   if(delivery==='sales' && JSON.stringify(result.prices).includes('cost'))throw Error('SALES_COST_LEAK');
   if(/device_secret|certificate_pem|ticket|token/.test(result.storage))throw Error('SECRET_IN_FRONTEND_STORAGE');
-  await page.screenshot({path:output+'/native-autostart-'+delivery+'.png'});
-  fs.writeFileSync(output+'/native-autostart.json',JSON.stringify({status:'passed',delivery,production_origin:origin,automatic_business_entry:true,no_configuration_or_login_controls:true,actual_IPC_HTTPS_submit:true,manual_login_direct_invoke_denied:true,sales_fields_restricted:delivery==='sales',secrets_not_in_frontend_storage:true},null,2));
-  await page.getByRole('button',{name:'重新读取',exact:true}).waitFor({state:'visible'});
-  await expect(page.getByRole('button',{name:'重新读取',exact:true})).toBeEnabled();
+  report={...report,production_origin:origin,automatic_business_entry:true,no_configuration_or_login_controls:true,actual_IPC_HTTPS_submit:true,manual_login_direct_invoke_denied:true,sales_fields_restricted:delivery==='sales',secrets_not_in_frontend_storage:true};
+  await recordAutomaticEntry(page,output,report);
 } finally {await browser.close();}
+} catch(error) {
+  fs.writeFileSync(output+'/native-autostart.json',JSON.stringify({...report,status:'failed',failure:String(error)},null,2));
+  throw error;
+}
+}
+
+if(process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url))await main();

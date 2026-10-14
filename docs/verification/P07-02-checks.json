@@ -1,6 +1,6 @@
 {
   "task": "P07-02",
-  "status": "SQLite_lifetime_fix_tool_regression_passed_Windows_recheck_pending",
+  "status": "Windows_device_protocol_passed_native_checkpoint_fixed_actual_Windows_recheck_pending",
   "base_commit": "1043853572c610f6d8399127b0b40446453420a0",
   "phase_branch": "stage/p07-tauri-desktop",
   "platform": "Linux auxiliary only; not Windows GUI or installed package",
@@ -59,6 +59,14 @@
       "status": "passed",
       "report": "P07-02-development-native.json",
       "scope": "real Rust host resource upgrade and two restarts, same certificate/port, native dispatcher auto admin login; auxiliary, not actual Windows GUI"
+    },
+    "Windows_device_HTTPS_protocol": {
+      "passed": 12,
+      "Windows_DPAPI": true,
+      "evidence": "P07-02-ci-evidence-02.json",
+      "report": "P07-02-ci-report-02.json",
+      "source_commit": "97e15896d60f68dfde8de39c6eea83af0801ca87",
+      "scope": "Actual Windows Rust dispatcher -> pinned HTTPS, stable actors, unknown commit recovery, device revocation/reauthorization, v5 independent restore, complete protocol fixture cleanup. No product Rust or Python code changed in current repair."
     }
   },
   "failures_preserved": [
@@ -89,11 +97,17 @@
       "log": "P07-02-sqlite-build-retry.log",
       "scope": "Current auxiliary rebuild only; protocol rerun not executed",
       "cause": "Zero-byte Rust dependency object, origin unestablished; targeted package clean retry still failed."
+    },
+    {
+      "evidence": "P07-02-ci-evidence-02.json",
+      "report": "P07-02-ci-report-02.json",
+      "log": "P07-02-ci-native-failure-02.log",
+      "cause": "Native manager interactions passed but obsolete 重新读取 locator was awaited on submitted DetailPage; intermediate status=passed was written before that wait.",
+      "fix": "Check workspace aria-busy=false and enabled 返回订单记录; record passing interactions after idle and screenshot. Any script failure writes failed status. No natural-close or cleanup gate removed."
     }
   ],
   "pending": [
-    "Actual Windows P07-02 protocol including DPAPI and complete temporary cleanup",
-    "Actual manager and sales WebView2 automatic entry, submission, direct manual-login denial, natural exit and temporary cleanup",
+    "Actual manager and sales WebView2 automatic entry through idle, natural main-window exit and complete sandbox cleanup",
     "User acceptance",
     "P07-03/04 and P08 have not started"
   ],
@@ -131,9 +145,48 @@
       "status": "blocked_auxiliary_build_not_passed",
       "log": "P07-02-sqlite-build-retry.log",
       "observed": "rust_xlsxwriter archive rejected a zero-byte cgu.02 object; targeted package clean and rebuild repeated the failure. Why the compiler emitted an empty object remains unestablished. No Rust code, build profile, dependency version or gate changed to bypass it.",
-      "next": "Unchanged Windows CI gates rebuild and exercise complete P07-02 protocol and native windows."
+      "next": "Unchanged Windows CI gates rebuild and exercise complete P07-02 protocol and native windows.",
+      "Windows_followup": {
+        "status": "passed",
+        "evidence": "P07-02-ci-evidence-02.json",
+        "checks": 12
+      }
     },
     "Rust_frontend_business_code_changed": false,
     "cleanup_errors_ignored": false
+  },
+  "native_checkpoint_repair": {
+    "base_commit": "97e15896d60f68dfde8de39c6eea83af0801ca87",
+    "sha256_LF": {
+      "desktop/tests/windows-autostart.mjs": "62a4a34bc07b1aa30fe089c65aa8357f4af099c5d1d1ecef6b33b9ee32fd2301",
+      "desktop/tests/ui/native-autostart.spec.ts": "49f08710e5d688de11a405a2a6bb3ffd549e6be0ecc3cdd2b06d4a7133495bd4",
+      "desktop/playwright.native-tools.config.ts": "c030f4f8ecf1a25240c0f431ff7a85234aac00bc0f2cddfd36d7048fe857ad8c",
+      "desktop/src/features/DetailPage.tsx": "122e0579143fe06fd8a8353d12f5744b5b33a99fca797215b94073a7193ed384"
+    },
+    "browser_regressions": {
+      "passed": 3,
+      "command": "P07_BROWSER_PATH=/tmp/chromium npm --prefix desktop run test:ui -- --config playwright.native-tools.config.ts",
+      "cases": [
+        "manager submitted DetailPage passes actual locators and writes success last",
+        "sales submitted DetailPage passes actual locators and writes success last",
+        "busy workspace or disabled return button cannot publish a passing checkpoint"
+      ],
+      "scope": "Real browser with markup server-rendered from unchanged actual React DetailPage. Does not exercise native IPC, TLS, DPAPI or Windows lifecycle. Included in existing full Windows browser test discovery."
+    },
+    "frontend_unit": {
+      "passed": 9,
+      "command": "npm --prefix desktop test"
+    },
+    "frontend_build": {
+      "status": "passed",
+      "command": "npm --prefix desktop run build"
+    },
+    "product_UI_or_business_code_changed": false,
+    "natural_close_or_cleanup_thresholds_changed": false,
+    "Windows_full_browser_discovery": {
+      "total": 11,
+      "new_checkpoint_cases": 3,
+      "command": "npm --prefix desktop run test:ui -- --list"
+    }
   }
 }

@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "delivery": "manager",
+  "production_origin": "http://tauri.localhost",
+  "automatic_business_entry": true,
+  "no_configuration_or_login_controls": true,
+  "actual_IPC_HTTPS_submit": true,
+  "manual_login_direct_invoke_denied": true,
+  "sales_fields_restricted": false,
+  "secrets_not_in_frontend_storage": true
+}

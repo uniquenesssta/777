@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "D:\a\777\777\tools\p07_device_check.py", line 140, in main
+    for kind in ['manager','sales']:progress.stage('实际 WebView2 无登录进入 '+kind);report['native'].append(native(binaries[kind],kind,out/kind,progress));progress.save()
+                                                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\a\777\777\tools\p07_device_check.py", line 110, in native
+    if record['exit_code']:raise RuntimeError('ACTUAL_DEVICE_WINDOW_FAILED')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: ACTUAL_DEVICE_WINDOW_FAILED
