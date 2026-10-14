@@ -1,6 +1,6 @@
 # P07 Tauri桌面界面与Windows交付
 
-状态：执行中。用户2026-10-14 14:37:59（Asia/Shanghai）“开始P07”；前置P06已验收，基线为P06收尾`7a243d5d1d103ae968f27adb7f54fea41a64d9cb`。唯一阶段分支`stage/p07-tauri-desktop`。当前P07-01已实现，辅助及原实现Windows CI通过；本机原生窗口回传中断，验证工具已修复，待新CI及本机/用户视觉交互验收；P07-02至04尚未启动。
+状态：执行中。用户2026-10-14 14:37:59（Asia/Shanghai）“开始P07”；前置P06已验收，基线为P06收尾`7a243d5d1d103ae968f27adb7f54fea41a64d9cb`。唯一阶段分支`stage/p07-tauri-desktop`。当前P07-01已实现，辅助及原实现Windows CI通过；本机原生窗口定位release误用Vite，生产特性/内嵌资源核对已修复，待新CI及本机/用户视觉交互验收；P07-02至04尚未启动。
 
 设计权威来自本仓库`Figma@c517d8b3086932abe2dc01908e4dae3209b9f956`的[交接](../design/figma-handoff.md)、[状态](../design/figma-state.json)和[tokens](../design/figma-tokens.json)，Figma文件为[记账器](https://www.figma.com/design/2ek9bkIz5ldyhjZnnvIuNu)。只使用当前页21:2及其中已确认的紧凑紫灰横向布局，不使用归档旧稿；未改写Figma文件。实现映射见[P07组件映射](../design/P07-component-map.md)。
 
@@ -30,3 +30,5 @@ P07-02验证销售直接invoke改主机账本/备份、读取含成本备份均�
 P07-02专项边界审计、P07-03多DPI/原生图片及字体、P07-04安装升级仍按上表执行。已实现的最小CSP/capabilities/DPAPI不等于02已验收；浏览器辅助截图也不替代Windows WebView2或用户视觉验收。P08真实部署/历史切换未启动。
 
 本机入口已修复静默/高并发问题：默认`--jobs 1`、环境预检与实时日志；`--preflight`只查环境、不下载/编译。`--windows-smoke`执行必要release构建与真实协议/原生窗口，完整lint/unit/浏览器检查在`--ci-checks`执行。原第一次窗口回传为中断，不能记通过；[工具修复证据](../verification/P07-01-runner-checks.json)和[原CI通过](../verification/P07-01-ci-evidence-01.json)分列。
+
+本机release页面来源修复见[证据](../verification/P07-01-release-checks.json)：默认custom-protocol、release拒绝开发模式、CI实际exe资源核对、WebView2先验tauri.localhost来源；Tauri CLI常规dev保持Vite。原CI的build/业务结果继续有效，不能替代未覆盖的release原生页面。下一次本机输出使用p07-01-windows-03，01继续待验收。

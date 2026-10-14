@@ -1,0 +1,13 @@
+{
+  "task": "P07-01",
+  "id": 38534335703,
+  "head_sha": "6b5650fd603bdcd00954125353e90525119b8cd4",
+  "head_branch": "stage/p07-tauri-desktop",
+  "status": "completed",
+  "conclusion": "success",
+  "path": ".github/workflows/p07-windows.yml",
+  "html_url": "https://github.com/uniquenesssta/777/actions/runs/38534335703",
+  "created_at": "2026-10-14T08:19:49Z",
+  "updated_at": "2026-10-14T08:39:29Z",
+  "scope": "Runner and Node22 Windows CI passed. That workflow did not inspect the release binary's Tauri mode/assets or run its WebView2; it does not prove the native frontend passed."
+}

@@ -61,7 +61,7 @@ py -3 -m pip install -r requirements-baseline.txt -r requirements-service.txt
 if ($LASTEXITCODE -ne 0) { throw '验证依赖失败' }
 py -3 tools/p07_desktop_check.py --preflight --output reports/p07-01-preflight-01
 if ($LASTEXITCODE -ne 0) { throw '环境预检未通过，按报告补齐环境后再运行' }
-py -3 tools/p07_desktop_check.py --windows-smoke --jobs 1 --output reports/p07-01-windows-02
+py -3 tools/p07_desktop_check.py --windows-smoke --jobs 1 --output reports/p07-01-windows-03
 ```
 
 已在P07分支时只需`git pull --ff-only`，不要重复创建本地分支。工具先查已安装的Node/npm/固定Rust工具链、MSVC/SDK/WebView2与Python模块；缺失时给出补齐步骤并停止，不静默下载编译器。然后显式安装前端锁定依赖、`cargo fetch --locked`下载Rust crate，再构建所需release；最后创建临时Rust宿主/账户/订单/DPAPI profile；实际Tauri WebView2登录→报价→提交→销售隔离→退出并清理。本机窗口模式复用CI完整检查，不重复Clippy/debug测试构建或浏览器；CI/辅助完整模式仍执行全部原门槛。测试字体仅供完整模式的浏览器辅助，按已有固定hash下载，不安装系统字体。报告及原生截图保存在指定新目录；勿重用已存在目录。失败时保留report.json，不需从旧阶段重新跑。
@@ -83,7 +83,20 @@ Rust依赖已在Cargo.toml/Cargo.lock中声明，源码仓库不携带整个Carg
 
 本机`--windows-smoke`保留release构建、10项真实协议及实际Tauri WebView2窗口验证，完整fmt/严格Clippy/Rust及前端单元/浏览器验证继续由`--ci-checks`执行。运行时Ctrl+C记录interrupted/退出码130并停止所属PID进程树，日志和partial报告保留；超时同样保留当前步骤。不会按进程名称终止机器上其他cargo/rustc或其他项目。
 
-原本机01目录不覆盖，修复后使用上方新的02目录；无需删除Cargo缓存，之前成功编译的依赖可以复用。新工具的Windows进程清理与原生预检仍由新CI/本机验证，辅助10项不能替代Windows实测。[修复证据](P07-01-runner-checks.json)保存相应边界。
+原本机01目录不覆盖，当前release页面修复后使用上方新的03目录；无需删除Cargo缓存，之前成功编译的依赖可以复用。新工具的Windows进程清理与原生预检仍由新CI/本机验证，辅助10项不能替代Windows实测。[修复证据](P07-01-runner-checks.json)保存相应边界。
 
 
 Node兼容纠正：用户现有Node为22大版本。当前锁定Vite 8.3.4/Rolldown 1.2.13的实际`engines.node`及[Vite 8官方说明](https://v8.vite.dev/guide/)要求22.12+，其他锁定运行/开发依赖没有24下限。项目自身先前的`>=24.0.0`是过严限制，现将package.json、lock根元数据和预检统一为`>=22.12.0`，不改任何依赖版本/integrity。预检会显示真实完整版本；22.12及更新的22版本无需改用24，低于22.12时明确提示在22系列内补齐兼容版本。辅助实际使用官方SHA256核对的Node 22.12.0/npm 10.9.0运行完整流程；新CI采用从官方index核实的22.23.3/npm 10.9.9。此前Node 24的成功报告保留为原环境证据。
+
+
+## release页面来源修复
+
+用户观察release exe加载`http://127.0.0.1:1420/`且本机没有Vite。锁定Tauri 2.12.3的`is_dev()`由custom-protocol决定，tauri-macros 2.7.2在开发模式且有devUrl时不打入前端资源；`--release`优化不负责切换该模式。原手工Cargo命令和空default特性因此构成完整根因，不能靠启动Vite把生产验证变成开发验证。
+
+Cargo默认现在启用`custom-protocol = ["tauri/custom-protocol"]`；验证release命令也显式启用。Windows build.rs按实际`tauri_build::is_dev()`拒绝release仍处于开发模式，`frontendDist`继续指向本地dist。Tauri CLI 2.12.2的[锁定源码](https://github.com/tauri-apps/tauri/blob/tauri-cli-v2.12.2/crates/tauri-cli/src/interface/rust.rs)会在常规dev时排除生产默认特性并传`--no-default-features`，在build时启用生产特性，现有`npm --prefix desktop run tauri dev`默认入口保留。
+
+新CI/本机在release构建后执行`quote-desktop.exe --verification-build-info`：直接从该exe的Tauri Context读取模式及内嵌index/引用JS/CSS，任一缺失立即失败；只检查生成资源，不启动窗口、不读取用户配置或业务目录。辅助环境不能执行Windows Context，报告明确not_run_actual_Windows_required，不能把Cargo feature图当原生运行通过。
+
+原生WebView2脚本连接后先记录`native-window-origin.json`并要求`http(s)://tauri.localhost`；Vite、浏览器错误页、伪相似域及非标准端口立即拒绝，保存失败截图，再继续等待真实登录控件。域名通过只证明页面来源，其后仍需完成原管理员提交/销售隔离/正常退出。错误内容从合并的实时stdout日志保留，不再丢失到空stderr字段。整体report保留来源诊断；失败不记录native通过。
+
+[release修复证据](P07-01-release-checks.json)、[用户观察](P07-01-native-url-failure-01.json)与[上次CI成功范围](P07-01-ci-evidence-02.json)分列。无新增依赖版本、Cargo.lock/业务规则/数据schema变更，Figma与界面布局未改。无需清空Cargo缓存或启动Vite；拉取修复后用上方03新目录重编译并复验。

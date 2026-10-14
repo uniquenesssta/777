@@ -4,6 +4,36 @@ mod shell {
     use std::sync::Arc;
     use tauri::{Emitter, Manager, State};
     type Shared = Arc<tokio::sync::Mutex<Desktop>>;
+    fn context() -> tauri::Context<tauri::Wry> {
+        tauri::generate_context!()
+    }
+    #[cfg(feature = "verification")]
+    pub fn build_info() -> serde_json::Value {
+        use sha2::{Digest, Sha256};
+        let context = context();
+        let assets = context.assets();
+        let index = assets.get(&"index.html".into());
+        let html = index
+            .as_ref()
+            .map(|bytes| String::from_utf8_lossy(bytes))
+            .unwrap_or_default();
+        let names = assets
+            .iter()
+            .map(|(name, _)| name.into_owned())
+            .collect::<Vec<_>>();
+        serde_json::json!({
+            "windows": true,
+            "release": !cfg!(debug_assertions),
+            "custom_protocol": !tauri::is_dev(),
+            "tauri_is_dev": tauri::is_dev(),
+            "embedded_index": index.as_ref().is_some_and(|bytes| !bytes.is_empty()),
+            "entry_js": names.iter().any(|name| name.ends_with(".js") && html.contains(name.as_str())),
+            "entry_css": names.iter().any(|name| name.ends_with(".css") && html.contains(name.as_str())),
+            "asset_count": names.len(),
+            "asset_names": names,
+            "index_sha256": index.as_ref().map(|bytes| format!("{:x}", Sha256::digest(bytes))),
+        })
+    }
     #[tauri::command]
     async fn desktop_action(
         window: tauri::WebviewWindow,
@@ -54,11 +84,19 @@ mod shell {
                     }
                 }
             })
-            .run(tauri::generate_context!())
+            .run(context())
             .expect("Windows desktop host failed");
     }
 }
 fn main() {
+    #[cfg(feature = "verification")]
+    if std::env::args().any(|a| a == "--verification-build-info") {
+        #[cfg(windows)]
+        println!("{}", shell::build_info());
+        #[cfg(not(windows))]
+        println!("{{\"windows\":false,\"scope\":\"actual Windows inspection required\"}}");
+        return;
+    }
     #[cfg(feature = "verification")]
     if std::env::args().any(|a| a == "--verification-bridge") {
         verification_bridge();

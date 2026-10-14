@@ -20,6 +20,15 @@ def node_supported(version):
     return bool(match and tuple(map(int, match.groups())) >= (22, 12, 0))
 
 
+def require_embedded_frontend(info):
+    required = ['windows', 'release', 'custom_protocol', 'embedded_index', 'entry_js', 'entry_css']
+    if (not isinstance(info, dict) or any(info.get(k) is not True for k in required)
+            or info.get('tauri_is_dev') is not False or not isinstance(info.get('asset_count'), int)
+            or info['asset_count'] < 3):
+        raise RuntimeError('RELEASE_EMBEDDED_FRONTEND_REQUIRED: release exe must contain index/JS/CSS and use the Tauri production protocol')
+    return info
+
+
 class Progress:
     def __init__(self, output, report, jobs=1, stream=None):
         self.output = Path(output)
@@ -237,5 +246,5 @@ def build_plan(paths, full, jobs):
             ('Rust 严格 Clippy', [cargo, '+' + TOOLCHAIN, 'clippy', '--locked', '-j', str(jobs), '--workspace', '--all-targets', '--features', 'quote-desktop/verification', '--', '-D', 'warnings']),
             ('Rust 工作区测试', [cargo, '+' + TOOLCHAIN, 'test', '--locked', '-j', str(jobs), '--workspace', '--features', 'quote-desktop/verification', '--', '--test-threads=' + str(jobs)]),
         ]
-    commands.append(('编译所需 release 程序（首次可能较久）', [cargo, '+' + TOOLCHAIN, 'build', '--release', '--locked', '-j', str(jobs), '-p', 'quote-host', '-p', 'quote-ledger', '-p', 'quote-desktop', '--features', 'quote-desktop/verification']))
+    commands.append(('编译所需 release 程序（首次可能较久）', [cargo, '+' + TOOLCHAIN, 'build', '--release', '--locked', '-j', str(jobs), '-p', 'quote-host', '-p', 'quote-ledger', '-p', 'quote-desktop', '--features', 'quote-desktop/verification,quote-desktop/custom-protocol']))
     return commands

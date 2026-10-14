@@ -3,7 +3,7 @@ import argparse,ctypes,hashlib,json,os,platform,shutil,socket,subprocess,sys,tem
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT),str(ROOT/'tools'),str(ROOT/'tests')]
 from p01_validation import new_output
-from p07_check_runner import Progress,preflight,build_plan,stop_tree
+from p07_check_runner import Progress,preflight,build_plan,stop_tree,require_embedded_frontend
 
 def fingerprints():
     paths=[p for p in (ROOT/'desktop').rglob('*') if p.is_file() and not any(n in p.relative_to(ROOT/'desktop').parts for n in ['node_modules','dist','gen','test-results','playwright-report'])]
@@ -65,7 +65,7 @@ def native_window(output,run):
         try:
             checked=run([shutil.which('node'),str(ROOT/'desktop/tests/windows-smoke.mjs'),str(fixture),str(port),str(output)],timeout=150)
         finally:fixture.unlink(missing_ok=True)
-        if checked['exit_code']:raise RuntimeError('NATIVE_WEBVIEW_CHECK_FAILED:'+checked['stderr'][-1500:])
+        if checked['exit_code']:raise RuntimeError('NATIVE_WEBVIEW_CHECK_FAILED:'+checked['stdout'][-1500:])
         from ctypes import wintypes
         user=ctypes.WinDLL('user32',use_last_error=True);callback=ctypes.WINFUNCTYPE(wintypes.BOOL,wintypes.HWND,wintypes.LPARAM)
         user.GetWindowThreadProcessId.argtypes=[wintypes.HWND,ctypes.POINTER(wintypes.DWORD)];user.GetWindowThreadProcessId.restype=wintypes.DWORD
@@ -121,6 +121,14 @@ def main(argv=None):
                 record=progress.run(command,label=label)
                 if record['exit_code']:
                     raise RuntimeError('DESKTOP_CHECK_COMMAND_FAILED: '+label+'; '+record['log'])
+            if os.name=='nt':
+                from p07_desktop_fixture import CLIENT
+                probe=progress.run([str(CLIENT),'--verification-build-info'],timeout=30,label='核对 release exe 的实际生产协议和内嵌页面')
+                if probe['exit_code']:raise RuntimeError('RELEASE_FRONTEND_INSPECTION_FAILED')
+                report['release_frontend']=require_embedded_frontend(json.loads(probe['stdout']))
+                progress.save()
+            else:
+                report['release_frontend']={'status':'not_run_actual_Windows_required'}
             progress.stage('真实 Rust HTTPS 隔离协议验证')
             report['protocol']=protocol_check()
             progress.save()
@@ -156,6 +164,10 @@ def main(argv=None):
         report['failure_traceback']=traceback.format_exc()
         exit_code=1
     finally:
+        origin=output/'native-window-origin.json'
+        if origin.exists():
+            try:report['native_window_origin']=json.loads(origin.read_text(encoding='utf-8'))
+            except (OSError,ValueError) as error:report['native_window_origin']={'status':'diagnostic_unreadable','reason':type(error).__name__}
         if previous_font is None:os.environ.pop('P06_CI_FONT_FILE',None)
         else:os.environ['P06_CI_FONT_FILE']=previous_font
         if font_temp:font_temp.cleanup()

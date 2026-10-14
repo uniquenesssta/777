@@ -1,0 +1,58 @@
+{
+  "production": {
+    "quote-desktop": [
+      "custom-protocol",
+      "default",
+      "verification"
+    ],
+    "tauri": [
+      "common-controls-v6",
+      "compression",
+      "custom-protocol",
+      "tauri-runtime-wry",
+      "webkit2gtk",
+      "webview2-com",
+      "wry"
+    ],
+    "tauri-macros": [
+      "compression",
+      "custom-protocol"
+    ]
+  },
+  "development": {
+    "quote-desktop": [
+      "verification"
+    ],
+    "tauri": [
+      "common-controls-v6",
+      "compression",
+      "tauri-runtime-wry",
+      "webkit2gtk",
+      "webview2-com",
+      "wry"
+    ],
+    "tauri-macros": [
+      "compression"
+    ]
+  },
+  "default_production_without_explicit_protocol_flag": {
+    "quote-desktop": [
+      "custom-protocol",
+      "default",
+      "verification"
+    ],
+    "tauri": [
+      "common-controls-v6",
+      "compression",
+      "custom-protocol",
+      "tauri-runtime-wry",
+      "webkit2gtk",
+      "webview2-com",
+      "wry"
+    ],
+    "tauri-macros": [
+      "compression",
+      "custom-protocol"
+    ]
+  }
+}

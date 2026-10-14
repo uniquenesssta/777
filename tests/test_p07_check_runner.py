@@ -34,13 +34,26 @@ class RunnerTests(unittest.TestCase):
         paths = {'cargo': 'cargo', 'npm': 'npm'}
         native = [c for _, c in runner.build_plan(paths, False, 1)]
         self.assertFalse(any('clippy' in c or 'test' in c for c in native))
-        self.assertEqual([c for c in native if 'build' in c and '--release' in c][0][-2:], ['--features', 'quote-desktop/verification'])
+        release = [c for c in native if 'build' in c and '--release' in c][0]
+        self.assertEqual(set(release[release.index('--features') + 1].split(',')),
+                         {'quote-desktop/verification', 'quote-desktop/custom-protocol'})
         full = [c for _, c in runner.build_plan(paths, True, 2)]
         self.assertTrue(any('clippy' in c and '-D' in c and 'warnings' in c for c in full))
         self.assertTrue(any('test' in c and '--test-threads=2' in c for c in full))
         for c in full:
             if c[0] == 'cargo' and any(v in c for v in ['clippy', 'test', 'build']):
                 self.assertEqual(c[c.index('-j') + 1], '2')
+
+    def test_actual_release_probe_requires_production_protocol_and_embedded_entry_assets(self):
+        good = dict(windows=True, release=True, custom_protocol=True, tauri_is_dev=False,
+                    embedded_index=True, entry_js=True, entry_css=True, asset_count=8)
+        self.assertIs(runner.require_embedded_frontend(good), good)
+        for key in ['windows', 'release', 'custom_protocol', 'embedded_index', 'entry_js', 'entry_css']:
+            with self.subTest(rejected=key), self.assertRaisesRegex(RuntimeError, 'RELEASE_EMBEDDED_FRONTEND_REQUIRED'):
+                runner.require_embedded_frontend({**good, key: False})
+        for broken in [{**good, 'tauri_is_dev': True}, {**good, 'asset_count': 0}, {}, None]:
+            with self.assertRaisesRegex(RuntimeError, 'RELEASE_EMBEDDED_FRONTEND_REQUIRED'):
+                runner.require_embedded_frontend(broken)
 
     def test_log_and_progress_are_visible_before_the_child_exits(self):
         with tempfile.TemporaryDirectory() as folder:

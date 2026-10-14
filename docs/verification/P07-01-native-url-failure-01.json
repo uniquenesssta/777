@@ -1,0 +1,10 @@
+{
+  "task": "P07-01",
+  "reported_at": "2026-10-14T16:42:58+08:00",
+  "source": "user message",
+  "observed_release_URL": "http://127.0.0.1:1420/",
+  "observed_result": "Vite server not running; Playwright attached to cannot-connect page, service address input absent",
+  "expected_implementation": "6b5650f consistent with current source; no binary SHA or full native report supplied",
+  "root_cause": "Manual release Cargo build omitted tauri/custom-protocol; default features empty; Tauri treats it as dev and embeds no frontendDist assets",
+  "status": "native_frontend_failed_not_accepted"
+}
