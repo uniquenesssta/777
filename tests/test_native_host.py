@@ -1,5 +1,5 @@
 """Contract tests against a real native Rust HTTPS process and old clients."""
-import base64,hashlib,io,json,os,socket,ssl,subprocess,threading,time,unittest,uuid
+import base64,hashlib,io,json,os,socket,ssl,subprocess,sys,threading,time,unittest,uuid
 from pathlib import Path
 from unittest.mock import patch
 from native_host_fixture import Hosted,command,BINARY,ROOT,AUXILIARY
@@ -206,3 +206,65 @@ class NativeHostTests(unittest.TestCase):
         self.assertEqual(e.exception.status,404)
         actor=self.host.service.auth.authenticate(self.manager.token)
         with self.assertRaises(APIError):self.host.service.outputs.receipt(actor,retry['request_id'])
+
+
+class NativeHostLifecycleTests(unittest.TestCase):
+    """Real child pipes; separate from financial/HTTPS acceptance tests."""
+    def child(self, source):
+        host = Hosted.__new__(Hosted)
+        process = subprocess.Popen([sys.executable, '-c', source],
+                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        host.process = process
+        def cleanup():
+            if process.poll() is None:
+                process.kill()
+            process.communicate(timeout=10)
+        self.addCleanup(cleanup)
+        return host, process
+
+    def test_graceful_stop_sends_newline_and_reaps_child(self):
+        host, process = self.child("import sys; assert sys.stdin.readline() == '\\n'")
+        host.stop()
+        self.assertEqual(process.returncode, 0)
+        self.assertIsNone(host.process)
+        self.assertTrue(process.stdin.closed)
+        host.stop()
+
+    def test_closed_pipe_before_exit_retains_both_injected_exit_codes(self):
+        for code in (17, 18):
+            with self.subTest(exit_code=code):
+                host, process = self.child(
+                    "import os,sys,time; os.close(0); "
+                    "print('closed', flush=True); time.sleep(.1); sys.exit(" + str(code) + ")")
+                self.assertEqual(process.stdout.readline(), b'closed\n')
+                host.stop()
+                self.assertEqual(process.returncode, code)
+                self.assertIsNone(host.process)
+                self.assertTrue(process.stdin.closed)
+
+    def test_already_exited_child_is_reaped_and_repeated_stop_is_safe(self):
+        host, process = self.child('raise SystemExit(17)')
+        process.wait(timeout=10)
+        host.stop()
+        host.stop()
+        self.assertIsNone(host.process)
+        self.assertTrue(process.stdin.closed)
+
+    def test_unexpected_exit_is_not_silenced_by_pipe_cleanup(self):
+        host, process = self.child("import sys; print('unexpected fault', file=sys.stderr); sys.exit(29)")
+        with self.assertRaisesRegex(RuntimeError, 'unexpected fault'):
+            host.stop()
+        self.assertEqual(process.returncode, 29)
+        self.assertIs(host.process, process)
+
+    def test_timeout_retains_process_and_sandbox_for_diagnosis(self):
+        host = Hosted.__new__(Hosted)
+        from unittest.mock import Mock
+        host.process = Mock()
+        host.process.communicate.side_effect = subprocess.TimeoutExpired('host', 50)
+        process = host.process
+        with self.assertRaisesRegex(RuntimeError, 'sandbox retained'):
+            host.stop()
+        self.assertIs(host.process, process)
+        process.kill.assert_not_called()

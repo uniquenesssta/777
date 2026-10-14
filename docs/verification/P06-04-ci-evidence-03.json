@@ -1,0 +1,227 @@
+{
+  "task": "P06-04",
+  "status": "third_Windows_CI_failed_child_pipe_cleanup_repaired_native_rerun_pending",
+  "recorded_at": "2026-10-14T12:44:40.077240+08:00",
+  "repository": "uniquenesssta/777",
+  "branch": "stage/p06-rust-core",
+  "implementation_parent": "54ed820e16dd04d8b9f84bb3de48a287f2973345",
+  "workflow_run": {
+    "id": 38510653299,
+    "job_id": 115678138618,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/38510653299",
+    "conclusion": "failure",
+    "head_sha": "54ed820e16dd04d8b9f84bb3de48a287f2973345"
+  },
+  "original_report": {
+    "path": "docs/verification/P06-04-ci-report-03.json",
+    "bytes": 127667,
+    "sha256": "49c30f0335077f341d9223ec8477b1f049439f7e7b3fea6f334dd71149d765db",
+    "original_bytes_preserved": true,
+    "artifact_id": 11869931822,
+    "artifact_zip_sha256": "675a8408967e80fa238d7f225632055f7646a4411b29bbca43bb88d1cb119c7f"
+  },
+  "independent_checks": {
+    "all_128_LF_fingerprints_equal_commit_blobs": true,
+    "loaded_207_test_IDs_equal_committed_source": true,
+    "actual_environment": {
+      "os": "Windows",
+      "python": "3.12.10",
+      "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6"
+    },
+    "clean_report_worktree": true,
+    "fmt_strict_Clippy_release_passed": true,
+    "Rust_tests_passed": 43,
+    "fixed_legacy_offline_build_exit_code": 0,
+    "Python_tests_run": 207,
+    "Python_success_log_lines": 205,
+    "Python_failures": 0,
+    "Python_errors": 3,
+    "Python_skipped": [],
+    "distinct_failing_test_methods": 2,
+    "extra_tearDown_error": 1,
+    "failure_details": [
+      {
+        "test_id": "test_native_host.NativeHostTests.test_native_commit_exit_original_journal_receipt_and_restart",
+        "error": "OSError: [Errno 22] Invalid argument"
+      },
+      {
+        "test_id": "test_native_host.NativeHostTests.test_native_exit_before_commit_rolls_back_then_same_id_retries",
+        "error": "OSError: [Errno 22] Invalid argument"
+      },
+      {
+        "test_id": "test_native_host.NativeHostTests.test_native_exit_before_commit_rolls_back_then_same_id_retries",
+        "error": "OSError: [Errno 22] Invalid argument"
+      }
+    ],
+    "native_smoke_and_resources_not_executed": true
+  },
+  "comparison": {
+    "status": "passed",
+    "cases": 561,
+    "golden": 53,
+    "sha256": "9d99c86e4de0dcaa50108faa02f995e54a4a74ef6675977e299e234913b23507",
+    "byte_equal_reused_asset": "docs/verification/P06-03-windows-comparisons-01.json"
+  },
+  "root_cause": {
+    "observed": "Both fault-injection restart tests reach native_host_fixture.Hosted.stop; direct stdin.flush raises Windows OSError errno 22. The second test repeats this in tearDown. A child can close its pipe while poll still reports running; handling only BrokenPipeError is insufficient.",
+    "repair": "Use Popen.communicate(input=newline, timeout=50) to own stdin write/close, output collection and reaping. CPython 3.12.10 Windows _communicate calls _stdin_write, which handles EPIPE/EINVAL on both write and close. Fix the same direct-write pattern in the resource reference host. Preserve timeout/sandbox retention and exact allowed return codes (native 0/17/18; reference 0).",
+    "reference": "https://github.com/python/cpython/blob/v3.12.10/Lib/subprocess.py",
+    "scope": "Verification fixtures/resource harness only; no product Rust, financial model, schema, permissions or runtime protocol changes."
+  },
+  "repair_validation": {
+    "platform": "Linux auxiliary, not Windows acceptance",
+    "unittest_command": "PYTHONPATH=.:tools:tests python -m unittest test_native_host.NativeHostLifecycleTests test_native_host.NativeHostTests.test_native_commit_exit_original_journal_receipt_and_restart test_native_host.NativeHostTests.test_native_exit_before_commit_rolls_back_then_same_id_retries test_p06_host_check -v",
+    "tests_run": 11,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 2.308,
+    "coverage": [
+      "graceful newline shutdown",
+      "closed stdin before child exit, codes 17 and 18",
+      "already exited child and repeated stop",
+      "unexpected exit still raises",
+      "timeout retains process and sandbox",
+      "both original real Rust fault/restart/receipt cases",
+      "four checker boundary cases"
+    ],
+    "integration": {
+      "platform": "Linux_auxiliary_only",
+      "protocol": {
+        "status": "passed",
+        "host_backend": "standalone-rust",
+        "runtime_python_server_used": false,
+        "in_process_ledger_and_formats": true,
+        "actual_HTTPS_old_Client": true,
+        "native_host_exit_and_original_receipt_recovery": true,
+        "DPAPI_encrypted_pending_verified": false,
+        "offline_historical_tool_import_plan_and_idempotency_preserved": true,
+        "source_hash_and_mtime_unchanged": true,
+        "independent_reader_excel_text_styles_and_private_cost": true,
+        "native_CJK_PNG_and_independent_Pillow_verified": true,
+        "Windows_system_CJK_font_verified": false,
+        "public_directory_only_quote_outputs": true,
+        "v4_full_native_restore_and_original_receipts_outputs_equal": true,
+        "independent_Python_bundle_reader_equal": true,
+        "restored_maintenance_gate_and_explicit_isolated_activation": true,
+        "old_sessions_removed_on_restore": true,
+        "restored_Rust_HTTPS_accepts_old_client": true,
+        "inventory": {
+          "active_cost_cents": "4600",
+          "active_income_cents": "11500",
+          "active_profit_cents": "6900",
+          "counts": {
+            "audit_events": 7,
+            "import_batches": 1,
+            "lines": 4,
+            "notes": 1,
+            "orders": 3,
+            "price_versions": 2,
+            "requests": 7
+          },
+          "ledger_id": "d3f4ed5c-df7b-4e99-ab21-31bd7ebd4eec",
+          "revision": 7,
+          "schema_hash": "96619d105269c85fa0d0354050ca97af0af290ba6485913867ed070962aff003",
+          "schema_version": 1
+        },
+        "host_private_directory_native_security": {
+          "status": "auxiliary_no_native_security_claim"
+        },
+        "scope": "isolated Rust host processes, old API Client, offline synthetic migration tools and native full restore; no installed service, real E/share paths or production activation",
+        "sandbox_cleaned": true
+      },
+      "resource_lifecycle": {
+        "status": "measured",
+        "baseline": "retained Python HTTPS/Auth/queue with Rust financial and Excel worker (P06-03 architecture); current compatible code",
+        "candidate": "standalone Rust HTTPS/Auth/query/queue with in-process core/ledger/Excel",
+        "workload": {
+          "repetitions_per_endpoint": 3,
+          "warmup_calculations": 5,
+          "prices": "sale10/cost4/single; q4 and 90% discount",
+          "connection": "old pinned-certificate Python Client opens a fresh HTTPS connection per request",
+          "list_limit": 20,
+          "orders": 5
+        },
+        "measurements": {
+          "python_rust_worker": {
+            "calculation": {
+              "samples_ms": [
+                11.258521990384907,
+                10.274526997818612,
+                10.727057000622153
+              ],
+              "median_ms": 10.727057000622153,
+              "p95_ms": 11.258521990384907,
+              "max_ms": 11.258521990384907
+            },
+            "listing": {
+              "samples_ms": [
+                4.7746380005264655,
+                6.337023005471565,
+                4.413560003740713
+              ],
+              "median_ms": 4.7746380005264655,
+              "p95_ms": 6.337023005471565,
+              "max_ms": 6.337023005471565
+            },
+            "host_process_memory": {
+              "samples": 5,
+              "sample_interval_seconds": 0.01,
+              "peak_sampled_resident_bytes": 30449664,
+              "peak_sampled_private_bytes": null,
+              "native_peak_resident_bytes": 61165568
+            },
+            "request_results_equal": true
+          },
+          "rust_direct": {
+            "calculation": {
+              "samples_ms": [
+                2.7347739960532635,
+                2.388182998402044,
+                2.4160940083675086
+              ],
+              "median_ms": 2.4160940083675086,
+              "p95_ms": 2.7347739960532635,
+              "max_ms": 2.7347739960532635
+            },
+            "listing": {
+              "samples_ms": [
+                2.3879119980847463,
+                2.474873006576672,
+                2.604307999718003
+              ],
+              "median_ms": 2.474873006576672,
+              "p95_ms": 2.604307999718003,
+              "max_ms": 2.604307999718003
+            },
+            "host_process_memory": {
+              "samples": 2,
+              "sample_interval_seconds": 0.01,
+              "peak_sampled_resident_bytes": 21102592,
+              "peak_sampled_private_bytes": null,
+              "native_peak_resident_bytes": 53817344
+            },
+            "request_results_equal": true
+          }
+        },
+        "binary_bytes": {
+          "rust_host": 11610104,
+          "python_interpreter": 30894944
+        },
+        "scope": "Host-process memory only; short-lived baseline Rust-worker processes and clients are excluded. Sampled peaks are not total application memory. Binary bytes are not installer/runtime dependency size. No real share/E paths or installed service.",
+        "product_platform": "auxiliary_only",
+        "sandboxes_cleaned": true
+      }
+    },
+    "integration_note": "Small resource workload validates both host lifecycle paths only; original 200-order performance evidence is not replaced. Explicit CI font fixture is not a system font installation.",
+    "Rust_checks_not_repeated_reason": "No Rust code or build dependencies changed; actual Windows 43 Rust/strict build evidence retained.",
+    "current_CI_loaded_cases": 212,
+    "current_fingerprint_count": 128
+  },
+  "acceptance": {
+    "P06_04": "pending_actual_Windows_CI_and_local_GUI_and_user_acceptance",
+    "P07_P08": "not_started",
+    "production_paths_accessed": false,
+    "production_writer_replaced": false
+  }
+}

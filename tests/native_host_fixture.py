@@ -64,10 +64,9 @@ class Hosted:
     def stop(self):
         p=self.process
         if p is None:return
-        if p.poll() is None:
-            try:p.stdin.write(b'\n');p.stdin.flush()
-            except BrokenPipeError:pass
-        try:out,err=p.communicate(timeout=50)
+        # communicate owns writing and closing stdin, including the Windows
+        # EINVAL race when a fault-injected child has already closed its pipe.
+        try:out,err=p.communicate(input=b'\n',timeout=50)
         except subprocess.TimeoutExpired:raise RuntimeError('native service has not stopped; sandbox retained')
         if p.returncode not in (0,17,18):raise RuntimeError('native service exit: '+err.decode('utf-8','replace')[-500:])
         self.process=None

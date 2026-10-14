@@ -7,9 +7,9 @@
 | 项目 | 状态 |
 | --- | --- |
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
-| 本轮授权 | 用户2026-10-14 02:38:15“收尾03 开始04”，12:04:37反馈“未通过”后修复本项；既有推送授权有效 |
-| 文档工作 | [P06-03验收](verification/P06-03-acceptance.json)、[P06-04辅助证据](verification/P06-04-checks.json)及[第二次Windows CI与修复](verification/P06-04-ci-evidence-02.json)已登记；原Windows、比较及辅助报告保持 |
-| 当前开发阶段 / Atomic Task | P06-01/02/03已验收，见[03收尾](verification/P06-03-acceptance.json)。同一stage/p06-rust-core继续P06-04[独立Rust HTTPS宿主](verification/P06-04-host-contract.md)；原195专项/656完整辅助资料保持。[第二次Windows CI及修复](verification/P06-04-ci-evidence-02.json)记录严格构建/42 Rust/561对照通过，权限读回和浅克隆缺固定旧源码阻断后续。Rust与Python现读取原生ACE的完整SID精确核对，CI仅补取固定历史提交；辅助16专项/43 Rust及浅克隆归档复现通过，当前128指纹，新CI及本机原窗口/DPAPI/ACL/系统字体与用户验收待完成。原03资料保持，P07/P08未启动。 |
+| 本轮授权 | 用户2026-10-14 02:38:15“收尾03 开始04”，12:38:19反馈“未通过”后修复本项；既有推送授权有效 |
+| 文档工作 | [P06-03验收](verification/P06-03-acceptance.json)、[P06-04辅助证据](verification/P06-04-checks.json)及[第三次Windows CI与修复](verification/P06-04-ci-evidence-03.json)已登记；原Windows、比较及辅助报告保持 |
+| 当前开发阶段 / Atomic Task | P06-01/02/03已验收，同一stage/p06-rust-core继续P06-04[独立Rust宿主](verification/P06-04-host-contract.md)。[第三次Windows CI与修复](verification/P06-04-ci-evidence-03.json)确认严格构建、43 Rust、561对照及固定旧工具构建通过；207专项中205项成功，两项崩溃恢复测试在进程管道清理时报错（含一次tearDown共3错误）。验证入口已改用communicate统一关闭管道，11项辅助专项及协议恢复/双宿主清理通过；新Windows CI和本机原窗口/系统字体及用户验收待完成，04未收尾，P07/P08未启动。 |
 | 下一项 | [P06-04唯一Windows本机入口](verification/P06-04-host-contract.md#windows本机入口)，回传新report.json与comparisons.json；本阶段旧入口无需重跑，P07/P08未启动 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |

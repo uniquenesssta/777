@@ -1,6 +1,6 @@
 # P06 Rust领域核心与存储/服务适配
 
-状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02已按[用户接续](../verification/P06-02-acceptance.json)验收，原Windows证据保持；P06-03已按[用户接续](../verification/P06-03-acceptance.json)验收；P06-04从89f7138按[启动记录](../verification/P06-04-start.json)执行，独立Rust宿主已实现，原656完整辅助保持；[第二次CI与修复](../verification/P06-04-ci-evidence-02.json)记录当前128指纹、16专项/43 Rust辅助通过，新Windows CI、本机及用户验收待完成。
+状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02已按[用户接续](../verification/P06-02-acceptance.json)验收，原Windows证据保持；P06-03已按[用户接续](../verification/P06-03-acceptance.json)验收；P06-04从89f7138按[启动记录](../verification/P06-04-start.json)执行，独立Rust宿主已实现，原656完整辅助保持；[第三次CI与修复](../verification/P06-04-ci-evidence-03.json)记录Windows严格构建/43 Rust/561对照通过，两项测试在进程管道清理时报错；11专项及协议恢复/双宿主清理辅助通过，新Windows CI、本机及用户验收待完成。
 
 P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。P01已按[批准记录](../baseline/p01-acceptance.json)采纳numeric-v1/performance-v1，历史候选/黄金元数据保留并映射；实施时读取同一黄金JSON，不复制期望。当前01按同一资产开展影子核对。
 
@@ -116,3 +116,12 @@ Windows临时主机覆盖Rust原生读取/导入重放/新报表、独立读取�
 另1处旧v3夹具在git archive前缺少223e86e固定对象，原CI浅克隆只有当前提交；工作流现只fetch该精确提交并检查类型，HEAD/阶段分支保持，既有固定源码/锁定离线编译与真实旧包测试不变。隔离新建浅克隆已复现缺对象，并验证同一fetch后归档各文件SHA等于原已验收源码；不以替身代替旧执行文件。
 
 新增精确SID别名、同RID异机器身份、重复主体、权限/继承标志、SID尺寸和分配释放回归：16项Python专项、43项Rust与严格Clippy/格式通过；这些是辅助策略/ABI边界证据，不冒充真实Windows属性/ACL。入口纳入12项权限回归，当前128指纹与207项CI载入清单，207项尚未在新Windows运行，不重复旧656检查。推送后由原Windows CI重跑，结果待核对；04仍留now待本机与用户验收，P07/P08未启动。
+
+
+## P06-04第三次Windows CI与进程管道修复
+
+用户再次反馈“未通过”。[第三次原报告与核对](../verification/P06-04-ci-evidence-03.json)确认54ed820干净源码128指纹、207测试ID匹配。Windows fmt/严格Clippy/43 Rust/release、固定旧工具离线构建及561对照通过；专项205项成功，两项崩溃恢复测试在Hosted.stop的stdin.flush报EINVAL，第二项tearDown再次报同错，共3错误。后续协议smoke和资源未执行；前次权限与历史对象阻断已消失，不等于本项已验收。
+
+原先poll后手动写入不能避免子进程刚关闭stdin的竞态；只捕获BrokenPipeError漏掉Windows errno 22。夹具和资源参考宿主均改用Popen.communicate(input=换行, timeout=50)统一写入、关闭和回收；CPython 3.12.10原Windows实现对写入/关闭处理EPIPE/EINVAL。既有退出码允许名单、异常退出拒绝、超时保留诊断目录仍有效，产品Rust/权限/金额/DDL未改。
+
+新增5项生命周期检查覆盖正常退出、关闭读端后17/18退出、已退出/重复清理、异常码和超时保留；与原两项真实Rust崩溃恢复及4项入口边界共11项辅助通过。共同协议的真实辅助HTTPS/原回执/v4恢复及资源双宿主小规模清理通过，5单/3轮仅验证清理路径，不替代原200单性能资料。当前128指纹、212个载入测试由新Windows CI复查；本机新目录windows-04保留旧报告，04不收尾，P07/P08未启动。

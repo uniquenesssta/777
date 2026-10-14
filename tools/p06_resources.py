@@ -75,8 +75,7 @@ def compare(*,repetitions=30,orders=200):
             results[backend]={'calculation':summary(calculate_ms),'listing':summary(listing_ms),'host_process_memory':{'samples':len(values),'sample_interval_seconds':.01,'peak_sampled_resident_bytes':max(v['resident_bytes'] for v in values),'peak_sampled_private_bytes':None if os.name!='nt' else max(v['private_bytes'] for v in values),'native_peak_resident_bytes':max(v['native_peak_resident_bytes'] for v in values)},'request_results_equal':True}
         finally:
             if backend=='python_rust_worker' and process:
-                if process.poll() is None:process.stdin.write(b'\n');process.stdin.flush()
-                _,err=process.communicate(timeout=50)
+                _,err=process.communicate(input=b'\n',timeout=50)
                 if process.returncode:raise RuntimeError('REFERENCE_HOST_STOP_FAILED')
             host.close()
     return {'status':'measured','baseline':'retained Python HTTPS/Auth/queue with Rust financial and Excel worker (P06-03 architecture); current compatible code','candidate':'standalone Rust HTTPS/Auth/query/queue with in-process core/ledger/Excel','workload':{'repetitions_per_endpoint':repetitions,'warmup_calculations':5,'prices':'sale10/cost4/single; q4 and 90% discount','connection':'old pinned-certificate Python Client opens a fresh HTTPS connection per request','list_limit':20,'orders':orders},'measurements':results,'binary_bytes':{'rust_host':BINARY.stat().st_size,'python_interpreter':Path(sys.executable).stat().st_size},'scope':'Host-process memory only; short-lived baseline Rust-worker processes and clients are excluded. Sampled peaks are not total application memory. Binary bytes are not installer/runtime dependency size. No real share/E paths or installed service.','product_platform':'Windows' if os.name=='nt' else 'auxiliary_only','sandboxes_cleaned':True}

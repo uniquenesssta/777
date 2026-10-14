@@ -42,7 +42,7 @@ Rust完整备份使用原生SQLite快照、财务/账户/输出/文件清单及�
 ```powershell
 git pull --ff-only
 if ($LASTEXITCODE -ne 0) { throw '拉取失败，先停止' }
-py -3 tools/p06_host_check.py --windows-smoke --output reports/p06-04-windows-03
+py -3 tools/p06_host_check.py --windows-smoke --output reports/p06-04-windows-04
 ```
 
 沿用现有Python/固定服务验证依赖和Rust1.97.1/MSVC，Cargo按锁定文件获取本轮新增包。入口执行fmt/Clippy/Rust测试/release、完整专项与同一561例；以真实Rust临时主机复用原母/子Tk窗口，覆盖登录/清空密码/36元计算/提交/查询/成本过滤/关闭，并验证真实宿主退出、DPAPI原回执、离线合成历史导入、原生Excel/系统CJK PNG、v4恢复后维护/撤会话/旧客户端再连。返回report.json和comparisons.json；输出目录不得覆盖，后续按新编号复查。
@@ -66,3 +66,6 @@ py -3 tools/p06_host_check.py --windows-smoke --output reports/p06-04-windows-03
 第二次Windows CI已通过上述Clippy修复、42 Rust/release及561对照，但专项因权限读回和缺固定历史对象而失败；见[原报告及修复](P06-04-ci-evidence-02.json)。两个宿主适配器现在从同一原生描述符的ACE读取完整SID作为授权核对依据，SDDL中的机器相对显示缩写不再用于猜测身份；精确主体、数量、去重、全控制、保护DACL及OI/CI要求保持。CI仅补fetch固定223e86e对象，仍真实离线构建旧工具验证v3兼容。
 
 修复具备16项Python/43项Rust及浅克隆归档辅助证据；权限回归已加入同一入口，128项指纹和207项载入测试由新Windows CI执行，尚不宣称新Windows通过。第一、二次原报告及旧辅助材料保持。本机新输出目录改为windows-03以保留已有结果；实际GUI/系统字体验收与CI分开，P06-04待验收。
+
+
+第三次CI通过权限初始化、固定旧工具构建、43 Rust及561对照，207专项中205项成功；两项故障退出测试因验证清理代码写已关闭管道报EINVAL（含tearDown共3错误），协议smoke/资源未执行。见[原报告与修复](P06-04-ci-evidence-03.json)。夹具与资源入口采用communicate统一关闭管道并保留退出码/超时门槛；11专项及协议恢复/双宿主小规模清理辅助通过，当前128指纹/212测试由新Windows CI复查。上述本机入口使用新windows-04目录；Windows本机与用户验收仍待完成。
