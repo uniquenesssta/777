@@ -3,11 +3,11 @@ import argparse,ctypes,hashlib,json,os,platform,shutil,socket,subprocess,sys,tem
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT),str(ROOT/'tools'),str(ROOT/'tests')]
 from p01_validation import new_output
-from p06_core_check import run
+from p07_check_runner import Progress,preflight,build_plan,stop_tree
 
 def fingerprints():
     paths=[p for p in (ROOT/'desktop').rglob('*') if p.is_file() and not any(n in p.relative_to(ROOT/'desktop').parts for n in ['node_modules','dist','gen','test-results','playwright-report'])]
-    paths += [ROOT/n for n in ['Cargo.toml','Cargo.lock','tools/p07_desktop_check.py','tools/p07_desktop_fixture.py','docs/design/figma-state.json','docs/design/figma-tokens.json']]
+    paths += [ROOT/n for n in ['Cargo.toml','Cargo.lock','tools/p07_desktop_check.py','tools/p07_desktop_fixture.py','tools/p07_check_runner.py','tests/test_p07_check_runner.py','docs/design/figma-state.json','docs/design/figma-tokens.json']]
     return {p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes().replace(b'\r\n',b'\n') if p.suffix not in ['.ico','.png'] else p.read_bytes()).hexdigest() for p in sorted(paths)}
 def protocol_check():
     from p07_desktop_fixture import Scenario
@@ -53,7 +53,7 @@ def protocol_check():
     finally:s.close()
     out['sandbox_cleaned']=True;return out
 
-def native_window(output):
+def native_window(output,run):
     if os.name!='nt' or platform.system()!='Windows':raise RuntimeError('ACTUAL_WINDOWS_REQUIRED')
     from p07_desktop_fixture import Scenario,CLIENT
     s=Scenario();proc=None
@@ -80,43 +80,89 @@ def native_window(output):
         return report
     finally:
         (output/'private-window-fixture.json').unlink(missing_ok=True)
-        if proc and proc.poll() is None:proc.terminate();proc.communicate(timeout=20)
+        if proc and proc.poll() is None:stop_tree(proc);proc.communicate(timeout=20)
         s.close()
 
 def main(argv=None):
-    p=argparse.ArgumentParser(description=__doc__);m=p.add_mutually_exclusive_group(required=True);m.add_argument('--windows-smoke',action='store_true');m.add_argument('--ci-checks',action='store_true');m.add_argument('--checks-only',action='store_true');p.add_argument('--output',required=True);a=p.parse_args(argv);output=new_output(a.output)
-    report={'task':'P07-01','status':'running','environment':{'os':platform.system(),'python':platform.python_version()},'commands':[],'native_window':None,'protocol':None,'production_paths_accessed':False,'acceptance':'pending_actual_Windows_visual_and_interaction'}
-    font_temp=None;previous_font=os.environ.get('P06_CI_FONT_FILE')
+    p=argparse.ArgumentParser(description=__doc__)
+    modes=p.add_mutually_exclusive_group(required=True)
+    modes.add_argument('--windows-smoke',action='store_true',help='Preflight, minimal release build, real HTTPS and actual isolated WebView2 window')
+    modes.add_argument('--ci-checks',action='store_true',help='Full Windows build, lint, unit, protocol and browser checks')
+    modes.add_argument('--checks-only',action='store_true',help='Auxiliary full checks, never Windows native acceptance')
+    modes.add_argument('--preflight',action='store_true',help='Check installed environment only; no dependency installation or compilation')
+    p.add_argument('--jobs',type=int,choices=range(1,9),default=1,help='Cargo build/test concurrency (default 1)')
+    p.add_argument('--output',required=True)
+    a=p.parse_args(argv)
+    output=new_output(a.output)
+    full=a.ci_checks or a.checks_only
+    report={'task':'P07-01','status':'running','environment':{'os':platform.system(),'python':platform.python_version()},
+            'mode':'preflight' if a.preflight else 'native_window' if a.windows_smoke else 'full_CI' if a.ci_checks else 'auxiliary',
+            'cargo_jobs':a.jobs,'commands':[],'native_window':None,'protocol':None,'production_paths_accessed':False,
+            'acceptance':'pending_actual_Windows_visual_and_interaction'}
+    progress=Progress(output,report,jobs=a.jobs)
+    progress.save()
+    font_temp=None
+    previous_font=os.environ.get('P06_CI_FONT_FILE')
+    exit_code=0
     try:
-        if (a.windows_smoke or a.ci_checks) and (os.name!='nt' or platform.system()!='Windows'):raise RuntimeError('ACTUAL_WINDOWS_REQUIRED')
-        report['source_commit']=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,encoding='utf-8').strip();report['worktree_dirty']=bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True,encoding='utf-8').strip());report['implementation_sha256_LF']=fingerprints()
-        cargo=shutil.which('cargo');npm=shutil.which('npm');node=shutil.which('node')
-        if not all([cargo,npm,node]):raise RuntimeError('NODE_24_NPM_AND_RUST_1_97_1_REQUIRED')
-        commands=[[node,'--version'],[shutil.which('rustc'),'+1.97.1','-vV'],[npm,'ci','--prefix','desktop','--ignore-scripts','--no-audit','--no-fund'],[npm,'--prefix','desktop','run','build'],[npm,'--prefix','desktop','test'],[cargo,'+1.97.1','fmt','--all','--','--check'],[cargo,'+1.97.1','clippy','--locked','--workspace','--all-targets','--features','quote-desktop/verification','--','-D','warnings'],[cargo,'+1.97.1','test','--locked','--workspace','--features','quote-desktop/verification'],[cargo,'+1.97.1','build','--release','--locked','-j','2','-p','quote-host','-p','quote-ledger','-p','quote-desktop','--features','quote-desktop/verification']]
-        for command in commands:
-            record=run(command,timeout=900);report['commands'].append(record)
-            if record['exit_code']:raise RuntimeError('DESKTOP_CHECK_COMMAND_FAILED')
-            if command[0]==node and int(record['stdout'].lstrip('v').split('.')[0])<24:raise RuntimeError('NODE_24_REQUIRED')
-            if len(command)>2 and command[2]=='-vV' and ((a.windows_smoke or a.ci_checks) and 'host: x86_64-pc-windows-msvc' not in record['stdout']):raise RuntimeError('NATIVE_MSVC_REQUIRED')
-        report['protocol']=protocol_check()
-        from p06_ci_fonts import prepare,SHA
-        if previous_font:
-            font=Path(previous_font);raw=font.read_bytes()
-            if hashlib.sha256(raw).hexdigest()!=SHA:raise RuntimeError('CI_FONT_HASH_MISMATCH')
-            report['browser_font_fixture']={'sha256':SHA,'source':'explicit hash-verified fixture','scope':'test browser only; no product or system font installation'}
+        if (a.windows_smoke or a.ci_checks) and (os.name!='nt' or platform.system()!='Windows'):
+            raise RuntimeError('ACTUAL_WINDOWS_REQUIRED')
+        report['source_commit']=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,encoding='utf-8').strip()
+        report['worktree_dirty']=bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True,encoding='utf-8').strip())
+        report['implementation_sha256_LF']=fingerprints()
+        paths=preflight(progress,native=a.windows_smoke or (a.preflight and os.name=='nt'),full=full)
+        if a.preflight:
+            report['status']='preflight_passed_build_not_started'
         else:
-            font_temp=tempfile.TemporaryDirectory(prefix='777-p07-browser-font-');font_root=Path(font_temp.name)/'font';report['browser_font_fixture']=prepare(font_root);font=font_root/'NotoSansSC-VF.ttf'
-        os.environ['P06_CI_FONT_FILE']=str(font)
-        browser=run([npm,'--prefix','desktop','run','test:ui'],timeout=600);report['commands'].append(browser)
-        ui=ROOT/'desktop/test-results/report.json'
-        if ui.exists():report['browser_tests']=json.loads(ui.read_text(encoding='utf-8')).get('stats')
-        if browser['exit_code']:raise RuntimeError('BROWSER_INTERACTION_FAILED')
-        if a.windows_smoke:report['native_window']=native_window(output)
-        report['status']='Windows_Tauri_native_window_passed_visual_acceptance_pending' if a.windows_smoke else 'Windows_CI_build_protocol_and_browser_passed_native_window_pending' if a.ci_checks else 'auxiliary_protocol_and_browser_passed_actual_Windows_pending'
-    except Exception as e:report['status']='failed';report['failure']=type(e).__name__+': '+str(e);report['failure_traceback']=traceback.format_exc()
+            progress.emit('\nCargo.toml / Cargo.lock 已列出 Rust 依赖，首次由 Cargo 下载。\n')
+            progress.emit(f'本轮编译并发 {a.jobs}；Windows 子进程使用低于正常优先级。\n')
+            report['reused_CI_scope']='Native-window mode builds required release executables; full lint/unit/browser checks remain in --ci-checks.' if a.windows_smoke else None
+            for label,command in build_plan(paths,full,a.jobs):
+                record=progress.run(command,label=label)
+                if record['exit_code']:
+                    raise RuntimeError('DESKTOP_CHECK_COMMAND_FAILED: '+label+'; '+record['log'])
+            progress.stage('真实 Rust HTTPS 隔离协议验证')
+            report['protocol']=protocol_check()
+            progress.save()
+            if full:
+                progress.stage('准备仅供浏览器测试使用的字体')
+                from p06_ci_fonts import prepare,SHA
+                if previous_font:
+                    font=Path(previous_font)
+                    if hashlib.sha256(font.read_bytes()).hexdigest()!=SHA:
+                        raise RuntimeError('CI_FONT_HASH_MISMATCH')
+                    report['browser_font_fixture']={'sha256':SHA,'source':'explicit hash-verified fixture','scope':'test browser only; no product or system font installation'}
+                else:
+                    font_temp=tempfile.TemporaryDirectory(prefix='777-p07-browser-font-')
+                    font_root=Path(font_temp.name)/'font'
+                    report['browser_font_fixture']=prepare(font_root)
+                    font=font_root/'NotoSansSC-VF.ttf'
+                os.environ['P06_CI_FONT_FILE']=str(font)
+                browser=progress.run([paths['npm'],'--prefix','desktop','run','test:ui'],timeout=600,label='完整浏览器交互验证')
+                ui=ROOT/'desktop/test-results/report.json'
+                if ui.exists():report['browser_tests']=json.loads(ui.read_text(encoding='utf-8')).get('stats')
+                if browser['exit_code']:raise RuntimeError('BROWSER_INTERACTION_FAILED')
+            if a.windows_smoke:
+                progress.stage('启动实际 Tauri / WebView2 临时窗口并验证')
+                report['native_window']=native_window(output,progress.run)
+            report['status']='Windows_Tauri_native_window_passed_visual_acceptance_pending' if a.windows_smoke else 'Windows_CI_build_protocol_and_browser_passed_native_window_pending' if a.ci_checks else 'auxiliary_protocol_and_browser_passed_actual_Windows_pending'
+    except KeyboardInterrupt:
+        report['status']='interrupted'
+        report['failure']='USER_INTERRUPTED; current command and partial log retained'
+        exit_code=130
+    except Exception as error:
+        report['status']='failed'
+        report['failure']=type(error).__name__+': '+str(error)
+        report['failure_traceback']=traceback.format_exc()
+        exit_code=1
     finally:
         if previous_font is None:os.environ.pop('P06_CI_FONT_FILE',None)
         else:os.environ['P06_CI_FONT_FILE']=previous_font
         if font_temp:font_temp.cleanup()
-    (output/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8');print(json.dumps({k:v for k,v in report.items() if k not in ['commands','implementation_sha256_LF','failure_traceback']},ensure_ascii=False,indent=2));return 1 if report['status']=='failed' else 0
-if __name__=='__main__':raise SystemExit(main())
+        progress.save()
+    progress.emit('\n报告：'+str(output/'report.json')+'\n')
+    print(json.dumps({k:v for k,v in report.items() if k not in ['commands','implementation_sha256_LF','failure_traceback']},ensure_ascii=False,indent=2))
+    return exit_code
+
+if __name__=='__main__':
+    raise SystemExit(main())

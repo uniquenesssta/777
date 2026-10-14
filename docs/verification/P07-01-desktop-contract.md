@@ -49,7 +49,7 @@ UI反馈采用页内提示及逐行错误，不另造与当前Figma相冲突的�
 
 Windows CI先构建MSVC/Tauri并跑严格fmt/Clippy、Rust测试、前端类型/构建/状态测试、真实Rust HTTPS协议及Edge页面交互；其结果与本机原生WebView2验收分列。CI开始后不持续轮询。
 
-本机前置：Node.js 24、Rust 1.97.1（MSVC与Windows SDK/build tools）、Python 3.12、WebView2 Runtime。已有P06工具链/依赖可复用；新增Node前端环境。首次切到唯一P07分支：
+本机前置：Node.js 22.12.0及以上、Rust 1.97.1（MSVC与Windows SDK/build tools）、Python 3.12、WebView2 Runtime。已有P06工具链/依赖可复用；新增Node前端环境。首次切到唯一P07分支：
 
 ```powershell
 git remote set-branches --add origin stage/p07-tauri-desktop
@@ -59,10 +59,12 @@ git switch --track -c stage/p07-tauri-desktop origin/stage/p07-tauri-desktop
 if ($LASTEXITCODE -ne 0) { throw '切换失败，先停止' }
 py -3 -m pip install -r requirements-baseline.txt -r requirements-service.txt
 if ($LASTEXITCODE -ne 0) { throw '验证依赖失败' }
-py -3 tools/p07_desktop_check.py --windows-smoke --output reports/p07-01-windows-01
+py -3 tools/p07_desktop_check.py --preflight --output reports/p07-01-preflight-01
+if ($LASTEXITCODE -ne 0) { throw '环境预检未通过，按报告补齐环境后再运行' }
+py -3 tools/p07_desktop_check.py --windows-smoke --jobs 1 --output reports/p07-01-windows-02
 ```
 
-已在P07分支时只需`git pull --ff-only`，不要重复创建本地分支。工具先按lock安装前端依赖及构建，再创建临时Rust宿主/账户/订单/DPAPI profile；实际Tauri WebView2登录→报价→提交→销售隔离→退出并清理。测试字体仅供浏览器辅助，按已有固定hash下载，未安装系统字体、未将其当原生字体验收。报告及原生截图保存在指定新目录；勿重用已存在目录。失败时保留report.json，不需从旧阶段重新跑。
+已在P07分支时只需`git pull --ff-only`，不要重复创建本地分支。工具先查已安装的Node/npm/固定Rust工具链、MSVC/SDK/WebView2与Python模块；缺失时给出补齐步骤并停止，不静默下载编译器。然后显式安装前端锁定依赖、`cargo fetch --locked`下载Rust crate，再构建所需release；最后创建临时Rust宿主/账户/订单/DPAPI profile；实际Tauri WebView2登录→报价→提交→销售隔离→退出并清理。本机窗口模式复用CI完整检查，不重复Clippy/debug测试构建或浏览器；CI/辅助完整模式仍执行全部原门槛。测试字体仅供完整模式的浏览器辅助，按已有固定hash下载，不安装系统字体。报告及原生截图保存在指定新目录；勿重用已存在目录。失败时保留report.json，不需从旧阶段重新跑。
 
 实际人工预览使用`npm --prefix desktop run tauri dev`并填写获授权服务的HTTPS地址/证书/pin和本人账号；该入口可提交真实订单，应使用隔离宿主。当前自动工具只用临时数据，不安装服务、不访问实际E盘/共享盘。安装包/升级与多DPI验收不在本项。
 
@@ -71,3 +73,17 @@ py -3 tools/p07_desktop_check.py --windows-smoke --output reports/p07-01-windows
 [检查证据](P07-01-checks.json)与原始辅助报告记录最终源码指纹、成功检查及修复前失败；辅助浏览器PNG不是原生Windows验收。Windows原生构建结果、DPAPI实测和用户视觉/交互待回传，不预记通过。01未收尾，02至04/P08未启动。
 
 回退使用P06既有Python客户端与相同服务API；没有切换生产客户端或账本schema。代码回退不删除用户profile/未知请求记录，不以还原旧数据库覆盖新增订单。
+
+
+## 本机资源和中断修复
+
+用户第一次窗口运行在原静默`subprocess.run`中出现KeyboardInterrupt；具体子命令未被原工具落盘，不能从该堆栈推断Rust依赖缺失或编译报错。[回传](P07-01-windows-interruption-01.json)保持未完成结论；原实现的[Windows CI成功](P07-01-ci-evidence-01.json)仍有效。
+
+Rust依赖已在Cargo.toml/Cargo.lock中声明，源码仓库不携带整个Cargo缓存；首次Cargo下载到用户缓存并编译属于开发验证。新入口先执行显式预检/下载阶段，按步骤实时打印并保存`command-NN.log`，report.json在开始/阶段切换/命令退出即保存。默认`--jobs 1`覆盖Cargo与测试线程的高并发环境；CI显式`--jobs 2`。Windows子进程低于正常优先级。此设置限制任务数、改善响应，不冒充CPU使用率的百分比硬上限。
+
+本机`--windows-smoke`保留release构建、10项真实协议及实际Tauri WebView2窗口验证，完整fmt/严格Clippy/Rust及前端单元/浏览器验证继续由`--ci-checks`执行。运行时Ctrl+C记录interrupted/退出码130并停止所属PID进程树，日志和partial报告保留；超时同样保留当前步骤。不会按进程名称终止机器上其他cargo/rustc或其他项目。
+
+原本机01目录不覆盖，修复后使用上方新的02目录；无需删除Cargo缓存，之前成功编译的依赖可以复用。新工具的Windows进程清理与原生预检仍由新CI/本机验证，辅助10项不能替代Windows实测。[修复证据](P07-01-runner-checks.json)保存相应边界。
+
+
+Node兼容纠正：用户现有Node为22大版本。当前锁定Vite 8.3.4/Rolldown 1.2.13的实际`engines.node`及[Vite 8官方说明](https://v8.vite.dev/guide/)要求22.12+，其他锁定运行/开发依赖没有24下限。项目自身先前的`>=24.0.0`是过严限制，现将package.json、lock根元数据和预检统一为`>=22.12.0`，不改任何依赖版本/integrity。预检会显示真实完整版本；22.12及更新的22版本无需改用24，低于22.12时明确提示在22系列内补齐兼容版本。辅助实际使用官方SHA256核对的Node 22.12.0/npm 10.9.0运行完整流程；新CI采用从官方index核实的22.23.3/npm 10.9.9。此前Node 24的成功报告保留为原环境证据。

@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。当前P07-01已实现并通过辅助验证，正在Windows构建验证阶段，原生窗口与用户视觉/交互验收待完成；P07-02至04/P08未启动。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
+P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。当前P07-01已实现并通过辅助验证，原实现Windows CI已通过，本机窗口验证回传中断，工具已补进度/预检/单任务构建，待新CI与本机复验；P07-02至04/P08未启动。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -37,6 +37,8 @@ P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-ta
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P07-01本机入口修复：用户回传KeyboardInterrupt并报告CPU满载；原脚本隐藏全部子进程输出，且本机重复整套debug检查/release编译，Clippy/test未限并发。现先预检固定工具链/MSVC/SDK/WebView2，显式下载Cargo.lock依赖，默认单任务/低优先级编译；本机只构建所需release并做真实协议/原生窗口，完整检查留CI。实时日志与步骤报告落盘，中断仅清理所属进程树、保留partial报告。[回传及证据](docs/verification/P07-01-runner-checks.json)保存，10项回归及Node 22.12完整辅助通过；原adfbf62的[Windows CI成功](docs/verification/P07-01-ci-evidence-01.json)有效，应用业务/Rust领域/Cargo.lock不改，前端manifest/lock仅校正Node门槛为22.12+，待工具新CI与本机窗口复验。
 
 - 用户“开始P07”：从P06收尾7a243d5建立唯一stage/p07-tauri-desktop，任务书new→now；读取本仓库Figma@c517d8b当前稿，交付React/TypeScript + Tauri真实Rust HTTPS桌面链路、角色投影、完整分页详情、未知提交核查与原生输出任务。改动价格/输入立即失效；提交后刷新失败明确已保存，提交期间新编辑草稿保留。实现/辅助结果与初期失败见[P07-01契约](docs/verification/P07-01-desktop-contract.md)和[证据](docs/verification/P07-01-checks.json)，Windows-only CI与本机隔离入口已交付；Windows原生窗口、用户视觉交互尚待验证，02至04及P08未启动，未替换生产。
 

@@ -1,0 +1,15 @@
+{
+  "task": "P07-01",
+  "source": "user PowerShell paste at 2026-10-14T15:59:54+08:00",
+  "command": "py -3 tools/p07_desktop_check.py --windows-smoke --output reports/p07-01-windows-01",
+  "status": "interrupted_not_accepted",
+  "observed_exception": "KeyboardInterrupt",
+  "stack": "p07_desktop_check.py:97 -> p06_core_check.py:40 subprocess.run stdout/stderr PIPE -> Windows communicate reader thread join",
+  "exact_interrupted_command": "unknown: old runner had no per-command checkpoint or live output",
+  "CPU": "user reported saturation; no process/CPU telemetry supplied",
+  "source_commit": "not fingerprint-proven; branch pull and stack match expected adfbf62 implementation",
+  "compiled_Rust_dependencies": "not determinable from supplied traceback",
+  "GUI": "no evidence of native window execution",
+  "production_paths_accessed": "not inferred from missing report",
+  "source_files_changed": false
+}
