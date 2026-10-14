@@ -160,6 +160,7 @@ def checked(progress, command, label, timeout=60):
 
 
 def windows_prerequisites(native):
+    import ctypes
     import winreg
     tools = shutil.which('cl.exe') and shutil.which('link.exe')
     vswhere = Path(os.environ.get('ProgramFiles(x86)', 'C:/Program Files (x86)')) / 'Microsoft Visual Studio/Installer/vswhere.exe'
@@ -171,6 +172,7 @@ def windows_prerequisites(native):
     if not tools:
         raise RuntimeError('缺少 MSVC C++ 工具。请在 Visual Studio Installer 安装“使用 C++ 的桌面开发”。')
     sdk = False
+    runtime_versions = []
     runtime = bool(os.environ.get('WEBVIEW2_BROWSER_EXECUTABLE_FOLDER') and
                    (Path(os.environ['WEBVIEW2_BROWSER_EXECUTABLE_FOLDER']) / 'msedgewebview2.exe').is_file())
     for hive in [winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER]:
@@ -187,13 +189,17 @@ def windows_prerequisites(native):
                 with winreg.OpenKey(hive, r'SOFTWARE\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 0, winreg.KEY_READ | view) as key:
                     version = winreg.QueryValueEx(key, 'pv')[0]
                     runtime = runtime or bool(version and version != '0.0.0.0')
+                    if version and version != '0.0.0.0':runtime_versions.append(str(version))
             except OSError:
                 pass
     if not sdk:
         raise RuntimeError('缺少 Windows SDK。请在 Visual Studio Installer 安装 Windows 10/11 SDK。')
     if native and not runtime:
         raise RuntimeError('缺少 WebView2 Runtime，请先安装微软 WebView2 Evergreen Runtime。')
-    return dict(MSVC_cpp_tools=True, Windows_SDK=True, WebView2_Runtime=runtime)
+    shell = ctypes.WinDLL('shell32',use_last_error=True)
+    shell.IsUserAnAdmin.argtypes, shell.IsUserAnAdmin.restype = [], ctypes.c_int
+    return dict(MSVC_cpp_tools=True, Windows_SDK=True, WebView2_Runtime=runtime,
+                WebView2_registered_versions=sorted(set(runtime_versions)), process_elevated=bool(shell.IsUserAnAdmin()))
 
 
 def preflight(progress, native=False, full=False):

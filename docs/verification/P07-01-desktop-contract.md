@@ -61,7 +61,7 @@ py -3 -m pip install -r requirements-baseline.txt -r requirements-service.txt
 if ($LASTEXITCODE -ne 0) { throw '验证依赖失败' }
 py -3 tools/p07_desktop_check.py --preflight --output reports/p07-01-preflight-01
 if ($LASTEXITCODE -ne 0) { throw '环境预检未通过，按报告补齐环境后再运行' }
-py -3 tools/p07_desktop_check.py --windows-smoke --jobs 1 --output reports/p07-01-windows-05
+py -3 tools/p07_desktop_check.py --windows-smoke --jobs 1 --output reports/p07-01-windows-06
 ```
 
 已在P07分支时只需`git pull --ff-only`，不要重复创建本地分支。工具先查已安装的Node/npm/固定Rust工具链、MSVC/SDK/WebView2与Python模块；缺失时给出补齐步骤并停止，不静默下载编译器。然后显式安装前端锁定依赖、`cargo fetch --locked`下载Rust crate，再构建所需release；最后创建临时Rust宿主/账户/订单/DPAPI profile；实际Tauri WebView2登录→报价→提交→销售隔离→退出并清理。本机窗口模式复用CI完整检查，不重复Clippy/debug测试构建或浏览器；CI/辅助完整模式仍执行全部原门槛。测试字体仅供完整模式的浏览器辅助，按已有固定hash下载，不安装系统字体。报告及原生截图保存在指定新目录；勿重用已存在目录。失败时保留report.json，不需从旧阶段重新跑。
@@ -83,7 +83,7 @@ Rust依赖已在Cargo.toml/Cargo.lock中声明，源码仓库不携带整个Carg
 
 本机`--windows-smoke`保留release构建、10项真实协议及实际Tauri WebView2窗口验证，完整fmt/严格Clippy/Rust及前端单元/浏览器验证继续由`--ci-checks`执行；本次工具修复同时把实际原生窗口链路加入Windows CI，避免只测构建/浏览器而漏掉退出问题。运行时Ctrl+C记录interrupted/退出码130并停止所属PID进程树，日志和partial报告保留；超时同样保留当前步骤。不会按进程名称终止机器上其他cargo/rustc或其他项目。
 
-原本机01/03/04目录不覆盖，当前临时目录清理修复后使用上方新的05目录；无需删除Cargo缓存，之前成功编译的依赖可以复用。工具的Windows原生行为需CI/本机分别核对，辅助结果不能替代Windows实测。[本机入口修复证据](P07-01-runner-checks.json)保持。
+原本机目录均不覆盖，当前验证启动参数修复后使用上方新的06目录；无需删除Cargo缓存，之前成功编译的依赖可以复用。05尚未收到本机回传，不推定结果。工具的Windows原生行为需CI/本机分别核对，辅助结果不能替代Windows实测。[本机入口修复证据](P07-01-runner-checks.json)保持。
 
 
 Node兼容纠正：用户现有Node为22大版本。当前锁定Vite 8.3.4/Rolldown 1.2.13的实际`engines.node`及[Vite 8官方说明](https://v8.vite.dev/guide/)要求22.12+，其他锁定运行/开发依赖没有24下限。项目自身先前的`>=24.0.0`是过严限制，现将package.json、lock根元数据和预检统一为`>=22.12.0`，不改任何依赖版本/integrity。预检会显示真实完整版本；22.12及更新的22版本无需改用24，低于22.12时明确提示在22系列内补齐兼容版本。辅助实际使用官方SHA256核对的Node 22.12.0/npm 10.9.0运行完整流程；新CI采用从官方index核实的22.23.3/npm 10.9.9。此前Node 24的成功报告保留为原环境证据。
@@ -117,7 +117,7 @@ Cargo默认现在启用`custom-protocol = ["tauri/custom-protocol"]`；验证rel
 & {
     git pull --ff-only
     if ($LASTEXITCODE -ne 0) { throw '拉取失败，已停止' }
-    py -3 tools/p07_desktop_check.py --windows-smoke --jobs 1 --output reports/p07-01-windows-05
+    py -3 tools/p07_desktop_check.py --windows-smoke --jobs 1 --output reports/p07-01-windows-06
     if ($LASTEXITCODE -ne 0) { throw '桌面验证未通过，保留报告后停止' }
 }
 ```
@@ -131,3 +131,15 @@ Cargo默认现在启用`custom-protocol = ["tauri/custom-protocol"]`；验证rel
 开始删除前核对TemporaryDirectory对象路径、系统临时父目录/随机前缀、desktop profile和`production:false`标记；错误路径必须位于该临时根内，其他错误立即保留失败。允许前次删除已经移除标记的重试，直到根目录实际不存在才记清理通过。超时保留失败与临时根，不使用ignore_errors。`native-sandbox-cleanup.json`单独记录尝试、错误码/相对路径和耗时，最终报告保留交互、关闭、进程清理和目录清理的独立状态；清理异常不覆盖已经存在的首个流程异常，用户中断保持中断。
 
 [专项证据](P07-01-cleanup-checks.json)包含24项合并回归（22通过、2项Windows专属待CI）；锁定路径处理和夹具时序改进后13项相关回归（11通过、同2项待CI）通过。新CI继续执行真实Win32窗口与文件占用检查，以及完整Tauri/WebView2链路；本机新05复验临时目录完整清理，已通过的交互/自然退出证据保持，01尚未收尾。
+
+## CI原生验证的API参数与启动诊断
+
+[cf9d0a8 Windows CI核对](P07-01-ci-evidence-05.json)下载完整artifact并核对ZIP SHA，53项源码指纹与发布Git对象逐项一致、工作树干净。24/24工具回归（含真实Win32窗口/文件占用）、前端/Rust完整构建检查、10项Rust HTTPS/DPAPI和7项浏览器交互通过；原生窗口步骤21.3秒后因CDP未连接失败，未执行该CI的原生交互。目录清理在强制结束所属失败进程后通过，不冒充自然退出或本机清理已过；[原报告](P07-01-ci-report-05.json)、[失败命令](P07-01-ci-cdp-failure-05.log)及[完整作业解码日志](P07-01-ci-job-05.log)保留。
+
+原验证仅通过WEBVIEW2_*环境变量指定调试端口和UDF。[微软维护者说明](https://github.com/MicrosoftEdge/WebView2Feedback/issues/5645#issuecomment-4934355430)确认Runtime150起提权宿主忽略这些覆盖，仅接受HKLM策略或直接API参数；[wry对应问题](https://github.com/tauri-apps/wry/issues/1782)描述相同CI现象。该CI没有记录具体运行时版本/提权状态，因此把这条策略作为本次环境原因是有来源支持的推断，不能写成已测事实；API传参缺口与吞掉CDP异常均由本仓库源码确认。
+
+验证构建现在仅在`--verification-window --profile <本轮desktop路径> --debug-port <非零u16>`的精确参数与临时标记校验通过后，从同一个生产Context和原main窗口配置手工创建窗口。`WebviewWindowBuilder.data_directory`和`additional_browser_args`直接调用WebView2 API，不依赖环境覆盖；只固定127.0.0.1与数字端口，保留锁定wry默认参数。绝对UDF使用builder API，不使用仅支持相对路径的config字段。仅对该子进程清除旧环境覆盖，不修改系统注册表、不新增依赖或降级Runtime。
+
+普通发行构建不编译这段验证设置；验证构建无验证参数时保留普通入口。IPC、财务逻辑、角色、CSP、assets及Figma布局不改。新增4项Rust校验覆盖无参数普通入口、已标记临时profile、端口/额外参数/相对路径及生产/缺失标记拒绝。CDP每次2秒/整体30秒有界连接，保存底层错误及尝试数；检查点失败会关闭已连会话。预检记录运行时注册版本和当前提权状态，原生失败记录强制清理前的进程/窗口并附桌面日志。
+
+[修复检查](P07-01-cdp-checks.json)分列Python24项（22通过/2项Windows待新CI）、Rust桌面9项、9个不同前端测试、fmt/严格Clippy及无verification常规构建检查。Windows实际API窗口创建仍待新CI/本机06；P07-01不收尾，02至04/P08未启动。

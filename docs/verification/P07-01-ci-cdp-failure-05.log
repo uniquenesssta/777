@@ -1,0 +1,9 @@
+file:///D:/a/777/777/desktop/tests/windows-smoke.mjs:18
+  if (!browser) throw Error("ACTUAL_WEBVIEW2_NOT_READY");
+                      ^
+
+Error: ACTUAL_WEBVIEW2_NOT_READY
+    at main (file:///D:/a/777/777/desktop/tests/windows-smoke.mjs:18:23)
+    at async file:///D:/a/777/777/desktop/tests/windows-smoke.mjs:126:3
+
+Node.js v22.23.3

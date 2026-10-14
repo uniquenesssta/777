@@ -1,0 +1,52 @@
+{
+  "task": "P07-01",
+  "run_id": 38556206895,
+  "job_id": 115825947053,
+  "head_sha": "cf9d0a828a83f77ee02a3622e673a02f0c29c2b9",
+  "worktree_dirty": false,
+  "status": "completed",
+  "conclusion": "failure",
+  "html_url": "https://github.com/uniquenesssta/777/actions/runs/38556206895",
+  "artifact": {
+    "id": 11891675709,
+    "bytes": 362267,
+    "sha256": "0fffad8420cd2bea5240e4acc126b9fe9e060ba9588295a35adb45e848c9a00d",
+    "matches_provider_upload_sha256": true
+  },
+  "archived": {
+    "report": "P07-01-ci-report-05.json",
+    "report_sha256": "7d5ae258a6990d640ee34a78d2eda627a34b246d856061537ed74e58ac831383",
+    "failed_CDP_command": "P07-01-ci-cdp-failure-05.log",
+    "job_log": "P07-01-ci-job-05.log",
+    "job_log_line_endings": "provider decoded text normalized to LF; not original archive bytes"
+  },
+  "independent_fingerprint_check": {
+    "matched": 53,
+    "mismatches": [],
+    "source": "git objects at published cf9d0a8, LF normalization only for text"
+  },
+  "passed": [
+    "24/24 actual Windows runner and lifecycle regressions, including real Win32 window/helper and sharing-lock release checks; no skips",
+    "Frontend build/unit, strict Rust fmt/Clippy/workspace tests and native MSVC release build",
+    "Actual release exe production protocol and embedded index/JS/CSS probe",
+    "10 real Rust HTTPS checks with Windows DPAPI",
+    "7 browser interaction tests, zero unexpected/flaky/skipped",
+    "Actual native attempt sandbox deletion completed in0.141s, one attempt after failed startup process tree cleanup"
+  ],
+  "failed": {
+    "stage": "actual native WebView2 CDP attachment",
+    "reason": "ACTUAL_WEBVIEW2_NOT_READY after21.3s; per-attempt exception was discarded by the old catch block",
+    "desktop_process_output": "empty in downloaded artifact",
+    "native_interactions": "not reached in this CI",
+    "cleanup_process_tree_forced": true
+  },
+  "diagnosis": {
+    "confirmed_code_defect": "Native verifier relied exclusively on WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS and WEBVIEW2_USER_DATA_FOLDER environment overrides.",
+    "upstream_confirmed_condition": "WebView2 Runtime150+ elevated hosts ignore WEBVIEW2_* overrides/HKCU, but honor options supplied directly through WebView2 API.",
+    "primary_reference": "https://github.com/MicrosoftEdge/WebView2Feedback/issues/5645#issuecomment-4934355430",
+    "corroboration": "https://github.com/tauri-apps/wry/issues/1782",
+    "local_run_condition": "This CI recorded presence only, not runtime version or elevation; attributing the exact observed CI condition to that hardening is an inference, not a measured fact."
+  },
+  "repair": "verification-only direct WebView2 API port/profile, bounded numeric loopback port, marked owned temporary profile; record runtime versions/elevation, underlying CDP error and pre-cleanup process/window diagnostics",
+  "remaining": "New Windows CI/native acceptance required; local04 interaction/natural close passes stay valid, local05 result not supplied, next fresh output06; P07-01 not closed"
+}

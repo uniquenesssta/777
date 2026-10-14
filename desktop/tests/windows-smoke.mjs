@@ -3,19 +3,16 @@ import { chromium } from "playwright";
 import { expect } from "@playwright/test";
 import fs from "node:fs";
 import { productionOrigin } from "./native-origin.mjs";
+import { connectNativeBrowser } from "./native-cdp.mjs";
 const [configPath, port, out] = process.argv.slice(2);
 const fixture = JSON.parse(fs.readFileSync(configPath, "utf8"));
 let browser;
 async function main() {
-  for (let i = 0; i < 100; i++) {
-    try {
-      browser = await chromium.connectOverCDP(`http://127.0.0.1:${port}`);
-      break;
-    } catch {
-      await new Promise((r) => setTimeout(r, 200));
-    }
-  }
-  if (!browser) throw Error("ACTUAL_WEBVIEW2_NOT_READY");
+  browser = await connectNativeBrowser(
+    (endpoint, options) => chromium.connectOverCDP(endpoint, options),
+    `http://127.0.0.1:${port}`,
+    { report: (value) => fs.writeFileSync(out + "/native-cdp-connection.json", JSON.stringify(value, null, 2)) },
+  );
   let page;
   for (let i = 0; i < 100; i++) {
     page = browser

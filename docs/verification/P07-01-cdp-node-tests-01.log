@@ -1,0 +1,50 @@
+TAP version 13
+# Subtest: late calculation cannot restore authority after any input or price change
+ok 1 - late calculation cannot restore authority after any input or price change
+  ---
+  duration_ms: 0.789672
+  ...
+# Subtest: revision and display cents never pass through JS floating point
+ok 2 - revision and display cents never pass through JS floating point
+  ---
+  duration_ms: 0.266202
+  ...
+# Subtest: only raw draft fields restore, never a claimed result or stored role
+ok 3 - only raw draft fields restore, never a claimed result or stored role
+  ---
+  duration_ms: 0.369367
+  ...
+# Subtest: confirmed original order clears only its own raw draft and preserves edits during submit
+ok 4 - confirmed original order clears only its own raw draft and preserves edits during submit
+  ---
+  duration_ms: 7.408627
+  ...
+# Subtest: native readiness preserves the underlying CDP error and attempt diagnostics
+ok 5 - native readiness preserves the underlying CDP error and attempt diagnostics
+  ---
+  duration_ms: 22.220532
+  ...
+# Subtest: native readiness succeeds after transient refusal and bounds each connect attempt
+ok 6 - native readiness succeeds after transient refusal and bounds each connect attempt
+  ---
+  duration_ms: 1.979149
+  ...
+# Subtest: actual Windows Tauri production origins accept embedded-page paths
+ok 7 - actual Windows Tauri production origins accept embedded-page paths
+  ---
+  duration_ms: 0.79468
+  ...
+# Subtest: Vite, browser error pages and lookalike hosts fail before waiting for login
+ok 8 - Vite, browser error pages and lookalike hosts fail before waiting for login
+  ---
+  duration_ms: 0.469489
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 276.516031

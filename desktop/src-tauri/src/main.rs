@@ -1,3 +1,6 @@
+#[cfg(all(feature = "verification", any(windows, test)))]
+mod verification_window;
+
 #[cfg(windows)]
 mod shell {
     use quote_desktop::{Action, Desktop, DesktopError};
@@ -46,32 +49,39 @@ mod shell {
         state.lock().await.execute(request).await
     }
     pub fn run() {
+        #[cfg(feature = "verification")]
+        let isolated = crate::verification_window::WindowProfile::from_args(
+            &std::env::args().skip(1).collect::<Vec<_>>(),
+        )
+        .expect("isolated verification window arguments");
+        let context = context();
+        #[cfg(feature = "verification")]
+        let context = {
+            let mut context = context;
+            if isolated.is_some() {
+                let windows = &mut context.config_mut().app.windows;
+                assert!(windows.len() == 1 && windows[0].label == "main");
+                windows[0].create = false;
+            }
+            context
+        };
         tauri::Builder::default()
-            .setup(|app| {
+            .setup(move |app| {
                 let root = app.path().app_local_data_dir()?;
                 #[cfg(feature = "verification")]
-                let root = {
-                    let args = std::env::args().collect::<Vec<_>>();
-                    if args.iter().any(|a| a == "--verification-window") {
-                        let i = args
-                            .iter()
-                            .position(|a| a == "--profile")
-                            .ok_or_else(|| std::io::Error::other("ISOLATED_PROFILE_REQUIRED"))?;
-                        let p =
-                            std::path::PathBuf::from(args.get(i + 1).ok_or_else(|| {
-                                std::io::Error::other("ISOLATED_PROFILE_REQUIRED")
-                            })?);
-                        if !p.join("777-isolated-profile.json").is_file() {
-                            return Err(std::io::Error::other("ISOLATED_PROFILE_REQUIRED").into());
-                        }
-                        p
-                    } else {
-                        root
-                    }
-                };
+                let root = isolated.as_ref().map_or(root, |v| v.root.clone());
                 let client =
                     Desktop::new(root, false).map_err(|e| std::io::Error::other(e.code))?;
                 app.manage(Arc::new(tokio::sync::Mutex::new(client)));
+                #[cfg(feature = "verification")]
+                if let Some(profile) = isolated {
+                    let config = &app.config().app.windows[0];
+                    tauri::WebviewWindowBuilder::from_config(app, config)?
+                        .data_directory(profile.data_directory())
+                        .additional_browser_args(&profile.browser_args())
+                        .build()?;
+                    println!("{}", serde_json::json!({"verification_window": "created", "browser_arguments_source": "WebView2_API", "debug_port": profile.debug_port, "data_directory": profile.data_directory()}));
+                }
                 Ok(())
             })
             .invoke_handler(tauri::generate_handler![desktop_action])
@@ -84,7 +94,7 @@ mod shell {
                     }
                 }
             })
-            .run(context())
+            .run(context)
             .expect("Windows desktop host failed");
     }
 }

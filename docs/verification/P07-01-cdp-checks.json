@@ -1,0 +1,76 @@
+{
+  "task": "P07-01",
+  "baseline_commit": "cf9d0a828a83f77ee02a3622e673a02f0c29c2b9",
+  "status": "targeted_auxiliary_passed_Windows_API_creation_pending",
+  "scope": "verification launch path and diagnostics only; no business UI/IPC/service authorization, schema, dependency version or approved Figma changes",
+  "failure_evidence": "P07-01-ci-evidence-05.json",
+  "implementation": [
+    "Normal builds do not compile verification window settings; verification build without window args keeps the normal config path.",
+    "Verification window requires an exact argument shape, nonzero u16 port, absolute desktop path under a marked owned temp fixture and production:false JSON marker.",
+    "Use the same generated Tauri production Context and original main-window config; suppress only its automatic creation for verification, then explicitly build it with WebView2 API data_directory/additional_browser_args.",
+    "Fixed arguments retain locked wry0.57 defaults and allow only127.0.0.1; no arbitrary browser switches, no system registry changes, no runtime downgrade or security disabling.",
+    "Python removes inherited user-data/browser-argument overrides from that child environment and supplies the numeric port through the verified CLI.",
+    "CDP attempts have individual2s/overall30s bounds, retain the last exception and attempt count, and close an attached browser if its checkpoint cannot be saved.",
+    "Windows preflight now records registered runtime versions and actual elevation; failed native launch captures parent/window state before owned cleanup and surfaces the desktop log tail. Successful CDP attachment also records the actual browser version."
+  ],
+  "source_API_check": {
+    "versions": [
+      "tauri2.12.3",
+      "tauri-utils2.10.1",
+      "wry0.57.0"
+    ],
+    "verified_chain": "Tauri WebviewWindowBuilder.data_directory/additional_browser_args -> wry CoreWebView2EnvironmentOptions; actual Windows compile/runtime remains pending",
+    "config_limitation": "Absolute UDF is set using the builder API, not the relative-path-only config data_directory field"
+  },
+  "environment": {
+    "os": "Linux",
+    "python": "3.12.14",
+    "node": "22.12.0",
+    "rust": "1.97.1"
+  },
+  "checks": {
+    "python": {
+      "run": 24,
+      "passed": 22,
+      "skipped_actual_Win32": 2,
+      "failures": 0,
+      "log": "P07-01-cdp-python-tests-01.log"
+    },
+    "Rust_desktop": {
+      "passed": 9,
+      "library": 5,
+      "new_binary_verification_args": 4,
+      "failures": 0,
+      "log": "P07-01-cdp-rust-tests-02.log"
+    },
+    "node": {
+      "initial_complete_suite": {
+        "passed": 8,
+        "log": "P07-01-cdp-node-tests-01.log"
+      },
+      "final_CDP_subset": {
+        "passed": 3,
+        "log": "P07-01-cdp-node-tests-03.log"
+      },
+      "distinct_cases": 9
+    },
+    "strict_Clippy": "passed quote-desktop all-targets verification -Dwarnings",
+    "rustfmt": "passed all --check",
+    "normal_feature_build": "cargo check quote-desktop without verification passed; auxiliary platform only",
+    "initial_failure": {
+      "reason": "New parser test fixture initially used getrandom::fill but the locked dependency is0.2.16; corrected to existing getrandom::getrandom without changing versions",
+      "log": "P07-01-cdp-rust-tests-initial.log"
+    }
+  },
+  "implementation_sha256_LF": {
+    "desktop/src-tauri/src/main.rs": "a053a0cdf6392418a4f50bc3fb9c058356094140032864c75b402ced86d88105",
+    "desktop/src-tauri/src/verification_window.rs": "728f4a82d2e346114b08627f9ae5f0481c5fa4d9c966ef4ff4632f122bc1e0eb",
+    "desktop/tests/native-cdp.mjs": "9417a30900c56d81d519decefa4d1c16d8397018aed27d9170791a4327153cd6",
+    "desktop/tests/native-cdp.test.ts": "c797eb40692491ef4452b6daeac71e9b757ad070f60eb283e8925c86f4392d8e",
+    "desktop/tests/windows-smoke.mjs": "1c5ea6cee605bfbecc113a7283a0d7d04a310dbcefe662dbc49d95c915192a2a",
+    "tools/p07_desktop_check.py": "a6639d8e7abc8e631a90f28ea4558bfb702e669262c9bc80e81e29feaef81850",
+    "tools/p07_check_runner.py": "d248ae97ce501ca22a192ff41ac0c30932ae3858fae57f3d9409cb0fbbb78e41"
+  },
+  "Windows_native_API": "pending new Windows CI and local reports/p07-01-windows-06",
+  "acceptance": "P07-01 remains open; P07-02/03/04 and P08 not started"
+}

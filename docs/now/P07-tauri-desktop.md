@@ -1,6 +1,6 @@
 # P07 Tauri桌面界面与Windows交付
 
-状态：执行中。用户2026-10-14 14:37:59（Asia/Shanghai）“开始P07”；前置P06已验收，基线为P06收尾`7a243d5d1d103ae968f27adb7f54fea41a64d9cb`。唯一阶段分支`stage/p07-tauri-desktop`。当前P07-01已实现，本机04生产页面、10项协议、原生交互和主窗口自然退出通过；临时WebView2目录删除失败，已补清理等待，待新CI/本机05和用户视觉交互验收；P07-02至04/P08未启动。
+状态：执行中。用户2026-10-14 14:37:59（Asia/Shanghai）“开始P07”；前置P06已验收，基线为P06收尾`7a243d5d1d103ae968f27adb7f54fea41a64d9cb`。唯一阶段分支`stage/p07-tauri-desktop`。当前P07-01已实现，本机04原生交互/自然退出通过；最新Windows CI完整构建、24项工具回归、协议/浏览器通过，原生CDP未连上。验证启动已改为API参数并补诊断，待新CI/本机06及用户验收；P07-02至04/P08未启动。
 
 设计权威来自本仓库`Figma@c517d8b3086932abe2dc01908e4dae3209b9f956`的[交接](../design/figma-handoff.md)、[状态](../design/figma-state.json)和[tokens](../design/figma-tokens.json)，Figma文件为[记账器](https://www.figma.com/design/2ek9bkIz5ldyhjZnnvIuNu)。只使用当前页21:2及其中已确认的紧凑紫灰横向布局，不使用归档旧稿；未改写Figma文件。实现映射见[P07组件映射](../design/P07-component-map.md)。
 
@@ -35,4 +35,6 @@ P07-02专项边界审计、P07-03多DPI/原生图片及字体、P07-04安装升�
 
 本机03交互命令返回0后关闭超时；[关闭工具修复](../verification/P07-01-close-checks.json)仅向唯一主HWND发送WM_CLOSE，避免破坏Tao事件辅助窗口；文件日志/父进程退出独立核验。[本机04](../verification/P07-01-windows-evidence-04.json)已确认实际Tauri/WebView2交互及主窗口自然退出通过，码0、0.031秒、无强制终止；剩余失败为清理WebView2 BrowserMetrics文件的WinError5。
 
-[清理修复检查](../verification/P07-01-cleanup-checks.json)：仅对本轮已标记的TemporaryDirectory根内暂时性占用错误限20秒等待/重试，根目录实际移除才通过；交互、窗口退出、进程清理与目录清理分别保留，不吞掉失败或改写原流程错误。合并24项回归22通过/2项真实Win32专属待新CI，锁定路径与夹具时序调整后13项相关回归11通过/同2项待CI。新CI保留实际Tauri/WebView2交互/退出门槛；本机下一次输出使用p07-01-windows-05，清理及用户视觉验收未完成，01继续留now。
+[清理修复检查](../verification/P07-01-cleanup-checks.json)只对本轮已标记临时根内占用限20秒等待/重试，目录实际移除才通过。[最新cf9d0a8 Windows CI](../verification/P07-01-ci-evidence-05.json)的24/24工具回归已全过（含真实Win32窗口/文件占用），完整构建/原生生产资源核对、10项协议和7项浏览器交互通过；原生CDP步骤失败，清理通过不冒充该次自然退出。
+
+[API启动修复](../verification/P07-01-cdp-checks.json)：验证构建仅在精确数字端口/已标记临时profile校验后，从原生产Context与窗口配置经WebView2 API设置回环调试和UDF，清除该子进程旧环境覆盖；普通发行构建不编译验证设置，不修改注册表或升级/降级依赖。微软Runtime150提权策略与现象一致，但旧CI未记录版本/提权，原因保留推断；新预检与CDP/进程日志补齐诊断。辅助Python24项22通过/2项留新CI、Rust桌面9项、9个不同前端测试及fmt/严格Clippy/无verification构建通过。新Windows实际API窗口仍待CI/本机06和用户视觉验收，05未收到本机回传；01继续留now，02至04/P08未启动。

@@ -61,15 +61,20 @@ def native_window(output,run,stage):
     try:
         s.stop_bridge();sock=socket.socket();sock.bind(('127.0.0.1',0));port=sock.getsockname()[1];sock.close()
         fixture=output/'private-window-fixture.json';fixture.write_text(json.dumps(s.fixture(),ensure_ascii=True),encoding='utf-8')
-        env=dict(os.environ,WEBVIEW2_USER_DATA_FOLDER=str(s.profile/'webview2'),WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=f'--remote-debugging-port={port} --remote-debugging-address=127.0.0.1')
+        env=dict(os.environ)
+        # Runtime 150+ drops these overrides in elevated hosts; the isolated
+        # executable sets its port and profile via WebView2 API instead.
+        for name in ['WEBVIEW2_USER_DATA_FOLDER','WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS']:env.pop(name,None)
         # File output lets us observe parent exit independently of descendant log handles.
         with (output/'native-window-process.log').open('wb') as native_log:
-            proc=subprocess.Popen([str(CLIENT),'--verification-window','--profile',str(s.profile)],env=env,stdin=subprocess.DEVNULL,stdout=native_log,stderr=subprocess.STDOUT)
+            proc=subprocess.Popen([str(CLIENT),'--verification-window','--profile',str(s.profile),'--debug-port',str(port)],env=env,stdin=subprocess.DEVNULL,stdout=native_log,stderr=subprocess.STDOUT)
             try:
                 try:
                     checked=run([shutil.which('node'),str(ROOT/'desktop/tests/windows-smoke.mjs'),str(fixture),str(port),str(output)],timeout=150)
                 finally:fixture.unlink(missing_ok=True)
-                if checked['exit_code']:raise RuntimeError('NATIVE_WEBVIEW_CHECK_FAILED:'+checked['stdout'][-1500:])
+                if checked['exit_code']:
+                    native_log.flush()
+                    raise RuntimeError('NATIVE_WEBVIEW_CHECK_FAILED:'+checked['stdout'][-1500:]+'\nDesktop log: '+(output/'native-window-process.log').read_text(encoding='utf-8',errors='replace')[-1500:])
                 report=json.loads((output/'native-webview.json').read_bytes())
                 title=json.loads((ROOT/'desktop/src-tauri/tauri.conf.json').read_text(encoding='utf-8'))['app']['windows'][0]['title']
                 stage('关闭实际 Tauri 主窗口并核对进程退出')
@@ -77,6 +82,14 @@ def native_window(output,run,stage):
                 report['native_window_close_and_process_exit']=True
                 return report
             finally:
+                if sys.exc_info()[0] is not None:
+                    # Capture before taskkill, while the failing window may still exist.
+                    try:
+                        from p07_native_window import Windows
+                        inventory=Windows().owned(proc.pid)
+                        (output/'native-window-startup.json').write_text(json.dumps({'phase':'failure_before_cleanup','exit_code':proc.poll(),'windows':inventory},ensure_ascii=False,indent=2),encoding='utf-8')
+                    except Exception:
+                        pass  # A best-effort diagnostic must not replace failure or cleanup.
                 cleanup={'forced_process_tree_cleanup':False,'exit_code':proc.poll()}
                 if proc.poll() is None:
                     cleanup['forced_process_tree_cleanup']=True
@@ -177,7 +190,7 @@ def main(argv=None):
         exit_code=1
     finally:
         # Preserve completed interactions even when the later close/cleanup fails.
-        for name,key in [('native-webview.json','native_window_interactions'),('native-window-close.json','native_window_close'),('native-window-cleanup.json','native_window_cleanup'),('native-sandbox-cleanup.json','native_sandbox_cleanup')]:
+        for name,key in [('native-webview.json','native_window_interactions'),('native-window-close.json','native_window_close'),('native-window-cleanup.json','native_window_cleanup'),('native-sandbox-cleanup.json','native_sandbox_cleanup'),('native-cdp-connection.json','native_cdp_connection'),('native-window-startup.json','native_window_startup')]:
             path=output/name
             if path.exists():
                 try:report[key]=json.loads(path.read_text(encoding='utf-8'))
