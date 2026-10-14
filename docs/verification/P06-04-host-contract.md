@@ -2,6 +2,8 @@
 
 用户2026-10-14 02:38:15（Asia/Shanghai）“收尾03 开始04”，按[03验收](P06-03-acceptance.json)接续[04启动](P06-04-start.json)，复用唯一stage/p06-rust-core，从89f7138执行。03原Windows/辅助/比较资料保持，不重跑已通过入口；P07/P08未启动。
 
+当前核对：[Windows本机原报告与证据](P06-04-windows-evidence-01.json)已通过，同提交Windows CI成功；212专项/43 Rust/561对照及原母子GUI、DPAPI/ACL、系统CJK图片、v4恢复和资源资料完整。具备收尾条件待用户确认，无需重跑下方入口；此前失败段落保留为历史，P07/P08未启动。
+
 ## 接替范围
 
 新增crates/quote-host与quote-host.exe。它直接链接quote-core、quote-ledger、quote-excel，承担HTTPS、兼容账户/会话、业务授权、查询、输出队列/PNG及完整备份恢复；监听期间不启动Python/ASGI或财务worker子进程。初始化/明确离线资源选择会只读探测保留的旧工具worker，运行服务不依赖该子进程。

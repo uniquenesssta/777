@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P06-01/02/03已验收，同一stage/p06-rust-core继续P06-04[独立Rust宿主](docs/verification/P06-04-host-contract.md)。[第四次Windows CI与修复](docs/verification/P06-04-ci-evidence-04.json)确认严格构建、43 Rust、561对照及211项专项成功，上一轮两项原生崩溃恢复已通过；新增生命周期测试因Windows CRLF与LF断言不符，两子项失败。现已兼容两种换行，并在真实子进程显式覆盖LF/CRLF和退出码17/18；5项辅助回归通过，新Windows CI及本机/用户验收待完成。04未收尾，P07/P08未启动。
+P06-01/02/03已验收，P06-04[独立Rust宿主](docs/verification/P06-04-host-contract.md)已完成Windows CI及本机隔离核对：[原报告与证据](docs/verification/P06-04-windows-evidence-01.json)确认5564823的128指纹、212专项、43 Rust和561对照全部匹配，原母子窗口/DPAPI/权限/系统CJK图片/v4恢复通过。200单同机测量的计算p95为49.31→8.08ms，查询13.60→7.27ms，采样主进程resident为38.0→11.2MB；原失败资料保持。P06具备收尾条件待用户确认，无需重跑；P07/P08未启动。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -36,6 +36,8 @@ P06-01/02/03已验收，同一stage/p06-rust-core继续P06-04[独立Rust宿主](
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P06-04 Windows CI及本机隔离核对通过：128项源码指纹、212专项/43 Rust/561精确对照一致，原母子窗口、原生DPAPI/ACL/系统CJK图片及v4完整恢复通过。[原报告与核对](docs/verification/P06-04-windows-evidence-01.json)按字节保存；200单计算/查询p95分别49.31→8.08ms、13.60→7.27ms，采样主进程resident约38.0→11.2MB。已通过检查无需重跑，P06具备收尾条件待用户确认，P07/P08未启动，真实部署/安装与历史切换留后续。
 
 - P06-04第四次CI的原生崩溃恢复已通过，新增生命周期测试误将Windows CRLF提示行按LF断言，212项中211成功/1项的2子项失败；[原报告与修复](docs/verification/P06-04-ci-evidence-04.json)保留。测试现在接受精确提示行的LF/CRLF，真实子进程覆盖两种换行和17/18退出码；旧断言复现相同失败，修复后5项辅助回归通过。产品代码和严格门槛未改，Windows CI及本机验收仍待完成。
 

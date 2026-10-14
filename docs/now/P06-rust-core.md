@@ -1,6 +1,6 @@
 # P06 Rust领域核心与存储/服务适配
 
-状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02已按[用户接续](../verification/P06-02-acceptance.json)验收，原Windows证据保持；P06-03已按[用户接续](../verification/P06-03-acceptance.json)验收；P06-04从89f7138按[启动记录](../verification/P06-04-start.json)执行，独立Rust宿主已实现，原656完整辅助保持；[第四次CI与修复](../verification/P06-04-ci-evidence-04.json)记录Windows构建/43 Rust/561对照及211专项通过，新增测试的换行断言已修正，5项辅助回归通过；新Windows CI、本机及用户验收待完成。
+状态：P06-01/02/03已验收，P06-04技术核对通过、待用户验收。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02已按[用户接续](../verification/P06-02-acceptance.json)验收，原Windows证据保持；P06-03已按[用户接续](../verification/P06-03-acceptance.json)验收；P06-04从89f7138按[启动记录](../verification/P06-04-start.json)执行，独立Rust宿主已实现，原656完整辅助保持；[Windows本机与CI通过证据](../verification/P06-04-windows-evidence-01.json)已核对128指纹、212专项/43 Rust/561对照、原窗口/DPAPI/ACL/系统图片/v4恢复及资源；具备收尾条件待用户确认，无需重跑。
 
 P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。P01已按[批准记录](../baseline/p01-acceptance.json)采纳numeric-v1/performance-v1，历史候选/黄金元数据保留并映射；实施时读取同一黄金JSON，不复制期望。当前01按同一资产开展影子核对。
 
@@ -132,3 +132,25 @@ Windows临时主机覆盖Rust原生读取/导入重放/新报表、独立读取�
 用户13:03:24再次反馈未通过。[原报告与核对](../verification/P06-04-ci-evidence-04.json)确认2fe9da5干净源码的128指纹和212测试ID匹配；Windows严格构建/43 Rust/固定旧工具构建/561对照通过，211个专项方法成功。上一轮两项原生崩溃恢复均通过；新加生命周期方法的17/18两个子项在提示行断言失败（Windows实际CRLF，断言只接受LF），零运行错误。协议smoke与资源尚未进入。
 
 此次错误由上一补丁新增测试引入。断言现接受精确closed提示行的LF或CRLF，并通过子进程stdout.reconfigure显式执行两种换行与17/18四种组合。先保留旧断言复现相同CRLF失败，再修正后5项生命周期回归全部通过；辅助结果不冒充Windows。相关readline/字节换行断言已检查，其他提示用JSON/splitlines读取，HTTP的CRLF保持协议语义，未发现其他同根匹配。只改测试，不改产品或停机逻辑，不放松退出码和超时门槛；原211项Windows通过证据保持，新CI复查212项。04待验收，P07/P08未启动。
+
+
+## P06-04 Windows本机与CI完整核对通过
+
+用户14:19:17回传[本机原报告](../verification/P06-04-windows-report-01.json)与comparisons(5).json。[独立核对](../verification/P06-04-windows-evidence-01.json)确认5564823干净源码的128个LF指纹与提交blob/当前源码匹配，212测试ID按源码AST、继承及方法别名重建，与全部成功日志逐项同序；零失败/错误/跳过。实际Windows/MSVC Rust1.97.1的fmt/严格Clippy/43 Rust/release通过，Rust成功名称与前次实际Windows一致，旧223e86e源码锁定离线构建成功。178外部包许可与4个验证依赖版本匹配。
+
+561对照的有序ID、请求SHA和Python期望逐项重新计算，全部匹配Rust结果，含53黄金；上传比较文件与既有Windows资产逐字节一致，复用原文件。原报告127930字节/SHA按字节归档，旧失败和辅助资料保持，不重复执行完整测试。相同5564823的[Windows CI](https://github.com/uniquenesssta/777/actions/runs/38514883580)已查询确认completed/success。
+
+原母子Tk客户端经实际Rust HTTPS完成登录/清空密码/36元计算/提交/查询/角色过滤/关闭，无回调错误；DPAPI待核查、原回执与独立完整恢复通过。独立原生流程覆盖退出重启/原回执、离线合成导入幂等和原源hash/mtime保持、Excel文本样式/前导零/成本隔离、系统CJK PNG、v4新目录恢复/维护门槛/旧会话撤销及恢复后旧客户端再连。库存独立核对revision7、3单4行1备注、2价格版本、1导入批次、7回执/7审计，收入/成本/利润11500/4600/6900分；Hidden/System、保护DACL及当前身份/SYSTEM/管理员精确名单和临时清理通过。
+
+同价目200单，每端30次请求、原客户端每次新建HTTPS连接，延迟median/p95/max均已从原始样本重算：
+
+| 指标 | 保留Python宿主＋Rust worker | Rust直接宿主 |
+| --- | --- | --- |
+| 计算p95 | 49.3110ms | 8.0822ms |
+| 查询p95（20条分页） | 13.5985ms | 7.2666ms |
+| 采样主进程resident峰值 | 38,010,880字节 | 11,157,504字节 |
+| 采样主进程private峰值 | 25,817,088字节 | 3,260,416字节 |
+
+本次Windows测量没有出现原辅助环境约45ms的查询尾延迟，但不删除原辅助观测或推广到所有负载。10ms采样仅计宿主主进程，不含短命worker/客户端，不能当作应用整体内存或安装包体积；执行文件只有报告SHA，未上传或独立检查二进制。
+
+P06-04技术门槛已满足，P06具备收尾条件待用户确认；保留now，不提前启动P07/P08。无需重跑已通过入口；真实主机/E盘共享部署、安装包/Tauri界面与真实历史切换仍按后续任务授权实施。

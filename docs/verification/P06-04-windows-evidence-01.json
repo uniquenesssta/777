@@ -1,0 +1,418 @@
+{
+  "task": "P06-04",
+  "status": "Windows_CI_and_local_native_host_verified_user_acceptance_pending",
+  "received_at": "2026-10-14T14:19:17+08:00",
+  "recorded_at": "2026-10-14T14:23:19.011204+08:00",
+  "repository": "uniquenesssta/777",
+  "phase_branch": "stage/p06-rust-core",
+  "source_commit": "556482386d97912c2dc6053dd4aee4fe6d6b765d",
+  "original_report": {
+    "path": "P06-04-windows-report-01.json",
+    "bytes": 127930,
+    "sha256": "d4375f69660b95f62b1715f25c3acd76d893beb684448414c3f511bfd6907b3d",
+    "original_bytes_preserved": true
+  },
+  "comparisons": {
+    "uploaded_name": "comparisons(5).json",
+    "bytes": 220370,
+    "sha256": "9d99c86e4de0dcaa50108faa02f995e54a4a74ef6675977e299e234913b23507",
+    "byte_equal_reused_asset": "P06-03-windows-comparisons-01.json",
+    "not_duplicated": true
+  },
+  "independent_verification": {
+    "source_commit": "556482386d97912c2dc6053dd4aee4fe6d6b765d",
+    "fingerprints": 128,
+    "test_ids_from_AST_and_inheritance_equal": 212,
+    "successful_log_IDs_equal": 212,
+    "Rust_tests_and_prior_Windows_IDs_equal": 43,
+    "shadow_independently_recomputed": 561,
+    "golden": 53,
+    "comparison_reused_existing_bytes": true,
+    "resource_statistics_independently_recomputed": {
+      "python_rust_worker": {
+        "calculation_p95_ms": 49.31100003886968,
+        "listing_p95_ms": 13.598499994259328,
+        "sampled_resident_bytes": 38010880,
+        "sampled_private_bytes": 25817088
+      },
+      "rust_direct": {
+        "calculation_p95_ms": 8.08220001636073,
+        "listing_p95_ms": 7.266600034199655,
+        "sampled_resident_bytes": 11157504,
+        "sampled_private_bytes": 3260416
+      }
+    },
+    "raw_report_bytes": 127930,
+    "raw_report_sha256": "d4375f69660b95f62b1715f25c3acd76d893beb684448414c3f511bfd6907b3d",
+    "binary_SHA_values_reported_only_not_independently_inspected": {
+      "host": "6539e1ddb93727ad69dd566be32f23a19c5158a192959a5b32907ad08e22ea8a",
+      "worker": "4a35fecd8994c1790748d0d29cb6e68f57b640398b771275a7de35dd4c644543"
+    }
+  },
+  "actual_environment": {
+    "os": "Windows",
+    "python": "3.12.10",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6"
+  },
+  "dependencies": {
+    "Rust_packages_and_licenses_equal_manifest": 178,
+    "reference_service_pins_match": 4
+  },
+  "Python_tests": {
+    "run": 212,
+    "failure": 0,
+    "error": 0,
+    "skipped": 0,
+    "AST_class_inheritance_and_aliased_method_IDs_equal": true,
+    "all_successful_log_IDs_equal_ordered_source_IDs": true
+  },
+  "Rust_tests": {
+    "run": 43,
+    "failed": 0,
+    "ignored": 0,
+    "successful_names_equal_prior_Windows_build": true,
+    "fmt_strict_Clippy_and_release_passed": true
+  },
+  "shadow": {
+    "cases": 561,
+    "golden": 53,
+    "requests_and_Python_reference_results_independently_recomputed": true,
+    "all_equal_Rust_result_hashes": true
+  },
+  "reported_native_smoke": {
+    "original_Windows_Tk_clients": {
+      "status": "passed",
+      "transport": "actual loopback TCP HTTPS with pinned self-signed certificate",
+      "negotiated_TLS_version": "TLSv1.3",
+      "DPAPI_pending_encrypted_round_trip_and_receipt_recovery": true,
+      "applications": [
+        {
+          "role": "manager",
+          "startup": "ok",
+          "HTTPS_login": true,
+          "password_widget_cleared": true,
+          "remote_calculation_income_cents": "3600",
+          "submit_button_books_order": true,
+          "remote_listing_and_detail": true,
+          "sales_fields_and_directories_restricted": null,
+          "legacy_source_and_workbook_callbacks_not_reached": true,
+          "close": "ok"
+        },
+        {
+          "role": "sales",
+          "startup": "ok",
+          "HTTPS_login": true,
+          "password_widget_cleared": true,
+          "remote_calculation_income_cents": "3600",
+          "submit_button_books_order": true,
+          "remote_listing_and_detail": true,
+          "sales_fields_and_directories_restricted": true,
+          "legacy_source_and_workbook_callbacks_not_reached": true,
+          "close": "ok"
+        }
+      ],
+      "callback_errors": [],
+      "inventory": {
+        "active_cost_cents": "4800",
+        "active_income_cents": "11200",
+        "active_profit_cents": "6400",
+        "counts": {
+          "audit_events": 4,
+          "import_batches": 0,
+          "lines": 5,
+          "notes": 0,
+          "orders": 3,
+          "price_versions": 1,
+          "requests": 4
+        },
+        "ledger_id": "5997d4b5-5752-4798-9948-e361c7a5dd8e",
+        "revision": 4,
+        "schema_hash": "96619d105269c85fa0d0354050ca97af0af290ba6485913867ed070962aff003",
+        "schema_version": 1
+      },
+      "backup_independent_restore_equal": true,
+      "complete_host_bundle_restore_accounts_TLS_and_maintenance": true,
+      "old_sessions_removed_on_restore": true,
+      "host_private_directory_native_security": {
+        "allowed_sids": [
+          "S-1-5-18",
+          "S-1-5-21-1929784381-1237106348-1577708986-1001",
+          "S-1-5-32-544"
+        ],
+        "hidden": true,
+        "protected_dacl": true,
+        "service_identity_sid": "S-1-5-21-1929784381-1237106348-1577708986-1001",
+        "system": true
+      },
+      "scope": "Windows temp host, two sequential live Tk clients and real HTTPS sessions; no installed service, real E/share paths or physical two-computer deployment.",
+      "sandbox_cleaned": true,
+      "host_backend": "standalone-rust",
+      "runtime_Python_ASGI_server_used": false
+    },
+    "native_protocol_and_restore": {
+      "status": "passed",
+      "host_backend": "standalone-rust",
+      "runtime_python_server_used": false,
+      "in_process_ledger_and_formats": true,
+      "actual_HTTPS_old_Client": true,
+      "native_host_exit_and_original_receipt_recovery": true,
+      "DPAPI_encrypted_pending_verified": true,
+      "offline_historical_tool_import_plan_and_idempotency_preserved": true,
+      "source_hash_and_mtime_unchanged": true,
+      "independent_reader_excel_text_styles_and_private_cost": true,
+      "native_CJK_PNG_and_independent_Pillow_verified": true,
+      "Windows_system_CJK_font_verified": true,
+      "public_directory_only_quote_outputs": true,
+      "v4_full_native_restore_and_original_receipts_outputs_equal": true,
+      "independent_Python_bundle_reader_equal": true,
+      "restored_maintenance_gate_and_explicit_isolated_activation": true,
+      "old_sessions_removed_on_restore": true,
+      "restored_Rust_HTTPS_accepts_old_client": true,
+      "inventory": {
+        "active_cost_cents": "4600",
+        "active_income_cents": "11500",
+        "active_profit_cents": "6900",
+        "counts": {
+          "audit_events": 7,
+          "import_batches": 1,
+          "lines": 4,
+          "notes": 1,
+          "orders": 3,
+          "price_versions": 2,
+          "requests": 7
+        },
+        "ledger_id": "db14704f-660c-4e75-9fe1-0bb555a6888c",
+        "revision": 7,
+        "schema_hash": "96619d105269c85fa0d0354050ca97af0af290ba6485913867ed070962aff003",
+        "schema_version": 1
+      },
+      "host_private_directory_native_security": {
+        "allowed_sids": [
+          "S-1-5-18",
+          "S-1-5-21-1929784381-1237106348-1577708986-1001",
+          "S-1-5-32-544"
+        ],
+        "hidden": true,
+        "protected_dacl": true,
+        "service_identity_sid": "S-1-5-21-1929784381-1237106348-1577708986-1001",
+        "system": true
+      },
+      "scope": "isolated Rust host processes, old API Client, offline synthetic migration tools and native full restore; no installed service, real E/share paths or production activation",
+      "sandbox_cleaned": true
+    }
+  },
+  "reported_resources": {
+    "status": "measured",
+    "baseline": "retained Python HTTPS/Auth/queue with Rust financial and Excel worker (P06-03 architecture); current compatible code",
+    "candidate": "standalone Rust HTTPS/Auth/query/queue with in-process core/ledger/Excel",
+    "workload": {
+      "repetitions_per_endpoint": 30,
+      "warmup_calculations": 5,
+      "prices": "sale10/cost4/single; q4 and 90% discount",
+      "connection": "old pinned-certificate Python Client opens a fresh HTTPS connection per request",
+      "list_limit": 20,
+      "orders": 200
+    },
+    "measurements": {
+      "python_rust_worker": {
+        "calculation": {
+          "samples_ms": [
+            45.79170001670718,
+            45.32340000150725,
+            45.54199997801334,
+            46.13709996920079,
+            46.050400007516146,
+            45.048900006804615,
+            44.79339998215437,
+            44.70450000371784,
+            44.80870004044846,
+            44.933500001206994,
+            62.80030001653358,
+            45.30110000632703,
+            45.54249998182058,
+            46.088900009635836,
+            44.808899983763695,
+            49.31100003886968,
+            45.73110002093017,
+            45.52179999882355,
+            45.354000001680106,
+            46.094999997876585,
+            45.61450000619516,
+            45.09580001467839,
+            45.479999971576035,
+            44.830999977421016,
+            44.82239997014403,
+            44.46100001223385,
+            45.18940002890304,
+            44.41150004277006,
+            45.06420000689104,
+            44.78400002699345
+          ],
+          "median_ms": 45.31225000391714,
+          "p95_ms": 49.31100003886968,
+          "max_ms": 62.80030001653358
+        },
+        "listing": {
+          "samples_ms": [
+            12.001299997791648,
+            13.071900000795722,
+            12.600800022482872,
+            12.409999966621399,
+            12.043499969877303,
+            12.071199947968125,
+            11.877499986439943,
+            12.828200007788837,
+            12.028199969790876,
+            11.859499965794384,
+            12.005100026726723,
+            12.226800026837736,
+            11.910400004126132,
+            12.136899982579052,
+            11.845199973322451,
+            13.598499994259328,
+            12.533300032373518,
+            12.354700011201203,
+            12.227799976244569,
+            12.5461999559775,
+            21.706199971958995,
+            11.949500010814518,
+            12.01569999102503,
+            12.19510001828894,
+            12.091899989172816,
+            12.19209999544546,
+            12.190100038424134,
+            12.582499999552965,
+            11.905899969860911,
+            11.946600046940148
+          ],
+          "median_ms": 12.163500010501593,
+          "p95_ms": 13.598499994259328,
+          "max_ms": 21.706199971958995
+        },
+        "host_process_memory": {
+          "samples": 112,
+          "sample_interval_seconds": 0.01,
+          "peak_sampled_resident_bytes": 38010880,
+          "peak_sampled_private_bytes": 25817088,
+          "native_peak_resident_bytes": 69218304
+        },
+        "request_results_equal": true
+      },
+      "rust_direct": {
+        "calculation": {
+          "samples_ms": [
+            6.341499974951148,
+            6.155600014608353,
+            6.189400039147586,
+            6.06270000571385,
+            6.764199992176145,
+            6.2194999773055315,
+            6.258899986278266,
+            6.064600020181388,
+            6.219899980351329,
+            6.30569999339059,
+            7.1137999766506255,
+            8.355600002687424,
+            8.08220001636073,
+            6.592099962290376,
+            6.429100001696497,
+            6.312499986961484,
+            6.723799975588918,
+            6.786499987356365,
+            6.726199993863702,
+            6.800599978305399,
+            6.661299965344369,
+            6.295300030615181,
+            6.459199998062104,
+            6.4557999721728265,
+            6.261400005314499,
+            6.304299982730299,
+            6.239900016225874,
+            6.210600025951862,
+            6.768200022634119,
+            6.426000036299229
+          ],
+          "median_ms": 6.383750005625188,
+          "p95_ms": 8.08220001636073,
+          "max_ms": 8.355600002687424
+        },
+        "listing": {
+          "samples_ms": [
+            6.389599991962314,
+            6.43889995990321,
+            6.417600030545145,
+            6.406100001186132,
+            6.316900020465255,
+            6.256399967242032,
+            6.494800036307424,
+            6.252499995753169,
+            6.22280000243336,
+            6.377499958034605,
+            7.87620001938194,
+            7.266600034199655,
+            6.679199985228479,
+            6.8230999750085175,
+            6.464899983257055,
+            6.3720999751240015,
+            6.549099984113127,
+            6.410800036974251,
+            6.774700013920665,
+            6.640299980062991,
+            6.420099991373718,
+            6.67460000840947,
+            6.603999994695187,
+            6.418399978429079,
+            6.327699986286461,
+            6.7322999821044505,
+            6.755500042345375,
+            6.324399961158633,
+            6.6500999964773655,
+            6.4693999593146145
+          ],
+          "median_ms": 6.451899971580133,
+          "p95_ms": 7.266600034199655,
+          "max_ms": 7.87620001938194
+        },
+        "host_process_memory": {
+          "samples": 25,
+          "sample_interval_seconds": 0.01,
+          "peak_sampled_resident_bytes": 11157504,
+          "peak_sampled_private_bytes": 3260416,
+          "native_peak_resident_bytes": 44445696
+        },
+        "request_results_equal": true
+      }
+    },
+    "binary_bytes": {
+      "rust_host": 9206272,
+      "python_interpreter": 104952
+    },
+    "scope": "Host-process memory only; short-lived baseline Rust-worker processes and clients are excluded. Sampled peaks are not total application memory. Binary bytes are not installer/runtime dependency size. No real share/E paths or installed service.",
+    "product_platform": "Windows",
+    "sandboxes_cleaned": true
+  },
+  "Windows_CI": {
+    "run_id": 38514883580,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/38514883580",
+    "head_sha": "556482386d97912c2dc6053dd4aee4fe6d6b765d",
+    "status": "completed",
+    "conclusion": "success",
+    "retrieved_from_GitHub": true,
+    "scope": "CI conclusion verified via API; no duplicated CI artifact report. Local uploaded report supplies GUI/system-font acceptance evidence."
+  },
+  "acceptance": {
+    "technical_isolated_checks": "passed",
+    "P06_04_closeout": "eligible_pending_user_confirmation",
+    "P06_task_location": "docs/now/P06-rust-core.md",
+    "P07_P08": "not_started",
+    "successful_checks_need_not_be_repeated": true,
+    "production_paths_accessed": false,
+    "production_writer_replaced": false,
+    "remaining_later_scope": [
+      "Windows installer and Tauri UI delivery",
+      "real host/service identity and E/share deployment",
+      "real historical-data migration and production cutover"
+    ],
+    "binary_inspection": "User report supplies host/worker SHA only; executable files were not uploaded and were not independently inspected."
+  }
+}
