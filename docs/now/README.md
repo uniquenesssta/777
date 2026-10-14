@@ -1,3 +1,3 @@
 # 当前任务书
 
-[P06 Rust核心](P06-rust-core.md)为唯一当前任务书，分支stage/p06-rust-core。01/02/03已验收，04仍在修复验证；[第三次CI证据](../verification/P06-04-ci-evidence-03.json)记录Windows构建/43 Rust/561对照及205项专项成功，两项崩溃恢复测试在管道清理时报3错误。修复后11项辅助专项及协议恢复/双宿主清理通过，212项由新Windows CI执行；本机原窗口/系统字体与用户验收待完成。P07/P08未启动，原证据及真实部署/历史切换交接保持。
+[P06 Rust核心](P06-rust-core.md)为唯一当前任务书，分支stage/p06-rust-core。01/02/03已验收，04待验证。[第四次CI与修复](../verification/P06-04-ci-evidence-04.json)记录Windows构建/43 Rust/561对照及211专项成功；新增生命周期测试的Windows换行断言已修正，5项辅助回归通过。新Windows CI、本机原窗口/系统字体及用户验收待完成，P07/P08未启动；原证据及真实部署交接保持。

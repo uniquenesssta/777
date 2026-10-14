@@ -2,7 +2,7 @@
 
 版本：初始规划；日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P06-01/02/03已验收，同一stage/p06-rust-core继续P06-04[独立Rust宿主](verification/P06-04-host-contract.md)。[第三次Windows CI与修复](verification/P06-04-ci-evidence-03.json)确认严格构建、43 Rust、561对照及固定旧工具构建通过；207专项中205项成功，两项崩溃恢复测试在进程管道清理时报错（含一次tearDown共3错误）。验证入口已改用communicate统一关闭管道，11项辅助专项及协议恢复/双宿主清理通过；新Windows CI和本机原窗口/系统字体及用户验收待完成，04未收尾，P07/P08未启动。**
+**P06-01/02/03已验收，同一stage/p06-rust-core继续P06-04[独立Rust宿主](verification/P06-04-host-contract.md)。[第四次Windows CI与修复](verification/P06-04-ci-evidence-04.json)确认严格构建、43 Rust、561对照及211项专项成功，上一轮两项原生崩溃恢复已通过；新增生命周期测试因Windows CRLF与LF断言不符，两子项失败。现已兼容两种换行，并在真实子进程显式覆盖LF/CRLF和退出码17/18；5项辅助回归通过，新Windows CI及本机/用户验收待完成。04未收尾，P07/P08未启动。**
 
 ## 1. 目标与边界
 
@@ -24,7 +24,7 @@ P01至P05已归档old，P05真实部署交接项保留。P06任务书在now，P0
 | P03 | [文件数据安全与兼容](old/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 四项均已验收归档；[P03确认](verification/P03-acceptance.json)，原Windows及辅助237项证据保留 |
 | P04 | [后台任务与性能](old/P04-performance.md) | P03已验收 | stage/p04-performance（已转接） | 01/02/03已验收，04短诊断通过；用户确认停电、授权先P05；正式06全档通过已按[用户接续](verification/P04-acceptance.json)验收收尾，无需重跑 |
 | P05 | [结构化存储与局域网服务](old/P05-data-service.md) | P04已验收 | stage/p05-data-service（历史） | [隔离交付已收尾](verification/P05-acceptance.json)，Windows52/52原证据保持；真实部署及历史切换交接后续 |
-| P06 | [Rust业务核心与适配](now/P06-rust-core.md) | 用户授权P05交接 | stage/p06-rust-core | 01/02/03已验收；04独立Rust宿主已实现；第三次CI的构建/43 Rust/561对照通过，207专项中两项管道清理失败；修复后11专项及协议/双宿主清理辅助通过；新Windows CI、本机及用户验收待完成 |
+| P06 | [Rust业务核心与适配](now/P06-rust-core.md) | 用户授权P05交接 | stage/p06-rust-core | 01/02/03已验收；04独立Rust宿主已实现；第四次CI的构建/43 Rust/561对照及211专项通过；新增测试换行断言已修正，5项辅助回归通过；新Windows CI、本机及用户验收待完成 |
 | P07 | [Tauri界面与Windows交付](new/P07-tauri-desktop.md) | P06已验收 | stage/p07-tauri-desktop | 待启动；母子角色端到端、权限与安装验收通过 |
 | P08 | [迁移演练与正式切换](new/P08-cutover.md) | P07已验收 | stage/p08-cutover | 待启动；全量对账、恢复演练及用户验收后才切换 |
 

@@ -1,6 +1,6 @@
 # P06 Rust领域核心与存储/服务适配
 
-状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02已按[用户接续](../verification/P06-02-acceptance.json)验收，原Windows证据保持；P06-03已按[用户接续](../verification/P06-03-acceptance.json)验收；P06-04从89f7138按[启动记录](../verification/P06-04-start.json)执行，独立Rust宿主已实现，原656完整辅助保持；[第三次CI与修复](../verification/P06-04-ci-evidence-03.json)记录Windows严格构建/43 Rust/561对照通过，两项测试在进程管道清理时报错；11专项及协议恢复/双宿主清理辅助通过，新Windows CI、本机及用户验收待完成。
+状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02已按[用户接续](../verification/P06-02-acceptance.json)验收，原Windows证据保持；P06-03已按[用户接续](../verification/P06-03-acceptance.json)验收；P06-04从89f7138按[启动记录](../verification/P06-04-start.json)执行，独立Rust宿主已实现，原656完整辅助保持；[第四次CI与修复](../verification/P06-04-ci-evidence-04.json)记录Windows构建/43 Rust/561对照及211专项通过，新增测试的换行断言已修正，5项辅助回归通过；新Windows CI、本机及用户验收待完成。
 
 P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。P01已按[批准记录](../baseline/p01-acceptance.json)采纳numeric-v1/performance-v1，历史候选/黄金元数据保留并映射；实施时读取同一黄金JSON，不复制期望。当前01按同一资产开展影子核对。
 
@@ -125,3 +125,10 @@ Windows临时主机覆盖Rust原生读取/导入重放/新报表、独立读取�
 原先poll后手动写入不能避免子进程刚关闭stdin的竞态；只捕获BrokenPipeError漏掉Windows errno 22。夹具和资源参考宿主均改用Popen.communicate(input=换行, timeout=50)统一写入、关闭和回收；CPython 3.12.10原Windows实现对写入/关闭处理EPIPE/EINVAL。既有退出码允许名单、异常退出拒绝、超时保留诊断目录仍有效，产品Rust/权限/金额/DDL未改。
 
 新增5项生命周期检查覆盖正常退出、关闭读端后17/18退出、已退出/重复清理、异常码和超时保留；与原两项真实Rust崩溃恢复及4项入口边界共11项辅助通过。共同协议的真实辅助HTTPS/原回执/v4恢复及资源双宿主小规模清理通过，5单/3轮仅验证清理路径，不替代原200单性能资料。当前128指纹、212个载入测试由新Windows CI复查；本机新目录windows-04保留旧报告，04不收尾，P07/P08未启动。
+
+
+## P06-04第四次Windows CI与新增测试换行修复
+
+用户13:03:24再次反馈未通过。[原报告与核对](../verification/P06-04-ci-evidence-04.json)确认2fe9da5干净源码的128指纹和212测试ID匹配；Windows严格构建/43 Rust/固定旧工具构建/561对照通过，211个专项方法成功。上一轮两项原生崩溃恢复均通过；新加生命周期方法的17/18两个子项在提示行断言失败（Windows实际CRLF，断言只接受LF），零运行错误。协议smoke与资源尚未进入。
+
+此次错误由上一补丁新增测试引入。断言现接受精确closed提示行的LF或CRLF，并通过子进程stdout.reconfigure显式执行两种换行与17/18四种组合。先保留旧断言复现相同CRLF失败，再修正后5项生命周期回归全部通过；辅助结果不冒充Windows。相关readline/字节换行断言已检查，其他提示用JSON/splitlines读取，HTTP的CRLF保持协议语义，未发现其他同根匹配。只改测试，不改产品或停机逻辑，不放松退出码和超时门槛；原211项Windows通过证据保持，新CI复查212项。04待验收，P07/P08未启动。

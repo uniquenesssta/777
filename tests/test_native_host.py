@@ -233,15 +233,17 @@ class NativeHostLifecycleTests(unittest.TestCase):
 
     def test_closed_pipe_before_exit_retains_both_injected_exit_codes(self):
         for code in (17, 18):
-            with self.subTest(exit_code=code):
-                host, process = self.child(
-                    "import os,sys,time; os.close(0); "
-                    "print('closed', flush=True); time.sleep(.1); sys.exit(" + str(code) + ")")
-                self.assertEqual(process.stdout.readline(), b'closed\n')
-                host.stop()
-                self.assertEqual(process.returncode, code)
-                self.assertIsNone(host.process)
-                self.assertTrue(process.stdin.closed)
+            for newline in ('\n', '\r\n'):
+                with self.subTest(exit_code=code, newline=repr(newline)):
+                    host, process = self.child(
+                        "import os,sys,time; os.close(0); "
+                        "sys.stdout.reconfigure(newline=" + repr(newline) + "); "
+                        "print('closed', flush=True); time.sleep(.1); sys.exit(" + str(code) + ")")
+                    self.assertIn(process.stdout.readline(), (b'closed\n', b'closed\r\n'))
+                    host.stop()
+                    self.assertEqual(process.returncode, code)
+                    self.assertIsNone(host.process)
+                    self.assertTrue(process.stdin.closed)
 
     def test_already_exited_child_is_reaped_and_repeated_stop_is_safe(self):
         host, process = self.child('raise SystemExit(17)')

@@ -1,0 +1,97 @@
+{
+  "task": "P06-04",
+  "status": "fourth_Windows_CI_failed_new_test_CRLF_assumption_repaired_rerun_pending",
+  "recorded_at": "2026-10-14T13:05:53.068217+08:00",
+  "repository": "uniquenesssta/777",
+  "branch": "stage/p06-rust-core",
+  "implementation_parent": "2fe9da5548e81ea8712b3ec649f9a162a96c1cbf",
+  "workflow_run": {
+    "id": 38513043562,
+    "job_id": 115685641914,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/38513043562",
+    "conclusion": "failure",
+    "head_sha": "2fe9da5548e81ea8712b3ec649f9a162a96c1cbf"
+  },
+  "original_report": {
+    "path": "docs/verification/P06-04-ci-report-04.json",
+    "bytes": 127111,
+    "sha256": "1bf09b8785b1a8bd75b78169bcaf7ed34283714cbd04793c50119905b5de4001",
+    "original_bytes_preserved": true,
+    "artifact_id": 11870593586,
+    "artifact_zip_sha256": "832d6f098c41bd14c6b753094ebf44f7de61f2f0cf99f0a272c722f34690e2d0"
+  },
+  "independent_checks": {
+    "all_128_LF_fingerprints_equal_commit_blobs": true,
+    "loaded_212_test_IDs_equal_source": true,
+    "environment": {
+      "os": "Windows",
+      "python": "3.12.10",
+      "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6"
+    },
+    "clean_worktree": true,
+    "fmt_strict_Clippy_release_passed": true,
+    "Rust_tests_passed": 43,
+    "fixed_legacy_build_exit_code": 0,
+    "Python_tests_run": 212,
+    "successful_test_methods": 211,
+    "failing_test_methods": 1,
+    "failing_subtests": 2,
+    "Python_errors": 0,
+    "Python_skipped": [],
+    "failure_details": [
+      {
+        "test_id": "test_native_host.NativeHostLifecycleTests.test_closed_pipe_before_exit_retains_both_injected_exit_codes (exit_code=17)",
+        "error": "AssertionError: b'closed\\r\\n' != b'closed\\n'"
+      },
+      {
+        "test_id": "test_native_host.NativeHostLifecycleTests.test_closed_pipe_before_exit_retains_both_injected_exit_codes (exit_code=18)",
+        "error": "AssertionError: b'closed\\r\\n' != b'closed\\n'"
+      }
+    ],
+    "previous_two_original_native_fault_restart_tests_passed": true,
+    "native_smoke_and_resources_not_executed": true
+  },
+  "comparison": {
+    "status": "passed",
+    "cases": 561,
+    "golden": 53,
+    "sha256": "9d99c86e4de0dcaa50108faa02f995e54a4a74ef6675977e299e234913b23507",
+    "byte_equal_reused_asset": "docs/verification/P06-03-windows-comparisons-01.json"
+  },
+  "root_cause": {
+    "introduced_by": "2fe9da5548e81ea8712b3ec649f9a162a96c1cbf new lifecycle test",
+    "observed": "The new fixture prints a text readiness line. Windows translates its newline to CRLF; the assertion accepted only LF. Both exit-code subtests fail before invoking host.stop. The original real Rust fault/restart tests now pass.",
+    "repair": "Accept exactly the same readiness token with either LF or CRLF. Exercise both actual text newline translations in real child processes for each exit code, without spoofing the platform. Leave child stdin closure, stop call, exit-code/reaped-process/closed-stream assertions intact.",
+    "same_root_review": "Reviewed readline/byte-newline assertions in native fixture, native/checker tests and protocol/resource/reference-host harness. Other readiness consumers use JSON decoding or splitlines; HTTP CRLF is intentional protocol syntax; graceful stdin is text mode. No further same-root match found.",
+    "scope": "Only tests/test_native_host.py executable code changed; product code, shutdown fix and validation gates unchanged."
+  },
+  "repair_validation": {
+    "platform": "Linux auxiliary, not Windows acceptance",
+    "before_fix_command": "PYTHONPATH=.:tools:tests python -m unittest test_native_host.NativeHostLifecycleTests.test_closed_pipe_before_exit_retains_both_injected_exit_codes -v",
+    "before_fix_log": "test_closed_pipe_before_exit_retains_both_injected_exit_codes (test_native_host.NativeHostLifecycleTests.test_closed_pipe_before_exit_retains_both_injected_exit_codes) ... \n  test_closed_pipe_before_exit_retains_both_injected_exit_codes (test_native_host.NativeHostLifecycleTests.test_closed_pipe_before_exit_retains_both_injected_exit_codes) (exit_code=17, newline=\"'\\\\r\\\\n'\") ... FAIL\n  test_closed_pipe_before_exit_retains_both_injected_exit_codes (test_native_host.NativeHostLifecycleTests.test_closed_pipe_before_exit_retains_both_injected_exit_codes) (exit_code=18, newline=\"'\\\\r\\\\n'\") ... FAIL\n\n======================================================================\nFAIL: test_closed_pipe_before_exit_retains_both_injected_exit_codes (test_native_host.NativeHostLifecycleTests.test_closed_pipe_before_exit_retains_both_injected_exit_codes) (exit_code=17, newline=\"'\\\\r\\\\n'\")\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/workspace/scratch/7a12e3cfd885/repo777/tests/test_native_host.py\", line 242, in test_closed_pipe_before_exit_retains_both_injected_exit_codes\n    self.assertEqual(process.stdout.readline(), b'closed\\n')\nAssertionError: b'closed\\r\\n' != b'closed\\n'\n\n======================================================================\nFAIL: test_closed_pipe_before_exit_retains_both_injected_exit_codes (test_native_host.NativeHostLifecycleTests.test_closed_pipe_before_exit_retains_both_injected_exit_codes) (exit_code=18, newline=\"'\\\\r\\\\n'\")\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/workspace/scratch/7a12e3cfd885/repo777/tests/test_native_host.py\", line 242, in test_closed_pipe_before_exit_retains_both_injected_exit_codes\n    self.assertEqual(process.stdout.readline(), b'closed\\n')\nAssertionError: b'closed\\r\\n' != b'closed\\n'\n\n----------------------------------------------------------------------\nRan 1 test in 0.252s\n\nFAILED (failures=2)\n",
+    "after_fix_command": "PYTHONPATH=.:tools:tests python -m unittest test_native_host.NativeHostLifecycleTests -v",
+    "after_fix_log": "test_already_exited_child_is_reaped_and_repeated_stop_is_safe (test_native_host.NativeHostLifecycleTests.test_already_exited_child_is_reaped_and_repeated_stop_is_safe) ... ok\ntest_closed_pipe_before_exit_retains_both_injected_exit_codes (test_native_host.NativeHostLifecycleTests.test_closed_pipe_before_exit_retains_both_injected_exit_codes) ... ok\ntest_graceful_stop_sends_newline_and_reaps_child (test_native_host.NativeHostLifecycleTests.test_graceful_stop_sends_newline_and_reaps_child) ... ok\ntest_timeout_retains_process_and_sandbox_for_diagnosis (test_native_host.NativeHostLifecycleTests.test_timeout_retains_process_and_sandbox_for_diagnosis) ... ok\ntest_unexpected_exit_is_not_silenced_by_pipe_cleanup (test_native_host.NativeHostLifecycleTests.test_unexpected_exit_is_not_silenced_by_pipe_cleanup) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.495s\n\nOK\n",
+    "tests_run": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "explicit_closed_pipe_combinations": {
+      "exit_codes": [
+        17,
+        18
+      ],
+      "line_endings": [
+        "LF",
+        "CRLF"
+      ]
+    },
+    "current_CI_tests": 212,
+    "fingerprints": 128,
+    "broader_checks_not_repeated": "Only a readiness assertion and its explicit newline cases changed; prior real Windows 211 successful methods, Rust/compare/build evidence retained. Subsequent native protocol/resources remain Windows pending."
+  },
+  "acceptance": {
+    "P06_04": "pending_Windows_CI_local_GUI_and_user_acceptance",
+    "P07_P08": "not_started",
+    "production_paths_accessed": false
+  }
+}
