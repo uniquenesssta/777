@@ -1,0 +1,15 @@
+{
+  "task": "P06-04",
+  "status": "accepted_by_user",
+  "accepted_at": "2026-10-14T14:32:51+08:00",
+  "user_instruction": "收尾04",
+  "source_commit": "556482386d97912c2dc6053dd4aee4fe6d6b765d",
+  "evidence_commit": "b1b7407fcf69ac8b039f483d7c2bd591cc5731ad",
+  "evidence": "P06-04-windows-evidence-01.json",
+  "original_report": "P06-04-windows-report-01.json",
+  "phase_branch": "stage/p06-rust-core",
+  "decision": "按已核对128指纹、Windows CI及本机212专项/43 Rust/561对照、原母子窗口/DPAPI/ACL/系统CJK图片/v4恢复和200单资源资料收尾04；原成功、失败及辅助报告保持，无需重跑。",
+  "scope": "Windows isolated standalone Rust HTTPS host with compatible original clients, native formats, receipt recovery and full restore; no installed service or production cutover",
+  "next_task": null,
+  "P07_P08_started": false
+}

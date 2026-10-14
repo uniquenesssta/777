@@ -120,3 +120,6 @@ Rust保持ledger-v1、business-v1、numeric-v1与现有认证边界；接替[输
 quote-host负责TLS/当前会话鉴权/API/查询/队列与原生完整恢复，直接依赖quote-ledger→quote-core和quote-excel；HTTP调用不再派生财务worker或运行Python。SQLite账本仍是唯一财务来源，auth/输出为原辅助库；慢输出IO在派发锁外进行。原owner锁和明确宿主配置阻断并行监听，v4增加可恢复宿主资源；旧Python入口仅按登记程序转交运行，旧维护/验证工具保持。详见[04契约](verification/P06-04-host-contract.md)。
 
 PNG使用有字形检查的fontdue/png与Windows现有CJK字体，系统字体不随包分发；CI只下载固定OFL临时字体。Windows CI只做本轮核心/合成链路，不操作真实数据或安装字体。资源比较单独说明主进程/工作负载范围，不能由Rust构建推断SMB、整应用内存或安装包体积。Tauri/界面/安装包仍归P07，真实切换归P08，未提前启动。
+
+
+P06已按用户2026-10-14“收尾04”[全部验收](verification/P06-acceptance.json)：Rust核心/账本/原生Excel及独立HTTPS宿主交付完成，Windows原母子客户端、DPAPI/ACL/系统图片/v4恢复和资源核对通过。上方逐项开发状态为历史；界面、Windows安装与真实部署/迁移继续由P07/P08按授权实施，本轮未启动。

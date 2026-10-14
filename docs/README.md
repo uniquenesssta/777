@@ -1,16 +1,16 @@
 # 文档与计划入口
 
-日期：2026-10-14（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；当前执行分支：`stage/p06-rust-core`；P01收尾提交：`7099303`。
+日期：2026-10-14（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；当前保留分支：`stage/p06-rust-core`（阶段已收尾）；P01收尾提交：`7099303`。
 
 ## 当前状态
 
 | 项目 | 状态 |
 | --- | --- |
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
-| 本轮授权 | 用户2026-10-14 02:38:15“收尾03 开始04”；14:19:17回传本机通过资料；既有推送授权有效 |
-| 文档工作 | [P06-03验收](verification/P06-03-acceptance.json)、[P06-04辅助证据](verification/P06-04-checks.json)及[P06-04 Windows本机与CI通过证据](verification/P06-04-windows-evidence-01.json)已登记；原Windows、比较及辅助报告保持 |
-| 当前开发阶段 / Atomic Task | P06-01/02/03已验收，P06-04[独立Rust宿主](verification/P06-04-host-contract.md)已完成Windows CI及本机隔离核对：[原报告与证据](verification/P06-04-windows-evidence-01.json)确认5564823的128指纹、212专项、43 Rust和561对照全部匹配，原母子窗口/DPAPI/权限/系统CJK图片/v4恢复通过。200单同机测量的计算p95为49.31→8.08ms，查询13.60→7.27ms，采样主进程resident为38.0→11.2MB；原失败资料保持。P06具备收尾条件待用户确认，无需重跑；P07/P08未启动。 |
-| 下一项 | P06-04已具备收尾条件，待用户确认；已通过检查无需重跑，P07/P08未启动 |
+| 本轮授权 | 用户2026-10-14 14:32:51“收尾04”；本轮仅归档P06，既有推送授权有效 |
+| 文档工作 | [P06阶段验收](verification/P06-acceptance.json)与[P06-04验收](verification/P06-04-acceptance.json)已登记，任务书移入old；原Windows、比较及辅助报告保持 |
+| 当前开发阶段 / Atomic Task | P06-01至04已按用户“收尾04”[全部验收归档](verification/P06-acceptance.json)，任务书位于[old/P06](old/P06-rust-core.md)。[Windows本机与CI证据](verification/P06-04-windows-evidence-01.json)及全部历史资料保持，已通过检查无需重跑。当前分支保留stage/p06-rust-core，P07/P08待授权，真实部署与生产切换交接后续。 |
+| 下一项 | P07/P08待对应授权；已通过检查无需重跑，本轮未启动下一阶段 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 

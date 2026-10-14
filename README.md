@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P06-01/02/03已验收，P06-04[独立Rust宿主](docs/verification/P06-04-host-contract.md)已完成Windows CI及本机隔离核对：[原报告与证据](docs/verification/P06-04-windows-evidence-01.json)确认5564823的128指纹、212专项、43 Rust和561对照全部匹配，原母子窗口/DPAPI/权限/系统CJK图片/v4恢复通过。200单同机测量的计算p95为49.31→8.08ms，查询13.60→7.27ms，采样主进程resident为38.0→11.2MB；原失败资料保持。P06具备收尾条件待用户确认，无需重跑；P07/P08未启动。
+P06-01至04已按用户“收尾04”[全部验收归档](docs/verification/P06-acceptance.json)，任务书位于[old/P06](docs/old/P06-rust-core.md)。[Windows本机与CI证据](docs/verification/P06-04-windows-evidence-01.json)及全部历史资料保持，已通过检查无需重跑。当前分支保留stage/p06-rust-core，P07/P08待授权，真实部署与生产切换交接后续。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -17,7 +17,7 @@ P06-01/02/03已验收，P06-04[独立Rust宿主](docs/verification/P06-04-host-c
 - [P03-03 Windows本机复查通过](docs/verification/P03-03-windows-evidence.json)
 - [P03-04订单备注、作废恢复与Windows一键检查](docs/verification/P03-04-order-contract.md)
 - [P03-04 Windows本机复查通过](docs/verification/P03-04-windows-evidence.json)
-- [当前P06 Rust领域核心任务书](docs/now/P06-rust-core.md)
+- [P06 Rust领域核心归档任务书](docs/old/P06-rust-core.md)
 - [P06-01契约与Windows运行步骤](docs/verification/P06-01-core-contract.md)
 - [P05数据与服务归档任务书](docs/old/P05-data-service.md)
 - [P04-01后台任务契约与Windows入口](docs/verification/P04-01-background-contract.md)
@@ -36,6 +36,8 @@ P06-01/02/03已验收，P06-04[独立Rust宿主](docs/verification/P06-04-host-c
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 用户“收尾04”：登记[P06-04验收](docs/verification/P06-04-acceptance.json)及[P06阶段验收](docs/verification/P06-acceptance.json)，四项交付完成，任务书now→old；Windows CI/本机原报告与全部历史资料保持，无需重跑通过检查。本轮仅收尾，P07/P08待授权，后续界面/安装/真实部署与生产迁移交接保持。
 
 - P06-04 Windows CI及本机隔离核对通过：128项源码指纹、212专项/43 Rust/561精确对照一致，原母子窗口、原生DPAPI/ACL/系统CJK图片及v4完整恢复通过。[原报告与核对](docs/verification/P06-04-windows-evidence-01.json)按字节保存；200单计算/查询p95分别49.31→8.08ms、13.60→7.27ms，采样主进程resident约38.0→11.2MB。已通过检查无需重跑，P06具备收尾条件待用户确认，P07/P08未启动，真实部署/安装与历史切换留后续。
 

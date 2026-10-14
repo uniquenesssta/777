@@ -1,0 +1,34 @@
+{
+  "phase": "P06",
+  "status": "accepted_by_user",
+  "accepted_at": "2026-10-14T14:32:51+08:00",
+  "user_instruction": "收尾04",
+  "phase_branch": "stage/p06-rust-core",
+  "source_commit": "556482386d97912c2dc6053dd4aee4fe6d6b765d",
+  "evidence_commit": "b1b7407fcf69ac8b039f483d7c2bd591cc5731ad",
+  "atomic_acceptances": [
+    "P06-01-acceptance.json",
+    "P06-02-acceptance.json",
+    "P06-03-acceptance.json",
+    "P06-04-acceptance.json"
+  ],
+  "accepted_deliveries": [
+    "Rust exact business core and shared rules",
+    "native ledger and authenticated protocol adapters",
+    "native Excel reader/output with legacy compatibility",
+    "standalone Rust HTTPS host, Windows original-client rehearsal, recovery and reproducible resources"
+  ],
+  "latest_evidence": "P06-04-windows-evidence-01.json",
+  "archived_plan": "docs/old/P06-rust-core.md",
+  "decision": "四项已验收，归档P06任务书；本轮只收尾，不启动P07/P08或建立下一阶段分支。",
+  "carry_forward": [
+    "P07: 按用户指定UI设计实施Tauri界面及端到端角色链路",
+    "P07: Windows安装包/WebView2/非管理员启动/升级卸载/DPI与真实桌面验收",
+    "后续部署: 192.168.4.38常驻服务身份、真实E盘备份ACL和多客户端共享访问",
+    "P08: 真实历史只读识别、副本对账、恢复演练与生产切换"
+  ],
+  "production_cutover": false,
+  "P07_P08_started": false,
+  "historical_reports_unchanged": true,
+  "successful_checks_need_not_be_repeated": true
+}

@@ -1,6 +1,6 @@
 # P06 Rust领域核心与存储/服务适配
 
-状态：P06-01/02/03已验收，P06-04技术核对通过、待用户验收。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02已按[用户接续](../verification/P06-02-acceptance.json)验收，原Windows证据保持；P06-03已按[用户接续](../verification/P06-03-acceptance.json)验收；P06-04从89f7138按[启动记录](../verification/P06-04-start.json)执行，独立Rust宿主已实现，原656完整辅助保持；[Windows本机与CI通过证据](../verification/P06-04-windows-evidence-01.json)已核对128指纹、212专项/43 Rust/561对照、原窗口/DPAPI/ACL/系统图片/v4恢复及资源；具备收尾条件待用户确认，无需重跑。
+状态：已验收归档。用户2026-10-14 14:32:51（Asia/Shanghai）“收尾04”确认[P06-04验收](../verification/P06-04-acceptance.json)，四项交付已按[P06阶段验收](../verification/P06-acceptance.json)收尾。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02已按[用户接续](../verification/P06-02-acceptance.json)验收，原Windows证据保持；P06-03已按[用户接续](../verification/P06-03-acceptance.json)验收；P06-04从89f7138按[启动记录](../verification/P06-04-start.json)执行，独立Rust宿主已实现，原656完整辅助保持；[Windows本机与CI通过证据](../verification/P06-04-windows-evidence-01.json)已核对128指纹、212专项/43 Rust/561对照、原窗口/DPAPI/ACL/系统图片/v4恢复及资源；已按本轮用户确认收尾，无需重跑。
 
 P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。P01已按[批准记录](../baseline/p01-acceptance.json)采纳numeric-v1/performance-v1，历史候选/黄金元数据保留并映射；实施时读取同一黄金JSON，不复制期望。当前01按同一资产开展影子核对。
 
@@ -154,3 +154,10 @@ Windows临时主机覆盖Rust原生读取/导入重放/新报表、独立读取�
 本次Windows测量没有出现原辅助环境约45ms的查询尾延迟，但不删除原辅助观测或推广到所有负载。10ms采样仅计宿主主进程，不含短命worker/客户端，不能当作应用整体内存或安装包体积；执行文件只有报告SHA，未上传或独立检查二进制。
 
 P06-04技术门槛已满足，P06具备收尾条件待用户确认；保留now，不提前启动P07/P08。无需重跑已通过入口；真实主机/E盘共享部署、安装包/Tauri界面与真实历史切换仍按后续任务授权实施。
+
+
+## P06收尾与归档
+
+用户2026-10-14 14:32:51“收尾04”已确认[P06-04](../verification/P06-04-acceptance.json)；01/02/03原验收保持，P06四项按[阶段验收](../verification/P06-acceptance.json)全部收尾，任务书now→old。上方开发/失败/待验收段落保留当时事实，本段与阶段验收为最终状态。
+
+原成功/失败/辅助资料按原字节保留，已通过检查无需重跑。后续Tauri界面/Windows安装交付与真实主机/E盘/多客户端部署、历史源对账/生产切换按对应阶段授权继续；本次未启动P07/P08，也未创建下一阶段分支。
