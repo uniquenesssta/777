@@ -1,0 +1,18 @@
+test_child_holding_output_open_does_not_delay_parent_exit_with_file_log (test_p07_native_window.NativeWindowTests.test_child_holding_output_open_does_not_delay_parent_exit_with_file_log) ... ok
+test_close_posts_once_to_main_and_requires_natural_zero_exit (test_p07_native_window.NativeWindowTests.test_close_posts_once_to_main_and_requires_natural_zero_exit) ... ok
+test_main_retains_completed_interactions_when_later_close_fails (test_p07_native_window.NativeWindowTests.test_main_retains_completed_interactions_when_later_close_fails) ... ok
+test_missing_ambiguous_and_reused_handles_never_receive_close (test_p07_native_window.NativeWindowTests.test_missing_ambiguous_and_reused_handles_never_receive_close) ... ok
+test_old_pipe_communicate_can_time_out_after_parent_already_exited (test_p07_native_window.NativeWindowTests.test_old_pipe_communicate_can_time_out_after_parent_already_exited) ... ok
+test_only_visible_owned_main_is_selected_even_when_helper_is_marked_visible (test_p07_native_window.NativeWindowTests.test_only_visible_owned_main_is_selected_even_when_helper_is_marked_visible) ... ok
+test_outside_path_and_nontransient_errors_are_not_retried (test_p07_native_window.NativeWindowTests.test_outside_path_and_nontransient_errors_are_not_retried) ... ok
+test_permanent_lock_stays_failed_with_retained_path_and_bounded_wait (test_p07_native_window.NativeWindowTests.test_permanent_lock_stays_failed_with_retained_path_and_bounded_wait) ... ok
+test_real_win32_main_closes_while_visible_event_helper_is_untouched (test_p07_native_window.NativeWindowTests.test_real_win32_main_closes_while_visible_event_helper_is_untouched) ... skipped 'requires real Win32 windows; not native Tauri acceptance'
+test_real_win32_sharing_lock_is_retried_until_handle_releases (test_p07_native_window.NativeWindowTests.test_real_win32_sharing_lock_is_retried_until_handle_releases) ... skipped 'requires actual Windows file sharing semantics'
+test_sandbox_retries_transient_lock_after_partial_removal_then_requires_complete_cleanup (test_p07_native_window.NativeWindowTests.test_sandbox_retries_transient_lock_after_partial_removal_then_requires_complete_cleanup) ... ok
+test_timeout_nonzero_exit_and_post_failure_keep_distinct_diagnostics (test_p07_native_window.NativeWindowTests.test_timeout_nonzero_exit_and_post_failure_keep_distinct_diagnostics) ... ok
+test_unmarked_profile_and_nonfixture_root_never_start_cleanup (test_p07_native_window.NativeWindowTests.test_unmarked_profile_and_nonfixture_root_never_start_cleanup) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.571s
+
+OK (skipped=2)

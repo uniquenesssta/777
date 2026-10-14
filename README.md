@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。当前P07-01已实现，生产协议/内嵌资源经Windows CI及本机03通过；本机原生交互命令返回0，关闭阶段超时，已修正关闭工具，待新CI/本机04与用户视觉交互验收；P07-02至04/P08未启动。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
+P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。当前P07-01已实现，本机04生产页面、10项协议、原生交互和主窗口自然退出通过；临时WebView2目录删除失败，已补清理等待，待新CI/本机05和用户视觉交互验收；P07-02至04/P08未启动。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -37,6 +37,8 @@ P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-ta
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P07-01临时目录清理修复：[本机04](docs/verification/P07-01-windows-evidence-04.json)确认真实交互和主窗口自然退出通过（0.031秒/码0/无强制终止），剩余失败为删除WebView2 BrowserMetrics文件时WinError5。现仅在本轮已标记临时根内等待/重试占用释放，限20秒，目录实际删除才通过；分项诊断保留，清理错误不覆盖原流程错误。[专项检查](docs/verification/P07-01-cleanup-checks.json)保存，22项辅助通过、2项Windows专属留新CI；本机用新05目录复验清理，01不收尾。
 
 - P07-01原生关闭工具修复：本机03已确认生产页面和10项协议通过，交互命令返回0后关闭超时；旧工具误向所属PID全部顶层窗口发送WM_CLOSE，包含Tao事件辅助窗口。现唯一定位主窗口、核验投递/自然退出，日志文件与进程等待分离；失败保留交互、关闭及强制清理的独立结果。[原回传](docs/verification/P07-01-windows-evidence-03.json)和[修复检查](docs/verification/P07-01-close-checks.json)保存。辅助18项通过、1项真实Win32夹具待新Windows CI；新CI同时执行实际Tauri/WebView2交互与自然退出，原release修复[CI已通过](docs/verification/P07-01-ci-evidence-03.json)，本机用新04目录复验，01不收尾。
 

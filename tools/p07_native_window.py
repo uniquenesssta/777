@@ -1,10 +1,12 @@
 """Close only the owned visible app window; measure exit independently of log EOF."""
 import ctypes
 from ctypes import wintypes
+import errno
 import json
 import os
 from pathlib import Path
 import subprocess
+import tempfile
 import time
 
 
@@ -95,6 +97,7 @@ def close_window(process, title, diagnostic, *, windows=None, timeout=30):
         target = main_window(record['windows_before'], process.pid, title)
         record['target'] = target
         save()
+
         # Recheck ownership/title immediately before posting; do not target a reused HWND.
         current = main_window(windows.owned(process.pid), process.pid, title)
         if current['hwnd'] != target['hwnd']:
@@ -123,4 +126,66 @@ def close_window(process, title, diagnostic, *, windows=None, timeout=30):
             record['windows_after'] = windows.owned(process.pid)
         except Exception as error:
             record['enumeration_after_error'] = str(error)
+        save()
+
+
+def cleanup_webview_sandbox(scenario, diagnostic, *, timeout=20):
+    """Wait for transient WebView2 UDF locks in this marked, owned temp root.
+
+    Closing the desktop parent does not mean the browser has released its UDF.
+    Retry deletion only inside this fixture; no process-name kills, ignored
+    errors or cleanup of a real application profile.
+    """
+    root = Path(scenario.host.root)
+    root_absolute = Path(os.path.abspath(root))
+    profile = Path(scenario.profile)
+    start = time.monotonic()
+    record = dict(status='checking', timeout_seconds=timeout, attempts=0, transient_errors=[],
+                  sandbox_cleaned=False, forced_browser_termination=False)
+
+    def save():
+        record['elapsed_seconds'] = round(time.monotonic() - start, 3)
+        Path(diagnostic).write_text(json.dumps(record, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+    try:
+        # Validate before the first deletion; later retries can see a partly removed root.
+        if (root != Path(scenario.host.temp.name) or root.parent.resolve() != Path(tempfile.gettempdir()).resolve()
+                or not root.name.startswith('777-p06-native-host-') or root.is_symlink()
+                or profile != root / 'desktop' or profile.resolve().parent != root.resolve()
+                or json.loads((profile / '777-isolated-profile.json').read_text(encoding='utf-8')) != {'production': False}):
+            raise RuntimeError('OWNED_WEBVIEW_SANDBOX_REQUIRED')
+        record['temporary_root'] = str(root)
+        record['status'] = 'waiting_for_profile_release'
+        save()
+        while True:
+            record['attempts'] += 1
+            try:
+                # stop_bridge/host.stop are idempotent; the stopped host cannot
+                # restart or write new data while TemporaryDirectory is retried.
+                scenario.close()
+                if root.exists():
+                    raise RuntimeError('NATIVE_SANDBOX_REMAINS_AFTER_CLEANUP')
+                record.update(status='passed', sandbox_cleaned=True)
+                return record
+            except OSError as error:
+                # abspath normalizes '..' without trying to reopen the locked file.
+                filename = Path(os.path.abspath(os.fsdecode(error.filename))) if error.filename is not None else None
+                in_sandbox = filename is not None and filename.is_relative_to(root_absolute)
+                transient = (getattr(error, 'winerror', None) in (5, 32, 33, 145)
+                             or error.errno in (errno.EACCES, errno.EBUSY, errno.ENOTEMPTY))
+                if not in_sandbox or not transient:
+                    raise
+                record['transient_errors'].append(dict(type=type(error).__name__, errno=error.errno,
+                                                      winerror=getattr(error, 'winerror', None),
+                                                      path=str(filename.relative_to(root_absolute))))
+                save()
+                remaining = timeout - (time.monotonic() - start)
+                if remaining <= 0:
+                    raise RuntimeError('NATIVE_WEBVIEW_PROFILE_RELEASE_TIMEOUT: temporary sandbox retained') from error
+                time.sleep(min(.2, remaining))
+    except BaseException as error:
+        record['status'] = 'interrupted' if isinstance(error, KeyboardInterrupt) else 'failed'
+        record['failure'] = type(error).__name__ + ': ' + str(error)
+        raise
+    finally:
         save()

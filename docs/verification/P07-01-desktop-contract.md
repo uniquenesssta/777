@@ -61,7 +61,7 @@ py -3 -m pip install -r requirements-baseline.txt -r requirements-service.txt
 if ($LASTEXITCODE -ne 0) { throw '验证依赖失败' }
 py -3 tools/p07_desktop_check.py --preflight --output reports/p07-01-preflight-01
 if ($LASTEXITCODE -ne 0) { throw '环境预检未通过，按报告补齐环境后再运行' }
-py -3 tools/p07_desktop_check.py --windows-smoke --jobs 1 --output reports/p07-01-windows-04
+py -3 tools/p07_desktop_check.py --windows-smoke --jobs 1 --output reports/p07-01-windows-05
 ```
 
 已在P07分支时只需`git pull --ff-only`，不要重复创建本地分支。工具先查已安装的Node/npm/固定Rust工具链、MSVC/SDK/WebView2与Python模块；缺失时给出补齐步骤并停止，不静默下载编译器。然后显式安装前端锁定依赖、`cargo fetch --locked`下载Rust crate，再构建所需release；最后创建临时Rust宿主/账户/订单/DPAPI profile；实际Tauri WebView2登录→报价→提交→销售隔离→退出并清理。本机窗口模式复用CI完整检查，不重复Clippy/debug测试构建或浏览器；CI/辅助完整模式仍执行全部原门槛。测试字体仅供完整模式的浏览器辅助，按已有固定hash下载，不安装系统字体。报告及原生截图保存在指定新目录；勿重用已存在目录。失败时保留report.json，不需从旧阶段重新跑。
@@ -83,7 +83,7 @@ Rust依赖已在Cargo.toml/Cargo.lock中声明，源码仓库不携带整个Carg
 
 本机`--windows-smoke`保留release构建、10项真实协议及实际Tauri WebView2窗口验证，完整fmt/严格Clippy/Rust及前端单元/浏览器验证继续由`--ci-checks`执行；本次工具修复同时把实际原生窗口链路加入Windows CI，避免只测构建/浏览器而漏掉退出问题。运行时Ctrl+C记录interrupted/退出码130并停止所属PID进程树，日志和partial报告保留；超时同样保留当前步骤。不会按进程名称终止机器上其他cargo/rustc或其他项目。
 
-原本机01/03目录不覆盖，当前关闭工具修复后使用上方新的04目录；无需删除Cargo缓存，之前成功编译的依赖可以复用。工具的Windows原生行为需CI/本机分别核对，辅助结果不能替代Windows实测。[本机入口修复证据](P07-01-runner-checks.json)保持。
+原本机01/03/04目录不覆盖，当前临时目录清理修复后使用上方新的05目录；无需删除Cargo缓存，之前成功编译的依赖可以复用。工具的Windows原生行为需CI/本机分别核对，辅助结果不能替代Windows实测。[本机入口修复证据](P07-01-runner-checks.json)保持。
 
 
 Node兼容纠正：用户现有Node为22大版本。当前锁定Vite 8.3.4/Rolldown 1.2.13的实际`engines.node`及[Vite 8官方说明](https://v8.vite.dev/guide/)要求22.12+，其他锁定运行/开发依赖没有24下限。项目自身先前的`>=24.0.0`是过严限制，现将package.json、lock根元数据和预检统一为`>=22.12.0`，不改任何依赖版本/integrity。预检会显示真实完整版本；22.12及更新的22版本无需改用24，低于22.12时明确提示在22系列内补齐兼容版本。辅助实际使用官方SHA256核对的Node 22.12.0/npm 10.9.0运行完整流程；新CI采用从官方index核实的22.23.3/npm 10.9.9。此前Node 24的成功报告保留为原环境证据。
@@ -105,19 +105,29 @@ Cargo默认现在启用`custom-protocol = ["tauri/custom-protocol"]`；验证rel
 
 用户03[完整控制台原文](P07-01-windows-console-03.txt)显示：已拉取d9b4766，release exe内嵌index/JS/CSS并使用生产协议，10项真实Rust HTTPS/DPAPI检查通过，WebView2来源为`http://tauri.localhost/`，Node原生交互命令返回0；之后`communicate(timeout=30)`超时。末尾控制台摘要已另存[报告节选](P07-01-windows-report-03.json)，未取得完整report.json、源码指纹、native-webview.json或截图；原文worktree_dirty=true保持，不能补写干净源码或完整本机验收。
 
-原脚本向该PID下所有顶层窗口发送WM_CLOSE。锁定[tao 0.37.1源文件](https://github.com/tauri-apps/tao/blob/37b7e8bc90a050e93be988df636f322c3ef147b6/src/platform_impl/windows/event_loop.rs)中的`create_event_target_window`创建`Tao Thread Event Target`：它也是顶层窗口，且技术上带WS_VISIBLE，实际没有标题/可见区域；`thread_event_target_callback`对WM_CLOSE落入DefWindowProc，可能先破坏后续应用事件分发。只加IsWindowVisible不足以排除它。旧工具没记录枚举/消息投递/父进程状态，因此此次超时究竟停在何处不可从日志完整重建。
+原脚本向该PID下所有顶层窗口发送WM_CLOSE。锁定[tao 0.37.1源文件](https://github.com/tauri-apps/tao/blob/37b7e8bc90a050e93be988df636f322c3ef147b6/src/platform_impl/windows/event_loop.rs)中的`create_event_target_window`创建`Tao Thread Event Target`：它也是顶层窗口，技术上带WS_VISIBLE，初始设置零尺寸/无标题；本机04实际枚举为16×16，所以可见性/面积均不能单独排除它。`thread_event_target_callback`对WM_CLOSE落入DefWindowProc，可能先破坏后续应用事件分发。旧工具没记录枚举/消息投递/父进程状态，因此03超时究竟停在何处不可从日志完整重建。
 
 关闭验证现由`tools/p07_native_window.py`负责：以所属PID、配置中的主窗口标题、可见性和正面积唯一选中主HWND，排除事件辅助类；发送前重验所属/标题/句柄，检查PostMessage返回值，只发送一次。界面交互先等订单刷新按钮恢复可用；应用原有在途请求关闭保护不改。随后只等待桌面父进程自然退出且码0，超时/非零/无窗口/多匹配/消息失败均不通过，绝不靠kill取得通过。
 
 桌面stdout/stderr改为普通日志文件，避免WebView2后代继承管道导致`communicate`等待EOF，混淆“父进程未退”和“输出尚未结束”；此机制有真实子进程回归，但不能反推用户本次一定由管道造成。`native-window-close.json`记录窗口清单、目标、投递与退出；`native-window-process.log`保存宿主输出；`native-window-cleanup.json`单独记录失败后的所属进程树强制清理。交互结果和关闭结果均汇入最终report，后者失败不再抹去前者。
 
-[关闭修复检查](P07-01-close-checks.json)区分辅助回归、实际Win32窗口夹具（新Windows CI执行）与实际Tauri窗口（新CI及本机04待执行），不混记验收。P07-01留now，不启动02至04/P08。已在该分支的复验命令：
+[关闭修复检查](P07-01-close-checks.json)保持；本机04已确认实际Tauri交互/自然退出通过，剩余临时目录清理失败见下节。P07-01留now，不启动02至04/P08。已在该分支的复验命令：
 
 ```powershell
 & {
     git pull --ff-only
     if ($LASTEXITCODE -ne 0) { throw '拉取失败，已停止' }
-    py -3 tools/p07_desktop_check.py --windows-smoke --jobs 1 --output reports/p07-01-windows-04
+    py -3 tools/p07_desktop_check.py --windows-smoke --jobs 1 --output reports/p07-01-windows-05
     if ($LASTEXITCODE -ne 0) { throw '桌面验证未通过，保留报告后停止' }
 }
 ```
+
+## WebView2临时目录释放等待
+
+[本机04原文与核对](P07-01-windows-evidence-04.json)显示：生产页面、10项协议、真实Tauri/WebView2交互全部通过；主窗口在0.031秒内自然退出，码0，无强制终止。随后`TemporaryDirectory.cleanup()`删除`desktop/webview2/EBWebView/BrowserMetrics/*.pma`时遇到WinError5。完整report.json/本机源码指纹未附，worktree_dirty=true保留；控制台已有交互与退出分项通过，不能再归为窗口关不掉。
+
+这是临时目录清理时序的问题；[微软用户数据目录文档](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/user-data-folder#delete-user-data-folders)说明宿主关闭后文件仍可能被浏览器进程占用，需要等待资源释放。当前工具在关闭/停止自身临时宿主后，对本轮生成的临时目录限时20秒、每0.2秒重试暂时性占用删除；不改应用关闭行为，不终止机器上其他WebView2/Edge进程。
+
+开始删除前核对TemporaryDirectory对象路径、系统临时父目录/随机前缀、desktop profile和`production:false`标记；错误路径必须位于该临时根内，其他错误立即保留失败。允许前次删除已经移除标记的重试，直到根目录实际不存在才记清理通过。超时保留失败与临时根，不使用ignore_errors。`native-sandbox-cleanup.json`单独记录尝试、错误码/相对路径和耗时，最终报告保留交互、关闭、进程清理和目录清理的独立状态；清理异常不覆盖已经存在的首个流程异常，用户中断保持中断。
+
+[专项证据](P07-01-cleanup-checks.json)包含24项合并回归（22通过、2项Windows专属待CI）；锁定路径处理和夹具时序改进后13项相关回归（11通过、同2项待CI）通过。新CI继续执行真实Win32窗口与文件占用检查，以及完整Tauri/WebView2链路；本机新05复验临时目录完整清理，已通过的交互/自然退出证据保持，01尚未收尾。

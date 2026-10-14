@@ -1,5 +1,6 @@
 """Regression for main HWND selection, natural exit and retained close failures."""
 from contextlib import redirect_stdout
+import errno
 import io
 import json
 import os
@@ -7,14 +8,16 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import threading
 import time
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 import p07_desktop_check as desktop
-from p07_native_window import Windows, close_window, main_window
+from p07_native_window import Windows, close_window, main_window, cleanup_webview_sandbox
 
 
 def window(hwnd, **changes):
@@ -34,6 +37,144 @@ class SimulatedWindows:
 
 
 class NativeWindowTests(unittest.TestCase):
+    def scenario(self, temp):
+        root = Path(temp.name)
+        profile = root / 'desktop'
+        profile.mkdir()
+        (profile / '777-isolated-profile.json').write_text('{"production":false}', encoding='utf-8')
+        metrics = profile / 'webview2/EBWebView/BrowserMetrics/test.pma'
+        metrics.parent.mkdir(parents=True)
+        metrics.write_text('temporary metrics', encoding='utf-8')
+        return SimpleNamespace(host=SimpleNamespace(root=root, temp=temp), profile=profile, close=temp.cleanup), metrics
+
+    def test_sandbox_retries_transient_lock_after_partial_removal_then_requires_complete_cleanup(self):
+        temp = tempfile.TemporaryDirectory(prefix='777-p06-native-host-')
+        try:
+            scenario, metrics = self.scenario(temp)
+            with tempfile.TemporaryDirectory() as output:
+                error = PermissionError(errno.EACCES, 'held by browser', str(metrics))
+                error.winerror = 5
+                attempts = 0
+
+                def close():
+                    nonlocal attempts
+                    attempts += 1
+                    if attempts == 1:
+                        (scenario.profile / '777-isolated-profile.json').unlink()
+                        raise error
+                    temp.cleanup()
+
+                scenario.close = close
+                result = cleanup_webview_sandbox(scenario, Path(output) / 'cleanup.json')
+                self.assertEqual(result['attempts'], 2)
+                self.assertEqual(result['status'], 'passed')
+                self.assertTrue(result['sandbox_cleaned'])
+                self.assertFalse(result['forced_browser_termination'])
+                self.assertFalse(Path(temp.name).exists())
+                self.assertEqual(result['transient_errors'][0]['winerror'], 5)
+        finally:
+            temp.cleanup()
+
+    def test_permanent_lock_stays_failed_with_retained_path_and_bounded_wait(self):
+        temp = tempfile.TemporaryDirectory(prefix='777-p06-native-host-')
+        try:
+            scenario, metrics = self.scenario(temp)
+            scenario.close = unittest.mock.Mock(side_effect=PermissionError(errno.EACCES, 'still held', str(metrics)))
+            with tempfile.TemporaryDirectory() as output:
+                diagnostic = Path(output) / 'cleanup.json'
+                with self.assertRaisesRegex(RuntimeError, 'PROFILE_RELEASE_TIMEOUT'):
+                    cleanup_webview_sandbox(scenario, diagnostic, timeout=.05)
+                result = json.loads(diagnostic.read_text(encoding='utf-8'))
+                self.assertEqual(result['status'], 'failed')
+                self.assertFalse(result['sandbox_cleaned'])
+                self.assertTrue(metrics.exists())
+                self.assertGreaterEqual(result['attempts'], 2)
+                self.assertLess(result['elapsed_seconds'], 2)
+        finally:
+            temp.cleanup()
+
+    def test_unmarked_profile_and_nonfixture_root_never_start_cleanup(self):
+        temp = tempfile.TemporaryDirectory(prefix='777-p06-native-host-')
+        try:
+            scenario, _ = self.scenario(temp)
+            scenario.close = unittest.mock.Mock()
+            with tempfile.TemporaryDirectory() as output:
+                (scenario.profile / '777-isolated-profile.json').write_text('{"production":true}', encoding='utf-8')
+                with self.assertRaisesRegex(RuntimeError, 'OWNED_WEBVIEW_SANDBOX_REQUIRED'):
+                    cleanup_webview_sandbox(scenario, Path(output) / 'cleanup.json')
+                scenario.host.temp = SimpleNamespace(name=output)
+                with self.assertRaisesRegex(RuntimeError, 'OWNED_WEBVIEW_SANDBOX_REQUIRED'):
+                    cleanup_webview_sandbox(scenario, Path(output) / 'cleanup.json')
+                scenario.close.assert_not_called()
+        finally:
+            temp.cleanup()
+
+    def test_outside_path_and_nontransient_errors_are_not_retried(self):
+        temp = tempfile.TemporaryDirectory(prefix='777-p06-native-host-')
+        try:
+            scenario, metrics = self.scenario(temp)
+            with tempfile.TemporaryDirectory() as output:
+                unrelated = Path(output) / 'keep.txt'
+                unrelated.write_text('keep', encoding='utf-8')
+                for error in [PermissionError(errno.EACCES, 'outside', str(unrelated)),
+                              FileNotFoundError(errno.ENOENT, 'unrelated missing file', str(metrics))]:
+                    scenario.close = unittest.mock.Mock(side_effect=error)
+                    with self.assertRaises(type(error)):
+                        cleanup_webview_sandbox(scenario, Path(output) / 'cleanup.json')
+                    scenario.close.assert_called_once()
+                    self.assertEqual(unrelated.read_text(encoding='utf-8'), 'keep')
+        finally:
+            temp.cleanup()
+
+    @unittest.skipUnless(os.name == 'nt', 'requires actual Windows file sharing semantics')
+    def test_real_win32_sharing_lock_is_retried_until_handle_releases(self):
+        import ctypes
+        from ctypes import wintypes
+        temp = tempfile.TemporaryDirectory(prefix='777-p06-native-host-')
+        handle = None
+        holder = None
+        first_failure = threading.Event()
+        try:
+            scenario, metrics = self.scenario(temp)
+            kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+            kernel.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, wintypes.LPVOID,
+                                           wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
+            kernel.CreateFileW.restype = wintypes.HANDLE
+            kernel.CloseHandle.argtypes, kernel.CloseHandle.restype = [wintypes.HANDLE], wintypes.BOOL
+            handle = kernel.CreateFileW(str(metrics), 0x80000000, 0, None, 3, 0x80, None)
+            if handle == ctypes.c_void_p(-1).value:
+                handle = None
+                raise ctypes.WinError(ctypes.get_last_error())
+
+            def release():
+                nonlocal handle
+                first_failure.wait(timeout=5)
+                kernel.CloseHandle(handle)
+                handle = None
+
+            def close():
+                try:
+                    temp.cleanup()
+                except OSError:
+                    first_failure.set()
+                    raise
+
+            scenario.close = close
+            holder = threading.Thread(target=release)
+            holder.start()
+            with tempfile.TemporaryDirectory() as output:
+                result = cleanup_webview_sandbox(scenario, Path(output) / 'cleanup.json')
+                self.assertGreaterEqual(result['attempts'], 2)
+                self.assertTrue(result['sandbox_cleaned'])
+                self.assertTrue(result['transient_errors'])
+        finally:
+            first_failure.set()
+            if holder:
+                holder.join(timeout=5)
+            if handle:
+                kernel.CloseHandle(handle)
+            temp.cleanup()
+
     def test_only_visible_owned_main_is_selected_even_when_helper_is_marked_visible(self):
         entries = [window(1, title='', class_name='Tao Thread Event Target', width=0, height=0),
                    window(2, pid=456), window(3, visible=False), window(4, title='other'), window(5)]
@@ -139,7 +280,8 @@ class NativeWindowTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             output = Path(folder)
             for filename, value in [('native-webview.json', {'status': 'passed', 'manager_submit': True}),
-                                    ('native-window-close.json', {'status': 'failed', 'close_message_posted': True})]:
+                                    ('native-window-close.json', {'status': 'failed', 'close_message_posted': True}),
+                                    ('native-sandbox-cleanup.json', {'status': 'failed', 'sandbox_cleaned': False})]:
                 (output / filename).write_text(json.dumps(value), encoding='utf-8')
             with redirect_stdout(io.StringIO()), patch.object(desktop, 'new_output', return_value=output), \
                     patch.object(desktop, 'fingerprints', return_value={}), \
@@ -149,6 +291,7 @@ class NativeWindowTests(unittest.TestCase):
             self.assertEqual(report['status'], 'failed')
             self.assertEqual(report['native_window_interactions']['status'], 'passed')
             self.assertEqual(report['native_window_close']['status'], 'failed')
+            self.assertEqual(report['native_sandbox_cleanup']['status'], 'failed')
             self.assertIsNone(report['native_window'])
 
     @unittest.skipUnless(os.name == 'nt', 'requires real Win32 windows; not native Tauri acceptance')

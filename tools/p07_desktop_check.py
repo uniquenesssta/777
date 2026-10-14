@@ -56,8 +56,8 @@ def protocol_check():
 def native_window(output,run,stage):
     if os.name!='nt' or platform.system()!='Windows':raise RuntimeError('ACTUAL_WINDOWS_REQUIRED')
     from p07_desktop_fixture import Scenario,CLIENT
-    from p07_native_window import close_window
-    s=Scenario();proc=None
+    from p07_native_window import close_window,cleanup_webview_sandbox
+    s=Scenario();proc=None;report=None
     try:
         s.stop_bridge();sock=socket.socket();sock.bind(('127.0.0.1',0));port=sock.getsockname()[1];sock.close()
         fixture=output/'private-window-fixture.json';fixture.write_text(json.dumps(s.fixture(),ensure_ascii=True),encoding='utf-8')
@@ -84,8 +84,16 @@ def native_window(output,run,stage):
                     cleanup['exit_code']=proc.wait(timeout=20)
                 (output/'native-window-cleanup.json').write_text(json.dumps(cleanup,indent=2),encoding='utf-8')
     finally:
+        primary_failed=sys.exc_info()[0] is not None
         (output/'private-window-fixture.json').unlink(missing_ok=True)
-        s.close()
+        try:
+            stage('等待 WebView2 释放临时目录并完成清理')
+            cleaned=cleanup_webview_sandbox(s,output/'native-sandbox-cleanup.json')
+            if report is not None:
+                report['sandbox_cleaned']=True
+                report['sandbox_cleanup']=cleaned
+        except BaseException as error:
+            if not primary_failed or isinstance(error,KeyboardInterrupt):raise
 
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__)
@@ -169,7 +177,7 @@ def main(argv=None):
         exit_code=1
     finally:
         # Preserve completed interactions even when the later close/cleanup fails.
-        for name,key in [('native-webview.json','native_window_interactions'),('native-window-close.json','native_window_close'),('native-window-cleanup.json','native_window_cleanup')]:
+        for name,key in [('native-webview.json','native_window_interactions'),('native-window-close.json','native_window_close'),('native-window-cleanup.json','native_window_cleanup'),('native-sandbox-cleanup.json','native_sandbox_cleanup')]:
             path=output/name
             if path.exists():
                 try:report[key]=json.loads(path.read_text(encoding='utf-8'))

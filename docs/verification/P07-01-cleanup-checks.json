@@ -1,0 +1,72 @@
+{
+  "task": "P07-01",
+  "baseline_commit": "ee0ad5629bb05aedf5aad732ec674e58792fbda2",
+  "status": "auxiliary_cleanup_regression_passed_actual_Windows_cleanup_pending",
+  "scope": "P07 isolated native verification cleanup only; application/Rust financial source, package locks, approved Figma and P06 host fixture unchanged",
+  "user_console_evidence": "P07-01-windows-evidence-04.json",
+  "actual_Windows_already_passed": [
+    "Production embedded assets and 10 actual Rust HTTPS checks in local04 console",
+    "Real Tauri/WebView2 manager submission, sales restrictions and idle wait in local04 console",
+    "WM_CLOSE to unique Tauri main HWND, natural code0 desktop exit in 0.031 seconds, no forced termination in local04 console"
+  ],
+  "remaining_failure": "Immediate TemporaryDirectory cleanup encountered WinError5 at a WebView2 BrowserMetrics .pma file; owning process/release duration not reported",
+  "official_lifecycle_reference": "https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/user-data-folder#delete-user-data-folders",
+  "implementation": [
+    "Validate the exact fixture TemporaryDirectory identity, generated temp root prefix/parent, desktop profile and production:false marker before deletion.",
+    "Use existing idempotent scenario.close to stop bridge/host, then retry transient in-sandbox Windows5/32/33/145 or EACCES/EBUSY/ENOTEMPTY deletion failures every0.2s within20s.",
+    "Normalize error paths lexically without reopening a locked Windows file. No retries for outside paths or unrelated errors.",
+    "Require actual complete directory removal; timeout remains failed with retained root and diagnostics. No blanket WebView2 process kills or ignored cleanup errors.",
+    "native-sandbox-cleanup.json records attempts, transient path/code, elapsed time and cleanup result separately from process exit. Preserve the original primary error if cleanup also fails; user interruption remains interruption."
+  ],
+  "environment": {
+    "os": "Linux",
+    "python": "3.12.14"
+  },
+  "verification": {
+    "combined": {
+      "command": "python -m unittest discover -s tests -p 'test_p07_*.py' -v",
+      "run": 24,
+      "passed": 22,
+      "skipped": 2,
+      "failures": 0,
+      "errors": 0,
+      "log": "P07-01-cleanup-tests-02.log"
+    },
+    "after_locked_path_and_fixture_race_refinement": {
+      "command": "python -m unittest discover -s tests -p 'test_p07_native_window.py' -v",
+      "run": 13,
+      "passed": 11,
+      "skipped": 2,
+      "failures": 0,
+      "errors": 0,
+      "log": "P07-01-cleanup-native-tests-03.log"
+    },
+    "skips": [
+      "Actual Win32 main/event-helper window fixture",
+      "Actual Win32 sharing lock held until the first deletion failure, then released; new Windows CI must execute both"
+    ],
+    "boundaries": [
+      "Transient lock plus partially removed marker retries and finally removes the entire fixture root",
+      "Persistent lock stays failed at a short test deadline and retains the affected path",
+      "Unmarked production profile or mismatched TemporaryDirectory identity never starts deletion",
+      "Outside-path and nontransient errors are propagated without retries; unrelated files unchanged",
+      "Interaction, close and sandbox-cleanup diagnostics remain separate in the final report"
+    ]
+  },
+  "implementation_sha256_LF": {
+    "tools/p07_native_window.py": "17ffc27133324af97af1dd620faafeb326fe230eb3f7a74f92ec772995dd6f55",
+    "tools/p07_desktop_check.py": "770fdae4a1b58acc8da0210a002ab412ae8c9a09d086c67be043852064d14ed3",
+    "tests/test_p07_native_window.py": "90b5cd123332128f74e4abd4d5f9dccd523db7fb8470d178bd2e732b1f54ee45",
+    ".gitattributes": "e5cd5af6804f6c22c7bf1b64969326d807d45488ac2519b5ce9cd4c55160ac23"
+  },
+  "previous_CI": {
+    "run_id": 38554320189,
+    "head_sha": "ee0ad5629bb05aedf5aad732ec674e58792fbda2",
+    "observed_status": "in_progress",
+    "conclusion": null,
+    "new_push_will_supersede_if_still_running": true
+  },
+  "new_CI": "pending push; actual Windows file lock + window fixtures and existing full native WebView2 gate",
+  "next_output": "reports/p07-01-windows-05",
+  "acceptance": "P07-01 remains open; cleanup and user visual acceptance pending; P07-02/03/04 and P08 not started"
+}

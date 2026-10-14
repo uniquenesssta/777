@@ -9,7 +9,7 @@
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
 | 本轮授权 | 用户2026-10-14 14:37:59“开始P07”；既有推送授权有效 |
 | 文档工作 | [P07任务书](now/P07-tauri-desktop.md)从new移入now；当前设计交接、组件映射、契约和辅助证据已保存；P06已归档 |
-| 当前开发阶段 / Atomic Task | P07-01生产协议/内嵌资源经Windows CI和本机03通过，交互命令返回0后关闭超时；关闭工具已修，待新CI/本机04及用户视觉交互；唯一stage/p07-tauri-desktop基于P06收尾7a243d5 |
+| 当前开发阶段 / Atomic Task | P07-01本机04生产页面/协议/原生交互/自然退出通过，临时目录清理失败；已补释放等待，待新CI/本机05及用户视觉交互；唯一stage/p07-tauri-desktop基于P06收尾7a243d5 |
 | 下一项 | 先完成[P07-01 Windows入口](verification/P07-01-desktop-contract.md#windows隔离验证)，01尚未验收；02至04与P08未启动 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |

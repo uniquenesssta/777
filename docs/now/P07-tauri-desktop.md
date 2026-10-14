@@ -1,6 +1,6 @@
 # P07 Tauri桌面界面与Windows交付
 
-状态：执行中。用户2026-10-14 14:37:59（Asia/Shanghai）“开始P07”；前置P06已验收，基线为P06收尾`7a243d5d1d103ae968f27adb7f54fea41a64d9cb`。唯一阶段分支`stage/p07-tauri-desktop`。当前P07-01已实现，生产协议/内嵌资源经Windows CI与本机03通过；本机原生交互命令返回0，关闭阶段超时，关闭工具已修，待新CI/本机04和用户视觉交互验收；P07-02至04尚未启动。
+状态：执行中。用户2026-10-14 14:37:59（Asia/Shanghai）“开始P07”；前置P06已验收，基线为P06收尾`7a243d5d1d103ae968f27adb7f54fea41a64d9cb`。唯一阶段分支`stage/p07-tauri-desktop`。当前P07-01已实现，本机04生产页面、10项协议、原生交互和主窗口自然退出通过；临时WebView2目录删除失败，已补清理等待，待新CI/本机05和用户视觉交互验收；P07-02至04/P08未启动。
 
 设计权威来自本仓库`Figma@c517d8b3086932abe2dc01908e4dae3209b9f956`的[交接](../design/figma-handoff.md)、[状态](../design/figma-state.json)和[tokens](../design/figma-tokens.json)，Figma文件为[记账器](https://www.figma.com/design/2ek9bkIz5ldyhjZnnvIuNu)。只使用当前页21:2及其中已确认的紧凑紫灰横向布局，不使用归档旧稿；未改写Figma文件。实现映射见[P07组件映射](../design/P07-component-map.md)。
 
@@ -31,4 +31,8 @@ P07-02专项边界审计、P07-03多DPI/原生图片及字体、P07-04安装升�
 
 本机入口已修复静默/高并发问题：默认`--jobs 1`、环境预检与实时日志；`--preflight`只查环境、不下载/编译。`--windows-smoke`执行必要release构建与真实协议/原生窗口，完整lint/unit/浏览器检查在`--ci-checks`执行。原第一次窗口回传为中断，不能记通过；[工具修复证据](../verification/P07-01-runner-checks.json)和[原CI通过](../verification/P07-01-ci-evidence-01.json)分列。
 
-本机release页面来源修复见[证据](../verification/P07-01-release-checks.json)：默认custom-protocol、release拒绝开发模式、CI实际exe资源核对、WebView2先验tauri.localhost来源；Tauri CLI常规dev保持Vite。原CI的build/业务结果继续有效，不能替代未覆盖的release原生页面。生产页面已通过[Windows CI](../verification/P07-01-ci-evidence-03.json)与[本机03](../verification/P07-01-windows-evidence-03.json)核对。03在交互命令返回0后关闭超时；新工具只向唯一主HWND发送WM_CLOSE，避免破坏Tao事件辅助窗口；文件日志/父进程退出独立核验，保留交互/关闭/清理分项证据。辅助18项通过、真实Win32夹具1项留新CI；新CI增实际Tauri窗口交互/关闭，本机04复验保持；见[关闭修复检查](../verification/P07-01-close-checks.json)。下一次本机输出使用p07-01-windows-04，01继续待验收。
+本机release页面来源修复见[证据](../verification/P07-01-release-checks.json)：默认custom-protocol、release拒绝开发模式、CI实际exe资源核对、WebView2先验tauri.localhost来源；Tauri CLI常规dev保持Vite。生产页面通过[Windows CI](../verification/P07-01-ci-evidence-03.json)与本机03/04核对，原证据保持。
+
+本机03交互命令返回0后关闭超时；[关闭工具修复](../verification/P07-01-close-checks.json)仅向唯一主HWND发送WM_CLOSE，避免破坏Tao事件辅助窗口；文件日志/父进程退出独立核验。[本机04](../verification/P07-01-windows-evidence-04.json)已确认实际Tauri/WebView2交互及主窗口自然退出通过，码0、0.031秒、无强制终止；剩余失败为清理WebView2 BrowserMetrics文件的WinError5。
+
+[清理修复检查](../verification/P07-01-cleanup-checks.json)：仅对本轮已标记的TemporaryDirectory根内暂时性占用错误限20秒等待/重试，根目录实际移除才通过；交互、窗口退出、进程清理与目录清理分别保留，不吞掉失败或改写原流程错误。合并24项回归22通过/2项真实Win32专属待新CI，锁定路径与夹具时序调整后13项相关回归11通过/同2项待CI。新CI保留实际Tauri/WebView2交互/退出门槛；本机下一次输出使用p07-01-windows-05，清理及用户视觉验收未完成，01继续留now。
