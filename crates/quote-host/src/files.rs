@@ -197,6 +197,8 @@ pub fn protect(path: &Path, auxiliary: bool) -> Result<Value> {
             d: *mut *mut c_void,
             def: *mut i32,
         ) -> i32;
+        fn GetAce(d: *mut c_void, index: u32, ace: *mut *mut c_void) -> i32;
+        fn ConvertSidToStringSidW(sid: *const c_void, text: *mut *mut u16) -> i32;
         fn SetNamedSecurityInfoW(
             p: *mut u16,
             t: u32,
@@ -330,7 +332,56 @@ pub fn protect(path: &Path, auxiliary: bool) -> Result<Value> {
                 }
             }
             let actual = String::from_utf16_lossy(std::slice::from_raw_parts(string, len));
-            verify_dacl(&actual, &allowed)?;
+            // Read canonical identities from the same descriptor, rather than
+            // equating display aliases such as LA with a guessed account SID.
+            let (mut present, mut defaulted, mut dacl) = (0, 0, std::ptr::null_mut());
+            if GetSecurityDescriptorDacl(readsd, &mut present, &mut dacl, &mut defaulted) == 0
+                || present == 0
+                || defaulted != 0
+                || dacl.is_null()
+            {
+                return fail(503, "NATIVE_DACL_READBACK_FAILED");
+            }
+            let mut principals = Vec::new();
+            for index in 0..allowed.len() {
+                let mut ace = std::ptr::null_mut();
+                if GetAce(dacl, index as u32, &mut ace) == 0 || ace.is_null() {
+                    return fail(503, "NATIVE_DACL_READBACK_FAILED");
+                }
+                let bytes = ace.cast::<u8>();
+                let size = u16::from_le_bytes([*bytes.add(2), *bytes.add(3)]) as usize;
+                if *bytes != 0 || size < 16 {
+                    return fail(503, "NATIVE_DACL_ACE_UNSUPPORTED");
+                }
+                if *bytes.add(8) != 1
+                    || *bytes.add(9) > 15
+                    || size < 16 + 4 * (*bytes.add(9) as usize)
+                {
+                    return fail(503, "NATIVE_DACL_SID_UNSUPPORTED");
+                }
+                let mut text = std::ptr::null_mut();
+                let converted = (|| -> Result<String> {
+                    if ConvertSidToStringSidW(bytes.add(8).cast(), &mut text) == 0 || text.is_null()
+                    {
+                        return fail(503, "NATIVE_DACL_SID_UNSUPPORTED");
+                    }
+                    let mut length = 0;
+                    while *text.add(length) != 0 {
+                        length += 1;
+                        if length > 256 {
+                            return fail(503, "NATIVE_DACL_SID_UNSUPPORTED");
+                        }
+                    }
+                    Ok(String::from_utf16_lossy(std::slice::from_raw_parts(
+                        text, length,
+                    )))
+                })();
+                if !text.is_null() {
+                    LocalFree(text.cast());
+                }
+                principals.push(converted?);
+            }
+            verify_dacl(&actual, &allowed, Some(&principals))?;
             let attributes = GetFileAttributesW(wide.as_ptr());
             if attributes == u32::MAX || attributes & 6 != 6 {
                 return fail(503, "NATIVE_SECURITY_FAILED");
@@ -404,7 +455,7 @@ pub fn publish_new(source: &Path, target: &Path) -> std::io::Result<()> {
         fs::hard_link(source, target)
     }
 }
-pub fn verify_dacl(value: &str, allowed: &[String]) -> Result<()> {
+pub fn verify_dacl(value: &str, allowed: &[String], principals: Option<&[String]>) -> Result<()> {
     let rest = value
         .strip_prefix("D:")
         .ok_or_else(|| Error::new(503, "NATIVE_SECURITY_FAILED"))?;
@@ -433,8 +484,11 @@ pub fn verify_dacl(value: &str, allowed: &[String]) -> Result<()> {
     if entries.len() != allowed.len() {
         return fail(503, "NATIVE_SECURITY_FAILED");
     }
+    if principals.is_some_and(|s| s.len() != entries.len()) {
+        return fail(503, "NATIVE_DACL_PRINCIPAL_COUNT_MISMATCH");
+    }
     let mut seen = std::collections::BTreeSet::new();
-    for entry in entries {
+    for (index, entry) in entries.into_iter().enumerate() {
         let entry = entry
             .strip_prefix('(')
             .and_then(|e| e.strip_suffix(')'))
@@ -449,13 +503,16 @@ pub fn verify_dacl(value: &str, allowed: &[String]) -> Result<()> {
         {
             return fail(503, "NATIVE_SECURITY_FAILED");
         }
-        let sid = match parts[5] {
-            "SY" => "S-1-5-18",
-            "BA" => "S-1-5-32-544",
-            s => s,
+        let sid = match principals {
+            Some(sids) => sids[index].as_str(),
+            None => match parts[5] {
+                "SY" => "S-1-5-18",
+                "BA" => "S-1-5-32-544",
+                s => s,
+            },
         };
         if !allowed.iter().any(|s| s == sid) || !seen.insert(sid) {
-            return fail(503, "NATIVE_SECURITY_FAILED");
+            return fail(503, "NATIVE_DACL_PRINCIPAL_MISMATCH");
         }
     }
     Ok(())

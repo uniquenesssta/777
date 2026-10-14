@@ -19,6 +19,17 @@ jobs:
       CARGO_BUILD_JOBS: '2'
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          # The accepted P06-02 source is rebuilt for real v3 compatibility.
+          # Fetch its exact object only; no additional branch or full history.
+          fetch-depth: 1
+      - name: Fixed legacy source for offline compatibility fixture
+        shell: pwsh
+        run: |
+          git fetch --no-tags --depth=1 origin 223e86e0bef90dfef083281a42f8d7919b13c07d
+          if ($LASTEXITCODE -ne 0) { throw 'Fixed legacy source fetch failed' }
+          git cat-file -e '223e86e0bef90dfef083281a42f8d7919b13c07d^{commit}'
+          if ($LASTEXITCODE -ne 0) { throw 'Fixed legacy source missing' }
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.12.10'

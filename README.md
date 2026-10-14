@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P06-01/02/03已验收，见[03收尾](docs/verification/P06-03-acceptance.json)。同一stage/p06-rust-core从89f7138执行P06-04：[独立Rust HTTPS宿主](docs/verification/P06-04-host-contract.md)已实现，兼容鉴权/查询/输出与v4完整恢复；[检查证据](docs/verification/P06-04-checks.json)记录127指纹、195专项/656完整辅助、42 Rust/561对照及原生HTTPS/输出/恢复/200单资源验证。[Windows CI](.github/workflows/p06-windows.yml)首次运行在Windows专用分支触发Clippy needless_return；[原报告与修复](docs/verification/P06-04-ci-evidence-01.json)已登记，等价尾表达式修复待CI及本机原窗口/DPAPI/ACL/系统字体和用户验收。原03资料保持，不重跑通过入口，P07/P08未启动。
+P06-01/02/03已验收，见[03收尾](docs/verification/P06-03-acceptance.json)。同一stage/p06-rust-core继续P06-04[独立Rust HTTPS宿主](docs/verification/P06-04-host-contract.md)；原195专项/656完整辅助资料保持。[第二次Windows CI及修复](docs/verification/P06-04-ci-evidence-02.json)记录严格构建/42 Rust/561对照通过，权限读回和浅克隆缺固定旧源码阻断后续。Rust与Python现读取原生ACE的完整SID精确核对，CI仅补取固定历史提交；辅助16专项/43 Rust及浅克隆归档复现通过，当前128指纹，新CI及本机原窗口/DPAPI/ACL/系统字体与用户验收待完成。原03资料保持，P07/P08未启动。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -36,6 +36,8 @@ P06-01/02/03已验收，见[03收尾](docs/verification/P06-03-acceptance.json)�
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P06-04第二次Windows CI的严格构建、42 Rust与561对照通过，权限读回及浅克隆缺旧源码导致专项167运行/97错误；[原报告与修复](docs/verification/P06-04-ci-evidence-02.json)保持。Rust/Python从原生ACE读取完整SID进行精确白名单核验，避免SDDL显示缩写误判；CI仅获取固定223e86e旧源码，保留真实离线兼容构建。新增身份/越权/释放回归，16专项/43 Rust及浅克隆归档通过；128指纹，推送触发新Windows CI，04未验收。
 
 - P06-04首次Windows CI在目录校验的Windows专用分支被Clippy `needless_return`阻断，尚未执行协议/恢复验收；仅改为等价尾表达式，严格检查门槛保持。[原报告与核对](docs/verification/P06-04-ci-evidence-01.json)保留，辅助fmt/Clippy通过；推送触发新CI，本机Windows及用户验收仍待完成。
 

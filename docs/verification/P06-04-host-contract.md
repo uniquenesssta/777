@@ -42,7 +42,7 @@ Rust完整备份使用原生SQLite快照、财务/账户/输出/文件清单及�
 ```powershell
 git pull --ff-only
 if ($LASTEXITCODE -ne 0) { throw '拉取失败，先停止' }
-py -3 tools/p06_host_check.py --windows-smoke --output reports/p06-04-windows-01
+py -3 tools/p06_host_check.py --windows-smoke --output reports/p06-04-windows-03
 ```
 
 沿用现有Python/固定服务验证依赖和Rust1.97.1/MSVC，Cargo按锁定文件获取本轮新增包。入口执行fmt/Clippy/Rust测试/release、完整专项与同一561例；以真实Rust临时主机复用原母/子Tk窗口，覆盖登录/清空密码/36元计算/提交/查询/成本过滤/关闭，并验证真实宿主退出、DPAPI原回执、离线合成历史导入、原生Excel/系统CJK PNG、v4恢复后维护/撤会话/旧客户端再连。返回report.json和comparisons.json；输出目录不得覆盖，后续按新编号复查。
@@ -55,9 +55,14 @@ py -3 tools/p06_host_check.py --windows-smoke --output reports/p06-04-windows-01
 
 [资源入口](../../tools/p06_resources.py)在两份独立临时主机使用同价目和200单，分别运行保留的Python HTTPS＋Rust worker架构与Rust直接宿主。每端5次计算及3次查询预热，30次计算/20条分页测量，记录每次延迟、median/p95/max及10ms采样主进程resident/private峰值。短命worker/客户端不计入这项主进程内存；二进制字节不是安装包/全部运行库体积。结果用于评估已测路径，不推断真实SMB或所有图片规模更快/更省；P07安装体积另测。
 
-[检查证据](P06-04-checks.json)已归档127指纹、195专项/656完整辅助、42 Rust/561对照、原生HTTPS/Excel/临时CJK PNG/历史导入后v4恢复及资源测量。初期启动/测试夹具及辅助PID采样错误按原日志保留，末次验证/IO委托变动由30项原生/入口、42 Rust和共同协议另行覆盖；未重复656项。实际Windows、CI结果及用户验收仍待回传。
+[检查证据](P06-04-checks.json)已归档127指纹、195专项/656完整辅助、42 Rust/561对照、原生HTTPS/Excel/临时CJK PNG/历史导入后v4恢复及资源测量。初期启动/测试夹具及辅助PID采样错误按原日志保留，末次验证/IO委托变动由30项原生/入口、42 Rust和共同协议另行覆盖；未重复656项。实际Windows与用户验收仍待回传；下方记录后续CI失败和修复，不将原辅助通过视作Windows通过。
 
 辅助200单的计算p95由约13.4ms降至5.2ms，采样主进程resident约30.6MB/21.5MB；查询p95约5.8ms/44.8ms，Rust端仍有较高尾延迟。原样保留[测量](P06-04-resources-final-01.json)，不宣称全部性能改善；本机Windows结果用于判断后续查询尾延迟优化。
 
 
 首次Windows CI已实际执行并在Windows专用目录分支的Clippy needless_return处失败，fmt通过，其余门槛未进入。[原报告及修复核对](P06-04-ci-evidence-01.json)保留127项源码匹配与失败事实；末句改为等价尾表达式，辅助fmt/Clippy通过，严格门槛未改。推送后由同一CI重跑；当前CI结果及本机Windows验收仍待核对，不把旧辅助通过视为新Windows通过。
+
+
+第二次Windows CI已通过上述Clippy修复、42 Rust/release及561对照，但专项因权限读回和缺固定历史对象而失败；见[原报告及修复](P06-04-ci-evidence-02.json)。两个宿主适配器现在从同一原生描述符的ACE读取完整SID作为授权核对依据，SDDL中的机器相对显示缩写不再用于猜测身份；精确主体、数量、去重、全控制、保护DACL及OI/CI要求保持。CI仅补fetch固定223e86e对象，仍真实离线构建旧工具验证v3兼容。
+
+修复具备16项Python/43项Rust及浅克隆归档辅助证据；权限回归已加入同一入口，128项指纹和207项载入测试由新Windows CI执行，尚不宣称新Windows通过。第一、二次原报告及旧辅助材料保持。本机新输出目录改为windows-03以保留已有结果；实际GUI/系统字体验收与CI分开，P06-04待验收。

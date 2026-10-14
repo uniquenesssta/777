@@ -86,14 +86,45 @@ fn protected_dacl_requires_exact_inheritable_allowlist() {
         "S-1-5-21-1-2-3-1001".into(),
     ];
     let good = "D:PAI(A;OICI;FA;;;SY)(A;CIOI;0x1f01ff;;;BA)(A;OICI;FA;;;S-1-5-21-1-2-3-1001)";
-    files::verify_dacl(good, &allowed).unwrap();
+    files::verify_dacl(good, &allowed, None).unwrap();
     for bad in [
         good.replace("PAI", "AI"),
         good.replace("OICI;FA;;;SY", ";FA;;;SY"),
         good.replace("S-1-5-21-1-2-3-1001", "S-1-1-0"),
         format!("{good}(A;OICI;FA;;;WD)"),
     ] {
-        assert!(files::verify_dacl(&bad, &allowed).is_err())
+        assert!(files::verify_dacl(&bad, &allowed, None).is_err())
+    }
+}
+#[test]
+fn native_ace_identity_resolves_display_aliases_without_widening_the_allowlist() {
+    let allowed = vec![
+        "S-1-5-18".into(),
+        "S-1-5-32-544".into(),
+        "S-1-5-21-1-2-3-500".into(),
+    ];
+    let display = "D:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;FA;;;LA)";
+    // The old display-only policy cannot identify a machine-relative alias.
+    assert!(files::verify_dacl(display, &allowed, None).is_err());
+    files::verify_dacl(display, &allowed, Some(&allowed)).unwrap();
+    for identities in [
+        vec![
+            allowed[0].clone(),
+            allowed[1].clone(),
+            "S-1-5-21-9-8-7-500".into(),
+        ],
+        vec![allowed[0].clone(), allowed[1].clone(), allowed[0].clone()],
+        allowed[..2].to_vec(),
+    ] {
+        assert!(files::verify_dacl(display, &allowed, Some(&identities)).is_err());
+    }
+    for invalid in [
+        display.replace("PAI", "AI"),
+        display.replace("OICI;FA;;;LA", "OICI;FR;;;LA"),
+        display.replace("OICI;FA;;;LA", "OICIID;FA;;;LA"),
+        format!("{display}(A;OICI;FA;;;WD)"),
+    ] {
+        assert!(files::verify_dacl(&invalid, &allowed, Some(&allowed)).is_err());
     }
 }
 #[test]

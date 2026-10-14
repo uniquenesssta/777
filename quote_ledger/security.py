@@ -5,7 +5,7 @@ import subprocess
 from .paths import LedgerError, local_path
 
 
-def _verify_dacl_sddl(value, allowed):
+def _verify_dacl_sddl(value, allowed, *, principals=None):
     """Require an exact protected allow-list, including child inheritance."""
     match = re.fullmatch(r'D:((?:P|AR|AI)*)(\([^()]*\)(?:\([^()]*\))*)', value or '')
     if not match or 'P' not in match[1]:
@@ -13,20 +13,69 @@ def _verify_dacl_sddl(value, allowed):
     entries = re.findall(r'\(([^()]*)\)', match[2])
     if len(entries) != len(allowed):
         raise LedgerError(f'备份DACL主体数量核验失败：expected={len(allowed)}, actual={len(entries)}')
+    if principals is not None and len(principals) != len(entries):
+        raise LedgerError('备份DACL原生主体数量核验失败')
     aliases = {'SY': 'S-1-5-18', 'BA': 'S-1-5-32-544'}
     seen = set()
-    for entry in entries:
+    for index, entry in enumerate(entries):
         fields = entry.split(';')
         if (len(fields) != 6 or fields[0] != 'A' or fields[1] not in {'OICI', 'CIOI'}
                 or fields[2].lower() not in {'fa', '0x1f01ff', '0x001f01ff'}
                 or fields[3] or fields[4]):
             raise LedgerError('备份DACL包含未授权权限、ACE类型或继承标志')
-        principal = aliases.get(fields[5], fields[5])
+        # The original ACE's binary SID is authoritative. SDDL can abbreviate
+        # machine-relative accounts (for example LA); never guess their domain.
+        principal = principals[index] if principals is not None else aliases.get(fields[5], fields[5])
         if principal not in allowed or principal in seen:
             raise LedgerError('备份DACL包含未授权或重复主体')
         seen.add(principal)
     if seen != allowed:
         raise LedgerError('备份DACL缺少必要主体')
+
+
+def _dacl_principals(descriptor, count, advapi, free):
+    """Read full numeric SIDs from the same descriptor used for SDDL policy."""
+    import ctypes
+    from ctypes import wintypes
+    get_dacl = advapi.GetSecurityDescriptorDacl
+    get_dacl.argtypes = [ctypes.c_void_p, ctypes.POINTER(wintypes.BOOL), ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(wintypes.BOOL)]
+    get_dacl.restype = wintypes.BOOL
+    get_ace = advapi.GetAce
+    get_ace.argtypes = [ctypes.c_void_p, wintypes.DWORD, ctypes.POINTER(ctypes.c_void_p)]
+    get_ace.restype = wintypes.BOOL
+    convert = advapi.ConvertSidToStringSidW
+    convert.argtypes = [ctypes.c_void_p, ctypes.POINTER(wintypes.LPWSTR)]
+    convert.restype = wintypes.BOOL
+    present, defaulted, dacl = wintypes.BOOL(), wintypes.BOOL(), ctypes.c_void_p()
+    if not get_dacl(descriptor, ctypes.byref(present), ctypes.byref(dacl), ctypes.byref(defaulted)):
+        raise ctypes.WinError(ctypes.get_last_error())
+    if not present.value or defaulted.value or not dacl:
+        raise LedgerError('备份DACL必须为显式非空权限列表')
+    principals = []
+    for index in range(count):
+        ace = ctypes.c_void_p()
+        if not get_ace(dacl, index, ctypes.byref(ace)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        if not ace:
+            raise LedgerError('备份DACL原生ACE为空')
+        header = ctypes.string_at(ace, 4)
+        size = int.from_bytes(header[2:4], 'little')
+        if header[0] != 0 or size < 16:
+            raise LedgerError('备份DACL原生ACE类型或长度不支持')
+        sid_header = ctypes.string_at(ace.value + 8, 8)
+        if sid_header[0] != 1 or sid_header[1] > 15 or size < 16 + 4 * sid_header[1]:
+            raise LedgerError('备份DACL原生SID长度不支持')
+        text = wintypes.LPWSTR()
+        try:
+            if not convert(ctypes.c_void_p(ace.value + 8), ctypes.byref(text)):
+                raise ctypes.WinError(ctypes.get_last_error())
+            if not text or not re.fullmatch(r'S-1-[0-9]+(?:-[0-9]+)+', text.value or ''):
+                raise LedgerError('备份DACL原生SID不可确认')
+            principals.append(text.value)
+        finally:
+            if text:
+                free(ctypes.cast(text, ctypes.c_void_p))
+    return principals
 
 
 def _replace_dacl(path, allowed, advapi, free):
@@ -95,7 +144,7 @@ def protect_directory(path):
         if error:raise ctypes.WinError(error)
         if not convert(descriptor,1,4,ctypes.byref(sddl),None):raise ctypes.WinError(ctypes.get_last_error())
         value=sddl.value
-        _verify_dacl_sddl(value,allowed)
+        _verify_dacl_sddl(value,allowed,principals=_dacl_principals(descriptor,len(allowed),advapi,free))
         attributes=get_attributes(str(path))
         if attributes==0xffffffff or attributes&6!=6:raise LedgerError('Hidden/System属性核验失败')
         return {'hidden':True,'system':True,'protected_dacl':True,'service_identity_sid':sid,'allowed_sids':sorted(allowed)}

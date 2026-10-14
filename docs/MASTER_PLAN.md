@@ -2,7 +2,7 @@
 
 版本：初始规划；日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P06-01/02/03已验收，见[03收尾](verification/P06-03-acceptance.json)。同一stage/p06-rust-core从89f7138执行P06-04：[独立Rust HTTPS宿主](verification/P06-04-host-contract.md)已实现，兼容鉴权/查询/输出与v4完整恢复；[检查证据](verification/P06-04-checks.json)记录127指纹、195专项/656完整辅助、42 Rust/561对照及原生HTTPS/输出/恢复/200单资源验证。[Windows CI](../.github/workflows/p06-windows.yml)首次运行在Windows专用分支触发Clippy needless_return；[原报告与修复](verification/P06-04-ci-evidence-01.json)已登记，等价尾表达式修复待CI及本机原窗口/DPAPI/ACL/系统字体和用户验收。原03资料保持，不重跑通过入口，P07/P08未启动。**
+**P06-01/02/03已验收，见[03收尾](verification/P06-03-acceptance.json)。同一stage/p06-rust-core继续P06-04[独立Rust HTTPS宿主](verification/P06-04-host-contract.md)；原195专项/656完整辅助资料保持。[第二次Windows CI及修复](verification/P06-04-ci-evidence-02.json)记录严格构建/42 Rust/561对照通过，权限读回和浅克隆缺固定旧源码阻断后续。Rust与Python现读取原生ACE的完整SID精确核对，CI仅补取固定历史提交；辅助16专项/43 Rust及浅克隆归档复现通过，当前128指纹，新CI及本机原窗口/DPAPI/ACL/系统字体与用户验收待完成。原03资料保持，P07/P08未启动。**
 
 ## 1. 目标与边界
 
@@ -24,7 +24,7 @@ P01至P05已归档old，P05真实部署交接项保留。P06任务书在now，P0
 | P03 | [文件数据安全与兼容](old/P03-file-safety.md) | P02已验收 | stage/p03-file-safety | 四项均已验收归档；[P03确认](verification/P03-acceptance.json)，原Windows及辅助237项证据保留 |
 | P04 | [后台任务与性能](old/P04-performance.md) | P03已验收 | stage/p04-performance（已转接） | 01/02/03已验收，04短诊断通过；用户确认停电、授权先P05；正式06全档通过已按[用户接续](verification/P04-acceptance.json)验收收尾，无需重跑 |
 | P05 | [结构化存储与局域网服务](old/P05-data-service.md) | P04已验收 | stage/p05-data-service（历史） | [隔离交付已收尾](verification/P05-acceptance.json)，Windows52/52原证据保持；真实部署及历史切换交接后续 |
-| P06 | [Rust业务核心与适配](now/P06-rust-core.md) | 用户授权P05交接 | stage/p06-rust-core | 01/02/03已验收；04独立Rust宿主、v4恢复/角色/输出/资源和Windows CI已实现，656完整辅助/42 Rust通过，本机Windows及用户验收待完成 |
+| P06 | [Rust业务核心与适配](now/P06-rust-core.md) | 用户授权P05交接 | stage/p06-rust-core | 01/02/03已验收；04独立Rust宿主已实现；第二次CI的构建/42 Rust/561对照通过，原生SID读回及历史对象获取修复具备16专项/43 Rust辅助证据；新Windows CI、本机及用户验收待完成 |
 | P07 | [Tauri界面与Windows交付](new/P07-tauri-desktop.md) | P06已验收 | stage/p07-tauri-desktop | 待启动；母子角色端到端、权限与安装验收通过 |
 | P08 | [迁移演练与正式切换](new/P08-cutover.md) | P07已验收 | stage/p08-cutover | 待启动；全量对账、恢复演练及用户验收后才切换 |
 

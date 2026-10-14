@@ -7,10 +7,10 @@ from p01_validation import new_output
 from p03_format_check import case_ids
 from p06_excel_check import fingerprints as excel_fingerprints
 from p06_core_check import run,compare
-MODULES=['test_native_host','test_p06_host_check','test_native_excel','test_p06_excel_check','test_rust_ledger','test_rust_service','test_p06_ledger_check','test_service_outputs','test_legacy_import','test_p05_import_entry']
+MODULES=['test_native_host','test_p06_host_check','test_ledger_security','test_native_excel','test_p06_excel_check','test_rust_ledger','test_rust_service','test_p06_ledger_check','test_service_outputs','test_legacy_import','test_p05_import_entry']
 def fingerprints():
     result=excel_fingerprints()
-    names=['tools/p06_host_check.py','tools/p06_resources.py','tools/p06_reference_host.py','tools/p06_ci_fonts.py','tools/p05_service_check.py','tests/native_host_fixture.py','tests/test_native_host.py','tests/test_p06_host_check.py','docs/verification/P06-04-protocol.json','docs/verification/P06-04-dependencies.json','docs/verification/P06-04-auth-schema.sql','docs/verification/P06-04-output-schema.sql','.github/workflows/p06-windows.yml']
+    names=['tools/p06_host_check.py','tools/p06_resources.py','tools/p06_reference_host.py','tools/p06_ci_fonts.py','tools/p05_service_check.py','tests/native_host_fixture.py','tests/test_native_host.py','tests/test_p06_host_check.py','tests/test_ledger_security.py','docs/verification/P06-04-protocol.json','docs/verification/P06-04-dependencies.json','docs/verification/P06-04-auth-schema.sql','docs/verification/P06-04-output-schema.sql','.github/workflows/p06-windows.yml']
     names += [p.relative_to(ROOT).as_posix() for p in (ROOT/'crates/quote-host').rglob('*.json')]
     for name in names:result[name]=hashlib.sha256((ROOT/name).read_bytes().replace(b'\r\n',b'\n')).hexdigest()
     return dict(sorted(result.items()))

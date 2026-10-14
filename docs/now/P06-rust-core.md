@@ -1,6 +1,6 @@
 # P06 Rust领域核心与存储/服务适配
 
-状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02已按[用户接续](../verification/P06-02-acceptance.json)验收，原Windows证据保持；P06-03已按[用户接续](../verification/P06-03-acceptance.json)验收；P06-04从89f7138按[启动记录](../verification/P06-04-start.json)执行，独立Rust宿主已实现，656完整辅助/42 Rust通过，本机Windows及用户验收待回传。
+状态：执行中。用户2026-10-13 20:25:31（Asia/Shanghai）“收尾P05-04开始P06-01”授权，从P05收尾77101320deda2f624a215ade67c8ea5306d1c0a4建立唯一stage/p06-rust-core。[P05范围交接](../verification/P05-acceptance.json)保留真实部署/历史切换待办。P06-01已按[用户接续](../verification/P06-01-acceptance.json)验收收尾，无需重跑。P06-02已按[用户接续](../verification/P06-02-acceptance.json)验收，原Windows证据保持；P06-03已按[用户接续](../verification/P06-03-acceptance.json)验收；P06-04从89f7138按[启动记录](../verification/P06-04-start.json)执行，独立Rust宿主已实现，原656完整辅助保持；[第二次CI与修复](../verification/P06-04-ci-evidence-02.json)记录当前128指纹、16专项/43 Rust辅助通过，新Windows CI、本机及用户验收待完成。
 
 P01共用验证材料：[53例静态黄金集](../baseline/p01-04-golden.json)、[数值参数历史源](../baseline/p01-04-numeric-profile.json)及[格式/性能/Windows验收方案](../baseline/P01-04-validation.md)。P01已按[批准记录](../baseline/p01-acceptance.json)采纳numeric-v1/performance-v1，历史候选/黄金元数据保留并映射；实施时读取同一黄金JSON，不复制期望。当前01按同一资产开展影子核对。
 
@@ -105,3 +105,14 @@ Windows临时主机覆盖Rust原生读取/导入重放/新报表、独立读取�
 2026-10-14续接时核对[首次CI原报告与证据](../verification/P06-04-ci-evidence-01.json)：430dc0f干净源码的127项LF指纹全部匹配提交blob；实际Windows Server 2025/MSVC Rust1.97.1的fmt通过，Clippy在auth.rs Windows目录分支的末尾return触发needless_return，后续Rust测试/专项/561对照/协议恢复/资源未执行，不能记为通过。原report.json按字节归档，旧辅助及03验收材料保持。
 
 仅将该分支末句改为相同Ok值的尾表达式，目录UNC校验、规范化、角色/金额/DDL及严格Clippy门槛不变；辅助fmt/Clippy通过。当前127指纹仅auth.rs一项变化，完整656/195检查不重复跑。本补丁推送后由原Windows CI重新编译验证，结果待核对；本机仍使用上方唯一新入口并回传新目录，04未验收，P07/P08未启动。
+
+
+## P06-04第二次Windows CI与原生身份修复
+
+用户2026-10-14 12:04:37反馈“未通过”。[第二次CI原报告与独立核对](../verification/P06-04-ci-evidence-02.json)确认855d9d3干净源码的127项LF指纹与提交blob逐项匹配，195个载入测试ID与源码一致。实际Windows MSVC的fmt/严格Clippy/42 Rust/release通过，561/561对照（53黄金）通过，比较文件与既有Windows资产逐字节一致，复用原文件；不重复存副本。专项实际运行167项、零断言失败/97错误，含setUpClass错误；原生宿主/协议/恢复/资源尚未执行，不能记为通过。
+
+26处Rust初始化报NATIVE_SECURITY_FAILED，70处Python初始化/备份报告DACL未授权或重复主体；两个实现均用完整SID写入同一精确白名单，但读回只解释SY/BA显示缩写，存在机器/账户相对别名的兼容缺口。原报告没有原始SDDL，不宣称已观测到某一个具体缩写。修复从同一实际描述符的ACCESS_ALLOWED_ACE读取原生二进制SID，再用ConvertSidToStringSidW得到完整数值身份，既有保护DACL、精确数量/去重、全控制和OI/CI策略继续核对；不按LA猜测本机/域，不增授权主体。转换前检查ACE类型/尺寸/SID长度，成功/异常均释放转换缓冲；Rust与Python完整调用链同步修复。
+
+另1处旧v3夹具在git archive前缺少223e86e固定对象，原CI浅克隆只有当前提交；工作流现只fetch该精确提交并检查类型，HEAD/阶段分支保持，既有固定源码/锁定离线编译与真实旧包测试不变。隔离新建浅克隆已复现缺对象，并验证同一fetch后归档各文件SHA等于原已验收源码；不以替身代替旧执行文件。
+
+新增精确SID别名、同RID异机器身份、重复主体、权限/继承标志、SID尺寸和分配释放回归：16项Python专项、43项Rust与严格Clippy/格式通过；这些是辅助策略/ABI边界证据，不冒充真实Windows属性/ACL。入口纳入12项权限回归，当前128指纹与207项CI载入清单，207项尚未在新Windows运行，不重复旧656检查。推送后由原Windows CI重跑，结果待核对；04仍留now待本机与用户验收，P07/P08未启动。
