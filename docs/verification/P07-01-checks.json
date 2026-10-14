@@ -1,0 +1,116 @@
+{
+  "task": "P07-01",
+  "status": "implemented_auxiliary_passed_actual_Windows_and_visual_pending",
+  "source_commit": "7a243d5d1d103ae968f27adb7f54fea41a64d9cb",
+  "phase_branch": "stage/p07-tauri-desktop",
+  "scope": "current desktop implementation only, no production or shared/E paths, no P07-02/03/04 acceptance",
+  "final_implementation_sha256_LF": {
+    "Cargo.lock": "ed19947197eb57a1e48bfb911d2846c5e2a132e8108503132810bb014c6b0fab",
+    "Cargo.toml": "5642d853e1987beedabefc4e5db15e5caf2e1a11274db247a569211ded01b129",
+    "desktop/THIRD_PARTY_NOTICES.md": "d3e96c41fc584ea9f231f4f9071be6d80c1a6c113bc506a0f3cdc6ac906acb0b",
+    "desktop/index.html": "2ac3223d9eae12e0920b8c40681e3774ddcdfce063ccf14792229a51fa6cb1cb",
+    "desktop/package-lock.json": "5a2aaae50f29c56c39ecf21aacfcb299b43eeff6c8eeab0a7d4292b873d35735",
+    "desktop/package.json": "b788e933f56c8bc423d76732ca292a7d5ae1c6fe8c79ec270c66744fc73ee208",
+    "desktop/playwright.config.ts": "810476ed077df6dc99eb1caabfbc6647f39f6c5b6eaa4f191036f66281e7fe24",
+    "desktop/public/icons/09c30.svg": "4675d28207183903aa226c31309ad5d21627aef900737cab226374c33de54530",
+    "desktop/public/icons/2eb61.svg": "fc026487878113a216b376a29afe78ea7cc972358a179b76478755e8efb7939b",
+    "desktop/public/icons/74181.svg": "ca6fbcb7772da09ace8e7114c68bcbae5ee4c0e341688b1abc11a2d97c3d8873",
+    "desktop/public/icons/7bfb4.svg": "8fcb17ad9bfa58ecc31856e7cfaaea4205c7b94b4ceb5d2bd9b30b9ce71764f7",
+    "desktop/public/icons/a09ba.svg": "fe9da9584ea1261b7fabd08829bffca2b5e1c8b8651681fdf3cc6dbfac54dff3",
+    "desktop/src/App.tsx": "222f351aa6a08b3edb91a8c66ff371e02cb28bbb8e332937f6705a8041608a47",
+    "desktop/src/app.css": "13eb2aa96536f92ac26157933c735b18e404ff8e32834a9c08170c7eb9f7daf0",
+    "desktop/src/bridge.ts": "531829d991ebfe54a1e9d141b1ed0516d33813ba47e7794db876b601535201c5",
+    "desktop/src/contracts.ts": "51007f48cf10f5e9632694a54def20244c38d294917f871a1a0725fd530abd1e",
+    "desktop/src/features/ConnectionPage.tsx": "fab3ba7138134613bab5e39bfb0b1795c0e7820ea6b40b7b0c5559b0580ef5e8",
+    "desktop/src/features/DetailPage.tsx": "122e0579143fe06fd8a8353d12f5744b5b33a99fca797215b94073a7193ed384",
+    "desktop/src/features/ManagementPages.tsx": "850a8f9a20100e9ad917e5e7eefccae444049cde5f0480c34bbfc093d5cf737f",
+    "desktop/src/features/OrdersPage.tsx": "54347d194cb3e75dd3200266be8047f2c5c3d7469cfc67c33bb2f1ea607fb56f",
+    "desktop/src/features/QuotePage.tsx": "d54f15e8cee4877248ef5121703e4865f715a7dfb0074bf2242da0223ffa8f31",
+    "desktop/src/main.tsx": "c4122a275b5a5c6101bb28fc1fa113f9356fb3d6064a4b899a9d20a0851fe570",
+    "desktop/src/state/draft.ts": "6488a349e91e1e7df7cb00de59651e93223beddb1a9afb6cb3eb6c5e44a13459",
+    "desktop/src/state/format.ts": "7294f9ccc7c866797c6a2bd510b29b54110191903b82dda88bef833a8bd14fb5",
+    "desktop/src/state/useWorkbench.ts": "cb804f96c9fa72b5cd8422965e1d357113cb809052487b999aa0b615db0657ff",
+    "desktop/src/tokens.css": "6e8608c761a0062a5e079c6ffd2f371b4226191a0cecbdb000795f4f98ad5f8e",
+    "desktop/src/ui/components.tsx": "b253fa9186d536c85fff11ff6fb3b02e8c2cd0ecf3db75f927b9a880a017d6a3",
+    "desktop/src-tauri/Cargo.toml": "87691d20b105d04d00b26469181469655ae3d3f85024e9a2625971a98479f450",
+    "desktop/src-tauri/build.rs": "3a2790518f2b72f82d196652f5046c88924ed510b46abeac78dcd3c245588720",
+    "desktop/src-tauri/capabilities/main.json": "0dc0fc54faa577dcd3a879ade5d2fb321e435fd69c34efcf19eba6c13aff273c",
+    "desktop/src-tauri/icons/icon.ico": "01024936f46470cd1f92be7699fb541ebc4f49872ed117253d81ebbb0a522595",
+    "desktop/src-tauri/src/client.rs": "99e64a236190f288110db259079699fda32a58217f887218cd0f90c4b2244db4",
+    "desktop/src-tauri/src/journal.rs": "bb3b25c6119c6ab388f5cd8f9e1c0d15f826a127c0a5ec471698ba44a49b7404",
+    "desktop/src-tauri/src/lib.rs": "7fd20a8b804b10c5c0bace92f5861f5e7e3f286f1d423e45be8f00add9d27aac",
+    "desktop/src-tauri/src/main.rs": "0d5d0c0a55cb178f04cdc18a0ea7a6719263159eb6b62b7e875ea5789f084873",
+    "desktop/src-tauri/src/tls.rs": "0bbfae71cebaf7abf11c9834cfa70736135379e87605a41a54426f59e68e6921",
+    "desktop/src-tauri/src/types.rs": "59f1ec5f45cfc1e8dede1f506053eb37a0329317d42a57fd5fa51e477bcfa11f",
+    "desktop/src-tauri/tauri.conf.json": "9720d92feb86785509d9fc3c45f76b771733cc7a8e5a1671cd00700c7d33cf25",
+    "desktop/tests/draft.test.ts": "324fd6e805e4093c4bdf7a6883f4b89e05d638da497396ff017bc98e958e4138",
+    "desktop/tests/ui/workbench.spec.ts": "043da3728c63f9d4e0472776e80bf75f56ef691066e6db55586a21bc9453d373",
+    "desktop/tests/windows-smoke.mjs": "e1d96133ad82696aa22e1ad58828b0b73f5334645c1485e771ef37e0443feab4",
+    "desktop/tsconfig.json": "c16750f08c9ba56eef5cc8e6a4051e2fc8e808cc66e9882041983efba9520832",
+    "docs/design/figma-state.json": "a6715730594ba53d63acdf489099109da3541e53b7c3c0be341e81dc7d403f0f",
+    "docs/design/figma-tokens.json": "a05be392ebced447e3abd67fa6361f38c1d75e6a95f378f88f18cc82c7656d34",
+    "tools/p07_desktop_check.py": "0096d5b22691e09ebc008c6cb388c7f8292d19994a5419f5bc386299799c27d6",
+    "tools/p07_desktop_fixture.py": "7d7851912488ff7b9b0024a7267ad4b3da1f0d1b2ebf124214b1dcdc3663367c"
+  },
+  "raw_report": "P07-01-auxiliary-report-03.json",
+  "prior_passed_before_saved_refresh_fix": "P07-01-auxiliary-report-02.json",
+  "browser_raw_report": "P07-01-browser-report-03.json",
+  "evidence_difference": {
+    "files": [
+      "desktop/THIRD_PARTY_NOTICES.md"
+    ],
+    "reason": "Only generated third-party notice text was deduplicated/whitespace-normalized and missing archive licenses supplemented after the run; runtime and test source files match the raw report. Final notices hash is recorded above."
+  },
+  "results": {
+    "fmt": true,
+    "strict_workspace_clippy": true,
+    "Rust_tests": 48,
+    "frontend_typecheck_and_production_build": true,
+    "frontend_state_tests": 4,
+    "real_Rust_HTTPS_protocol_checks": 10,
+    "browser_interaction_tests": 7,
+    "failed": 0,
+    "skipped": 0
+  },
+  "browser_environment": {
+    "os": "Linux auxiliary only",
+    "browser": "Chromium 143.0.7499.0 via temporary @sparticuz/chromium 143.0.4; not a project dependency",
+    "font_fixture": "hash-pinned NotoSansSC; test page only, no font installation"
+  },
+  "failure_history": [
+    {
+      "failure": "Temporary Figma download URL returned 200 HTML Site Unavailable instead of SVG",
+      "resolution": "Read-only export exact instance SVG_STRING and original PNG; all five vector dimensions validated in rendered UI"
+    },
+    {
+      "failure": "Standard WebPKI verifier refused existing self-signed CA=true host certificate (CaUsedAsEndEntity)",
+      "resolution": "Exact peer SHA256 pin, time, SAN, self-signature and TLS handshake verification; CA and leaf cert success plus wrong pin/name/expired refusal covered"
+    },
+    {
+      "failure": "Playwright downloaded browser was truncated/unavailable in this auxiliary environment",
+      "resolution": "Explicit temporary Chromium executable; Windows CI uses installed Edge, no alternate browser product dependency"
+    },
+    {
+      "failure": "Auxiliary screenshots initially had CJK tofu",
+      "resolution": "Explicit hash-verified test-only NotoSansSC fixture; final screenshots inspected, production font/DPI verification remains P07-03"
+    },
+    {
+      "failure": "Strict Clippy rejected uppercase CA in one test function name",
+      "resolution": "Renamed test snake_case; final strict gate passed"
+    },
+    {
+      "failure": "Large-value verification input exceeded numeric-v1 max quantity",
+      "resolution": "Kept numeric-v1 capacity; tested 20000000000000000 cents using valid area inputs, no limit weakened"
+    },
+    {
+      "failure": "Confirmed write followed by read failure could show a generic failure, and failed note dialog closed",
+      "resolution": "Success state separated from read refresh; original snapshot/details commit matching retains new draft edits; seventh UI regression checks saved-refresh failure and retained note input"
+    }
+  ],
+  "Windows_CI": "configured; result pending new run",
+  "actual_Tauri_WebView2": "not run in auxiliary environment; --windows-smoke provided",
+  "user_visual_acceptance": "pending",
+  "security_specialist_gate": "P07-02 not started",
+  "DPI_font_image_and_installer_gates": "P07-03/04 not started",
+  "production_paths_accessed": false
+}

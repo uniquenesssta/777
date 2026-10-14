@@ -14,4 +14,4 @@
 
 [P05数据与服务](P05-data-service.md)按用户“收尾P05-04开始P06-01”归档，见[阶段范围交接](../verification/P05-acceptance.json)。真实部署/历史切换交接后续，原报告保持。
 
-[P06 Rust核心/存储/格式/独立宿主](P06-rust-core.md)按用户2026-10-14 14:32:51“收尾04”全部验收归档，见[阶段验收](../verification/P06-acceptance.json)。Windows CI与本机212专项/43 Rust/561对照、原母子窗口/DPAPI/ACL/系统图片/v4恢复及资源核对通过；原资料保持，P07/P08待授权，真实部署/安装与历史切换交接后续。
+[P06 Rust核心/存储/格式/独立宿主](P06-rust-core.md)按用户2026-10-14 14:32:51“收尾04”全部验收归档，见[阶段验收](../verification/P06-acceptance.json)。Windows CI与本机212专项/43 Rust/561对照、原母子窗口/DPAPI/ACL/系统图片/v4恢复及资源核对通过；原资料保持；P07当前执行状态见[now任务书](../now/P07-tauri-desktop.md)，P08待前置验收，真实部署/安装与历史切换交接后续。

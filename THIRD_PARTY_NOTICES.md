@@ -20979,3 +20979,7 @@ DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
 ```
+
+## P07 desktop additions
+
+Tauri/React/transport dependencies and unchanged source license texts: [desktop notices](desktop/THIRD_PARTY_NOTICES.md). Exact locked versions, Windows dependency graph and npm optional-platform scope: [P07 manifest](docs/verification/P07-01-dependencies.json). Original design asset licenses: [Figma assets](docs/design/figma-asset-licenses.md). P06 evidence above remains historical; final installer composition is verified in P07-04.

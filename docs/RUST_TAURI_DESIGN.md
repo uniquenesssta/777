@@ -1,6 +1,6 @@
 # Rust + Tauri 拟议架构与迁移方案
 
-状态：完整Tauri拓扑仍为方案；Python过渡服务/账本已在P05交付，P06-01已创建独立Rust领域crate与影子核对入口，尚未接替生产服务或创建Tauri界面。约束入口为[主任务书](MASTER_PLAN.md)，业务字段和公式以[迁移契约](MIGRATION_CONTRACT.md)为准。
+状态：P06原生Rust宿主已验收；P07-01已实现Windows Tauri入口及真实HTTPS链路，辅助验证通过，待Windows与用户视觉交互验收。后文初始拟议边界保留；当前实现见文末P07-01及[契约](verification/P07-01-desktop-contract.md)。真实服务部署/生产切换未执行。
 
 ## 1. 为什么先优化数据与规则
 
@@ -123,3 +123,10 @@ PNG使用有字形检查的fontdue/png与Windows现有CJK字体，系统字体�
 
 
 P06已按用户2026-10-14“收尾04”[全部验收](verification/P06-acceptance.json)：Rust核心/账本/原生Excel及独立HTTPS宿主交付完成，Windows原母子客户端、DPAPI/ACL/系统图片/v4恢复和资源核对通过。上方逐项开发状态为历史；界面、Windows安装与真实部署/迁移继续由P07/P08按授权实施，本轮未启动。
+
+
+## P07-01已实现的桌面边界
+
+`desktop/src/features`分报价/列表详情/管理页面，`state`持有原文草稿与过期标记，`ui`复用Figma tokens和原矢量；React不重算金融金额。`desktop/src-tauri`按types/HTTPS/client/journal拆分：固定main窗口单一类型化desktop_action命令，Rust内存会话、精确证书pin/SAN/有效期/自签名及TLS握手校验、有界请求，DPAPI固定profile保存连接与发送前原请求。原版自签名CA证书兼容仍执行上述全部身份校验。
+
+真实链路为React → Tauri类型化IPC → Rust桌面客户端 → Rustls HTTPS → 已验收quote-host → quote-core/quote-ledger/quote-excel。销售不获取成本/利润，客户端不打开账本或直接写导出目录；服务持有单写权威和任务回执。输出job与财务提交分离。P07-02继续专项安全审计，03验证多DPI/原生附件与字体，04才创建安装包；不得把本项最小边界当整阶段验收。

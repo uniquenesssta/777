@@ -1,0 +1,10 @@
+{
+  "identifier": "main-desktop",
+  "description": "Only the local main window may call the typed desktop API.",
+  "windows": ["main"],
+  "permissions": [
+    "allow-desktop-action",
+    "core:event:allow-listen",
+    "core:event:allow-unlisten"
+  ]
+}

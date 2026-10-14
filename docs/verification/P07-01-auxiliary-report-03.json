@@ -1,0 +1,241 @@
+{
+  "task": "P07-01",
+  "status": "auxiliary_protocol_and_browser_passed_actual_Windows_pending",
+  "environment": {
+    "os": "Linux",
+    "python": "3.12.14"
+  },
+  "commands": [
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "--version"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.005470482999953674,
+      "stdout": "v24.19.0\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/tmp/777-p07-cargo/bin/rustc",
+        "+1.97.1",
+        "-vV"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.011871751999933622,
+      "stdout": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-unknown-linux-gnu\nrelease: 1.97.1\nLLVM version: 22.1.6\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/npm",
+        "ci",
+        "--prefix",
+        "desktop",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.2330305769992265,
+      "stdout": "\nadded 61 packages in 1s\n",
+      "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n"
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/npm",
+        "--prefix",
+        "desktop",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.6953602449993923,
+      "stdout": "\n> quote-desktop@0.1.0 build\n> tsc --noEmit && vite build\n\nvite v8.3.4 building client environment for production...\ntransforming...\n✓ 84 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.35 kB │ gzip:  0.27 kB\ndist/assets/index-HXoiUZaM.css   13.32 kB │ gzip:  3.35 kB\ndist/assets/index-BxhN8Caw.js   298.03 kB │ gzip: 93.37 kB\n\n✓ built in 168ms\n",
+      "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-dialog/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-dialog/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\n\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-portal/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-portal/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\n\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-primitive/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-primitive/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\n\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-focus-guards/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-focus-guards/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\n\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-presence/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-presence/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\n\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-focus-scope/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-focus-scope/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\n\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\n"
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/npm",
+        "--prefix",
+        "desktop",
+        "test"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.4120984339988354,
+      "stdout": "\n> quote-desktop@0.1.0 test\n> node --import tsx --test tests/*.test.ts\n\n✔ late calculation cannot restore authority after any input or price change (0.885618ms)\n✔ revision and display cents never pass through JS floating point (0.262726ms)\n✔ only raw draft fields restore, never a claimed result or stored role (0.245791ms)\n✔ confirmed original order clears only its own raw draft and preserves edits during submit (6.381208ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 230.827123\n",
+      "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n"
+    },
+    {
+      "command": [
+        "/tmp/777-p07-cargo/bin/cargo",
+        "+1.97.1",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.17286262900051952,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/tmp/777-p07-cargo/bin/cargo",
+        "+1.97.1",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--features",
+        "quote-desktop/verification",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.6362495539997326,
+      "stdout": "",
+      "stderr": "   Compiling quote-desktop v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/desktop/src-tauri)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.58s\n"
+    },
+    {
+      "command": [
+        "/tmp/777-p07-cargo/bin/cargo",
+        "+1.97.1",
+        "test",
+        "--locked",
+        "--workspace",
+        "--features",
+        "quote-desktop/verification"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.958812213000783,
+      "stdout": "\nrunning 5 tests\ntest session::integrity_tests::incorrect_result_versions_are_blocked ... ok\ntest session::integrity_tests::invalid_observation_is_atomic ... ok\ntest session::integrity_tests::incomplete_results_are_blocked ... ok\ntest session::integrity_tests::incorrect_result_totals_are_blocked ... ok\ntest session::integrity_tests::revision_overflow_is_atomic ... ok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 16 tests\ntest duplicate_keys_and_boolean_flags_block_whole_candidate ... ok\ntest division_rounds_each_operator ... ok\ntest config_numeric_tokens_bom_and_invalid_surrogate ... ok\ntest blocked_dispatch_calls_zero_and_all_outputs_freeze_same_cents ... ok\ntest intermediate_capacity_checked_before_cancellation ... ok\ntest field_and_ast_limits_are_not_rounded_away ... ok\ntest money_capacity_checks_profit_and_symmetric_limit ... ok\ntest malformed_model_cannot_become_formal_result ... ok\ntest unicode_discount_digits_match_python_decimal ... ok\ntest wire_cents_are_strings_above_javascript_integer_limit ... ok\ntest second_line_failure_has_no_partial_results ... ok\ntest price_refresh_requires_current_recalculation_and_confirmation ... ok\ntest old_and_same_identity_other_generation_completions_are_discarded ... ok\ntest unavailable_prices_only_allow_draft_preview ... ok\ntest negative_half_ties_and_exact_remainder ... ok\ntest writer_errors_propagate_without_invalidating_result ... ok\n\ntest result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 5 tests\ntest client::tests::display_preserves_exact_large_cents_and_safe_revision_strings ... ok\ntest tls::tests::invalid_destinations_and_bad_pin_never_build_a_client ... ok\ntest client::tests::wire_rejects_arbitrary_paths_actor_and_unknown_commands ... ok\ntest journal::tests::pending_is_exclusive_and_corruption_is_never_silently_discarded ... ok\ntest tls::tests::pinned_legacy_ca_and_leaf_certificates_require_exact_identity_name_and_time ... ok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 7 tests\ntest output_version_and_financial_capacity_are_rejected ... ok\ntest external_relationships_fail_closed ... ok\ntest calamine_candidate_loses_decimal_token_while_selected_reader_retains_it ... ok\ntest formulas_are_refused_even_with_a_cached_value ... ok\ntest duplicate_cells_and_capacity_fail_instead_of_truncation ... ok\ntest corrupt_encoding_entities_and_unknown_namespace_are_refused ... ok\ntest text_roles_precision_and_new_workbook_styles_are_stable ... ok\n\ntest result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 11 tests\ntest png_without_approved_readable_font_fails_explicitly ... ok\ntest exclusive_publish_preserves_an_existing_target_and_rejects_different_bytes ... ok\ntest nested_duplicate_json_bad_unicode_and_nonfinite_are_rejected ... ok\ntest protected_dacl_requires_exact_inheritable_allowlist ... ok\ntest sales_projection_is_an_allowlist_and_exact_cents_stay_strings ... ok\ntest same_host_owner_lock_excludes_second_native_instance ... ok\ntest public_quote_input_cannot_claim_actor_totals_or_boolean_numbers ... ok\ntest native_ace_identity_resolves_display_aliases_without_widening_the_allowlist ... ok\ntest username_and_search_share_full_unicode_casefold ... ok\ntest native_scrypt_matches_accepted_python_verifier ... ok\ntest native_auth_original_schema_rejects_extra_trigger_without_repair ... ok\n\ntest result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.68s\n\n\nrunning 4 tests\ntest tests::generated_identifiers_are_canonical_and_distinct ... ok\ntest tests::native_principal_requires_known_role_and_bounded_identity ... ok\ntest tests::frozen_schema_hash_matches_native_sqlite_metadata ... ok\ntest tests::version_or_extra_trigger_is_not_repaired ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+      "stderr": "   Compiling quote-desktop v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/desktop/src-tauri)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.87s\n     Running unittests src/lib.rs (target/debug/deps/quote_core-72b591741af7b014)\n     Running unittests src/bin/quote-shadow.rs (target/debug/deps/quote_shadow-5a538948c23dfed3)\n     Running tests/domain.rs (target/debug/deps/domain-9a39c5490661e21e)\n     Running unittests src/lib.rs (target/debug/deps/quote_desktop-891fe3a292dd9ad6)\n     Running unittests src/main.rs (target/debug/deps/quote_desktop-45918fa6758f4f11)\n     Running unittests src/lib.rs (target/debug/deps/quote_excel-e75ca4bcc573164a)\n     Running tests/format.rs (target/debug/deps/format-572a156c3411b31b)\n     Running unittests src/lib.rs (target/debug/deps/quote_host-be6a6137c00248fa)\n     Running unittests src/main.rs (target/debug/deps/quote_host-d3c43635b55242fb)\n     Running tests/boundary.rs (target/debug/deps/boundary-3ccb2a9f351a364f)\n     Running unittests src/lib.rs (target/debug/deps/quote_ledger-eeff405e4a2c4d70)\n     Running unittests src/main.rs (target/debug/deps/quote_ledger-613f8ffa916fdb11)\n   Doc-tests quote_core\n   Doc-tests quote_desktop\n   Doc-tests quote_excel\n   Doc-tests quote_host\n   Doc-tests quote_ledger\n"
+    },
+    {
+      "command": [
+        "/tmp/777-p07-cargo/bin/cargo",
+        "+1.97.1",
+        "build",
+        "--release",
+        "--locked",
+        "-j",
+        "2",
+        "-p",
+        "quote-host",
+        "-p",
+        "quote-ledger",
+        "-p",
+        "quote-desktop",
+        "--features",
+        "quote-desktop/verification"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.905520397000146,
+      "stdout": "",
+      "stderr": "   Compiling quote-desktop v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/desktop/src-tauri)\n    Finished `release` profile [optimized] target(s) in 4.87s\n"
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/npm",
+        "--prefix",
+        "desktop",
+        "run",
+        "test:ui"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 15.25426873699871,
+      "stdout": "\n> quote-desktop@0.1.0 test:ui\n> playwright test\n\n\nRunning 7 tests using 1 worker\n\n  ✓  1 tests/ui/workbench.spec.ts:80:1 › real Rust quote, compact confirmation, append note, void/restore and full pagination (2.2s)\n  ✓  2 tests/ui/workbench.spec.ts:122:1 › input edit invalidates result and late calculation cannot reenable submit (1.6s)\n  ✓  3 tests/ui/workbench.spec.ts:142:1 › sales DTO and pages contain no cost/profit and settings inherit (1.8s)\n  ✓  4 tests/ui/workbench.spec.ts:175:1 › unknown commit requires original receipt check and restart never double books (1.9s)\n  ✓  5 tests/ui/workbench.spec.ts:195:1 › current Figma quote geometry and all original assets load at their exported sizes (1.6s)\n  ✓  6 tests/ui/workbench.spec.ts:255:1 › manager price publication, readonly inherited directories and real output task progress (2.0s)\n  ✓  7 tests/ui/workbench.spec.ts:283:1 › confirmed write with failed detail refresh clears the original draft and never offers a duplicate submit (2.0s)\n\n  7 passed (14.7s)\n",
+      "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n[WebServer] (node:833) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)\n[WebServer] npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n[WebServer] (node:846) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)\n(node:886) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+    }
+  ],
+  "native_window": null,
+  "protocol": {
+    "status": "passed",
+    "checks": [
+      "certificate_pin_rejected_before_request",
+      "real_Rust_HTTPS_login_no_token_crosses_IPC",
+      "exact_cents_revision_and_frozen_draft_submission",
+      "append_only_note_void_restore_original_amount_and_revision",
+      "full_20_row_pagination_and_view_binding",
+      "native_output_task_does_not_rebook_financial_order",
+      "sales_DTO_other_actor_and_management_commands_restricted",
+      "native_host_and_desktop_restart_original_receipt_identity_and_no_duplicate",
+      "money_above_JavaScript_integer_limit_remains_exact_string",
+      "server_price_change_refuses_stale_confirmation_without_booking"
+    ],
+    "actual_transport": "Rust desktop IPC dispatcher -> Rustls pinned HTTPS -> standalone Rust host",
+    "production_paths_accessed": false,
+    "Windows_DPAPI": false,
+    "scope": "owned temporary profile, synthetic accounts/prices/orders, no installed service or real data",
+    "sandbox_cleaned": true
+  },
+  "production_paths_accessed": false,
+  "acceptance": "pending_actual_Windows_visual_and_interaction",
+  "source_commit": "7a243d5d1d103ae968f27adb7f54fea41a64d9cb",
+  "worktree_dirty": true,
+  "implementation_sha256_LF": {
+    "Cargo.lock": "ed19947197eb57a1e48bfb911d2846c5e2a132e8108503132810bb014c6b0fab",
+    "Cargo.toml": "5642d853e1987beedabefc4e5db15e5caf2e1a11274db247a569211ded01b129",
+    "desktop/THIRD_PARTY_NOTICES.md": "435d43c8fd61f04ee292344a4bded42769851b533e301136a7ea55601a62f1e2",
+    "desktop/index.html": "2ac3223d9eae12e0920b8c40681e3774ddcdfce063ccf14792229a51fa6cb1cb",
+    "desktop/package-lock.json": "5a2aaae50f29c56c39ecf21aacfcb299b43eeff6c8eeab0a7d4292b873d35735",
+    "desktop/package.json": "b788e933f56c8bc423d76732ca292a7d5ae1c6fe8c79ec270c66744fc73ee208",
+    "desktop/playwright.config.ts": "810476ed077df6dc99eb1caabfbc6647f39f6c5b6eaa4f191036f66281e7fe24",
+    "desktop/public/icons/09c30.svg": "4675d28207183903aa226c31309ad5d21627aef900737cab226374c33de54530",
+    "desktop/public/icons/2eb61.svg": "fc026487878113a216b376a29afe78ea7cc972358a179b76478755e8efb7939b",
+    "desktop/public/icons/74181.svg": "ca6fbcb7772da09ace8e7114c68bcbae5ee4c0e341688b1abc11a2d97c3d8873",
+    "desktop/public/icons/7bfb4.svg": "8fcb17ad9bfa58ecc31856e7cfaaea4205c7b94b4ceb5d2bd9b30b9ce71764f7",
+    "desktop/public/icons/a09ba.svg": "fe9da9584ea1261b7fabd08829bffca2b5e1c8b8651681fdf3cc6dbfac54dff3",
+    "desktop/src/App.tsx": "222f351aa6a08b3edb91a8c66ff371e02cb28bbb8e332937f6705a8041608a47",
+    "desktop/src/app.css": "13eb2aa96536f92ac26157933c735b18e404ff8e32834a9c08170c7eb9f7daf0",
+    "desktop/src/bridge.ts": "531829d991ebfe54a1e9d141b1ed0516d33813ba47e7794db876b601535201c5",
+    "desktop/src/contracts.ts": "51007f48cf10f5e9632694a54def20244c38d294917f871a1a0725fd530abd1e",
+    "desktop/src/features/ConnectionPage.tsx": "fab3ba7138134613bab5e39bfb0b1795c0e7820ea6b40b7b0c5559b0580ef5e8",
+    "desktop/src/features/DetailPage.tsx": "122e0579143fe06fd8a8353d12f5744b5b33a99fca797215b94073a7193ed384",
+    "desktop/src/features/ManagementPages.tsx": "850a8f9a20100e9ad917e5e7eefccae444049cde5f0480c34bbfc093d5cf737f",
+    "desktop/src/features/OrdersPage.tsx": "54347d194cb3e75dd3200266be8047f2c5c3d7469cfc67c33bb2f1ea607fb56f",
+    "desktop/src/features/QuotePage.tsx": "d54f15e8cee4877248ef5121703e4865f715a7dfb0074bf2242da0223ffa8f31",
+    "desktop/src/main.tsx": "c4122a275b5a5c6101bb28fc1fa113f9356fb3d6064a4b899a9d20a0851fe570",
+    "desktop/src/state/draft.ts": "6488a349e91e1e7df7cb00de59651e93223beddb1a9afb6cb3eb6c5e44a13459",
+    "desktop/src/state/format.ts": "7294f9ccc7c866797c6a2bd510b29b54110191903b82dda88bef833a8bd14fb5",
+    "desktop/src/state/useWorkbench.ts": "cb804f96c9fa72b5cd8422965e1d357113cb809052487b999aa0b615db0657ff",
+    "desktop/src/tokens.css": "6e8608c761a0062a5e079c6ffd2f371b4226191a0cecbdb000795f4f98ad5f8e",
+    "desktop/src/ui/components.tsx": "b253fa9186d536c85fff11ff6fb3b02e8c2cd0ecf3db75f927b9a880a017d6a3",
+    "desktop/src-tauri/Cargo.toml": "87691d20b105d04d00b26469181469655ae3d3f85024e9a2625971a98479f450",
+    "desktop/src-tauri/build.rs": "3a2790518f2b72f82d196652f5046c88924ed510b46abeac78dcd3c245588720",
+    "desktop/src-tauri/capabilities/main.json": "0dc0fc54faa577dcd3a879ade5d2fb321e435fd69c34efcf19eba6c13aff273c",
+    "desktop/src-tauri/icons/icon.ico": "01024936f46470cd1f92be7699fb541ebc4f49872ed117253d81ebbb0a522595",
+    "desktop/src-tauri/src/client.rs": "99e64a236190f288110db259079699fda32a58217f887218cd0f90c4b2244db4",
+    "desktop/src-tauri/src/journal.rs": "bb3b25c6119c6ab388f5cd8f9e1c0d15f826a127c0a5ec471698ba44a49b7404",
+    "desktop/src-tauri/src/lib.rs": "7fd20a8b804b10c5c0bace92f5861f5e7e3f286f1d423e45be8f00add9d27aac",
+    "desktop/src-tauri/src/main.rs": "0d5d0c0a55cb178f04cdc18a0ea7a6719263159eb6b62b7e875ea5789f084873",
+    "desktop/src-tauri/src/tls.rs": "0bbfae71cebaf7abf11c9834cfa70736135379e87605a41a54426f59e68e6921",
+    "desktop/src-tauri/src/types.rs": "59f1ec5f45cfc1e8dede1f506053eb37a0329317d42a57fd5fa51e477bcfa11f",
+    "desktop/src-tauri/tauri.conf.json": "9720d92feb86785509d9fc3c45f76b771733cc7a8e5a1671cd00700c7d33cf25",
+    "desktop/tests/draft.test.ts": "324fd6e805e4093c4bdf7a6883f4b89e05d638da497396ff017bc98e958e4138",
+    "desktop/tests/ui/workbench.spec.ts": "043da3728c63f9d4e0472776e80bf75f56ef691066e6db55586a21bc9453d373",
+    "desktop/tests/windows-smoke.mjs": "e1d96133ad82696aa22e1ad58828b0b73f5334645c1485e771ef37e0443feab4",
+    "desktop/tsconfig.json": "c16750f08c9ba56eef5cc8e6a4051e2fc8e808cc66e9882041983efba9520832",
+    "docs/design/figma-state.json": "a6715730594ba53d63acdf489099109da3541e53b7c3c0be341e81dc7d403f0f",
+    "docs/design/figma-tokens.json": "a05be392ebced447e3abd67fa6361f38c1d75e6a95f378f88f18cc82c7656d34",
+    "tools/p07_desktop_check.py": "0096d5b22691e09ebc008c6cb388c7f8292d19994a5419f5bc386299799c27d6",
+    "tools/p07_desktop_fixture.py": "7d7851912488ff7b9b0024a7267ad4b3da1f0d1b2ebf124214b1dcdc3663367c"
+  },
+  "browser_font_fixture": {
+    "sha256": "d68bafcb48a2707749396aa12bbbd833cb70401f3a9a689fd2902c7e0d295964",
+    "source": "explicit hash-verified fixture",
+    "scope": "test browser only; no product or system font installation"
+  },
+  "browser_tests": {
+    "startTime": "2026-10-14T07:23:13.925Z",
+    "duration": 14677.075,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

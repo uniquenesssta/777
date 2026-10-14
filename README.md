@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P06-01至04已按用户“收尾04”[全部验收归档](docs/verification/P06-acceptance.json)，任务书位于[old/P06](docs/old/P06-rust-core.md)。[Windows本机与CI证据](docs/verification/P06-04-windows-evidence-01.json)及全部历史资料保持，已通过检查无需重跑。当前分支保留stage/p06-rust-core，P07/P08待授权，真实部署与生产切换交接后续。
+P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。当前P07-01已实现并通过辅助验证，正在Windows构建验证阶段，原生窗口与用户视觉/交互验收待完成；P07-02至04/P08未启动。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -17,6 +17,7 @@ P06-01至04已按用户“收尾04”[全部验收归档](docs/verification/P06-
 - [P03-03 Windows本机复查通过](docs/verification/P03-03-windows-evidence.json)
 - [P03-04订单备注、作废恢复与Windows一键检查](docs/verification/P03-04-order-contract.md)
 - [P03-04 Windows本机复查通过](docs/verification/P03-04-windows-evidence.json)
+- [P07当前任务书与桌面验收入口](docs/now/P07-tauri-desktop.md)
 - [P06 Rust领域核心归档任务书](docs/old/P06-rust-core.md)
 - [P06-01契约与Windows运行步骤](docs/verification/P06-01-core-contract.md)
 - [P05数据与服务归档任务书](docs/old/P05-data-service.md)
@@ -36,6 +37,8 @@ P06-01至04已按用户“收尾04”[全部验收归档](docs/verification/P06-
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 用户“开始P07”：从P06收尾7a243d5建立唯一stage/p07-tauri-desktop，任务书new→now；读取本仓库Figma@c517d8b当前稿，交付React/TypeScript + Tauri真实Rust HTTPS桌面链路、角色投影、完整分页详情、未知提交核查与原生输出任务。改动价格/输入立即失效；提交后刷新失败明确已保存，提交期间新编辑草稿保留。实现/辅助结果与初期失败见[P07-01契约](docs/verification/P07-01-desktop-contract.md)和[证据](docs/verification/P07-01-checks.json)，Windows-only CI与本机隔离入口已交付；Windows原生窗口、用户视觉交互尚待验证，02至04及P08未启动，未替换生产。
 
 - 用户“收尾04”：登记[P06-04验收](docs/verification/P06-04-acceptance.json)及[P06阶段验收](docs/verification/P06-acceptance.json)，四项交付完成，任务书now→old；Windows CI/本机原报告与全部历史资料保持，无需重跑通过检查。本轮仅收尾，P07/P08待授权，后续界面/安装/真实部署与生产迁移交接保持。
 

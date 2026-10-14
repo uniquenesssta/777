@@ -386,3 +386,10 @@ Rust账本保持ledger-v1、已确认P05 API/客户端及角色过滤；[02契�
 [04协议](verification/P06-04-protocol.json)保留ledger/auth/output-v1与777-service/query/output-v1，Rust宿主直接链接领域/账本/Excel并执行当前会话角色过滤；原请求/金额文本、目录继承/成本隔离及批次身份不变。host-v1可选service_backend/rust_host_sha256明确选择一个监听宿主，原owner锁/完整维护备份及资源登记约束切换；已选Rust主机不能启动Python监听或隐式回退。
 
 完整v4只增加已登记宿主/许可，旧v1/v2/v3可读；原包不改，独立新目录恢复撤旧会话、禁用其他旧凭证、默认维护，显式确认旧主机停写后才启动副本。离线历史字段映射与独立Python验证器保留为兼容工具，运行服务与原生完整备份不调用Python。真实部署/迁移仍按P08交接执行。
+
+
+## P07-01桌面DTO与状态
+
+[桌面契约](verification/P07-01-desktop-contract.md)保持business-v1/numeric-v1、ledger-v1、777-service/query/output-v1。UI原文输入和十进制金额/revision字符串，经deny_unknown_fields的Action枚举交给Rust；不存在任意URL/path/actor/SQL/shell透传。每次编辑/价格更新使草稿结果失效，迟到结果不能恢复提交资格；Rust再比冻结snapshot/revision，服务最后重验价格与金额。
+
+变更发送前以DPAPI独占保存原request_id/请求/账号/服务pin；未知结果只能查询或按原请求重试。核查回执返回该新单原始snapshot/details，UI仅清理仍与原请求相同的草稿，提交期间新编辑保留且重新计算。已确认保存后的视图刷新失败不改变提交结论，也不提供重复入账重试。销售导出/图片目录是管理员发布的只读继承值，不能沿用早期规划的销售自行修改表述。

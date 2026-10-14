@@ -1,0 +1,26 @@
+/* Figma c517d8b / 2ek9bkIz5ldyhjZnnvIuNu: current compact semantic tokens. */
+:root {
+  --color-canvas: #f5f6f8;
+  --color-white: #ffffff;
+  --color-ink: #242630;
+  --color-muted: #777c8b;
+  --color-faint: #a3a7b2;
+  --color-line: #e7e9ef;
+  --color-soft: #f7f8fa;
+  --color-accent: #5558e8;
+  --color-accent-soft: #eeeeff;
+  --color-accent-ink: #4945b8;
+  --color-dark: #262935;
+  --color-dark-muted: #b8bdcf;
+  --color-success: #26765b;
+  --color-hover: #484bcc;
+  --color-pressed: #3c3faf;
+  --color-disabled: #eceef3;
+  --color-disabled-text: #9ea3af;
+  --color-danger: #b83d4a;
+  --color-danger-soft: #fff1f2;
+  --color-warning: #946512;
+  --color-warning-soft: #fff8e7;
+  --font-body: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --font-number: Inter, "Segoe UI", sans-serif;
+}

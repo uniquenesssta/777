@@ -3,3 +3,9 @@ __pycache__/
 .venv/
 reports/
 /target/
+
+/desktop/node_modules/
+/desktop/dist/
+/desktop/test-results/
+/desktop/playwright-report/
+/desktop/src-tauri/gen/

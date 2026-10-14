@@ -1,0 +1,20 @@
+{
+  "task": "P07-01",
+  "status": "implemented_auxiliary_verified_Windows_and_user_acceptance_pending",
+  "authorized_at": "2026-10-14T14:37:59+08:00",
+  "user_instruction": "开始P07，你应该知道在哪里可以获取应该获取到的信息，如果你不知道可以停下来我告诉你",
+  "source_commit": "7a243d5d1d103ae968f27adb7f54fea41a64d9cb",
+  "phase_branch": "stage/p07-tauri-desktop",
+  "design_branch": "Figma",
+  "design_commit": "c517d8b3086932abe2dc01908e4dae3209b9f956",
+  "figma_file": "2ek9bkIz5ldyhjZnnvIuNu",
+  "current_page": "21:2",
+  "previous_acceptance": "P06-acceptance.json",
+  "production_cutover": false,
+  "not_started": [
+    "P07-02",
+    "P07-03",
+    "P07-04",
+    "P08"
+  ]
+}
