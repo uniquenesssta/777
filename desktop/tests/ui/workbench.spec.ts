@@ -328,3 +328,11 @@ test("confirmed write with failed detail refresh clears the original draft and n
   await page.getByRole("button", { name: "确认", exact: true }).click();
   await expect(page.getByLabel("备注内容")).toHaveValue("失败后保留的备注草稿");
 });
+
+test("development keeps an explicit connection editor without exposing it as formal authentication", async ({page}) => {
+  await login(page);
+  await page.getByRole("button", {name:"存储与备份",exact:true}).click();
+  await page.getByRole("button", {name:"开发连接设置",exact:true}).click();
+  await expect(page.getByLabel("服务地址", {exact:true})).toBeVisible();
+  await expect(page.getByRole("button", {name:"登录",exact:true})).toBeVisible();
+});

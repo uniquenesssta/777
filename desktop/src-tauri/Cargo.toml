@@ -8,6 +8,8 @@ license.workspace = true
 default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 verification = []
+manager = []
+sales = []
 [dependencies]
 quote-core = { path = "../../crates/quote-core" }
 serde.workspace = true

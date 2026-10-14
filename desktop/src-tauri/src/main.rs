@@ -68,6 +68,14 @@ mod shell {
         tauri::Builder::default()
             .setup(move |app| {
                 let root = app.path().app_local_data_dir()?;
+                let root = match quote_desktop::delivery() {
+                    "manager"=>root.join("manager"),"sales"=>root.join("sales"),
+                    _ if cfg!(debug_assertions) => std::env::var_os("LOCALAPPDATA")
+                        .map(std::path::PathBuf::from)
+                        .ok_or_else(|| std::io::Error::other("LOCALAPPDATA_REQUIRED"))?
+                        .join("Quote777Development/desktop"),
+                    _=>root,
+                };
                 #[cfg(feature = "verification")]
                 let root = isolated.as_ref().map_or(root, |v| v.root.clone());
                 let client =

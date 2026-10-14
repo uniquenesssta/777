@@ -134,7 +134,13 @@ export default function App() {
           </Alert>
         </div>
       )}
-      {!app.session ? (
+      {!app.session ? app.delivery === "loading" || app.automatic ? (
+        <main className="connection-page"><section className="card connection-card" aria-busy={app.busy}>
+          <h1>{app.busy || app.delivery === "loading" ? "正在连接…" : "暂时无法进入记账器"}</h1>
+          <p className="muted">{app.busy || app.delivery === "loading" ? "请稍候" : "请重试；仍无法连接时请联系管理员。输入草稿会保留。"}</p>
+          <Button disabled={app.busy || app.delivery === "loading"} onClick={()=>void app.bootstrap()}>重新连接</Button>
+        </section></main>
+      ) : (
         <ConnectionPage
           key={app.connection?.url ?? "initial"}
           saved={app.connection}

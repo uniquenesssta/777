@@ -240,10 +240,11 @@ export function SettingsPage({ app }: { app: Workbench }) {
           重新读取
         </Button>
       </div>
-      <Field label="当前服务">
+      {app.delivery === "development" && <><Field label="当前服务">
         <Input readOnly value={app.connection?.url ?? ""} />
       </Field>
-      <p className="muted">连接设置在退出登录后可更改。</p>
+      <p className="muted">连接信息由开发配置保存。</p>
+      <Button variant="outline" disabled={app.busy} onClick={()=>void app.editConnection()}>开发连接设置</Button></>}
       <Field label="报价表保存位置">
         <Input
           value={exportDir}

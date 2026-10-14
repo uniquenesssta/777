@@ -28,6 +28,8 @@ async function afterSaved<T>(read: () => Promise<T>): Promise<Refreshed<T>> {
   }
 }
 export function useWorkbench() {
+  const [delivery, setDelivery] = useState("loading");
+  const [automatic, setAutomatic] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [connection, setConnection] = useState<Connection | null>(null);
   const [catalog, setCatalog] = useState<Catalog | null>(null);
@@ -89,7 +91,7 @@ export function useWorkbench() {
             ["COMMIT_UNKNOWN", "PENDING_REQUEST_REQUIRES_QUERY"].includes(code)
           )
             setPending(true);
-          if (code === "UNAUTHENTICATED") {
+          if (["UNAUTHENTICATED","DEVICE_NOT_AUTHORIZED","DELIVERY_ROLE_MISMATCH"].includes(code)) {
             epoch.current++;
             setSession(null);
             setSelected(null);
@@ -117,12 +119,17 @@ export function useWorkbench() {
     [],
   );
   useEffect(() => {
-    request<{ connection: Connection | null; pending: boolean }>("connection")
+    request<{ delivery: string; automatic: boolean; connection: Connection | null; pending: boolean }>("connection")
       .then((r) => {
+        setDelivery(r.delivery);
+        setAutomatic(r.automatic);
+        if (r.automatic) void bootstrap();
         setConnection(r.connection);
         setPending(r.pending);
       })
       .catch((e) => {
+        setDelivery("unavailable");
+        setAutomatic(true);
         setFeedback(errorMessage(e));
         setIsError(true);
       });
@@ -140,8 +147,22 @@ export function useWorkbench() {
       setBackup(null);
       setPreferences(null);
       dispatch({ type: "invalidate" });
-      setFeedback(`${message}登录已失效，请重新登录后读取。`);
+      setFeedback(`${message}连接已失效，请重新连接后读取。`);
     }
+  }
+  async function bootstrap() {
+    await run(async()=>{
+      const b=await request<{delivery:string;automatic:boolean;session:Session|null}>("bootstrap");
+      const p=b.session?await request<Catalog>("prices"):null;
+      const dirs=b.session?await request<Preferences>("settings"):null;
+      const c=b.session?await request<{connection:Connection|null}>("connection"):null;
+      return {b,p,dirs,c};
+    },({b,p,dirs,c})=>{
+      if(c)setConnection(c.connection);
+      epoch.current++;setDelivery(b.delivery);setAutomatic(b.automatic);setSession(b.session);
+      setCatalog(p);setPreferences(dirs);setPending(b.session?.pending??false);
+      if(p)dispatch({type:"prices",version:p.price_version_id});setRoute("quote");
+    });
   }
   async function connect(c: Connection, username: string, password: string) {
     await run(
@@ -435,6 +456,7 @@ export function useWorkbench() {
       },
       () => {},
     );
+  async function editConnection() { await logout(); setAutomatic(false); }
   function navigate(next: Route) {
     setRoute(next);
     if (next === "orders" || next === "profit")
@@ -444,6 +466,7 @@ export function useWorkbench() {
   }
   return {
     listScrollRef,
+    delivery, automatic, bootstrap, editConnection,
     session,
     connection,
     catalog,

@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "scope": "auxiliary native dispatcher; persistent development host upgraded then restarted twice; not Windows GUI",
+  "certificate_unchanged_across_code_upgrade": true,
+  "records": [
+    {
+      "automatic_native_dispatcher": true,
+      "real_Rustls_HTTPS": true,
+      "specified_credentials_accepted": true,
+      "certificate_sha256": "4ea474c37988fb9272c71ca5f194bf21c36035a2207aca33c4941f82ff88d179"
+    },
+    {
+      "automatic_native_dispatcher": true,
+      "real_Rustls_HTTPS": true,
+      "specified_credentials_accepted": true,
+      "certificate_sha256": "4ea474c37988fb9272c71ca5f194bf21c36035a2207aca33c4941f82ff88d179"
+    }
+  ]
+}

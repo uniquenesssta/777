@@ -70,6 +70,7 @@ impl Args {
                 "--test-font-file",
             ],
             "inspect" => vec!["--root", "--auxiliary"],
+            "enable-devices" => vec!["--root", "--admin", "--auxiliary", "--secret-stdin"],
             "backup" => vec![
                 "--root",
                 "--kind",
@@ -131,10 +132,18 @@ impl Args {
             std::io::stdin().take(2049).read_to_end(&mut raw)?;
             let data = protocol::decode(&raw, 2048)?;
             protocol::fields(&data, &["password"], &[])?;
-            Ok(auth::password(&data["password"])?.into())
+            if confirm {
+                Ok(auth::password(&data["password"])?.into())
+            } else {
+                Ok(protocol::text(&data["password"], 128, true)?.into())
+            }
         } else {
             let secret = rpassword::prompt_password("管理员密码（不回显）：")?;
-            auth::password(&json!(secret))?;
+            if confirm {
+                auth::password(&json!(secret))?;
+            } else {
+                protocol::text(&json!(secret), 128, true)?;
+            }
             if confirm && rpassword::prompt_password("再次输入密码：")? != secret {
                 return fail(422, "PASSWORD_CONFIRMATION_MISMATCH");
             }
@@ -151,6 +160,7 @@ async fn execute(a: Args) -> Result<Value> {
    if a.has("--test-fault-file"){let p=a.path("--test-fault-file")?;if p.parent()!=Some(root.join("private").as_path()){return fail(422,"TEST_PATH_OUTSIDE_HOST")};service.test_fault=Some(p);}
    if a.has("--test-font-file"){if !a.has("--isolated-test"){return fail(422,"ISOLATED_TEST_FLAG_REQUIRED")};let path=a.path("--test-font-file")?;files::local(&path,true)?;service.font=Some(path);}
    if a.has("--auxiliary-font"){if cfg!(windows)||!auxiliary||!a.has("--isolated-test"){return fail(422,"AUXILIARY_FONT_FORBIDDEN")};service.font=Some(a.path("--auxiliary-font")?);}host::serve(service,a.has("--test-shutdown-stdin")).await?;Ok(json!({"status":"stopped","ownership_released":true}))},
+  "enable-devices"=>{let _owner=files::Owner::acquire(&root)?;let mut s=Service::load(&root,auxiliary,true)?;let login=s.auth.login(&json!(a.get("--admin")?),&json!(a.secret(false)?),"enable-devices")?;let token=login["token"].as_str().unwrap();let result=(||{auth::Auth::admin(&s.auth.authenticate(token)?)?;if s.devices.is_some(){return Ok(json!({"status":"already_enabled"}))};quote_host::devices::Devices::create(&root.join("private/devices.sqlite3"))?;s.config["device_auth"]=json!(quote_host::devices::FORMAT);files::replace_json(&root.join("private/service.json"),&s.config)?;Ok(json!({"status":"device_auth_enabled_restart_required"}))})();let _=s.auth.logout(token);result},
   "inspect"=>{let s=Service::load(&root,auxiliary,true)?;Ok(json!({"inventory":integrity::inventory(&store::open(&s.ledger,false)?)?,"maintenance":s.config["maintenance"],"host_backend":s.config.get("service_backend").unwrap_or(&json!("python")),"private_security":s.config["private_security"],"certificate_sha256":s.config["certificate_sha256"]}))},
   "backup"=>{let _owner=files::Owner::acquire(&root)?;let mut s=Service::load(&root,auxiliary,true)?;let login=s.auth.login(&json!(a.get("--admin")?),&json!(a.secret(false)?),"offline-backup")?;let token=login["token"].as_str().unwrap();let actor=s.auth.authenticate(token)?;let result=(||{auth::Auth::admin(&actor)?;backup::create(&s,a.default("--kind","maintenance"))})();let _=s.auth.logout(token);result},
   "restore"=>backup::restore(&a.path("--package")?,&root,a.get("--admin")?,&a.secret(true)?,auxiliary),

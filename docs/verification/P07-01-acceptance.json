@@ -1,0 +1,16 @@
+{
+  "task": "P07-01",
+  "status": "accepted_by_user",
+  "accepted_at": "2026-10-14T23:39:28+08:00",
+  "user_instruction": "收尾01，开始02",
+  "source_commit": "76934b49629945362ae10241633518fe6be53181",
+  "evidence_commit": "dbbc3ed5825c1bff8d6cef0c2c2673039ab04bc3",
+  "plan_commit": "1043853572c610f6d8399127b0b40446453420a0",
+  "phase_branch": "stage/p07-tauri-desktop",
+  "evidence": [
+    "P07-01-ci-evidence-06.json",
+    "P07-01-windows-evidence-05.json"
+  ],
+  "scope": "Original P07-01 desktop workbench; new automatic device authentication and formal no-login delivery belong to P07-02/04, not retroactively accepted.",
+  "next_task": "P07-02"
+}

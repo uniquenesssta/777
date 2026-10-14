@@ -1,5 +1,5 @@
 # 当前任务书
 
-[P07 Tauri界面与Windows交付](P07-tauri-desktop.md)正在唯一stage/p07-tauri-desktop执行；01 Windows CI与本机05自动验证全过，待用户视觉/交互确认，无需重跑，02至04未启动。前置[P06已验收归档](../verification/P06-acceptance.json)，原证据保持。
+[P07 Tauri界面与Windows交付](P07-tauri-desktop.md)在唯一`stage/p07-tauri-desktop`执行P07-02。[01已按用户指令验收](../verification/P07-01-acceptance.json)，原证据保持，无需重跑旧入口。
 
-新增要求已写入任务书：开发版保留连接/登录/调试，封包选择母版或子版，正式版部署授权后直接进入业务。P07-02实现设备授权/自动会话及入口，03界面核对，04两种实际安装包；本轮仅规划，不代签01验收或启动02。
+[02固定开发连接与设备授权](../verification/P07-02-auth-contract.md)已实现、辅助验证通过，待Windows CI/本机及用户验收。开发启动自动使用固定地址/证书与指定账号；正式母子模式采用设备授权。03界面/多DPI、04两种安装包与P08真实部署尚未启动。

@@ -1,0 +1,172 @@
+   Compiling quote-desktop v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/desktop/src-tauri)
+   Compiling quote-host v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-host)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.17s
+     Running unittests src/lib.rs (target/debug/deps/quote_core-72b591741af7b014)
+
+running 5 tests
+test session::integrity_tests::incorrect_result_totals_are_blocked ... ok
+test session::integrity_tests::incomplete_results_are_blocked ... ok
+test session::integrity_tests::incorrect_result_versions_are_blocked ... ok
+test session::integrity_tests::invalid_observation_is_atomic ... ok
+test session::integrity_tests::revision_overflow_is_atomic ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/quote-shadow.rs (target/debug/deps/quote_shadow-5a538948c23dfed3)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/domain.rs (target/debug/deps/domain-9a39c5490661e21e)
+
+running 16 tests
+test duplicate_keys_and_boolean_flags_block_whole_candidate ... ok
+test division_rounds_each_operator ... ok
+test config_numeric_tokens_bom_and_invalid_surrogate ... ok
+test malformed_model_cannot_become_formal_result ... ok
+test intermediate_capacity_checked_before_cancellation ... ok
+test field_and_ast_limits_are_not_rounded_away ... ok
+test money_capacity_checks_profit_and_symmetric_limit ... ok
+test blocked_dispatch_calls_zero_and_all_outputs_freeze_same_cents ... ok
+test old_and_same_identity_other_generation_completions_are_discarded ... ok
+test second_line_failure_has_no_partial_results ... ok
+test price_refresh_requires_current_recalculation_and_confirmation ... ok
+test wire_cents_are_strings_above_javascript_integer_limit ... ok
+test unicode_discount_digits_match_python_decimal ... ok
+test negative_half_ties_and_exact_remainder ... ok
+test unavailable_prices_only_allow_draft_preview ... ok
+test writer_errors_propagate_without_invalidating_result ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quote_desktop-54a6839028f8481c)
+
+running 6 tests
+test client::tests::wire_rejects_arbitrary_paths_actor_and_unknown_commands ... ok
+test client::tests::display_preserves_exact_large_cents_and_safe_revision_strings ... ok
+test journal::tests::ancestor_links_are_rejected_before_creating_profile_or_writing ... ok
+test tls::tests::pinned_legacy_ca_and_leaf_certificates_require_exact_identity_name_and_time ... ok
+test tls::tests::invalid_destinations_and_bad_pin_never_build_a_client ... ok
+test journal::tests::pending_is_exclusive_and_corruption_is_never_silently_discarded ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/quote_desktop-52cf0131097d18f6)
+
+running 4 tests
+test verification_window::tests::normal_launch_has_no_verification_settings ... ok
+test verification_window::tests::marked_temp_profile_has_fixed_api_arguments_and_private_data_directory ... ok
+test verification_window::tests::invalid_ports_unknown_switches_and_relative_profiles_are_refused ... ok
+test verification_window::tests::production_marker_missing_marker_and_nonfixture_root_are_refused ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quote_excel-e75ca4bcc573164a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/format.rs (target/debug/deps/format-572a156c3411b31b)
+
+running 7 tests
+test output_version_and_financial_capacity_are_rejected ... ok
+test calamine_candidate_loses_decimal_token_while_selected_reader_retains_it ... ok
+test external_relationships_fail_closed ... ok
+test corrupt_encoding_entities_and_unknown_namespace_are_refused ... ok
+test formulas_are_refused_even_with_a_cached_value ... ok
+test duplicate_cells_and_capacity_fail_instead_of_truncation ... ok
+test text_roles_precision_and_new_workbook_styles_are_stable ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running unittests src/lib.rs (target/debug/deps/quote_host-be6a6137c00248fa)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/quote_host-d3c43635b55242fb)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/boundary.rs (target/debug/deps/boundary-3ccb2a9f351a364f)
+
+running 11 tests
+test png_without_approved_readable_font_fails_explicitly ... ok
+test nested_duplicate_json_bad_unicode_and_nonfinite_are_rejected ... ok
+test protected_dacl_requires_exact_inheritable_allowlist ... ok
+test native_ace_identity_resolves_display_aliases_without_widening_the_allowlist ... ok
+test exclusive_publish_preserves_an_existing_target_and_rejects_different_bytes ... ok
+test sales_projection_is_an_allowlist_and_exact_cents_stay_strings ... ok
+test public_quote_input_cannot_claim_actor_totals_or_boolean_numbers ... ok
+test same_host_owner_lock_excludes_second_native_instance ... ok
+test username_and_search_share_full_unicode_casefold ... ok
+test native_scrypt_matches_accepted_python_verifier ... ok
+test native_auth_original_schema_rejects_extra_trigger_without_repair ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.70s
+
+     Running tests/device_auth.rs (target/debug/deps/device_auth-394d6d52aab4bc6b)
+
+running 8 tests
+test expired_material_and_expired_sessions_cannot_authorize ... ok
+test revoke_one_device_invalidates_live_sessions_and_preserves_other_device ... ok
+test development_short_password_is_not_a_production_account_policy ... ok
+test listings_and_audit_do_not_expose_grants_credentials_or_tokens ... ok
+test enrollment_is_idempotent_only_for_the_original_persisted_device ... ok
+test manager_package_or_forged_role_does_not_elevate_sales ... ok
+test only_admin_can_issue_list_or_revoke_devices ... ok
+test account_epoch_and_restore_invalidate_credentials_without_changing_actor ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.97s
+
+     Running unittests src/lib.rs (target/debug/deps/quote_ledger-eeff405e4a2c4d70)
+
+running 4 tests
+test tests::native_principal_requires_known_role_and_bounded_identity ... ok
+test tests::generated_identifiers_are_canonical_and_distinct ... ok
+test tests::frozen_schema_hash_matches_native_sqlite_metadata ... ok
+test tests::version_or_extra_trigger_is_not_repaired ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/quote_ledger-613f8ffa916fdb11)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quote_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quote_desktop
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quote_excel
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quote_host
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quote_ledger
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

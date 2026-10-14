@@ -1,0 +1,95 @@
+{
+  "task": "P07-02",
+  "status": "auxiliary_passed_actual_Windows_and_user_acceptance_pending",
+  "base_commit": "1043853572c610f6d8399127b0b40446453420a0",
+  "phase_branch": "stage/p07-tauri-desktop",
+  "platform": "Linux auxiliary only; not Windows GUI or installed package",
+  "source_fingerprints": {
+    "report": "P07-02-nav-integration-report.json",
+    "count": 118,
+    "all_match_final_worktree": true,
+    "prior_before_navigation_report": "P07-02-auxiliary-report.json"
+  },
+  "checks": {
+    "Rust_workspace": {
+      "passed": 61,
+      "log": "P07-02-rust-tests.log"
+    },
+    "strict_Clippy": {
+      "status": "passed",
+      "log": "P07-02-clippy.log"
+    },
+    "frontend_unit": {
+      "passed": 9,
+      "log": "P07-02-node-tests.log"
+    },
+    "browser": {
+      "passed": 8,
+      "log": "P07-02-nav-browser-tests.log",
+      "actual_native_IPC": false,
+      "scope": "browser fixture forwards typed actions to real Rust dispatcher/HTTPS; approved quote geometry/assets also checked",
+      "prior_log": "P07-02-browser-tests.log"
+    },
+    "Python_P07_tools": {
+      "run": 24,
+      "passed": 22,
+      "skipped_actual_Windows": 2,
+      "log": "P07-02-python-tests.log"
+    },
+    "real_device_HTTPS_protocol": {
+      "passed": 12,
+      "report": "P07-02-nav-integration-report.json",
+      "details": [
+        "manager_native_bootstrap_without_secret_IPC",
+        "formal_manual_login_direct_invoke_rejected",
+        "two_devices_same_stable_sales_actor_and_filtered_prices",
+        "restart_uses_same_DPAPI_device_and_actor",
+        "sales_cannot_read_other_actor_or_backups",
+        "same_actor_devices_share_own_orders_only",
+        "expired_session_recovers_without_password_or_identity_change",
+        "unknown_commit_restart_queries_original_receipt_without_duplicate",
+        "copied_credential_rejected_in_other_profile",
+        "one_device_revocation_rejects_live_session_without_affecting_peer",
+        "operator_new_grant_reauthorizes_revoked_device_without_deleting_pending",
+        "v5_independent_restore_preserves_ledger_and_revokes_all_devices_sessions_grants"
+      ]
+    },
+    "fixed_development_entry": {
+      "status": "passed",
+      "report": "P07-02-development-native.json",
+      "scope": "real Rust host resource upgrade and two restarts, same certificate/port, native dispatcher auto admin login; auxiliary, not actual Windows GUI"
+    }
+  },
+  "failures_preserved": [
+    {
+      "log": "P07-02-initial-feature-check.log",
+      "cause": "Intermediate local manifest lacked manager feature; declaration completed before final builds."
+    },
+    {
+      "log": "P07-02-release-archive-failure.log",
+      "observed": "Rust release archive rejected a zero-byte quote_host cgu.06 object. Why that object became empty was not established.",
+      "recovery": "Cleaned quote-host release artifacts only (75.2MiB), retained dependency cache, rebuilt successfully; no financial/config/test thresholds changed.",
+      "log_recovery": "P07-02-cache-repair.log"
+    },
+    {
+      "log": "P07-02-development-failure-01.log",
+      "cause": "Persistent developer host after binary update failed existing host resource identity check; maintenance CLI also applied new-password policy when checking an existing password.",
+      "fix": "Developer upgrades now use owner-locked, backup-verified select-host. Existing-password verification accepts its existing value; new account and reset/restore password creation policy remains 12..128. Final real upgrade and repeated native auto login passed."
+    }
+  ],
+  "pending": [
+    "Actual Windows compilation and DPAPI/junction case",
+    "Actual manager and sales WebView2 automatic entry, submission, direct manual-login denial, natural exit and temporary cleanup",
+    "User acceptance",
+    "P07-03/04 and P08 have not started"
+  ],
+  "production_paths_accessed": false,
+  "dependency_versions_changed": false,
+  "legacy_financial_schema_and_business_rules_changed": false,
+  "concurrent_navigation_integration": {
+    "remote_commit": "d8d9481e806378859ba9582051374eb67614d512",
+    "local_merge_commit": "cb8d91dfafaaae4d32e6b87e0daf20e752ca86b7",
+    "preserved": "Management entries in top navigation and logout in account menu; remote CSS and component mapping preserved.",
+    "verification": "Eight actual Rust-bridged browser cases rerun after integration; twelve real device protocol cases and both mode builds passed; backend unit results reused because only frontend/navigation integration changed."
+  }
+}

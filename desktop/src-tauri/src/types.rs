@@ -24,6 +24,7 @@ pub struct Connection {
 #[derive(Deserialize)]
 #[serde(tag = "action", rename_all = "snake_case", deny_unknown_fields)]
 pub enum Action {
+    Bootstrap {},
     Connection {},
     Connect {
         connection: Connection,

@@ -1,0 +1,4 @@
+CREATE TABLE grants (id TEXT PRIMARY KEY, digest TEXT UNIQUE NOT NULL, subject TEXT NOT NULL, delivery TEXT NOT NULL CHECK(delivery IN ('manager','sales')), epoch INTEGER NOT NULL, expires INTEGER NOT NULL, device_id TEXT, credential TEXT) STRICT;
+CREATE TABLE devices (id TEXT PRIMARY KEY, subject TEXT NOT NULL, delivery TEXT NOT NULL CHECK(delivery IN ('manager','sales')), epoch INTEGER NOT NULL, credential TEXT NOT NULL, enabled INTEGER NOT NULL CHECK(enabled IN (0,1)), created INTEGER NOT NULL) STRICT;
+CREATE TABLE device_sessions (digest TEXT PRIMARY KEY, device_id TEXT NOT NULL REFERENCES devices(id), expires INTEGER NOT NULL) STRICT;
+CREATE TABLE device_audit (sequence INTEGER PRIMARY KEY, actor TEXT NOT NULL, operation TEXT NOT NULL, target TEXT NOT NULL, at INTEGER NOT NULL) STRICT;

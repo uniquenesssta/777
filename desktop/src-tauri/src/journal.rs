@@ -18,9 +18,29 @@ impl Store {
         if cfg!(windows) == auxiliary {
             return Err(DesktopError::new(422, "ACTUAL_WINDOWS_REQUIRED"));
         }
+        for p in root.ancestors().filter(|p| p.exists()) {
+            check(p)?;
+        }
         fs::create_dir_all(&root).map_err(|_| error())?;
         check(&root)?;
         Ok(Self { root, auxiliary })
+    }
+    pub fn profile(&self) -> String {
+        self.root.to_string_lossy().into_owned()
+    }
+    pub fn bootstrap<T: DeserializeOwned>(&self) -> Result<Option<T>> {
+        check(&self.root)?;
+        let p = self.root.join("bootstrap.json");
+        if !p.try_exists().map_err(|_| error())? {
+            return Ok(None);
+        }
+        check(&p)?;
+        if fs::metadata(&p).map_err(|_| error())?.len() > 65536 {
+            return Err(error());
+        }
+        Ok(Some(
+            serde_json::from_slice(&fs::read(p).map_err(|_| error())?).map_err(|_| error())?,
+        ))
     }
     pub fn read<T: DeserializeOwned>(&self, name: &str) -> Result<Option<T>> {
         check(&self.root)?;
@@ -68,15 +88,17 @@ impl Store {
     }
 }
 fn check(p: &Path) -> Result<()> {
-    let m = fs::symlink_metadata(p).map_err(|_| error())?;
-    if m.file_type().is_symlink() {
-        return Err(error());
-    }
-    #[cfg(windows)]
-    {
-        use std::os::windows::fs::MetadataExt;
-        if m.file_attributes() & 0x400 != 0 {
+    for p in p.ancestors() {
+        let m = fs::symlink_metadata(p).map_err(|_| error())?;
+        if m.file_type().is_symlink() {
             return Err(error());
+        }
+        #[cfg(windows)]
+        {
+            use std::os::windows::fs::MetadataExt;
+            if m.file_attributes() & 0x400 != 0 {
+                return Err(error());
+            }
         }
     }
     Ok(())
@@ -169,6 +191,34 @@ fn protect(data: &[u8], encrypt: bool, auxiliary: bool) -> Result<Vec<u8>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn ancestor_links_are_rejected_before_creating_profile_or_writing() {
+        let p = std::env::temp_dir().join(format!(
+            "777-desktop-path-{}",
+            crate::types::new_id().unwrap()
+        ));
+        fs::create_dir(&p).unwrap();
+        fs::create_dir(p.join("real")).unwrap();
+        #[cfg(unix)]
+        std::os::unix::fs::symlink(p.join("real"), p.join("alias")).unwrap();
+        #[cfg(windows)]
+        {
+            let status = std::process::Command::new("cmd")
+                .args(["/d", "/c", "mklink", "/J"])
+                .arg(p.join("alias"))
+                .arg(p.join("real"))
+                .output()
+                .unwrap();
+            assert!(status.status.success());
+        }
+        assert!(Store::new(p.join("alias/new-profile"), !cfg!(windows)).is_err());
+        assert!(!p.join("real/new-profile").exists());
+        #[cfg(windows)]
+        fs::remove_dir(p.join("alias")).unwrap();
+        #[cfg(unix)]
+        fs::remove_file(p.join("alias")).unwrap();
+        fs::remove_dir_all(p).unwrap();
+    }
     #[test]
     fn pending_is_exclusive_and_corruption_is_never_silently_discarded() {
         let p = std::env::temp_dir().join(format!(

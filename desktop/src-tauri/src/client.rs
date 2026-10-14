@@ -33,6 +33,7 @@ pub struct Desktop {
     store: Store,
     session: Option<Session>,
     calculation: Option<Calculation>,
+    auto_expires: u64,
 }
 impl Desktop {
     pub fn new(root: PathBuf, auxiliary: bool) -> Result<Self> {
@@ -40,14 +41,11 @@ impl Desktop {
             store: Store::new(root, auxiliary)?,
             session: None,
             calculation: None,
+            auto_expires: 0,
         })
     }
-    pub fn has_pending(&self) -> bool {
-        self.store
-            .read::<Pending>("pending.bin")
-            .ok()
-            .flatten()
-            .is_some()
+    pub fn has_pending(&self) -> Result<bool> {
+        Ok(self.store.read::<Pending>("pending.bin")?.is_some())
     }
     fn session(&self) -> Result<&Session> {
         self.session
@@ -168,20 +166,138 @@ impl Desktop {
         }
     }
     pub async fn execute(&mut self, action: Action) -> Result<Value> {
+        if crate::startup::formal()
+            && !matches!(
+                action,
+                Action::Bootstrap {}
+                    | Action::Connection {}
+                    | Action::Connect { .. }
+                    | Action::Disconnect {}
+            )
+            && self.auto_expires <= clock() + 30
+        {
+            self.bootstrap().await?;
+        }
         let mut v = self.execute_inner(action).await?;
         display(&mut v);
         Ok(v)
     }
+    async fn bootstrap(&mut self) -> Result<Value> {
+        use crate::startup::{self, Bootstrap, Credential};
+        let kind = startup::delivery();
+        if !startup::formal() {
+            if let Some(config) = self.store.bootstrap::<Bootstrap>()? {
+                config.validate(kind)?;
+                let session = Box::pin(self.execute_inner(Action::Connect {
+                    connection: config.connection,
+                    username: config.username.unwrap(),
+                    password: config.password.unwrap(),
+                }))
+                .await?;
+                return Ok(json!({"delivery":kind,"session":session,"automatic":true}));
+            }
+            return Ok(json!({"delivery":kind,"session":null,"automatic":false}));
+        }
+        let mut saved = self.store.read::<Credential>("device.bin")?;
+        // A newly delivered operator grant replaces only the device credential.
+        // Pending financial requests are retained and must still match the original actor/service.
+        if let (Some(old), Some(next)) = (&saved, self.store.bootstrap::<Bootstrap>()?) {
+            next.validate(kind)?;
+            if serde_json::to_value(&old.config).ok() != serde_json::to_value(&next).ok() {
+                self.store.clear("device.bin")?;
+                saved = None;
+                self.session = None;
+                self.auto_expires = 0;
+            }
+        }
+        let credential = match saved {
+            Some(c) => c,
+            None => {
+                let config = self
+                    .store
+                    .bootstrap::<Bootstrap>()?
+                    .ok_or_else(|| DesktopError::new(409, "DEPLOYMENT_NOT_CONFIGURED"))?;
+                config.validate(kind)?;
+                use base64::Engine;
+                let mut b = [0u8; 32];
+                getrandom::getrandom(&mut b)
+                    .map_err(|_| DesktopError::new(503, "RANDOM_UNAVAILABLE"))?;
+                let c = Credential {
+                    config,
+                    device_id: new_id()?,
+                    secret: base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(b),
+                    profile: self.store.profile(),
+                };
+                self.store.write("device.bin", &c)?;
+                c
+            }
+        };
+        credential.config.validate(kind)?;
+        if credential.profile != self.store.profile() {
+            return Err(DesktopError::new(403, "DEVICE_PROFILE_MISMATCH"));
+        }
+        self.calculation = None;
+        self.session = Some(Session {
+            http: tls::build(&credential.config.connection)?,
+            connection: credential.config.connection.clone(),
+            token: String::new(),
+            subject: String::new(),
+            role: String::new(),
+        });
+        let enrolled=self.request("POST","/v1/device/enroll",Some(&json!({"ticket":credential.config.ticket,"device_id":credential.device_id,"device_secret":credential.secret,"delivery":kind}))).await?;
+        if enrolled["protocol"] != "777-device-auth-v1" {
+            self.session = None;
+            return Err(DesktopError::new(409, "DEVICE_PROTOCOL_CONFLICT"));
+        }
+        let v=self.request("POST","/v1/device/session",Some(&json!({"device_id":credential.device_id,"device_secret":credential.secret,"delivery":kind}))).await?;
+        let expected = if kind == "manager" { "admin" } else { "sales" };
+        if v["protocol"] != "777-device-auth-v1"
+            || v["role"] != expected
+            || v["subject"] != enrolled["subject"]
+        {
+            self.session = None;
+            return Err(DesktopError::new(403, "DELIVERY_ROLE_MISMATCH"));
+        }
+        let token = v["token"]
+            .as_str()
+            .filter(|s| s.len() == 43)
+            .ok_or_else(|| DesktopError::new(502, "SERVICE_RESPONSE_INVALID"))?
+            .to_owned();
+        let s = self.session.as_mut().unwrap();
+        s.token = token;
+        s.subject = v["subject"]
+            .as_str()
+            .ok_or_else(|| DesktopError::new(502, "SERVICE_RESPONSE_INVALID"))?
+            .to_owned();
+        s.role = expected.into();
+        self.auto_expires = v["expires"]
+            .as_u64()
+            .ok_or_else(|| DesktopError::new(502, "SERVICE_RESPONSE_INVALID"))?;
+        let caps = self.request("GET", "/v1/capabilities", None).await?;
+        if caps["device_auth"] != "777-device-auth-v1" || caps["cents_encoding"] != "decimal-string"
+        {
+            self.session = None;
+            return Err(DesktopError::new(409, "DEVICE_PROTOCOL_CONFLICT"));
+        }
+        self.store.clear("bootstrap.json")?;
+        Ok(
+            json!({"delivery":kind,"automatic":true,"session":{"subject":v["subject"],"role":expected,"username":v["username"],"pending":self.has_pending()?}}),
+        )
+    }
     async fn execute_inner(&mut self, action: Action) -> Result<Value> {
         match action {
+            Action::Bootstrap {} => self.bootstrap().await,
             Action::Connection {} => Ok(
-                json!({"connection":self.store.read::<Connection>("connection.bin")?,"pending":self.has_pending()}),
+                json!({"delivery":crate::startup::delivery(),"automatic":crate::startup::formal() || self.store.bootstrap::<crate::startup::Bootstrap>()?.is_some(),"connection":if crate::startup::formal(){None}else{self.store.read::<Connection>("connection.bin")?},"pending":self.has_pending()?}),
             ),
             Action::Connect {
                 connection,
                 username,
                 password,
             } => {
+                if crate::startup::formal() {
+                    return Err(DesktopError::new(403, "MANUAL_LOGIN_DISABLED"));
+                }
                 if username.is_empty() || username.chars().count() > 64 || password.len() > 4096 {
                     return Err(DesktopError::new(422, "INVALID_LOGIN"));
                 }
@@ -229,7 +345,7 @@ impl Desktop {
                 self.store.clear("connection.bin")?;
                 self.store.write("connection.bin", &connection)?;
                 Ok(
-                    json!({"subject":subject,"role":role,"username":username,"pending":self.has_pending()}),
+                    json!({"subject":subject,"role":role,"username":username,"pending":self.has_pending()?}),
                 )
             }
             Action::Disconnect {} => {
@@ -428,6 +544,11 @@ impl Desktop {
             }
         }
     }
+}
+fn clock() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |d| d.as_secs())
 }
 fn display(v: &mut Value) {
     match v {

@@ -1,0 +1,34 @@
+Traceback (most recent call last):
+  File "<stdin>", line 10, in <module>
+AssertionError: b''
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<stdin>", line 21, in <module>
+AssertionError: {"error":"HOST_RESOURCE_IDENTITY_CONFLICT","status":"failed"}
+Traceback (most recent call last):
+  File "/workspace/scratch/7a12e3cfd885/repo777/tools/p07_dev_host.py", line 64, in main
+    ready=json.loads(host_process.stdout.readline())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspace/scratch/7a12e3cfd885/repo777/tools/p07_dev_host.py", line 86, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/scratch/7a12e3cfd885/repo777/tools/p07_dev_host.py", line 85, in main
+    if host_process.returncode:raise RuntimeError('DEVELOPMENT_HOST_EXIT_FAILED')
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: DEVELOPMENT_HOST_EXIT_FAILED
+

@@ -1,0 +1,19 @@
+
+> quote-desktop@0.1.0 test:ui
+> playwright test
+
+[WebServer] (node:42) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/workbench.spec.ts:80:1 › real Rust quote, compact confirmation, append note, void/restore and full pagination (2.7s)
+  ✓  2 tests/ui/workbench.spec.ts:122:1 › input edit invalidates result and late calculation cannot reenable submit (2.0s)
+  ✓  3 tests/ui/workbench.spec.ts:142:1 › sales DTO and pages contain no cost/profit and settings inherit (2.1s)
+  ✓  4 tests/ui/workbench.spec.ts:175:1 › unknown commit requires original receipt check and restart never double books (2.2s)
+  ✓  5 tests/ui/workbench.spec.ts:195:1 › current Figma quote geometry and all original assets load at their exported sizes (1.8s)
+  ✓  6 tests/ui/workbench.spec.ts:255:1 › manager price publication, readonly inherited directories and real output task progress (4.4s)
+  ✓  7 tests/ui/workbench.spec.ts:283:1 › confirmed write with failed detail refresh clears the original draft and never offers a duplicate submit (2.4s)
+  ✓  8 tests/ui/workbench.spec.ts:335:1 › development keeps an explicit connection editor without exposing it as formal authentication (2.0s)
+
+  8 passed (21.4s)

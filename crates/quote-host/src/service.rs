@@ -22,6 +22,7 @@ pub struct Service {
     pub config: Value,
     pub ledger: PathBuf,
     pub auth: Auth,
+    pub devices: Option<crate::devices::Devices>,
     pub outputs: Option<Outputs>,
     pub queries: Queries,
     pub auxiliary: bool,
@@ -58,6 +59,7 @@ impl Service {
                 "rust_worker_sha256",
                 "service_backend",
                 "rust_host_sha256",
+                "device_auth",
             ],
         )?;
         if config["schema"] != "777-host-v1"
@@ -86,6 +88,16 @@ impl Service {
         }
         files::local(&private.join("tls-key.pem"), true)?;
         let auth = Auth::open(private.join("auth.sqlite3"))?;
+        let devices = match config.get("device_auth") {
+            None => None,
+            Some(v) if v == crate::devices::FORMAT => Some(crate::devices::Devices::open(
+                private.join("devices.sqlite3"),
+            )?),
+            _ => return fail(409, "DEVICE_PROTOCOL_CONFLICT"),
+        };
+        if let Some(d) = &devices {
+            d.validate_accounts(&auth)?;
+        }
         let outputs = if private.join("outputs.sqlite3").exists() {
             Some(Outputs::open(
                 private.join("outputs.sqlite3"),
@@ -110,6 +122,7 @@ impl Service {
             config,
             ledger,
             auth,
+            devices,
             outputs,
             queries: Queries::new()?,
             auxiliary,
@@ -172,7 +185,35 @@ impl Service {
             fields(data, &["username", "password"], &[])?;
             return self.auth.login(&data["username"], &data["password"], peer);
         }
-        let a = self.auth.authenticate(token)?;
+        if method == "POST" && ["/v1/device/enroll", "/v1/device/session"].contains(&path) {
+            let devices = self
+                .devices
+                .as_ref()
+                .ok_or_else(|| Error::new(409, "DEVICE_PROTOCOL_CONFLICT"))?;
+            return if path.ends_with("/enroll") {
+                devices.enroll(&self.auth, data)
+            } else {
+                devices.session(&self.auth, data)
+            };
+        }
+        let a = self
+            .auth
+            .authenticate(token)
+            .or_else(|e| match &self.devices {
+                Some(d) => d.authenticate(&self.auth, token),
+                None => Err(e),
+            })?;
+        if let Some(d) = &self.devices {
+            match (method, path) {
+                ("POST", "/v1/device-grants") => return d.issue(&self.auth, &a, data),
+                ("GET", "/v1/devices") => return d.listing(&a),
+                _ if method == "POST" && path.starts_with("/v1/devices/") => {
+                    fields(data, &[], &[])?;
+                    return d.revoke(&a, &path[12..]);
+                }
+                _ => (),
+            }
+        }
         if method == "POST" && data.get("request_id").is_some() {
             let key = text(&data["request_id"], 36, true)?;
             store::id(key)?;
@@ -197,7 +238,7 @@ impl Service {
         }
         if method == "GET" && path == "/v1/capabilities" {
             return Ok(
-                json!({"protocol":"777-service-v1","output_format":"777-output-v1","query_format":"777-query-v1","rule_version":RULE_VERSION,"numeric_profile":NUMERIC_PROFILE,"cents_encoding":"decimal-string"}),
+                json!({"device_auth":self.devices.as_ref().map(|_|crate::devices::FORMAT),"protocol":"777-service-v1","output_format":"777-output-v1","query_format":"777-query-v1","rule_version":RULE_VERSION,"numeric_profile":NUMERIC_PROFILE,"cents_encoding":"decimal-string"}),
             );
         }
         if path == "/v1/outputs" || path.starts_with("/v1/outputs/") {
@@ -261,6 +302,9 @@ impl Service {
         match (method, path) {
             ("POST", "/v1/logout") => {
                 fields(data, &[], &[])?;
+                if let Some(d) = &self.devices {
+                    d.logout(token)?;
+                }
                 self.auth.logout(token)
             }
             ("GET", "/v1/me") => {

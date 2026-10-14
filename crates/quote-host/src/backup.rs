@@ -79,6 +79,7 @@ pub fn manifest(folder: &Path) -> Result<Value> {
         "777-service-bundle-v2",
         "777-service-bundle-v3",
         "777-service-bundle-v4",
+        "777-service-bundle-v5",
     ]
     .contains(&format)
     {
@@ -91,11 +92,17 @@ pub fn manifest(folder: &Path) -> Result<Value> {
         .into_iter()
         .map(str::to_string)
         .collect::<BTreeSet<_>>();
-    if matches!(format, "777-service-bundle-v3" | "777-service-bundle-v4") {
+    if matches!(
+        format,
+        "777-service-bundle-v3" | "777-service-bundle-v4" | "777-service-bundle-v5"
+    ) {
         basics.extend(WORKER.map(str::to_string));
     }
-    if format == "777-service-bundle-v4" {
+    if matches!(format, "777-service-bundle-v4" | "777-service-bundle-v5") {
         basics.extend(HOST.map(str::to_string));
+    }
+    if format == "777-service-bundle-v5" {
+        basics.insert("devices.sqlite3".into());
     }
     let output = names.contains_key("outputs.sqlite3");
     if output {
@@ -152,12 +159,25 @@ pub fn manifest(folder: &Path) -> Result<Value> {
     }
     let config = files::read_json(&folder.join("service.json"))?;
     host::validate_resources(folder, &config)?;
-    if matches!(format, "777-service-bundle-v3" | "777-service-bundle-v4")
-        && config.get("rust_worker_sha256").is_none()
+    if (format == "777-service-bundle-v5")
+        != (config.get("device_auth") == Some(&json!(crate::devices::FORMAT)))
+    {
+        return fail(422, "DEVICE_BACKUP_INVALID");
+    }
+    if format == "777-service-bundle-v5" {
+        crate::devices::Devices::open(folder.join("devices.sqlite3"))?;
+    }
+
+    if matches!(
+        format,
+        "777-service-bundle-v3" | "777-service-bundle-v4" | "777-service-bundle-v5"
+    ) && config.get("rust_worker_sha256").is_none()
     {
         return fail(422, "SERVICE_BACKUP_WORKER_INVALID");
     }
-    if format == "777-service-bundle-v4" && config.get("rust_host_sha256").is_none() {
+    if matches!(format, "777-service-bundle-v4" | "777-service-bundle-v5")
+        && config.get("rust_host_sha256").is_none()
+    {
         return fail(422, "SERVICE_BACKUP_HOST_INVALID");
     }
     if matches!(format, "777-service-bundle-v1" | "777-service-bundle-v2")
@@ -178,6 +198,9 @@ pub fn manifest(folder: &Path) -> Result<Value> {
     }
     let auth = Auth::open(folder.join("auth.sqlite3"))?;
     accounts(&folder.join("ledger.sqlite3"), &auth)?;
+    if format == "777-service-bundle-v5" {
+        crate::devices::Devices::open(folder.join("devices.sqlite3"))?.validate_accounts(&auth)?;
+    }
     if output {
         let outputs = Outputs::open(
             folder.join("outputs.sqlite3"),
@@ -271,6 +294,9 @@ pub fn restore(
         }
         tx.commit()?;
         drop(c);
+        if private.join("devices.sqlite3").exists() {
+            crate::devices::Devices::open(private.join("devices.sqlite3"))?.revoke_all()?;
+        }
         let mut config = files::read_json(&private.join("service.json"))?;
         config["private_security"] = security;
         config["maintenance"] = json!(true);
@@ -388,6 +414,16 @@ fn create_inner(s: &Service, kind: &str) -> Result<Value> {
                 names.push(name.into());
             }
             format = "777-service-bundle-v4";
+        }
+        if let Some(d) = &s.devices {
+            files::snapshot(
+                &d.path,
+                &bundle.join("devices.sqlite3"),
+                crate::devices::APP,
+                crate::devices::DDL,
+            )?;
+            names.push("devices.sqlite3".into());
+            format = "777-service-bundle-v5";
         }
         let filesmap = names
             .iter()

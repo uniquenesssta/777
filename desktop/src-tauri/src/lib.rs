@@ -1,7 +1,20 @@
-//! Typed desktop boundary. The authenticated service remains the financial authority.
+#[cfg(all(feature = "manager", feature = "sales"))]
+compile_error!("DELIVERY_FEATURE_CONFLICT");
+#[cfg(all(
+    not(debug_assertions),
+    not(feature = "verification"),
+    not(feature = "manager"),
+    not(feature = "sales")
+))]
+compile_error!(
+    "RELEASE_DELIVERY_REQUIRED: select manager or sales; verification is for isolated checks only"
+);
+// Typed desktop boundary. The authenticated service remains the financial authority.
 mod client;
 mod journal;
+mod startup;
 mod tls;
 mod types;
 pub use client::Desktop;
+pub use startup::delivery;
 pub use types::{Action, Connection, DesktopError, Result};

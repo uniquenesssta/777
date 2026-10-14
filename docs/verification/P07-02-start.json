@@ -1,0 +1,10 @@
+{
+  "task": "P07-02",
+  "status": "implementation_started",
+  "started_at": "2026-10-14T23:39:28+08:00",
+  "phase_branch": "stage/p07-tauri-desktop",
+  "base_commit": "1043853572c610f6d8399127b0b40446453420a0",
+  "user_instruction": "收尾01，开始02，将服务地址服务证书这些东西固定下来 管理员账号密码 admin密码123456 省的我每次填麻烦死了",
+  "predecessor_acceptance": "P07-01-acceptance.json",
+  "scope": "Persistent loopback development connection with requested credentials; native device auth, explicit manager/sales delivery modes, authorization/backup and no-login entry. No production activation or installer."
+}

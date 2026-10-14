@@ -229,6 +229,9 @@ pub fn select(options: Selection<'_>) -> Result<Value> {
     let a = s.auth.authenticate(token)?;
     let result = (|| -> Result<Value> {
         Auth::admin(&a)?;
+        if backend == "python" && s.devices.is_some() {
+            return fail(409, "DEVICE_AUTH_REQUIRES_NATIVE_HOST");
+        }
         let executable = std::env::current_exe()?;
         let sha = files::sha(&executable)?;
         if s.config.get("service_backend").unwrap_or(&json!("python")) == backend
