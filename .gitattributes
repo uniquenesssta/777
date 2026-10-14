@@ -1,0 +1,2 @@
+# Preserve the uploaded console evidence byte-for-byte, including CRLF.
+docs/verification/P07-01-windows-console-03.txt -text whitespace=cr-at-eol

@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。当前P07-01已实现并通过辅助验证，原实现Windows CI已通过，本机窗口发现release误用Vite地址，已修正生产特性及内嵌资源门槛，待新CI与原生窗口复验；P07-02至04/P08未启动。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
+P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。当前P07-01已实现，生产协议/内嵌资源经Windows CI及本机03通过；本机原生交互命令返回0，关闭阶段超时，已修正关闭工具，待新CI/本机04与用户视觉交互验收；P07-02至04/P08未启动。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -37,6 +37,8 @@ P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-ta
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P07-01原生关闭工具修复：本机03已确认生产页面和10项协议通过，交互命令返回0后关闭超时；旧工具误向所属PID全部顶层窗口发送WM_CLOSE，包含Tao事件辅助窗口。现唯一定位主窗口、核验投递/自然退出，日志文件与进程等待分离；失败保留交互、关闭及强制清理的独立结果。[原回传](docs/verification/P07-01-windows-evidence-03.json)和[修复检查](docs/verification/P07-01-close-checks.json)保存。辅助18项通过、1项真实Win32夹具待新Windows CI；新CI同时执行实际Tauri/WebView2交互与自然退出，原release修复[CI已通过](docs/verification/P07-01-ci-evidence-03.json)，本机用新04目录复验，01不收尾。
 
 - P07-01 release页面修复：用户定位实际exe仍加载127.0.0.1:1420，原构建未启用Tauri custom-protocol，release优化本身不切生产模式。现默认/显式生产特性、Windows release拒绝开发模式；CI新增执行实际exe核对index/JS/CSS内嵌资源，原生脚本先核对tauri.localhost来源并保存失败证据，再等登录控件。Tauri CLI默认dev仍移除该特性并使用Vite。11项工具回归、48 Rust、6前端测试、10协议/7浏览器辅助通过，[证据](docs/verification/P07-01-release-checks.json)保存；原两次Windows CI成功范围不冒充原生页面验收，待新CI及本机03复验，不启动02或生产替换。
 

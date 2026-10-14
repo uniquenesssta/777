@@ -1,0 +1,55 @@
+{
+  "task": "P07-01",
+  "baseline_commit": "d9b476669d47d626205a649047ab10fad4a5d7eb",
+  "status": "auxiliary_targeted_regression_passed_actual_Win32_and_Tauri_close_pending",
+  "environment": {
+    "os": "Linux",
+    "python": "3.12.14",
+    "node": "22.12.0"
+  },
+  "scope": "native verification lifecycle tooling; application source, Cargo.lock/npm lock, financial rules, schema and approved Figma unchanged",
+  "user_failure": "P07-01-windows-evidence-03.json",
+  "release_CI_success": "P07-01-ci-evidence-03.json",
+  "checks": {
+    "command": "python -m unittest discover -s tests -p 'test_p07_*.py' -v",
+    "tests_run": 19,
+    "passed": 18,
+    "skipped": 1,
+    "failures": 0,
+    "errors": 0,
+    "log": "P07-01-close-tests-03.log",
+    "skipped_check": "Actual Win32 main window + visible Tao-shaped event-helper fixture; configured in Windows CI, not claimed passed in Linux.",
+    "verified_boundaries": [
+      "Exactly one owned visible app window with the configured title and positive area; event helper, other PIDs, hidden/mismatched windows excluded.",
+      "Missing/ambiguous/changed main handle never receives close; post failure, timeout, premature exit and nonzero exit remain failures.",
+      "Graceful verification sends exactly one close, waits for natural parent zero exit, and never kills or retries to obtain a pass.",
+      "Real descendant-held pipe reproduces communicate timeout after parent zero exit; regular file logging does not delay parent exit.",
+      "Final report retains successful interaction sub-result and failed close sub-result without claiming overall pass.",
+      "Existing 11 progress/resource/interrupt/production-asset regressions remain passed."
+    ]
+  },
+  "JavaScript": {
+    "node_check": "desktop/tests/windows-smoke.mjs syntax passed",
+    "Playwright_expect_import": "actual installed @playwright/test import under Node22.12 passed",
+    "native_flow": "added wait for orders refresh button enabled before close; actual WebView2 execution pending"
+  },
+  "source_evidence": {
+    "crate": "tao 0.37.1",
+    "source_commit": "37b7e8bc90a050e93be988df636f322c3ef147b6",
+    "published_crate_vcs_dirty": true,
+    "official_source": "https://github.com/tauri-apps/tao/blob/37b7e8bc90a050e93be988df636f322c3ef147b6/src/platform_impl/windows/event_loop.rs",
+    "published_source_sha256": "6b32446a660a21a88b1b9ff910327bdf597326830d0bb7a15dd3433b701fe99f",
+    "inspected": "Both locked published source and fetched official VCS source have the visible zero-area Tao Thread Event Target and default WM_CLOSE handling. Neither proves the unlogged local HWND order."
+  },
+  "implementation_sha256_LF": {
+    "tools/p07_native_window.py": "d5e306cf5927667298fb6de4754f72e1825680af445241b5e4412d36185bf2eb",
+    "tools/p07_desktop_check.py": "2e434b7ffe685fed3a9bfad71b4e95cb93619141d21e800f2d86305e0985ad2a",
+    "tests/test_p07_native_window.py": "caf896158d017d998b070f74c6f8c587a89208c18ad83218b77d4194351245fd",
+    "tests/p07_window_fixture.py": "c65dbb4b3ec291f41bbecf5fd08ebd14187d15ca573a5be732b5756b1a0a7654",
+    "desktop/tests/windows-smoke.mjs": "11d0557e6b9a20f6670f94f23acdc09cab47cd298ff261f61acfea686afd9580",
+    ".github/workflows/p07-windows.yml": "654a72a8034c8521791513d974d01393e53a065a7f6aeb57a4fe2877d0d8eb03"
+  },
+  "new_Windows_CI": "pending_push; runs real Win32 lifecycle fixture, full Windows gate and now actual Tauri/WebView2 interactions plus natural close; CI native result remains separate from user visual acceptance",
+  "actual_Tauri_exit": "pending new Windows CI and reports/p07-01-windows-04; forced cleanup is not acceptance",
+  "phase": "P07-01 remains open; P07-02/03/04 and P08 not started"
+}

@@ -1,0 +1,75 @@
+{
+  "task": "P07-01",
+  "source_commit": "d9b476669d47d626205a649047ab10fad4a5d7eb",
+  "worktree_dirty": true,
+  "source_kind": "user_uploaded_full_console_text; final console report is a subset of report.json",
+  "console": "P07-01-windows-console-03.txt",
+  "console_sha256": "3b5b3ac6883d428f4c5fe8c6b0e6089f8c07c66534d65da9b75f1c82f751847b",
+  "console_report_subset": "P07-01-windows-report-03.json",
+  "reported_status": "failed",
+  "release_frontend": {
+    "asset_count": 8,
+    "asset_names": [
+      "/icons/2eb61.svg",
+      "/icons/09c30.svg",
+      "/assets/index-HXoiUZaM.css",
+      "/icons/7bfb4.svg",
+      "/icons/a09ba.svg",
+      "/assets/index-BxhN8Caw.js",
+      "/icons/74181.svg",
+      "/index.html"
+    ],
+    "custom_protocol": true,
+    "embedded_index": true,
+    "entry_css": true,
+    "entry_js": true,
+    "index_sha256": "ceaa3238dd344561d7fe3e01816e609fd841404c7c7e36caff6aeb2709f31770",
+    "release": true,
+    "tauri_is_dev": false,
+    "windows": true
+  },
+  "protocol": {
+    "status": "passed",
+    "checks": [
+      "certificate_pin_rejected_before_request",
+      "real_Rust_HTTPS_login_no_token_crosses_IPC",
+      "exact_cents_revision_and_frozen_draft_submission",
+      "append_only_note_void_restore_original_amount_and_revision",
+      "full_20_row_pagination_and_view_binding",
+      "native_output_task_does_not_rebook_financial_order",
+      "sales_DTO_other_actor_and_management_commands_restricted",
+      "native_host_and_desktop_restart_original_receipt_identity_and_no_duplicate",
+      "money_above_JavaScript_integer_limit_remains_exact_string",
+      "server_price_change_refuses_stale_confirmation_without_booking"
+    ],
+    "actual_transport": "Rust desktop IPC dispatcher -> Rustls pinned HTTPS -> standalone Rust host",
+    "production_paths_accessed": false,
+    "Windows_DPAPI": true,
+    "scope": "owned temporary profile, synthetic accounts/prices/orders, no installed service or real data",
+    "sandbox_cleaned": true
+  },
+  "native_window_origin": {
+    "observed_url": "http://tauri.localhost/",
+    "status": "origin_checked",
+    "production_origin": "http://tauri.localhost"
+  },
+  "native_check_process": {
+    "node_exit_code": 0,
+    "duration_seconds_reported": 1.2,
+    "conclusion": "The windows-smoke.mjs command returned successfully according to the console. native-webview.json and screenshots were not attached and are not invented here."
+  },
+  "failure": "TimeoutExpired: Command '['O:\\\\Project\\\\liuliu\\\\777\\\\target\\\\release\\\\quote-desktop.exe', '--verification-window', '--profile', 'C:\\\\Users\\\\uniqu\\\\AppData\\\\Local\\\\Temp\\\\777-p06-native-host-duczralc\\\\desktop']' timed out after 30 seconds",
+  "unknowns": [
+    "The old script did not record enumerated HWNDs, per-window WM_CLOSE results or parent poll status at timeout.",
+    "Actual local source fingerprints and full report.json/traceback/command logs were not attached; worktree_dirty is reported true."
+  ],
+  "confirmed_tool_defects": [
+    "Old EnumWindows callback posted WM_CLOSE to every top-level window in the owned PID, without main-window filtering or post-result check.",
+    "Locked tao 0.37.1 creates a top-level Tao Thread Event Target with WS_VISIBLE and zero area; its default WM_CLOSE handling can destroy the event dispatch target before app shutdown.",
+    "Old communicate() waits on stdout/stderr pipe EOF as well as process exit; a descendant-held pipe can time out even if the parent has already exited. This mechanism is reproduced separately, not asserted as the observed local cause.",
+    "A later close failure discarded the already-completed native-webview result from the final report."
+  ],
+  "repair_scope": "verification tooling only; no application behavior, financial rules, schema, Cargo/npm dependency or Figma changes",
+  "next_native_output": "reports/p07-01-windows-04",
+  "acceptance": "pending_fixed_tool_actual_Windows_exit_and_user_visual_interaction; P07-01 not closed"
+}

@@ -32,12 +32,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Rust installation failed' }
           python -m pip install -r requirements-baseline.txt -r requirements-service.txt
           if ($LASTEXITCODE -ne 0) { throw 'Verification dependencies failed' }
-      - name: Runner progress, interruption and command-plan regression
+      - name: Runner and owned native window lifecycle regression
         shell: pwsh
         run: |
-          python -m unittest discover -s tests -p test_p07_check_runner.py -v
+          python -m unittest discover -s tests -p 'test_p07_*.py' -v
           if ($LASTEXITCODE -ne 0) { throw 'Runner regression failed' }
-      - name: Windows build, real Rust HTTPS and browser interaction
+      - name: Windows build, real Rust HTTPS, browser and actual Tauri WebView2 lifecycle
         shell: pwsh
         run: |
           python tools/p07_desktop_check.py --ci-checks --jobs 2 --output reports/p07-01-ci

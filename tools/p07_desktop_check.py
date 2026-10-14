@@ -1,5 +1,5 @@
 """P07-01 isolated desktop implementation evidence; native GUI requires actual Windows."""
-import argparse,ctypes,hashlib,json,os,platform,shutil,socket,subprocess,sys,tempfile,time,traceback
+import argparse,hashlib,json,os,platform,shutil,socket,subprocess,sys,tempfile,time,traceback
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT),str(ROOT/'tools'),str(ROOT/'tests')]
 from p01_validation import new_output
@@ -7,7 +7,7 @@ from p07_check_runner import Progress,preflight,build_plan,stop_tree,require_emb
 
 def fingerprints():
     paths=[p for p in (ROOT/'desktop').rglob('*') if p.is_file() and not any(n in p.relative_to(ROOT/'desktop').parts for n in ['node_modules','dist','gen','test-results','playwright-report'])]
-    paths += [ROOT/n for n in ['Cargo.toml','Cargo.lock','tools/p07_desktop_check.py','tools/p07_desktop_fixture.py','tools/p07_check_runner.py','tests/test_p07_check_runner.py','docs/design/figma-state.json','docs/design/figma-tokens.json']]
+    paths += [ROOT/n for n in ['Cargo.toml','Cargo.lock','tools/p07_desktop_check.py','tools/p07_desktop_fixture.py','tools/p07_check_runner.py','tools/p07_native_window.py','tests/test_p07_check_runner.py','tests/test_p07_native_window.py','tests/p07_window_fixture.py','docs/design/figma-state.json','docs/design/figma-tokens.json']]
     return {p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes().replace(b'\r\n',b'\n') if p.suffix not in ['.ico','.png'] else p.read_bytes()).hexdigest() for p in sorted(paths)}
 def protocol_check():
     from p07_desktop_fixture import Scenario
@@ -53,41 +53,45 @@ def protocol_check():
     finally:s.close()
     out['sandbox_cleaned']=True;return out
 
-def native_window(output,run):
+def native_window(output,run,stage):
     if os.name!='nt' or platform.system()!='Windows':raise RuntimeError('ACTUAL_WINDOWS_REQUIRED')
     from p07_desktop_fixture import Scenario,CLIENT
+    from p07_native_window import close_window
     s=Scenario();proc=None
     try:
         s.stop_bridge();sock=socket.socket();sock.bind(('127.0.0.1',0));port=sock.getsockname()[1];sock.close()
         fixture=output/'private-window-fixture.json';fixture.write_text(json.dumps(s.fixture(),ensure_ascii=True),encoding='utf-8')
         env=dict(os.environ,WEBVIEW2_USER_DATA_FOLDER=str(s.profile/'webview2'),WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=f'--remote-debugging-port={port} --remote-debugging-address=127.0.0.1')
-        proc=subprocess.Popen([str(CLIENT),'--verification-window','--profile',str(s.profile)],env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        try:
-            checked=run([shutil.which('node'),str(ROOT/'desktop/tests/windows-smoke.mjs'),str(fixture),str(port),str(output)],timeout=150)
-        finally:fixture.unlink(missing_ok=True)
-        if checked['exit_code']:raise RuntimeError('NATIVE_WEBVIEW_CHECK_FAILED:'+checked['stdout'][-1500:])
-        from ctypes import wintypes
-        user=ctypes.WinDLL('user32',use_last_error=True);callback=ctypes.WINFUNCTYPE(wintypes.BOOL,wintypes.HWND,wintypes.LPARAM)
-        user.GetWindowThreadProcessId.argtypes=[wintypes.HWND,ctypes.POINTER(wintypes.DWORD)];user.GetWindowThreadProcessId.restype=wintypes.DWORD
-        user.PostMessageW.argtypes=[wintypes.HWND,wintypes.UINT,wintypes.WPARAM,wintypes.LPARAM];user.PostMessageW.restype=wintypes.BOOL
-        def close(hwnd,_):
-            pid=wintypes.DWORD();user.GetWindowThreadProcessId(hwnd,ctypes.byref(pid))
-            if pid.value==proc.pid:user.PostMessageW(hwnd,0x10,0,0)
-            return True
-        visitor=callback(close);user.EnumWindows.argtypes=[callback,wintypes.LPARAM];user.EnumWindows.restype=wintypes.BOOL;user.EnumWindows(visitor,0)
-        proc.communicate(timeout=30);assert proc.returncode==0
-        report=json.loads((output/'native-webview.json').read_bytes());report['native_window_close_and_process_exit']=True
-        return report
+        # File output lets us observe parent exit independently of descendant log handles.
+        with (output/'native-window-process.log').open('wb') as native_log:
+            proc=subprocess.Popen([str(CLIENT),'--verification-window','--profile',str(s.profile)],env=env,stdin=subprocess.DEVNULL,stdout=native_log,stderr=subprocess.STDOUT)
+            try:
+                try:
+                    checked=run([shutil.which('node'),str(ROOT/'desktop/tests/windows-smoke.mjs'),str(fixture),str(port),str(output)],timeout=150)
+                finally:fixture.unlink(missing_ok=True)
+                if checked['exit_code']:raise RuntimeError('NATIVE_WEBVIEW_CHECK_FAILED:'+checked['stdout'][-1500:])
+                report=json.loads((output/'native-webview.json').read_bytes())
+                title=json.loads((ROOT/'desktop/src-tauri/tauri.conf.json').read_text(encoding='utf-8'))['app']['windows'][0]['title']
+                stage('关闭实际 Tauri 主窗口并核对进程退出')
+                report['close']=close_window(proc,title,output/'native-window-close.json')
+                report['native_window_close_and_process_exit']=True
+                return report
+            finally:
+                cleanup={'forced_process_tree_cleanup':False,'exit_code':proc.poll()}
+                if proc.poll() is None:
+                    cleanup['forced_process_tree_cleanup']=True
+                    cleanup['owned_process_tree_cleanup']=stop_tree(proc)
+                    cleanup['exit_code']=proc.wait(timeout=20)
+                (output/'native-window-cleanup.json').write_text(json.dumps(cleanup,indent=2),encoding='utf-8')
     finally:
         (output/'private-window-fixture.json').unlink(missing_ok=True)
-        if proc and proc.poll() is None:stop_tree(proc);proc.communicate(timeout=20)
         s.close()
 
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__)
     modes=p.add_mutually_exclusive_group(required=True)
     modes.add_argument('--windows-smoke',action='store_true',help='Preflight, minimal release build, real HTTPS and actual isolated WebView2 window')
-    modes.add_argument('--ci-checks',action='store_true',help='Full Windows build, lint, unit, protocol and browser checks')
+    modes.add_argument('--ci-checks',action='store_true',help='Full Windows build, lint, unit, protocol, browser and actual WebView2 window checks')
     modes.add_argument('--checks-only',action='store_true',help='Auxiliary full checks, never Windows native acceptance')
     modes.add_argument('--preflight',action='store_true',help='Check installed environment only; no dependency installation or compilation')
     p.add_argument('--jobs',type=int,choices=range(1,9),default=1,help='Cargo build/test concurrency (default 1)')
@@ -110,7 +114,7 @@ def main(argv=None):
         report['source_commit']=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,encoding='utf-8').strip()
         report['worktree_dirty']=bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True,encoding='utf-8').strip())
         report['implementation_sha256_LF']=fingerprints()
-        paths=preflight(progress,native=a.windows_smoke or (a.preflight and os.name=='nt'),full=full)
+        paths=preflight(progress,native=a.windows_smoke or a.ci_checks or (a.preflight and os.name=='nt'),full=full)
         if a.preflight:
             report['status']='preflight_passed_build_not_started'
         else:
@@ -150,10 +154,10 @@ def main(argv=None):
                 ui=ROOT/'desktop/test-results/report.json'
                 if ui.exists():report['browser_tests']=json.loads(ui.read_text(encoding='utf-8')).get('stats')
                 if browser['exit_code']:raise RuntimeError('BROWSER_INTERACTION_FAILED')
-            if a.windows_smoke:
+            if a.windows_smoke or a.ci_checks:
                 progress.stage('启动实际 Tauri / WebView2 临时窗口并验证')
-                report['native_window']=native_window(output,progress.run)
-            report['status']='Windows_Tauri_native_window_passed_visual_acceptance_pending' if a.windows_smoke else 'Windows_CI_build_protocol_and_browser_passed_native_window_pending' if a.ci_checks else 'auxiliary_protocol_and_browser_passed_actual_Windows_pending'
+                report['native_window']=native_window(output,progress.run,progress.stage)
+            report['status']='Windows_Tauri_native_window_passed_visual_acceptance_pending' if a.windows_smoke else 'Windows_CI_build_protocol_browser_and_native_window_passed_visual_acceptance_pending' if a.ci_checks else 'auxiliary_protocol_and_browser_passed_actual_Windows_pending'
     except KeyboardInterrupt:
         report['status']='interrupted'
         report['failure']='USER_INTERRUPTED; current command and partial log retained'
@@ -164,6 +168,12 @@ def main(argv=None):
         report['failure_traceback']=traceback.format_exc()
         exit_code=1
     finally:
+        # Preserve completed interactions even when the later close/cleanup fails.
+        for name,key in [('native-webview.json','native_window_interactions'),('native-window-close.json','native_window_close'),('native-window-cleanup.json','native_window_cleanup')]:
+            path=output/name
+            if path.exists():
+                try:report[key]=json.loads(path.read_text(encoding='utf-8'))
+                except (OSError,ValueError) as error:report[key]={'status':'diagnostic_unreadable','reason':type(error).__name__}
         origin=output/'native-window-origin.json'
         if origin.exists():
             try:report['native_window_origin']=json.loads(origin.read_text(encoding='utf-8'))

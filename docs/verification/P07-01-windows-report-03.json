@@ -1,0 +1,76 @@
+{
+  "task": "P07-01",
+  "status": "failed",
+  "environment": {
+    "os": "Windows",
+    "python": "3.12.10"
+  },
+  "mode": "native_window",
+  "cargo_jobs": 1,
+  "native_window": null,
+  "protocol": {
+    "status": "passed",
+    "checks": [
+      "certificate_pin_rejected_before_request",
+      "real_Rust_HTTPS_login_no_token_crosses_IPC",
+      "exact_cents_revision_and_frozen_draft_submission",
+      "append_only_note_void_restore_original_amount_and_revision",
+      "full_20_row_pagination_and_view_binding",
+      "native_output_task_does_not_rebook_financial_order",
+      "sales_DTO_other_actor_and_management_commands_restricted",
+      "native_host_and_desktop_restart_original_receipt_identity_and_no_duplicate",
+      "money_above_JavaScript_integer_limit_remains_exact_string",
+      "server_price_change_refuses_stale_confirmation_without_booking"
+    ],
+    "actual_transport": "Rust desktop IPC dispatcher -> Rustls pinned HTTPS -> standalone Rust host",
+    "production_paths_accessed": false,
+    "Windows_DPAPI": true,
+    "scope": "owned temporary profile, synthetic accounts/prices/orders, no installed service or real data",
+    "sandbox_cleaned": true
+  },
+  "production_paths_accessed": false,
+  "acceptance": "pending_actual_Windows_visual_and_interaction",
+  "source_commit": "d9b476669d47d626205a649047ab10fad4a5d7eb",
+  "worktree_dirty": true,
+  "current_step": "node.EXE",
+  "preflight": {
+    "status": "passed",
+    "node": "v24.16.0",
+    "rust": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6",
+    "cargo_jobs": 1,
+    "dependency_sources": "Cargo.toml/Cargo.lock and desktop/package-lock.json; download occurs after preflight",
+    "Windows_native_prerequisites": {
+      "MSVC_cpp_tools": true,
+      "Windows_SDK": true,
+      "WebView2_Runtime": true
+    }
+  },
+  "reused_CI_scope": "Native-window mode builds required release executables; full lint/unit/browser checks remain in --ci-checks.",
+  "release_frontend": {
+    "asset_count": 8,
+    "asset_names": [
+      "/icons/2eb61.svg",
+      "/icons/09c30.svg",
+      "/assets/index-HXoiUZaM.css",
+      "/icons/7bfb4.svg",
+      "/icons/a09ba.svg",
+      "/assets/index-BxhN8Caw.js",
+      "/icons/74181.svg",
+      "/index.html"
+    ],
+    "custom_protocol": true,
+    "embedded_index": true,
+    "entry_css": true,
+    "entry_js": true,
+    "index_sha256": "ceaa3238dd344561d7fe3e01816e609fd841404c7c7e36caff6aeb2709f31770",
+    "release": true,
+    "tauri_is_dev": false,
+    "windows": true
+  },
+  "failure": "TimeoutExpired: Command '['O:\\\\Project\\\\liuliu\\\\777\\\\target\\\\release\\\\quote-desktop.exe', '--verification-window', '--profile', 'C:\\\\Users\\\\uniqu\\\\AppData\\\\Local\\\\Temp\\\\777-p06-native-host-duczralc\\\\desktop']' timed out after 30 seconds",
+  "native_window_origin": {
+    "observed_url": "http://tauri.localhost/",
+    "status": "origin_checked",
+    "production_origin": "http://tauri.localhost"
+  }
+}

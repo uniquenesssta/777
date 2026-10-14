@@ -1,5 +1,6 @@
 // Actual WebView2 page of the isolated Tauri executable, never a mock IPC bridge.
 import { chromium } from "playwright";
+import { expect } from "@playwright/test";
 import fs from "node:fs";
 import { productionOrigin } from "./native-origin.mjs";
 const [configPath, port, out] = process.argv.slice(2);
@@ -92,6 +93,7 @@ async function main() {
   await page.getByRole("button", { name: "登录", exact: true }).click();
   await page.getByRole("button", { name: "我的订单", exact: true }).click();
   await page.getByRole("button", { name: "查看详情" }).first().waitFor();
+  await expect(page.getByRole("button", { name: "刷新", exact: true })).toBeEnabled({ timeout: 15000 });
   assert(
     (await page.getByText("商品成本", { exact: true }).count()) === 0,
     "SALES_COST_UI_LEAK",
@@ -113,6 +115,7 @@ async function main() {
         manager_submit: true,
         sales_cost_and_other_order_hidden: true,
         profile_isolated: true,
+        UI_idle_before_native_close: true,
       },
       null,
       2,

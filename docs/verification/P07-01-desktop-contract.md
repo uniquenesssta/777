@@ -61,7 +61,7 @@ py -3 -m pip install -r requirements-baseline.txt -r requirements-service.txt
 if ($LASTEXITCODE -ne 0) { throw '验证依赖失败' }
 py -3 tools/p07_desktop_check.py --preflight --output reports/p07-01-preflight-01
 if ($LASTEXITCODE -ne 0) { throw '环境预检未通过，按报告补齐环境后再运行' }
-py -3 tools/p07_desktop_check.py --windows-smoke --jobs 1 --output reports/p07-01-windows-03
+py -3 tools/p07_desktop_check.py --windows-smoke --jobs 1 --output reports/p07-01-windows-04
 ```
 
 已在P07分支时只需`git pull --ff-only`，不要重复创建本地分支。工具先查已安装的Node/npm/固定Rust工具链、MSVC/SDK/WebView2与Python模块；缺失时给出补齐步骤并停止，不静默下载编译器。然后显式安装前端锁定依赖、`cargo fetch --locked`下载Rust crate，再构建所需release；最后创建临时Rust宿主/账户/订单/DPAPI profile；实际Tauri WebView2登录→报价→提交→销售隔离→退出并清理。本机窗口模式复用CI完整检查，不重复Clippy/debug测试构建或浏览器；CI/辅助完整模式仍执行全部原门槛。测试字体仅供完整模式的浏览器辅助，按已有固定hash下载，不安装系统字体。报告及原生截图保存在指定新目录；勿重用已存在目录。失败时保留report.json，不需从旧阶段重新跑。
@@ -81,9 +81,9 @@ py -3 tools/p07_desktop_check.py --windows-smoke --jobs 1 --output reports/p07-0
 
 Rust依赖已在Cargo.toml/Cargo.lock中声明，源码仓库不携带整个Cargo缓存；首次Cargo下载到用户缓存并编译属于开发验证。新入口先执行显式预检/下载阶段，按步骤实时打印并保存`command-NN.log`，report.json在开始/阶段切换/命令退出即保存。默认`--jobs 1`覆盖Cargo与测试线程的高并发环境；CI显式`--jobs 2`。Windows子进程低于正常优先级。此设置限制任务数、改善响应，不冒充CPU使用率的百分比硬上限。
 
-本机`--windows-smoke`保留release构建、10项真实协议及实际Tauri WebView2窗口验证，完整fmt/严格Clippy/Rust及前端单元/浏览器验证继续由`--ci-checks`执行。运行时Ctrl+C记录interrupted/退出码130并停止所属PID进程树，日志和partial报告保留；超时同样保留当前步骤。不会按进程名称终止机器上其他cargo/rustc或其他项目。
+本机`--windows-smoke`保留release构建、10项真实协议及实际Tauri WebView2窗口验证，完整fmt/严格Clippy/Rust及前端单元/浏览器验证继续由`--ci-checks`执行；本次工具修复同时把实际原生窗口链路加入Windows CI，避免只测构建/浏览器而漏掉退出问题。运行时Ctrl+C记录interrupted/退出码130并停止所属PID进程树，日志和partial报告保留；超时同样保留当前步骤。不会按进程名称终止机器上其他cargo/rustc或其他项目。
 
-原本机01目录不覆盖，当前release页面修复后使用上方新的03目录；无需删除Cargo缓存，之前成功编译的依赖可以复用。新工具的Windows进程清理与原生预检仍由新CI/本机验证，辅助10项不能替代Windows实测。[修复证据](P07-01-runner-checks.json)保存相应边界。
+原本机01/03目录不覆盖，当前关闭工具修复后使用上方新的04目录；无需删除Cargo缓存，之前成功编译的依赖可以复用。工具的Windows原生行为需CI/本机分别核对，辅助结果不能替代Windows实测。[本机入口修复证据](P07-01-runner-checks.json)保持。
 
 
 Node兼容纠正：用户现有Node为22大版本。当前锁定Vite 8.3.4/Rolldown 1.2.13的实际`engines.node`及[Vite 8官方说明](https://v8.vite.dev/guide/)要求22.12+，其他锁定运行/开发依赖没有24下限。项目自身先前的`>=24.0.0`是过严限制，现将package.json、lock根元数据和预检统一为`>=22.12.0`，不改任何依赖版本/integrity。预检会显示真实完整版本；22.12及更新的22版本无需改用24，低于22.12时明确提示在22系列内补齐兼容版本。辅助实际使用官方SHA256核对的Node 22.12.0/npm 10.9.0运行完整流程；新CI采用从官方index核实的22.23.3/npm 10.9.9。此前Node 24的成功报告保留为原环境证据。
@@ -99,4 +99,25 @@ Cargo默认现在启用`custom-protocol = ["tauri/custom-protocol"]`；验证rel
 
 原生WebView2脚本连接后先记录`native-window-origin.json`并要求`http(s)://tauri.localhost`；Vite、浏览器错误页、伪相似域及非标准端口立即拒绝，保存失败截图，再继续等待真实登录控件。域名通过只证明页面来源，其后仍需完成原管理员提交/销售隔离/正常退出。错误内容从合并的实时stdout日志保留，不再丢失到空stderr字段。整体report保留来源诊断；失败不记录native通过。
 
-[release修复证据](P07-01-release-checks.json)、[用户观察](P07-01-native-url-failure-01.json)与[上次CI成功范围](P07-01-ci-evidence-02.json)分列。无新增依赖版本、Cargo.lock/业务规则/数据schema变更，Figma与界面布局未改。无需清空Cargo缓存或启动Vite；拉取修复后用上方03新目录重编译并复验。
+[release修复证据](P07-01-release-checks.json)、[用户观察](P07-01-native-url-failure-01.json)与[上次CI成功范围](P07-01-ci-evidence-02.json)分列。无新增依赖版本、Cargo.lock/业务规则/数据schema变更，Figma与界面布局未改。无需清空Cargo缓存或启动Vite；release资源检查在[新Windows CI](P07-01-ci-evidence-03.json)与[本机03回传](P07-01-windows-evidence-03.json)中均通过，后者仍在关闭阶段失败。
+
+## 原生窗口关闭工具修复
+
+用户03[完整控制台原文](P07-01-windows-console-03.txt)显示：已拉取d9b4766，release exe内嵌index/JS/CSS并使用生产协议，10项真实Rust HTTPS/DPAPI检查通过，WebView2来源为`http://tauri.localhost/`，Node原生交互命令返回0；之后`communicate(timeout=30)`超时。末尾控制台摘要已另存[报告节选](P07-01-windows-report-03.json)，未取得完整report.json、源码指纹、native-webview.json或截图；原文worktree_dirty=true保持，不能补写干净源码或完整本机验收。
+
+原脚本向该PID下所有顶层窗口发送WM_CLOSE。锁定[tao 0.37.1源文件](https://github.com/tauri-apps/tao/blob/37b7e8bc90a050e93be988df636f322c3ef147b6/src/platform_impl/windows/event_loop.rs)中的`create_event_target_window`创建`Tao Thread Event Target`：它也是顶层窗口，且技术上带WS_VISIBLE，实际没有标题/可见区域；`thread_event_target_callback`对WM_CLOSE落入DefWindowProc，可能先破坏后续应用事件分发。只加IsWindowVisible不足以排除它。旧工具没记录枚举/消息投递/父进程状态，因此此次超时究竟停在何处不可从日志完整重建。
+
+关闭验证现由`tools/p07_native_window.py`负责：以所属PID、配置中的主窗口标题、可见性和正面积唯一选中主HWND，排除事件辅助类；发送前重验所属/标题/句柄，检查PostMessage返回值，只发送一次。界面交互先等订单刷新按钮恢复可用；应用原有在途请求关闭保护不改。随后只等待桌面父进程自然退出且码0，超时/非零/无窗口/多匹配/消息失败均不通过，绝不靠kill取得通过。
+
+桌面stdout/stderr改为普通日志文件，避免WebView2后代继承管道导致`communicate`等待EOF，混淆“父进程未退”和“输出尚未结束”；此机制有真实子进程回归，但不能反推用户本次一定由管道造成。`native-window-close.json`记录窗口清单、目标、投递与退出；`native-window-process.log`保存宿主输出；`native-window-cleanup.json`单独记录失败后的所属进程树强制清理。交互结果和关闭结果均汇入最终report，后者失败不再抹去前者。
+
+[关闭修复检查](P07-01-close-checks.json)区分辅助回归、实际Win32窗口夹具（新Windows CI执行）与实际Tauri窗口（新CI及本机04待执行），不混记验收。P07-01留now，不启动02至04/P08。已在该分支的复验命令：
+
+```powershell
+& {
+    git pull --ff-only
+    if ($LASTEXITCODE -ne 0) { throw '拉取失败，已停止' }
+    py -3 tools/p07_desktop_check.py --windows-smoke --jobs 1 --output reports/p07-01-windows-04
+    if ($LASTEXITCODE -ne 0) { throw '桌面验证未通过，保留报告后停止' }
+}
+```

@@ -1,0 +1,296 @@
+PS O:\Project\liuliu\777> & {
+>>     git stash push -m "p07-check-local-before-pull" -- tools/p07_desktop_check.py
+>>     if ($LASTEXITCODE -ne 0) { throw '保存本地修改失败' }
+>>
+>>     git pull --ff-only
+>>     if ($LASTEXITCODE -ne 0) { throw '拉取失败，已停止' }
+>>
+>>     py -3 tools/p07_desktop_check.py --windows-smoke --jobs 1 --output reports/p07-01-windows-03
+>> }
+Saved working directory and index state On stage/p07-tauri-desktop: p07-check-local-before-pull
+Updating adfbf62..d9b4766
+Fast-forward
+ .github/workflows/p07-windows.yml                  |   9 +-
+ README.md                                          |   6 +-
+ desktop/package-lock.json                          |   2 +-
+ desktop/package.json                               |   2 +-
+ desktop/src-tauri/Cargo.toml                       |   3 +-
+ desktop/src-tauri/build.rs                         |  15 +-
+ desktop/src-tauri/src/main.rs                      |  40 ++-
+ desktop/tests/native-origin.mjs                    |  19 +
+ desktop/tests/native-origin.test.ts                |  29 ++
+ desktop/tests/windows-smoke.mjs                    | 188 ++++++----
+ docs/MASTER_PLAN.md                                |   2 +-
+ docs/README.md                                     |   2 +-
+ docs/now/P07-tauri-desktop.md                      |   6 +-
+ docs/verification/P07-01-ci-evidence-01.json       |  15 +
+ docs/verification/P07-01-ci-evidence-02.json       |  13 +
+ docs/verification/P07-01-desktop-contract.md       |  35 +-
+ .../verification/P07-01-native-url-failure-01.json |  10 +
+ .../P07-01-release-auxiliary-report-01.json        | 399 +++++++++++++++++++++
+ docs/verification/P07-01-release-checks.json       |  84 +++++
+ docs/verification/P07-01-release-features.json     |  58 +++
+ .../P07-01-release-runner-tests-01.log             |  16 +
+ .../P07-01-runner-auxiliary-report-01.json         | 394 ++++++++++++++++++++
+ .../P07-01-runner-auxiliary-report-02.json         | 394 ++++++++++++++++++++
+ docs/verification/P07-01-runner-checks.json        | 116 ++++++
+ docs/verification/P07-01-runner-tests-05.log       |  15 +
+ docs/verification/P07-01-runner-tests-initial.log  |  21 ++
+ .../P07-01-windows-interruption-01.json            |  15 +
+ tests/test_p07_check_runner.py                     | 178 +++++++++
+ tools/p07_check_runner.py                          | 250 +++++++++++++
+ tools/p07_desktop_check.py                         | 128 +++++--
+ 30 files changed, 2339 insertions(+), 125 deletions(-)
+ create mode 100644 desktop/tests/native-origin.mjs
+ create mode 100644 desktop/tests/native-origin.test.ts
+ create mode 100644 docs/verification/P07-01-ci-evidence-01.json
+ create mode 100644 docs/verification/P07-01-ci-evidence-02.json
+ create mode 100644 docs/verification/P07-01-native-url-failure-01.json
+ create mode 100644 docs/verification/P07-01-release-auxiliary-report-01.json
+ create mode 100644 docs/verification/P07-01-release-checks.json
+ create mode 100644 docs/verification/P07-01-release-features.json
+ create mode 100644 docs/verification/P07-01-release-runner-tests-01.log
+ create mode 100644 docs/verification/P07-01-runner-auxiliary-report-01.json
+ create mode 100644 docs/verification/P07-01-runner-auxiliary-report-02.json
+ create mode 100644 docs/verification/P07-01-runner-checks.json
+ create mode 100644 docs/verification/P07-01-runner-tests-05.log
+ create mode 100644 docs/verification/P07-01-runner-tests-initial.log
+ create mode 100644 docs/verification/P07-01-windows-interruption-01.json
+ create mode 100644 tests/test_p07_check_runner.py
+ create mode 100644 tools/p07_check_runner.py
+
+>>> 环境预检（尚未下载依赖或编译）
+
+>>> 检查 Node.js
+  "C:\Program Files\nodejs\node.EXE" --version
+v24.16.0
+<<< 检查 Node.js: passed (0.0s)
+
+>>> 检查 npm
+  "C:\Program Files\nodejs\npm.CMD" --version
+11.13.0
+<<< 检查 npm: passed (0.2s)
+
+>>> 检查已安装 Rust 工具链
+  C:\Users\uniqu\.cargo\bin\rustup.EXE toolchain list
+stable-x86_64-pc-windows-msvc (default)
+1.88.0-x86_64-pc-windows-msvc
+1.97.1-x86_64-pc-windows-msvc (active)
+<<< 检查已安装 Rust 工具链: passed (0.1s)
+
+>>> 检查 Rust 编译目标
+  C:\Users\uniqu\.cargo\bin\rustc.EXE +1.97.1 -vV
+rustc 1.97.1 (8bab26f4f 2026-07-14)
+binary: rustc
+commit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452
+commit-date: 2026-07-14
+host: x86_64-pc-windows-msvc
+release: 1.97.1
+LLVM version: 22.1.6
+<<< 检查 Rust 编译目标: passed (0.1s)
+
+Cargo.toml / Cargo.lock 已列出 Rust 依赖，首次由 Cargo 下载。
+本轮编译并发 1；Windows 子进程使用低于正常优先级。
+
+>>> 安装锁定前端依赖
+  "C:\Program Files\nodejs\npm.CMD" ci --prefix desktop --ignore-scripts --no-audit --no-fund
+
+added 58 packages in 1s
+<<< 安装锁定前端依赖: passed (1.7s)
+
+>>> 下载锁定 Rust 依赖（已有缓存会复用）
+  C:\Users\uniqu\.cargo\bin\cargo.EXE +1.97.1 fetch --locked --target x86_64-pc-windows-msvc
+<<< 下载锁定 Rust 依赖（已有缓存会复用）: passed (0.4s)
+
+>>> 构建前端页面
+  "C:\Program Files\nodejs\npm.CMD" --prefix desktop run build
+
+> quote-desktop@0.1.0 build
+> tsc --noEmit && vite build
+
+[36mvite v8.3.4 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 84 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.35 kB │ gzip:  0.28 kB
+dist/assets/index-HXoiUZaM.css   13.32 kB │ gzip:  3.35 kB
+dist/assets/index-BxhN8Caw.js   298.03 kB │ gzip: 93.37 kB
+
+[MODULE_LEVEL_DIRECTIVE] The semantics of the module level directive "use client" in "node_modules/@radix-ui/react-dialog/dist/index.mjs" may not be preserved when bundling.
+   ╭─[ node_modules/@radix-ui/react-dialog/dist/index.mjs:1:1 ]
+   │
+ 1 │ "use client";
+   │ ──────┬──────
+   │       ╰──────── module level directive may not be preserved
+   │
+   │ Help: For more information, see https://rolldown.rs/in-depth/directives#other-directives
+───╯
+
+[MODULE_LEVEL_DIRECTIVE] The semantics of the module level directive "use client" in "node_modules/@radix-ui/react-primitive/dist/index.mjs" may not be preserved when bundling.
+   ╭─[ node_modules/@radix-ui/react-primitive/dist/index.mjs:1:1 ]
+   │
+ 1 │ "use client";
+   │ ──────┬──────
+   │       ╰──────── module level directive may not be preserved
+   │
+   │ Help: For more information, see https://rolldown.rs/in-depth/directives#other-directives
+───╯
+
+[MODULE_LEVEL_DIRECTIVE] The semantics of the module level directive "use client" in "node_modules/@radix-ui/react-focus-guards/dist/index.mjs" may not be preserved when bundling.
+   ╭─[ node_modules/@radix-ui/react-focus-guards/dist/index.mjs:1:1 ]
+   │
+ 1 │ "use client";
+   │ ──────┬──────
+   │       ╰──────── module level directive may not be preserved
+   │
+   │ Help: For more information, see https://rolldown.rs/in-depth/directives#other-directives
+───╯
+
+[MODULE_LEVEL_DIRECTIVE] The semantics of the module level directive "use client" in "node_modules/@radix-ui/react-portal/dist/index.mjs" may not be preserved when bundling.
+   ╭─[ node_modules/@radix-ui/react-portal/dist/index.mjs:1:1 ]
+   │
+ 1 │ "use client";
+   │ ──────┬──────
+   │       ╰──────── module level directive may not be preserved
+   │
+   │ Help: For more information, see https://rolldown.rs/in-depth/directives#other-directives
+───╯
+
+[MODULE_LEVEL_DIRECTIVE] The semantics of the module level directive "use client" in "node_modules/@radix-ui/react-presence/dist/index.mjs" may not be preserved when bundling.
+   ╭─[ node_modules/@radix-ui/react-presence/dist/index.mjs:1:1 ]
+   │
+ 1 │ "use client";
+   │ ──────┬──────
+   │       ╰──────── module level directive may not be preserved
+   │
+   │ Help: For more information, see https://rolldown.rs/in-depth/directives#other-directives
+───╯
+
+[MODULE_LEVEL_DIRECTIVE] The semantics of the module level directive "use client" in "node_modules/@radix-ui/react-focus-scope/dist/index.mjs" may not be preserved when bundling.
+   ╭─[ node_modules/@radix-ui/react-focus-scope/dist/index.mjs:1:1 ]
+   │
+ 1 │ "use client";
+   │ ──────┬──────
+   │       ╰──────── module level directive may not be preserved
+   │
+   │ Help: For more information, see https://rolldown.rs/in-depth/directives#other-directives
+───╯
+
+[MODULE_LEVEL_DIRECTIVE] The semantics of the module level directive "use client" in "node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs" may not be preserved when bundling.
+   ╭─[ node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs:1:1 ]
+   │
+ 1 │ "use client";
+   │ ──────┬──────
+   │       ╰──────── module level directive may not be preserved
+   │
+   │ Help: For more information, see https://rolldown.rs/in-depth/directives#other-directives
+───╯
+
+✓ built in 162ms
+<<< 构建前端页面: passed (1.6s)
+
+>>> 编译所需 release 程序（首次可能较久）
+  C:\Users\uniqu\.cargo\bin\cargo.EXE +1.97.1 build --release --locked -j 1 -p quote-host -p quote-ledger -p quote-desktop --features quote-desktop/verification,quote-desktop/custom-protocol
+   Compiling tauri v2.12.3
+   Compiling tauri-macros v2.7.2
+   Compiling quote-desktop v0.1.0 (O:\Project\liuliu\777\desktop\src-tauri)
+  [编译所需 release 程序（首次可能较久）] 已运行 20 秒；日志：command-08.log
+  [编译所需 release 程序（首次可能较久）] 已运行 40 秒；日志：command-08.log
+  [编译所需 release 程序（首次可能较久）] 已运行 60 秒；日志：command-08.log
+  [编译所需 release 程序（首次可能较久）] 已运行 80 秒；日志：command-08.log
+  [编译所需 release 程序（首次可能较久）] 已运行 100 秒；日志：command-08.log
+    Finished `release` profile [optimized] target(s) in 1m 51s
+<<< 编译所需 release 程序（首次可能较久）: passed (111.4s)
+
+>>> 核对 release exe 的实际生产协议和内嵌页面
+  O:\Project\liuliu\777\target\release\quote-desktop.exe --verification-build-info
+{"asset_count":8,"asset_names":["/icons/2eb61.svg","/icons/09c30.svg","/assets/index-HXoiUZaM.css","/icons/7bfb4.svg","/icons/a09ba.svg","/assets/index-BxhN8Caw.js","/icons/74181.svg","/index.html"],"custom_protocol":true,"embedded_index":true,"entry_css":true,"entry_js":true,"index_sha256":"ceaa3238dd344561d7fe3e01816e609fd841404c7c7e36caff6aeb2709f31770","release":true,"tauri_is_dev":false,"windows":true}
+<<< 核对 release exe 的实际生产协议和内嵌页面: passed (0.4s)
+
+>>> 真实 Rust HTTPS 隔离协议验证
+
+>>> 启动实际 Tauri / WebView2 临时窗口并验证
+
+>>> node.EXE
+  "C:\Program Files\nodejs\node.EXE" O:\Project\liuliu\777\desktop\tests\windows-smoke.mjs O:\Project\liuliu\777\reports\p07-01-windows-03\private-window-fixture.json 12636 O:\Project\liuliu\777\reports\p07-01-windows-03
+<<< node.EXE: passed (1.2s)
+
+报告：O:\Project\liuliu\777\reports\p07-01-windows-03\report.json
+{
+  "task": "P07-01",
+  "status": "failed",
+  "environment": {
+    "os": "Windows",
+    "python": "3.12.10"
+  },
+  "mode": "native_window",
+  "cargo_jobs": 1,
+  "native_window": null,
+  "protocol": {
+    "status": "passed",
+    "checks": [
+      "certificate_pin_rejected_before_request",
+      "real_Rust_HTTPS_login_no_token_crosses_IPC",
+      "exact_cents_revision_and_frozen_draft_submission",
+      "append_only_note_void_restore_original_amount_and_revision",
+      "full_20_row_pagination_and_view_binding",
+      "native_output_task_does_not_rebook_financial_order",
+      "sales_DTO_other_actor_and_management_commands_restricted",
+      "native_host_and_desktop_restart_original_receipt_identity_and_no_duplicate",
+      "money_above_JavaScript_integer_limit_remains_exact_string",
+      "server_price_change_refuses_stale_confirmation_without_booking"
+    ],
+    "actual_transport": "Rust desktop IPC dispatcher -> Rustls pinned HTTPS -> standalone Rust host",
+    "production_paths_accessed": false,
+    "Windows_DPAPI": true,
+    "scope": "owned temporary profile, synthetic accounts/prices/orders, no installed service or real data",
+    "sandbox_cleaned": true
+  },
+  "production_paths_accessed": false,
+  "acceptance": "pending_actual_Windows_visual_and_interaction",
+  "source_commit": "d9b476669d47d626205a649047ab10fad4a5d7eb",
+  "worktree_dirty": true,
+  "current_step": "node.EXE",
+  "preflight": {
+    "status": "passed",
+    "node": "v24.16.0",
+    "rust": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6",
+    "cargo_jobs": 1,
+    "dependency_sources": "Cargo.toml/Cargo.lock and desktop/package-lock.json; download occurs after preflight",
+    "Windows_native_prerequisites": {
+      "MSVC_cpp_tools": true,
+      "Windows_SDK": true,
+      "WebView2_Runtime": true
+    }
+  },
+  "reused_CI_scope": "Native-window mode builds required release executables; full lint/unit/browser checks remain in --ci-checks.",
+  "release_frontend": {
+    "asset_count": 8,
+    "asset_names": [
+      "/icons/2eb61.svg",
+      "/icons/09c30.svg",
+      "/assets/index-HXoiUZaM.css",
+      "/icons/7bfb4.svg",
+      "/icons/a09ba.svg",
+      "/assets/index-BxhN8Caw.js",
+      "/icons/74181.svg",
+      "/index.html"
+    ],
+    "custom_protocol": true,
+    "embedded_index": true,
+    "entry_css": true,
+    "entry_js": true,
+    "index_sha256": "ceaa3238dd344561d7fe3e01816e609fd841404c7c7e36caff6aeb2709f31770",
+    "release": true,
+    "tauri_is_dev": false,
+    "windows": true
+  },
+  "failure": "TimeoutExpired: Command '['O:\\\\Project\\\\liuliu\\\\777\\\\target\\\\release\\\\quote-desktop.exe', '--verification-window', '--profile', 'C:\\\\Users\\\\uniqu\\\\AppData\\\\Local\\\\Temp\\\\777-p06-native-host-duczralc\\\\desktop']' timed out after 30 seconds",
+  "native_window_origin": {
+    "observed_url": "http://tauri.localhost/",
+    "status": "origin_checked",
+    "production_origin": "http://tauri.localhost"
+  }
+}
+PS O:\Project\liuliu\777>
