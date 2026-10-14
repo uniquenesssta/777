@@ -368,7 +368,7 @@ fn directory(v: &Value) -> Result<String> {
                 _ => clean.push(p),
             }
         }
-        return Ok(format!("\\\\{}", clean.join("\\")));
+        Ok(format!("\\\\{}", clean.join("\\")))
     }
     #[cfg(not(windows))]
     {

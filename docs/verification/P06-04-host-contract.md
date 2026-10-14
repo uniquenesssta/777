@@ -58,3 +58,6 @@ py -3 tools/p06_host_check.py --windows-smoke --output reports/p06-04-windows-01
 [检查证据](P06-04-checks.json)已归档127指纹、195专项/656完整辅助、42 Rust/561对照、原生HTTPS/Excel/临时CJK PNG/历史导入后v4恢复及资源测量。初期启动/测试夹具及辅助PID采样错误按原日志保留，末次验证/IO委托变动由30项原生/入口、42 Rust和共同协议另行覆盖；未重复656项。实际Windows、CI结果及用户验收仍待回传。
 
 辅助200单的计算p95由约13.4ms降至5.2ms，采样主进程resident约30.6MB/21.5MB；查询p95约5.8ms/44.8ms，Rust端仍有较高尾延迟。原样保留[测量](P06-04-resources-final-01.json)，不宣称全部性能改善；本机Windows结果用于判断后续查询尾延迟优化。
+
+
+首次Windows CI已实际执行并在Windows专用目录分支的Clippy needless_return处失败，fmt通过，其余门槛未进入。[原报告及修复核对](P06-04-ci-evidence-01.json)保留127项源码匹配与失败事实；末句改为等价尾表达式，辅助fmt/Clippy通过，严格门槛未改。推送后由同一CI重跑；当前CI结果及本机Windows验收仍待核对，不把旧辅助通过视为新Windows通过。

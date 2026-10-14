@@ -98,3 +98,10 @@ Windows临时主机覆盖Rust原生读取/导入重放/新报表、独立读取�
 [完整宿主契约与唯一Windows入口](../verification/P06-04-host-contract.md)、[协议](../verification/P06-04-protocol.json)、[178个外部包/许可](../verification/P06-04-dependencies.json)及[Windows-only CI](../../.github/workflows/p06-windows.yml)交付。[检查证据](../verification/P06-04-checks.json)记录127指纹、195专项/656完整辅助、42 Rust/561对照，无失败/错误/跳过；真实辅助Rust HTTPS/旧客户端/原生CJK图片/导入后v4恢复及200单资源通过。末次两处验证/IO委托变动另由30项原生/入口、42 Rust及共同协议核对覆盖，原完整报告保持。辅助临时字体不冒充Windows系统字体，DPAPI/ACL/GUI仍需实际Windows。
 
 本项不安装服务、不访问真实共享/E盘或切换生产；原Python客户端/独立读取器/离线历史迁移工具保留，监听宿主无Python依赖。P06继续留now，04未验收，P07/P08未启动；只需回传本项新Windows报告，原通过入口无需重跑。
+
+
+## P06-04首次Windows CI与修复
+
+2026-10-14续接时核对[首次CI原报告与证据](../verification/P06-04-ci-evidence-01.json)：430dc0f干净源码的127项LF指纹全部匹配提交blob；实际Windows Server 2025/MSVC Rust1.97.1的fmt通过，Clippy在auth.rs Windows目录分支的末尾return触发needless_return，后续Rust测试/专项/561对照/协议恢复/资源未执行，不能记为通过。原report.json按字节归档，旧辅助及03验收材料保持。
+
+仅将该分支末句改为相同Ok值的尾表达式，目录UNC校验、规范化、角色/金额/DDL及严格Clippy门槛不变；辅助fmt/Clippy通过。当前127指纹仅auth.rs一项变化，完整656/195检查不重复跑。本补丁推送后由原Windows CI重新编译验证，结果待核对；本机仍使用上方唯一新入口并回传新目录，04未验收，P07/P08未启动。

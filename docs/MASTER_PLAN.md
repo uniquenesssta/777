@@ -2,7 +2,7 @@
 
 版本：初始规划；日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P06-01/02/03已验收，见[03收尾](verification/P06-03-acceptance.json)。同一stage/p06-rust-core从89f7138执行P06-04：[独立Rust HTTPS宿主](verification/P06-04-host-contract.md)已实现，兼容鉴权/查询/输出与v4完整恢复；[检查证据](verification/P06-04-checks.json)记录127指纹、195专项/656完整辅助、42 Rust/561对照及原生HTTPS/输出/恢复/200单资源验证。[Windows CI](../.github/workflows/p06-windows.yml)已配置，本机原窗口/DPAPI/ACL/系统字体及用户验收待回传。原03资料保持，不重跑通过入口，P07/P08未启动。**
+**P06-01/02/03已验收，见[03收尾](verification/P06-03-acceptance.json)。同一stage/p06-rust-core从89f7138执行P06-04：[独立Rust HTTPS宿主](verification/P06-04-host-contract.md)已实现，兼容鉴权/查询/输出与v4完整恢复；[检查证据](verification/P06-04-checks.json)记录127指纹、195专项/656完整辅助、42 Rust/561对照及原生HTTPS/输出/恢复/200单资源验证。[Windows CI](../.github/workflows/p06-windows.yml)首次运行在Windows专用分支触发Clippy needless_return；[原报告与修复](verification/P06-04-ci-evidence-01.json)已登记，等价尾表达式修复待CI及本机原窗口/DPAPI/ACL/系统字体和用户验收。原03资料保持，不重跑通过入口，P07/P08未启动。**
 
 ## 1. 目标与边界
 

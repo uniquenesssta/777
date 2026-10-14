@@ -7,9 +7,9 @@
 | 项目 | 状态 |
 | --- | --- |
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
-| 本轮授权 | 用户2026-10-13 23:07:55“收尾02开始03”；本轮回传03 Windows结果，既有推送授权有效 |
-| 文档工作 | [P02归档任务书](old/P02-calculation.md)、[03 Windows证据](verification/P02-03-windows-evidence.json)、[03验收](verification/P02-03-acceptance.json)及[04辅助证据](verification/P02-04-checks.json)已登记；旧01/02/P01报告保留 |
-| 当前开发阶段 / Atomic Task | P06-01/02/03已验收，见[03收尾](verification/P06-03-acceptance.json)。同一stage/p06-rust-core从89f7138执行P06-04：[独立Rust HTTPS宿主](verification/P06-04-host-contract.md)已实现，兼容鉴权/查询/输出与v4完整恢复；[检查证据](verification/P06-04-checks.json)记录127指纹、195专项/656完整辅助、42 Rust/561对照及原生HTTPS/输出/恢复/200单资源验证。[Windows CI](../.github/workflows/p06-windows.yml)已配置，本机原窗口/DPAPI/ACL/系统字体及用户验收待回传。原03资料保持，不重跑通过入口，P07/P08未启动。 |
+| 本轮授权 | 用户2026-10-14 02:38:15“收尾03 开始04”，11:21:02“超时了 请继续”；既有推送授权有效 |
+| 文档工作 | [P06-03验收](verification/P06-03-acceptance.json)、[P06-04辅助证据](verification/P06-04-checks.json)及[首次Windows CI与修复](verification/P06-04-ci-evidence-01.json)已登记；原Windows、比较及辅助报告保持 |
+| 当前开发阶段 / Atomic Task | P06-01/02/03已验收，见[03收尾](verification/P06-03-acceptance.json)。同一stage/p06-rust-core从89f7138执行P06-04：[独立Rust HTTPS宿主](verification/P06-04-host-contract.md)已实现，兼容鉴权/查询/输出与v4完整恢复；[检查证据](verification/P06-04-checks.json)记录127指纹、195专项/656完整辅助、42 Rust/561对照及原生HTTPS/输出/恢复/200单资源验证。[Windows CI](../.github/workflows/p06-windows.yml)首次运行在Windows专用分支触发Clippy needless_return；[原报告与修复](verification/P06-04-ci-evidence-01.json)已登记，等价尾表达式修复待CI及本机原窗口/DPAPI/ACL/系统字体和用户验收。原03资料保持，不重跑通过入口，P07/P08未启动。 |
 | 下一项 | [P06-04唯一Windows本机入口](verification/P06-04-host-contract.md#windows本机入口)，回传新report.json与comparisons.json；本阶段旧入口无需重跑，P07/P08未启动 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
