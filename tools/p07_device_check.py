@@ -95,20 +95,69 @@ def protocol(binaries):
         for b in bridges:b.close()
         h.close()
 
-def native(binary,kind,out,progress):
+def native(binary,kind,out,progress,presentation=False):
     from p07_native_window import close_window,cleanup_webview_sandbox
-    out.mkdir();h=Hosted();process=None;result=None
+    out.mkdir();h=Hosted(font=str(ROOT/'desktop/public/fonts/NotoSansSC-VF.ttf') if presentation else None);process=None;result=None
     scenario=None
     try:
         enable(h);profile=configure(h,kind,'desktop');scenario=SimpleNamespace(host=h,profile=profile,close=h.close)
+        if presentation:
+            public=h.root/'中文 报价图片';public.mkdir()
+            with h.service.auth.connection() as c:c.execute('UPDATE preferences SET export_dir=?,image_dir=?,revision=revision+1 WHERE id=1',(str(public),str(public)))
         sock=socket.socket();sock.bind(('127.0.0.1',0));port=sock.getsockname()[1];sock.close()
         env=dict(os.environ)
         for key in ['WEBVIEW2_USER_DATA_FOLDER','WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS']:env.pop(key,None)
         with (out/'process.log').open('wb') as log:
             process=subprocess.Popen([str(binary),'--verification-window','--profile',str(profile),'--debug-port',str(port)],stdout=log,stderr=subprocess.STDOUT,env=env)
-            record=progress.run([shutil.which('node'),str(ROOT/'desktop/tests/windows-autostart.mjs'),str(port),str(out),kind],timeout=150)
+            record=progress.run([shutil.which('node'),str(ROOT/'desktop/tests/windows-autostart.mjs'),str(port),str(out),kind,*(['presentation'] if presentation else [])],timeout=240 if presentation else 150)
             if record['exit_code']:raise RuntimeError('ACTUAL_DEVICE_WINDOW_FAILED')
-            result=json.loads((out/'native-autostart.json').read_text(encoding='utf-8'));result['close']=close_window(process,'记账器',out/'close.json')
+            result=json.loads((out/'native-autostart.json').read_text(encoding='utf-8'))
+            if presentation:
+                from PIL import Image,ImageChops
+                images=sorted(public.rglob('*.png'));assert len(images)==2
+                records=[]
+                for index,path in enumerate(images):
+                    with Image.open(path) as picture:
+                        picture.load();assert picture.width==1200 and picture.height==1840 and picture.info['777_format']=='777-output-v1'
+                        assert ImageChops.difference(picture.crop((0,picture.height-80,picture.width,picture.height)),Image.new('RGB',(picture.width,80),'white')).getbbox()
+                        records.append({'width':picture.width,'height':picture.height,'job_id':picture.info['777_job_id'],'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
+                    shutil.copyfile(path,out/f'published-quote-{index+1}.png')
+                assert records[0]['job_id']!=records[1]['job_id'] and h.service.ledger.inventory()['counts']['orders']==1 and h.service.ledger.inventory()['counts']['lines']==40
+                result['published_images']={'files':records,'Chinese_path':True,'no_overwrite':True,'order_count_unchanged':True,'saved_lines':40,'last_line_pixels_present':True}
+                result['presentation']=json.loads((out/'presentation.json').read_text(encoding='utf-8'))
+                from p07_native_window import Windows,main_window
+                import ctypes
+                from ctypes import wintypes
+                target=main_window(Windows().owned(process.pid),process.pid,'记账器')
+                user=ctypes.WinDLL('user32',use_last_error=True);user.GetDpiForWindow.argtypes=[wintypes.HWND];user.GetDpiForWindow.restype=wintypes.UINT
+                result['actual_OS_window_DPI']=user.GetDpiForWindow(target['hwnd']);assert result['actual_OS_window_DPI']>0
+                result['physical_multi_monitor_and_other_OS_DPI']='requires_user_hardware_observation'
+            result['close']=close_window(process,'记账器',out/'close.json')
+        if presentation and kind=='manager':
+            # Own the same loopback port after the real fixture host exits. Hold
+            # TLS negotiation to prove a read-only bootstrap cannot trap close.
+            h.stop();connecting=out/'connecting';connecting.mkdir()
+            probe=socket.socket();probe.bind(('127.0.0.1',0));port=probe.getsockname()[1];probe.close()
+            listener=socket.socket();listener.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+            connections=[];accepted=threading.Event()
+            try:
+                listener.bind(('127.0.0.1',h.port));listener.listen(1);listener.settimeout(20)
+                def hold():
+                    try:
+                        connection,_=listener.accept();connections.append(connection);accepted.set()
+                    except OSError:pass
+                worker=threading.Thread(target=hold,daemon=True);worker.start()
+                with (connecting/'process.log').open('wb') as log:
+                    process=subprocess.Popen([str(binary),'--verification-window','--profile',str(profile),'--debug-port',str(port)],stdout=log,stderr=subprocess.STDOUT,env=env)
+                    check=progress.run([shutil.which('node'),str(ROOT/'desktop/tests/windows-autostart.mjs'),str(port),str(connecting),kind,'connecting'],timeout=45)
+                    if check['exit_code'] or not accepted.wait(1):raise RuntimeError('PENDING_NATIVE_CONNECTION_NOT_OBSERVED')
+                    result['blocked_connection_close']=close_window(process,'记账器',connecting/'close.json')
+                    assert result['blocked_connection_close']['elapsed_seconds']<3
+            finally:
+                listener.close()
+                for connection in connections:connection.close()
+                worker.join(timeout=1) if 'worker' in locals() else None
+
         return result
     finally:
         if process and process.poll() is None:stop_tree(process)
@@ -116,9 +165,9 @@ def native(binary,kind,out,progress):
         else:h.close()
         if result:result['sandbox_cleaned']=True
 
-def main():
-    p=argparse.ArgumentParser();mode=p.add_mutually_exclusive_group(required=True);mode.add_argument('--windows-smoke',action='store_true');mode.add_argument('--checks-only',action='store_true');p.add_argument('--jobs',type=int,choices=range(1,9),default=1);p.add_argument('--output',required=True);a=p.parse_args()
-    out=new_output(a.output);report={'task':'P07-02','status':'running','environment':{'os':platform.system(),'python':platform.python_version()},'commands':[],'production_paths_accessed':False,'protocol':None,'native':None,'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'worktree_dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip())}
+def main(argv=None):
+    p=argparse.ArgumentParser();mode=p.add_mutually_exclusive_group(required=True);mode.add_argument('--windows-smoke',action='store_true');mode.add_argument('--checks-only',action='store_true');p.add_argument('--presentation',action='store_true');p.add_argument('--jobs',type=int,choices=range(1,9),default=1);p.add_argument('--output',required=True);a=p.parse_args(argv)
+    out=new_output(a.output);report={'task':'P07-03' if a.presentation else 'P07-02','status':'running','environment':{'os':platform.system(),'python':platform.python_version()},'commands':[],'production_paths_accessed':False,'protocol':None,'native':None,'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'worktree_dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip())}
     progress=Progress(out,report,a.jobs);progress.save()
     try:
         if a.windows_smoke and os.name!='nt':raise RuntimeError('ACTUAL_WINDOWS_REQUIRED')
@@ -137,13 +186,18 @@ def main():
         report['protocol']=protocol(binaries);progress.save()
         if a.windows_smoke:
             report['native']=[]
-            for kind in ['manager','sales']:progress.stage('实际 WebView2 无登录进入 '+kind);report['native'].append(native(binaries[kind],kind,out/kind,progress));progress.save()
+            for kind in ['manager','sales']:progress.stage('实际 WebView2 无登录进入 '+kind);report['native'].append(native(binaries[kind],kind,out/kind,progress,a.presentation));progress.save()
+        if a.presentation:report['presentation_acceptance']='Actual OS DPI/physical multi-monitor and user visual acceptance pending; CDP emulation is separate.'
         report['status']='Windows_device_auth_and_native_autostart_passed_acceptance_pending' if a.windows_smoke else 'auxiliary_device_protocol_passed_actual_Windows_pending'
     except (Exception,KeyboardInterrupt) as e:
         report['status']='interrupted' if isinstance(e,KeyboardInterrupt) else 'failed';report['failure']=type(e).__name__+': '+str(e);(out/'failure.txt').write_text(traceback.format_exc(),encoding='utf-8')
     finally:
         for kind in ['manager','sales']:(out/(kind+EXT)).unlink(missing_ok=True)
-        files=[p for folder in ['desktop','crates','tools'] for p in (ROOT/folder).rglob('*') if p.is_file() and p.suffix in ['.rs','.py','.ts','.tsx','.mjs','.json','.toml'] and not any(part in p.parts for part in ['node_modules','dist','gen','test-results','playwright-report','__pycache__'])]
+        files=[p for folder in ['desktop','crates','tools'] for p in (ROOT/folder).rglob('*') if p.is_file() and p.suffix in ['.rs','.py','.ts','.tsx','.mjs','.json','.toml','.css','.svg'] and not any(part in p.parts for part in ['node_modules','dist','gen','test-results','playwright-report','__pycache__'])]
+        files += list((ROOT/'desktop/resources/licenses').glob('*.txt'))
+        if a.presentation:
+            assets=json.loads((ROOT/'desktop/resources/fonts.json').read_text(encoding='utf-8'))['assets']
+            report['font_assets']=[{'file':x['file'],'expected_sha256':x['sha256'],'sha256':hashlib.sha256((ROOT/'desktop/public/fonts'/x['file']).read_bytes()).hexdigest() if (ROOT/'desktop/public/fonts'/x['file']).is_file() else None,'bytes':(ROOT/'desktop/public/fonts'/x['file']).stat().st_size if (ROOT/'desktop/public/fonts'/x['file']).is_file() else None,'source':x['url']} for x in assets]
         files += [ROOT/n for n in ['Cargo.toml','Cargo.lock','rust-toolchain.toml','docs/verification/P07-02-device-schema.sql','.github/workflows/p07-windows.yml']]
         report['implementation_sha256_LF']={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes().replace(b'\r\n',b'\n')).hexdigest() for p in sorted(files)}
         progress.save()

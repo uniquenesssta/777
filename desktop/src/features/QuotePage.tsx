@@ -164,7 +164,7 @@ export function QuotePage({ app }: { app: Workbench }) {
               价格版本 {catalog?.price_version_id.slice(0, 16) ?? "未连接"}
             </Button>
           </div>
-          <div className="line-scroll">
+          <div className="line-scroll" tabIndex={0} role="region" aria-label="商品明细滚动区">
             <div className="quote-table">
               <div className="quote-row table-head">
                 <span />

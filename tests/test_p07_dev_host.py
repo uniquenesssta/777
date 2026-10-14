@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import sqlite3
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -82,6 +83,33 @@ class DevelopmentDatabaseTests(unittest.TestCase):
 
     def test_failed_initialization_releases_all_handles_and_does_not_publish_bootstrap(self):
         self.run_prepare(reject_update=True)
+
+
+class DevelopmentShutdownTests(unittest.TestCase):
+    def test_desktop_normal_exit_keeps_service_alive_until_private_shutdown(self):
+        with tempfile.TemporaryDirectory() as folder:
+            receipt = Path(folder) / 'stopped.txt'
+            code = "import sys;from pathlib import Path;assert sys.stdin.buffer.readline()==b'\\n';Path(sys.argv[1]).write_text('graceful')"
+            host = subprocess.Popen([sys.executable, '-c', code, str(receipt)], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            try:
+                self.assertEqual(dev.wait_desktop([sys.executable, '-c', 'pass']), 0)
+                self.assertIsNone(host.poll())
+                dev.stop_host(host)
+                self.assertEqual(receipt.read_text(), 'graceful')
+                self.assertEqual(host.returncode, 0)
+            finally:
+                if host.poll() is None:
+                    host.kill(); host.communicate(timeout=5)
+
+    def test_real_desktop_failure_is_not_relabelled_normal_close(self):
+        with self.assertRaisesRegex(RuntimeError, 'DEVELOPMENT_DESKTOP_EXIT_FAILED: 7'):
+            dev.wait_desktop([sys.executable, '-c', 'raise SystemExit(7)'])
+
+    def test_real_host_failure_remains_an_error(self):
+        host = subprocess.Popen([sys.executable, '-c', 'raise SystemExit(9)'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        host.wait(timeout=5)
+        with self.assertRaisesRegex(RuntimeError, 'DEVELOPMENT_HOST_EXIT_FAILED: 9'):
+            dev.stop_host(host)
 
 
 if __name__ == '__main__':

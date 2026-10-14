@@ -1,0 +1,71 @@
+
+> quote-desktop@0.1.0 test
+> node --import tsx --test tests/*.test.ts
+
+TAP version 13
+# Subtest: late calculation cannot restore authority after any input or price change
+ok 1 - late calculation cannot restore authority after any input or price change
+  ---
+  duration_ms: 1.176847
+  ...
+# Subtest: revision and display cents never pass through JS floating point
+ok 2 - revision and display cents never pass through JS floating point
+  ---
+  duration_ms: 0.301315
+  ...
+# Subtest: only raw draft fields restore, never a claimed result or stored role
+ok 3 - only raw draft fields restore, never a claimed result or stored role
+  ---
+  duration_ms: 0.282917
+  ...
+# Subtest: confirmed original order clears only its own raw draft and preserves edits during submit
+ok 4 - confirmed original order clears only its own raw draft and preserves edits during submit
+  ---
+  duration_ms: 9.895459
+  ...
+# 准备离线字体：test.woff2
+# Subtest: pinned font download is atomic, cached and usable without network
+ok 5 - pinned font download is atomic, cached and usable without network
+  ---
+  duration_ms: 28.277814
+  ...
+# 准备离线字体：test.woff2
+# Subtest: wrong download and corrupted cache never become accepted font assets
+ok 6 - wrong download and corrupted cache never become accepted font assets
+  ---
+  duration_ms: 4.58671
+  ...
+# Subtest: native readiness preserves the underlying CDP error and attempt diagnostics
+ok 7 - native readiness preserves the underlying CDP error and attempt diagnostics
+  ---
+  duration_ms: 23.280896
+  ...
+# Subtest: native readiness succeeds after transient refusal and bounds each connect attempt
+ok 8 - native readiness succeeds after transient refusal and bounds each connect attempt
+  ---
+  duration_ms: 1.797196
+  ...
+# Subtest: a failed connection checkpoint closes the attached browser and does not retry
+ok 9 - a failed connection checkpoint closes the attached browser and does not retry
+  ---
+  duration_ms: 0.346995
+  ...
+# Subtest: actual Windows Tauri production origins accept embedded-page paths
+ok 10 - actual Windows Tauri production origins accept embedded-page paths
+  ---
+  duration_ms: 0.733188
+  ...
+# Subtest: Vite, browser error pages and lookalike hosts fail before waiting for login
+ok 11 - Vite, browser error pages and lookalike hosts fail before waiting for login
+  ---
+  duration_ms: 0.426004
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 274.296758

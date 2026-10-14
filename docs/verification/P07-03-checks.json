@@ -1,0 +1,151 @@
+{
+  "task": "P07-03",
+  "status": "implemented_auxiliary_passed_Windows_and_user_acceptance_pending",
+  "phase_branch": "stage/p07-tauri-desktop",
+  "base_commit": "b484a64f17781d9b9c35e67b9f4eec2a0b7b8832",
+  "start": "P07-03-start.json",
+  "predecessor_acceptance": "P07-02-acceptance.json",
+  "implementation_sha256_LF": {
+    ".github/workflows/p07-windows.yml": "3552f6faa312a07447384897e4059a89ffa51ae9a0ae6240c250a3ef62ec1ed5",
+    "desktop/package.json": "b414571d60d465c91f2dd305ff28bca9bdd6fdab4d0e918d723ff08e0e3f21e1",
+    "desktop/playwright.presentation.config.ts": "502c4211f1b065ce8dffe9858bb488846511496f2e5220dd888d0a31034b160a",
+    "desktop/resources/README.md": "1e997cce2229f1c71b28337dd4d7c3cf7d52d6a43f97c44aff3097fdcd267b71",
+    "desktop/resources/fonts.json": "05b058fb794b22e71aef7e4bc9dd27afbdb1b1ec31e5fdde840e5fa1c6dca0d9",
+    "desktop/resources/licenses/Inter-OFL.txt": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a",
+    "desktop/resources/licenses/Noto-OFL.txt": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2",
+    "desktop/src-tauri/src/main.rs": "fa896ec72d6a05e36acbc1ffa93b97fd485c8a1d12547353f125eead7f6a212a",
+    "desktop/src-tauri/src/types.rs": "e9fa6d7ff6a8280402e9b927c867ec71c85d56a33378e40cc820fbd31e2c88b7",
+    "desktop/src-tauri/tauri.conf.json": "b90bdfc2825d6d156deb4fa613707f490bdf9047f9bcb8d341c95c5512fdab71",
+    "desktop/src/App.tsx": "f2705fe25af4c74be8d3ed2f3a855dcfc67b7f38df33c00f7fba036bf9b62409",
+    "desktop/src/app.css": "c3c64c386d8e0ee2d2aefb4ee6adb09e99caca17f7da85528d8f00702d88d06f",
+    "desktop/src/bridge.ts": "9272e3ef597f20a5a6415b4b49adc21c8679e38e147bd34862bca60e2f0dd6ef",
+    "desktop/src/features/DetailPage.tsx": "a0363592b9ae3532adb63a72f4e41ca86efb4c7669a1102f0da6bd425e9766cf",
+    "desktop/src/features/ManagementPages.tsx": "2c064be5c7b59ae87227ab478a8e9b1ef33be40bb12f25475745250b3c350557",
+    "desktop/src/features/OrdersPage.tsx": "0257de427d3eac6717dbe476d2d986a9d8591bedbaa2a892a0516dfe0c30fb24",
+    "desktop/src/features/QuotePage.tsx": "ac04c4855370149d859ffc9a6ee321ae7a2848775ddcf20547f7641d8f6dea7e",
+    "desktop/src/tokens.css": "5385da83d11e22118315af945ec390de15647adbb705b5de055ce7251d243646",
+    "desktop/src/ui/components.tsx": "c9c994fc84abdfd704958b159d237ac8391a9074d53d85c159ca67efd372b3d1",
+    "desktop/tests/fonts.test.ts": "884b40a763480d47e226b83581d7829c980ddcb0a76870f7b1cb52b928379ded",
+    "desktop/tests/native-presentation.mjs": "3774376debb03916e69ad795e423561f97bba4bbc0b2c9d4575af8919f5fb44e",
+    "desktop/tests/ui/presentation.spec.ts": "9efa4f9740677681ccda95fb42d1bbe675d3cdf57ba16ae616e3b01830463e07",
+    "desktop/tests/windows-autostart.mjs": "d7fb334c2c4590057f85964f7f9443e33b5654621c436258f75dbd8089f302f5",
+    "desktop/tools/develop.mjs": "8adf517d55d705297659cd9469e68cc89adabd3472ae24fbf45ee329ee9ced0b",
+    "desktop/tools/prepare-fonts.mjs": "139ba0c5d3bc444e2d8e1f0761910d63e10d0fd7d0af0cc6ebfc4ff35173ba34",
+    "tests/test_p07_dev_host.py": "4a94ad63f3112299b7fd0ffe50aa6994a146f24ff23bcb16b4b11274c0ac2cb8",
+    "tools/p07_dev_host.py": "8476851405a1dfed9b9378f60a61a4f29cd73ec4c3bc36e5b981d56157cd3eb2",
+    "tools/p07_device_check.py": "26f172a7b846ae7eb1802ac3a5b817664b6b299242dd9ef3d570a33c3f6d8acd",
+    "tools/p07_presentation_check.py": "5b6f4fd0f469633372581c69d7c33b4c6982890d385823923037d7183ea698ad"
+  },
+  "environment": {
+    "os": "Linux auxiliary",
+    "Node": "22.12.0",
+    "Rust": "1.97.1",
+    "browser": "isolated Chromium executable /tmp/chromium; not Windows WebView2"
+  },
+  "checks": {
+    "Python_P07_tools": {
+      "run": 29,
+      "passed": 27,
+      "Windows_skipped": 2,
+      "log": "P07-03-python-tests.log"
+    },
+    "development_final_process_checks": {
+      "passed": 5,
+      "log": "P07-03-dev-process-tests.log",
+      "scope": "Real child processes and private shutdown pipe; nonzero exits remain errors. Not real Windows Tauri/Vite process-tree acceptance."
+    },
+    "Rust_desktop_lib": {
+      "passed": 8,
+      "command": "cargo test --locked --offline -j 1 -p quote-desktop --lib --features verification",
+      "scope": "Linux lib tests; two new close classification cases; Windows shell remains CI-only. Test module later moved to EOF for Clippy without behavior change."
+    },
+    "strict_Clippy": {
+      "status": "passed",
+      "log": "P07-03-clippy.log"
+    },
+    "frontend_unit": {
+      "passed": 11,
+      "log": "P07-03-node-tests.log"
+    },
+    "frontend_build": {
+      "status": "passed",
+      "log": "P07-03-build.log",
+      "existing_Radix_use_client_warnings": true
+    },
+    "browser_presentation": {
+      "passed": 5,
+      "report": "P07-03-browser-presentation.json",
+      "roles": 2,
+      "CDP_scales_each": [
+        1,
+        1.25,
+        1.5,
+        2
+      ],
+      "actual_Rust_IPC": false,
+      "visual_inspection": "Manager 100/200% and sales 200% PNGs read after metrics fix; base geometry retained, compact layout uses internal scrolling. Not user visual acceptance."
+    },
+    "native_checkpoint_markup_regressions": {
+      "passed": 3,
+      "log": "P07-03-checkpoint.log",
+      "actual_native_IPC": false
+    },
+    "full_browser_discovery": {
+      "total": 16,
+      "log": "P07-03-browser-discovery.log",
+      "full_suite_execution": "Pending new Windows CI. Auxiliary release binaries unavailable after the previously recorded zero-byte dependency archive failure; no full-suite success claimed."
+    }
+  },
+  "failures_during_development": [
+    {
+      "observed": "Escape did not return focus to opening button.",
+      "fix": "Radix close autofocus restores original focus; regression passed."
+    },
+    {
+      "observed": "Intermediate focus ref placed outside Modal caused page errors.",
+      "fix": "Move ref into Modal and require zero pageerror events; final five cases passed."
+    },
+    {
+      "observed": "Playwright fullPage capture reset emulated viewport: DOM assertions passed but 200% screenshot was clipped desktop.",
+      "fix": "Direct CDP current viewport capture, assert unchanged innerWidth; five cases rerun and corrected images inspected."
+    },
+    {
+      "observed": "Clippy rejected test module before public items.",
+      "fix": "Move tests to EOF; unchanged strict gate passed."
+    }
+  ],
+  "font_manifest": "../../desktop/resources/fonts.json",
+  "font_bytes_total": 18125372,
+  "dependency_versions_or_locks_changed": false,
+  "financial_rules_or_schema_changed": false,
+  "production_paths_accessed": false,
+  "Windows_gate": {
+    "script": "tools/p07_presentation_check.py",
+    "protocol_checks": 12,
+    "native_deliveries": [
+      "manager",
+      "sales"
+    ],
+    "per_delivery_saved_lines": 40,
+    "per_delivery_PNG_files": 2,
+    "expected_PNG_pixels": [
+      1200,
+      1840
+    ],
+    "checks": [
+      "automatic role entry and restricted fields",
+      "local fonts / original icons / four explicitly emulated scales",
+      "actual current GetDpiForWindow",
+      "Chinese temporary output / complete decode / bottom pixels / unique job IDs / one order 40 lines",
+      "natural close and complete cleanup",
+      "manager pending TLS negotiation close within three seconds"
+    ],
+    "status": "not_run_here_CI_and_user_pending"
+  },
+  "pending": [
+    "New Windows CI actual extended native checks",
+    "User Windows development close / visual interaction",
+    "Actual OS scaling and physical multi-monitor observation; CDP is separate",
+    "P07-04 installers and P08 real deployment not started"
+  ]
+}

@@ -1,0 +1,12 @@
+
+> quote-desktop@0.1.0 test:ui
+> playwright test --config playwright.native-tools.config.ts --output ../reports/p07-03-checkpoint
+
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/ui/native-autostart.spec.ts:22:3 › manager native completion uses submitted DetailPage controls and records success last (287ms)
+  ✓  2 tests/ui/native-autostart.spec.ts:22:3 › sales native completion uses submitted DetailPage controls and records success last (164ms)
+  ✓  3 tests/ui/native-autostart.spec.ts:34:1 › busy or disabled submitted workspace cannot publish a passing checkpoint (528ms)
+
+  3 passed (2.2s)

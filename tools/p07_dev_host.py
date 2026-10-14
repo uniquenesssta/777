@@ -1,5 +1,5 @@
 """Persistent loopback-only development host; contains synthetic data only."""
-import argparse, hashlib, json, os, secrets, shutil, socket, sqlite3, subprocess, sys
+import argparse, hashlib, json, os, secrets, shutil, signal, socket, sqlite3, subprocess, sys, threading
 from contextlib import closing
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
@@ -11,6 +11,33 @@ from quote_service.journal import MemoryJournal
 DEV = Path(os.environ['LOCALAPPDATA'])/'Quote777Development' if os.name=='nt' else ROOT/'reports/p07-development'
 MARKER = {'format': '777-development-v1', 'production': False}
 PORT = 18477
+
+def wait_desktop(command, *, stopping=None):
+    """Tauri owns Vite; this outer parent owns the independent service sibling."""
+    stopping = stopping or threading.Event()
+    process = subprocess.Popen(command,cwd=ROOT/'desktop',
+        creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name=='nt' else 0,
+        start_new_session=os.name!='nt')
+    try:
+        while process.poll() is None:
+            try:cancelled=stopping.wait(.1)
+            except KeyboardInterrupt:cancelled=True
+            if cancelled:
+                if os.name=='nt':process.send_signal(signal.CTRL_BREAK_EVENT)
+                else:os.killpg(process.pid,signal.SIGINT)
+                process.wait(timeout=20)
+                return 130
+        if process.returncode:raise RuntimeError(f'DEVELOPMENT_DESKTOP_EXIT_FAILED: {process.returncode}')
+        return 0
+    finally:
+        if process.poll() is None:
+            from p07_check_runner import stop_tree
+            stop_tree(process)
+
+def stop_host(process):
+    if process.poll() is None:process.communicate(input=b'\n',timeout=50)
+    else:process.communicate(timeout=50)
+    if process.returncode:raise RuntimeError(f'DEVELOPMENT_HOST_EXIT_FAILED: {process.returncode}')
 
 def command(args, password=None):
     cmd = [str(ROOT/'target/release'/('quote-host.exe' if os.name == 'nt' else 'quote-host')), *args]
@@ -55,8 +82,8 @@ def prepare():
     return host
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--frontend',action='store_true');p.add_argument('--skip-build',action='store_true');args=p.parse_args()
-    host_process=None;frontend=None
+    p=argparse.ArgumentParser();mode=p.add_mutually_exclusive_group();mode.add_argument('--frontend',action='store_true');mode.add_argument('--desktop',action='store_true');p.add_argument('--skip-build',action='store_true');p.add_argument('tauri_args',nargs=argparse.REMAINDER);args=p.parse_args()
+    host_process=None;frontend=None;primary=None
     try:
         probe=socket.socket()
         try: probe.bind(('127.0.0.1',PORT))
@@ -80,14 +107,29 @@ def main():
                 client.mutate('/v1/prices',{'expected_price_version_id':None,'prices':{'price_version_id':'development-v1','items':[{'product_id':'户外写真','sale':'20','cost':'10','k':'1','single':False},{'product_id':'PVC 硬板','sale':'85','cost':'45','k':'1','single':False},{'product_id':'安装服务','sale':'100','cost':'50','k':'1','single':True}]}},MemoryJournal())
         finally:client.logout()
         print(f'本机开发服务已就绪：https://127.0.0.1:{PORT}；地址和证书保留，桌面端自动连接。',flush=True)
-        if args.frontend:
+        if args.desktop:
+            stopping=threading.Event()
+            if not sys.stdin.isatty():
+                # The Node launcher closes/writes its private pipe on cancellation.
+                def control():
+                    os.read(sys.stdin.fileno(),1);stopping.set()
+                threading.Thread(target=control,daemon=True).start()
+            extra=args.tauri_args[1:] if args.tauri_args[:1]==['--'] else args.tauri_args
+            return wait_desktop([os.environ.get('QUOTE777_NODE') or shutil.which('node'),str(ROOT/'desktop/node_modules/@tauri-apps/cli/tauri.js'),'dev',*extra],stopping=stopping)
+        elif args.frontend:
             frontend=subprocess.Popen([shutil.which('node'),str(ROOT/'desktop/node_modules/vite/bin/vite.js'),'--host','127.0.0.1','--port','29346','--strictPort'],cwd=ROOT/'desktop')
             if frontend.wait():raise RuntimeError("DEVELOPMENT_FRONTEND_EXIT_FAILED")
         else:input('关闭桌面后按回车停止服务（开发数据和证书保留）：')
-    except KeyboardInterrupt:pass
+    except KeyboardInterrupt:
+        print('开发启动已中止，正在关闭本轮服务…',flush=True)
+        return 130
+    except BaseException as error:
+        primary=error;raise
     finally:
         if frontend and frontend.poll() is None:frontend.terminate();frontend.wait(timeout=15)
         if host_process:
-            host_process.communicate(input=b'\n',timeout=50)
-            if host_process.returncode:raise RuntimeError('DEVELOPMENT_HOST_EXIT_FAILED')
-if __name__=='__main__':main()
+            try:stop_host(host_process)
+            except Exception as error:
+                if primary:primary.add_note('服务收尾同时失败：'+str(error))
+                else:raise
+if __name__=='__main__':raise SystemExit(main())

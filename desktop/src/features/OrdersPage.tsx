@@ -88,6 +88,9 @@ export function OrdersPage({
       )}
       <div
         className="orders-table-scroll"
+        tabIndex={0}
+        role="region"
+        aria-label="订单列表滚动区"
         ref={scroll}
         onScroll={(e) => {
           app.listScrollRef.current = e.currentTarget.scrollTop;

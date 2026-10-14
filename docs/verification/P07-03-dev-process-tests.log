@@ -1,0 +1,10 @@
+test_failed_initialization_releases_all_handles_and_does_not_publish_bootstrap (test_p07_dev_host.DevelopmentDatabaseTests.test_failed_initialization_releases_all_handles_and_does_not_publish_bootstrap) ... ok
+test_initialization_commits_login_and_releases_all_handles_before_startup (test_p07_dev_host.DevelopmentDatabaseTests.test_initialization_commits_login_and_releases_all_handles_before_startup) ... ok
+test_desktop_normal_exit_keeps_service_alive_until_private_shutdown (test_p07_dev_host.DevelopmentShutdownTests.test_desktop_normal_exit_keeps_service_alive_until_private_shutdown) ... ok
+test_real_desktop_failure_is_not_relabelled_normal_close (test_p07_dev_host.DevelopmentShutdownTests.test_real_desktop_failure_is_not_relabelled_normal_close) ... ok
+test_real_host_failure_remains_an_error (test_p07_dev_host.DevelopmentShutdownTests.test_real_host_failure_remains_an_error) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.665s
+
+OK

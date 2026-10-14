@@ -1,8 +1,9 @@
 import type {
-  ButtonHTMLAttributes,
+  ComponentPropsWithRef,
   InputHTMLAttributes,
   ReactNode,
 } from "react";
+import { useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 export const cn = (...v: (string | false | undefined)[]) =>
   v.filter(Boolean).join(" ");
@@ -10,7 +11,7 @@ export function Button({
   variant = "primary",
   className,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
+}: ComponentPropsWithRef<"button"> & {
   variant?: "primary" | "outline" | "ghost" | "danger";
 }) {
   return (
@@ -78,6 +79,7 @@ export function Icon({
 }: {
   name: "chevron" | "check" | "trash" | "discount-trash" | "lock";
 }) {
+  const [failed, setFailed] = useState(false);
   const file = {
     chevron: "a09ba.svg",
     check: "09c30.svg",
@@ -85,7 +87,8 @@ export function Icon({
     "discount-trash": "2eb61.svg",
     lock: "7bfb4.svg",
   }[name];
-  return <img className="icon" alt="" src={`/icons/${file}`} />;
+  return failed ? <span className="icon-fallback" role="img" aria-label="图标不可用" title="图标不可用">!</span>
+    : <img className="icon" alt="" src={`/icons/${file}`} onError={()=>setFailed(true)} />;
 }
 export function Modal({
   open,
@@ -102,11 +105,17 @@ export function Modal({
   children: ReactNode;
   compact?: boolean;
 }) {
+  const previousFocus = useRef<HTMLElement | null>(null);
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="dialog-overlay" />
-        <Dialog.Content className="dialog-content" data-compact={compact}>
+        <Dialog.Content className="dialog-content" data-compact={compact}
+          onOpenAutoFocus={()=>{previousFocus.current=document.activeElement instanceof HTMLElement?document.activeElement:null;}}
+          onCloseAutoFocus={event=>{
+            const target=previousFocus.current?.isConnected?previousFocus.current:document.querySelector<HTMLElement>('main.workspace');
+            if(target) {event.preventDefault();target.focus();}
+          }}>
           <Dialog.Title className="dialog-title">{title}</Dialog.Title>
           <Dialog.Description
             className={cn("dialog-description", !description && "sr-only")}

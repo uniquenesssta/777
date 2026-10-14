@@ -16,3 +16,6 @@ docs/verification/P07-02-ci-report-02.json -text whitespace=cr-at-eol
 docs/verification/P07-02-ci-native-manager-02.json -text
 docs/verification/P07-02-ci-failure-02.log -text whitespace=cr-at-eol
 docs/verification/P07-02-ci-native-failure-02.log -text whitespace=cr-at-eol
+
+docs/verification/P07-02-ci-report-03.json -text whitespace=cr-at-eol
+docs/verification/P07-03-*.log whitespace=-blank-at-eol,-blank-at-eof

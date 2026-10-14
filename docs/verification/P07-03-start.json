@@ -1,0 +1,32 @@
+{
+  "task": "P07-03",
+  "status": "implemented_auxiliary_checked_Windows_and_user_acceptance_pending",
+  "requested_at": "2026-10-15T02:31:55+08:00",
+  "user_instruction": "OK暂时没感受到问题，收尾02 开始03",
+  "phase_branch": "stage/p07-tauri-desktop",
+  "base_commit": "b484a64f17781d9b9c35e67b9f4eec2a0b7b8832",
+  "predecessor_acceptance": "P07-02-acceptance.json",
+  "design": {
+    "file_key": "2ek9bkIz5ldyhjZnnvIuNu",
+    "current_page": "21:2",
+    "read_nodes": [
+      "21:3",
+      "40:1604"
+    ],
+    "source_snapshot": "Figma@c517d8b3086932abe2dc01908e4dae3209b9f956",
+    "approved_navigation_commit": "d8d9481e806378859ba9582051374eb67614d512",
+    "Figma_written": false
+  },
+  "scope": [
+    "responsive role and maintenance pages",
+    "offline local font and original SVG resources",
+    "keyboard and scroll accessibility",
+    "quote image completion and Chinese output path verification",
+    "write-only native close coordination",
+    "development process ownership shutdown repair"
+  ],
+  "not_started": [
+    "P07-04 installers",
+    "P08 physical deployment and production data cutover"
+  ]
+}

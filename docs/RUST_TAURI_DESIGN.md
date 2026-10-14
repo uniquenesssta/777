@@ -1,6 +1,6 @@
 # Rust + Tauri 拟议架构与迁移方案
 
-状态：P06原生Rust宿主已验收；P07-01已按用户指令验收；P07-02固定开发入口、设备授权与母子自动连接已实现，辅助通过、待Windows/用户验收。双安装包仍留04。后文初始拟议边界保留；当前实现见文末P07-01及[契约](verification/P07-01-desktop-contract.md)。真实服务部署/生产切换未执行。
+状态：P06原生Rust宿主已验收；P07-01已按用户指令验收；P07-02固定开发入口、设备授权与母子自动连接已验收；P07-03界面/资源/退出协调已实现，辅助通过、待Windows/用户验收。双安装包仍留04。后文初始拟议边界保留；当前实现见文末P07-01及[契约](verification/P07-01-desktop-contract.md)。真实服务部署/生产切换未执行。
 
 ## 1. 为什么先优化数据与规则
 
@@ -142,3 +142,7 @@ P06已按用户2026-10-14“收尾04”[全部验收](verification/P06-acceptanc
 ## P07-02已实现的自动身份边界
 
 `quote-host::devices`为显式启用的独立身份sidecar，现有auth-v1/ledger-v1保持；一次性登记绑定既有actor/类型，每设备凭证和会话可撤销。`desktop::startup`从固定原生profile读取部署材料，发送前DPAPI保存随机设备凭证，凭证不跨IPC；manager/sales为互斥编译类型，正式类型禁手工connect并自动进入业务。新完整备份v5保存设备库，恢复撤销所有设备/会话/材料；旧包继续可恢复，启用设备认证不降级Python宿主。开发启动独立使用127.0.0.1:18477及持久证书/合成数据，指定短密码不改变正式账号策略。接口、兼容和证据边界见[02契约](verification/P07-02-auth-contract.md)；真实安装/部署未执行。
+
+## P07-03当前资源与进程生命周期
+
+Noto Sans SC/Inter由构建脚本按固定提交/长度/SHA256准备，原OFL随本地资源内嵌；运行时不取字体CDN。React按逻辑宽度响应布局，原生DPI保持Tauri/WebView2处理；CDP模拟与物理显示器结果分开登记。开发入口由外层管理Rust服务和Tauri兄弟进程，Tauri beforeDev只管理Vite，避免窗口关闭把服务一并强制结束。正式原生关闭只对有业务写副作用的IPC计数，慢读取/连接不拦窗口，未知写仍恢复原DPAPI记录。详见[03契约](verification/P07-03-presentation-contract.md)；安装器/真实部署尚未执行。

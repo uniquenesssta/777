@@ -130,7 +130,7 @@ export function TasksPage({ app }: { app: Workbench }) {
   useEffect(() => {
     if (
       !app.jobs.some((j) =>
-        ["queued", "running", "processing"].includes(j.state),
+        ["queued", "running", "processing", "publishing"].includes(j.state),
       )
     )
       return;
@@ -248,6 +248,7 @@ export function SettingsPage({ app }: { app: Workbench }) {
       <Field label="报价表保存位置">
         <Input
           value={exportDir}
+          title={exportDir}
           readOnly={!admin}
           onChange={(e) => setExport(e.target.value)}
           placeholder="由管理员发布的共享位置"
@@ -256,6 +257,7 @@ export function SettingsPage({ app }: { app: Workbench }) {
       <Field label="报价图片保存位置">
         <Input
           value={imageDir}
+          title={imageDir}
           readOnly={!admin}
           onChange={(e) => setImage(e.target.value)}
           placeholder="由管理员发布的共享位置"

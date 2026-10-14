@@ -1,0 +1,1514 @@
+{
+  "status": "passed",
+  "scope": "Presentation-only IPC substitute; no native TLS, Windows or physical OS DPI acceptance. PNGs retained in ignored reports folder; Windows CI will upload its own captures.",
+  "reports": [
+    {
+      "status": "passed",
+      "delivery": "manager",
+      "initial": {
+        "device_pixel_ratio": 1,
+        "width": 1440,
+        "height": 884,
+        "screen": {
+          "width": 1440,
+          "height": 884,
+          "available_width": 1440,
+          "available_height": 884
+        }
+      },
+      "samples": [
+        {
+          "scale": 1,
+          "emulation": true,
+          "width": 1440,
+          "height": 1000,
+          "dpr": 1,
+          "document_width": 1440,
+          "fonts": {
+            "chinese": true,
+            "number": true
+          },
+          "icons": [
+            {
+              "source": "/icons/a09ba.svg",
+              "natural": 14,
+              "width": 14
+            },
+            {
+              "source": "/icons/09c30.svg",
+              "natural": 14,
+              "width": 14
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/7bfb4.svg",
+              "natural": 13,
+              "width": 13
+            }
+          ],
+          "table_scrollable": true,
+          "screenshot": "presentation-manager-100.png",
+          "screenshot_sha256": "a82585313b682142ff4172ddb0dd47b959cd87dfbf578ba3376b36ca784916f1",
+          "PNG_pixels": [
+            1440,
+            1000
+          ]
+        },
+        {
+          "scale": 1.25,
+          "emulation": true,
+          "width": 1152,
+          "height": 800,
+          "dpr": 1.25,
+          "document_width": 1152,
+          "fonts": {
+            "chinese": true,
+            "number": true
+          },
+          "icons": [
+            {
+              "source": "/icons/a09ba.svg",
+              "natural": 14,
+              "width": 14
+            },
+            {
+              "source": "/icons/09c30.svg",
+              "natural": 14,
+              "width": 14
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/7bfb4.svg",
+              "natural": 13,
+              "width": 13
+            }
+          ],
+          "table_scrollable": true,
+          "screenshot": "presentation-manager-125.png",
+          "screenshot_sha256": "69c989d264821c33cde8ea218ccf69fcdba22927dacfaa9d9b80447d9a7d2d7b",
+          "PNG_pixels": [
+            1440,
+            1000
+          ]
+        },
+        {
+          "scale": 1.5,
+          "emulation": true,
+          "width": 960,
+          "height": 667,
+          "dpr": 1.5,
+          "document_width": 960,
+          "fonts": {
+            "chinese": true,
+            "number": true
+          },
+          "icons": [
+            {
+              "source": "/icons/a09ba.svg",
+              "natural": 14,
+              "width": 14
+            },
+            {
+              "source": "/icons/09c30.svg",
+              "natural": 14,
+              "width": 14
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/7bfb4.svg",
+              "natural": 13,
+              "width": 13
+            }
+          ],
+          "table_scrollable": true,
+          "screenshot": "presentation-manager-150.png",
+          "screenshot_sha256": "d46b3d107d2b36b8a681412eb68bab83fd1b6355a3c30c3e0f3ff9a8b3a187ba",
+          "PNG_pixels": [
+            1440,
+            1001
+          ]
+        },
+        {
+          "scale": 2,
+          "emulation": true,
+          "width": 720,
+          "height": 500,
+          "dpr": 2,
+          "document_width": 720,
+          "fonts": {
+            "chinese": true,
+            "number": true
+          },
+          "icons": [
+            {
+              "source": "/icons/a09ba.svg",
+              "natural": 14,
+              "width": 14
+            },
+            {
+              "source": "/icons/09c30.svg",
+              "natural": 14,
+              "width": 14
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/7bfb4.svg",
+              "natural": 13,
+              "width": 13
+            }
+          ],
+          "table_scrollable": true,
+          "screenshot": "presentation-manager-200.png",
+          "screenshot_sha256": "1511673d77667c46bd34d6c82b624a18c1e289c3244dfa7e5db5838af6022d13",
+          "PNG_pixels": [
+            1440,
+            1000
+          ]
+        }
+      ],
+      "account_keyboard_focus_and_escape": true,
+      "scope": "Actual rendered DOM/fonts/assets and CDP scale emulation. Four emulations are not four actual OS DPI settings or multiple physical monitors.",
+      "screenshots_in_git": false
+    },
+    {
+      "status": "passed",
+      "delivery": "sales",
+      "initial": {
+        "device_pixel_ratio": 1,
+        "width": 1440,
+        "height": 884,
+        "screen": {
+          "width": 1440,
+          "height": 884,
+          "available_width": 1440,
+          "available_height": 884
+        }
+      },
+      "samples": [
+        {
+          "scale": 1,
+          "emulation": true,
+          "width": 1440,
+          "height": 1000,
+          "dpr": 1,
+          "document_width": 1440,
+          "fonts": {
+            "chinese": true,
+            "number": true
+          },
+          "icons": [
+            {
+              "source": "/icons/a09ba.svg",
+              "natural": 14,
+              "width": 14
+            },
+            {
+              "source": "/icons/09c30.svg",
+              "natural": 14,
+              "width": 14
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            }
+          ],
+          "table_scrollable": true,
+          "screenshot": "presentation-sales-100.png",
+          "screenshot_sha256": "3102f4af72b0653e598be9438b9c1c1615d61e6b4b5d1cdfa95d174839ff3780",
+          "PNG_pixels": [
+            1440,
+            1000
+          ]
+        },
+        {
+          "scale": 1.25,
+          "emulation": true,
+          "width": 1152,
+          "height": 800,
+          "dpr": 1.25,
+          "document_width": 1152,
+          "fonts": {
+            "chinese": true,
+            "number": true
+          },
+          "icons": [
+            {
+              "source": "/icons/a09ba.svg",
+              "natural": 14,
+              "width": 14
+            },
+            {
+              "source": "/icons/09c30.svg",
+              "natural": 14,
+              "width": 14
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            }
+          ],
+          "table_scrollable": true,
+          "screenshot": "presentation-sales-125.png",
+          "screenshot_sha256": "561c00e4a9375e8b9a8dacc25989ed1f2801a3b0e478408c2932d2ea78fed241",
+          "PNG_pixels": [
+            1440,
+            1000
+          ]
+        },
+        {
+          "scale": 1.5,
+          "emulation": true,
+          "width": 960,
+          "height": 667,
+          "dpr": 1.5,
+          "document_width": 960,
+          "fonts": {
+            "chinese": true,
+            "number": true
+          },
+          "icons": [
+            {
+              "source": "/icons/a09ba.svg",
+              "natural": 14,
+              "width": 14
+            },
+            {
+              "source": "/icons/09c30.svg",
+              "natural": 14,
+              "width": 14
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            }
+          ],
+          "table_scrollable": true,
+          "screenshot": "presentation-sales-150.png",
+          "screenshot_sha256": "127d5750ebb50e2000ee79520b06854d7dbe19be988dde450273d5d2f2cee169",
+          "PNG_pixels": [
+            1440,
+            1001
+          ]
+        },
+        {
+          "scale": 2,
+          "emulation": true,
+          "width": 720,
+          "height": 500,
+          "dpr": 2,
+          "document_width": 720,
+          "fonts": {
+            "chinese": true,
+            "number": true
+          },
+          "icons": [
+            {
+              "source": "/icons/a09ba.svg",
+              "natural": 14,
+              "width": 14
+            },
+            {
+              "source": "/icons/09c30.svg",
+              "natural": 14,
+              "width": 14
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            },
+            {
+              "source": "/icons/74181.svg",
+              "natural": 16,
+              "width": 16
+            }
+          ],
+          "table_scrollable": true,
+          "screenshot": "presentation-sales-200.png",
+          "screenshot_sha256": "88c5cd57aa4299b56f5a94b03480c483d6c844d5ad67dbe73a1bc4fc313b75bf",
+          "PNG_pixels": [
+            1440,
+            1000
+          ]
+        }
+      ],
+      "account_keyboard_focus_and_escape": true,
+      "scope": "Actual rendered DOM/fonts/assets and CDP scale emulation. Four emulations are not four actual OS DPI settings or multiple physical monitors.",
+      "screenshots_in_git": false
+    }
+  ]
+}

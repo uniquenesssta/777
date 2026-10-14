@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。P07-01已按用户2026-10-14 23:39“收尾01，开始02”验收。当前P07-02交付固定本机开发连接（admin / 123456）、设备授权与母子自动入口，辅助验证通过，待Windows CI/本机及用户验收；P07-03/04与P08未启动。两种实际安装包留04，真实部署留P08。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
+P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。P07-01已按用户2026-10-14 23:39“收尾01，开始02”验收。P07-02已按用户2026-10-15“OK暂时没感受到问题，收尾02 开始03”验收。当前P07-03交付界面缩放/键盘、离线字体、报价图片验证及开发/原生退出协调，辅助检查通过，待Windows原生和用户验收；P07-04与P08未启动。两种实际安装包留04，真实部署留P08。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -37,6 +37,8 @@ P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-ta
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 按用户确认[收尾P07-02](docs/verification/P07-02-acceptance.json)，同一07分支接续[03界面/资源与退出协调](docs/verification/P07-03-presentation-contract.md)：窄窗口、长单滚动、键盘焦点和离线字体/原图标回退已实现；修复开发窗口结束连带终止服务，18477/29346、证书与开发数据保留。Python/Rust/前端/呈现辅助检查通过，新增Windows母子40行报价图片及慢连接关闭入口；原生、多屏和用户视觉待验收，04安装器/P08部署未启动。
 
 - 按用户要求将桌面开发页端口统一为`29346`：同步Tauri、Vite、开发启动器、浏览器测试及fixture CORS。启动命令仍为`npm --prefix desktop run tauri dev`；固定Rust HTTPS服务继续使用`18477`及已有证书/开发数据。
 

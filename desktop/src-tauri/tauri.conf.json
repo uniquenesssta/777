@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "identifier": "cn.uniqueness.quote777",
   "build": {
-    "beforeDevCommand": "npm run dev:desktop",
+    "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
     "devUrl": "http://127.0.0.1:29346",
     "frontendDist": "../dist"
@@ -16,8 +16,8 @@
         "title": "记账器",
         "width": 1440,
         "height": 884,
-        "minWidth": 1080,
-        "minHeight": 640
+        "minWidth": 640,
+        "minHeight": 480
       }
     ],
     "security": {

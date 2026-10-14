@@ -6,6 +6,7 @@ reports/
 
 /desktop/node_modules/
 /desktop/dist/
+/desktop/public/fonts/
 /desktop/test-results/
 /desktop/playwright-report/
 /desktop/src-tauri/gen/

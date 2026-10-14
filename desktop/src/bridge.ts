@@ -6,6 +6,7 @@ export function request<T>(
   return invoke<T>("desktop_action", { request: { action, ...data } });
 }
 const errors: Record<string, string> = {
+  OUTPUT_CJK_FONT_UNAVAILABLE: "报价图片所需中文字体不可用，请联系管理员。订单已保留。",
   DEPLOYMENT_NOT_CONFIGURED:"尚未配置，请联系管理员。",
   DEVICE_NOT_AUTHORIZED:"此设备授权已失效，请联系管理员。",
   DEVICE_PROFILE_MISMATCH:"此设备配置不匹配，请联系管理员。",

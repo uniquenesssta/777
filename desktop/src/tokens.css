@@ -1,4 +1,18 @@
 /* Figma c517d8b / 2ek9bkIz5ldyhjZnnvIuNu: current compact semantic tokens. */
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url("/fonts/NotoSansSC-VF.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: Inter;
+  src: url("/fonts/InterVariable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
 :root {
   --color-canvas: #f5f6f8;
   --color-white: #ffffff;

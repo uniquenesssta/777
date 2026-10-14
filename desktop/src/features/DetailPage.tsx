@@ -35,7 +35,7 @@ export function DetailPage({ app }: { app: Workbench }) {
               <small>{stamp(order.created_at)}</small>
             </div>
           </div>
-          <div className="line-scroll">
+          <div className="line-scroll" tabIndex={0} role="region" aria-label="商品明细滚动区">
             <div className="quote-table">
               <div className="quote-row table-head">
                 <span />

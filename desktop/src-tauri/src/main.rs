@@ -4,9 +4,28 @@ mod verification_window;
 #[cfg(windows)]
 mod shell {
     use quote_desktop::{Action, Desktop, DesktopError};
-    use std::sync::Arc;
+    use std::sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    };
     use tauri::{Emitter, Manager, State};
-    type Shared = Arc<tokio::sync::Mutex<Desktop>>;
+    struct ClientState {
+        desktop: tokio::sync::Mutex<Desktop>,
+        writes: AtomicUsize,
+    }
+    type Shared = Arc<ClientState>;
+    struct Writing<'a>(&'a AtomicUsize);
+    impl<'a> Writing<'a> {
+        fn start(value: &'a AtomicUsize) -> Self {
+            value.fetch_add(1, Ordering::SeqCst);
+            Self(value)
+        }
+    }
+    impl Drop for Writing<'_> {
+        fn drop(&mut self) {
+            self.0.fetch_sub(1, Ordering::SeqCst);
+        }
+    }
     fn context() -> tauri::Context<tauri::Wry> {
         tauri::generate_context!()
     }
@@ -46,7 +65,10 @@ mod shell {
         if window.label() != "main" {
             return Err(DesktopError::new(403, "WINDOW_NOT_AUTHORIZED"));
         }
-        state.lock().await.execute(request).await
+        let _writing = request
+            .protects_close()
+            .then(|| Writing::start(&state.writes));
+        state.desktop.lock().await.execute(request).await
     }
     pub fn run() {
         #[cfg(feature = "verification")]
@@ -80,7 +102,7 @@ mod shell {
                 let root = isolated.as_ref().map_or(root, |v| v.root.clone());
                 let client =
                     Desktop::new(root, false).map_err(|e| std::io::Error::other(e.code))?;
-                app.manage(Arc::new(tokio::sync::Mutex::new(client)));
+                app.manage(Arc::new(ClientState { desktop: tokio::sync::Mutex::new(client), writes: AtomicUsize::new(0) }));
                 #[cfg(feature = "verification")]
                 if let Some(profile) = isolated {
                     let config = &app.config().app.windows[0];
@@ -96,7 +118,7 @@ mod shell {
             .on_window_event(|window, event| {
                 if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                     let s = window.state::<Shared>();
-                    if s.try_lock().is_err() {
+                    if s.writes.load(Ordering::SeqCst) != 0 {
                         api.prevent_close();
                         let _ = window.emit("close-blocked", ());
                     }

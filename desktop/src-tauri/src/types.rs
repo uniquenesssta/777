@@ -87,6 +87,25 @@ pub enum Action {
     BackupStatus {},
     Backup {},
 }
+impl Action {
+    /// Only operations that can persist a request or mutate business state
+    /// coordinate close. A slow login/query must not trap the user in a window.
+    pub fn protects_close(&self) -> bool {
+        matches!(
+            self,
+            Self::Submit { .. }
+                | Self::Note { .. }
+                | Self::SetState { .. }
+                | Self::PublishPrices { .. }
+                | Self::SaveSettings { .. }
+                | Self::CreateOutput { .. }
+                | Self::RetryOutput { .. }
+                | Self::Recover { .. }
+                | Self::Backup {}
+        )
+    }
+}
+
 pub fn revision(raw: &str) -> Result<i64> {
     let n = raw
         .parse::<i64>()
@@ -125,4 +144,42 @@ pub fn new_id() -> Result<String> {
         &s[16..20],
         &s[20..]
     ))
+}
+
+#[cfg(test)]
+mod close_tests {
+    use super::*;
+    #[test]
+    fn readonly_network_and_calculation_do_not_protect_close() {
+        assert!(!Action::Bootstrap {}.protects_close());
+        assert!(!Action::Orders {
+            q: "".into(),
+            state: "".into(),
+            offset: 0,
+            view: "".into()
+        }
+        .protects_close());
+        assert!(!Action::Calculate {
+            snapshot: Value::Null,
+            draft_revision: "1".into()
+        }
+        .protects_close());
+    }
+    #[test]
+    fn writes_and_unknown_receipt_recovery_protect_close() {
+        assert!(Action::Submit {
+            snapshot: Value::Null,
+            details: Value::Null,
+            draft_revision: "1".into()
+        }
+        .protects_close());
+        assert!(Action::CreateOutput {
+            order_id: "".into(),
+            expected_revision: "1".into(),
+            kind: "quote_png".into()
+        }
+        .protects_close());
+        assert!(Action::Recover { retry: false }.protects_close());
+        assert!(Action::Backup {}.protects_close());
+    }
 }
