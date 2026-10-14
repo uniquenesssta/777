@@ -158,7 +158,6 @@ test("sales DTO and pages contain no cost/profit and settings inherit", async ({
     page.getByRole("button", { name: "查看详情" }).first(),
   ).toBeEnabled();
   await expect(page.getByText("00024", { exact: true })).toHaveCount(0);
-  await page.getByRole("button", { name: "账户菜单" }).click();
   await expect(
     page.getByRole("button", { name: "价格维护", exact: true }),
   ).toHaveCount(0);
@@ -256,7 +255,6 @@ test("manager price publication, readonly inherited directories and real output 
   page,
 }) => {
   await login(page);
-  await page.getByRole("button", { name: "账户菜单" }).click();
   await page.getByRole("button", { name: "价格维护", exact: true }).click();
   await page.getByLabel("商品1sale").fill("21");
   await page.getByRole("button", { name: "发布新版本" }).click();
@@ -271,7 +269,6 @@ test("manager price publication, readonly inherited directories and real output 
   await expect(page.getByText("已完成", { exact: true }).first()).toBeVisible({
     timeout: 15000,
   });
-  await page.getByRole("button", { name: "账户菜单" }).click();
   await page.getByRole("button", { name: "存储与备份", exact: true }).click();
   await expect(page.getByLabel("报价表保存位置")).not.toHaveAttribute(
     "readonly",

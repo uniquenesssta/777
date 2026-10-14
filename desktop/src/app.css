@@ -98,6 +98,7 @@ strong {
 }
 .topbar {
   height: 72px;
+  min-width: 1000px;
   background: var(--color-white);
   display: flex;
   align-items: center;
@@ -109,8 +110,8 @@ strong {
   display: flex;
   align-items: center;
   gap: 12px;
-  width: 272px;
-  flex: none;
+  min-width: 112px;
+  flex: 1;
 }
 .brand > span {
   display: grid;
@@ -131,14 +132,16 @@ strong {
   display: flex;
   gap: 8px;
   flex: none;
-  width: 600px;
+  width: auto;
   justify-content: flex-start;
 }
 .topbar nav .button {
-  min-width: 128px;
+  min-width: 0;
+  white-space: nowrap;
 }
 .account {
-  width: 272px;
+  min-width: 145px;
+  flex: 1;
   position: relative;
   display: flex;
   justify-content: flex-end;
@@ -871,9 +874,11 @@ textarea {
   .topbar {
     padding-inline: 24px;
   }
-  .brand,
-  .account {
-    width: 180px;
+  .topbar nav {
+    gap: 4px;
+  }
+  .topbar nav .button {
+    padding-inline: 12px;
   }
   .workspace {
     padding-inline: 24px;

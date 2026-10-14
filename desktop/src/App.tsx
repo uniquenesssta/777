@@ -57,6 +57,17 @@ export default function App() {
               >
                 {app.session.role === "admin" ? "订单记录" : "我的订单"}
               </Button>
+              {extra
+                .filter((i) => !i.admin || app.session?.role === "admin")
+                .map((i) => (
+                  <Button
+                    variant={app.route === i.route ? "primary" : "ghost"}
+                    key={i.route}
+                    onClick={() => nav(i.route)}
+                  >
+                    {i.label}
+                  </Button>
+                ))}
             </nav>
             <div className="account">
               <button
@@ -71,17 +82,6 @@ export default function App() {
               </button>
               {menu && (
                 <div className="account-menu">
-                  {extra
-                    .filter((i) => !i.admin || app.session?.role === "admin")
-                    .map((i) => (
-                      <Button
-                        variant="ghost"
-                        key={i.route}
-                        onClick={() => nav(i.route)}
-                      >
-                        {i.label}
-                      </Button>
-                    ))}
                   <Button
                     variant="ghost"
                     disabled={app.busy}
