@@ -4,6 +4,8 @@
 
 ## 固定开发入口
 
+按用户2026-10-15要求，桌面开发页固定为`http://127.0.0.1:29346`。Tauri devUrl、Vite、开发启动器及浏览器测试/CORS使用同一端口。Rust服务首次编译完成后才启动开发页，编译期间出现Waiting for your frontend dev server属于启动等待。
+
 `npm --prefix desktop run tauri dev`自动准备并运行本机Rust HTTPS开发服务，再启动Vite和Tauri。服务固定为`https://127.0.0.1:18477`，账号`admin`、密码`123456`，桌面端原生层自动读取并登录，无需复制地址/PEM/pin。首次单任务增量构建host/ledger；之后复用缓存。已有Node 22.12+与P07工具链即可，不变更依赖版本。
 
 Windows开发状态固定在`%LOCALAPPDATA%\Quote777Development`，不随仓库盘符/工作目录变化，不把SQLite放在共享盘；辅助环境使用忽略目录`reports/p07-development`。其中`777-development.json`标识开发根，host保存证书/私钥和合成账本，desktop保存本机开发bootstrap。每次复用同一证书/端口/数据，首次发布三项演示价格，之后不覆盖自己修改的价格。服务程序随代码更新时走既有owner锁/维护备份/资源校验再切换，不重新生成证书或清空开发账本。只绑定127.0.0.1；拒绝未知目录、重解析路径、端口占用及与标记不符的主机配置。终止开发服务不删除开发数据。不要把整个开发profile导出为正式部署配置。

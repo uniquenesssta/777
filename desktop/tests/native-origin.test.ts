@@ -15,12 +15,12 @@ test("actual Windows Tauri production origins accept embedded-page paths", () =>
 
 test("Vite, browser error pages and lookalike hosts fail before waiting for login", () => {
   for (const url of [
-    "http://127.0.0.1:1420/",
-    "http://localhost:1420/",
+    "http://127.0.0.1:29346/",
+    "http://localhost:29346/",
     "about:blank",
     "chrome-error://chromewebdata/",
     "http://tauri.localhost.evil/",
-    "http://tauri.localhost:1420/",
+    "http://tauri.localhost:29346/",
     "http://user@tauri.localhost/",
     "not a URL",
   ]) {

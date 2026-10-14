@@ -4,7 +4,7 @@ export default defineConfig({
   workers: 1,
   timeout: 60000,
   use: {
-    baseURL: "http://127.0.0.1:1420",
+    baseURL: "http://127.0.0.1:29346",
     viewport: { width: 1440, height: 884 },
     screenshot: "only-on-failure",
     channel: process.platform === "win32" ? "msedge" : undefined,
@@ -19,7 +19,7 @@ export default defineConfig({
   webServer: [
     {
       command: "npm run dev",
-      url: "http://127.0.0.1:1420",
+      url: "http://127.0.0.1:29346",
       reuseExistingServer: false,
     },
     {

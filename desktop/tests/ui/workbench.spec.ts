@@ -296,7 +296,7 @@ test("confirmed write with failed detail refresh clears the original draft and n
             code: "SERVICE_UNREACHABLE_OR_CERTIFICATE_REJECTED",
           },
         },
-        headers: { "Access-Control-Allow-Origin": "http://127.0.0.1:1420" },
+        headers: { "Access-Control-Allow-Origin": "http://127.0.0.1:29346" },
       });
     } else await route.continue();
   });
@@ -319,7 +319,7 @@ test("confirmed write with failed detail refresh clears the original draft and n
     if (route.request().postDataJSON().action === "note")
       await route.fulfill({
         json: { error: { status: 409, code: "ORDER_REVISION_CHANGED" } },
-        headers: { "Access-Control-Allow-Origin": "http://127.0.0.1:1420" },
+        headers: { "Access-Control-Allow-Origin": "http://127.0.0.1:29346" },
       });
     else await route.fallback();
   });

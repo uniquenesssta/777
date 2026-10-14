@@ -45,12 +45,12 @@ class Handler(BaseHTTPRequestHandler):
     scenario=None
     def log_message(self,*args):pass
     def send_json(self,value,status=200):
-        data=json.dumps(value,ensure_ascii=True).encode();self.send_response(status);self.send_header('Content-Type','application/json');self.send_header('Access-Control-Allow-Origin','http://127.0.0.1:1420');self.send_header('Content-Length',str(len(data)));self.end_headers();self.wfile.write(data)
+        data=json.dumps(value,ensure_ascii=True).encode();self.send_response(status);self.send_header('Content-Type','application/json');self.send_header('Access-Control-Allow-Origin','http://127.0.0.1:29346');self.send_header('Content-Length',str(len(data)));self.end_headers();self.wfile.write(data)
     def do_OPTIONS(self):
-        self.send_response(204);self.send_header('Access-Control-Allow-Origin','http://127.0.0.1:1420');self.send_header('Access-Control-Allow-Headers','Content-Type');self.send_header('Access-Control-Allow-Methods','GET,POST,OPTIONS');self.end_headers()
+        self.send_response(204);self.send_header('Access-Control-Allow-Origin','http://127.0.0.1:29346');self.send_header('Access-Control-Allow-Headers','Content-Type');self.send_header('Access-Control-Allow-Methods','GET,POST,OPTIONS');self.end_headers()
     def do_GET(self):
         if self.path=='/font.ttf' and os.environ.get('P06_CI_FONT_FILE'):
-            data=Path(os.environ['P06_CI_FONT_FILE']).read_bytes();self.send_response(200);self.send_header('Content-Type','font/ttf');self.send_header('Access-Control-Allow-Origin','http://127.0.0.1:1420');self.send_header('Content-Length',str(len(data)));self.end_headers();self.wfile.write(data);return
+            data=Path(os.environ['P06_CI_FONT_FILE']).read_bytes();self.send_response(200);self.send_header('Content-Type','font/ttf');self.send_header('Access-Control-Allow-Origin','http://127.0.0.1:29346');self.send_header('Content-Length',str(len(data)));self.end_headers();self.wfile.write(data);return
         if self.path=='/health':return self.send_json({'status':'ready'})
         if self.path=='/fixture' and self.scenario:return self.send_json(self.scenario.fixture())
         self.send_json({'error':'NOT_FOUND'},404)

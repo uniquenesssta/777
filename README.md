@@ -38,6 +38,8 @@ P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-ta
 
 ## Change Log
 
+- 按用户要求将桌面开发页端口统一为`29346`：同步Tauri、Vite、开发启动器、浏览器测试及fixture CORS。启动命令仍为`npm --prefix desktop run tauri dev`；固定Rust HTTPS服务继续使用`18477`及已有证书/开发数据。
+
 - P07-02修正原生检查的提交后等待：[第二轮CI](docs/verification/P07-02-ci-evidence-02.json)已通过SQLite清理及12项Windows设备协议，失败为详情页等待不存在的“重新读取”按钮。现在检查真实详情控件及空闲状态，全部完成后才写交互成功报告；母子详情与忙碌/禁用状态的3项浏览器回归通过，仍待Windows完整自然退出验收。
 
 - P07-02修复Windows检查清理失败：[原CI及定位](docs/verification/P07-02-ci-evidence-01.json)确认脚本未关闭SQLite连接导致WinError32；设备验证的三处连接与开发初始化连接现在显式释放，写入仍按事务提交。原始失败保留，新增初始化成功/异常释放回归；Windows无登录母子入口待重跑验收。

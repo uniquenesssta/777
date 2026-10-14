@@ -1,6 +1,6 @@
 {
   "task": "P07-02",
-  "status": "Windows_device_protocol_passed_native_checkpoint_fixed_actual_Windows_recheck_pending",
+  "status": "previous_Windows_CI_passed_frontend_port_change_verified_auxiliary_Windows_recheck_pending",
   "base_commit": "1043853572c610f6d8399127b0b40446453420a0",
   "phase_branch": "stage/p07-tauri-desktop",
   "platform": "Linux auxiliary only; not Windows GUI or installed package",
@@ -107,8 +107,8 @@
     }
   ],
   "pending": [
-    "Actual manager and sales WebView2 automatic entry through idle, natural main-window exit and complete sandbox cleanup",
-    "User acceptance",
+    "Windows CI recheck after frontend dev port change to 29346",
+    "User local development startup and acceptance",
     "P07-03/04 and P08 have not started"
   ],
   "production_paths_accessed": false,
@@ -187,6 +187,63 @@
       "total": 11,
       "new_checkpoint_cases": 3,
       "command": "npm --prefix desktop run test:ui -- --list"
+    }
+  },
+  "last_verified_Windows_CI": {
+    "run_id": 38611184964,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/38611184964",
+    "source_commit": "f1a0ad5052021e1bfbc85d213c136a2c338d63fe",
+    "status": "completed",
+    "conclusion": "success",
+    "scope": "GitHub run conclusion verified; original CI artifact remains authoritative. This success predates the requested frontend port change."
+  },
+  "development_frontend_port_change": {
+    "task": "P07-02",
+    "scope": "Auxiliary frontend port/config and HTTP CORS only; no Rust build or native Tauri acceptance",
+    "frontend_url": "http://127.0.0.1:29346",
+    "backend_service_port": 18477,
+    "checks": {
+      "actual_npm_dev_HTTP_29346": {
+        "status": 200,
+        "Vite_client_injected": true
+      },
+      "owned_frontend_stopped": true,
+      "GET /health": {
+        "status": 200,
+        "Access-Control-Allow-Origin": "http://127.0.0.1:29346"
+      },
+      "OPTIONS /action": {
+        "status": 204,
+        "Access-Control-Allow-Origin": "http://127.0.0.1:29346"
+      },
+      "GET /font.ttf": {
+        "status": 200,
+        "Access-Control-Allow-Origin": "http://127.0.0.1:29346"
+      }
+    },
+    "status": "passed",
+    "production_paths_accessed": false,
+    "base_commit": "f1a0ad5052021e1bfbc85d213c136a2c338d63fe",
+    "requested": "User 2026-10-15 02:21 Asia/Shanghai requested port 29346 after the waiting-for-1420 development log.",
+    "old_port": 1420,
+    "new_port": 29346,
+    "service_certificate_credentials_or_data_changed": false,
+    "frontend_unit_tests": {
+      "passed": 9,
+      "command": "npm --prefix desktop test"
+    },
+    "browser_discovery": {
+      "total": 11,
+      "command": "npm --prefix desktop run test:ui -- --list"
+    },
+    "sha256_LF": {
+      "desktop/package.json": "65c9a7269a3674fd5cbafd10b816902e355404ac5e01d8058df5f019f925068a",
+      "desktop/src-tauri/tauri.conf.json": "ede3bb86ae169ccb5fb108ecc41816c958c64f47cf2479ff120a583a5f66ee9a",
+      "desktop/playwright.config.ts": "0a499235b0503b4fefafd6cae3a4fccbb8463175dc8c668b1479f6c58eb7ef28",
+      "desktop/tests/ui/workbench.spec.ts": "95510190e5c3c1a8926782db2a2ffd789cc461c38c68d69fcdc8b40f9da96159",
+      "desktop/tests/native-origin.test.ts": "77eeb0e45ac6a6c995ad904bc00d1b601c67f86b12678b96117920986472ecf5",
+      "tools/p07_dev_host.py": "d4258ed95036908d65f43c840834ebe1785d66926593b94d0d09837bc2464807",
+      "tools/p07_desktop_fixture.py": "40e569cb5932dfab21b61ebcf3274da31666c28410f759beaad6c7b462e8da85"
     }
   }
 }

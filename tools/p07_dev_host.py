@@ -81,7 +81,7 @@ def main():
         finally:client.logout()
         print(f'本机开发服务已就绪：https://127.0.0.1:{PORT}；地址和证书保留，桌面端自动连接。',flush=True)
         if args.frontend:
-            frontend=subprocess.Popen([shutil.which('node'),str(ROOT/'desktop/node_modules/vite/bin/vite.js'),'--host','127.0.0.1','--port','1420','--strictPort'],cwd=ROOT/'desktop')
+            frontend=subprocess.Popen([shutil.which('node'),str(ROOT/'desktop/node_modules/vite/bin/vite.js'),'--host','127.0.0.1','--port','29346','--strictPort'],cwd=ROOT/'desktop')
             if frontend.wait():raise RuntimeError("DEVELOPMENT_FRONTEND_EXIT_FAILED")
         else:input('关闭桌面后按回车停止服务（开发数据和证书保留）：')
     except KeyboardInterrupt:pass
