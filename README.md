@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。当前P07-01已通过Windows CI与本机05自动验证：原生API启动/交互、正常退出和临时目录清理全部通过，待用户视觉/交互确认；无需重跑自动检查。P07-02至04/P08未启动。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
+P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。当前P07-01已通过Windows CI与本机05自动验证：原生API启动/交互、正常退出和临时目录清理全部通过，待用户视觉/交互确认；无需重跑自动检查。P07-02至04/P08未启动。用户已确认开发版保留配置、封包区分母版/子版、正式版无登录直达业务；新增设备授权与自动入口规划在02，双安装包在04，真实部署在P08，均待实现。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -37,6 +37,8 @@ P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-ta
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 按用户确认重排[P07任务书](docs/now/P07-tauri-desktop.md)与[P08交接](docs/new/P08-cutover.md)：开发版保留配置，封包明确母版/子版，正式版部署授权后无登录直达业务；02交付设备授权/自动会话及权限，03核对界面，04交付两种安装包。稳定actor与目录继承规则保持，新增要求待实现；本轮仅文档，原01自动证据保留，未收尾或启动下一项。
 
 - P07-01自动门槛通过：[Windows CI](docs/verification/P07-01-ci-evidence-06.json)56项指纹匹配76934b4，24工具/52 Rust/9前端/10协议/7浏览器及真实Tauri交互、自然退出/清理全部通过，含提权WebView2 153 API启动。[本机05](docs/verification/P07-01-windows-evidence-05.json)非提权WebView2 155也通过：0.047秒自然退出、临时占用等待2.359秒后完整清理，无强制终止；原始日志保留，本机dirty状态不推定为干净源码。代码不改、无需重跑；01待用户视觉/交互确认，02至04/P08未启动。
 
