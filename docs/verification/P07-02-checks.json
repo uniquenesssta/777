@@ -1,14 +1,15 @@
 {
   "task": "P07-02",
-  "status": "auxiliary_passed_actual_Windows_and_user_acceptance_pending",
+  "status": "SQLite_lifetime_fix_tool_regression_passed_Windows_recheck_pending",
   "base_commit": "1043853572c610f6d8399127b0b40446453420a0",
   "phase_branch": "stage/p07-tauri-desktop",
   "platform": "Linux auxiliary only; not Windows GUI or installed package",
   "source_fingerprints": {
     "report": "P07-02-nav-integration-report.json",
     "count": 118,
-    "all_match_final_worktree": true,
-    "prior_before_navigation_report": "P07-02-auxiliary-report.json"
+    "all_match_final_worktree": false,
+    "prior_before_navigation_report": "P07-02-auxiliary-report.json",
+    "scope": "118 fingerprints match published cfa10a8; current SQLite lifetime repair requires its own evidence."
   },
   "checks": {
     "Rust_workspace": {
@@ -75,10 +76,23 @@
       "log": "P07-02-development-failure-01.log",
       "cause": "Persistent developer host after binary update failed existing host resource identity check; maintenance CLI also applied new-password policy when checking an existing password.",
       "fix": "Developer upgrades now use owner-locked, backup-verified select-host. Existing-password verification accepts its existing value; new account and reset/restore password creation policy remains 12..128. Final real upgrade and repeated native auto login passed."
+    },
+    {
+      "evidence": "P07-02-ci-evidence-01.json",
+      "report": "P07-02-ci-report-01.json",
+      "log": "P07-02-ci-failure-01.log",
+      "cause": "Windows devices.sqlite3 cleanup refused (WinError 32); Python Connection context did not close three verification connections. Same pattern found in owned development initialization.",
+      "fix": "Explicit closing for all four P07 sites; transaction commit/rollback retained on writes; strict cleanup remains required.",
+      "regression_before": "P07-02-sqlite-before.log"
+    },
+    {
+      "log": "P07-02-sqlite-build-retry.log",
+      "scope": "Current auxiliary rebuild only; protocol rerun not executed",
+      "cause": "Zero-byte Rust dependency object, origin unestablished; targeted package clean retry still failed."
     }
   ],
   "pending": [
-    "Actual Windows compilation and DPAPI/junction case",
+    "Actual Windows P07-02 protocol including DPAPI and complete temporary cleanup",
     "Actual manager and sales WebView2 automatic entry, submission, direct manual-login denial, natural exit and temporary cleanup",
     "User acceptance",
     "P07-03/04 and P08 have not started"
@@ -91,5 +105,35 @@
     "local_merge_commit": "cb8d91dfafaaae4d32e6b87e0daf20e752ca86b7",
     "preserved": "Management entries in top navigation and logout in account menu; remote CSS and component mapping preserved.",
     "verification": "Eight actual Rust-bridged browser cases rerun after integration; twelve real device protocol cases and both mode builds passed; backend unit results reused because only frontend/navigation integration changed."
+  },
+  "sqlite_lifetime_repair": {
+    "source_base": "cfa10a81fddfb03235e9cb620288a0360f5f9c11",
+    "changed_python_sha256_LF": {
+      "tools/p07_device_check.py": "53aac7aa445e7263f9cc778aa194c01460031a08685569456d99be901bffe301",
+      "tools/p07_dev_host.py": "47f220c968999ef2126fc06e01822feb346cba92b76b01d8a3d8070257110aa6",
+      "tests/test_p07_dev_host.py": "352bb5af6d5298323d171486d5f2c3a70c74e7ccd040654e8a154209a1ce72c0"
+    },
+    "Python_P07_tools": {
+      "run": 26,
+      "passed": 24,
+      "skipped_actual_Windows": 2,
+      "command": "python -m unittest discover -s tests -p 'test_p07_*.py' -v",
+      "scope": "Actual local unittest result; existing runner/window regressions plus two new development SQLite cases. Windows-specific cases remain skipped on Linux."
+    },
+    "new_regression": {
+      "old_code_failures": 2,
+      "old_log": "P07-02-sqlite-before.log",
+      "fixed_passed": 2,
+      "fixed_log": "P07-02-sqlite-after.log",
+      "scope": "Actual SQLite with all connection objects retained strongly. Successful initialization commits usable login; injected UPDATE failure does not publish bootstrap. All handles must be closed before prepare returns or raises."
+    },
+    "actual_device_protocol_rerun": {
+      "status": "blocked_auxiliary_build_not_passed",
+      "log": "P07-02-sqlite-build-retry.log",
+      "observed": "rust_xlsxwriter archive rejected a zero-byte cgu.02 object; targeted package clean and rebuild repeated the failure. Why the compiler emitted an empty object remains unestablished. No Rust code, build profile, dependency version or gate changed to bypass it.",
+      "next": "Unchanged Windows CI gates rebuild and exercise complete P07-02 protocol and native windows."
+    },
+    "Rust_frontend_business_code_changed": false,
+    "cleanup_errors_ignored": false
   }
 }

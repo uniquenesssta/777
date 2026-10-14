@@ -1,0 +1,9 @@
+Auxiliary Linux initial rebuild failed while archiving rust_xlsxwriter: failed to map object file: memory map must have a non-zero length.
+Observed cgu.02 object size = 0 bytes; reason for the empty object is unestablished. Disk had 27 GiB available and memory 9 GiB available at inspection.
+Targeted cargo clean -p rust_xlsxwriter --release only; retained other dependency artifacts. Retry command: ['cargo', 'build', '--locked', '--offline', '--release', '-j', '1', '-p', 'quote-host', '-p', 'quote-ledger', '-p', 'quote-desktop', '--features', 'quote-desktop/verification,quote-desktop/manager']
+   Compiling rust_xlsxwriter v0.99.1
+error: failed to build archive at `/workspace/scratch/7a12e3cfd885/repo777/target/release/deps/librust_xlsxwriter-e03fc4536302133e.rlib`: failed to map object file: memory map must have a non-zero length
+
+error: could not compile `rust_xlsxwriter` (lib) due to 1 previous error
+
+exit_code=101

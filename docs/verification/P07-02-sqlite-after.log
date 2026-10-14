@@ -1,0 +1,7 @@
+test_failed_initialization_releases_all_handles_and_does_not_publish_bootstrap (test_p07_dev_host.DevelopmentDatabaseTests.test_failed_initialization_releases_all_handles_and_does_not_publish_bootstrap) ... ok
+test_initialization_commits_login_and_releases_all_handles_before_startup (test_p07_dev_host.DevelopmentDatabaseTests.test_initialization_commits_login_and_releases_all_handles_before_startup) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.475s
+
+OK

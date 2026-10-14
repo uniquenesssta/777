@@ -65,4 +65,4 @@ P07-02专项边界审计、P07-03多DPI/原生图片及字体、P07-04安装升�
 
 从1043853在同一阶段分支接续，[启动记录](../verification/P07-02-start.json)、[实现/开发使用/Windows入口](../verification/P07-02-auth-contract.md)和[检查证据](../verification/P07-02-checks.json)集中登记本项。固定本机开发服务与证书、admin / 123456已接入原生自动启动；正式manager/sales模式、独立设备授权、会话恢复/撤销、稳定actor、销售过滤及完整v5恢复已实现。普通release必须指定类型，隔离verification不作为正式安装包。
 
-02辅助测试、真实HTTPS与独立恢复已经通过；实际Windows DPAPI、两种WebView2无登录窗口/自然关闭/清理及用户复查仍待取得。CI增加02本项入口，不以原01登录自动化替代新要求。03图像/多DPI、04两种安装包及开发配置封包工具、P08真实部署继续待启动。
+02首轮[Windows CI](../verification/P07-02-ci-evidence-01.json)中，原完整构建/测试/协议/浏览器/真实桌面门槛通过；新设备流程在最终删除devices.sqlite3时因脚本未关闭连接而WinError32失败，母子自动入口窗口尚未执行。三处设备连接及同源的开发初始化连接已显式关闭，事务语义保持，待重跑02完整Windows门槛。辅助回归与真实HTTPS/独立恢复见[检查证据](../verification/P07-02-checks.json)；不把失败流程或原01登录窗口算作新入口验收。03图像/多DPI、04两种安装包及开发配置封包工具、P08真实部署继续待启动。

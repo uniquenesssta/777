@@ -10,3 +10,5 @@ docs/verification/P07-01-cdp-rust-tests-02.log whitespace=-blank-at-eof
 
 # Preserve raw P07-02 verification logs.
 docs/verification/P07-02-*.log whitespace=-blank-at-eol,-blank-at-eof
+docs/verification/P07-02-ci-report-01.json -text whitespace=cr-at-eol
+docs/verification/P07-02-ci-failure-01.log -text whitespace=cr-at-eol

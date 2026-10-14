@@ -1,5 +1,6 @@
 """P07-02 isolated device identity and native no-login evidence; never touches production."""
 import argparse, hashlib, json, os, platform, queue, shutil, socket, subprocess, sys, threading, traceback
+from contextlib import closing
 from pathlib import Path
 from types import SimpleNamespace
 ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT),str(ROOT/'tools'),str(ROOT/'tests')]
@@ -55,7 +56,7 @@ def protocol(binaries):
         snap={'price_version_id':'fixture-v1','lines':[{'line_kind':'normal','product_id':'单件','q':'2','h':'','w':'','name':''}]};details={'customer':'isolated','order_ref':'device-manager','wechat':''}
         manager.ok('calculate',snapshot=snap,draft_revision='1');receipt=manager.ok('submit',snapshot=snap,details=details,draft_revision='1');assert sales.call('order',order_id=receipt['order_id'])['error']['code']=='NOT_FOUND';assert sales.call('backup')['error']['code']=='ADMIN_REQUIRED';checks.append('sales_cannot_read_other_actor_or_backups')
         sales.ok('calculate',snapshot=snap,draft_revision='1');own=sales.ok('submit',snapshot=snap,details={**details,'order_ref':'device-sales'},draft_revision='1');assert sales2.ok('order',order_id=own['order_id'])['order_id']==own['order_id'];checks.append('same_actor_devices_share_own_orders_only')
-        with sqlite3.connect(h.host_root/'private/devices.sqlite3') as c:c.execute('UPDATE device_sessions SET expires=0')
+        with closing(sqlite3.connect(h.host_root/'private/devices.sqlite3')) as c, c:c.execute('UPDATE device_sessions SET expires=0')
         assert sales.call('prices')['error']['status']==401;assert sales.ok('bootstrap')['session']['subject']==s['session']['subject'];checks.append('expired_session_recovers_without_password_or_identity_change')
         manager.ok('bootstrap');manager.ok('calculate',snapshot=snap,draft_revision='2');h.fault.write_text('after_commit',encoding='utf-8');assert manager.call('submit',snapshot=snap,details={**details,'order_ref':'device-unknown'},draft_revision='2')['error']['code']=='COMMIT_UNKNOWN';assert (mp/'pending.bin').is_file()
         manager.close();bridges.remove(manager);h.restart();manager=start('manager',mp);assert manager.ok('bootstrap')['session']['pending'];recovered=manager.ok('recover',retry=False);assert recovered['result']['income_cents']=='2000' and not recovered['pending'];assert manager.ok('orders',q='',state='',offset=0,view='')['total']==3;checks.append('unknown_commit_restart_queries_original_receipt_without_duplicate')
@@ -68,7 +69,7 @@ def protocol(binaries):
         copied=h.root/'copied';copied.mkdir();(copied/'777-isolated-profile.json').write_text('{"production":false}');shutil.copyfile(sp/'device.bin',copied/'device.bin');copy=start('sales',copied);assert copy.call('bootstrap')['error']['code']=='DEVICE_PROFILE_MISMATCH';checks.append('copied_credential_rejected_in_other_profile')
         sales2.ok('bootstrap')
         admin=h.client('manager');devices=admin.request('GET','/v1/devices')['devices'];
-        with sqlite3.connect(h.host_root/'private/devices.sqlite3') as c:key=c.execute('SELECT device_id FROM grants WHERE digest=?',(hashlib.sha256(sales_ticket.encode()).hexdigest(),)).fetchone()[0]
+        with closing(sqlite3.connect(h.host_root/'private/devices.sqlite3')) as c:key=c.execute('SELECT device_id FROM grants WHERE digest=?',(hashlib.sha256(sales_ticket.encode()).hexdigest(),)).fetchone()[0]
         admin.request('POST','/v1/devices/'+key,{})
         # Revoke both? Exactly one of the two devices must remain authorized.
         outcomes=[sales.call('prices'),sales2.call('prices')];assert sum('ok' in x for x in outcomes)==1;checks.append('one_device_revocation_rejects_live_session_without_affecting_peer')
@@ -84,7 +85,7 @@ def protocol(binaries):
         checks.append('operator_new_grant_reauthorizes_revoked_device_without_deleting_pending')
         before=h.service.ledger.inventory();backup=admin.request('POST','/v1/backup',{'kind':'maintenance'});bundle=Path(backup['service_bundle']);assert json.loads((bundle/'manifest.json').read_text(encoding='utf-8'))['format']=='777-service-bundle-v5'
         restored=h.root/'restored';command('restore',root=restored,package=bundle,admin='manager',secret=h.password)
-        with sqlite3.connect(restored/'private/devices.sqlite3') as c:
+        with closing(sqlite3.connect(restored/'private/devices.sqlite3')) as c:
             assert c.execute('SELECT count(*) FROM devices WHERE enabled=1').fetchone()[0]==0
             assert c.execute('SELECT count(*) FROM device_sessions').fetchone()[0]==0
             assert c.execute('SELECT count(*) FROM grants').fetchone()[0]==0

@@ -1,5 +1,6 @@
 """Persistent loopback-only development host; contains synthetic data only."""
 import argparse, hashlib, json, os, secrets, shutil, socket, sqlite3, subprocess, sys
+from contextlib import closing
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -36,7 +37,7 @@ def prepare():
         command(['init','--root',str(host),'--backup-dir',str(DEV/'backups'),'--host','127.0.0.1','--host','localhost','--bind','127.0.0.1','--port',str(PORT),'--admin','admin','--worker',str(binary),'--notices',str(ROOT/'THIRD_PARTY_NOTICES.md')], secrets.token_urlsafe(24))
         # The requested short password is scoped to this owned development DB.
         # Normal account creation and production password validation remain unchanged.
-        with sqlite3.connect(host/'private/auth.sqlite3') as c:
+        with closing(sqlite3.connect(host/'private/auth.sqlite3')) as c, c:
             salt = secrets.token_bytes(16)
             c.execute('UPDATE users SET salt=?,verifier=? WHERE username=?', (salt, verifier('123456',salt),'admin'))
     config = json.loads((host/'private/service.json').read_text(encoding='utf-8'))
