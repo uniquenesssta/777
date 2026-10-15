@@ -4,6 +4,8 @@
 
 设计权威来自本仓库`Figma@c517d8b3086932abe2dc01908e4dae3209b9f956`的[交接](../design/figma-handoff.md)、[状态](../design/figma-state.json)和[tokens](../design/figma-tokens.json)，Figma文件为[记账器](https://www.figma.com/design/2ek9bkIz5ldyhjZnnvIuNu)。只使用当前页21:2及其中已确认的紧凑紫灰横向布局，不使用归档旧稿；未改写Figma文件。实现映射见[P07组件映射](../design/P07-component-map.md)。
 
+2026-10-15用户确认上一聊天价格维护设计已完成并授权写入；本次在`154fa0c`接续当前页新增的57:688–691，依据[价格页接入说明](../design/P07-price-maintenance-figma.md)落实四种状态。旧来源快照保留；新源码与验证见[本次证据](../verification/P07-03-price-figma-checks.json)。P07-03继续执行，运行界面用户验收和新版Windows验证待完成。
+
 目标：以Tauri桌面入口承载已验证的业务核心/服务，完整覆盖两版角色功能。正式交付采用“开发版配置 → 打包选择母版/子版 → 部署授权 → 启动直达业务”，母子正式版均无技术配置或账号登录页。依据：[主任务书](../MASTER_PLAN.md) / [架构方案](../RUST_TAURI_DESIGN.md) / [交付与身份契约6.4](../MIGRATION_CONTRACT.md#64-已确认的开发版与母子版交付方式待实现)。
 
 规划历史（已由下方23:39启动记录接续）：2026-10-14 23:14用户要求重新规划。本次只调整任务书与契约，在同一阶段分支执行；P07-01原范围自动验证仍通过、视觉待确认，新增交付要求尚未实现。02至04/P08不因本次规划自动变成已启动或已验收，不移动new/now/old，不修改历史验证报告。

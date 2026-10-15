@@ -373,9 +373,14 @@ test("price editor keeps final manual sale separate from cost markup and persist
   await page.getByLabel("商品1k", { exact: true }).fill("2");
   const automatic = page.getByLabel("商品1按成本乘K定价", { exact: true });
   const sale = page.getByLabel("商品1sale", { exact: true });
+  await sale.fill("25");
   await automatic.check();
   await expect(sale).toHaveValue("23");
   await expect(sale).toHaveAttribute("readonly", "");
+  await automatic.uncheck();
+  await expect(sale).toHaveValue("25");
+  await automatic.check();
+  await expect(sale).toHaveValue("23");
   await page.getByLabel("商品1cost", { exact: true }).fill("0.335");
   await page.getByLabel("商品1k", { exact: true }).fill("3");
   await expect(sale).toHaveValue("1.005");
@@ -391,8 +396,23 @@ test("price editor keeps final manual sale separate from cost markup and persist
   }));
   expect(withinCells).toBe(true);
   await page.screenshot({ path: info.outputPath("prices-auto-right.png"), fullPage: true });
+  await expect(page.getByRole("columnheader", { name: "商品与成本", exact: true })).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "销售定价", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "添加商品", exact: false }).click();
+  const addedName = page.getByLabel("商品4product_id", { exact: true });
+  await expect(addedName).toBeFocused();
+  await expect(page.getByRole("button", { name: "发布新版本", exact: true })).toBeDisabled();
+  await page.screenshot({ path: info.outputPath("prices-added.png"), fullPage: true });
+  await page.getByRole("button", { name: "移除商品4", exact: true }).click();
+  await expect(addedName).toHaveCount(0);
   const publish = async () => {
     await page.getByRole("button", { name: "发布新版本", exact: true }).click();
+    const dialog = page.getByRole("dialog", { name: "发布新价格" });
+    await expect(dialog).toContainText("确认发布这 3 种商品的定价？");
+    const bounds = await dialog.boundingBox();
+    expect(bounds?.width).toBe(380);
+    expect(bounds?.height).toBe(194);
+    await page.screenshot({ path: info.outputPath("prices-confirm.png"), fullPage: true });
     await page.getByRole("button", { name: "确认发布", exact: true }).click();
     await expect(page.getByRole("button", { name: "发布新版本", exact: true })).toBeEnabled();
   };
@@ -411,6 +431,60 @@ test("price editor keeps final manual sale separate from cost markup and persist
   await expect(automatic).not.toBeChecked();
   await expect(sale).toHaveValue("20");
   await page.screenshot({ path: info.outputPath("prices-manual-right.png"), fullPage: true });
+  for (const width of [1440, 1100, 720, 640]) {
+    await page.setViewportSize({ width, height: 884 });
+    const geometry = await page.evaluate(() => {
+      const table = document.querySelector<HTMLTableElement>(".price-editor")!;
+      const header = table.tHead!.rows[1];
+      const row = table.tBodies[0].rows[0];
+      const right = (e: Element) => e.getBoundingClientRect().right - parseFloat(getComputedStyle(e).paddingRight);
+      return {
+        documentOverflow: document.documentElement.scrollWidth - innerWidth,
+        rowHeight: row.getBoundingClientRect().height,
+        headerFont: getComputedStyle(header.cells[2]).fontFamily,
+        groupEdge: table.tHead!.rows[0].cells[1].getBoundingClientRect().left,
+        saleEdge: row.cells[4].getBoundingClientRect().left,
+        numericAlignment: [2, 3].map(i => Math.abs(right(header.cells[i]) - right(row.cells[i].querySelector("input")!))),
+        controlsContained: Array.from(table.querySelectorAll("td input, td select, td button")).every(e => {
+          const box = e.getBoundingClientRect(), cell = e.closest("td")!.getBoundingClientRect();
+          return box.left >= cell.left && box.right <= cell.right;
+        }),
+        iconsCorrect: Array.from(table.querySelectorAll<HTMLImageElement>(".icon")).every(e => {
+          const size = e.closest(".price-kind-icon") ? 14 : 16;
+          const expected = e.closest(".price-kind-icon") ? "price-chevron.svg" : "price-trash.svg";
+          const box = e.getBoundingClientRect();
+          return e.complete && e.naturalWidth === 20 && e.naturalHeight === 20 && e.src.endsWith(expected) && Math.abs(box.width - size) < 0.1 && Math.abs(box.height - size) < 0.1;
+        }),
+      };
+    });
+    expect(geometry.documentOverflow).toBeLessThanOrEqual(1);
+    expect(geometry.rowHeight).toBe(80);
+    expect(geometry.headerFont).toContain("Noto Sans SC");
+    expect(Math.abs(geometry.groupEdge - geometry.saleEdge)).toBeLessThanOrEqual(1);
+    expect(geometry.numericAlignment.every(error => error <= 1)).toBe(true);
+    expect(geometry.controlsContained).toBe(true);
+    expect(geometry.iconsCorrect).toBe(true);
+    await page.screenshot({ path: info.outputPath(`prices-layout-${width}.png`), fullPage: true });
+  }
+  await page.setViewportSize({ width: 640, height: 884 });
+  await page.getByLabel("商品1k", { exact: true }).focus();
+  await page.keyboard.press("Tab");
+  await expect(sale).toBeFocused();
+  const scroller = page.getByRole("region", { name: "价格目录" });
+  const visible = await sale.evaluate(e => {
+    const box = e.getBoundingClientRect(), region = e.closest(".price-table-scroll")!.getBoundingClientRect();
+    return box.left >= region.left && box.right <= region.right;
+  });
+  expect(visible).toBe(true);
+  await page.keyboard.press("Tab");
+  await expect(automatic).toBeFocused();
+  await page.keyboard.press("Space");
+  await expect(automatic).toBeChecked();
+  await expect(sale).toHaveValue("34.5");
+  await page.keyboard.press("Space");
+  await expect(sale).toHaveValue("20");
+  await scroller.evaluate(e => e.scrollLeft = 0);
+  await page.setViewportSize({ width: 1440, height: 884 });
   await page.getByRole("button", { name: "报价工作台", exact: true }).click();
   await add(page, "KT板");
   await page.getByLabel("第1行高", { exact: true }).fill("1");

@@ -1,6 +1,5 @@
 import type {
   ComponentPropsWithRef,
-  InputHTMLAttributes,
   ReactNode,
 } from "react";
 import { useRef, useState } from "react";
@@ -26,7 +25,7 @@ export function Button({
 export function Input({
   className,
   ...props
-}: InputHTMLAttributes<HTMLInputElement>) {
+}: ComponentPropsWithRef<"input">) {
   return <input className={cn("input", className)} {...props} />;
 }
 export function Field({
@@ -64,7 +63,7 @@ export function Empty({ children }: { children: ReactNode }) {
 export function Icon({
   name,
 }: {
-  name: "chevron" | "check" | "trash" | "discount-trash" | "lock";
+  name: "chevron" | "check" | "trash" | "discount-trash" | "lock" | "price-chevron" | "price-trash";
 }) {
   const [failed, setFailed] = useState(false);
   const file = {
@@ -73,6 +72,8 @@ export function Icon({
     trash: "74181.svg",
     "discount-trash": "2eb61.svg",
     lock: "7bfb4.svg",
+    "price-chevron": "price-chevron.svg",
+    "price-trash": "price-trash.svg",
   }[name];
   return failed ? <span className="icon-fallback" role="img" aria-label="图标不可用" title="图标不可用">!</span>
     : <img className="icon" alt="" src={`/icons/${file}`} onError={()=>setFailed(true)} />;
@@ -84,6 +85,7 @@ export function Modal({
   description,
   children,
   compact = false,
+  className,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -91,13 +93,14 @@ export function Modal({
   description?: string;
   children: ReactNode;
   compact?: boolean;
+  className?: string;
 }) {
   const previousFocus = useRef<HTMLElement | null>(null);
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="dialog-overlay" />
-        <Dialog.Content className="dialog-content" data-compact={compact}
+        <Dialog.Content className={cn("dialog-content", className)} data-compact={compact}
           onOpenAutoFocus={()=>{previousFocus.current=document.activeElement instanceof HTMLElement?document.activeElement:null;}}
           onCloseAutoFocus={event=>{
             const target=previousFocus.current?.isConnected?previousFocus.current:document.querySelector<HTMLElement>('main.workspace');

@@ -976,25 +976,3 @@ textarea {
 .pie-legend b { margin-left:auto; overflow-wrap:anywhere; }
 .pending-actions { display:flex; flex-direction:column; gap:8px; }
 @media(max-width:720px){ .profit-pie { flex-direction:column; align-items:stretch; gap:12px; } .profit-pie > svg { align-self:center; flex-basis:auto; max-width:100%; height:auto; } }
-
-.price-editor { width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; min-width:960px; }
-.price-editor th { text-align:left; padding:12px 8px; color:var(--color-muted); font-size:12px; font-weight:500; }
-.price-editor td { padding:12px 8px; vertical-align:top; }
-.price-editor .input, .price-editor select { width:100%; }
-.price-product-col { width:25%; }
-.price-kind-col { width:12%; }
-.price-cost-col { width:15%; }
-.price-k-col { width:10%; }
-.price-sale-col { width:32%; }
-.price-remove-col { width:6%; }
-.price-editor .price-numeric { text-align:right; }
-.price-editor .price-selling-head, .price-editor .price-selling-cell { border-left:1px solid var(--color-line); padding-left:24px; background:var(--color-soft); }
-.price-editor .price-selling-head { color:var(--color-accent-ink); border-radius:12px 12px 0 0; }
-.price-editor tr:last-child .price-selling-cell { border-radius:0 0 12px 12px; }
-.sale-editor { display:flex; gap:12px; align-items:center; min-height:40px; }
-.sale-input { display:flex; gap:6px; align-items:center; min-width:0; flex:1; }
-.sale-input .input { min-width:0; background:var(--color-white); font-weight:600; color:var(--color-accent-ink); }
-.sale-input small { flex-shrink:0; font-size:11px; color:var(--color-muted); }
-.cost-price-toggle { display:flex; align-items:center; gap:6px; font-size:12px; white-space:nowrap; cursor:pointer; }
-.cost-price-toggle input { accent-color:var(--color-accent); width:15px; height:15px; }
-.price-selling-cell .inline-error { margin-top:6px; }

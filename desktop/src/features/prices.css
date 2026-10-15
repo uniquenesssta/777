@@ -1,0 +1,180 @@
+/* Figma 57:688–691, PriceItemRow 58:814 and PriceSaleField 58:797. */
+.price-maintenance {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+.price-toolbar, .price-title, .price-toolbar-actions {
+  display: flex;
+  align-items: center;
+}
+.price-toolbar {
+  justify-content: space-between;
+  min-height: 40px;
+  gap: 16px;
+}
+.price-title { gap: 12px; }
+.price-title h2 { font-size: 18px; line-height: 24px; }
+.price-title .badge { min-width: 76px; font-weight: 400; }
+.price-toolbar-actions { gap: 8px; }
+.price-toolbar-actions .button { padding: 8px; }
+.price-toolbar-actions .button:first-child { width: 96px; }
+.price-toolbar-actions .button:last-child { width: 116px; }
+.price-catalog { overflow: hidden; }
+.price-table-scroll {
+  position: relative;
+  overflow: auto;
+  max-height: max(240px, calc(100dvh - 276px));
+}
+.price-editor {
+  width: 100%;
+  min-width: 1160px;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+/* The left inset belongs to the product column; the right inset to actions.
+   Header groups, column labels and rows therefore share one column grid. */
+.price-product-col { width: 28.235294%; }
+.price-kind-col { width: 10.588235%; }
+.price-cost-col { width: 12.941176%; }
+.price-k-col { width: 7.647059%; }
+.price-sale-col { width: 34.117647%; }
+.price-remove-col { width: 6.470588%; }
+.price-editor thead { position: sticky; top: 0; z-index: 1; }
+.price-editor th {
+  height: 40px;
+  padding: 0;
+  text-align: left;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 400;
+  color: var(--color-muted);
+  background: var(--color-soft);
+}
+.price-editor .price-groups th {
+  padding-left: 24px;
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+.price-editor .price-groups th:last-child,
+.price-columns th:nth-last-child(-n+2) {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-ink);
+}
+.price-columns th:first-child { padding-left: 68px; }
+.price-columns th.price-numeric { padding-right: 32px; }
+.price-columns .price-selling-head { padding-left: 24px; }
+.price-editor td {
+  height: 80px;
+  padding: 0;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--color-line);
+}
+.price-editor .input, .price-editor select {
+  width: 100%;
+  height: 36px;
+  min-height: 36px;
+  border-color: transparent;
+}
+.price-editor .price-numeric {
+  text-align: right;
+}
+.price-editor input.price-numeric {
+  font-family: var(--font-number);
+  font-variant-numeric: tabular-nums;
+}
+.price-editor .price-product-cell { padding-left: 24px; }
+.price-product { display: flex; align-items: center; gap: 12px; padding-right: 12px; }
+.price-index { width: 24px; flex: none; font-size: 12px; line-height: 18px; color: var(--color-faint); }
+.price-product .input { padding: 6px 8px; background: transparent; }
+.price-product .input::placeholder { color: var(--color-faint); }
+.price-product .input:focus { border-color: var(--color-accent); outline: none; }
+.price-editor .price-kind-cell { padding-right: 24px; }
+.price-kind-select { position: relative; }
+.price-kind-select select { appearance: none; padding: 6px 30px 6px 12px; }
+.price-kind-icon { position: absolute; top: 11px; right: 12px; width: 14px; height: 14px; pointer-events: none; }
+.price-kind-icon .icon { transform: scale(0.7); transform-origin: top left; }
+.price-editor .price-cost-cell, .price-editor .price-k-cell { padding: 0 24px 0 16px; }
+.price-cost-cell .input, .price-k-cell .input { padding: 6px 8px; }
+.price-editor .price-selling-cell {
+  padding: 16px 16px 16px 24px;
+  border-left: 1px solid var(--color-line);
+}
+.sale-editor { display: flex; gap: 16px; align-items: center; }
+.sale-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  color: var(--color-accent-ink);
+}
+.sale-input[data-automatic="true"] { border-color: transparent; background: var(--color-accent-soft); }
+.sale-input > span { font-family: var(--font-number); }
+.sale-input .input {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  color: inherit;
+}
+.sale-input .input:focus-visible { outline: none; }
+.sale-input:focus-within { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.sale-input .input::placeholder { font-size: 14px; font-weight: 400; color: var(--color-accent-ink); }
+.sale-input small { flex: none; font-size: 12px; color: var(--color-muted); }
+.cost-price-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 128px;
+  height: 40px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--color-muted);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.cost-price-toggle:has(:checked) { color: var(--color-accent-ink); }
+.cost-price-toggle input {
+  appearance: none;
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
+  background: var(--color-white);
+  cursor: inherit;
+}
+.cost-price-toggle input:checked { background: var(--color-accent); border-color: var(--color-accent); }
+.cost-price-toggle input:checked::after { content: "✓"; display: block; text-align: center; color: var(--color-white); font-size: 12px; line-height: 14px; }
+.price-selling-cell .inline-error { margin-top: 6px; font-size: 12px; }
+.price-editor .price-remove-cell { padding-right: 24px; text-align: center; }
+.price-remove.button { width: 32px; min-width: 32px; padding: 0; }
+.price-remove-icon { display: block; width: 16px; height: 16px; }
+.price-remove-icon .icon { transform: scale(0.8); transform-origin: top left; }
+.price-publish-actions { display: flex; align-items: center; justify-content: flex-end; height: 80px; padding: 0 24px; background: var(--color-soft); }
+.price-publish-actions .button { width: 120px; padding: 8px; }
+.price-publish-actions .button:disabled { opacity: 1; background: var(--color-disabled); color: var(--color-disabled-text); }
+.dialog-content.price-confirm { gap: 8px; }
+.price-confirm .dialog-description { font-size: 14px; line-height: 22px; }
+.price-confirm .dialog-actions { margin-top: auto; }
+.price-confirm .dialog-actions .button { width: 104px; min-width: 104px; height: 40px; padding: 8px; }
+@media (max-width: 640px) {
+  .price-toolbar { flex-wrap: wrap; }
+  .price-toolbar-actions { margin-left: auto; }
+}

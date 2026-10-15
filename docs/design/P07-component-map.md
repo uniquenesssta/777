@@ -9,7 +9,8 @@
 | 管理详情32:499 / 销售40:1915 | features/DetailPage.tsx | 冻结明细、追加备注、管理作废恢复及原因确认、销售字段投影 |
 | 紧凑提交32:818 | QuotePage + Radix Modal | 380×194、客户/订单/总额、96×36双按钮，Escape取消；不加入被撤销的重复信息 |
 | Foundations46:727 / 组件47:979 | tokens.css、ui/components.tsx | 复用导出语义token，组件为本仓库React源码；未配置Figma Code Connect，不能把手工映射称自动连接 |
-| 价格/利润/任务/设置 | features/ManagementPages.tsx、ProfitPage.tsx（原OrdersPage profit模式已替换） | 服务真实功能，沿用同一token/组件；没有完整独立批准稿，仍需用户视觉验收 |
+| 价格维护57:688–691 / PriceItemRow58:814 / PriceSaleField58:797 | features/PricesPage.tsx、prices.css、ui/components.tsx | 用户确认后按四状态稿接入；来源与交互见[价格页接入](P07-price-maintenance-figma.md)，运行界面待用户验收 |
+| 利润/任务/设置 | features/ManagementPages.tsx、ProfitPage.tsx（原OrdersPage profit模式已替换） | 服务真实功能，沿用同一token/组件；没有完整独立批准稿，仍需用户视觉验收 |
 
 原始矢量通过Figma实例SVG_STRING只读导出，未重画：22:285→a09ba.svg(14×14)、22:327→09c30.svg(14×14)、22:374→74181.svg(16×16)、22:448→2eb61.svg(16×16)、22:483→7bfb4.svg(13×13)。22:273品牌36×36 PNG直接封装ICO用于原生窗口。临时资产URL返回HTML的失败已排除，提交文件均为实际SVG/ICO，渲染检查核对全部原尺寸。
 
@@ -38,3 +39,5 @@ P07-03时间选择按用户后续明确的1天/1周/1月/1年调整：四个“�
 用户 image(9).png 进一步明确所有提醒条移除及四图切换；类型切换独立于当前时段与分组，K线采用服务端累计利润OHLC，饼图明确标出亏损。沿用现有紫灰token与顶部导航，新增实现口径见[当前业务契约](../verification/P07-03-business-ui-contract.md)，没有改写Figma。
 
 用户20:13三张截图进一步批准价格编辑分区和报价行内编辑：`PricesPage`左侧成本/K、右侧独立最终售价与成本×K勾选；`QuotePage`直接加行、商品下拉，统一商品左对齐、尺寸/K居中、数值右对齐。沿用当前紫灰token/顶部导航，实际新交互不宣称Figma已有对应独立稿；本次未写回Figma。规则与验证见[业务契约](../verification/P07-03-business-ui-contract.md)。
+
+后续用户要求先在Figma设计，价格页已完成57:688–691并于2026-10-15授权写入。当前实现以[四状态价格稿](P07-price-maintenance-figma.md)取代上段价格页自行排版，报价行内编辑仍沿用已批准实现。本次未改写旧Figma来源快照、画布或未涉及页面。

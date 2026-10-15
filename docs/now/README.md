@@ -9,3 +9,5 @@
 最新截图要求已纳入同一03：[移除所有提醒条、柱状/折线/饼图/K线切换及累计利润OHLC](../verification/P07-03-chart-checks.json)，本次Windows与用户观察待确认。
 
 最新[独立最终售价/成本×K、直接加行/下拉换商品和列对齐](../verification/P07-03-price-editor-checks.json)继续在03交付，旧订单保持；新Windows与用户观察待确认。
+
+价格维护已按用户确认的[Figma57:688–691](../design/P07-price-maintenance-figma.md)接入四种状态；[本次证据](../verification/P07-03-price-figma-checks.json)与旧自行排版检查区分，继续03等待新版Windows和运行界面验收。

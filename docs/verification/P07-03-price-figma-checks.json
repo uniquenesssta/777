@@ -1,0 +1,128 @@
+{
+  "task": "P07-03",
+  "branch": "stage/p07-tauri-desktop",
+  "parent_commit": "154fa0cba941c2a4fd5ab59e00b15e81593722b3",
+  "status": "Figma_price_page_implemented_auxiliary_passed_Windows_and_runtime_user_acceptance_pending",
+  "design": {
+    "file_key": "2ek9bkIz5ldyhjZnnvIuNu",
+    "page": "21:2",
+    "nodes": {
+      "manual": "57:688",
+      "cost_plus": "57:689",
+      "add": "57:690",
+      "confirm": "57:691"
+    },
+    "components": {
+      "PriceItemRow": "58:814",
+      "PriceSaleField": "58:797"
+    },
+    "design_accepted": "user2026-10-15: 上一个聊天已经弄好了，现在写入吧",
+    "canvas_modified": false,
+    "high_fidelity_context_and_screenshots_read": true
+  },
+  "scope": "PricesPage, scoped prices.css, additive Input ref/Modal className/Icon mapping, browser regression and design handoff. No backend, schema, dependency or lock change.",
+  "implementation_sha256_LF": {
+    "desktop/src/features/PricesPage.tsx": "994e65711f57246b7ad5bcbca38e4ef195ce3433858acd6703466efb0a228a7f",
+    "desktop/src/features/prices.css": "28169f3d522aeb1b0eebbc9a501755ad53b211a7fa12f278ad9eeec2bcc2ac09",
+    "desktop/src/ui/components.tsx": "5228de3fb6d501962543675dd013e825554337a9de08933dcc35866ded63f301",
+    "desktop/src/app.css": "00b0bc9e9c1bd9f506ebdc38aa2686089c2b7d955e07b31f932d37397369b3f7",
+    "desktop/tests/ui/workbench.spec.ts": "606e8620520c9e3bc106ac430c784107a0bc3c6fdd19df805c54423663ee11a4",
+    "desktop/public/icons/price-chevron.svg": "95c17821b4e264d48fe2a081f2f0bdcb4b0425d5f5272b3355cbf41621a52caa",
+    "desktop/public/icons/price-trash.svg": "e197a0d2c08a7c19ef68127495b51f02b6222f4096cee0dc193aabee39adb4c9"
+  },
+  "behavior": {
+    "layout": "1440x884 target, 40px side insets, 1360px content-width card, shared grouped table columns, 40px headers, 80px rows, 36px cost/K and 40px sale controls; content-height card, toolbar add and footer publish",
+    "manual_and_auto": "current manual text survives mode toggles; exact Rust preview remains readonly and independent; publish/refresh creates new editor state from authoritative catalogue; no extra persistent price field",
+    "add": "focus/scroll newly added name; missing product or manual sale disables publish",
+    "confirm": "380x194 with 104x40 buttons and live product count",
+    "resources": "two unmodified native20px SVG exports from actual instances, transformed into14px chevron/16px trash slots; embedded trash opacity0.55 used once; no temporary URLs",
+    "numeric_precision": "no JS financial arithmetic/rounding; exact0.335*3=1.005 remains; old source records retained when unedited"
+  },
+  "checks": {
+    "frontend_build": {
+      "status": "passed",
+      "steps": [
+        "pinned font preparation",
+        "tsc --noEmit",
+        "Vite build"
+      ],
+      "log": "P07-03-price-figma-build.log",
+      "existing_Radix_use_client_warnings": true
+    },
+    "node24": {
+      "version": "24.19.0",
+      "passed": 24,
+      "failed": 0,
+      "log": "P07-03-price-figma-node24.log"
+    },
+    "browser": {
+      "stats": {
+        "startTime": "2026-10-15T14:10:13.400Z",
+        "duration": 40094.862,
+        "expected": 26,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "log": "P07-03-price-figma-browser.log",
+      "real_temporary_Rust_HTTPS_bridge_cases": 12,
+      "explicit_presentation_IPC_standin_cases": 11,
+      "completion_DOM_cases": 3,
+      "price_coverage": [
+        "precise auto preview and invalid-input block",
+        "manual input preserved across toggles",
+        "publish/reload persists selected mode and quote uses final sale",
+        "add focuses row4 and incomplete row blocks publish",
+        "380x194 real confirmation",
+        "1440/1100/720/640 no document overflow; control containment, shared header/row boundary and numeric alignment",
+        "80px rows and Chinese body font for header",
+        "all new images loaded from correct local files, natural20x20 and rendered14x14/16x16",
+        "narrow keyboard Tab/Space reveals sale/toggle and preserves values"
+      ]
+    },
+    "visual": {
+      "inspected": [
+        "prices-auto-right.png",
+        "prices-added.png",
+        "prices-confirm.png",
+        "prices-layout-1440.png",
+        "prices-layout-640.png"
+      ],
+      "fixed": "Chinese cost header initially inherited Inter numeric font; scoped numeric font to input elements; final screenshot uses Chinese body font",
+      "screenshots": {
+        "prices-layout-640.png": "aa0f9c46d70d581a3680572c04bf5b925789d8cf53eebbb621438c1f9b66adb4",
+        "prices-manual-right.png": "1f3b027238f95e7d0d60012807ba6c35b6dddf92acf4d4cf2e1a9c0e5c45db64",
+        "prices-layout-720.png": "53fd782e04b4ffc5d0280393e16cdabed8cb87947feaf3db5c6a3c306d4d20a0",
+        "prices-auto-right.png": "c4e3026ce9d50c74ccd2182d19873e28bd85703ad521fafcf8af005a4be17707",
+        "prices-layout-1440.png": "1f3b027238f95e7d0d60012807ba6c35b6dddf92acf4d4cf2e1a9c0e5c45db64",
+        "prices-added.png": "aa0d598107523bfdda781d4c8420a8b3d373b767728b23ee64326e5b26d2cb30",
+        "prices-confirm.png": "ef8c336a152128267e2c9d2a1e1a7520db6f9d98e154e08ce1436af50d3324d5",
+        "prices-layout-1100.png": "97d46c297c56d9db7d68684a508aada521655942d5d8b39302977f0e0334f002"
+      },
+      "screenshots_committed": false,
+      "note": "Browser-generated QA only; reproducible in current tests, never product assets."
+    },
+    "git_diff_check": "passed"
+  },
+  "environment": {
+    "platform": "Linux auxiliary",
+    "browser": "existing Chromium153.0.8010.0 /tmp/chromium",
+    "native_binaries": "reused unchanged Rust baseline154fa0c binaries; source diff empty in original checkout; no fresh Rust build for frontend-only change",
+    "native_binary_sha256": {
+      "quote-ledger": "7089b1de1a676485d773217b47f4ff8510ef5d075db52e3934df6545740167dd",
+      "quote-desktop": "1be6c8540d8d7e9356c7d6af180e55688c66d880678c2e1c6a94c9867b168869",
+      "quote-host": "86a6c730f2195fe6a2d336ff032bf1971363370966bf0e44c0335b9bc93549f3"
+    }
+  },
+  "development_findings": [
+    "Playwright browser archive endpoint returned a non-ZIP response; used already available owned Chromium binary.",
+    "First fixture reset failed because quote-ledger was missing from the new checkout; copied the unchanged baseline worker alongside host/bridge and reran successfully.",
+    "Transient Figma asset URLs returned HTML; read-only exported exact source SVG from the referenced instances instead."
+  ],
+  "production_paths_accessed": false,
+  "Windows_WebView2_latest_run": false,
+  "physical_Windows_DPI_multi_monitor": false,
+  "runtime_user_visual_acceptance": "pending",
+  "P07_03_closed": false,
+  "P07_04_or_P08_started": false
+}
