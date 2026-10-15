@@ -115,7 +115,7 @@ async function bootstrap(page: Page, delivery = "manager", failure = false) {
                   },
                   buckets: [
                     {
-                      start: (request as any).from,
+                      start: (request as any).from.slice(0, 10),
                       totals: {
                         order_count: 12,
                         income_cents: "6000",
@@ -125,7 +125,7 @@ async function bootstrap(page: Page, delivery = "manager", failure = false) {
                       },
                     },
                     {
-                      start: (request as any).to,
+                      start: (request as any).to.slice(0, 10),
                       totals: {
                         order_count: 13,
                         income_cents: "4000",
@@ -303,6 +303,9 @@ test("sales inherits readonly directories and sees only its export explanation",
 test("profit shows aggregate bars rather than orders and switches calendar periods", async ({
   page,
 }, info) => {
+  await page.addInitScript(() => {
+    Date.now = () => Date.parse("2026-10-15T06:41:10.123Z");
+  });
   await bootstrap(page);
   await page.getByRole("button", { name: "利润分析", exact: true }).click();
   await expect(
@@ -314,22 +317,77 @@ test("profit shows aggregate bars rather than orders and switches calendar perio
   await expect(page.getByRole("img", { name: /利润-10.00/ })).toBeVisible();
   await expect(page.getByText("总收入", { exact: true })).toBeVisible();
   await expect(page.getByPlaceholder("客户、订单号或微信")).toHaveCount(0);
-  for (const label of ["按周", "按月", "按年", "按日"]) {
+  const latest = () =>
+    page.evaluate(() =>
+      (window as any).__businessRequests
+        .filter((r: any) => r.action === "analytics")
+        .at(-1),
+    );
+  for (const [label, from, period] of [
+    ["近1周", "2026-10-08T14:41:10.123", "day"],
+    ["近1月", "2026-09-15T14:41:10.123", "day"],
+    ["近1年", "2025-10-15T14:41:10.123", "month"],
+    ["近1天", "2026-10-14T14:41:10.123", "day"],
+  ]) {
     await page.getByRole("button", { name: label, exact: true }).click();
-    await expect(
-      page.getByRole("button", { name: label, exact: true }),
-    ).toHaveAttribute("aria-pressed", "true");
     await expect(
       page.getByRole("button", { name: "查看汇总", exact: true }),
     ).toBeEnabled();
+    expect(await latest()).toMatchObject({
+      from,
+      to: "2026-10-15T14:41:10.123",
+      period,
+    });
+    await expect(
+      page.getByRole("button", { name: label, exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
   }
-  expect(
-    await page.evaluate(() =>
-      (window as any).__businessRequests
-        .filter((r: any) => r.action === "analytics")
-        .map((r: any) => r.period),
-    ),
-  ).toEqual(["day", "week", "month", "year", "day"]);
+  for (const period of ["week", "month", "year", "day"]) {
+    await page.getByLabel("图表分组", { exact: true }).selectOption(period);
+    await expect(
+      page.getByRole("button", { name: "查看汇总", exact: true }),
+    ).toBeEnabled();
+    expect(await latest()).toMatchObject({
+      period,
+      from: "2026-10-14T14:41:10.123",
+      to: "2026-10-15T14:41:10.123",
+    });
+  }
+  await page.evaluate(() => {
+    Date.now = () => Date.parse("2026-10-15T07:41:10.123Z");
+  });
+  await page.getByRole("button", { name: "刷新", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "查看汇总", exact: true }),
+  ).toBeEnabled();
+  expect(await latest()).toMatchObject({
+    from: "2026-10-14T15:41:10.123",
+    to: "2026-10-15T15:41:10.123",
+    period: "day",
+  });
+  await page.getByLabel("开始时间", { exact: true }).fill("2026-10-01T08:00");
+  await page.getByLabel("结束时间", { exact: true }).fill("2026-10-02T09:00");
+  await page.getByRole("button", { name: "查看汇总", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "查看汇总", exact: true }),
+  ).toBeEnabled();
+  const custom = await latest();
+  expect(custom).toMatchObject({
+    from: "2026-10-01T08:00:00.000",
+    to: "2026-10-02T09:00:00.000",
+    period: "day",
+  });
+  await expect(
+    page.getByRole("button", { name: "近1天", exact: true }),
+  ).toHaveAttribute("aria-pressed", "false");
+  await page.evaluate(() => {
+    Date.now = () => Date.parse("2026-10-16T07:41:10.123Z");
+  });
+  await page.getByRole("button", { name: "刷新", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "查看汇总", exact: true }),
+  ).toBeEnabled();
+  expect(await latest()).toEqual(custom);
   expect(
     await page.evaluate(() =>
       (window as any).__businessRequests.some(

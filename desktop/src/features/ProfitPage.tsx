@@ -6,7 +6,9 @@ import {
   chartDomain,
   chartFraction,
   profitRange,
+  normalizeAnalysisTime,
   series,
+  type ProfitPreset,
 } from "../state/profit";
 import { Button, Empty, Field, Input } from "../ui/components";
 const periods: { value: AnalysisPeriod; label: string }[] = [
@@ -15,8 +17,19 @@ const periods: { value: AnalysisPeriod; label: string }[] = [
   { value: "month", label: "按月" },
   { value: "year", label: "按年" },
 ];
+const presets: { value: ProfitPreset; label: string }[] = [
+  { value: "day", label: "近1天" },
+  { value: "week", label: "近1周" },
+  { value: "month", label: "近1月" },
+  { value: "year", label: "近1年" },
+];
 export function ProfitPage({ app }: { app: Workbench }) {
   const [filters, setFilters] = useState<AnalysisFilters>(app.analysisFilters);
+  const [preset, setPreset] = useState(app.analysisPreset);
+  useEffect(() => {
+    setFilters(app.analysisFilters);
+    setPreset(app.analysisPreset);
+  }, [app.analysisFilters, app.analysisPreset]);
   const data = app.analysis;
   const chartRef = useRef<HTMLDivElement>(null);
   const [availableWidth, setAvailableWidth] = useState(760);
@@ -48,7 +61,7 @@ export function ProfitPage({ app }: { app: Workbench }) {
           <h2>利润分析</h2>
           <p className="muted">
             {data
-              ? `${data.from} 至 ${data.to} · 有效订单 ${data.totals.order_count} 笔`
+              ? `${data.from.replace("T", " ").slice(0, 19)} 至 ${data.to.replace("T", " ").slice(0, 19)} · 有效订单 ${data.totals.order_count} 笔`
               : "收入、成本与利润趋势"}
           </p>
         </div>
@@ -64,42 +77,80 @@ export function ProfitPage({ app }: { app: Workbench }) {
         className="analysis-filters"
         onSubmit={(e) => {
           e.preventDefault();
-          void app.loadAnalysis(filters);
+          void app.loadAnalysis(filters, preset);
         }}
       >
-        <div className="period-buttons" role="group" aria-label="统计周期">
-          {periods.map((p) => (
+        <div className="period-buttons" role="group" aria-label="快捷时间">
+          {presets.map((p) => (
             <Button
               key={p.value}
-              variant={filters.period === p.value ? "primary" : "ghost"}
-              aria-pressed={filters.period === p.value}
+              variant={preset === p.value ? "primary" : "ghost"}
+              aria-pressed={preset === p.value}
               disabled={app.busy}
               onClick={() => {
                 const next = profitRange(p.value);
                 setFilters(next);
-                void app.loadAnalysis(next);
+                setPreset(p.value);
+                void app.loadAnalysis(next, p.value);
               }}
             >
               {p.label}
             </Button>
           ))}
         </div>
-        <Field label="开始日期">
+        <Field label="图表分组">
+          <select
+            aria-label="图表分组"
+            value={filters.period}
+            disabled={app.busy}
+            onChange={(e) => {
+              const next = {
+                ...filters,
+                period: e.target.value as AnalysisPeriod,
+              };
+              setFilters(next);
+              void app.loadAnalysis(next, preset);
+            }}
+          >
+            {periods.map((p) => (
+              <option key={p.value} value={p.value}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="开始时间">
           <Input
-            type="date"
+            type="datetime-local"
+            step="1"
             required
-            value={filters.from}
-            max={filters.to}
-            onChange={(e) => setFilters({ ...filters, from: e.target.value })}
+            disabled={app.busy}
+            value={filters.from.slice(0, 19)}
+            max={filters.to.slice(0, 19)}
+            onChange={(e) => {
+              setPreset(null);
+              setFilters({
+                ...filters,
+                from: normalizeAnalysisTime(e.target.value),
+              });
+            }}
           />
         </Field>
-        <Field label="结束日期">
+        <Field label="结束时间">
           <Input
-            type="date"
+            type="datetime-local"
+            step="1"
             required
-            value={filters.to}
-            min={filters.from}
-            onChange={(e) => setFilters({ ...filters, to: e.target.value })}
+            disabled={app.busy}
+            value={filters.to.slice(0, 19)}
+            min={filters.from.slice(0, 19)}
+            onChange={(e) => {
+              setPreset(null);
+              setFilters({
+                ...filters,
+                to: normalizeAnalysisTime(e.target.value),
+              });
+            }}
           />
         </Field>
         <Button type="submit" disabled={app.busy}>
@@ -261,7 +312,7 @@ export function ProfitPage({ app }: { app: Workbench }) {
         </>
       )}
       <p className="muted analysis-caption">
-        按北京时间归集；周一至周日为一周，作废订单不计入。
+        按北京时间统计所选时段；图表按所选日、周、月、年分组，周一为每周起点，作废订单不计入。
       </p>
       {!!data?.unplaced_date_orders && (
         <p className="muted">

@@ -3,24 +3,42 @@ import type {
   AnalysisFilters,
   ProfitAnalysis,
 } from "../contracts";
-export function profitRange(
-  period: AnalysisPeriod,
-  today = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10),
-): AnalysisFilters {
-  const start = new Date(today + "T00:00:00Z");
-  if (period === "day") start.setUTCDate(start.getUTCDate() - 29);
-  if (period === "week")
-    start.setUTCDate(
-      start.getUTCDate() - ((start.getUTCDay() + 6) % 7) - 11 * 7,
+export type ProfitPreset = AnalysisPeriod;
+export function businessNow(now = Date.now()) {
+  return new Date(now + 8 * 3600000).toISOString().slice(0, -1);
+}
+export function normalizeAnalysisTime(value: string) {
+  const parts =
+    /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/.exec(
+      value,
     );
-  if (period === "month") {
+  return parts
+    ? `${parts[1]}:${parts[2] ?? "00"}.${(parts[3] ?? "").padEnd(3, "0")}`
+    : value;
+}
+export function profitRange(
+  preset: ProfitPreset,
+  now = businessNow(),
+): AnalysisFilters {
+  // UTC fields represent a fixed UTC+08 business wall clock, not the device zone.
+  const end = new Date(now + "Z");
+  const start = new Date(end.getTime());
+  if (preset === "day" || preset === "week") {
+    start.setUTCDate(start.getUTCDate() - (preset === "day" ? 1 : 7));
+  } else {
+    const day = start.getUTCDate();
     start.setUTCDate(1);
-    start.setUTCMonth(start.getUTCMonth() - 11);
+    start.setUTCMonth(start.getUTCMonth() - (preset === "month" ? 1 : 12));
+    const last = new Date(
+      Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 0),
+    ).getUTCDate();
+    start.setUTCDate(Math.min(day, last));
   }
-  if (period === "year") {
-    start.setUTCFullYear(start.getUTCFullYear() - 4, 0, 1);
-  }
-  return { period, from: start.toISOString().slice(0, 10), to: today };
+  return {
+    period: preset === "year" ? "month" : "day",
+    from: start.toISOString().slice(0, -1),
+    to: end.toISOString().slice(0, -1),
+  };
 }
 export const series = [
   { key: "income_cents", label: "收入", color: "#9892ee" },

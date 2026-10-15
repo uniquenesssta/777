@@ -1,0 +1,24 @@
+   Compiling quote-excel v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-excel)
+   Compiling quote-core v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-core)
+   Compiling quote-ledger v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-ledger)
+   Compiling quote-host v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-host)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 17.22s
+     Running unittests src/lib.rs (target/debug/deps/quote_host-bba7463c319df17f)
+
+running 5 tests
+test analytics::tests::monday_weeks_cross_year_and_negative_margin ... ok
+test analytics::tests::business_midnight_empty_days_and_exact_large_aggregates ... ok
+test analytics::tests::rolling_time_cutoffs_exclude_the_rest_of_the_boundary_days ... ok
+test analytics::tests::leap_months_years_and_unknown_legacy_dates ... ok
+test analytics::tests::bad_and_unbounded_ranges_are_rejected ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/analytics.rs (target/debug/deps/analytics-d93eea0213ec076f)
+
+running 2 tests
+test analytics_denies_sales_before_accessing_a_ledger ... ok
+test full_ledger_aggregate_tracks_void_restore_and_preserves_frozen_prices ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+

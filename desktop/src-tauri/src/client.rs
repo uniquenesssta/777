@@ -369,8 +369,8 @@ impl Desktop {
             Action::Analytics { period, from, to } => {
                 self.admin()?;
                 if !["day", "week", "month", "year"].contains(&period.as_str())
-                    || from.len() != 10
-                    || to.len() != 10
+                    || ![10, 19, 23].contains(&from.len())
+                    || ![10, 19, 23].contains(&to.len())
                 {
                     return Err(DesktopError::new(422, "INVALID_ANALYTICS_QUERY"));
                 }

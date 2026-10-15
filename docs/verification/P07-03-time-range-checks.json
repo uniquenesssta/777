@@ -1,0 +1,116 @@
+{
+  "task": "P07-03",
+  "branch": "stage/p07-tauri-desktop",
+  "parent_commit": "af7b1ff73d0fa205333e08f525acd1f4d3d9337e",
+  "status": "rolling_time_ranges_auxiliary_passed_Windows_CI_and_user_acceptance_pending",
+  "user_confirmation": "按1天、1周、1月、1年",
+  "scope": "Replace arbitrary multi-period trend ranges with exact rolling shortcuts, independent of calendar grouping.",
+  "rules": {
+    "timezone": "Asia/Shanghai fixed UTC+08:00",
+    "day": "now minus 24 hours through now",
+    "week": "now minus 7 days through now",
+    "month": "now minus one calendar month, same time, clamp unavailable day to month end",
+    "year": "now minus one calendar year, same time, clamp leap anniversary to month end",
+    "initial": "near one day; day grouping",
+    "range_and_grouping": "separate controls; changing grouping keeps selected instants",
+    "default_grouping": "day for day/week/month shortcuts; month for year shortcut; all four groupings selectable",
+    "refresh": "shortcut reanchors to current time; custom endpoints stay fixed",
+    "bounds": "inclusive exact instants; internal milliseconds, UI seconds",
+    "backward_compatibility": "YYYY-MM-DD queries keep inclusive whole-day semantics",
+    "finance_and_permissions": "saved active amounts and BigInt totals unchanged; admin-only in native and service"
+  },
+  "implementation_sha256_LF": {
+    "crates/quote-host/src/analytics.rs": "2ada3a75e6746c8c67b471a5183a3d4f5ff81c5f366d98ea0c1d5ffd2daf2c21",
+    "desktop/src-tauri/src/client.rs": "0edcd5309aba69ff63dbc98e2185300400c0f4c4ff12132e015517f78dce40af",
+    "desktop/src/bridge.ts": "63c5a8afaf049e51fe5973f494a7425583a12db2155b97fce66c1248e83cec9e",
+    "desktop/src/features/ProfitPage.tsx": "03f40894a7e57516098117ca94bc2f29d950f52dd217fcde9e601f8c2e0f1449",
+    "desktop/src/state/profit.ts": "92f6ad30613dc4d5dc433ec7e9b0094e47ebac45664e5b176c734e1f705de074",
+    "desktop/src/state/useWorkbench.ts": "40cdd3dc9ebad24857ce8308be74bbdf073d6c40db210948f59c693ca5f4d082",
+    "desktop/tests/profit.test.ts": "ac4cae0d51b5207e64e8721bb5d88f93295330c6905899397ccb2ec65f9e0629",
+    "desktop/tests/ui/presentation.spec.ts": "7ea25a0a28ed01d90b6976d3cab22fdae483c6068719750abc9f7c0812ee566b",
+    "tools/p07_desktop_check.py": "d16b6f8cc0cd5c69b6e72755ee4effd2bdd6ed262a5159be72f794d348ad52ca"
+  },
+  "checks": {
+    "Rust_analytics": {
+      "passed": 7,
+      "log": "P07-03-time-range-rust.log",
+      "coverage": "sub-millisecond start/end exclusion, legacy whole dates, UTC+08, leap/calendar groups, active/void/restore/full-ledger and sales denial"
+    },
+    "Node22": {
+      "passed": 22,
+      "log": "P07-03-time-range-node22.log"
+    },
+    "Node24": {
+      "passed": 22,
+      "log": "P07-03-time-range-node24.log"
+    },
+    "presentation_browser": {
+      "passed": 8,
+      "included_in_full_20_browser_run": true,
+      "log": "P07-03-time-range-full-browser.log",
+      "scope": "Explicit mock IPC with fixed clock advances, all one-unit presets, independent grouping, dynamic refresh and fixed custom endpoints."
+    },
+    "strict_clippy": "passed -D warnings for host + desktop all targets on Linux",
+    "frontend_build": "passed strict fonts / tsc / Vite",
+    "real_HTTPS": {
+      "status": "passed",
+      "checks": [
+        "certificate_pin_rejected_before_request",
+        "real_Rust_HTTPS_login_no_token_crosses_IPC",
+        "exact_cents_revision_and_frozen_draft_submission",
+        "append_only_note_void_restore_original_amount_and_revision",
+        "full_20_row_pagination_and_view_binding",
+        "authoritative_calendar_analytics_over_all_pages_through_native_HTTPS",
+        "exact_rolling_24_hours_reaches_service_and_future_interval_is_empty",
+        "native_output_task_does_not_rebook_financial_order",
+        "sales_DTO_other_actor_and_management_commands_restricted",
+        "sales_native_analytics_and_directory_dialog_denied",
+        "service_independently_denies_sales_analytics_over_real_HTTPS",
+        "native_host_and_desktop_restart_original_receipt_identity_and_no_duplicate",
+        "money_above_JavaScript_integer_limit_remains_exact_string",
+        "server_price_change_refuses_stale_confirmation_without_booking"
+      ],
+      "actual_transport": "Rust desktop IPC dispatcher -> Rustls pinned HTTPS -> standalone Rust host",
+      "production_paths_accessed": false,
+      "Windows_DPAPI": false,
+      "scope": "owned temporary profile, synthetic accounts/prices/orders, no installed service or real data",
+      "sandbox_cleaned": true
+    },
+    "full_browser": {
+      "startTime": "2026-10-15T06:53:31.689Z",
+      "duration": 26888.742,
+      "expected": 20,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0,
+      "scope": "20 passed, including real Rust HTTPS workbench + explicit presentation mocks; fixed clock verifies 1 day/week/month/year, independent grouping, rolling refresh and custom range persistence",
+      "log": "P07-03-time-range-full-browser.log"
+    },
+    "release_build": {
+      "status": "passed standard locked release / jobs 1",
+      "cache_repair": "Initial local linker failure coincided with two zero-size host object files; cargo clean --release -p quote-host then unchanged rebuild passed. No source, profile, dependency or production path changes."
+    }
+  },
+  "production_paths_accessed": false,
+  "P07_03_closed": false,
+  "P07_04_and_P08_started": false,
+  "pending": [
+    "current Windows CI / native WebView2 and visual observation"
+  ],
+  "environment": {
+    "OS": "Linux auxiliary",
+    "Rust": "1.97.1",
+    "Node": [
+      "22.23.3",
+      "24.19.0"
+    ],
+    "browser": "Chromium 153 portable; not actual Windows WebView2"
+  },
+  "visual_review": {
+    "widths": [
+      1440,
+      720
+    ],
+    "result": "inspected new separate controls and internal chart scroll; no document horizontal overflow. Final time fields display through seconds. Not user visual acceptance."
+  }
+}

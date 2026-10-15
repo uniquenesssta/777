@@ -36,6 +36,13 @@ def protocol_check():
         analysis_fields={'period':'year','from':f'{year-1}-01-01','to':f'{year+1}-12-31'}
         analysis=call('analytics',**analysis_fields);expected={'order_count':26,'income_cents':'270000','cost_cents':'135000','profit_cents':'135000','margin':'50.0%'}
         assert {k:analysis['totals'][k] for k in expected}==expected,analysis['totals'];assert len(analysis['buckets'])==3 and analysis['timezone']=='Asia/Shanghai';checks.append('authoritative_calendar_analytics_over_all_pages_through_native_HTTPS')
+        current=datetime.now(timezone(timedelta(hours=8)))
+        exact=lambda value:value.replace(tzinfo=None).isoformat(timespec='milliseconds')
+        rolling=call('analytics',period='day',**{'from':exact(current-timedelta(days=1)),'to':exact(current)})
+        assert {k:rolling['totals'][k] for k in expected}==expected,rolling['totals']
+        future=call('analytics',period='day',**{'from':exact(current+timedelta(days=1)),'to':exact(current+timedelta(days=2))})
+        assert future['totals']['order_count']==0 and future['totals']['income_cents']=='0'
+        checks.append('exact_rolling_24_hours_reaches_service_and_future_interval_is_empty')
         before=s.host.service.ledger.inventory();job=call('create_output',order_id=order['order_id'],expected_revision=order['revision'],kind='excel_quote')
         deadline=time.monotonic()+20
         while True:

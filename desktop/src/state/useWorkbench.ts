@@ -12,7 +12,7 @@ import type {
   AnalysisFilters,
   Session,
 } from "../contracts";
-import { profitRange } from "./profit";
+import { profitRange, type ProfitPreset } from "./profit";
 import { draftReducer, restorableDraft, snapshot } from "./draft";
 export type Route =
   | "quote"
@@ -52,6 +52,9 @@ export function useWorkbench() {
     view: "",
   });
   const [analysis, setAnalysis] = useState<ProfitAnalysis | null>(null);
+  const [analysisPreset, setAnalysisPreset] = useState<ProfitPreset | null>(
+    "day",
+  );
   const [analysisFilters, setAnalysisFilters] = useState<AnalysisFilters>(() =>
     profitRange("day"),
   );
@@ -234,14 +237,24 @@ export function useWorkbench() {
       ),
     [filters, run],
   );
-  const loadAnalysis = (next = analysisFilters) =>
-    run(
-      () => request<ProfitAnalysis>("analytics", { ...next }),
+  const loadAnalysis = (
+    next?: AnalysisFilters,
+    preset: ProfitPreset | null = analysisPreset,
+  ) => {
+    const resolved =
+      next ??
+      (preset
+        ? { ...profitRange(preset), period: analysisFilters.period }
+        : analysisFilters);
+    return run(
+      () => request<ProfitAnalysis>("analytics", { ...resolved }),
       (value) => {
         setAnalysis(value);
-        setAnalysisFilters(next);
+        setAnalysisFilters(resolved);
+        setAnalysisPreset(preset);
       },
     );
+  };
   const pickDirectory = (target: "export_dir" | "image_dir") =>
     run(() =>
       request<{ directory: string | null }>("pick_directory", { target }),
@@ -537,6 +550,7 @@ export function useWorkbench() {
     pending,
     analysis,
     analysisFilters,
+    analysisPreset,
     loadAnalysis,
     pickDirectory,
     listing,

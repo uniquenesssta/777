@@ -60,6 +60,24 @@ fn date(raw: &str) -> Result<Date> {
     let format = time::format_description::parse("[year]-[month]-[day]").map_err(|_| invalid())?;
     Date::parse(raw, &format).map_err(|_| invalid())
 }
+fn bound(raw: &str, end: bool, offset: UtcOffset) -> Result<OffsetDateTime> {
+    if raw.len() == 10 {
+        let day = date(raw)?;
+        let value = if end {
+            day.with_hms_nano(23, 59, 59, 999_999_999)
+        } else {
+            day.with_hms_nano(0, 0, 0, 0)
+        };
+        return value
+            .map(|v| v.assume_offset(offset))
+            .map_err(|_| invalid());
+    }
+    if ![19, 23].contains(&raw.len()) || raw.as_bytes().get(10) != Some(&b'T') {
+        return Err(invalid());
+    }
+    date(raw.get(..10).ok_or_else(invalid)?)?;
+    OffsetDateTime::parse(&format!("{raw}+08:00"), &Rfc3339).map_err(|_| invalid())
+}
 fn key(d: Date, period: &str) -> Result<Date> {
     match period {
         "day" => Ok(d),
@@ -104,14 +122,17 @@ pub fn summarize<'a>(
     }
     let get = |k: &str| parameters.get(k).map(String::as_str).ok_or_else(invalid);
     let period = get("period")?;
-    let from = date(get("from")?)?;
-    let to = date(get("to")?)?;
+    let from_raw = get("from")?;
+    let to_raw = get("to")?;
+    let offset = UtcOffset::from_hms(8, 0, 0).map_err(|_| invalid())?;
+    let from = bound(from_raw, false, offset)?;
+    let to = bound(to_raw, true, offset)?;
     if from > to {
         return Err(invalid());
     }
     let mut buckets = BTreeMap::new();
-    let mut d = key(from, period)?;
-    let end = key(to, period)?;
+    let mut d = key(from.date(), period)?;
+    let end = key(to.date(), period)?;
     loop {
         if buckets.len() >= 400 {
             return fail(422, "ANALYTICS_RANGE_TOO_LARGE");
@@ -122,29 +143,30 @@ pub fn summarize<'a>(
         }
         d = next(d, period)?;
     }
-    let offset = UtcOffset::from_hms(8, 0, 0).map_err(|_| invalid())?;
     let legacy = time::format_description::parse("[year]-[month]-[day] [hour]:[minute]:[second]")
         .map_err(|_| invalid())?;
     let mut total = Totals::default();
     let mut unplaced = 0u64;
     for (raw, money) in rows {
         let parsed = OffsetDateTime::parse(raw, &Rfc3339)
-            .map(|v| v.to_offset(offset).date())
-            .or_else(|_| time::PrimitiveDateTime::parse(raw, &legacy).map(|v| v.date()));
-        let Ok(day) = parsed else {
+            .map(|v| v.to_offset(offset))
+            .or_else(|_| {
+                time::PrimitiveDateTime::parse(raw, &legacy).map(|v| v.assume_offset(offset))
+            });
+        let Ok(instant) = parsed else {
             unplaced += 1;
             continue;
         };
-        if day < from || day > to {
+        if instant < from || instant > to {
             continue;
         }
-        if let Some(bucket) = buckets.get_mut(&key(day, period)?) {
+        if let Some(bucket) = buckets.get_mut(&key(instant.date(), period)?) {
             bucket.add(money);
             total.add(money);
         }
     }
     Ok(
-        json!({"format":"777-profit-analysis-v1","timezone":"Asia/Shanghai","week_starts_on":"Monday","period":period,"from":from.to_string(),"to":to.to_string(),"ledger_revision":revision.to_string(),"unplaced_date_orders":unplaced,"totals":total.value(),"buckets":buckets.into_iter().map(|(day,t)|json!({"start":day.to_string(),"totals":t.value()})).collect::<Vec<_>>()}),
+        json!({"format":"777-profit-analysis-v1","timezone":"Asia/Shanghai","week_starts_on":"Monday","period":period,"from":from_raw,"to":to_raw,"ledger_revision":revision.to_string(),"unplaced_date_orders":unplaced,"totals":total.value(),"buckets":buckets.into_iter().map(|(day,t)|json!({"start":day.to_string(),"totals":t.value()})).collect::<Vec<_>>()}),
     )
 }
 #[cfg(test)]
@@ -204,8 +226,32 @@ mod tests {
             "period=day&period=week&from=2026-01-01&to=2026-01-01",
             "period=foo&from=2026-01-01&to=2026-01-01",
             "period=day&from=2026-01-02&to=2026-01-01",
+            "period=day&from=2026-01-01T24:00:00.000&to=2026-01-02T00:00:00.000",
+            "period=day&from=2026-01-01T14:01:00.000&to=2026-01-01T14:00:00.000",
+            "period=day&from=2026-01-01T14:00:00.00Z&to=2026-01-01T15:00:00.000",
         ] {
             assert!(summarize(q, [], 1).is_err());
         }
+    }
+    #[test]
+    fn rolling_time_cutoffs_exclude_the_rest_of_the_boundary_days() {
+        let v = summarize(
+            "period=day&from=2026-10-14T14:41:10.123&to=2026-10-15T14:41:10.123",
+            [
+                ("2026-10-14T06:41:10.122999Z", [900, 0, 900]),
+                ("2026-10-14T06:41:10.123Z", [100, 20, 80]),
+                ("2026-10-15 10:00:00", [200, 50, 150]),
+                ("2026-10-15T06:41:10.123Z", [300, 100, 200]),
+                ("2026-10-15T06:41:10.123001Z", [900, 0, 900]),
+            ],
+            1,
+        )
+        .unwrap();
+        assert_eq!(v["totals"]["order_count"], 3);
+        assert_eq!(v["totals"]["income_cents"], "600");
+        assert_eq!(v["buckets"][0]["totals"]["income_cents"], "100");
+        assert_eq!(v["buckets"][1]["totals"]["income_cents"], "500");
+        assert_eq!(v["from"], "2026-10-14T14:41:10.123");
+        assert_eq!(v["to"], "2026-10-15T14:41:10.123");
     }
 }
