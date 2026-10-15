@@ -1,0 +1,143 @@
+{
+  "task": "P07-03",
+  "status": "Windows_CI_failed_font_test_transport_repair_auxiliary_passed_recheck_pending",
+  "run_id": 38620783061,
+  "url": "https://github.com/uniquenesssta/777/actions/runs/38620783061",
+  "source_commit": "08d471e078265a4eac84d011f0151726d187a638",
+  "conclusion": "failure",
+  "artifact_id": 11922456843,
+  "artifact_sha256": "ba0dc4c85ec54205b73dcb2ad4724015cafcbfdfb33be22bdf1864a02f2bdc56",
+  "original_report": "P07-03-ci-report-01.json",
+  "original_report_sha256": "b61ee0faac45a9ec0d3489af019dd7a58db804f02f1c5202099da0c90a0af5f3",
+  "source_fingerprints": {
+    "reported": 70,
+    "matched_tracked": 70,
+    "mismatches": [],
+    "untracked": [],
+    "scope": "69 text files normalized LF and one raw ICO binary; exact original report scope only. Original report says worktree_dirty=false."
+  },
+  "passed_before_failure": {
+    "Windows_Python_P07_tools": {
+      "run": 29,
+      "passed": 29,
+      "skipped": 0,
+      "log": "P07-03-ci-python-01.log"
+    },
+    "frontend_dependency_install": true,
+    "locked_Cargo_fetch": true,
+    "frontend_build": true
+  },
+  "failure": {
+    "stage": "frontend Node tests",
+    "Node": "22.23.3",
+    "reported_results": 11,
+    "reported_pass": 10,
+    "reported_fail": 1,
+    "affected_file": "desktop/tests/fonts.test.ts",
+    "exception": "Unable to deserialize cloned data due to invalid or unsupported version.",
+    "log": "P07-03-ci-font-failure-01.log",
+    "scope": "Test event decoder crashed after ordinary Chinese font progress output. First font case reported success; second case did not complete its result."
+  },
+  "not_executed": [
+    "Rust strict checks/tests/release build in this run",
+    "real P07-01 protocol and WebView2 lifecycle",
+    "P07-03 native device/image/scale/close gate"
+  ],
+  "upstream_evidence": {
+    "issue": "https://github.com/nodejs/node/issues/65934",
+    "fix_PR": "https://github.com/nodejs/node/pull/64706",
+    "pinned_source": "https://github.com/nodejs/node/blob/v22.23.3/lib/internal/test_runner/runner.js",
+    "verified": "Pinned #processRawBuffer adds header to a signed length without >>> 0; non-ASCII ordinary stdout coalesced after a framed event can reach deserialization as invalid bytes."
+  },
+  "reproduction": {
+    "runtime": "official Node v22.23.3 Linux x64; auxiliary only",
+    "download_sha256": "df450af89261115ef9f9e3830c3eeb2cc9213b63c720b1af623cb5dcbe2e02de",
+    "unmodified_actual_font_test_runs": [
+      {
+        "attempt": 1,
+        "exit_code": 0,
+        "decoder_error": false
+      },
+      {
+        "attempt": 2,
+        "exit_code": 0,
+        "decoder_error": false
+      },
+      {
+        "attempt": 3,
+        "exit_code": 0,
+        "decoder_error": false
+      },
+      {
+        "attempt": 4,
+        "exit_code": 0,
+        "decoder_error": false
+      },
+      {
+        "attempt": 5,
+        "exit_code": 0,
+        "decoder_error": false
+      },
+      {
+        "attempt": 6,
+        "exit_code": 0,
+        "decoder_error": false
+      },
+      {
+        "attempt": 7,
+        "exit_code": 0,
+        "decoder_error": false
+      },
+      {
+        "attempt": 8,
+        "exit_code": 0,
+        "decoder_error": false
+      },
+      {
+        "attempt": 9,
+        "exit_code": 0,
+        "decoder_error": false
+      },
+      {
+        "attempt": 10,
+        "exit_code": 0,
+        "decoder_error": false
+      }
+    ],
+    "scope": "Old font tests passed ten auxiliary runs; those runs do not reproduce the Windows failure. Separate deterministic upstream-style probe coalesces a serialized diagnostic with the same Chinese banner in one write.",
+    "controlled_probe_unicode": {
+      "exit_code": 1,
+      "same_decoder_error": true,
+      "log": "P07-03-node22-frame-unicode.log"
+    },
+    "controlled_probe_ASCII": {
+      "exit_code": 0,
+      "log": "P07-03-node22-frame-ASCII.log"
+    },
+    "actual_Windows_reproduction_here": false,
+    "probe_source": "P07-03-node22-frame-repro.mjs"
+  },
+  "repair": {
+    "behavior": "Font preparation accepts log sink. Tests collect and assert exact Chinese messages. Ordinary CLI keeps console.log, validated by a separately captured child and actual written bytes. No global console suppression, isolation override, retries, skipped checks or Node upgrade.",
+    "sha256_LF": {
+      "desktop/tools/prepare-fonts.mjs": "b29ecd326d7acc9e3c3099fccce97afc8122e0b184bcdeb2d6cb08e5b7850d9d",
+      "desktop/tests/fonts.test.ts": "fb50e7ee7a75ea061877060b7244fc46c047bffd38ee697025488f66e162cb0a"
+    },
+    "frontend_unit": {
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "log": "P07-03-fonts-fixed-unit.log",
+      "runtime": "Node 22.23.3 Linux auxiliary"
+    },
+    "frontend_build": {
+      "status": "passed",
+      "log": "P07-03-fonts-fixed-build.log",
+      "same_runtime": true
+    },
+    "hash_cache_download_rejection_assertions_retained": true,
+    "dependency_versions_or_locks_changed": false,
+    "UI_business_or_host_code_changed": false
+  },
+  "pending": "Complete Windows CI and native P07-03/user acceptance; P07-02 remains accepted; P07-04/P08 not started."
+}

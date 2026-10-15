@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const manifest=JSON.parse(await fs.readFile(path.join(root,'resources/fonts.json'),'utf8'));
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
-export async function prepareFonts({directory=path.join(root,'public/fonts'),assets=manifest.assets,fetcher=fetch}={}) {
+export async function prepareFonts({directory=path.join(root,'public/fonts'),assets=manifest.assets,fetcher=fetch,log=console.log}={}) {
   await fs.mkdir(directory,{recursive:true});
   for(const asset of assets) {
     if(path.basename(asset.file)!==asset.file)throw Error('FONT_FILENAME_INVALID');
@@ -16,7 +16,7 @@ export async function prepareFonts({directory=path.join(root,'public/fonts'),ass
       if(hash(cached)!==asset.sha256 || cached.length!==asset.bytes)throw Error('FONT_CACHE_HASH_MISMATCH: '+asset.file);
       continue;
     } catch(error) {if(error.code!=='ENOENT')throw error;}
-    console.log('准备离线字体：'+asset.file);
+    log('准备离线字体：'+asset.file);
     const response=await fetcher(asset.url,{signal:AbortSignal.timeout(60000)});
     if(!response.ok)throw Error('FONT_DOWNLOAD_FAILED: '+asset.file);
     if(Number(response.headers.get('content-length')??0)>24*1024*1024)throw Error('FONT_TOO_LARGE');

@@ -1,0 +1,95 @@
+
+> quote-desktop@0.1.0 test
+> node --import tsx --test tests/*.test.ts
+
+TAP version 13
+# Subtest: late calculation cannot restore authority after any input or price change
+ok 1 - late calculation cannot restore authority after any input or price change
+  ---
+  duration_ms: 1.7422
+  type: 'test'
+  ...
+# Subtest: revision and display cents never pass through JS floating point
+ok 2 - revision and display cents never pass through JS floating point
+  ---
+  duration_ms: 0.5233
+  type: 'test'
+  ...
+# Subtest: only raw draft fields restore, never a claimed result or stored role
+ok 3 - only raw draft fields restore, never a claimed result or stored role
+  ---
+  duration_ms: 0.4983
+  type: 'test'
+  ...
+# Subtest: confirmed original order clears only its own raw draft and preserves edits during submit
+ok 4 - confirmed original order clears only its own raw draft and preserves edits during submit
+  ---
+  duration_ms: 18.8559
+  type: 'test'
+  ...
+# 准备离线字体：test.woff2
+# Subtest: pinned font download is atomic, cached and usable without network
+ok 5 - pinned font download is atomic, cached and usable without network
+  ---
+  duration_ms: 50.6412
+  type: 'test'
+  ...
+# 准备离线字体：test.woff2
+# Subtest: tests\\fonts.test.ts
+not ok 2 - tests\\fonts.test.ts
+  ---
+  duration_ms: 495.1284
+  type: 'test'
+  location: 'D:\\a\\777\\777\\desktop\\tests\\fonts.test.ts:1:1'
+  failureType: 'uncaughtException'
+  error: 'Unable to deserialize cloned data due to invalid or unsupported version.'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    #processRawBuffer (node:internal/test_runner/runner:354:20)
+    FileTest.parseMessage (node:internal/test_runner/runner:290:27)
+    Socket.<anonymous> (node:internal/test_runner/runner:400:15)
+    Socket.emit (node:events:519:28)
+    addChunk (node:internal/streams/readable:561:12)
+    readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    Readable.push (node:internal/streams/readable:392:5)
+    Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+  ...
+# Subtest: native readiness preserves the underlying CDP error and attempt diagnostics
+ok 7 - native readiness preserves the underlying CDP error and attempt diagnostics
+  ---
+  duration_ms: 29.7882
+  type: 'test'
+  ...
+# Subtest: native readiness succeeds after transient refusal and bounds each connect attempt
+ok 8 - native readiness succeeds after transient refusal and bounds each connect attempt
+  ---
+  duration_ms: 3.2648
+  type: 'test'
+  ...
+# Subtest: a failed connection checkpoint closes the attached browser and does not retry
+ok 9 - a failed connection checkpoint closes the attached browser and does not retry
+  ---
+  duration_ms: 0.7671
+  type: 'test'
+  ...
+# Subtest: actual Windows Tauri production origins accept embedded-page paths
+ok 10 - actual Windows Tauri production origins accept embedded-page paths
+  ---
+  duration_ms: 0.9721
+  type: 'test'
+  ...
+# Subtest: Vite, browser error pages and lookalike hosts fail before waiting for login
+ok 11 - Vite, browser error pages and lookalike hosts fail before waiting for login
+  ---
+  duration_ms: 0.6088
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 10
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 794.3122

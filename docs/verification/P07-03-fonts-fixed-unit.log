@@ -1,0 +1,106 @@
+(node:6) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+> quote-desktop@0.1.0 test
+> node --import tsx --test tests/*.test.ts
+
+(node:19) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+TAP version 13
+# (node:26) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:26) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: late calculation cannot restore authority after any input or price change
+ok 1 - late calculation cannot restore authority after any input or price change
+  ---
+  duration_ms: 0.805951
+  type: 'test'
+  ...
+# Subtest: revision and display cents never pass through JS floating point
+ok 2 - revision and display cents never pass through JS floating point
+  ---
+  duration_ms: 0.275117
+  type: 'test'
+  ...
+# Subtest: only raw draft fields restore, never a claimed result or stored role
+ok 3 - only raw draft fields restore, never a claimed result or stored role
+  ---
+  duration_ms: 0.223911
+  type: 'test'
+  ...
+# Subtest: confirmed original order clears only its own raw draft and preserves edits during submit
+ok 4 - confirmed original order clears only its own raw draft and preserves edits during submit
+  ---
+  duration_ms: 6.088908
+  type: 'test'
+  ...
+# (node:27) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:27) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: pinned font download is atomic, cached and usable without network
+ok 5 - pinned font download is atomic, cached and usable without network
+  ---
+  duration_ms: 11.141343
+  type: 'test'
+  ...
+# Subtest: wrong download and corrupted cache never become accepted font assets
+ok 6 - wrong download and corrupted cache never become accepted font assets
+  ---
+  duration_ms: 3.140089
+  type: 'test'
+  ...
+# Subtest: ordinary font preparation keeps its Chinese CLI progress
+ok 7 - ordinary font preparation keeps its Chinese CLI progress
+  ---
+  duration_ms: 52.822107
+  type: 'test'
+  ...
+# (node:28) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:28) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: native readiness preserves the underlying CDP error and attempt diagnostics
+ok 8 - native readiness preserves the underlying CDP error and attempt diagnostics
+  ---
+  duration_ms: 21.678865
+  type: 'test'
+  ...
+# Subtest: native readiness succeeds after transient refusal and bounds each connect attempt
+ok 9 - native readiness succeeds after transient refusal and bounds each connect attempt
+  ---
+  duration_ms: 0.73767
+  type: 'test'
+  ...
+# Subtest: a failed connection checkpoint closes the attached browser and does not retry
+ok 10 - a failed connection checkpoint closes the attached browser and does not retry
+  ---
+  duration_ms: 0.31779
+  type: 'test'
+  ...
+# (node:34) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:34) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: actual Windows Tauri production origins accept embedded-page paths
+ok 11 - actual Windows Tauri production origins accept embedded-page paths
+  ---
+  duration_ms: 0.709468
+  type: 'test'
+  ...
+# Subtest: Vite, browser error pages and lookalike hosts fail before waiting for login
+ok 12 - Vite, browser error pages and lookalike hosts fail before waiting for login
+  ---
+  duration_ms: 0.4195
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 305.234634

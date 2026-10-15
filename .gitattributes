@@ -19,3 +19,8 @@ docs/verification/P07-02-ci-native-failure-02.log -text whitespace=cr-at-eol
 
 docs/verification/P07-02-ci-report-03.json -text whitespace=cr-at-eol
 docs/verification/P07-03-*.log whitespace=-blank-at-eol,-blank-at-eof
+
+# Preserve original P07-03 Windows failure evidence.
+docs/verification/P07-03-ci-report-01.json -text whitespace=cr-at-eol
+docs/verification/P07-03-ci-font-failure-01.log -text whitespace=cr-at-eol
+docs/verification/P07-03-ci-python-01.log -text whitespace=cr-at-eol,-blank-at-eol

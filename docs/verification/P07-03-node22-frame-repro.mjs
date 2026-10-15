@@ -1,0 +1,11 @@
+import test from 'node:test';
+import { DefaultSerializer } from 'node:v8';
+import { writeSync } from 'node:fs';
+const serializer=new DefaultSerializer();
+serializer.writeHeader();
+serializer.writeValue({type:'test:diagnostic',data:{nesting:0,message:'framed diagnostic',file:import.meta.filename}});
+const body=serializer.releaseBuffer();
+const header=Buffer.alloc(6);header[0]=255;header[1]=15;header.writeUInt32BE(body.length,2);
+const banner=process.env.P07_ASCII_CONTROL?'\nPrepare font: test.woff2\n':'\n准备离线字体：test.woff2\n';
+writeSync(1,Buffer.concat([header,body,Buffer.from(banner)]));
+test('test transport framing',()=>{});
