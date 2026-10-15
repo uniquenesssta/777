@@ -43,6 +43,17 @@ def protocol_check():
         future=call('analytics',period='day',**{'from':exact(current+timedelta(days=1)),'to':exact(current+timedelta(days=2))})
         assert future['totals']['order_count']==0 and future['totals']['income_cents']=='0'
         checks.append('exact_rolling_24_hours_reaches_service_and_future_interval_is_empty')
+        for result in [analysis,rolling,future]:
+            previous=0
+            for bucket in result['buckets']:
+                candle={key:int(value) for key,value in bucket['profit_ohlc'].items()}
+                assert candle['open_cents']==previous
+                assert candle['high_cents']>=max(candle['open_cents'],candle['close_cents'])
+                assert candle['low_cents']<=min(candle['open_cents'],candle['close_cents'])
+                assert candle['close_cents']-previous==int(bucket['totals']['profit_cents'])
+                previous=candle['close_cents']
+            assert str(previous)==result['totals']['profit_cents']
+        checks.append('authoritative_profit_OHLC_survives_native_IPC_and_HTTPS_with_empty_bucket_continuity')
         before=s.host.service.ledger.inventory();job=call('create_output',order_id=order['order_id'],expected_revision=order['revision'],kind='excel_quote')
         deadline=time.monotonic()+20
         while True:

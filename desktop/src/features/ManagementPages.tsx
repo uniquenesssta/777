@@ -3,7 +3,6 @@ import type { Price } from "../contracts";
 import type { Workbench } from "../state/useWorkbench";
 import { stamp } from "../state/format";
 import {
-  Alert,
   Badge,
   Button,
   Empty,
@@ -331,7 +330,7 @@ export function SettingsPage({ app }: { app: Workbench }) {
           </Button>
         </>
       ) : (
-        <Alert>保存位置由管理员发布，当前账号只读继承。</Alert>
+        <p className="muted">保存位置由管理员发布，当前账号只读继承。</p>
       )}
       {admin && (
         <section className="backup-settings">

@@ -56,6 +56,10 @@ fn full_ledger_aggregate_tracks_void_restore_and_preserves_frozen_prices() {
     assert_eq!(v["totals"]["order_count"], 25);
     assert_eq!(v["totals"]["income_cents"], "25000");
     assert_eq!(v["totals"]["profit_cents"], "15000");
+    assert_eq!(
+        v["buckets"].as_array().unwrap().last().unwrap()["profit_ohlc"]["close_cents"],
+        v["totals"]["profit_cents"]
+    );
     // A new price must never revalue previously booked orders.
     store::mutate(
         &mut c,
@@ -89,6 +93,10 @@ fn full_ledger_aggregate_tracks_void_restore_and_preserves_frozen_prices() {
         let next = queries.analytics(&path, &admin, &q).unwrap();
         assert_eq!(next["totals"]["order_count"], count);
         assert_eq!(next["totals"]["income_cents"], income);
+        assert_eq!(
+            next["buckets"].as_array().unwrap().last().unwrap()["profit_ohlc"]["close_cents"],
+            next["totals"]["profit_cents"]
+        );
     }
     assert_eq!(queries.full_scans, 1);
     assert_eq!(queries.delta_rows, 2);

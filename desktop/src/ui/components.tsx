@@ -58,19 +58,6 @@ export function Badge({
     </span>
   );
 }
-export function Alert({
-  children,
-  error = false,
-}: {
-  children: ReactNode;
-  error?: boolean;
-}) {
-  return (
-    <div className="alert" data-error={error} role={error ? "alert" : "status"}>
-      {children}
-    </div>
-  );
-}
 export function Empty({ children }: { children: ReactNode }) {
   return <div className="empty">{children}</div>;
 }

@@ -2,10 +2,12 @@ import { useState } from "react";
 import type { Connection } from "../contracts";
 import { Button, Field, Input } from "../ui/components";
 export function ConnectionPage({
+  error,
   saved,
   busy,
   onConnect,
 }: {
+  error: string;
   saved: Connection | null;
   busy: boolean;
   onConnect: (c: Connection, u: string, p: string) => Promise<void>;
@@ -79,6 +81,7 @@ export function ConnectionPage({
             />
           </Field>
         </div>
+        {error && <p className="inline-error" role="alert">{error}</p>}
         <Button type="submit" disabled={busy}>
           {busy ? "正在连接…" : "登录"}
         </Button>

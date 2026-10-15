@@ -119,5 +119,15 @@ export interface ProfitAnalysis extends AnalysisFilters {
   ledger_revision: string;
   unplaced_date_orders: number;
   totals: AnalysisTotals;
-  buckets: { start: string; totals: AnalysisTotals }[];
+  buckets: {
+    start: string;
+    totals: AnalysisTotals;
+    profit_ohlc?: ProfitOHLC;
+  }[];
+}
+export interface ProfitOHLC {
+  open_cents: string;
+  high_cents: string;
+  low_cents: string;
+  close_cents: string;
 }

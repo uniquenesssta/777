@@ -1,0 +1,108 @@
+{
+  "task": "P07-03",
+  "branch": "stage/p07-tauri-desktop",
+  "parent_commit": "6e4e670f6eb6781e15f2fa3d54e143e894891511",
+  "status": "four_charts_no_banners_auxiliary_passed_Windows_CI_and_user_acceptance_pending",
+  "request": "image(9).png: remove all notification bars and provide bar/line/pie/candlestick switching",
+  "changes": {
+    "notifications": "Alert component/CSS removed; success bars, close-wait bars and readonly bars absent. Plain error text retained; unknown receipt recovery remains in quote action area. Native close/save guard unchanged.",
+    "chart_switching": "same revision snapshot and exact rolling window; no request or reaggregation on type switch; independent calendar grouping",
+    "bar_line": "saved income/cost/profit per bucket, losses below zero; few buckets fit container, dense data scrolls internally",
+    "pie": "absolute bucket net profit shares, explicit negative loss labels/warm colors, exact BigInt percentage rounding; zero bucket omitted, all zero empty, single slice complete circle",
+    "candles": "server-calculated selected-window cumulative profit starting at zero; sorted instants, equal-time observations merged, opening/high/low/close in decimal cent strings; empty buckets carry preceding close; last close equals total profit",
+    "compatibility": "additive profit_ohlc bucket response; existing v1 fields/query/schema unchanged; old service lacks candles explicitly, other three charts work; admin enforced native and service",
+    "dependencies_and_ports": "no added dependencies, lock/profile changes, or new network assets; dev 18477/29346 and credentials/certificate preserved"
+  },
+  "implementation_sha256_LF": {
+    "crates/quote-host/src/analytics.rs": "69d0fb2020e2fc1d2631e9a68df361c77e2ec1faf07de3fc7c224b8c07bdbdad",
+    "crates/quote-host/tests/analytics.rs": "1b83fec3bf6ea7940b67c3ea982abc3d3cb8a00a4cb0057e8eb5202a4e62d4d5",
+    "desktop/src/App.tsx": "82abcff1c39d3b48eab3e06de33b198650f3add96ec0a02823c56448ad35eddd",
+    "desktop/src/app.css": "3067de94879e2e86829bd647b988d43e8d2f64e9846d3d5959166efe365ba484",
+    "desktop/src/contracts.ts": "52d4268a63d6dd5ed07dfe9141af7a9b7a6a58aed7b124545a2c6d2b08f90d0a",
+    "desktop/src/features/ConnectionPage.tsx": "46df0657b35e42f12bb0cc4b992e0b9dc277701481ac3ce4c07bf3bb7af35f43",
+    "desktop/src/features/ManagementPages.tsx": "beb9adfab6f14cc4a6b5538570e3bf1eee2a586c39b36398b91f951d1f5d3ee3",
+    "desktop/src/features/ProfitCharts.tsx": "ffa894a37b5dc419265876fb392adff7f35f7bb7459149793bca96115fa29183",
+    "desktop/src/features/ProfitPage.tsx": "5ba729e9ba460e014da0db91b4d503c240b4cd3a121fbe91fa4712d8acba3704",
+    "desktop/src/features/QuotePage.tsx": "1bae5a4caf9ff87c97eafe052d0ff4dc83d79bc5ad40d0ebb0a41c084b3f203e",
+    "desktop/src/state/profit.ts": "9489a17d46bf14cf50d3f93539e7bb408a499510704fc26532257180a6f5b599",
+    "desktop/src/ui/components.tsx": "819ce27fca75a2f23a5bbffec1dde1241ad5f65f14a9bd203acfe8b1126bcf66",
+    "desktop/tests/profit.test.ts": "5fc4faee9ac87b613b94f4c21b1450c8ee15db472e77dc7f71373b13d048bd1b",
+    "desktop/tests/ui/presentation.spec.ts": "79c106aa0e3d54f5adec06e1dc96742a6b22e3b02780334666355816ca9c14ed",
+    "desktop/tests/ui/workbench.spec.ts": "798ea9a74775046b18621b9e2145ce7ae60e7e52e0abf74d69bed5bf5ed87a2b",
+    "tools/p07_desktop_check.py": "ef9d44aaab15295de90ea347cb8f43d0eb06a9729c3ed32da58b4003e7e10c0a"
+  },
+  "checks": {
+    "Node22": {
+      "passed": 24,
+      "log": "P07-03-chart-node22.log"
+    },
+    "Node24": {
+      "passed": 24,
+      "log": "P07-03-chart-node24.log"
+    },
+    "Rust_analytics": {
+      "unique_passed": 9,
+      "unit": 7,
+      "integration": 2,
+      "profile": "standard release, --locked -j 1",
+      "logs": [
+        "P07-03-chart-rust.log",
+        "P07-03-chart-rust-integration.log"
+      ],
+      "coverage": "ordering, equal instants including equivalent offsets, exact bounds, empty buckets, negative and above-i64 cumulative profits, frozen prices, void/restore, sales rejection"
+    },
+    "browser": {
+      "stats": {
+        "startTime": "2026-10-15T11:25:50.674Z",
+        "duration": 30434.575,
+        "expected": 23,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "log": "P07-03-chart-full-browser.log",
+      "scope": "11 explicit mock IPC presentation cases + 3 native-completion DOM cases + 9 real Rust host/native IPC browser workbench cases. No actual Windows WebView2 in this auxiliary run.",
+      "widths": [
+        1440,
+        720,
+        640
+      ],
+      "four_charts_keyboard_and_no_request_on_switch": true,
+      "all_presentation_pages_have_no_banner_nodes": true,
+      "real_receipt_recovery_and_failed_refresh_error_still_work": true
+    },
+    "real_HTTPS": {
+      "passed": 15,
+      "report": "P07-03-chart-protocol.json",
+      "Windows_DPAPI": false,
+      "sandbox_cleaned": true
+    },
+    "python": {
+      "run": 29,
+      "passed": 27,
+      "Windows_only_skipped": 2,
+      "log": "P07-03-chart-python.log"
+    },
+    "strict_clippy": "host + desktop all targets, -D warnings, passed",
+    "frontend_build": "strict fonts / tsc / Vite passed",
+    "fmt_and_git_diff_check": "passed",
+    "visual_inspection": "all four SVG modes at wide/narrow widths; final 640px captures reset document scroll so sticky navigation is not misplaced by full-page screenshot; two time buckets fit without forced 760px chart width"
+  },
+  "local_build_failures_and_recovery": {
+    "debug": "Generated quote_host object had length zero; clean -p quote-host retry also failed. Debug executable build not claimed passed. Standard release analytics tests and strict debug metadata Clippy passed separately.",
+    "release": "Initial combined build had zero-length reqwest archive object; cleaning reqwest resolved it, then quote_host linkage failed with another observed zero-length object. Cleaning only quote-host release artifacts made the identical locked jobs1 combined build pass in 36.22s.",
+    "constraints": "No dependency/version/lock/profile or source workaround, no skipped feature gate. Original failure and package-clean logs retained."
+  },
+  "environment": {
+    "os": "Linux",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "rust": "1.97.1",
+    "Node22": "22.23.3",
+    "Node24": "24.19.0"
+  },
+  "production_paths_accessed": false,
+  "Windows_native_acceptance": "pending_new_CI",
+  "physical_DPI_multimonitor_and_user_visual_acceptance": "pending",
+  "P07_03": "open",
+  "P07_04_and_P08": "not_started"
+}

@@ -1,15 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { AnalysisFilters, AnalysisPeriod } from "../contracts";
 import type { Workbench } from "../state/useWorkbench";
 import { money } from "../state/format";
 import {
-  chartDomain,
-  chartFraction,
+  chartTypes,
+  type ProfitChart,
   profitRange,
   normalizeAnalysisTime,
   series,
   type ProfitPreset,
 } from "../state/profit";
+import { ProfitChartView } from "./ProfitCharts";
 import { Button, Empty, Field, Input } from "../ui/components";
 const periods: { value: AnalysisPeriod; label: string }[] = [
   { value: "day", label: "按日" },
@@ -31,29 +32,7 @@ export function ProfitPage({ app }: { app: Workbench }) {
     setPreset(app.analysisPreset);
   }, [app.analysisFilters, app.analysisPreset]);
   const data = app.analysis;
-  const chartRef = useRef<HTMLDivElement>(null);
-  const [availableWidth, setAvailableWidth] = useState(760);
-  useEffect(() => {
-    const element = chartRef.current;
-    if (!element) return;
-    const observer = new ResizeObserver(() =>
-      setAvailableWidth(element.clientWidth),
-    );
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [data]);
-  const domain = data ? chartDomain(data) : { min: 0n, max: 100n };
-  const top = 20,
-    height = 230,
-    left = 150,
-    width = Math.max(
-      760,
-      availableWidth,
-      (data?.buckets.length ?? 0) * 56 + left + 24,
-    );
-  const y = (n: bigint) =>
-    top + chartFraction(n, domain.min, domain.max) * height;
-  const baseline = y(0n);
+  const [chart, setChart] = useState<ProfitChart>("bar");
   return (
     <section className="card profit-page">
       <div className="section-heading">
@@ -171,13 +150,23 @@ export function ProfitPage({ app }: { app: Workbench }) {
         ))}
       </div>
       <div className="section-heading chart-heading">
-        <h3>收入与利润趋势</h3>
-        <div className="chart-legend">
-          {series.map((s) => (
-            <span key={s.key}>
-              <i style={{ background: s.color }} />
-              {s.label}
-            </span>
+        <h3>
+          {chart === "pie"
+            ? "各期间盈亏占比"
+            : chart === "candle"
+              ? "累计利润走势"
+              : "收入与利润趋势"}
+        </h3>
+        <div className="period-buttons" role="group" aria-label="图表类型">
+          {chartTypes.map((c) => (
+            <Button
+              key={c.value}
+              variant={chart === c.value ? "primary" : "ghost"}
+              aria-pressed={chart === c.value}
+              onClick={() => setChart(c.value)}
+            >
+              {c.label}
+            </Button>
           ))}
         </div>
       </div>
@@ -187,97 +176,7 @@ export function ProfitPage({ app }: { app: Workbench }) {
         <Empty>此期间没有有效订单。</Empty>
       ) : (
         <>
-          <div
-            className="profit-chart-scroll"
-            ref={chartRef}
-            tabIndex={0}
-            role="region"
-            aria-label="收入成本利润柱状图"
-          >
-            <svg
-              width={width}
-              height={310}
-              viewBox={`0 0 ${width} 310`}
-              role="img"
-              aria-label={`${data.from}至${data.to}按${{ day: "日", week: "周", month: "月", year: "年" }[data.period]}汇总柱状图`}
-            >
-              {[0, 1, 2, 3, 4].map((t) => {
-                const n =
-                  domain.max - ((domain.max - domain.min) * BigInt(t)) / 4n;
-                const line = top + (height * t) / 4;
-                return (
-                  <g key={t}>
-                    <line
-                      x1={left}
-                      x2={width - 16}
-                      y1={line}
-                      y2={line}
-                      stroke="#e7e9ef"
-                    />
-                    <text
-                      x={left - 12}
-                      y={line + 4}
-                      textAnchor="end"
-                      className="chart-axis numeric"
-                    >
-                      {money(n.toString())}
-                    </text>
-                  </g>
-                );
-              })}
-              <line
-                x1={left}
-                x2={width - 16}
-                y1={baseline}
-                y2={baseline}
-                stroke="#a3a7b2"
-              />
-              {data.buckets.map((b, i) => {
-                const x =
-                  left +
-                  ((i + 0.5) * (width - left - 24)) / data.buckets.length;
-                return (
-                  <g
-                    key={b.start}
-                    tabIndex={0}
-                    role="img"
-                    aria-label={`${b.start}，收入${money(b.totals.income_cents)}，成本${money(b.totals.cost_cents)}，利润${money(b.totals.profit_cents)}`}
-                  >
-                    <title>
-                      {b.start} · {b.totals.order_count} 笔
-                      {series
-                        .map((s) => `\n${s.label}：${money(b.totals[s.key])}元`)
-                        .join("")}
-                    </title>
-                    {series.map((s, j) => {
-                      const at = y(BigInt(b.totals[s.key]));
-                      return (
-                        <rect
-                          key={s.key}
-                          x={x + (j - 1) * 11 - 4}
-                          y={Math.min(at, baseline)}
-                          width={8}
-                          height={Math.abs(at - baseline)}
-                          rx={2}
-                          fill={s.color}
-                        />
-                      );
-                    })}
-                    <text
-                      x={x}
-                      y={height + top + 24}
-                      textAnchor="middle"
-                      className="chart-axis"
-                    >
-                      {data.period === "year"
-                        ? b.start.slice(0, 4)
-                        : b.start.slice(5)}
-                    </text>
-                  </g>
-                );
-              })}
-            </svg>
-          </div>
+          <ProfitChartView data={data} chart={chart} />
           <details className="analysis-data">
             <summary>查看汇总数据</summary>
             <div className="orders-table-scroll">

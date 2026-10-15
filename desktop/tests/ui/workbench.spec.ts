@@ -62,6 +62,12 @@ test("profit charts use the full real ledger across order pages", async ({
   ).toBeVisible();
   await expect(page.locator(".analysis-metrics")).toContainText("2,500.00");
   await expect(page.locator(".analysis-metrics")).toContainText("1,250.00");
+  await page.getByRole("button", { name: "折线图", exact: true }).click();
+  await expect(page.getByRole("region", { name: "收入成本利润折线图" })).toBeVisible();
+  await page.getByRole("button", { name: "饼图", exact: true }).click();
+  await expect(page.getByRole("img", { name: /盈利1,250.00元，占比100.0%/ })).toBeVisible();
+  await page.getByRole("button", { name: "K线图", exact: true }).click();
+  await expect(page.getByRole("img", { name: /25笔，开0.00，高1,250.00，低0.00，收1,250.00/ })).toBeVisible();
 });
 async function login(
   page: import("@playwright/test").Page,
@@ -274,7 +280,10 @@ test("manager price publication, readonly inherited directories and real output 
   await page.getByLabel("商品1sale").fill("21");
   await page.getByRole("button", { name: "发布新版本" }).click();
   await page.getByRole("button", { name: "确认发布" }).click();
-  await expect(page.getByRole("status")).toContainText("新价格已发布");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "发布新版本", exact: true })).toBeEnabled();
+  await expect(page.getByRole("status")).toHaveCount(0);
+  await expect(page.locator(".alert, .feedback-wrap")).toHaveCount(0);
   await page.getByRole("button", { name: "报价工作台", exact: true }).click();
   await add(page);
   await page.getByRole("button", { name: "计算报价", exact: true }).click();

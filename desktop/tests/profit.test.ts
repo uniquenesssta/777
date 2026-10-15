@@ -85,3 +85,66 @@ test("chart coordinates support losses and huge exact cents without converting m
     max: 100n,
   });
 });
+
+test("profit pie keeps losses explicit and computes exact shares for huge cents and zero buckets", async () => {
+  const { profitSlices } = await import("../src/state/profit.ts");
+  const data = {
+    buckets: [
+      {
+        start: "2026-01-01",
+        totals: { profit_cents: "-900719925474099300000" },
+      },
+      {
+        start: "2026-01-02",
+        totals: { profit_cents: "2702159776422297900000" },
+      },
+      { start: "2026-01-03", totals: { profit_cents: "0" } },
+    ],
+  } as ProfitAnalysis;
+  const result = profitSlices(data);
+  assert.equal(result.total, 3602879701896397200000n);
+  assert.equal(result.slices.length, 2);
+  assert.deepEqual(
+    result.slices.map((s) => [s.from, s.to, s.percent]),
+    [
+      [0, 0.25, "25.0%"],
+      [0.25, 1, "75.0%"],
+    ],
+  );
+  assert.equal(result.slices[0].profit, -900719925474099300000n);
+  assert.deepEqual(
+    profitSlices({
+      buckets: [{ totals: { profit_cents: "0" } }],
+    } as ProfitAnalysis),
+    { total: 0n, slices: [] },
+  );
+  assert.equal(
+    profitSlices({ buckets: [data.buckets[0]] } as ProfitAnalysis).slices[0]
+      .percent,
+    "100.0%",
+  );
+});
+
+test("candle domain includes intra-period high and low rather than only closing totals", async () => {
+  const { candleDomain } = await import("../src/state/profit.ts");
+  const data = {
+    buckets: [
+      {
+        profit_ohlc: {
+          open_cents: "0",
+          high_cents: "900719925474099300000",
+          low_cents: "-700000000000000000000",
+          close_cents: "1",
+        },
+      },
+    ],
+  } as ProfitAnalysis;
+  assert.deepEqual(candleDomain(data), {
+    min: -700000000000000000000n,
+    max: 900719925474099300000n,
+  });
+  assert.deepEqual(candleDomain({ buckets: [] } as unknown as ProfitAnalysis), {
+    min: 0n,
+    max: 100n,
+  });
+});

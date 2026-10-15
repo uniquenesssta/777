@@ -8,13 +8,19 @@ test.beforeEach(({ page }) => {
   pageErrors.set(page, errors);
   page.on("pageerror", (e) => errors.push(e.message));
 });
-test.afterEach(({ page }) => {
+test.afterEach(async ({ page }) => {
   expect(pageErrors.get(page)).toEqual([]);
+  await expect(page.locator(".alert, .feedback-wrap")).toHaveCount(0);
 });
 
-async function bootstrap(page: Page, delivery = "manager", failure = false) {
+async function bootstrap(
+  page: Page,
+  delivery = "manager",
+  failure = false,
+  chartCase = "mixed",
+) {
   await page.addInitScript(
-    ({ delivery, failure }) => {
+    ({ delivery, failure, chartCase }) => {
       let attempts = 0;
       const callbacks = new Map();
       let next = 1;
@@ -98,8 +104,8 @@ async function bootstrap(page: Page, delivery = "manager", failure = false) {
                 };
               case "outputs":
                 return { jobs: [] };
-              case "analytics":
-                return {
+              case "analytics": {
+                const analysis = {
                   format: "777-profit-analysis-v1",
                   ...(request as any),
                   timezone: "Asia/Shanghai",
@@ -116,6 +122,16 @@ async function bootstrap(page: Page, delivery = "manager", failure = false) {
                   buckets: [
                     {
                       start: (request as any).from.slice(0, 10),
+                      ...(chartCase === "legacy"
+                        ? {}
+                        : {
+                            profit_ohlc: {
+                              open_cents: "0",
+                              high_cents: "500",
+                              low_cents: "-1200",
+                              close_cents: "-1000",
+                            },
+                          }),
                       totals: {
                         order_count: 12,
                         income_cents: "6000",
@@ -126,6 +142,16 @@ async function bootstrap(page: Page, delivery = "manager", failure = false) {
                     },
                     {
                       start: (request as any).to.slice(0, 10),
+                      ...(chartCase === "legacy"
+                        ? {}
+                        : {
+                            profit_ohlc: {
+                              open_cents: "-1000",
+                              high_cents: "2000",
+                              low_cents: "-1300",
+                              close_cents: "1500",
+                            },
+                          }),
                       totals: {
                         order_count: 13,
                         income_cents: "4000",
@@ -136,6 +162,32 @@ async function bootstrap(page: Page, delivery = "manager", failure = false) {
                     },
                   ],
                 };
+                if (chartCase === "zero") {
+                  analysis.totals = {
+                    order_count: 25,
+                    income_cents: "0",
+                    cost_cents: "0",
+                    profit_cents: "0",
+                    margin: null,
+                  } as any;
+                  for (const b of analysis.buckets) {
+                    b.totals = {
+                      ...b.totals,
+                      income_cents: "0",
+                      cost_cents: "0",
+                      profit_cents: "0",
+                      margin: null,
+                    } as any;
+                    b.profit_ohlc = {
+                      open_cents: "0",
+                      high_cents: "0",
+                      low_cents: "0",
+                      close_cents: "0",
+                    };
+                  }
+                }
+                return analysis;
+              }
               default:
                 throw { status: 400, code: "UNEXPECTED_PRESENTATION_REQUEST" };
             }
@@ -165,7 +217,7 @@ async function bootstrap(page: Page, delivery = "manager", failure = false) {
         }),
       );
     },
-    { delivery, failure },
+    { delivery, failure, chartCase },
   );
   await page.goto("/");
 }
@@ -409,4 +461,136 @@ test("profit shows aggregate bars rather than orders and switches calendar perio
     path: info.outputPath("profit-narrow.png"),
     fullPage: true,
   });
+});
+
+test("four chart types share one snapshot and remain readable at wide and narrow widths", async ({
+  page,
+}, info) => {
+  await bootstrap(page);
+  await page.getByRole("button", { name: "利润分析", exact: true }).click();
+  await expect(
+    page.getByRole("region", { name: "收入成本利润柱状图" }),
+  ).toBeVisible();
+  const requests = () =>
+    page.evaluate(() =>
+      (window as any).__businessRequests.filter(
+        (r: any) => r.action === "analytics",
+      ),
+    );
+  const before = await requests();
+  for (const width of [1440, 720, 640]) {
+    await page.setViewportSize({ width, height: 960 });
+    for (const [name, region] of [
+      ["柱状图", "收入成本利润柱状图"],
+      ["折线图", "收入成本利润折线图"],
+      ["饼图", "各期间盈亏占比饼图"],
+      ["K线图", "累计利润K线图"],
+    ]) {
+      const button = page
+        .getByRole("group", { name: "图表类型" })
+        .getByRole("button", { name, exact: true });
+      await button.focus();
+      await button.press("Enter");
+      await expect(button).toHaveAttribute("aria-pressed", "true");
+      await expect(
+        page.getByRole("region", { name: region, exact: true }),
+      ).toBeVisible();
+      expect(await requests()).toEqual(before);
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      expect(
+        await page
+          .locator("svg")
+          .evaluateAll((elements) =>
+            elements.every((e) => !/NaN|Infinity/.test(e.outerHTML)),
+          ),
+      ).toBe(true);
+      if (name === "饼图") {
+        await expect(
+          page.getByRole("img", { name: /亏损-10.00元，占比28.6%/ }),
+        ).toBeVisible();
+        await expect(
+          page.getByRole("img", { name: /盈利25.00元，占比71.4%/ }),
+        ).toBeVisible();
+      }
+      if (name === "K线图") {
+        await expect(
+          page.getByRole("img", { name: /开0.00，高5.00，低-12.00，收-10.00/ }),
+        ).toBeVisible();
+        await page.getByText("查看K线数据", { exact: true }).click();
+        await expect(
+          page.getByRole("columnheader", { name: "收（元）" }),
+        ).toBeVisible();
+      }
+      if (name !== "饼图") {
+        await expect
+          .poll(() =>
+            page
+              .getByRole("region", { name: region, exact: true })
+              .evaluate(
+                (element) =>
+                  Number(element.querySelector("svg")?.getAttribute("width")) <=
+                  element.clientWidth,
+              ),
+          )
+          .toBe(true);
+      }
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.screenshot({
+        path: info.outputPath(`chart-${width}-${name}.png`),
+        fullPage: true,
+      });
+    }
+  }
+});
+
+test("old service never fabricates candlesticks from aggregate totals", async ({
+  page,
+}) => {
+  await bootstrap(page, "manager", false, "legacy");
+  await page.getByRole("button", { name: "利润分析", exact: true }).click();
+  await page.getByRole("button", { name: "K线图", exact: true }).click();
+  await expect(
+    page.getByText("当前服务未提供K线数据，请更新服务后刷新。", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.getByRole("region", { name: "累计利润K线图" })).toHaveCount(
+    0,
+  );
+  await page.getByRole("button", { name: "折线图", exact: true }).click();
+  await expect(
+    page.getByRole("region", { name: "收入成本利润折线图" }),
+  ).toBeVisible();
+});
+
+test("zero-profit orders keep empty pie and flat candles finite", async ({
+  page,
+}) => {
+  await bootstrap(page, "manager", false, "zero");
+  await page.getByRole("button", { name: "利润分析", exact: true }).click();
+  await page.getByRole("button", { name: "饼图", exact: true }).click();
+  await expect(
+    page.getByText("各期间净利润均为0，暂无占比。", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "各期间盈亏占比饼图" }),
+  ).toHaveCount(0);
+  await page.getByRole("button", { name: "K线图", exact: true }).click();
+  await expect(
+    page.getByRole("region", { name: "累计利润K线图" }),
+  ).toBeVisible();
+  expect(
+    await page
+      .locator("svg")
+      .evaluateAll((elements) =>
+        elements.every((e) => !/NaN|Infinity/.test(e.outerHTML)),
+      ),
+  ).toBe(true);
+  await expect(
+    page.getByRole("img", { name: /开0.00，高0.00，低0.00，收0.00/ }),
+  ).toHaveCount(2);
 });

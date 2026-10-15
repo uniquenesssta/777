@@ -1,0 +1,9 @@
+    Finished `release` profile [optimized] target(s) in 0.14s
+     Running tests/analytics.rs (target/release/deps/analytics-a750064e80f902a0)
+
+running 2 tests
+test analytics_denies_sales_before_accessing_a_ledger ... ok
+test full_ledger_aggregate_tracks_void_restore_and_preserves_frozen_prices ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

@@ -1,0 +1,145 @@
+   Compiling reqwest v0.13.5
+   Compiling quote-host v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-host)
+   Compiling quote-desktop v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/desktop/src-tauri)
+error: linking with `cc` failed: exit status: 1
+  |
+  = note:  "cc" "-m64" "/workspace/scratch/7a12e3cfd885/repo777/target/release/deps/rustcWloOAE/symbols.o" "<17 object files omitted>" "-Wl,--as-needed" "-Wl,-Bstatic" "/workspace/scratch/7a12e3cfd885/repo777/target/release/deps/{librpassword-ea82e84553fb5c06,librtoolbox-375ba2e99e18ff74,libquote_host-c5211df0c2232a11,libpng-387eff1cf2585cc1,libfdeflate-f24ec5f876c7b188,libquote_excel-1dd12393e11f98f5,librust_xlsxwriter-e03fc4536302133e,libzip-b579fbb82ec81e60,libzopfli-768f89b9910b8312,libsimd_adler32-a70bb882b549688c,libbumpalo-49ad17094cda4f68,liblog-c27d458cb8254077,libflate2-3bc7442ed836fc45,libzlib_rs-0b084362d8ac5ddf,libtyped_path-8de2a5a67512404c,libcrc32fast-7d01a2bd627eda6a,libquick_xml-41ea6e69dd3dc3d8,librcgen-4999a7925b2b5d6b,libyasna-4d7a6fdacb5e9a79,libpem-058761fff38d1ab6,libfs2-867a1b4d6530f250,libscrypt-5bd49f40d7fd9f72,libsalsa20-c228e9af8973d2f2,libcipher-7a7f638d1d30d4bc,libinout-516272166535658b,libpbkdf2-235cd759f65eba30,libform_urlencoded-3a7beef9e863c415,libaxum_server-b374b26949c62d59,libfs_err-4e4f9aae5dd4f053,libtokio_rustls-c71357990aa86828,librustls-36c026d66f9194d5,libwebpki-cf878682e6c86313,libring-5daf96a9b1953f32,libuntrusted-64821ffabf260ae3,librustls_pki_types-bd06f40432a8ebf5,libzeroize-4a3f7d4e9f39f2d8,libarc_swap-70b4e0a754f45463,libeither-8b40e19a5015a546,libfontdue-4dd1f304746bd76d,libttf_parser-37ac9524e02d5ad9,libhmac-fa2d762b8cb92278,libaxum-dea28467f0b5d52b,libhyper_util-8a4211fbb8ec317f,libbase64-13f12a1d7f390e70,libpercent_encoding-b24007d854632340,libipnet-aa3fa1381a284ca3,libhyper-a1c00e9212e9f2cc,libwant-c578111758dcfcf9,libtry_lock-a6963ffa0e3dec3d,libhttparse-b5850795557bf70f,libfutures_channel-0e3aec84b6dc9aa9,libh2-c1bc10312cc48476,libtracing-4ca185c2e24d7f75,libtracing_core-491ede433bd92547,libonce_cell-6af55020c7787484,libindexmap-63c0bb0f6aabaf02,libhashbrown-4c47210f067f5c53,libslab-41953251c1c8b155,libfnv-76efe918727cca2f,libtokio_util-dbe151892faa49da,libfutures_sink-efe4c27af9e9bc14,libhttpdate-846f7e60f3ae1cd4,libatomic_waker-cea420c7ab5bbedd,libmatchit-bcb10549a2a3a907,libaxum_core-a76e877bb4cd9834,libmime-65516fcb7b2388fb,libhttp_body_util-55a6739f78a525b4,libhttp_body-b0ff79f99b61219a,libhttp-5ed8c929917e26e4,libtower-3bac009dfbec2af7,libsync_wrapper-a7506a2fba4b1d5e,libfutures_util-b6533f3bb97e36dc,libfutures_task-ca0643e055766b7c,libfutures_core-31d290d2b3f04591,libtower_layer-5084e37b6a1faf29,libtower_service-39f565d9f01c7a97,libtokio-3caa33d2369a7fdb,libsignal_hook_registry-628f99b1e4f49518,liberrno-8a824677ab3f5034,libsocket2-1e7b15c600ba2332,libbytes-fbc977e19f126494,libmio-5483b0d7a7eea0fa,libpin_project_lite-8708f2f82bb68f5f,libquote_ledger-9bd5ceb8f02dbff7,libgetrandom-f0060a9f4e2a3018,liblibc-d3ed8f11b2d61145,libsha2-8c81a78c9828e2b6,libcpufeatures-817d1c5fb26e2b99,libcfg_if-bf826808dff617ec,libdigest-d2c08185d8b1a640,libsubtle-be633b27cdcaac36,libblock_buffer-2bb3b482d20f8676,libcrypto_common-f06fda39a38dd4f2,libgeneric_array-081e5f54843cc070,libtypenum-3ddd1914380fe8d4,librusqlite-13ef7d0ecc2b20f1,libbitflags-b95611725d921914,libsmallvec-7278f90d0ec2b01f,libhashlink-8592bac846f5b156,libhashbrown-3bcc54570bd670c9,libfoldhash-f7c1abf4b29f2975,libequivalent-353038ae03d6b7c3,liballocator_api2-abc07a9ed4a0702c,liblibsqlite3_sys-adce17019b09e7c3,libfallible_streaming_iterator-6764e41be1d421de,libfallible_iterator-bfcd2dd8c1e32731,libquote_core-2f59eb52510311e3,libserde-a7ab640639e06236,libbase64-6dac183cef75e28b,libtime-9d9ab55f5e039841,libtime_core-c6937bffdc709d74,libnum_conv-376f1fda2491bbc9,libderanged-28a89ca459c63da5,libpowerfmt-f809745b26b19221,libserde_json-0c1554a4c3f24773,libmemchr-2e51bca22cb3eb91,libitoa-afcbd245c2e4a1ef,libzmij-b78c3c499daa5c7f,libserde_core-9130efb1033edf00,libnum_bigint-493c0c52b149d99a,libnum_integer-8a2c219b949ccaec,libnum_traits-11ca4ccc3274f5c8}.rlib" "<sysroot>/lib/rustlib/x86_64-unknown-linux-gnu/lib/{libstd-*,libpanic_unwind-*,libobject-*,libmemchr-*,libaddr2line-*,libgimli-*,libcfg_if-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libminiz_oxide-*,libadler2-*,libunwind-*,liblibc-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "-Wl,-Bdynamic" "-lgcc_s" "-lutil" "-lrt" "-lpthread" "-lm" "-ldl" "-lc" "-L" "/workspace/scratch/7a12e3cfd885/repo777/target/release/deps/rustcWloOAE/raw-dylibs" "-B<sysroot>/lib/rustlib/x86_64-unknown-linux-gnu/bin/gcc-ld" "-fuse-ld=lld" "-Wl,--eh-frame-hdr" "-Wl,-z,noexecstack" "-L" "/workspace/scratch/7a12e3cfd885/repo777/target/release/build/ring-1f553c8af104b033/out" "-L" "/workspace/scratch/7a12e3cfd885/repo777/target/release/build/libsqlite3-sys-afba30e58aaad9bd/out" "-L" "<sysroot>/lib/rustlib/x86_64-unknown-linux-gnu/lib" "-o" "/workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9" "-Wl,--gc-sections" "-pie" "-Wl,-z,relro,-z,now" "-Wl,-O1" "-Wl,--strip-debug" "-nodefaultlibs"
+  = note: some arguments are omitted. use `--verbose` to show all linker arguments
+  = note: rust-lld: error: undefined hidden symbol: anon.4e60efd2481b26d257b741f83e575b98.1.llvm.8664558074919261269
+          >>> referenced by quote_host.98706366ace42f3b-cgu.15
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.15.rcgu.o:(<h2::frame::go_away::GoAway>::encode::<bytes::bytes_mut::BytesMut>)
+          
+          rust-lld: error: undefined hidden symbol: axum::routing::method_routing::any::<quote_host::host::handler, (axum_core::extract::private::ViaRequest, axum::extract::state::State<quote_host::host::State>, axum::extract::connect_info::ConnectInfo<core::net::socket_addr::SocketAddr>, http::request::Request<axum_core::body::Body>), quote_host::host::State>
+          >>> referenced by quote_host.98706366ace42f3b-cgu.13
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.13.rcgu.o:(<axum::routing::Router<quote_host::host::State>>::fallback::<quote_host::host::handler, (axum_core::extract::private::ViaRequest, axum::extract::state::State<quote_host::host::State>, axum::extract::connect_info::ConnectInfo<core::net::socket_addr::SocketAddr>, http::request::Request<axum_core::body::Body>)>)
+          
+          rust-lld: error: undefined hidden symbol: <std::hash::random::RandomState as core::hash::BuildHasher>::hash_one::<&str>
+          >>> referenced by quote_host.98706366ace42f3b-cgu.12
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.12.rcgu.o:(quote_host::execute::{closure#0})
+          >>> referenced by quote_host.98706366ace42f3b-cgu.12
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.12.rcgu.o:(quote_host::execute::{closure#0})
+          >>> referenced by quote_host.98706366ace42f3b-cgu.10
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.10.rcgu.o:(<quote_host::Args>::get)
+          >>> referenced 8 more times
+          
+          rust-lld: error: undefined hidden symbol: tokio_util::util::poll_buf::poll_read_buf::<h2::codec::framed_write::FramedWrite<hyper::common::io::compat::Compat<hyper_util::common::rewind::Rewind<hyper_util::rt::tokio::TokioIo<quote_host::transport::Leased<tokio_rustls::server::TlsStream<tokio::net::tcp::stream::TcpStream>>>>>, h2::proto::streams::prioritize::Prioritized<hyper::proto::h2::SendBuf<bytes::bytes::Bytes>>>, bytes::bytes_mut::BytesMut>
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(<tokio_util::codec::framed_impl::FramedImpl<h2::codec::framed_write::FramedWrite<hyper::common::io::compat::Compat<hyper_util::common::rewind::Rewind<hyper_util::rt::tokio::TokioIo<quote_host::transport::Leased<tokio_rustls::server::TlsStream<tokio::net::tcp::stream::TcpStream>>>>>, h2::proto::streams::prioritize::Prioritized<hyper::proto::h2::SendBuf<bytes::bytes::Bytes>>>, tokio_util::codec::length_delimited::LengthDelimitedCodec, tokio_util::codec::framed_impl::ReadFrame> as futures_core::stream::Stream>::poll_next)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(<tokio_util::codec::framed_impl::FramedImpl<h2::codec::framed_write::FramedWrite<hyper::common::io::compat::Compat<hyper_util::common::rewind::Rewind<hyper_util::rt::tokio::TokioIo<quote_host::transport::Leased<tokio_rustls::server::TlsStream<tokio::net::tcp::stream::TcpStream>>>>>, h2::proto::streams::prioritize::Prioritized<hyper::proto::h2::SendBuf<bytes::bytes::Bytes>>>, tokio_util::codec::length_delimited::LengthDelimitedCodec, tokio_util::codec::framed_impl::ReadFrame> as futures_core::stream::Stream>::poll_next)
+          
+          rust-lld: error: undefined hidden symbol: <hyper_util::common::rewind::Rewind<hyper_util::rt::tokio::TokioIo<quote_host::transport::Leased<tokio_rustls::server::TlsStream<tokio::net::tcp::stream::TcpStream>>>> as hyper::rt::io::Write>::poll_write
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(anon.ebf80bb2b8e3dbe68793c95dc2655d7a.0.llvm.9717366257605757488)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(anon.ebf80bb2b8e3dbe68793c95dc2655d7a.1.llvm.9717366257605757488)
+          
+          rust-lld: error: undefined hidden symbol: <hyper_util::common::rewind::Rewind<hyper_util::rt::tokio::TokioIo<quote_host::transport::Leased<tokio_rustls::server::TlsStream<tokio::net::tcp::stream::TcpStream>>>> as hyper::rt::io::Write>::poll_flush
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(anon.ebf80bb2b8e3dbe68793c95dc2655d7a.0.llvm.9717366257605757488)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(anon.ebf80bb2b8e3dbe68793c95dc2655d7a.1.llvm.9717366257605757488)
+          
+          rust-lld: error: undefined hidden symbol: <hyper_util::common::rewind::Rewind<hyper_util::rt::tokio::TokioIo<quote_host::transport::Leased<tokio_rustls::server::TlsStream<tokio::net::tcp::stream::TcpStream>>>> as hyper::rt::io::Write>::poll_shutdown
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(anon.ebf80bb2b8e3dbe68793c95dc2655d7a.0.llvm.9717366257605757488)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(anon.ebf80bb2b8e3dbe68793c95dc2655d7a.1.llvm.9717366257605757488)
+          
+          rust-lld: error: undefined hidden symbol: <hyper_util::common::rewind::Rewind<hyper_util::rt::tokio::TokioIo<quote_host::transport::Leased<tokio_rustls::server::TlsStream<tokio::net::tcp::stream::TcpStream>>>> as hyper::rt::io::Write>::is_write_vectored
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(anon.ebf80bb2b8e3dbe68793c95dc2655d7a.0.llvm.9717366257605757488)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(anon.ebf80bb2b8e3dbe68793c95dc2655d7a.1.llvm.9717366257605757488)
+          
+          rust-lld: error: undefined hidden symbol: <hyper_util::common::rewind::Rewind<hyper_util::rt::tokio::TokioIo<quote_host::transport::Leased<tokio_rustls::server::TlsStream<tokio::net::tcp::stream::TcpStream>>>> as hyper::rt::io::Write>::poll_write_vectored
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(anon.ebf80bb2b8e3dbe68793c95dc2655d7a.0.llvm.9717366257605757488)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(anon.ebf80bb2b8e3dbe68793c95dc2655d7a.1.llvm.9717366257605757488)
+          
+          rust-lld: error: undefined hidden symbol: anon.4e60efd2481b26d257b741f83e575b98.69.llvm.8664558074919261269
+          >>> referenced by quote_host.98706366ace42f3b-cgu.10
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.10.rcgu.o:(<hyper::proto::h1::io::WriteBuf<hyper::proto::h1::encode::EncodedBuf<bytes::bytes::Bytes>>>::buffer::<hyper::proto::h1::encode::EncodedBuf<bytes::bytes::Bytes>>)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.10
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.10.rcgu.o:(<hyper::proto::h1::io::Buffered<hyper_util::common::rewind::Rewind<hyper_util::rt::tokio::TokioIo<quote_host::transport::Leased<tokio_rustls::server::TlsStream<tokio::net::tcp::stream::TcpStream>>>>, hyper::proto::h1::encode::EncodedBuf<bytes::bytes::Bytes>>>::poll_flush)
+          
+          rust-lld: error: undefined hidden symbol: <hyper_util::common::rewind::Rewind<hyper_util::rt::tokio::TokioIo<quote_host::transport::Leased<tokio_rustls::server::TlsStream<tokio::net::tcp::stream::TcpStream>>>> as hyper::rt::io::Read>::poll_read
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(anon.ebf80bb2b8e3dbe68793c95dc2655d7a.1.llvm.9717366257605757488)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.10
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.10.rcgu.o:(<hyper::proto::h1::io::Buffered<hyper_util::common::rewind::Rewind<hyper_util::rt::tokio::TokioIo<quote_host::transport::Leased<tokio_rustls::server::TlsStream<tokio::net::tcp::stream::TcpStream>>>>, hyper::proto::h1::encode::EncodedBuf<bytes::bytes::Bytes>>>::poll_read_from_io)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.10
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.10.rcgu.o:(<hyper::common::io::compat::Compat<hyper_util::common::rewind::Rewind<hyper_util::rt::tokio::TokioIo<quote_host::transport::Leased<tokio_rustls::server::TlsStream<tokio::net::tcp::stream::TcpStream>>>>> as tokio::io::async_read::AsyncRead>::poll_read)
+          
+          rust-lld: error: undefined hidden symbol: <&core::io::error::ErrorKind as core::fmt::Debug>::fmt
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(.data.rel.ro..Lanon.ebf80bb2b8e3dbe68793c95dc2655d7a.47+0x18)
+          
+          rust-lld: error: undefined hidden symbol: anon.4e60efd2481b26d257b741f83e575b98.20.llvm.8664558074919261269
+          >>> referenced by quote_host.98706366ace42f3b-cgu.13
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.13.rcgu.o:(tokio::task::spawn::spawn::<hyper::proto::h2::server::H2Stream<hyper_util::service::glue::TowerToHyperServiceFuture<axum::extension::AddExtension<axum::routing::Router, axum::extract::connect_info::ConnectInfo<core::net::socket_addr::SocketAddr>>, http::request::Request<hyper::body::incoming::Incoming>>, axum_core::body::Body, hyper_util::rt::tokio::TokioExecutor>>)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.13
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.13.rcgu.o:(tokio::task::spawn::spawn::<hyper::proto::h2::upgrade::UpgradedSendStreamTask<bytes::bytes::Bytes>>)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.13
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.13.rcgu.o:(tokio::task::spawn::spawn::<<axum_server::server::Server<core::net::socket_addr::SocketAddr, quote_host::transport::Capacity<axum_server::tls_rustls::RustlsAcceptor>>>::serve<axum::extract::connect_info::IntoMakeServiceWithConnectInfo<axum::routing::Router, core::net::socket_addr::SocketAddr>>::{closure#0}::{closure#0}::{closure#1}>)
+          >>> referenced 1 more times
+          
+          rust-lld: error: undefined hidden symbol: anon.4e60efd2481b26d257b741f83e575b98.18.llvm.8664558074919261269
+          >>> referenced by quote_host.98706366ace42f3b-cgu.13
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.13.rcgu.o:(tokio::task::spawn::spawn::<hyper::proto::h2::server::H2Stream<hyper_util::service::glue::TowerToHyperServiceFuture<axum::extension::AddExtension<axum::routing::Router, axum::extract::connect_info::ConnectInfo<core::net::socket_addr::SocketAddr>>, http::request::Request<hyper::body::incoming::Incoming>>, axum_core::body::Body, hyper_util::rt::tokio::TokioExecutor>>)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.13
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.13.rcgu.o:(tokio::task::spawn::spawn::<hyper::proto::h2::upgrade::UpgradedSendStreamTask<bytes::bytes::Bytes>>)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.13
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.13.rcgu.o:(tokio::task::spawn::spawn::<<axum_server::server::Server<core::net::socket_addr::SocketAddr, quote_host::transport::Capacity<axum_server::tls_rustls::RustlsAcceptor>>>::serve<axum::extract::connect_info::IntoMakeServiceWithConnectInfo<axum::routing::Router, core::net::socket_addr::SocketAddr>>::{closure#0}::{closure#0}::{closure#1}>)
+          >>> referenced 1 more times
+          
+          rust-lld: error: undefined hidden symbol: <&h2::frame::reason::Reason as core::fmt::Debug>::fmt
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(.data.rel.ro..Lanon.ebf80bb2b8e3dbe68793c95dc2655d7a.52+0x18)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.15
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.15.rcgu.o:(.data.rel.ro..Lanon.fb9d5852f909e1cf14e5cee7ab846c1b.69+0x18)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.11
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.11.rcgu.o:(.data.rel.ro..Lanon.27279b5e3a20d315a36aa5f4bc76676e.81+0x18)
+          >>> referenced 2 more times
+          
+          rust-lld: error: undefined hidden symbol: <&h2::proto::error::Error as core::fmt::Debug>::fmt
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(.data.rel.ro..Lanon.ebf80bb2b8e3dbe68793c95dc2655d7a.60+0x18)
+          
+          rust-lld: error: undefined hidden symbol: <&h2::proto::error::Initiator as core::fmt::Debug>::fmt
+          >>> referenced by quote_host.98706366ace42f3b-cgu.14
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.14.rcgu.o:(.data.rel.ro..Lanon.ebf80bb2b8e3dbe68793c95dc2655d7a.61+0x18)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.13
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.13.rcgu.o:(.data.rel.ro..Lanon.bfdd8713a0f8daaff6eca30a44e2a793.83+0x18)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.06
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.06.rcgu.o:(.data.rel.ro..Lanon.7d2c74f830e984a8459f75cf66d3b49f.111+0x18)
+          
+          rust-lld: error: undefined hidden symbol: <std::hash::random::RandomState as core::hash::BuildHasher>::hash_one::<&alloc::string::String>
+          >>> referenced by quote_host.98706366ace42f3b-cgu.07
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.07.rcgu.o:(<hashbrown::raw::RawTable<(alloc::string::String, alloc::vec::Vec<alloc::string::String>)>>::reserve_rehash::<hashbrown::map::make_hasher<alloc::string::String, alloc::vec::Vec<alloc::string::String>, std::hash::random::RandomState>::{closure#0}> (.llvm.14215552035378130844))
+          >>> referenced by quote_host.98706366ace42f3b-cgu.07
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.07.rcgu.o:(<hashbrown::raw::RawTable<(alloc::string::String, alloc::vec::Vec<alloc::string::String>)>>::reserve_rehash::<hashbrown::map::make_hasher<alloc::string::String, alloc::vec::Vec<alloc::string::String>, std::hash::random::RandomState>::{closure#0}> (.llvm.14215552035378130844))
+          >>> referenced by quote_host.98706366ace42f3b-cgu.07
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.07.rcgu.o:(<hashbrown::map::HashMap<alloc::string::String, alloc::vec::Vec<alloc::string::String>, std::hash::random::RandomState>>::rustc_entry)
+          >>> referenced 1 more times
+          
+          rust-lld: error: undefined hidden symbol: <arc_swap::ArcSwapAny<alloc::sync::Arc<rustls::server::server_conn::ServerConfig>> as core::ops::drop::Drop>::drop
+          >>> referenced by quote_host.98706366ace42f3b-cgu.12
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.12.rcgu.o:(quote_host::host::serve::{closure#0})
+          >>> referenced by quote_host.98706366ace42f3b-cgu.04
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.04.rcgu.o:(quote_host::host::serve::{closure#0})
+          >>> referenced by quote_host.98706366ace42f3b-cgu.01
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.01.rcgu.o:(quote_host::host::serve::{closure#0})
+          
+          rust-lld: error: undefined hidden symbol: <alloc::sync::Arc<axum::routing::path_router::Node> as core::default::Default>::default
+          >>> referenced by quote_host.98706366ace42f3b-cgu.13
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.13.rcgu.o:(<axum::routing::Router<quote_host::host::State>>::new)
+          >>> referenced by quote_host.98706366ace42f3b-cgu.08
+          >>>               /workspace/scratch/7a12e3cfd885/repo777/target/release/deps/quote_host-ebbba0c429e1cdb9.quote_host.98706366ace42f3b-cgu.08.rcgu.o:(<axum::routing::path_router::PathRouter<quote_host::host::State, true>>::new_fallback)
+          
+          rust-lld: error: too many errors emitted, stopping now (use --error-limit=0 to see all errors)
+          collect2: error: ld returned 1 exit status
+          
+
+error: could not compile `quote-host` (bin "quote-host") due to 1 previous error

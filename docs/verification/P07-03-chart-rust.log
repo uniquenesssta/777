@@ -1,0 +1,68 @@
+    Blocking waiting for file lock on build directory
+   Compiling syn v3.0.9
+   Compiling tokio-macros v2.7.2
+   Compiling tokio v1.52.3
+   Compiling tokio-util v0.7.20
+   Compiling syn v2.0.119
+   Compiling h2 v0.4.20
+   Compiling serde_derive v1.0.228
+   Compiling hyper v1.12.0
+   Compiling time v0.3.44
+   Compiling serde v1.0.228
+   Compiling sync_wrapper v1.0.2
+   Compiling hyper-util v0.1.21
+   Compiling base64 v0.23.1
+   Compiling quote-excel v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-excel)
+   Compiling axum-core v0.5.6
+   Compiling pem v4.0.0
+   Compiling quote-core v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-core)
+   Compiling tokio-rustls v0.26.6
+   Compiling fs-err v3.3.2
+   Compiling tower v0.5.3
+   Compiling yasna v0.6.0
+   Compiling axum-server v0.8.0
+   Compiling axum v0.8.9
+   Compiling rcgen v0.14.10
+   Compiling scrypt v0.11.0
+   Compiling quote-ledger v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-ledger)
+   Compiling fs2 v0.4.3
+   Compiling quote-host v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-host)
+    Finished `release` profile [optimized] target(s) in 2m 05s
+     Running unittests src/lib.rs (target/release/deps/quote_host-84a8e0773838409e)
+
+running 7 tests
+test analytics::tests::business_midnight_empty_days_and_exact_large_aggregates ... ok
+test analytics::tests::bad_and_unbounded_ranges_are_rejected ... ok
+test analytics::tests::candle_accumulates_beyond_i64_and_respects_exact_window ... ok
+test analytics::tests::leap_months_years_and_unknown_legacy_dates ... ok
+test analytics::tests::cumulative_candles_sort_instants_merge_ties_and_carry_empty_buckets ... ok
+test analytics::tests::monday_weeks_cross_year_and_negative_margin ... ok
+test analytics::tests::rolling_time_cutoffs_exclude_the_rest_of_the_boundary_days ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/release/deps/quote_host-d25ce9f6fdbeafb4)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/analytics.rs (target/release/deps/analytics-a750064e80f902a0)
+
+running 1 test
+test analytics_denies_sales_before_accessing_a_ledger ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/boundary.rs (target/release/deps/boundary-81846cb0616c8155)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.00s
+
+     Running tests/device_auth.rs (target/release/deps/device_auth-103d1135c281a6ed)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.00s
+

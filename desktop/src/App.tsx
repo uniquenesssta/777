@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { listen } from "@tauri-apps/api/event";
 import { useWorkbench, type Route } from "./state/useWorkbench";
 import { QuotePage } from "./features/QuotePage";
 import { ProfitPage } from "./features/ProfitPage";
@@ -11,7 +10,7 @@ import {
   SettingsPage,
   TasksPage,
 } from "./features/ManagementPages";
-import { Alert, Button, Icon } from "./ui/components";
+import { Button, Icon } from "./ui/components";
 export default function App() {
   const app = useWorkbench();
   const [menu, setMenu] = useState(false);
@@ -27,15 +26,6 @@ export default function App() {
     document.addEventListener("pointerdown", outside);
     return () => document.removeEventListener("pointerdown", outside);
   }, [menu]);
-  const [closeBlocked, setCloseBlocked] = useState(false);
-  useEffect(() => {
-    const listener = listen("close-blocked", () => setCloseBlocked(true)).catch(
-      () => () => {},
-    );
-    return () => {
-      void listener.then((unlisten) => unlisten());
-    };
-  }, []);
   const extra: { route: Route; label: string; admin?: boolean }[] = [
     { route: "prices", label: "价格维护", admin: true },
     { route: "profit", label: "利润分析", admin: true },
@@ -116,42 +106,6 @@ export default function App() {
           </>
         )}
       </header>
-      {app.feedback && (
-        <div className="feedback-wrap">
-          <Alert error={app.isError}>{app.feedback}</Alert>
-        </div>
-      )}
-      {closeBlocked && (
-        <div className="feedback-wrap">
-          <Alert>
-            订单或设置正在保存，请等待完成后关闭。
-            <Button variant="ghost" onClick={() => setCloseBlocked(false)}>
-              知道了
-            </Button>
-          </Alert>
-        </div>
-      )}
-      {app.session && app.pending && (
-        <div className="feedback-wrap">
-          <Alert error>
-            有结果未知的原请求。
-            <Button
-              variant="outline"
-              disabled={app.busy}
-              onClick={() => void app.recover(false)}
-            >
-              核查原请求
-            </Button>
-            <Button
-              variant="outline"
-              disabled={app.busy}
-              onClick={() => void app.recover(true)}
-            >
-              按原请求重试
-            </Button>
-          </Alert>
-        </div>
-      )}
       {!app.session ? app.delivery === "loading" || app.automatic ? (
         <main className="connection-page"><section className="card connection-card" aria-busy={app.busy}>
           <h1>{app.busy || app.delivery === "loading" ? "正在连接…" : "暂时无法进入记账器"}</h1>
@@ -161,12 +115,16 @@ export default function App() {
       ) : (
         <ConnectionPage
           key={app.connection?.url ?? "initial"}
+          error={app.isError ? app.feedback : ""}
           saved={app.connection}
           busy={app.busy}
           onConnect={app.connect}
         />
       ) : (
         <main className="workspace" aria-busy={app.busy} tabIndex={-1}>
+          {app.isError && app.feedback && (
+            <p className="inline-error" role="alert">{app.feedback}</p>
+          )}
           {app.route === "quote" && <QuotePage app={app} />}{" "}
           {app.route === "orders" && <OrdersPage app={app} />}{" "}
           {app.route === "detail" && <DetailPage app={app} />}{" "}

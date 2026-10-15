@@ -42,6 +42,25 @@ impl Totals {
         json!({"order_count":self.count,"income_cents":income.to_string(),"cost_cents":self.money[1].to_string(),"profit_cents":profit.to_string(),"margin":margin})
     }
 }
+#[derive(Default)]
+struct Bucket {
+    totals: Totals,
+    // Equal instants form one observation, independent of cache/hash-map order.
+    profits: BTreeMap<OffsetDateTime, BigInt>,
+}
+impl Bucket {
+    fn value(self, opening: &mut BigInt) -> Value {
+        let open = opening.clone();
+        let mut high = open.clone();
+        let mut low = open.clone();
+        for profit in self.profits.into_values() {
+            *opening += profit;
+            high = high.max(opening.clone());
+            low = low.min(opening.clone());
+        }
+        json!({"totals":self.totals.value(),"profit_ohlc":{"open_cents":open.to_string(),"high_cents":high.to_string(),"low_cents":low.to_string(),"close_cents":opening.to_string()}})
+    }
+}
 fn invalid() -> Error {
     Error::new(422, "INVALID_ANALYTICS_QUERY")
 }
@@ -137,7 +156,7 @@ pub fn summarize<'a>(
         if buckets.len() >= 400 {
             return fail(422, "ANALYTICS_RANGE_TOO_LARGE");
         }
-        buckets.insert(d, Totals::default());
+        buckets.insert(d, Bucket::default());
         if d == end {
             break;
         }
@@ -161,12 +180,22 @@ pub fn summarize<'a>(
             continue;
         }
         if let Some(bucket) = buckets.get_mut(&key(instant.date(), period)?) {
-            bucket.add(money);
+            bucket.totals.add(money);
+            *bucket.profits.entry(instant).or_default() += money[2];
             total.add(money);
         }
     }
+    let mut opening = BigInt::from(0);
+    let buckets = buckets
+        .into_iter()
+        .map(|(day, bucket)| {
+            let mut value = bucket.value(&mut opening);
+            value["start"] = json!(day.to_string());
+            value
+        })
+        .collect::<Vec<_>>();
     Ok(
-        json!({"format":"777-profit-analysis-v1","timezone":"Asia/Shanghai","week_starts_on":"Monday","period":period,"from":from_raw,"to":to_raw,"ledger_revision":revision.to_string(),"unplaced_date_orders":unplaced,"totals":total.value(),"buckets":buckets.into_iter().map(|(day,t)|json!({"start":day.to_string(),"totals":t.value()})).collect::<Vec<_>>()}),
+        json!({"format":"777-profit-analysis-v1","timezone":"Asia/Shanghai","week_starts_on":"Monday","period":period,"from":from_raw,"to":to_raw,"ledger_revision":revision.to_string(),"unplaced_date_orders":unplaced,"totals":total.value(),"buckets":buckets}),
     )
 }
 #[cfg(test)]
@@ -253,5 +282,56 @@ mod tests {
         assert_eq!(v["buckets"][1]["totals"]["income_cents"], "500");
         assert_eq!(v["from"], "2026-10-14T14:41:10.123");
         assert_eq!(v["to"], "2026-10-15T14:41:10.123");
+        assert_eq!(v["buckets"][1]["profit_ohlc"]["close_cents"], "430");
+    }
+    #[test]
+    fn cumulative_candles_sort_instants_merge_ties_and_carry_empty_buckets() {
+        let rows = [
+            ("2026-01-03T03:00:00+08:00", [100, 0, 100]),
+            ("2026-01-01T02:00:00+08:00", [0, 180, -180]),
+            ("2026-01-03T02:00:00+08:00", [200, 0, 200]),
+            ("2026-01-01T01:00:00+08:00", [100, 0, 100]),
+            ("2026-01-02T18:00:00Z", [0, 500, -500]),
+            ("2026-01-01T03:00:00+08:00", [50, 0, 50]),
+        ];
+        let q = "period=day&from=2026-01-01&to=2026-01-03";
+        let value = summarize(q, rows, 1).unwrap();
+        assert_eq!(value, summarize(q, rows.into_iter().rev(), 1).unwrap());
+        for (i, expected) in [
+            ["0", "100", "-80", "-30"],
+            ["-30", "-30", "-30", "-30"],
+            ["-30", "-30", "-330", "-230"],
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            for (field, amount) in ["open_cents", "high_cents", "low_cents", "close_cents"]
+                .into_iter()
+                .zip(expected)
+            {
+                assert_eq!(value["buckets"][i]["profit_ohlc"][field], amount);
+            }
+        }
+        assert_eq!(value["buckets"][1]["totals"]["order_count"], 0);
+        assert_eq!(value["totals"]["profit_cents"], "-230");
+    }
+    #[test]
+    fn candle_accumulates_beyond_i64_and_respects_exact_window() {
+        let v = summarize(
+            "period=day&from=2026-01-01T10:00:00.000&to=2026-01-01T12:00:00.000",
+            [
+                ("2026-01-01T09:59:59+08:00", [0, 99, -99]),
+                ("2026-01-01T10:00:00+08:00", [i64::MAX, 0, i64::MAX]),
+                ("2026-01-01T11:00:00+08:00", [i64::MAX, 0, i64::MAX]),
+                ("2026-01-01T12:00:00.001+08:00", [0, 99, -99]),
+            ],
+            1,
+        )
+        .unwrap();
+        assert_eq!(
+            v["buckets"][0]["profit_ohlc"],
+            json!({"open_cents":"0","high_cents":"18446744073709551614","low_cents":"0","close_cents":"18446744073709551614"})
+        );
+        assert_eq!(v["totals"]["order_count"], 2);
     }
 }

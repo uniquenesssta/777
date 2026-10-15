@@ -327,6 +327,17 @@ export function QuotePage({ app }: { app: Workbench }) {
             {app.busy ? "处理中…" : valid ? "核对并提交订单" : "计算报价"}
           </Button>
           <p>提交前再次核对价格与商品信息。</p>
+          {app.pending && (
+            <section className="pending-actions" aria-label="原请求处理">
+              <p>{!app.isError && app.feedback ? app.feedback : "原请求结果待核查。"}</p>
+              <Button variant="outline" disabled={app.busy} onClick={() => void app.recover(false)}>
+                核查原请求
+              </Button>
+              <Button variant="outline" disabled={app.busy} onClick={() => void app.recover(true)}>
+                按原请求重试
+              </Button>
+            </section>
+          )}
           {!valid && draft.lines.length > 0 && (
             <small>输入修改后需重新计算。</small>
           )}

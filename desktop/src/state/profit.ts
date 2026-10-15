@@ -61,3 +61,56 @@ export function chartDomain(data: ProfitAnalysis) {
 export function chartFraction(value: bigint, min: bigint, max: bigint) {
   return Number(((max - value) * 10000n) / (max - min)) / 10000;
 }
+
+export type ProfitChart = "bar" | "line" | "pie" | "candle";
+export const chartTypes: { value: ProfitChart; label: string }[] = [
+  { value: "bar", label: "柱状图" },
+  { value: "line", label: "折线图" },
+  { value: "pie", label: "饼图" },
+  { value: "candle", label: "K线图" },
+];
+export function candleDomain(data: ProfitAnalysis) {
+  let min = 0n,
+    max = 0n;
+  for (const b of data.buckets) {
+    if (!b.profit_ohlc) continue;
+    min =
+      BigInt(b.profit_ohlc.low_cents) < min
+        ? BigInt(b.profit_ohlc.low_cents)
+        : min;
+    max =
+      BigInt(b.profit_ohlc.high_cents) > max
+        ? BigInt(b.profit_ohlc.high_cents)
+        : max;
+  }
+  if (min === max) max = min + 100n;
+  return { min, max };
+}
+export function profitSlices(data: ProfitAnalysis) {
+  const items = data.buckets.map((b) => ({
+    start: b.start,
+    profit: BigInt(b.totals.profit_cents),
+  }));
+  const total = items.reduce(
+    (sum, item) => sum + (item.profit < 0n ? -item.profit : item.profit),
+    0n,
+  );
+  let previous = 0n;
+  return {
+    total,
+    slices: items
+      .filter((item) => item.profit !== 0n)
+      .map((item) => {
+        const absolute = item.profit < 0n ? -item.profit : item.profit;
+        const from = Number((previous * 1000000n) / total) / 1000000;
+        previous += absolute;
+        const to = Number((previous * 1000000n) / total) / 1000000;
+        return {
+          ...item,
+          from,
+          to,
+          percent: `${(absolute * 1000n + total / 2n) / total / 10n}.${((absolute * 1000n + total / 2n) / total) % 10n}%`,
+        };
+      }),
+  };
+}
