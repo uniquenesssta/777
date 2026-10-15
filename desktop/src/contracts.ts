@@ -16,8 +16,11 @@ export interface Price {
   cost?: string;
   k: string;
   single: boolean;
+  pricing_mode?: "manual" | "cost_plus";
+  unit_sale?: string;
 }
 export interface Catalog {
+  pricing_mode_version?: "final-unit-v1";
   price_version_id: string;
   items: Price[];
   rule_version: string;

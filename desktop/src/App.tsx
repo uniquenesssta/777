@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useWorkbench, type Route } from "./state/useWorkbench";
 import { QuotePage } from "./features/QuotePage";
+import { PricesPage } from "./features/PricesPage";
 import { ProfitPage } from "./features/ProfitPage";
 import { OrdersPage } from "./features/OrdersPage";
 import { DetailPage } from "./features/DetailPage";
 import { ConnectionPage } from "./features/ConnectionPage";
 import {
-  PricesPage,
   SettingsPage,
   TasksPage,
 } from "./features/ManagementPages";

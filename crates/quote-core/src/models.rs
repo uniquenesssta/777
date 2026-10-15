@@ -80,6 +80,12 @@ pub enum Line {
     },
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PricingMode {
+    Manual,
+    CostPlus,
+}
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PriceItem {
     pub product_id: Value,
@@ -89,6 +95,8 @@ pub struct PriceItem {
     pub k: Value,
     #[serde(default = "no")]
     pub single: Value,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pricing_mode: Option<PricingMode>,
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

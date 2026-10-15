@@ -304,11 +304,31 @@ pub fn mutate(c: &mut Connection, m: Mutation, crash: Option<&str>) -> Result<Va
             if let Some(id) = expected_price_version_id {
                 text(id, 256, true)?;
             }
-            let items=prices.items.iter().map(|p|json!({"name":p.product_id,"sale":p.sale,"cost":p.cost,"k":p.k,"single":p.single})).collect::<Vec<_>>();
+            let items = prices
+                .items
+                .iter()
+                .map(|p| {
+                    let mut value = serde_json::to_value(p).unwrap();
+                    let object = value.as_object_mut().unwrap();
+                    let name = object.remove("product_id").unwrap();
+                    object.insert("name".into(), name);
+                    value
+                })
+                .collect::<Vec<_>>();
             let raw = encoded(&json!({"items":items}));
-            if parse_config(Source::Text(&raw), &prices.price_version_id, None).status != "ok" {
-                return Err(Error::new("VALIDATION"));
-            }
+            let parsed = parse_config(Source::Text(&raw), &prices.price_version_id, None)
+                .config
+                .ok_or_else(|| Error::new("VALIDATION"))?;
+            let items = items
+                .into_iter()
+                .zip(parsed.prices.items)
+                .map(|(mut value, p)| {
+                    if p.pricing_mode == Some(quote_core::models::PricingMode::CostPlus) {
+                        value["sale"] = p.sale;
+                    }
+                    value
+                })
+                .collect::<Vec<_>>();
             (
                 request_id,
                 actor,

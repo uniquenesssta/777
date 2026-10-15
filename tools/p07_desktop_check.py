@@ -77,8 +77,35 @@ def protocol_check():
         call('disconnect');session=call('connect',connection=conn,username='manager',password=s.host.password);assert session['pending'];recovered=call('recover',retry=False);assert not recovered['pending'] and recovered['result']['income_cents']=='20000' and recovered['path']=='/v1/orders';assert not (s.profile/'pending.bin').exists()
         again=call('recover',retry=True);assert not again['pending'] and again['result'] is None;assert s.host.service.ledger.inventory()['counts']['orders']==27;checks.append('native_host_and_desktop_restart_original_receipt_identity_and_no_duplicate')
         large={**snap,'lines':[{'line_kind':'normal','product_id':'户外写真','q':'1','h':'10000000','w':'1000000','name':''}]};v=call('calculate',snapshot=large,draft_revision='3')['result'];assert v['totals']['income_cents']=='20000000000000000';checks.append('money_above_JavaScript_integer_limit_remains_exact_string')
-        call('calculate',snapshot=snap,draft_revision='4');p=call('prices');updated={k:v for k,v in p.items() if k in ['price_version_id','items']};updated['price_version_id']='new-published-version';s.host.client('manager').mutate('/v1/prices',{'prices':updated,'expected_price_version_id':p['price_version_id']},MemoryJournal())
+        call('calculate',snapshot=snap,draft_revision='4');p=call('prices');updated={k:v for k,v in p.items() if k in ['price_version_id','items']};updated['items']=[{k:v for k,v in item.items() if k in ['product_id','sale','cost','k','single','pricing_mode']} for item in updated['items']];updated['price_version_id']='new-published-version';s.host.client('manager').mutate('/v1/prices',{'prices':updated,'expected_price_version_id':p['price_version_id']},MemoryJournal())
         response=s.call({'action':'submit','snapshot':snap,'details':{'customer':'','order_ref':'old-price-refused','wechat':''},'draft_revision':'4'});assert 'error' in response and response['error']['status']==409;assert s.host.service.ledger.inventory()['counts']['orders']==27;assert not (s.profile/'pending.bin').exists();checks.append('server_price_change_refuses_stale_confirmation_without_booking')
+        # New final-price policies pass through native IPC, canonical persistence and the independent Python ledger verifier.
+        before=s.host.service.ledger.inventory()
+        published=call('prices');assert published['pricing_mode_version']=='final-unit-v1'
+        policy_prices={'price_version_id':'final-price-mode-check','items':[{'product_id':'auto','sale':'forged','cost':'11.5','k':'2','single':True,'pricing_mode':'cost_plus'},{'product_id':'manual','sale':'20','cost':'11.5','k':'3','single':True,'pricing_mode':'manual'}]}
+        preview=call('price_preview',cost='11.5',k='2');assert preview=={'sale':'23'}
+        call('publish_prices',prices=policy_prices,expected_price_version_id=published['price_version_id'])
+        current_prices=call('prices');assert current_prices['items'][0]['sale']=='23' and current_prices['items'][0]['unit_sale']=='23' and current_prices['items'][0]['pricing_mode']=='cost_plus'
+        for index,(product,income) in enumerate([('auto','2300'),('manual','2000')],10):
+            shot={'price_version_id':policy_prices['price_version_id'],'lines':[{'line_kind':'normal','product_id':product,'q':'1','h':'','w':'','name':''}]}
+            r=call('calculate',snapshot=shot,draft_revision=str(index));assert r['result']['totals']['income_cents']==income and r['result']['totals']['cost_cents']=='1150'
+            call('submit',snapshot=shot,details={'customer':'policy','order_ref':product,'wechat':''},draft_revision=str(index))
+        independent=s.host.service.ledger.inventory();assert independent['counts']['orders']==before['counts']['orders']+2
+        assert int(independent['active_income_cents'])-int(before['active_income_cents'])==4300
+        import sqlite3
+        from quote_ledger.store import inventory as independent_inventory
+        restored=sqlite3.connect(':memory:')
+        try:
+            with s.host.service.ledger.connection(readonly=True) as original:original.backup(restored)
+            restored.row_factory=sqlite3.Row
+            assert independent_inventory(restored)==independent
+        finally:restored.close()
+        s.host.restart();assert call('prices')['items'][0]['pricing_mode']=='cost_plus'
+        call('disconnect');call('connect',connection=conn,username='sales-one',password=s.host.password)
+        sales_prices=call('prices');assert 'cost' not in json.dumps(sales_prices) and 'pricing_mode' not in json.dumps(sales_prices)
+        assert sales_prices['items'][0]['sale']=='23' and sales_prices['items'][0]['k']=='1'
+        refused('price_preview','ADMIN_REQUIRED',cost='11.5',k='2')
+        checks.append('manual_cost_plus_final_prices_exact_preview_canonical_backup_restore_restart_frozen_orders_and_sales_redaction')
         out={'status':'passed','checks':checks,'actual_transport':'Rust desktop IPC dispatcher -> Rustls pinned HTTPS -> standalone Rust host','production_paths_accessed':False,'Windows_DPAPI':os.name=='nt','scope':'owned temporary profile, synthetic accounts/prices/orders, no installed service or real data'}
     finally:s.close()
     out['sandbox_cleaned']=True;return out

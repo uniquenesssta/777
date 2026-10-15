@@ -242,7 +242,7 @@ class ServiceApplicationMixin:
 
     def _price_mapping(self):
         if not self._svc_prices:raise APIError(409,'请先刷新已发布价格')
-        return {p['product_id']:{'sale':p['sale'],'cost':p.get('cost','0'),'k':p['k'],'single':p['single']} for p in self._svc_prices['items']}
+        return {p['product_id']:{'sale':p['sale'],'cost':p.get('cost','0'),'k':'1' if p.get('pricing_mode') else p['k'],'single':p['single']} for p in self._svc_prices['items']}
 
     def reload_price_settings_from_json(self,silent=False,first_load=False):
         if not self._svc_client:return False
@@ -263,7 +263,7 @@ class ServiceApplicationMixin:
                 for row in self.setting_rows:
                     if row.get('frame') is not None:row['frame'].destroy()
                 self.setting_rows=[]
-                for p in prices['items']:self.add_setting_row(p['product_id'],p['sale'],p.get('cost','0'),p['k'],p['single'])
+                for p in prices['items']:self.add_setting_row(p['product_id'],p['sale'],p.get('cost','0'),'1' if p.get('pricing_mode') else p['k'],p['single'])
             finally:self._loading_prices=False
             self.last_config_snapshot=self._price_mapping();self.refresh_item_selector();self.update_calc_row_states(self.last_config_snapshot)
             self.export_dir_var.set(preferences['export_dir']);self.screenshot_dir_var.set(preferences['image_dir'])
@@ -346,6 +346,8 @@ class ServiceApplicationMixin:
 
     def save_settings(self):
         if self.quote_role!='manager':return False
+        if self._svc_prices and any(p.get('pricing_mode') for p in self._svc_prices['items']):
+            self.set_feedback('当前价格包含新的定价方式，请使用桌面端价格维护。',is_error=True);return False
         config,issues=QuoteApplicationMixin.get_settings_snapshot(self)
         if issues:self.set_feedback('请修正价格设定。',is_error=True);return False
         items=[{'product_id':name,**p} for name,p in config.items()]

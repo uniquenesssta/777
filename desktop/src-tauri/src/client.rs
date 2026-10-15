@@ -394,6 +394,20 @@ impl Desktop {
                 })
             }
             Action::Prices {} => self.request("GET", "/v1/prices", None).await,
+            Action::PricePreview { cost, k } => {
+                self.admin()?;
+                let price = quote_core::models::PriceItem {
+                    product_id: json!("preview"),
+                    sale: json!(""),
+                    cost: json!(cost),
+                    k: json!(k),
+                    single: json!(true),
+                    pricing_mode: Some(quote_core::models::PricingMode::CostPlus),
+                };
+                let sale = quote_core::pricing::unit_sale(&price)
+                    .map_err(|_| DesktopError::new(422, "INVALID_PRICE_INPUT"))?;
+                Ok(json!({"sale":sale.text()}))
+            }
             Action::Calculate {
                 snapshot,
                 draft_revision,

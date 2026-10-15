@@ -72,8 +72,7 @@ async function main() {
   await page.getByLabel("密码", { exact: true }).fill(fixture.password);
   await page.getByRole("button", { name: "登录", exact: true }).click();
   await page.getByRole("button", { name: "添加商品", exact: false }).click();
-  await page.getByLabel("商品", { exact: true }).selectOption("安装服务");
-  await page.getByRole("button", { name: "添加", exact: true }).click();
+  await page.getByLabel("第1行商品", { exact: true }).selectOption("安装服务");
   await page.getByLabel("订单号", { exact: true }).fill("native-tauri-00003");
   await page.getByRole("button", { name: "计算报价", exact: true }).click();
   await page.getByRole("button", { name: "核对并提交订单" }).click();

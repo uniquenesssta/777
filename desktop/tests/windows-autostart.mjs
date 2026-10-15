@@ -41,8 +41,7 @@ try {
   for(const label of ['服务地址','服务证书（PEM）','证书 SHA-256 指纹','账号','密码'])await expect(page.getByLabel(label,{exact:true})).toHaveCount(0);
   await expect(page.getByRole('button',{name:'登录',exact:true})).toHaveCount(0);
   await page.getByRole('button',{name:'添加商品',exact:false}).click();
-  await page.getByLabel('商品',{exact:true}).selectOption('单件');
-  await page.getByRole('button',{name:'添加',exact:true}).click();
+  await page.getByLabel('第1行商品',{exact:true}).selectOption('单件');
   if(presentation==='presentation') {
     // Exercise raw draft restoration and a genuinely long order through native IPC.
     await page.evaluate(()=>localStorage.setItem('777-desktop-draft-v1',JSON.stringify({schema:'777-desktop-draft-v1',details:{customer:'中文客户'.repeat(20),order_ref:'',wechat:'中文路径验证'},lines:Array.from({length:40},(_,i)=>({id:'native-line-'+i,raw:{line_kind:'normal',product_id:'单件',q:'1',h:'',w:'',name:''}}))})));

@@ -1,0 +1,137 @@
+{
+  "task": "P07-03",
+  "branch": "stage/p07-tauri-desktop",
+  "parent_commit": "83ea397372129482a85e4536eed9085360aebe61",
+  "status": "final_price_and_inline_rows_auxiliary_passed_Windows_CI_and_user_acceptance_pending",
+  "user_request": "2026-10-15 20:13 three screenshots: independent right-hand sale price, manual or cost*K, direct add/inline product select and consistent header/body alignment",
+  "behavior": {
+    "price_editor": "left product/type/cost/K; right final unit sale/manual or automatic checkbox; uncheck preserves derived sale for editing; inputs stay within their own table cells",
+    "automatic_preview": "admin-only typed native price_preview; same exact Rust core; 120ms input merge; stale responses and removed rows ignored; invalid automatic preview blocks publication; no JS authoritative arithmetic",
+    "rules": "optional pricing_mode manual/cost_plus; absent legacy retains base sale*K. Manual actual sale; automatic cost*K recomputed server-side and frozen. No second K multiplication; exact subcent unit until line settlement.",
+    "compatibility": "unit_sale projection of old effective price; untouched rows retain original records; old field serialization omits None; frozen orders unchanged. No SQL schema or lock/dependency change; older hosts must not write new mode data.",
+    "sales_boundary": "new mode/cost K not sent to sales; final sale plus actual quoting factor 1 prevents deriving cost from markup. Normalized rows also use actual factor 1.",
+    "Python_support": "domain/config/pricing/storage and shadow wire preserve new mode; independent ledger verifier and backup copy agree. Legacy Python service client projects final sale/K1 and blocks its unsupported old price editor for a new-policy catalogue.",
+    "quote_rows": "direct add first product/quantity1/empty dimensions, scroll and focus new product selector; switching product keeps quantity/dimensions/customer and invalidates calculation; single hides dimensions and area restores them; delisted choice stays visible",
+    "alignment": "shared 776px-minimum grid; product left, dimensions/K centered, quantity/final price/amount right with matching inner padding; 1364/1440 default layouts fit without unnecessary table horizontal overflow",
+    "original_features": "no banners/four charts/current ports/certificate/credentials/profile/unknown request recovery/close coordination kept"
+  },
+  "implementation_sha256_LF": {
+    "crates/quote-core/src/calculation.rs": "22347dc81a062befe73a52ac8e0dfc4681370291dd1ea4973cd6efb8cb71bfcd",
+    "crates/quote-core/src/configuration.rs": "6339c61c5645f1443d29e4e07ae8aaf3bb473998eafb1b49e739f31fea9d15d6",
+    "crates/quote-core/src/lib.rs": "1694c709befa08f4015a2c91c312e0ce030f0eaede804558dd171f510ac6ad72",
+    "crates/quote-core/src/models.rs": "2f8f157bde5573a0aa7ffec4bc9e7533f34f53806c69b2335290922c15c25fcd",
+    "crates/quote-core/src/pricing.rs": "5e67350a45697738cab4428da5b4435e76731e33df8c8700b2b12c50ffcb1fe2",
+    "crates/quote-core/tests/pricing.rs": "8d1f72b7345be5e7eba6ad3b772920a0100e5e0775b4ffcd5434743a164b3c92",
+    "crates/quote-host/src/protocol.rs": "a18fda9fbbcc888198ff8ab6f7aaaa81a84931eb17e92d0b2c06c51d60401d7c",
+    "crates/quote-host/src/service.rs": "79a8c13433ddbc7a0744b745ea969c7e136c3f1ea7f2093b82e0b742992899fa",
+    "crates/quote-ledger/src/store.rs": "2d8cf2731a1793a7b46dfb120eed5ea07f928662dcb1b690dd1732fa272c4f65",
+    "desktop/src-tauri/src/client.rs": "bb24ebe95f84f7cf9f4286094ae1beb0461c24ed422081b4c49535ad4f2bbe4b",
+    "desktop/src-tauri/src/types.rs": "ccd487cce1c7a3cee5247d30af0f0b90fdd99d56f96a4813716fee1cce9fd22a",
+    "desktop/src/App.tsx": "e1ba8f716eb2cbe8350b780fe0875bd858f47dd537e75205b90b560e9975f5e2",
+    "desktop/src/app.css": "4705f5064b522ef12f0f60936d99e614672bc0452a1cd0449cf3349191904946",
+    "desktop/src/contracts.ts": "a52d17eeadfe48ab5ef535c6a21f55cc1d1c34fafff9d76007c9b4384c3ec7ff",
+    "desktop/src/features/ManagementPages.tsx": "018fe635bd7432c446312cc70d24006461c21a14035e7414d2b79970a1cb8613",
+    "desktop/src/features/PricesPage.tsx": "a1980d1c82d77717d57ece573bf38c343c8149b38e84d7c77ec481f4dc52132f",
+    "desktop/src/features/QuotePage.tsx": "3dd403cee2a71d39e4cf26d7eb9f1aff83b64725b8b6f1f5a6680b51039390b9",
+    "desktop/tests/ui/presentation.spec.ts": "2045e66193ab351c7bf83c4c04dfe22cedeb489a58456f9f57d88527ec363df8",
+    "desktop/tests/ui/workbench.spec.ts": "df76c1733345a5a21b7c4b2d87d58776c52409c6ee2c3e2b55664fdf93c5c979",
+    "desktop/tests/windows-autostart.mjs": "4434605bb1bf70deb5fc9ef8f1c70bb7f0ab93fc83c7077a0d6c8582a6e6f8af",
+    "desktop/tests/windows-smoke.mjs": "2ad2d23ddb5fad27e92aed6bb87c7a36db562f8cdff62296cc99e88cfaecaf3a",
+    "quote_app/service_client.py": "ea9b51e5f3bf88abeead353d0623d77e9f2218a2f00d5416c4f880834b27eadf",
+    "quote_core/calculation.py": "04177b077b5e75a86ebced978c54e34f4e2282654a02f0bc2d5ba450d52ab873",
+    "quote_core/configuration.py": "d6a18a7469017a1b7fe02f2345e248c5cd9afd5f204456c49801a7d8d7c104f0",
+    "quote_core/models.py": "678d126f21be9ccf6a0c490794eda0a2efd038df1bb560cd24ee1d61acb836fe",
+    "quote_core/pricing.py": "3250bcf60d3b930308fbfef541695351761f45f8669b6197394661424119c700",
+    "quote_core/snapshot.py": "cc4509e179b5d7ca5f5769f63375374d19896fb347094525ff1b3278b25e78dd",
+    "quote_ledger/store.py": "61425f9edf5303b850d435efa5ef19a43048af66d6cc0af1236b40244794258a",
+    "quote_service/protocol.py": "1477053597fcbcab6c3c8025123b1093eb4bd82c4fa3b1ca00ea5030649ff9e9",
+    "tests/test_price_modes.py": "c1fea12efb5fd3400d1d92fbda16cd24ced801ea1234a8b44f03b66c8b0d9f3e",
+    "tools/p06_cases.py": "6abecdf34f199279920475502ee230e41849cf1a4f10bf2375531567800758b8",
+    "tools/p07_desktop_check.py": "5e3c116c2a21731224459d4f72811768b4a9eb13fa935be6925a22356dc6d10e"
+  },
+  "checks": {
+    "Rust": {
+      "passed": 68,
+      "profile": "standard release --locked -j 1; core/host/ledger/desktop verification feature",
+      "log": "P07-03-price-editor-rust.log"
+    },
+    "differential": {
+      "passed": 584,
+      "golden_unchanged": 53,
+      "original_cases": 561,
+      "new_price_cases": 23,
+      "categories": {
+        "golden": 53,
+        "price_modes": 20,
+        "price_mode_config": 3,
+        "rational_corpus": 200,
+        "numbers": 114,
+        "empty_k": 3,
+        "percent": 18,
+        "core_limits": 3,
+        "core_edges": 7,
+        "json_integer_precision": 1,
+        "config": 111,
+        "config_encoding": 3,
+        "config_version": 5,
+        "config_legacy": 24,
+        "config_refresh": 2,
+        "session": 17
+      },
+      "artifact": "P07-03-price-editor-comparisons.json",
+      "artifact_sha256": "523738d8aaa5699a3c7c80f39b60c3a49cf9dd39d3b6c286782967dcd837bed5"
+    },
+    "Node22": {
+      "passed": 24,
+      "log": "P07-03-price-editor-node22.log"
+    },
+    "Node24": {
+      "passed": 24,
+      "log": "P07-03-price-editor-node24.log"
+    },
+    "Python": {
+      "passed": 136,
+      "log": "P07-03-price-editor-python.log"
+    },
+    "runner": {
+      "run": 29,
+      "passed": 27,
+      "Windows_only_skipped": 2,
+      "log": "P07-03-price-editor-runner.log"
+    },
+    "browser": {
+      "stats": {
+        "startTime": "2026-10-15T12:39:00.527Z",
+        "duration": 37198.051999999996,
+        "expected": 26,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "log": "P07-03-price-editor-browser.log",
+      "new_tests": "real Rust price automatic/manual/persistence/invalid auto input; both roles direct add/switch/no stale calc; text-alignment deltas <=2px and field containment",
+      "scope": "12 real Rust workbench cases plus 11 explicit presentation stand-ins and 3 completion DOM checks, auxiliary Chromium; no actual Windows WebView2"
+    },
+    "real_HTTPS": {
+      "passed": 16,
+      "report": "P07-03-price-editor-protocol.json",
+      "new_coverage": "exact native preview, forged auto sale recomputed, manual no second K, frozen legacy orders, restart, independent Python ledger/SQLite backup-restore, sales redaction/rejection",
+      "sandbox_cleaned": true
+    },
+    "strict_clippy": "workspace all targets -D warnings passed",
+    "frontend_build": "strict fonts / tsc / Vite passed",
+    "fmt_git_diff": "passed",
+    "visual": "price manual/auto right grouping and table containment; manager/sales quote screenshots at1440/1364, column alignment deltas <=2px; long-row keyboard focus"
+  },
+  "environment": {
+    "os": "Linux",
+    "rust": "1.97.1",
+    "Node22": "22.23.3",
+    "Node24": "24.19.0"
+  },
+  "production_paths_accessed": false,
+  "Windows_native_acceptance": "pending_new_CI",
+  "user_visual_acceptance": "pending",
+  "P07_03": "open",
+  "P07_04_and_P08": "not_started"
+}

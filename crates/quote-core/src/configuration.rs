@@ -506,7 +506,16 @@ fn parse_checked(
                     .collect()
             };
             for (k, _) in &object {
-                if !["name", "sale", "cost", "k", "single", "qty_only"].contains(&k.value.as_str())
+                if ![
+                    "name",
+                    "sale",
+                    "cost",
+                    "k",
+                    "single",
+                    "qty_only",
+                    "pricing_mode",
+                ]
+                .contains(&k.value.as_str())
                 {
                     issues.push(Issue::validation(
                         Fault::new("CONFIG_UNKNOWN_FIELD", &format!("{base}.{}", k.value)),
@@ -541,13 +550,40 @@ fn parse_checked(
             } else {
                 policies.contains(&name)
             };
-            Ok(PriceItem {
+            let pricing_mode = if let Some(raw) = get(&object, "pricing_mode") {
+                let mode = text(Some(raw), &format!("{base}.pricing_mode"), 32)?;
+                Some(match mode.as_str() {
+                    "manual" => crate::models::PricingMode::Manual,
+                    "cost_plus" => crate::models::PricingMode::CostPlus,
+                    _ => {
+                        return Err(Fault::new(
+                            "PRICING_MODE_INVALID",
+                            &format!("{base}.pricing_mode"),
+                        ))
+                    }
+                })
+            } else {
+                None
+            };
+            let mut item = PriceItem {
                 product_id: json!(name),
-                sale: json!(price(get(&object, "sale"), &format!("{base}.sale"), false)?),
+                sale: if pricing_mode == Some(crate::models::PricingMode::CostPlus) {
+                    json!("")
+                } else {
+                    json!(price(get(&object, "sale"), &format!("{base}.sale"), false)?)
+                },
                 cost: json!(price(get(&object, "cost"), &format!("{base}.cost"), false)?),
                 k: json!(price(get(&object, "k"), &format!("{base}.k"), true)?),
                 single: json!(single),
-            })
+                pricing_mode,
+            };
+            if item.pricing_mode.is_some() {
+                let sale = crate::pricing::unit_sale(&item)?;
+                if item.pricing_mode == Some(crate::models::PricingMode::CostPlus) {
+                    item.sale = json!(sale.text());
+                }
+            }
+            Ok(item)
         };
         match item() {
             Ok(item) => items.push(item),

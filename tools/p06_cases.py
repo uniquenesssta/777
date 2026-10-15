@@ -1,4 +1,5 @@
 """Shared P06 shadow inputs and Python reference projection, never copied golden values."""
+from quote_core.models import price_wire
 from dataclasses import asdict
 from pathlib import Path
 import json
@@ -30,12 +31,12 @@ def quote_wire(q):
         lines=list(map(line_wire, q.lines)), rule_version=q.rule_version, numeric_profile=q.numeric_profile)
 
 def prices_wire(p):
-    return None if p is None else asdict(p) | {'items': [asdict(i) for i in p.items]}
+    return None if p is None else asdict(p) | {'items': [price_wire(i) for i in p.items]}
 
 def result_wire(r):
     return dict(status=r.status, rule_version=r.rule_version, numeric_profile=r.numeric_profile,
         price_version_id=r.price_version_id, lines=None if r.lines is None else [dict(
-            sequence=l.sequence, raw=line_wire(l.raw), price=None if l.price is None else asdict(l.price),
+            sequence=l.sequence, raw=line_wire(l.raw), price=None if l.price is None else price_wire(l.price),
             normalized=[list(p) for p in l.normalized], amounts=l.amounts.cents_payload(),
             display=l.amounts.display(), subtotal_before_cents=str(l.subtotal_before_cents)) for l in r.lines],
         totals=None if r.totals is None else r.totals.cents_payload(), display=r.display(),
@@ -146,6 +147,14 @@ def cases():
         p = c['price_snapshot']; cmd = dict(op='calculate', snapshot=dict(price_version_id=p['price_version_id'], lines=c['input'], rule_version=c['rule_version'], numeric_profile='numeric-v1'), prices=dict(price_version_id=p['price_version_id'], items=[dict(product_id=k, **v) for k,v in p['items'].items()]))
         assert reference(cmd)['display'] == c['expected'], c['id']
         yield 'golden', c['id'], cmd
+    for mode in ['manual','cost_plus']:
+        for single in [False,True]:
+            for quantity,cost,k in [('1','11.5','2'),('3','0.335','3'),('1','0','2'),('1','11.5','0'),('1','11.5','')]:
+                p=catalog(sale='20',cost=cost,k=k,single=single)
+                p['items'][0]['pricing_mode']=mode
+                yield 'price_modes',f'{mode}-{single}-{quantity}-{cost}-{k}',dict(op='calculate',snapshot=snapshot(normal(quantity,'2','3')),prices=p)
+    for mode in ['manual','cost_plus','unknown']:
+        yield 'price_mode_config',mode,dict(op='config',source=document(item(pricing_mode=mode,k='2')),price_version_id='v1')
     rng = random.Random(777)
     import p01_oracle as oracle
     for i in range(200):

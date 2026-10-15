@@ -91,9 +91,17 @@ fn calculate_checked(
                     base = h.mul(&w).checked()?.mul(&base).checked()?;
                     normalized.extend([("h".into(), h.text()), ("w".into(), w.text())]);
                 }
-                let sale = parse_number(&price.sale, "sale", false)?;
+                let sale = if price.pricing_mode.is_some() {
+                    crate::pricing::unit_sale(price)?
+                } else {
+                    parse_number(&price.sale, "sale", false)?
+                };
                 let expense = parse_number(&price.cost, "cost", false)?;
-                let k = parse_number(&price.k, "k", true)?;
+                let k = if price.pricing_mode.is_some() {
+                    Decimal::integer(1)
+                } else {
+                    parse_number(&price.k, "k", true)?
+                };
                 let amount = Amounts::new(
                     base.mul(&sale).checked()?.mul(&k).checked()?.settle()?,
                     base.mul(&expense).checked()?.settle()?,

@@ -168,7 +168,16 @@ pub fn prices(v: &Value) -> Result<Prices> {
         return fail(422, "INVALID_PRICES");
     }
     for i in a {
-        fields(i, &["product_id", "sale", "cost", "k", "single"], &[])?;
+        fields(
+            i,
+            &["product_id", "sale", "cost", "k", "single"],
+            &["pricing_mode"],
+        )?;
+        if i.get("pricing_mode")
+            .is_some_and(|v| !matches!(v.as_str(), Some("manual" | "cost_plus")))
+        {
+            return fail(422, "INVALID_PRICES");
+        }
         if !i["single"].is_boolean() {
             return fail(422, "INVALID_PRICES");
         }
@@ -217,16 +226,28 @@ pub fn normalized(v: &mut Value, a: &Actor) {
         }
     }
 }
-pub fn catalog(p: Prices, a: &Actor) -> Value {
-    let mut v = serde_json::to_value(p).unwrap();
-    if a.role != "admin" {
-        for i in v["items"].as_array_mut().unwrap() {
-            i.as_object_mut().unwrap().remove("cost");
+pub fn catalog(p: Prices, a: &Actor) -> Result<Value> {
+    let mut v = serde_json::to_value(&p).unwrap();
+    for (item, source) in v["items"].as_array_mut().unwrap().iter_mut().zip(&p.items) {
+        let unit = quote_core::pricing::unit_sale(source)
+            .map_err(|_| Error::new(422, "INVALID_PRICES"))?
+            .text();
+        item["unit_sale"] = json!(unit);
+        if a.role != "admin" {
+            item.as_object_mut().unwrap().remove("cost");
+            item.as_object_mut().unwrap().remove("pricing_mode");
+            if source.pricing_mode.is_some() {
+                item["sale"] = item["unit_sale"].clone();
+                item["k"] = json!("1");
+            }
         }
+    }
+    if a.role == "admin" {
+        v["pricing_mode_version"] = json!("final-unit-v1");
     }
     v["rule_version"] = json!(RULE_VERSION);
     v["numeric_profile"] = json!(NUMERIC_PROFILE);
-    v
+    Ok(v)
 }
 pub fn calculated(r: quote_core::models::QuoteResult, a: &Actor) -> Value {
     let lines = r

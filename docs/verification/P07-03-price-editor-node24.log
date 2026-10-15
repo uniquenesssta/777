@@ -1,0 +1,37 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> quote-desktop@0.1.0 test
+> node --import tsx --test tests/*.test.ts
+
+✔ late calculation cannot restore authority after any input or price change (1.172512ms)
+✔ revision and display cents never pass through JS floating point (0.398569ms)
+✔ only raw draft fields restore, never a claimed result or stored role (0.372981ms)
+✔ confirmed original order clears only its own raw draft and preserves edits during submit (9.810477ms)
+✔ pinned font download is atomic, cached and usable without network (19.857404ms)
+✔ wrong download and corrupted cache never become accepted font assets (13.223071ms)
+✔ ordinary font preparation keeps its Chinese CLI progress (70.85153ms)
+✔ development preparation reports missing fonts without making network requests (1.37423ms)
+✔ offline development still rejects corrupted cached font bytes (1.878857ms)
+✔ explicit font preparation cancellation rejects promptly and leaves no partial file (3.062696ms)
+✔ actual pinned Tauri CLI reproduces the previous manifest rewrite (2209.782069ms)
+✔ tracked manifest stays unchanged through actual Tauri dev/build for LF and CRLF (332.25902ms)
+✔ native readiness preserves the underlying CDP error and attempt diagnostics (22.518637ms)
+✔ native readiness succeeds after transient refusal and bounds each connect attempt (0.917866ms)
+✔ a failed connection checkpoint closes the attached browser and does not retry (0.335926ms)
+✔ actual Windows Tauri production origins accept embedded-page paths (2.45648ms)
+✔ Vite, browser error pages and lookalike hosts fail before waiting for login (1.500096ms)
+✔ shortcuts span exactly one day, week, month or year from the same current instant (1.9349ms)
+✔ calendar subtraction clamps month ends and leap anniversaries while keeping the clock (0.17582ms)
+✔ business clock uses UTC+08 across midnight rather than the device timezone (0.120328ms)
+✔ datetime picker minute and abbreviated subsecond values keep a canonical exact boundary (0.33851ms)
+✔ chart coordinates support losses and huge exact cents without converting money to Number (0.331559ms)
+✔ profit pie keeps losses explicit and computes exact shares for huge cents and zero buckets (3.201661ms)
+✔ candle domain includes intra-period high and low rather than only closing totals (3.016728ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2841.990047

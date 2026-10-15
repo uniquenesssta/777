@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import type { Price } from "../contracts";
 import type { Workbench } from "../state/useWorkbench";
 import { stamp } from "../state/format";
 import {
@@ -8,123 +7,7 @@ import {
   Empty,
   Field,
   Input,
-  Modal,
 } from "../ui/components";
-export function PricesPage({ app }: { app: Workbench }) {
-  const [items, setItems] = useState<Price[]>(app.catalog?.items ?? []);
-  const [confirm, setConfirm] = useState(false);
-  useEffect(() => setItems(app.catalog?.items ?? []), [app.catalog]);
-  const edit = (i: number, key: keyof Price, value: string | boolean) =>
-    setItems((old) =>
-      old.map((p, j) => (i === j ? { ...p, [key]: value } : p)),
-    );
-  return (
-    <section className="card management">
-      <div className="section-heading">
-        <h2>价格维护</h2>
-        <Button
-          variant="ghost"
-          disabled={app.busy}
-          onClick={() => void app.refreshPrices()}
-        >
-          重新读取
-        </Button>
-      </div>
-      <p className="muted">发布后新报价使用新版本，已保存订单保持原价。</p>
-      <div className="orders-table-scroll">
-        <table className="prices-table">
-          <thead>
-            <tr>
-              <th>商品</th>
-              <th>销售单价</th>
-              <th>成本单价</th>
-              <th>K</th>
-              <th>计价方式</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((p, i) => (
-              <tr key={i}>
-                {(["product_id", "sale", "cost", "k"] as const).map((k) => (
-                  <td key={k}>
-                    <Input
-                      aria-label={`商品${i + 1}${k}`}
-                      value={p[k] ?? ""}
-                      maxLength={256}
-                      onChange={(e) => edit(i, k, e.target.value)}
-                    />
-                  </td>
-                ))}
-                <td>
-                  <select
-                    aria-label={`商品${i + 1}计价方式`}
-                    value={p.single ? "single" : "area"}
-                    onChange={(e) =>
-                      edit(i, "single", e.target.value === "single")
-                    }
-                  >
-                    <option value="area">面积</option>
-                    <option value="single">单件</option>
-                  </select>
-                </td>
-                <td>
-                  <Button
-                    variant="ghost"
-                    onClick={() => setItems((v) => v.filter((_, j) => j !== i))}
-                  >
-                    移除
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="add-actions">
-        <Button
-          variant="outline"
-          onClick={() =>
-            setItems((v) => [
-              ...v,
-              { product_id: "", sale: "", cost: "", k: "", single: false },
-            ])
-          }
-          disabled={items.length >= 1000}
-        >
-          ＋ 添加商品
-        </Button>
-        <Button
-          disabled={app.busy || app.pending || !items.length}
-          onClick={() => setConfirm(true)}
-        >
-          发布新版本
-        </Button>
-      </div>
-      <Modal
-        open={confirm}
-        onOpenChange={setConfirm}
-        title="发布新价格"
-        description="确认商品、销售价格、成本与计价方式。已有草稿需要刷新并重算。"
-      >
-        <div className="dialog-actions">
-          <Button variant="outline" onClick={() => setConfirm(false)}>
-            返回修改
-          </Button>
-          <Button
-            disabled={app.busy || app.pending}
-            onClick={async () => {
-              setConfirm(false);
-              await app.publish(items);
-            }}
-          >
-            确认发布
-          </Button>
-        </div>
-      </Modal>
-    </section>
-  );
-}
 export function TasksPage({ app }: { app: Workbench }) {
   useEffect(() => {
     if (

@@ -95,8 +95,7 @@ async function add(
   product = "安装服务",
 ) {
   await page.getByRole("button", { name: "添加商品", exact: false }).click();
-  await page.getByLabel("商品", { exact: true }).selectOption(product);
-  await page.getByRole("button", { name: "添加", exact: true }).click();
+  await page.getByLabel("第1行商品", { exact: true }).selectOption(product);
 }
 test("real Rust quote, compact confirmation, append note, void/restore and full pagination", async ({
   page,
@@ -270,6 +269,7 @@ test("current Figma quote geometry and all original assets load at their exporte
   await page.screenshot({ path: "test-results/manager-confirm.png" });
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "核对并提交订单", exact: true })).toBeFocused();
 });
 
 test("manager price publication, readonly inherited directories and real output task progress", async ({
@@ -364,3 +364,106 @@ test("development keeps an explicit connection editor without exposing it as for
     page.getByRole("button", { name: "登录", exact: true }),
   ).toBeVisible();
 });
+
+test("price editor keeps final manual sale separate from cost markup and persists automatic mode", async ({ page }, info) => {
+  await login(page);
+  await page.getByRole("button", { name: "价格维护", exact: true }).click();
+  await page.getByLabel("商品1product_id", { exact: true }).fill("KT板");
+  await page.getByLabel("商品1cost", { exact: true }).fill("11.5");
+  await page.getByLabel("商品1k", { exact: true }).fill("2");
+  const automatic = page.getByLabel("商品1按成本乘K定价", { exact: true });
+  const sale = page.getByLabel("商品1sale", { exact: true });
+  await automatic.check();
+  await expect(sale).toHaveValue("23");
+  await expect(sale).toHaveAttribute("readonly", "");
+  await page.getByLabel("商品1cost", { exact: true }).fill("0.335");
+  await page.getByLabel("商品1k", { exact: true }).fill("3");
+  await expect(sale).toHaveValue("1.005");
+  await page.getByLabel("商品1cost", { exact: true }).fill("bad");
+  await expect(page.getByText("请检查成本单价与K。", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "发布新版本", exact: true })).toBeDisabled();
+  await page.getByLabel("商品1cost", { exact: true }).fill("11.5");
+  await page.getByLabel("商品1k", { exact: true }).fill("2");
+  await expect(sale).toHaveValue("23");
+  const withinCells = await page.locator(".price-editor td .input, .price-editor td select").evaluateAll(elements => elements.every(e => {
+    const box=e.getBoundingClientRect(), cell=e.closest("td")!.getBoundingClientRect();
+    return box.left>=cell.left && box.right<=cell.right;
+  }));
+  expect(withinCells).toBe(true);
+  await page.screenshot({ path: info.outputPath("prices-auto-right.png"), fullPage: true });
+  const publish = async () => {
+    await page.getByRole("button", { name: "发布新版本", exact: true }).click();
+    await page.getByRole("button", { name: "确认发布", exact: true }).click();
+    await expect(page.getByRole("button", { name: "发布新版本", exact: true })).toBeEnabled();
+  };
+  await publish();
+  await page.getByRole("button", { name: "重新读取", exact: true }).click();
+  await expect(automatic).toBeChecked();
+  await expect(sale).toHaveValue("23");
+  await automatic.uncheck();
+  await expect(sale).toBeEditable();
+  await expect(sale).toHaveValue("23");
+  await sale.fill("20");
+  await page.getByLabel("商品1k", { exact: true }).fill("3");
+  await expect(sale).toHaveValue("20");
+  await publish();
+  await page.getByRole("button", { name: "重新读取", exact: true }).click();
+  await expect(automatic).not.toBeChecked();
+  await expect(sale).toHaveValue("20");
+  await page.screenshot({ path: info.outputPath("prices-manual-right.png"), fullPage: true });
+  await page.getByRole("button", { name: "报价工作台", exact: true }).click();
+  await add(page, "KT板");
+  await page.getByLabel("第1行高", { exact: true }).fill("1");
+  await page.getByLabel("第1行宽", { exact: true }).fill("1");
+  await page.getByRole("button", { name: "计算报价", exact: true }).click();
+  await expect(page.locator(".amount strong")).toHaveText("20.00");
+  await expect(page.locator(".finance-cost b")).toHaveText("11.50");
+  await expect(page.locator(".profit-pair strong").first()).toHaveText("8.50");
+});
+
+for (const username of ["manager", "sales-one"]) {
+  test(`${username} direct add, inline product changes and shared column alignment`, async ({ page }, info) => {
+    await login(page, username);
+    await page.getByLabel("客户 / 淘宝 ID", { exact: true }).fill("保持客户");
+    await page.getByRole("button", { name: "添加商品", exact: false }).click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    const product = page.getByLabel("第1行商品", { exact: true });
+    await expect(product).toHaveValue("户外写真");
+    await page.getByLabel("第1行高", { exact: true }).fill("2");
+    await page.getByLabel("第1行宽", { exact: true }).fill("3");
+    await page.getByLabel("第1行数量", { exact: true }).fill("4");
+    await page.getByRole("button", { name: "计算报价", exact: true }).click();
+    await expect(page.locator(".amount strong")).toHaveText("480.00");
+    await product.selectOption("安装服务");
+    await expect(page.getByLabel("第1行高", { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "核对并提交订单", exact: true })).toHaveCount(0);
+    await page.getByRole("button", { name: "计算报价", exact: true }).click();
+    await expect(page.locator(".amount strong")).toHaveText("400.00");
+    await product.selectOption("PVC 硬板");
+    await expect(page.getByLabel("第1行高", { exact: true })).toHaveValue("2");
+    await expect(page.getByLabel("第1行宽", { exact: true })).toHaveValue("3");
+    await expect(page.getByLabel("第1行数量", { exact: true })).toHaveValue("4");
+    await expect(page.getByLabel("客户 / 淘宝 ID", { exact: true })).toHaveValue("保持客户");
+    for (const width of [1440, 1364]) {
+      await page.setViewportSize({ width, height: 974 });
+      const errors = await page.evaluate(() => {
+        const header = document.querySelector(".table-head")!;
+        const row = document.querySelector(".quote-row:not(.table-head)")!;
+        const head = (index: number) => header.children[index] as HTMLElement;
+        const right = (e: HTMLElement) => e.getBoundingClientRect().right - parseFloat(getComputedStyle(e).paddingRight) - parseFloat(getComputedStyle(e).borderRightWidth);
+        const center = (e: Element) => { const b = e.getBoundingClientRect(); return b.x + b.width / 2; };
+        return [
+          Math.abs(head(1).getBoundingClientRect().left + 8 - row.querySelector("select")!.getBoundingClientRect().left),
+          Math.abs(center(head(2)) - center(row.querySelector(".dimensions")!)),
+          Math.abs(right(head(3)) - right(row.querySelector(".quantity")!)),
+          Math.abs(right(head(4)) - right(row.querySelector(".cell-value")!)),
+          Math.abs(center(head(5)) - center(row.querySelector(".k-value")!)),
+          Math.abs(right(head(6)) - right(row.querySelector(".line-amount")!)),
+        ];
+      });
+      expect(errors.every(error => error <= 2)).toBe(true);
+      expect(await page.locator(".line-scroll").evaluate(e => e.scrollWidth <= e.clientWidth + 1)).toBe(true);
+      await page.screenshot({ path: info.outputPath(`quote-columns-${width}.png`), fullPage: true });
+    }
+  });
+}

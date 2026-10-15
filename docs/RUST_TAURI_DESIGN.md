@@ -150,3 +150,5 @@ Noto Sans SC/Inter由构建脚本按固定提交/长度/SHA256准备，原OFL随
 ## P07-03业务界面补充
 
 利润分析从订单列表中独立为 `ProfitPage`，由宿主新增只读管理员 `/v1/analytics` 提供带账本revision的业务日历汇总，复用查询增量缓存/已保存整分金额；UI仅排版与绘图。Windows主窗口增加typed文件夹选择，直接复用锁定windows 0.62.2 COM/Shell接口，选中后仍由原发布设置API作权威路径/revision校验；无新增通用文件权限、图表库或网络UI依赖。角色、字段和共享目录边界见[补充契约](verification/P07-03-business-ui-contract.md)。
+
+P07-03独立售价实现：价格项可选pricing_mode显式区分手填最终价、成本×K与缺失时的旧算法；精确unit_sale和原生只读预览复用quote-core/pricing，服务再次重算并冻结，Python独立账本核对同步。管理员保留成本倍率，销售仅获最终价/因子1；无新网络、文件能力或数据库schema迁移。新旧宿主兼容/降级限制见[业务契约](verification/P07-03-business-ui-contract.md)。

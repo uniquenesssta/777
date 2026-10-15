@@ -1,6 +1,6 @@
 """Immutable inputs/results; settled amounts are integer cents, not UI text."""
 
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from .numbers import MONEY_LIMIT, NUMERIC_PROFILE, RULE_VERSION, ValidationError, money_text, rounded_ratio
 
 
@@ -42,9 +42,17 @@ class PriceItem:
     cost: str
     k: str = ""
     single: bool = False
+    pricing_mode: str | None = None
 
     def __post_init__(self):
-        _immutable_scalars(self, ("product_id", "sale", "cost", "k", "single"))
+        _immutable_scalars(self, ("product_id", "sale", "cost", "k", "single", "pricing_mode"))
+
+
+def price_wire(price):
+    value = asdict(price)
+    if price.pricing_mode is None:
+        value.pop("pricing_mode")
+    return value
 
 
 @dataclass(frozen=True, slots=True)

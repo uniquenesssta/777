@@ -1,0 +1,45 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> quote-desktop@0.1.0 test:ui
+> playwright test
+
+[WebServer] (node:102) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:115) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:128) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 26 tests using 1 worker
+
+(node:156) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/native-autostart.spec.ts:22:3 › manager native completion uses submitted DetailPage controls and records success last (203ms)
+  ✓   2 tests/ui/native-autostart.spec.ts:22:3 › sales native completion uses submitted DetailPage controls and records success last (133ms)
+  ✓   3 tests/ui/native-autostart.spec.ts:34:1 › busy or disabled submitted workspace cannot publish a passing checkpoint (534ms)
+  ✓   4 tests/ui/presentation.spec.ts:227:3 › manager local fonts, original icons and compact layout at four emulated scales (1.0s)
+  ✓   5 tests/ui/presentation.spec.ts:254:3 › manager failed automatic entry retries without technical/login controls (445ms)
+  ✓   6 tests/ui/presentation.spec.ts:227:3 › sales local fonts, original icons and compact layout at four emulated scales (911ms)
+  ✓   7 tests/ui/presentation.spec.ts:254:3 › sales failed automatic entry retries without technical/login controls (465ms)
+  ✓   8 tests/ui/presentation.spec.ts:270:1 › keyboard dialog returns focus and fonts fall back without a banner (372ms)
+  ✓   9 tests/ui/presentation.spec.ts:288:1 › manager directory selection is a draft until published and cancellation preserves the path (592ms)
+  ✓  10 tests/ui/presentation.spec.ts:336:1 › sales inherits readonly directories and sees only its export explanation (434ms)
+  ✓  11 tests/ui/presentation.spec.ts:355:1 › profit shows aggregate bars rather than orders and switches calendar periods (1.1s)
+  ✓  12 tests/ui/presentation.spec.ts:466:1 › four chart types share one snapshot and remain readable at wide and narrow widths (1.8s)
+  ✓  13 tests/ui/presentation.spec.ts:550:1 › old service never fabricates candlesticks from aggregate totals (528ms)
+  ✓  14 tests/ui/presentation.spec.ts:570:1 › zero-profit orders keep empty pie and flat candles finite (517ms)
+  ✓  15 tests/ui/workbench.spec.ts:52:1 › profit charts use the full real ledger across order pages (1.7s)
+  ✓  16 tests/ui/workbench.spec.ts:100:1 › real Rust quote, compact confirmation, append note, void/restore and full pagination (2.4s)
+  ✓  17 tests/ui/workbench.spec.ts:142:1 › input edit invalidates result and late calculation cannot reenable submit (1.8s)
+  ✓  18 tests/ui/workbench.spec.ts:162:1 › sales DTO and pages contain no cost/profit and settings inherit (1.9s)
+  ✓  19 tests/ui/workbench.spec.ts:194:1 › unknown commit requires original receipt check and restart never double books (2.0s)
+  ✓  20 tests/ui/workbench.spec.ts:214:1 › current Figma quote geometry and all original assets load at their exported sizes (1.9s)
+  ✓  21 tests/ui/workbench.spec.ts:275:1 › manager price publication, readonly inherited directories and real output task progress (3.9s)
+  ✓  22 tests/ui/workbench.spec.ts:304:1 › confirmed write with failed detail refresh clears the original draft and never offers a duplicate submit (2.1s)
+  ✓  23 tests/ui/workbench.spec.ts:356:1 › development keeps an explicit connection editor without exposing it as formal authentication (1.7s)
+  ✓  24 tests/ui/workbench.spec.ts:368:1 › price editor keeps final manual sale separate from cost markup and persists automatic mode (3.1s)
+  ✓  25 tests/ui/workbench.spec.ts:425:3 › manager direct add, inline product changes and shared column alignment (1.8s)
+  ✓  26 tests/ui/workbench.spec.ts:425:3 › sales-one direct add, inline product changes and shared column alignment (2.0s)
+
+  26 passed (37.2s)

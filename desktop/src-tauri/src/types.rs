@@ -33,6 +33,10 @@ pub enum Action {
     },
     Disconnect {},
     Prices {},
+    PricePreview {
+        cost: String,
+        k: String,
+    },
     Calculate {
         snapshot: Value,
         draft_revision: String,

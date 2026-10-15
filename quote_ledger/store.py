@@ -4,6 +4,7 @@ This module is not a network authentication boundary and is not wired to the
 legacy clients. Every write recomputes through the existing quotation core.
 """
 from contextlib import contextmanager
+from quote_core.models import price_wire
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 import hashlib
@@ -147,10 +148,13 @@ class Ledger:
         if type(prices) is not PriceSnapshot:raise LedgerError('需要PriceSnapshot')
         text(prices.price_version_id,required=True)
         if expected_price_version_id is not None:text(expected_price_version_id,required=True)
-        payload = {'items':[{'name':p.product_id,'sale':p.sale,'cost':p.cost,'k':p.k,'single':p.single} for p in prices.items]}
+        payload = {'items':[{**{k:v for k,v in price_wire(p).items() if k!='product_id'},'name':p.product_id} for p in prices.items]}
         canonical = encoded(payload)
         parsed = parse_price_config(canonical,price_version_id=prices.price_version_id)
         if parsed.status != 'ok':raise LedgerError('整份价格校验失败：'+','.join(i.reason for i in parsed.issues))
+        for item,p in zip(payload['items'],parsed.config.prices.items):
+            if p.pricing_mode=='cost_plus':item['sale']=p.sale
+        canonical=encoded(payload)
         def action(c,revision):
             if verify(c)['active_price_id']!=expected_price_version_id:raise Conflict('当前发布价格已改变；请重新读取并确认')
             if c.execute('SELECT 1 FROM price_versions WHERE price_id=?',(prices.price_version_id,)).fetchone():raise Conflict('价格版本已存在且不可变')
@@ -177,7 +181,7 @@ class Ledger:
                 (order_id,actor.subject,snapshot.price_version_id,RULE_VERSION,NUMERIC_PROFILE,encoded(asdict(snapshot)),encoded(asdict(details)),totals.income_cents,totals.cost_cents,totals.profit_cents,'active',1,now(),request_id))
             for line in result.lines:
                 c.execute('INSERT INTO lines VALUES(?,?,?,?,?,?,?,?,?,?,?)',
-                    (str(uuid.uuid4()),order_id,line.sequence,line.raw.line_kind,encoded(asdict(line.raw)),encoded(dict(line.normalized)),encoded(asdict(line.price)) if line.price else None,line.amounts.income_cents,line.amounts.cost_cents,line.amounts.profit_cents,line.subtotal_before_cents))
+                    (str(uuid.uuid4()),order_id,line.sequence,line.raw.line_kind,encoded(asdict(line.raw)),encoded(dict(line.normalized)),encoded(price_wire(line.price)) if line.price else None,line.amounts.income_cents,line.amounts.cost_cents,line.amounts.profit_cents,line.subtotal_before_cents))
                 if self.fault:self.fault('line_inserted',c)
             return {'order_id':order_id,'revision':1,**totals.cents_payload()},order_id,None
         return self._write(request_id,actor,'submit_order',payload,action)
@@ -254,7 +258,7 @@ def inventory(c):
             amounts=calculated.totals
             if (order['income_cents'],order['cost_cents'],order['profit_cents'])!=(amounts.income_cents,amounts.cost_cents,amounts.profit_cents):raise ValueError('订单金额不一致')
             for saved,line in zip(rows,calculated.lines):
-                expected=(line.sequence,line.raw.line_kind,encoded(asdict(line.raw)),encoded(dict(line.normalized)),encoded(asdict(line.price)) if line.price else None,line.amounts.income_cents,line.amounts.cost_cents,line.amounts.profit_cents,line.subtotal_before_cents)
+                expected=(line.sequence,line.raw.line_kind,encoded(asdict(line.raw)),encoded(dict(line.normalized)),encoded(price_wire(line.price)) if line.price else None,line.amounts.income_cents,line.amounts.cost_cents,line.amounts.profit_cents,line.subtotal_before_cents)
                 actual=tuple(saved[k] for k in ('sequence','kind','raw_json','normalized_json','price_json','income_cents','cost_cents','profit_cents','subtotal_before_cents'))
                 if actual!=expected:raise ValueError('明细快照不一致')
             if order['state']=='active':totals=[a+b for a,b in zip(totals,(amounts.income_cents,amounts.cost_cents,amounts.profit_cents))]

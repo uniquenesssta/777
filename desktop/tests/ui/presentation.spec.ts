@@ -67,6 +67,7 @@ async function bootstrap(
               case "prices":
                 return {
                   price_version_id: "presentation-v1",
+                  pricing_mode_version: "final-unit-v1",
                   items: [
                     {
                       product_id: "单件",
@@ -279,10 +280,9 @@ test("keyboard dialog returns focus and fonts fall back without a banner", async
   const add = page.getByRole("button", { name: "添加商品", exact: false });
   await add.focus();
   await add.press("Enter");
-  await expect(page.getByRole("dialog")).toBeVisible();
-  await page.keyboard.press("Escape");
+  await expect(page.getByLabel("第31行商品", { exact: true })).toHaveValue("单件");
+  await expect(page.getByLabel("第31行商品", { exact: true })).toBeFocused();
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(add).toBeFocused();
 });
 
 test("manager directory selection is a draft until published and cancellation preserves the path", async ({

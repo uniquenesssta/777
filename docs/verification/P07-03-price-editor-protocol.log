@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "checks": [
+    "certificate_pin_rejected_before_request",
+    "real_Rust_HTTPS_login_no_token_crosses_IPC",
+    "exact_cents_revision_and_frozen_draft_submission",
+    "append_only_note_void_restore_original_amount_and_revision",
+    "full_20_row_pagination_and_view_binding",
+    "authoritative_calendar_analytics_over_all_pages_through_native_HTTPS",
+    "exact_rolling_24_hours_reaches_service_and_future_interval_is_empty",
+    "authoritative_profit_OHLC_survives_native_IPC_and_HTTPS_with_empty_bucket_continuity",
+    "native_output_task_does_not_rebook_financial_order",
+    "sales_DTO_other_actor_and_management_commands_restricted",
+    "sales_native_analytics_and_directory_dialog_denied",
+    "service_independently_denies_sales_analytics_over_real_HTTPS",
+    "native_host_and_desktop_restart_original_receipt_identity_and_no_duplicate",
+    "money_above_JavaScript_integer_limit_remains_exact_string",
+    "server_price_change_refuses_stale_confirmation_without_booking",
+    "manual_cost_plus_final_prices_exact_preview_canonical_backup_restore_restart_frozen_orders_and_sales_redaction"
+  ],
+  "actual_transport": "Rust desktop IPC dispatcher -> Rustls pinned HTTPS -> standalone Rust host",
+  "production_paths_accessed": false,
+  "Windows_DPAPI": false,
+  "scope": "owned temporary profile, synthetic accounts/prices/orders, no installed service or real data",
+  "sandbox_cleaned": true
+}

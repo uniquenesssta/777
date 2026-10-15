@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Line, Money, Order, RawLine } from "../contracts";
 import type { Workbench } from "../state/useWorkbench";
 import { snapshot } from "../state/draft";
@@ -75,9 +75,17 @@ export function Summary({
 export function QuotePage({ app }: { app: Workbench }) {
   const [confirm, setConfirm] = useState(false);
   const [confirmRevision, setConfirmRevision] = useState("");
-  const [adding, setAdding] = useState(false);
-  const [product, setProduct] = useState("");
   const { draft, catalog, dispatch } = app;
+  const addedLine = useRef<string | null>(null);
+  useEffect(() => {
+    const id = addedLine.current;
+    if (!id) return;
+    const row = document.getElementById(`quote-line-${id}`);
+    if (!row) return;
+    addedLine.current = null;
+    row.scrollIntoView({ block: "nearest", inline: "nearest" });
+    row.querySelector<HTMLSelectElement>("select")?.focus({ preventScroll: true });
+  }, [draft.lines]);
   const result = draft.calculation;
   const valid =
     result?.status === "ok" &&
@@ -98,14 +106,16 @@ export function QuotePage({ app }: { app: Workbench }) {
   const remove = (id: string) =>
     dispatch({ type: "edit", lines: draft.lines.filter((l) => l.id !== id) });
   const add = () => {
-    const item = catalog?.items.find((p) => p.product_id === product);
+    const item = catalog?.items[0];
     if (!item) return;
+    const id = crypto.randomUUID();
+    addedLine.current = id;
     dispatch({
       type: "edit",
       lines: [
         ...draft.lines,
         {
-          id: crypto.randomUUID(),
+          id,
           raw: {
             line_kind: "normal",
             product_id: item.product_id,
@@ -117,7 +127,6 @@ export function QuotePage({ app }: { app: Workbench }) {
         },
       ],
     });
-    setAdding(false);
   };
   return (
     <>
@@ -169,11 +178,11 @@ export function QuotePage({ app }: { app: Workbench }) {
               <div className="quote-row table-head">
                 <span />
                 <span>商品 / 计价方式</span>
-                <span>高 × 宽（m）</span>
-                <span>数量</span>
-                <span>单价（¥）</span>
-                <span>K</span>
-                <span className="right">金额（¥）</span>
+                <span className="head-dimensions">高 × 宽（m）</span>
+                <span className="head-number">数量</span>
+                <span className="head-number">销售单价（¥）</span>
+                <span className="head-k">K</span>
+                <span className="head-amount">金额（¥）</span>
                 <span />
               </div>
               {draft.lines.map((l, index) => {
@@ -207,12 +216,15 @@ export function QuotePage({ app }: { app: Workbench }) {
                   (p) => p.product_id === raw.product_id,
                 );
                 return (
-                  <div className="quote-row" key={l.id}>
+                  <div className="quote-row" key={l.id} id={`quote-line-${l.id}`}>
                     <small className="row-number">
                       {String(index + 1).padStart(2, "0")}
                     </small>
                     <div className="product-cell">
-                      <b>{raw.product_id}</b>
+                      <select className="product-select" aria-label={`第${index + 1}行商品`} value={raw.product_id} onChange={e => editLine(l.id, "product_id", e.target.value)} disabled={!catalog}>
+                        {!price && <option value={raw.product_id}>{raw.product_id}（已下架）</option>}
+                        {catalog?.items.map(p => <option key={p.product_id} value={p.product_id}>{p.product_id}</option>)}
+                      </select>
                       <small>{price?.single ? "单件计价" : "面积计价"}</small>
                     </div>
                     <div className="dimensions">
@@ -246,8 +258,8 @@ export function QuotePage({ app }: { app: Workbench }) {
                       value={raw.q}
                       onChange={(e) => editLine(l.id, "q", e.target.value)}
                     />
-                    <span className="cell-value">{price?.sale ?? "—"}</span>
-                    <span className="cell-value">{price?.k || "1"}</span>
+                    <span className="cell-value">{price?.unit_sale ?? price?.sale ?? "—"}</span>
+                    <span className="cell-value k-value">{price?.pricing_mode === "manual" ? "—" : price?.k || "1"}</span>
                     <strong className="line-amount">
                       {money(calculated?.income_cents)}
                     </strong>
@@ -269,11 +281,8 @@ export function QuotePage({ app }: { app: Workbench }) {
           <div className="add-actions">
             <Button
               variant="outline"
-              onClick={() => {
-                setProduct(catalog?.items[0]?.product_id ?? "");
-                setAdding(true);
-              }}
-              disabled={!catalog || draft.lines.length >= 1000}
+              onClick={add}
+              disabled={!catalog?.items.length || draft.lines.length >= 1000}
             >
               ＋ 添加商品
             </Button>
@@ -291,7 +300,7 @@ export function QuotePage({ app }: { app: Workbench }) {
                   ],
                 })
               }
-              disabled={!catalog || draft.lines.length >= 1000}
+              disabled={!catalog?.items.length || draft.lines.length >= 1000}
             >
               ＋ 添加折扣
             </Button>
@@ -373,34 +382,7 @@ export function QuotePage({ app }: { app: Workbench }) {
           </Button>
         </div>
       </Modal>
-      <Modal
-        open={adding}
-        onOpenChange={setAdding}
-        title="添加商品"
-        description="选择已发布的商品价格。"
-      >
-        <Field label="商品">
-          <select
-            aria-label="商品"
-            value={product}
-            onChange={(e) => setProduct(e.target.value)}
-          >
-            {catalog?.items.map((p) => (
-              <option key={p.product_id} value={p.product_id}>
-                {p.product_id}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <div className="dialog-actions">
-          <Button variant="outline" onClick={() => setAdding(false)}>
-            取消
-          </Button>
-          <Button onClick={add} disabled={!product}>
-            添加
-          </Button>
-        </div>
-      </Modal>
+
     </>
   );
 }

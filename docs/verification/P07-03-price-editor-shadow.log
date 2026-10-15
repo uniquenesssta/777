@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "cases_run": 584,
+  "categories": {
+    "golden": 53,
+    "price_modes": 20,
+    "price_mode_config": 3,
+    "rational_corpus": 200,
+    "numbers": 114,
+    "empty_k": 3,
+    "percent": 18,
+    "core_limits": 3,
+    "core_edges": 7,
+    "json_integer_precision": 1,
+    "config": 111,
+    "config_encoding": 3,
+    "config_version": 5,
+    "config_legacy": 24,
+    "config_refresh": 2,
+    "session": 17
+  },
+  "failed": [],
+  "full_comparison_artifact": "comparisons.json",
+  "artifact_sha256": "523738d8aaa5699a3c7c80f39b60c3a49cf9dd39d3b6c286782967dcd837bed5",
+  "stderr": ""
+}

@@ -2,6 +2,7 @@
 
 from decimal import Decimal
 
+from .pricing import unit_sale
 from .models import Amounts, CalculatedLine, DiscountLine, Issue, QuoteResult
 from .numbers import (
     LINE_LIMIT, NUMERIC_PROFILE, RULE_VERSION, ValidationError, checked,
@@ -53,9 +54,9 @@ def calculate_quote(snapshot, prices):
                     h, w = parse_number(raw.h, field="h"), parse_number(raw.w, field="w")
                     base = checked(context.multiply(checked(context.multiply(h, w)), q))
                     fields += [("h", decimal_text(h)), ("w", decimal_text(w))]
-                sale_price = parse_number(price.sale, field="sale")
+                sale_price = unit_sale(price) if price.pricing_mode is not None else parse_number(price.sale, field="sale")
                 cost_price = parse_number(price.cost, field="cost")
-                k = parse_number(price.k, field="k", empty_k=True)
+                k = Decimal(1) if price.pricing_mode is not None else parse_number(price.k, field="k", empty_k=True)
                 sale = settle(checked(context.multiply(checked(context.multiply(base, sale_price)), k)))
                 expense = settle(checked(context.multiply(base, cost_price)))
                 normalized = tuple(fields + [("sale", decimal_text(sale_price)),

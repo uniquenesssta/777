@@ -7,3 +7,5 @@
 利润时间范围按用户确认改为近1天/1周/1月/1年，从当前时刻回推并独立设置图表分组，见[时段核对](../verification/P07-03-time-range-checks.json)。
 
 最新截图要求已纳入同一03：[移除所有提醒条、柱状/折线/饼图/K线切换及累计利润OHLC](../verification/P07-03-chart-checks.json)，本次Windows与用户观察待确认。
+
+最新[独立最终售价/成本×K、直接加行/下拉换商品和列对齐](../verification/P07-03-price-editor-checks.json)继续在03交付，旧订单保持；新Windows与用户观察待确认。

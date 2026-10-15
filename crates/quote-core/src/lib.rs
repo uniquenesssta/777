@@ -3,4 +3,5 @@ pub mod calculation;
 pub mod configuration;
 pub mod models;
 pub mod numbers;
+pub mod pricing;
 pub mod session;

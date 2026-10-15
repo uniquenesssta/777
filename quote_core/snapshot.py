@@ -38,7 +38,7 @@ def capture_legacy_quote(rows, config, *, price_version_id):
                     raise ValidationError("PRODUCT_NOT_FOUND", "product_id")
                 price = config[product_id]
                 items[product_id] = PriceItem(product_id, _text(price.get("sale", ""), "sale"),
-                    _text(price.get("cost", ""), "cost"), _text(price.get("k", ""), "k"), price.get("single", False))
+                    _text(price.get("cost", ""), "cost"), _text(price.get("k", ""), "k"), price.get("single", False), price.get("pricing_mode"))
             single = items[product_id].single is True
             lines.append(NormalLine(product_id, _text(row["q"], "q"),
                 "" if single else _text(row["h"], "h"),

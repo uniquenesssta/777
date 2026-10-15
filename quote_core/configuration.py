@@ -201,7 +201,7 @@ def parse_price_config(source, *, price_version_id, legacy_single_names=None):
                 elif type(entry) is not dict:
                     raise ValidationError("CONFIG_ITEM_TYPE", base)
                 for key in entry:
-                    if key not in {"name", "sale", "cost", "k", "single", "qty_only"}:
+                    if key not in {"name", "sale", "cost", "k", "single", "qty_only", "pricing_mode"}:
                         issues.append(Issue("VALIDATION", "CONFIG_UNKNOWN_FIELD", f"{base}.{key}"))
                 name = _name(entry.get("name"), f"{base}.name")
                 if name in seen:
@@ -215,10 +215,20 @@ def parse_price_config(source, *, price_version_id, legacy_single_names=None):
                     raise ValidationError("SINGLE_FLAGS_CONFLICT", f"{base}.single")
                 if schema == "json_items":
                     single = entry.get("single", entry.get("qty_only", False))
-                sale = _price_text(entry.get("sale"), f"{base}.sale")
+                mode = entry.get("pricing_mode")
+                if "pricing_mode" in entry and mode not in ("manual", "cost_plus"):
+                    raise ValidationError("PRICING_MODE_INVALID", f"{base}.pricing_mode")
+                sale = "" if mode == "cost_plus" else _price_text(entry.get("sale"), f"{base}.sale")
                 cost = _price_text(entry.get("cost"), f"{base}.cost")
                 k = _price_text(entry.get("k", ""), f"{base}.k", empty_k=True)
-                items.append(PriceItem(name, sale, cost, k, single))
+                item = PriceItem(name, sale, cost, k, single, mode)
+                if mode is not None:
+                    from .pricing import unit_sale
+                    computed = unit_sale(item)
+                    if mode == "cost_plus":
+                        from .numbers import decimal_text
+                        item = PriceItem(name, decimal_text(computed), cost, k, single, mode)
+                items.append(item)
             except ValidationError as error:
                 issues.append(_issue(error))
         if issues:

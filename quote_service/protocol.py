@@ -1,4 +1,7 @@
 """Strict wire inputs and explicit role projections. Financial cents are strings."""
+from quote_core.models import price_wire
+from quote_core.pricing import unit_sale
+from quote_core.numbers import decimal_text
 from dataclasses import asdict
 import json
 from quote_core import NormalLine, DiscountLine, QuoteSnapshot, DraftDetails, PriceItem, PriceSnapshot
@@ -82,10 +85,11 @@ def prices(value):
         raise APIError(422, 'INVALID_PRICES')
     items = []
     for item in value['items']:
-        fields(item, {'product_id', 'sale', 'cost', 'k', 'single'})
+        fields(item, {'product_id', 'sale', 'cost', 'k', 'single'}, {'pricing_mode'})
+        if 'pricing_mode' in item and item['pricing_mode'] not in ('manual','cost_plus'):raise APIError(422,'INVALID_PRICES')
         if type(item['single']) is not bool:
             raise APIError(422, 'INVALID_PRICES')
-        items.append(PriceItem(*(text(item[k], 256) for k in ('product_id', 'sale', 'cost', 'k')), item['single']))
+        items.append(PriceItem(*(text(item[k], 256) for k in ('product_id', 'sale', 'cost', 'k')), item['single'], item.get('pricing_mode')))
     return PriceSnapshot(text(value['price_version_id'], 256, nonempty=True), tuple(items))
 
 
@@ -98,10 +102,16 @@ def financial(value, actor):
 
 
 def catalog(snapshot, actor):
-    items = [asdict(item) for item in snapshot.items]
+    items = []
+    for p in snapshot.items:
+        value=price_wire(p)
+        value['unit_sale']=decimal_text(unit_sale(p))
+        if actor.role!='admin' and p.pricing_mode is not None:
+            value['sale']=value['unit_sale'];value['k']='1'
+        items.append(value)
     if actor.role != 'admin':
-        items = [{k: item[k] for k in ('product_id', 'sale', 'k', 'single')} for item in items]
-    return {'price_version_id': snapshot.price_version_id, 'items': items,
+        items = [{k: item[k] for k in ('product_id', 'sale', 'k', 'single', 'unit_sale')} for item in items]
+    return {**({'pricing_mode_version':'final-unit-v1'} if actor.role=='admin' else {}), 'price_version_id': snapshot.price_version_id, 'items': items,
             'rule_version': RULE_VERSION, 'numeric_profile': NUMERIC_PROFILE}
 
 
