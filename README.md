@@ -38,6 +38,8 @@ P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-ta
 
 ## Change Log
 
+- 根治开发启动后`Cargo.toml`反复变脏而阻止拉取：显式补齐Tauri CLI自动插入的`tauri-build.features = []`。实际锁定启动器复现旧版改写，修复后dev/build对LF和CRLF均不再改写；Node22/24各19项通过，锁文件与依赖版本保持。[根因与回归证据](docs/verification/P07-03-manifest-checks.json)。已有本地改动仍先保存一次；本次Windows CI待核对，03继续执行。
+
 - 按用户截图调整P07-03：[两条提示移除、母版共享目录弹窗、导出记录说明及独立利润图表](docs/verification/P07-03-business-ui-contract.md)。利润按日/周/月/年聚合全部有效订单，作废/恢复与旧价快照保持；子版目录只读继承。原6ad35ce的[Windows CI完整通过](docs/verification/P07-03-ci-evidence-02.json)已核对归档；本次新增行为待新Windows CI/用户验收，03不收尾，04/P08未启动。
 
 - 修复P07-03开发启动因首次字体下载超时而卡住：启动只核验本地字体，缺失时显性使用系统字体并继续；完整构建仍严格准备字体，新增显式`fonts:prepare`和清楚的取消/失败提示。[辅助检查](docs/verification/P07-03-development-fonts-checks.json)中Node22/24各15项、构建及无缓存/禁止字体联网的真实Vite启动通过；Windows原生仍待验收。

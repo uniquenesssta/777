@@ -86,3 +86,5 @@ P07-02专项边界审计、P07-03多DPI/原生图片及字体、P07-04安装升�
 ## P07-03业务界面补充（2026-10-15）
 
 原 `6ad35ce` 的[成功CI核对](../verification/P07-03-ci-evidence-02.json)确认两角色原生自动入口、完整报价图片和自然关闭通过，物理缩放/多屏与用户视觉仍待观察。按用户两张截图继续本项：[业务界面契约](../verification/P07-03-business-ui-contract.md)登记提示精简、母版目录弹窗/子版只读继承、导出记录解释，以及独立的日/周/月/年全量利润图表。旧CI不代替新增行为验收；03继续留now，04/P08未启动。
+
+用户随后反馈Cargo.toml反复阻止拉取。[实际CLI复现与修复](../verification/P07-03-manifest-checks.json)确认仓库未显式声明tauri-build.features，Tauri dev/build会补写空数组；现提交规范形式并加入实际锁定CLI的双换行/双命令回归。Node22/24各19项通过，未改变依赖版本、默认特性或业务。修复随同一03分支交付，Windows CI待核对。

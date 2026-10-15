@@ -1,0 +1,32 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> quote-desktop@0.1.0 test
+> node --import tsx --test tests/*.test.ts
+
+✔ late calculation cannot restore authority after any input or price change (1.543991ms)
+✔ revision and display cents never pass through JS floating point (0.401683ms)
+✔ only raw draft fields restore, never a claimed result or stored role (1.154045ms)
+✔ confirmed original order clears only its own raw draft and preserves edits during submit (15.343613ms)
+✔ pinned font download is atomic, cached and usable without network (15.46025ms)
+✔ wrong download and corrupted cache never become accepted font assets (6.372376ms)
+✔ ordinary font preparation keeps its Chinese CLI progress (114.507151ms)
+✔ development preparation reports missing fonts without making network requests (1.374091ms)
+✔ offline development still rejects corrupted cached font bytes (2.054265ms)
+✔ explicit font preparation cancellation rejects promptly and leaves no partial file (2.384834ms)
+✔ actual pinned Tauri CLI reproduces the previous manifest rewrite (2188.848937ms)
+✔ tracked manifest stays unchanged through actual Tauri dev/build for LF and CRLF (345.946246ms)
+✔ native readiness preserves the underlying CDP error and attempt diagnostics (22.814323ms)
+✔ native readiness succeeds after transient refusal and bounds each connect attempt (1.381711ms)
+✔ a failed connection checkpoint closes the attached browser and does not retry (0.475552ms)
+✔ actual Windows Tauri production origins accept embedded-page paths (1.043092ms)
+✔ Vite, browser error pages and lookalike hosts fail before waiting for login (0.728026ms)
+✔ calendar ranges cross years and leap days without local timezone arithmetic (2.906245ms)
+✔ chart coordinates support losses and huge exact cents without converting money to Number (0.31859ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2904.608693

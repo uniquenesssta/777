@@ -1,0 +1,45 @@
+{
+  "task": "P07-03",
+  "branch": "stage/p07-tauri-desktop",
+  "base_commit": "73a3918d3f408a6a9d715a214c062a2a2a84b118",
+  "issue": "Tauri CLI adds missing tauri-build features=[] on dev/build, leaving tracked Cargo.toml modified and blocking later git pull",
+  "root_cause": {
+    "CLI_version": "2.12.2",
+    "official_source": "https://github.com/tauri-apps/tauri/blob/tauri-cli-v2.12.2/crates/tauri-cli/src/interface/rust/manifest.rs",
+    "crate_vcs": {
+      "git": {
+        "sha1": "5b23c82ea5ba6b9aec420dd71f60493edc486aa9"
+      },
+      "path_in_vcs": "crates/tauri-cli"
+    },
+    "source_sha256": "12ecab656f01a83141280c96d6e89d7af74ccbf71ef4a3be767499268ff6f375",
+    "actual_reproduction": "Installed pinned Tauri CLI changed only tauri-build = { version = \"=2.7.2\" } to include features = []."
+  },
+  "fix": "Declare features=[] explicitly; keep version/default features unchanged. No Git ignore/assume-unchanged/reset workaround.",
+  "checks": {
+    "actual_CLI_rewrite_regression": "passed for dev and build",
+    "fixed_actual_CLI_stability": "passed dev/build with LF and CRLF",
+    "Node24_unit": {
+      "passed": 19,
+      "log": "P07-03-manifest-node24.log"
+    },
+    "Node22_unit": {
+      "passed": 19,
+      "log": "P07-03-manifest-node22.log"
+    },
+    "cargo_metadata": "passed --locked --offline --no-deps; Cargo.lock unchanged",
+    "scope": "Real installed CLI on isolated fixture. Fixture intentionally lacks workspace so Cargo metadata exits after normalization; no app/host starts, compiles or downloads. Not a Windows native GUI test."
+  },
+  "implementation_sha256_LF": {
+    "desktop/src-tauri/Cargo.toml": "113b65038469e84d56b1dbca28d3125c33ca640833b472924f5ff2a711a809be",
+    "desktop/tests/manifest.test.ts": "7890146d5e341745ca82940666f2717a5e2c37a5c7aaf9475496bee0843c7db8",
+    "Cargo.lock": "fc5e17a3e1c5b9f44fbd0125ea600f74f0066364b15d49c9f18455a6a77820a7"
+  },
+  "current_business_UI_checks": "P07-03-business-ui-checks.json (73a3918 snapshot retained)",
+  "pending": [
+    "Windows CI for this revision",
+    "user UI/real folder dialog observation"
+  ],
+  "P07_03_closed": false,
+  "P07_04_and_P08_started": false
+}
