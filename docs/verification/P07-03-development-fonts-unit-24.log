@@ -1,0 +1,28 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> quote-desktop@0.1.0 test
+> node --import tsx --test tests/*.test.ts
+
+✔ late calculation cannot restore authority after any input or price change (0.854412ms)
+✔ revision and display cents never pass through JS floating point (0.315947ms)
+✔ only raw draft fields restore, never a claimed result or stored role (0.33847ms)
+✔ confirmed original order clears only its own raw draft and preserves edits during submit (7.806757ms)
+✔ pinned font download is atomic, cached and usable without network (10.38031ms)
+✔ wrong download and corrupted cache never become accepted font assets (3.774418ms)
+✔ ordinary font preparation keeps its Chinese CLI progress (57.488395ms)
+✔ development preparation reports missing fonts without making network requests (1.229617ms)
+✔ offline development still rejects corrupted cached font bytes (1.639473ms)
+✔ explicit font preparation cancellation rejects promptly and leaves no partial file (1.535349ms)
+✔ native readiness preserves the underlying CDP error and attempt diagnostics (22.536344ms)
+✔ native readiness succeeds after transient refusal and bounds each connect attempt (1.845712ms)
+✔ a failed connection checkpoint closes the attached browser and does not retry (0.36515ms)
+✔ actual Windows Tauri production origins accept embedded-page paths (1.044563ms)
+✔ Vite, browser error pages and lookalike hosts fail before waiting for login (0.942823ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 307.036069

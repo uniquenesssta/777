@@ -1,0 +1,16 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> quote-desktop@0.1.0 predev
+> node tools/prepare-fonts.mjs --offline
+
+缺少本地字体：NotoSansSC-VF.ttf；开发环境继续使用系统字体。
+缺少本地字体：InterVariable.woff2；开发环境继续使用系统字体。
+需要完整字体时运行：npm --prefix desktop run fonts:prepare
+
+> quote-desktop@0.1.0 dev
+> vite --host 127.0.0.1 --port 29346 --strictPort
+
+
+  VITE v8.3.4  ready in 139 ms
+
+  ➜  Local:   http://127.0.0.1:29346/

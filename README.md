@@ -38,6 +38,8 @@ P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-ta
 
 ## Change Log
 
+- 修复P07-03开发启动因首次字体下载超时而卡住：启动只核验本地字体，缺失时显性使用系统字体并继续；完整构建仍严格准备字体，新增显式`fonts:prepare`和清楚的取消/失败提示。[辅助检查](docs/verification/P07-03-development-fonts-checks.json)中Node22/24各15项、构建及无缓存/禁止字体联网的真实Vite启动通过；Windows原生仍待验收。
+
 - P07-03首轮Windows CI在字体测试的Node 22输出解析处失败；29项Python和前端构建通过，Rust/原生新门槛尚未执行。[原报告与修复证据](docs/verification/P07-03-ci-evidence-01.json)保留。字体测试改为独立收集并核对中文日志，普通开发/构建提示保留；同版Node 22.23.3辅助12项及构建通过，Node门槛/依赖锁/完整CI不变，待Windows复验，03不收尾。
 
 - 按用户确认[收尾P07-02](docs/verification/P07-02-acceptance.json)，同一07分支接续[03界面/资源与退出协调](docs/verification/P07-03-presentation-contract.md)：窄窗口、长单滚动、键盘焦点和离线字体/原图标回退已实现；修复开发窗口结束连带终止服务，18477/29346、证书与开发数据保留。Python/Rust/前端/呈现辅助检查通过，新增Windows母子40行报价图片及慢连接关闭入口；原生、多屏和用户视觉待验收，04安装器/P08部署未启动。

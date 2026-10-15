@@ -9,12 +9,13 @@
   },
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 29346 --strictPort",
-    "predev": "node tools/prepare-fonts.mjs",
+    "predev": "node tools/prepare-fonts.mjs --offline",
     "build": "node tools/prepare-fonts.mjs && tsc --noEmit && vite build",
     "test": "node --import tsx --test tests/*.test.ts",
     "test:ui": "playwright test",
     "tauri": "node tools/develop.mjs",
-    "dev:desktop": "node tools/develop.mjs dev"
+    "dev:desktop": "node tools/develop.mjs dev",
+    "fonts:prepare": "node tools/prepare-fonts.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "1.3.1",

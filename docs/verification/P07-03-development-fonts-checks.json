@@ -1,0 +1,116 @@
+{
+  "task": "P07-03",
+  "status": "development_font_startup_repaired_auxiliary_passed_Windows_pending",
+  "base_commit": "d308439435d25cd2b7a326d9ed2b3fd94d2fb7c1",
+  "user_observation": {
+    "source_reported": "08d471e078265a4eac84d011f0151726d187a638",
+    "Node": "24.16.0",
+    "stage": "font download before Rust service startup",
+    "last_progress": "准备离线字体：NotoSansSC-VF.ttf",
+    "error": "The operation was aborted due to timeout",
+    "user_interruption_observed": true,
+    "create_mode_lines": "Normal Git new-file summary, not application errors.",
+    "scope": "User-provided console excerpt, no local report/source fingerprints provided."
+  },
+  "cause": {
+    "font_bytes": 17773132,
+    "font_source": "Pinned raw.githubusercontent.com Noto font URL",
+    "bound_ms": 60000,
+    "code_path": "develop.mjs awaited prepareFonts at module top level before spawning Python or registering its cancellation handlers. Plain npm run dev predev repeated the download requirement.",
+    "scope": "Source path and user timeout established; exact network failure and Windows cancellation delivery not observed here."
+  },
+  "repair": {
+    "development": "Remove font preparation from outer launcher; npm predev invokes --offline. Cached files are verified; missing files report system-font fallback and return normally. No font fetch attempted in development.",
+    "complete_build": "Strict pinned length/SHA256 preparation remains required. Corrupted cache still errors; missing download cannot silently pass release build.",
+    "explicit_preparation": "npm --prefix desktop run fonts:prepare; bounded download, cancellation exit130, plain failure exit1, no raw exception stack.",
+    "fixed_ports": [
+      18477,
+      29346
+    ],
+    "Node_floor_unchanged": ">=22.12.0",
+    "dependencies_and_locks_changed": false,
+    "business_UI_and_service_code_changed": false
+  },
+  "implementation_sha256_LF": {
+    "desktop/package.json": "4bc89169258dc4ed72288518fb7f46e1e6c3cc4a288503c9382b0b19d90af07d",
+    "desktop/tools/develop.mjs": "8cb7ef6dee1679072ec43bde66761a944ba75d0971df740a822335408acd6140",
+    "desktop/tools/prepare-fonts.mjs": "744c02811720d1a2fd7fefdb94ba85002f1c58a255498a21e593e53036a0e809",
+    "desktop/tests/fonts.test.ts": "e0e344280ec74023f4afd0cc46c13423da6fbec19d9cbdf09028c5dccd000043"
+  },
+  "checks": {
+    "Node22_unit": {
+      "version": "22.23.3",
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "log": "P07-03-development-fonts-unit-22.log"
+    },
+    "Node24_unit": {
+      "version": "24.19.0",
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "log": "P07-03-development-fonts-unit-24.log",
+      "same_as_user_exact_patch": false
+    },
+    "strict_frontend_build": {
+      "status": "passed",
+      "Node": "22.23.3",
+      "log": "P07-03-development-fonts-build.log"
+    },
+    "real_cold_Vite_with_fetch_blocked": {
+      "scope": "Linux auxiliary: real npm predev and Vite with no font cache and a rejecting fetch hook; not Windows Tauri/backend acceptance.",
+      "status": "passed",
+      "HTTP_status": 200,
+      "Vite_client_present": true,
+      "ready_seconds": 0.427,
+      "font_source_fetch_calls": 0,
+      "cached_font_files": [
+        "Inter-OFL.txt",
+        "Noto-OFL.txt"
+      ],
+      "Node": "v24.19.0",
+      "font_cache_restored": true,
+      "log": "P07-03-development-fonts-cold-start.log"
+    },
+    "explicit_CLI_boundaries": [
+      {
+        "case": "cancel",
+        "exit_code": 130,
+        "raw_stack": false,
+        "cancel_seconds": 0.007
+      },
+      {
+        "case": "timeout",
+        "exit_code": 1,
+        "raw_stack": false,
+        "cancel_seconds": null
+      }
+    ],
+    "preserved": [
+      "valid cached/download hash and exact size",
+      "bad download/cache rejected without overwrite",
+      "offline corrupt cache rejected",
+      "ordinary CLI Chinese progress captured in separate child",
+      "no global console suppression or test isolation change"
+    ],
+    "explicit_CLI_boundary_logs": [
+      "P07-03-development-fonts-cancel.log",
+      "P07-03-development-fonts-timeout.log"
+    ]
+  },
+  "not_claimed": [
+    "Actual Windows local Tauri startup after this repair",
+    "Actual Windows Ctrl+C or natural-close result after this repair",
+    "P07-03 native images, physical DPI/multiple monitors and user visual acceptance",
+    "P07-04 actual installers or P08 production deployment"
+  ],
+  "previous_CI": {
+    "run_id": 38673442482,
+    "source": "d308439435d25cd2b7a326d9ed2b3fd94d2fb7c1",
+    "status_when_checked_once": "in_progress",
+    "conclusion": null,
+    "scope": "No polling; this observation does not assert its eventual result."
+  },
+  "production_paths_accessed": false
+}

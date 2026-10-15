@@ -53,3 +53,40 @@ test("ordinary font preparation keeps its Chinese CLI progress", async () => {
     assert.deepEqual(await fs.readFile(path.join(directory,asset.file)),bytes);
   } finally {await fs.rm(directory,{recursive:true,force:true});}
 });
+
+test("development preparation reports missing fonts without making network requests", async () => {
+  const directory=await fs.mkdtemp(path.join(os.tmpdir(),"777-font-offline-"));
+  const messages:string[]=[];
+  const asset={file:"offline.woff2",url:"https://invalid.example/offline",bytes:5,sha256:"0".repeat(64)};
+  let requested=false;
+  try {
+    const result=await prepareFonts({directory,assets:[asset],download:false,log:message=>{messages.push(message);},fetcher:async()=>{requested=true;throw Error("development must never fetch");}});
+    assert.equal(requested,false);assert.deepEqual(result.missing,[asset.file]);
+    assert.deepEqual(await fs.readdir(directory),[]);
+    assert.match(messages.join(""),/系统字体/);
+  } finally {await fs.rm(directory,{recursive:true,force:true});}
+});
+
+test("offline development still rejects corrupted cached font bytes", async () => {
+  const directory=await fs.mkdtemp(path.join(os.tmpdir(),"777-font-corrupt-"));
+  const asset={file:"corrupt.woff2",url:"https://invalid.example/corrupt",bytes:5,sha256:"0".repeat(64)};
+  try {
+    await fs.writeFile(path.join(directory,asset.file),"wrong");
+    await assert.rejects(prepareFonts({directory,assets:[asset],download:false,log:()=>{},fetcher:async()=>{throw Error("must not fetch");}}),/FONT_CACHE_HASH_MISMATCH/);
+    assert.equal(await fs.readFile(path.join(directory,asset.file),"utf8"),"wrong");
+  } finally {await fs.rm(directory,{recursive:true,force:true});}
+});
+
+test("explicit font preparation cancellation rejects promptly and leaves no partial file", async () => {
+  const directory=await fs.mkdtemp(path.join(os.tmpdir(),"777-font-cancel-"));
+  const control=new AbortController();
+  const asset={file:"cancel.woff2",url:"https://invalid.example/cancel",bytes:5,sha256:"0".repeat(64)};
+  let started!:()=>void;const ready=new Promise<void>(resolve=>{started=resolve;});
+  try {
+    const pending=prepareFonts({directory,assets:[asset],signal:control.signal,log:()=>{},fetcher:async(_url,{signal})=>{
+      started();return new Promise<Response>((_resolve,reject)=>signal.addEventListener("abort",()=>reject(signal.reason),{once:true}));
+    }});
+    await ready;control.abort();await assert.rejects(pending,{name:"AbortError"});
+    assert.deepEqual(await fs.readdir(directory),[]);
+  } finally {await fs.rm(directory,{recursive:true,force:true});}
+});
