@@ -6,6 +6,13 @@ export function request<T>(
   return invoke<T>("desktop_action", { request: { action, ...data } });
 }
 const errors: Record<string, string> = {
+  DIRECTORY_DIALOG_UNAVAILABLE: "暂时无法打开文件夹选择窗口，请重试或填写共享路径。",
+  PUBLISHED_DIRECTORY_REQUIRES_UNC: "请选择网络共享文件夹，保存后其他电脑才能共用。",
+  INVALID_DIRECTORY_TARGET: "请选择报价表或报价图片的保存位置。",
+  INVALID_ANALYTICS_QUERY: "请检查统计周期和起止日期。",
+  ANALYTICS_RANGE_TOO_LARGE: "日期范围过大，请缩小范围或改用周、月、年统计。",
+  ANALYTICS_NOT_SUPPORTED: "当前服务尚未提供利润汇总，请联系管理员更新服务。",
+
   OUTPUT_CJK_FONT_UNAVAILABLE: "报价图片所需中文字体不可用，请联系管理员。订单已保留。",
   DEPLOYMENT_NOT_CONFIGURED:"尚未配置，请联系管理员。",
   DEVICE_NOT_AUTHORIZED:"此设备授权已失效，请联系管理员。",

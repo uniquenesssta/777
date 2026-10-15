@@ -9,7 +9,7 @@
 | 管理详情32:499 / 销售40:1915 | features/DetailPage.tsx | 冻结明细、追加备注、管理作废恢复及原因确认、销售字段投影 |
 | 紧凑提交32:818 | QuotePage + Radix Modal | 380×194、客户/订单/总额、96×36双按钮，Escape取消；不加入被撤销的重复信息 |
 | Foundations46:727 / 组件47:979 | tokens.css、ui/components.tsx | 复用导出语义token，组件为本仓库React源码；未配置Figma Code Connect，不能把手工映射称自动连接 |
-| 价格/利润/任务/设置 | features/ManagementPages.tsx、OrdersPage profit模式 | 服务真实功能，沿用同一token/组件；没有完整独立批准稿，仍需用户视觉验收 |
+| 价格/利润/任务/设置 | features/ManagementPages.tsx、ProfitPage.tsx（原OrdersPage profit模式已替换） | 服务真实功能，沿用同一token/组件；没有完整独立批准稿，仍需用户视觉验收 |
 
 原始矢量通过Figma实例SVG_STRING只读导出，未重画：22:285→a09ba.svg(14×14)、22:327→09c30.svg(14×14)、22:374→74181.svg(16×16)、22:448→2eb61.svg(16×16)、22:483→7bfb4.svg(13×13)。22:273品牌36×36 PNG直接封装ICO用于原生窗口。临时资产URL返回HTML的失败已排除，提交文件均为实际SVG/ICO，渲染检查核对全部原尺寸。
 
@@ -28,3 +28,7 @@ shadcn CLI info已执行，确认原项目无框架/registry/preset；registry d
 重新读取同一Figma当前母版21:3、子版40:1604的高保真上下文和截图。1440逻辑宽下保持既有主卡/汇总比例及原SVG14/14/16/16/13px，保留用户顶部导航调整；不超过1000逻辑宽时改为两行导航/单列卡，表格仅内部横向滚动，不再沿用历史1000px全局最小宽度。窗口最小640×480，默认1440×884保持。窄屏响应是既有桌面稿的实现补充，不声称Figma已有完整独立窄屏稿。
 
 字体原文件按[清单](../../desktop/resources/fonts.json)在构建时准备并本地内嵌，失败有明确回退；五个原矢量没有改内容或重绘。弹窗Escape还原触发焦点、账户菜单Enter/Escape、长单滚动区键盘操作均纳入检查。辅助Chromium母子100/125/150/200%模拟截图与实际DOM/资源尺寸已核对；100%双栏、200%单栏/表内滚动，图片未用作运行时页面资源。模拟不冒充真实Windows多屏或用户视觉认可，结果及边界见[03证据](../verification/P07-03-checks.json)。
+
+## P07-03业务界面修订（2026-10-15）
+
+依据用户 image(7).png / image(8).png 的四项明确要求：不再出现价格刷新成功/字体回退提示条；设置在母版提供Windows文件夹选择按钮；任务页命名“导出记录”并解释来源/用途；`ProfitPage.tsx`用KPI和收入/成本/利润柱状图按日周月年汇总，订单详情继续在独立列表。增加可展开的期间汇总表、零线亏损图、窄窗口内部滚动与键盘读数，沿用既有紫灰token和顶部导航。没有写回Figma或宣称存在独立批准的利润图表稿；用户视觉认可仍待本次观察。详见[契约/验证边界](../verification/P07-03-business-ui-contract.md)。

@@ -100,3 +100,24 @@ export interface Job {
   filename?: string;
   created_at: string;
 }
+
+export type AnalysisPeriod = "day" | "week" | "month" | "year";
+export interface AnalysisFilters {
+  period: AnalysisPeriod;
+  from: string;
+  to: string;
+}
+export interface AnalysisTotals extends Money {
+  cost_cents: string;
+  profit_cents: string;
+  order_count: number;
+  margin: string | null;
+}
+export interface ProfitAnalysis extends AnalysisFilters {
+  format: "777-profit-analysis-v1";
+  timezone: string;
+  ledger_revision: string;
+  unplaced_date_orders: number;
+  totals: AnalysisTotals;
+  buckets: { start: string; totals: AnalysisTotals }[];
+}

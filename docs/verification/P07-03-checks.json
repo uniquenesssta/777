@@ -1,6 +1,6 @@
 {
   "task": "P07-03",
-  "status": "font_test_transport_and_development_startup_repairs_auxiliary_passed_Windows_recheck_pending",
+  "status": "original_Windows_CI_passed_business_UI_supplement_pending_new_Windows_CI_and_user_acceptance",
   "phase_branch": "stage/p07-tauri-desktop",
   "base_commit": "b484a64f17781d9b9c35e67b9f4eec2a0b7b8832",
   "start": "P07-03-start.json",
@@ -150,5 +150,9 @@
   ],
   "implementation_sha256_LF_scope": "Initial delivery 08d471e retained. Current two-file font log repair fingerprinted in P07-03-ci-evidence-01.json.",
   "Windows_CI_failure_and_repair": "P07-03-ci-evidence-01.json",
-  "development_font_startup_repair": "P07-03-development-fonts-checks.json"
+  "development_font_startup_repair": "P07-03-development-fonts-checks.json",
+  "latest_original_Windows_CI": "P07-03-ci-evidence-02.json",
+  "current_business_UI_contract": "P07-03-business-ui-contract.md",
+  "current_business_UI_checks": "P07-03-business-ui-checks.json",
+  "implementation_fingerprints_scope": "Original P07-03 snapshot retained; current business UI revision fingerprints/checks are in P07-03-business-ui-checks.json"
 }

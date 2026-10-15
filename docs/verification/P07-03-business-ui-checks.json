@@ -1,0 +1,140 @@
+{
+  "task": "P07-03",
+  "status": "business_UI_auxiliary_passed_new_Windows_CI_and_user_acceptance_pending",
+  "branch": "stage/p07-tauri-desktop",
+  "parent_commit": "6ad35cec343714b7b702a2981c3d146e2a0bb0ea",
+  "user_request": "image(7).png / image(8).png: hide two notices; folder dialog; export meaning; daily/weekly/yearly profit charts",
+  "contract": "P07-03-business-ui-contract.md",
+  "prior_Windows_CI": "P07-03-ci-evidence-02.json",
+  "implementation_sha256_LF": {
+    "Cargo.lock": "fc5e17a3e1c5b9f44fbd0125ea600f74f0066364b15d49c9f18455a6a77820a7",
+    "crates/quote-host/src/analytics.rs": "bbf1e5ecce39010f7e61777cdbe0295f2c6c9be20e16dc8af13d24d94e690313",
+    "crates/quote-host/src/lib.rs": "c68dc54691e8850b35d1511b067c605b27ca2271113709de5c9e7c3b05e51e55",
+    "crates/quote-host/src/query.rs": "c46abed8abd1487b6ed91caa972d4039232dc1718d3a3c878697d1e8a7f982c8",
+    "crates/quote-host/src/service.rs": "603548da89ca29d8d354e48a7c8c546b175e9046b02e027abf3e77d4b6d99079",
+    "crates/quote-host/tests/analytics.rs": "46902ded892357e9c758ab71546ae12697209c5c31d402062d536a2f2ca0e6b9",
+    "desktop/src-tauri/Cargo.toml": "e0d0f3bacf92f1ffba6455ba36841ffd0c4c5dd502a5183c1380caeb549b1e0f",
+    "desktop/src-tauri/src/client.rs": "0c29bf997722083516fd4f57e97a2c53440acf6c8775a40f2b9f222b66bf4691",
+    "desktop/src-tauri/src/directory_dialog.rs": "dd6c9bee6ead3d2269e89c35629e0ded0fc6a1ea225ff6b43fdd2c30b29dc5a2",
+    "desktop/src-tauri/src/main.rs": "45dd7e36f3d59b8ef105dad565eeb6c53f14307ba3b8e6d8ff3ebaf74bf518b7",
+    "desktop/src-tauri/src/types.rs": "579190e2ec42cfa60416645a0f6ea67e814edb1b561635a59eb440a1c8e18a60",
+    "desktop/src/App.tsx": "6275472b025157e5d28d7a0e0c270f8e77c21951001c569a47e7ba330b252a6d",
+    "desktop/src/app.css": "f261442b75bff39a1d696d762d6056a3e0e5f5f4331e0a6cc1e19ec1b6f38545",
+    "desktop/src/bridge.ts": "e5bec0ccf58005b700e93615303427a68b323f9feba9a8d570cf39fd981c984e",
+    "desktop/src/contracts.ts": "adf48e8204ef2fb6ea0c967d4cf9cb722c78f31b61dca67c2e804249352340af",
+    "desktop/src/features/ManagementPages.tsx": "62f21a1a6f0bcb5b788052c4e5ed70e4ed3554613330aa1ec8ad558210984e89",
+    "desktop/src/features/OrdersPage.tsx": "a25beb32a143c7c51bdb3f7c35e4d5b6a1410fca7bde1f4558809a9d2a04ea44",
+    "desktop/src/features/ProfitPage.tsx": "364eecc304f81444a954e4e80938d14ca563b2cde119e03957adb8eff4f5850f",
+    "desktop/src/state/profit.ts": "912cf1fc2a0df53d8504aad7ed201a9125410e391c3ca1baffcd5013a2972416",
+    "desktop/src/state/useWorkbench.ts": "d95b9e4f621fdeb1ea3924f0e8b35d02a6e36f53fbace7ec36dec96105d8f53e",
+    "desktop/tests/profit.test.ts": "67f4ce7b12c38b70a96ab44040285ef71200dc464516b95a9aa1755ed6118652",
+    "desktop/tests/ui/presentation.spec.ts": "fc2313d29a42e5f0c8bcb25beac8314cbc3997200fc0bb86e24c92c3f4047789",
+    "desktop/tests/ui/workbench.spec.ts": "9487ac98477d7a90b915712bc37772e41647fd2d9f6dc7e6f5733f44f0174bb3",
+    "tools/p07_desktop_check.py": "19289bc3e7c140b94ce6520a2e40baa553297454aa0e430e7a320622cf7ce72c"
+  },
+  "environment": {
+    "OS": "Linux auxiliary",
+    "Rust": "1.97.1",
+    "Node_tests": [
+      "22.23.3",
+      "24.19.0"
+    ],
+    "browser": "Chromium 153 portable; not WebView2"
+  },
+  "checks": {
+    "frontend_unit": {
+      "passed_each_runtime": 17,
+      "logs": [
+        "P07-03-business-ui-node22.log",
+        "P07-03-business-ui-node24.log"
+      ]
+    },
+    "Rust": {
+      "passed": 37,
+      "log": "P07-03-business-ui-rust.log"
+    },
+    "Python_runners": {
+      "run": 29,
+      "passed": 27,
+      "Windows_only_skipped": 2,
+      "log": "P07-03-business-ui-python.log"
+    },
+    "presentation_browser": {
+      "passed": 8,
+      "mock_IPC": true,
+      "log": "P07-03-business-ui-browser.log"
+    },
+    "strict_clippy": {
+      "status": "passed",
+      "log": "P07-03-business-ui-clippy.log"
+    },
+    "Windows_COM_dialog_cross_typecheck": {
+      "status": "passed",
+      "target": "x86_64-pc-windows-msvc",
+      "windows_crate": "0.62.2",
+      "Clippy_warnings": "deny",
+      "scope": "Exact directory_dialog.rs copied into minimal stub crate; verifies Windows API signatures and lint, not Tauri window integration or native UI",
+      "log": "P07-03-business-ui-dialog-cross-check.log"
+    },
+    "frontend_build": {
+      "status": "passed",
+      "scope": "strict pinned fonts + tsc --noEmit + Vite; existing Radix use-client bundler notices retained",
+      "log": "P07-03-business-ui-build.log"
+    },
+    "fmt_and_diff_check": "passed",
+    "release_build": "passed: standard locked release / verification, jobs 1; local zero-byte archive artifact required unchanged retry",
+    "real_HTTPS_protocol": {
+      "status": "passed",
+      "checks": [
+        "certificate_pin_rejected_before_request",
+        "real_Rust_HTTPS_login_no_token_crosses_IPC",
+        "exact_cents_revision_and_frozen_draft_submission",
+        "append_only_note_void_restore_original_amount_and_revision",
+        "full_20_row_pagination_and_view_binding",
+        "authoritative_calendar_analytics_over_all_pages_through_native_HTTPS",
+        "native_output_task_does_not_rebook_financial_order",
+        "sales_DTO_other_actor_and_management_commands_restricted",
+        "sales_native_analytics_and_directory_dialog_denied",
+        "service_independently_denies_sales_analytics_over_real_HTTPS",
+        "native_host_and_desktop_restart_original_receipt_identity_and_no_duplicate",
+        "money_above_JavaScript_integer_limit_remains_exact_string",
+        "server_price_change_refuses_stale_confirmation_without_booking"
+      ],
+      "actual_transport": "Rust desktop IPC dispatcher -> Rustls pinned HTTPS -> standalone Rust host",
+      "production_paths_accessed": false,
+      "Windows_DPAPI": false,
+      "scope": "owned temporary profile, synthetic accounts/prices/orders, no installed service or real data",
+      "sandbox_cleaned": true,
+      "log": "P07-03-business-ui-protocol.json"
+    },
+    "full_browser": {
+      "passed": 20,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0,
+      "actual_Rust_HTTPS_profit_test": true,
+      "scope": "Chromium + real standalone Rust host and native verification IPC bridge for workbench scenarios; presentation-only cases explicitly mock IPC",
+      "log": "P07-03-business-ui-full-browser.log"
+    }
+  },
+  "visual_review": {
+    "inspected": [
+      "profit-wide.png",
+      "profit-narrow.png"
+    ],
+    "widths": [
+      1440,
+      720
+    ],
+    "scope": "synthetic IPC amounts; reviewed zero baseline, negative bars, summary and narrow scroll. No user acceptance claimed."
+  },
+  "production_paths_accessed": false,
+  "pending": [
+    "current Windows CI including native shell compile/lifecycle",
+    "actual Windows folder dialog observation",
+    "user visual acceptance",
+    "physical OS DPI / multiple monitors"
+  ],
+  "P07_03_closed": false,
+  "P07_04_and_P08_started": false
+}

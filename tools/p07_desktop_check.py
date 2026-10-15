@@ -31,6 +31,11 @@ def protocol_check():
             call('set_state',order_id=order['order_id'],expected_revision=order['revision'],state=state,reason=reason);order=call('order',order_id=order['order_id']);assert order['state']==state and order['income_cents']=='20000' and order['notes'][0]['body']=='保留原备注'
         checks.append('append_only_note_void_restore_original_amount_and_revision')
         first=call('orders',q='',state='',offset=0,view='');second=call('orders',q='',state='',offset=20,view=first['view']);assert first['total']==26 and len(first['orders'])==20 and len(second['orders'])==6;checks.append('full_20_row_pagination_and_view_binding')
+        from datetime import datetime,timezone,timedelta
+        year=datetime.now(timezone(timedelta(hours=8))).year
+        analysis_fields={'period':'year','from':f'{year-1}-01-01','to':f'{year+1}-12-31'}
+        analysis=call('analytics',**analysis_fields);expected={'order_count':26,'income_cents':'270000','cost_cents':'135000','profit_cents':'135000','margin':'50.0%'}
+        assert {k:analysis['totals'][k] for k in expected}==expected,analysis['totals'];assert len(analysis['buckets'])==3 and analysis['timezone']=='Asia/Shanghai';checks.append('authoritative_calendar_analytics_over_all_pages_through_native_HTTPS')
         before=s.host.service.ledger.inventory();job=call('create_output',order_id=order['order_id'],expected_revision=order['revision'],kind='excel_quote')
         deadline=time.monotonic()+20
         while True:
@@ -41,6 +46,13 @@ def protocol_check():
         call('disconnect');sales=call('connect',connection=conn,username='sales-one',password=s.host.password);assert sales['role']=='sales'
         projection=call('prices');assert 'cost' not in json.dumps(projection);listing=call('orders',q='',state='',offset=0,view='');assert listing['total']==23 and 'cost_cents' not in json.dumps(listing) and 'profit_cents' not in json.dumps(listing)
         refused('order','NOT_FOUND',order_id=order['order_id']);refused('set_state','ADMIN_REQUIRED',order_id=order['order_id'],expected_revision=order['revision'],state='void',reason='denied');refused('backup','ADMIN_REQUIRED');checks.append('sales_DTO_other_actor_and_management_commands_restricted')
+        refused('analytics','ADMIN_REQUIRED',**analysis_fields);refused('pick_directory','ADMIN_REQUIRED',target='export_dir');checks.append('sales_native_analytics_and_directory_dialog_denied')
+        from quote_service.protocol import APIError
+        from urllib.parse import urlencode
+        try:s.host.client('sales-one').request('GET','/v1/analytics?'+urlencode(analysis_fields))
+        except APIError as error:assert error.status==403 and error.code=='FORBIDDEN'
+        else:raise AssertionError('sales reached financial analytics')
+        checks.append('service_independently_denies_sales_analytics_over_real_HTTPS')
         call('disconnect');call('connect',connection=conn,username='manager',password=s.host.password)
         call('calculate',snapshot=snap,draft_revision='2');s.host.fault.write_text('after_commit',encoding='utf-8');refused('submit','COMMIT_UNKNOWN',snapshot=snap,details={'customer':'unknown','order_ref':'original-only','wechat':''},draft_revision='2')
         assert (s.profile/'pending.bin').exists();s.host.restart();s.stop_bridge();s.start_bridge();session=call('connect',connection=conn,username='sales-one',password=s.host.password);assert session['pending'];refused('recover','PENDING_IDENTITY_MISMATCH',retry=True)

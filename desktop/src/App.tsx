@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { useWorkbench, type Route } from "./state/useWorkbench";
 import { QuotePage } from "./features/QuotePage";
+import { ProfitPage } from "./features/ProfitPage";
 import { OrdersPage } from "./features/OrdersPage";
 import { DetailPage } from "./features/DetailPage";
 import { ConnectionPage } from "./features/ConnectionPage";
@@ -27,13 +28,6 @@ export default function App() {
     return () => document.removeEventListener("pointerdown", outside);
   }, [menu]);
   const [closeBlocked, setCloseBlocked] = useState(false);
-  const [fontFallback, setFontFallback] = useState(false);
-  useEffect(() => {
-    let active = true;
-    Promise.all([document.fonts.load('14px "Noto Sans SC"'), document.fonts.load('14px Inter')])
-      .catch(() => { if (active) setFontFallback(true); });
-    return () => { active = false; };
-  }, []);
   useEffect(() => {
     const listener = listen("close-blocked", () => setCloseBlocked(true)).catch(
       () => () => {},
@@ -45,7 +39,7 @@ export default function App() {
   const extra: { route: Route; label: string; admin?: boolean }[] = [
     { route: "prices", label: "价格维护", admin: true },
     { route: "profit", label: "利润分析", admin: true },
-    { route: "tasks", label: "报表与图片任务" },
+    { route: "tasks", label: "导出记录" },
     { route: "settings", label: "存储与备份" },
   ];
   const nav = (route: Route) => {
@@ -127,7 +121,6 @@ export default function App() {
           <Alert error={app.isError}>{app.feedback}</Alert>
         </div>
       )}
-      {fontFallback && <div className="feedback-wrap"><Alert>字体资源加载失败，当前使用系统字体。</Alert></div>}
       {closeBlocked && (
         <div className="feedback-wrap">
           <Alert>
@@ -181,7 +174,7 @@ export default function App() {
             <PricesPage app={app} />
           )}{" "}
           {app.route === "profit" && app.session.role === "admin" && (
-            <OrdersPage app={app} profit />
+            <ProfitPage app={app} />
           )}{" "}
           {app.route === "tasks" && <TasksPage app={app} />}{" "}
           {app.route === "settings" && <SettingsPage app={app} />}

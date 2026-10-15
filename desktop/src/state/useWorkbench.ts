@@ -8,8 +8,11 @@ import type {
   Listing,
   Order,
   Preferences,
+  ProfitAnalysis,
+  AnalysisFilters,
   Session,
 } from "../contracts";
+import { profitRange } from "./profit";
 import { draftReducer, restorableDraft, snapshot } from "./draft";
 export type Route =
   | "quote"
@@ -48,6 +51,10 @@ export function useWorkbench() {
     offset: 0,
     view: "",
   });
+  const [analysis, setAnalysis] = useState<ProfitAnalysis | null>(null);
+  const [analysisFilters, setAnalysisFilters] = useState<AnalysisFilters>(() =>
+    profitRange("day"),
+  );
   const [selected, setSelected] = useState<Order | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [preferences, setPreferences] = useState<Preferences | null>(null);
@@ -91,12 +98,19 @@ export function useWorkbench() {
             ["COMMIT_UNKNOWN", "PENDING_REQUEST_REQUIRES_QUERY"].includes(code)
           )
             setPending(true);
-          if (["UNAUTHENTICATED","DEVICE_NOT_AUTHORIZED","DELIVERY_ROLE_MISMATCH"].includes(code)) {
+          if (
+            [
+              "UNAUTHENTICATED",
+              "DEVICE_NOT_AUTHORIZED",
+              "DELIVERY_ROLE_MISMATCH",
+            ].includes(code)
+          ) {
             epoch.current++;
             setSession(null);
             setSelected(null);
             setCatalog(null);
             setListing(null);
+            setAnalysis(null);
             setJobs([]);
             setBackup(null);
             setPreferences(null);
@@ -119,7 +133,12 @@ export function useWorkbench() {
     [],
   );
   useEffect(() => {
-    request<{ delivery: string; automatic: boolean; connection: Connection | null; pending: boolean }>("connection")
+    request<{
+      delivery: string;
+      automatic: boolean;
+      connection: Connection | null;
+      pending: boolean;
+    }>("connection")
       .then((r) => {
         setDelivery(r.delivery);
         setAutomatic(r.automatic);
@@ -143,6 +162,7 @@ export function useWorkbench() {
       setSelected(null);
       setCatalog(null);
       setListing(null);
+      setAnalysis(null);
       setJobs([]);
       setBackup(null);
       setPreferences(null);
@@ -151,18 +171,33 @@ export function useWorkbench() {
     }
   }
   async function bootstrap() {
-    await run(async()=>{
-      const b=await request<{delivery:string;automatic:boolean;session:Session|null}>("bootstrap");
-      const p=b.session?await request<Catalog>("prices"):null;
-      const dirs=b.session?await request<Preferences>("settings"):null;
-      const c=b.session?await request<{connection:Connection|null}>("connection"):null;
-      return {b,p,dirs,c};
-    },({b,p,dirs,c})=>{
-      if(c)setConnection(c.connection);
-      epoch.current++;setDelivery(b.delivery);setAutomatic(b.automatic);setSession(b.session);
-      setCatalog(p);setPreferences(dirs);setPending(b.session?.pending??false);
-      if(p)dispatch({type:"prices",version:p.price_version_id});setRoute("quote");
-    });
+    await run(
+      async () => {
+        const b = await request<{
+          delivery: string;
+          automatic: boolean;
+          session: Session | null;
+        }>("bootstrap");
+        const p = b.session ? await request<Catalog>("prices") : null;
+        const dirs = b.session ? await request<Preferences>("settings") : null;
+        const c = b.session
+          ? await request<{ connection: Connection | null }>("connection")
+          : null;
+        return { b, p, dirs, c };
+      },
+      ({ b, p, dirs, c }) => {
+        if (c) setConnection(c.connection);
+        epoch.current++;
+        setDelivery(b.delivery);
+        setAutomatic(b.automatic);
+        setSession(b.session);
+        setCatalog(p);
+        setPreferences(dirs);
+        setPending(b.session?.pending ?? false);
+        if (p) dispatch({ type: "prices", version: p.price_version_id });
+        setRoute("quote");
+      },
+    );
   }
   async function connect(c: Connection, username: string, password: string) {
     await run(
@@ -199,6 +234,18 @@ export function useWorkbench() {
       ),
     [filters, run],
   );
+  const loadAnalysis = (next = analysisFilters) =>
+    run(
+      () => request<ProfitAnalysis>("analytics", { ...next }),
+      (value) => {
+        setAnalysis(value);
+        setAnalysisFilters(next);
+      },
+    );
+  const pickDirectory = (target: "export_dir" | "image_dir") =>
+    run(() =>
+      request<{ directory: string | null }>("pick_directory", { target }),
+    );
   const readOrder = useCallback(
     (id: string) =>
       run(
@@ -216,7 +263,6 @@ export function useWorkbench() {
       (p) => {
         setCatalog(p);
         dispatch({ type: "prices", version: p.price_version_id });
-        setFeedback("价格已刷新，请重新计算并核对。");
       },
     );
   const calculate = () => {
@@ -255,6 +301,7 @@ export function useWorkbench() {
         dispatch({ type: "committed", snapshot: submitted, details });
         setSelected(r.value);
         setListing(null);
+        setAnalysis(null);
         setRoute(r.value ? "detail" : "orders");
         savedFeedback(r, "订单已保存。");
       },
@@ -275,6 +322,7 @@ export function useWorkbench() {
       (r) => {
         setSelected(r.value);
         setListing(null);
+        setAnalysis(null);
         if (!r.value) setRoute("orders");
         savedFeedback(r, "备注已追加，原记录保留。");
       },
@@ -296,6 +344,7 @@ export function useWorkbench() {
       (r) => {
         setSelected(r.value);
         setListing(null);
+        setAnalysis(null);
         if (!r.value) setRoute("orders");
         savedFeedback(
           r,
@@ -388,6 +437,7 @@ export function useWorkbench() {
             else dispatch({ type: "invalidate" });
           }
           setListing(null);
+          setAnalysis(null);
         } else
           setFeedback(
             v.pending
@@ -448,6 +498,7 @@ export function useWorkbench() {
           setCatalog(null);
           setSelected(null);
           setListing(null);
+          setAnalysis(null);
           setJobs([]);
           setBackup(null);
           setPreferences(null);
@@ -456,17 +507,23 @@ export function useWorkbench() {
       },
       () => {},
     );
-  async function editConnection() { await logout(); setAutomatic(false); }
+  async function editConnection() {
+    await logout();
+    setAutomatic(false);
+  }
   function navigate(next: Route) {
     setRoute(next);
-    if (next === "orders" || next === "profit")
-      void loadOrders({ ...filters, view: "" });
+    if (next === "profit") void loadAnalysis();
+    if (next === "orders") void loadOrders({ ...filters, view: "" });
     if (next === "tasks") void loadJobs();
     if (next === "settings") void loadSettings();
   }
   return {
     listScrollRef,
-    delivery, automatic, bootstrap, editConnection,
+    delivery,
+    automatic,
+    bootstrap,
+    editConnection,
     session,
     connection,
     catalog,
@@ -478,6 +535,10 @@ export function useWorkbench() {
     isError,
     busy,
     pending,
+    analysis,
+    analysisFilters,
+    loadAnalysis,
+    pickDirectory,
     listing,
     filters,
     selected,

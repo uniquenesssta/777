@@ -1,0 +1,106 @@
+   Compiling quote-core v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-core)
+   Compiling quote-excel v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-excel)
+   Compiling quote-ledger v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-ledger)
+   Compiling quote-host v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/crates/quote-host)
+   Compiling tower-http v0.6.11
+   Compiling rustls-platform-verifier v0.7.1
+   Compiling oid-registry v0.8.1
+   Compiling der-parser v10.0.0
+   Compiling hyper-rustls v0.27.10
+   Compiling lazy_static v1.5.1
+   Compiling quote-desktop v0.1.0 (/workspace/scratch/7a12e3cfd885/repo777/desktop/src-tauri)
+   Compiling data-encoding v2.11.1
+   Compiling x509-parser v0.18.1
+   Compiling reqwest v0.13.5
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 24.28s
+     Running unittests src/lib.rs (target/debug/deps/quote_desktop-79971073b813e32f)
+
+running 8 tests
+test types::close_tests::readonly_network_and_calculation_do_not_protect_close ... ok
+test tls::tests::invalid_destinations_and_bad_pin_never_build_a_client ... ok
+test client::tests::wire_rejects_arbitrary_paths_actor_and_unknown_commands ... ok
+test tls::tests::pinned_legacy_ca_and_leaf_certificates_require_exact_identity_name_and_time ... ok
+test client::tests::display_preserves_exact_large_cents_and_safe_revision_strings ... ok
+test types::close_tests::writes_and_unknown_receipt_recovery_protect_close ... ok
+test journal::tests::ancestor_links_are_rejected_before_creating_profile_or_writing ... ok
+test journal::tests::pending_is_exclusive_and_corruption_is_never_silently_discarded ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src/main.rs (target/debug/deps/quote_desktop-e4d30d849166bfa2)
+
+running 4 tests
+test verification_window::tests::normal_launch_has_no_verification_settings ... ok
+test verification_window::tests::invalid_ports_unknown_switches_and_relative_profiles_are_refused ... ok
+test verification_window::tests::marked_temp_profile_has_fixed_api_arguments_and_private_data_directory ... ok
+test verification_window::tests::production_marker_missing_marker_and_nonfixture_root_are_refused ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running unittests src/lib.rs (target/debug/deps/quote_host-d2749364c25553a6)
+
+running 4 tests
+test analytics::tests::business_midnight_empty_days_and_exact_large_aggregates ... ok
+test analytics::tests::monday_weeks_cross_year_and_negative_margin ... ok
+test analytics::tests::bad_and_unbounded_ranges_are_rejected ... ok
+test analytics::tests::leap_months_years_and_unknown_legacy_dates ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/quote_host-c908d7a2c74e80c1)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/analytics.rs (target/debug/deps/analytics-ec76081ff861da83)
+
+running 2 tests
+test analytics_denies_sales_before_accessing_a_ledger ... ok
+test full_ledger_aggregate_tracks_void_restore_and_preserves_frozen_prices ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/boundary.rs (target/debug/deps/boundary-e50d88646c44b920)
+
+running 11 tests
+test png_without_approved_readable_font_fails_explicitly ... ok
+test native_ace_identity_resolves_display_aliases_without_widening_the_allowlist ... ok
+test nested_duplicate_json_bad_unicode_and_nonfinite_are_rejected ... ok
+test protected_dacl_requires_exact_inheritable_allowlist ... ok
+test exclusive_publish_preserves_an_existing_target_and_rejects_different_bytes ... ok
+test sales_projection_is_an_allowlist_and_exact_cents_stay_strings ... ok
+test public_quote_input_cannot_claim_actor_totals_or_boolean_numbers ... ok
+test same_host_owner_lock_excludes_second_native_instance ... ok
+test username_and_search_share_full_unicode_casefold ... ok
+test native_auth_original_schema_rejects_extra_trigger_without_repair ... ok
+test native_scrypt_matches_accepted_python_verifier ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.90s
+
+     Running tests/device_auth.rs (target/debug/deps/device_auth-35dd0e0c5c510c80)
+
+running 8 tests
+test manager_package_or_forged_role_does_not_elevate_sales ... ok
+test enrollment_is_idempotent_only_for_the_original_persisted_device ... ok
+test revoke_one_device_invalidates_live_sessions_and_preserves_other_device ... ok
+test expired_material_and_expired_sessions_cannot_authorize ... ok
+test listings_and_audit_do_not_expose_grants_credentials_or_tokens ... ok
+test only_admin_can_issue_list_or_revoke_devices ... ok
+test development_short_password_is_not_a_production_account_policy ... ok
+test account_epoch_and_restore_invalidate_credentials_without_changing_actor ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.97s
+
+   Doc-tests quote_desktop
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quote_host
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

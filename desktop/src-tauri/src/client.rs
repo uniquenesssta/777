@@ -47,6 +47,14 @@ impl Desktop {
     pub fn has_pending(&self) -> Result<bool> {
         Ok(self.store.read::<Pending>("pending.bin")?.is_some())
     }
+    pub async fn directory_context(&mut self, target: &str) -> Result<String> {
+        if !["export_dir", "image_dir"].contains(&target) {
+            return Err(DesktopError::new(422, "INVALID_DIRECTORY_TARGET"));
+        }
+        let settings = self.execute(Action::Settings {}).await?;
+        self.admin()?;
+        Ok(settings[target].as_str().unwrap_or("").to_string())
+    }
     fn session(&self) -> Result<&Session> {
         self.session
             .as_ref()
@@ -353,6 +361,37 @@ impl Desktop {
                 self.session = None;
                 self.calculation = None;
                 result
+            }
+            Action::PickDirectory { .. } => {
+                self.admin()?;
+                Err(DesktopError::new(422, "DIRECTORY_DIALOG_REQUIRES_WINDOW"))
+            }
+            Action::Analytics { period, from, to } => {
+                self.admin()?;
+                if !["day", "week", "month", "year"].contains(&period.as_str())
+                    || from.len() != 10
+                    || to.len() != 10
+                {
+                    return Err(DesktopError::new(422, "INVALID_ANALYTICS_QUERY"));
+                }
+                let mut url = reqwest::Url::parse("https://local/v1/analytics").unwrap();
+                url.query_pairs_mut()
+                    .append_pair("period", &period)
+                    .append_pair("from", &from)
+                    .append_pair("to", &to);
+                self.request(
+                    "GET",
+                    &format!("{}?{}", url.path(), url.query().unwrap()),
+                    None,
+                )
+                .await
+                .map_err(|e| {
+                    if e.status == 404 {
+                        DesktopError::new(409, "ANALYTICS_NOT_SUPPORTED")
+                    } else {
+                        e
+                    }
+                })
             }
             Action::Prices {} => self.request("GET", "/v1/prices", None).await,
             Action::Calculate {

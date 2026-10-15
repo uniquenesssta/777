@@ -1,0 +1,27 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> quote-desktop@0.1.0 test:ui
+> playwright test --config playwright.presentation.config.ts
+
+[WebServer] (node:31) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:44) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 1 worker
+
+(node:82) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/presentation.spec.ts:174:3 › manager local fonts, original icons and compact layout at four emulated scales (968ms)
+  ✓  2 tests/ui/presentation.spec.ts:201:3 › manager failed automatic entry retries without technical/login controls (393ms)
+  ✓  3 tests/ui/presentation.spec.ts:174:3 › sales local fonts, original icons and compact layout at four emulated scales (886ms)
+  ✓  4 tests/ui/presentation.spec.ts:201:3 › sales failed automatic entry retries without technical/login controls (390ms)
+  ✓  5 tests/ui/presentation.spec.ts:217:1 › keyboard dialog returns focus and fonts fall back without a banner (366ms)
+  ✓  6 tests/ui/presentation.spec.ts:236:1 › manager directory selection is a draft until published and cancellation preserves the path (527ms)
+  ✓  7 tests/ui/presentation.spec.ts:284:1 › sales inherits readonly directories and sees only its export explanation (419ms)
+  ✓  8 tests/ui/presentation.spec.ts:303:1 › profit shows aggregate bars rather than orders and switches calendar periods (684ms)
+
+  8 passed (5.7s)

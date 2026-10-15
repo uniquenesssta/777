@@ -1,3 +1,6 @@
+#[cfg(windows)]
+mod directory_dialog;
+
 #[cfg(all(feature = "verification", any(windows, test)))]
 mod verification_window;
 
@@ -64,6 +67,18 @@ mod shell {
     ) -> Result<serde_json::Value, DesktopError> {
         if window.label() != "main" {
             return Err(DesktopError::new(403, "WINDOW_NOT_AUTHORIZED"));
+        }
+        if let Action::PickDirectory { ref target } = request {
+            let initial = state.desktop.lock().await.directory_context(target).await?;
+            let owner = window
+                .hwnd()
+                .map_err(|_| DesktopError::new(503, "DIRECTORY_DIALOG_UNAVAILABLE"))?
+                .0 as isize;
+            let selected =
+                tokio::task::spawn_blocking(move || crate::directory_dialog::pick(owner, &initial))
+                    .await
+                    .map_err(|_| DesktopError::new(503, "DIRECTORY_DIALOG_UNAVAILABLE"))??;
+            return Ok(serde_json::json!({"directory":selected}));
         }
         let _writing = request
             .protects_close()

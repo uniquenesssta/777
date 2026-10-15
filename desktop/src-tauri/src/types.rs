@@ -66,6 +66,14 @@ pub enum Action {
         prices: Value,
         expected_price_version_id: Option<String>,
     },
+    Analytics {
+        period: String,
+        from: String,
+        to: String,
+    },
+    PickDirectory {
+        target: String,
+    },
     Settings {},
     SaveSettings {
         revision: String,

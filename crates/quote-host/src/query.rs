@@ -10,6 +10,7 @@ use std::collections::{HashMap, VecDeque};
 type Key = (Option<String>, Option<String>, String);
 #[derive(Clone)]
 struct Row {
+    created_at: String,
     owner: String,
     state: String,
     search: String,
@@ -19,6 +20,7 @@ fn row(r: &rusqlite::Row<'_>) -> rusqlite::Result<Row> {
     let details: String = r.get(3)?;
     let id: String = r.get(0)?;
     Ok(Row {
+        created_at: r.get(8)?,
         owner: r.get(1)?,
         state: r.get(2)?,
         search: search(&details, &id),
@@ -182,6 +184,21 @@ impl Queries {
             self.summaries.pop_front();
         }
         s
+    }
+    pub fn analytics(&mut self, path: &std::path::Path, a: &Actor, query: &str) -> Result<Value> {
+        auth::Auth::admin(a)?;
+        let c = store::open(path, false)?;
+        c.execute_batch("BEGIN")?;
+        let revision = crate::number(&store::verify(&c)?["revision"])?;
+        self.synchronize(&c, revision)?;
+        crate::analytics::summarize(
+            query,
+            self.rows
+                .values()
+                .filter(|r| r.state == "active")
+                .map(|r| (r.created_at.as_str(), r.money)),
+            revision,
+        )
     }
     pub fn listing(&mut self, path: &std::path::Path, a: &Actor, query: &str) -> Result<Value> {
         let mut p = HashMap::new();

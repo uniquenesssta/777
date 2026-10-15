@@ -4,10 +4,8 @@ import { money, stamp } from "../state/format";
 import { Badge, Button, Empty, Input } from "../ui/components";
 export function OrdersPage({
   app,
-  profit = false,
 }: {
   app: Workbench;
-  profit?: boolean;
 }) {
   const [q, setQ] = useState(app.filters.q);
   const [state, setState] = useState(app.filters.state);
@@ -20,11 +18,7 @@ export function OrdersPage({
     <section className="card orders-card" data-node-id="32:96">
       <div className="section-heading">
         <h2>
-          {profit
-            ? "利润分析"
-            : app.session?.role === "admin"
-              ? "订单记录"
-              : "我的订单"}{" "}
+          {app.session?.role === "admin" ? "订单记录" : "我的订单"}{" "}
           <small>{page?.total ?? 0} 条</small>
         </h2>
         <Button
@@ -73,19 +67,6 @@ export function OrdersPage({
           重置
         </Button>
       </form>
-      {profit && (
-        <div className="scope-totals">
-          <span>
-            当前筛选有效订单 · 收入 <b>{money(page?.totals.income_cents)}</b>
-          </span>
-          <span>
-            成本 <b>{money(page?.totals.cost_cents)}</b>
-          </span>
-          <span>
-            利润 <b>{money(page?.totals.profit_cents)}</b>
-          </span>
-        </div>
-      )}
       <div
         className="orders-table-scroll"
         tabIndex={0}

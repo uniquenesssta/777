@@ -354,6 +354,7 @@ impl Service {
                 })?;
                 Ok(protocol::financial(v, &a))
             }
+            ("GET", "/v1/analytics") => self.queries.analytics(&self.ledger, &a, query),
             ("GET", "/v1/orders") => self.queries.listing(&self.ledger, &a, query),
             ("POST", "/v1/notes") => {
                 fields(

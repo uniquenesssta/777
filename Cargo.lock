@@ -2762,6 +2762,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tokio",
+ "windows",
  "x509-parser",
 ]
 

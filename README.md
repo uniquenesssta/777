@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。P07-01已按用户2026-10-14 23:39“收尾01，开始02”验收。P07-02已按用户2026-10-15“OK暂时没感受到问题，收尾02 开始03”验收。当前P07-03交付界面缩放/键盘、离线字体、报价图片验证及开发/原生退出协调，辅助检查通过，待Windows原生和用户验收；P07-04与P08未启动。两种实际安装包留04，真实部署留P08。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
+P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。P07-01已按用户2026-10-14 23:39“收尾01，开始02”验收。P07-02已按用户2026-10-15“OK暂时没感受到问题，收尾02 开始03”验收。当前P07-03已通过原界面/字体/图片/关闭门槛的Windows CI；按用户新要求补充目录弹窗、导出记录和日/周/月/年利润图表，辅助通过，待本次Windows CI及用户验收；P07-04与P08未启动。两种实际安装包留04，真实部署留P08。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -37,6 +37,8 @@ P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-ta
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 按用户截图调整P07-03：[两条提示移除、母版共享目录弹窗、导出记录说明及独立利润图表](docs/verification/P07-03-business-ui-contract.md)。利润按日/周/月/年聚合全部有效订单，作废/恢复与旧价快照保持；子版目录只读继承。原6ad35ce的[Windows CI完整通过](docs/verification/P07-03-ci-evidence-02.json)已核对归档；本次新增行为待新Windows CI/用户验收，03不收尾，04/P08未启动。
 
 - 修复P07-03开发启动因首次字体下载超时而卡住：启动只核验本地字体，缺失时显性使用系统字体并继续；完整构建仍严格准备字体，新增显式`fonts:prepare`和清楚的取消/失败提示。[辅助检查](docs/verification/P07-03-development-fonts-checks.json)中Node22/24各15项、构建及无缓存/禁止字体联网的真实Vite启动通过；Windows原生仍待验收。
 

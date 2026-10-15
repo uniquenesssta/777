@@ -1,0 +1,900 @@
+{
+  "task": "P07-03",
+  "status": "Windows_device_auth_and_native_autostart_passed_acceptance_pending",
+  "environment": {
+    "os": "Windows",
+    "python": "3.12.10"
+  },
+  "commands": [
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\22.23.3\\x64\\node.EXE",
+        "--version"
+      ],
+      "label": "检查 Node.js",
+      "status": "passed",
+      "log": "command-01.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 900,
+      "elapsed_seconds": 0.014999999999986358,
+      "stdout": "v22.23.3\r\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\22.23.3\\x64\\npm.CMD",
+        "--version"
+      ],
+      "label": "检查 npm",
+      "status": "passed",
+      "log": "command-02.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 5672,
+      "elapsed_seconds": 0.18799999999998818,
+      "stdout": "10.9.9\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\runneradmin\\.cargo\\bin\\rustup.EXE",
+        "toolchain",
+        "list"
+      ],
+      "label": "检查已安装 Rust 工具链",
+      "status": "passed",
+      "log": "command-03.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 4560,
+      "elapsed_seconds": 0.031000000000062755,
+      "stdout": "stable-x86_64-pc-windows-msvc (default)\n1.97.1-x86_64-pc-windows-msvc (active)\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\runneradmin\\.cargo\\bin\\rustc.EXE",
+        "+1.97.1",
+        "-vV"
+      ],
+      "label": "检查 Rust 编译目标",
+      "status": "passed",
+      "log": "command-04.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 2224,
+      "elapsed_seconds": 0.03099999999994907,
+      "stdout": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\22.23.3\\x64\\npm.CMD",
+        "--prefix",
+        "desktop",
+        "run",
+        "build"
+      ],
+      "label": "npm.CMD",
+      "status": "passed",
+      "log": "command-05.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 8180,
+      "elapsed_seconds": 1.8899999999999864,
+      "stdout": "\n> quote-desktop@0.1.0 build\n> node tools/prepare-fonts.mjs && tsc --noEmit && vite build\n\n准备完整构建字体；缺失文件需联网下载，每个文件最多等待60秒。\n\u001b[36mvite v8.3.4 \u001b[32mbuilding client environment for production...\u001b[36m\u001b[39m\ntransforming...\n✓ 84 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.35 kB │ gzip:  0.28 kB\ndist/assets/index-C741DlHv.css   15.06 kB │ gzip:  3.78 kB\ndist/assets/index-BdiCCaTu.js   301.56 kB │ gzip: 94.46 kB\n\n\u001b[33m\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-dialog/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-dialog/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\u001b[39m\n\u001b[33m\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-portal/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-portal/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\u001b[39m\n\u001b[33m\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-focus-guards/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-focus-guards/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\u001b[39m\n\u001b[33m\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-presence/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-presence/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\u001b[39m\n\u001b[33m\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-primitive/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-primitive/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\u001b[39m\n\u001b[33m\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\u001b[39m\n\u001b[33m\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-focus-scope/dist/index.mjs\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_modules/@radix-ui/react-focus-scope/dist/index.mjs:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m \"use client\";\n \u001b[38;5;240m  │\u001b[0m ──────┬──────  \n \u001b[38;5;240m  │\u001b[0m       ╰──────── module level directive may not be preserved\n \u001b[38;5;240m  │\u001b[0m \n \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\u001b[39m\n\u001b[32m✓ built in 166ms\u001b[39m\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\runneradmin\\.cargo\\bin\\cargo.EXE",
+        "+1.97.1",
+        "build",
+        "--locked",
+        "--release",
+        "-j",
+        "2",
+        "-p",
+        "quote-host",
+        "-p",
+        "quote-ledger"
+      ],
+      "label": "cargo.EXE",
+      "status": "passed",
+      "log": "command-06.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 2028,
+      "elapsed_seconds": 61.43799999999999,
+      "stdout": "   Compiling proc-macro2 v1.0.107\n   Compiling windows-sys v0.61.2\n   Compiling quote v1.0.47\n   Compiling syn v3.0.9\n   Compiling socket2 v0.6.5\n   Compiling mio v1.2.4\n   Compiling tokio-macros v2.7.2\n   Compiling serde_core v1.0.228\n   Compiling tokio v1.52.3\n   Compiling syn v2.0.119\n   Compiling serde_json v1.0.151\n   Compiling serde v1.0.228\n   Compiling tokio-util v0.7.20\n   Compiling serde_derive v1.0.228\n   Compiling time v0.3.44\n   Compiling h2 v0.4.20\n   Compiling bitflags v2.13.2\n   Compiling hyper v1.12.0\n   Compiling sync_wrapper v1.0.2\n   Compiling quote-excel v0.1.0 (D:\\a\\777\\777\\crates\\quote-excel)\n   Compiling rusqlite v0.37.0\n   Compiling quote-core v0.1.0 (D:\\a\\777\\777\\crates\\quote-core)\n   Compiling hyper-util v0.1.21\n   Compiling base64 v0.23.1\n   Compiling pem v4.0.0\n   Compiling axum-core v0.5.6\n   Compiling quote-ledger v0.1.0 (D:\\a\\777\\777\\crates\\quote-ledger)\n   Compiling tokio-rustls v0.26.6\n   Compiling fs-err v3.3.2\n   Compiling tower v0.5.3\n   Compiling yasna v0.6.0\n   Compiling rtoolbox v0.0.6\n   Compiling axum-server v0.8.0\n   Compiling axum v0.8.9\n   Compiling rpassword v7.4.0\n   Compiling png v0.18.1\n   Compiling rcgen v0.14.10\n   Compiling quote-host v0.1.0 (D:\\a\\777\\777\\crates\\quote-host)\n    Finished `release` profile [optimized] target(s) in 1m 01s\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\runneradmin\\.cargo\\bin\\cargo.EXE",
+        "+1.97.1",
+        "build",
+        "--locked",
+        "--release",
+        "-j",
+        "2",
+        "-p",
+        "quote-desktop",
+        "--features",
+        "verification,custom-protocol,manager"
+      ],
+      "label": "cargo.EXE",
+      "status": "passed",
+      "log": "command-07.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 8392,
+      "elapsed_seconds": 134.81200000000013,
+      "stdout": "   Compiling serde_core v1.0.228\n   Compiling form_urlencoded v1.2.2\n   Compiling tokio v1.52.3\n   Compiling serde v1.0.228\n   Compiling serde_json v1.0.151\n   Compiling url v2.5.8\n   Compiling bitflags v2.13.2\n   Compiling dpi v0.1.2\n   Compiling uuid v1.28.0\n   Compiling slab v0.4.12\n   Compiling cfb v0.14.0\n   Compiling futures-util v0.3.34\n   Compiling erased-serde v0.4.10\n   Compiling jsonptr v0.7.1\n   Compiling serde_spanned v1.1.2\n   Compiling toml_datetime v1.1.2+spec-1.1.0\n   Compiling subtle v2.6.1\n   Compiling rustls v0.23.45\n   Compiling toml v1.1.8+spec-1.1.0\n   Compiling plist v1.8.0\n   Compiling json-patch v4.2.0\n   Compiling urlpattern v0.6.0\n   Compiling serde-untagged v0.1.9\n   Compiling infer v0.22.0\n   Compiling serde_with v3.17.0\n   Compiling tauri-utils v2.10.1\n   Compiling hyper v1.12.0\n   Compiling tao v0.37.1\n   Compiling hyper-util v0.1.21\n   Compiling tower v0.5.3\n   Compiling wry v0.57.0\n   Compiling tauri-runtime v2.12.1\n   Compiling tokio-rustls v0.26.6\n   Compiling keyboard-types v0.8.3\n   Compiling serialize-to-javascript v0.1.2\n   Compiling muda v0.20.0\n   Compiling tauri-runtime-wry v2.12.1\n   Compiling digest v0.10.7\n   Compiling hyper-rustls v0.27.10\n   Compiling tower-http v0.6.11\n   Compiling rustls-platform-verifier v0.7.1\n   Compiling quote-desktop v0.1.0 (D:\\a\\777\\777\\desktop\\src-tauri)\n   Compiling tauri v2.12.3\n   Compiling sha2 v0.10.9\n   Compiling reqwest v0.13.5\n   Compiling quote-core v0.1.0 (D:\\a\\777\\777\\crates\\quote-core)\n    Finished `release` profile [optimized] target(s) in 2m 14s\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\runneradmin\\.cargo\\bin\\cargo.EXE",
+        "+1.97.1",
+        "build",
+        "--locked",
+        "--release",
+        "-j",
+        "2",
+        "-p",
+        "quote-desktop",
+        "--features",
+        "verification,custom-protocol,sales"
+      ],
+      "label": "cargo.EXE",
+      "status": "passed",
+      "log": "command-08.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 7872,
+      "elapsed_seconds": 61.21900000000005,
+      "stdout": "   Compiling quote-desktop v0.1.0 (D:\\a\\777\\777\\desktop\\src-tauri)\n    Finished `release` profile [optimized] target(s) in 1m 01s\n",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\22.23.3\\x64\\node.EXE",
+        "D:\\a\\777\\777\\desktop\\tests\\windows-autostart.mjs",
+        "49604",
+        "D:\\a\\777\\777\\reports\\p07-03-ci\\manager",
+        "manager",
+        "presentation"
+      ],
+      "label": "node.EXE",
+      "status": "passed",
+      "log": "command-09.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 2072,
+      "elapsed_seconds": 6.8279999999999745,
+      "stdout": "",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\22.23.3\\x64\\node.EXE",
+        "D:\\a\\777\\777\\desktop\\tests\\windows-autostart.mjs",
+        "60766",
+        "D:\\a\\777\\777\\reports\\p07-03-ci\\manager\\connecting",
+        "manager",
+        "connecting"
+      ],
+      "label": "node.EXE",
+      "status": "passed",
+      "log": "command-10.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 7112,
+      "elapsed_seconds": 0.6720000000000255,
+      "stdout": "",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\22.23.3\\x64\\node.EXE",
+        "D:\\a\\777\\777\\desktop\\tests\\windows-autostart.mjs",
+        "63820",
+        "D:\\a\\777\\777\\reports\\p07-03-ci\\sales",
+        "sales",
+        "presentation"
+      ],
+      "label": "node.EXE",
+      "status": "passed",
+      "log": "command-11.log",
+      "output_streams": "stdout and stderr merged in live log",
+      "exit_code": 0,
+      "pid": 6200,
+      "elapsed_seconds": 6.843000000000075,
+      "stdout": "",
+      "stdout_truncated_in_report": false,
+      "stderr": ""
+    }
+  ],
+  "production_paths_accessed": false,
+  "protocol": {
+    "status": "passed",
+    "checks": [
+      "manager_native_bootstrap_without_secret_IPC",
+      "formal_manual_login_direct_invoke_rejected",
+      "two_devices_same_stable_sales_actor_and_filtered_prices",
+      "restart_uses_same_DPAPI_device_and_actor",
+      "sales_cannot_read_other_actor_or_backups",
+      "same_actor_devices_share_own_orders_only",
+      "expired_session_recovers_without_password_or_identity_change",
+      "unknown_commit_restart_queries_original_receipt_without_duplicate",
+      "copied_credential_rejected_in_other_profile",
+      "one_device_revocation_rejects_live_session_without_affecting_peer",
+      "operator_new_grant_reauthorizes_revoked_device_without_deleting_pending",
+      "v5_independent_restore_preserves_ledger_and_revokes_all_devices_sessions_grants"
+    ],
+    "Windows_DPAPI": true,
+    "production_paths_accessed": false
+  },
+  "native": [
+    {
+      "status": "passed",
+      "delivery": "manager",
+      "presentation_checked": true,
+      "two_quote_image_tasks_completed": true,
+      "production_origin": "http://tauri.localhost",
+      "automatic_business_entry": true,
+      "no_configuration_or_login_controls": true,
+      "actual_IPC_HTTPS_submit": true,
+      "manual_login_direct_invoke_denied": true,
+      "sales_fields_restricted": false,
+      "secrets_not_in_frontend_storage": true,
+      "UI_idle_before_native_close": true,
+      "published_images": {
+        "files": [
+          {
+            "width": 1200,
+            "height": 1840,
+            "job_id": "7faad9bd-670e-4ea8-8414-8817a6ebdfe6",
+            "sha256": "de2c45737004f0702439df0119094758470cc3fc11af91c99c0fe5c1fb7a43f7"
+          },
+          {
+            "width": 1200,
+            "height": 1840,
+            "job_id": "beacbc05-690d-4073-bb2e-4e213648bd68",
+            "sha256": "a86899b92e869b27cd0eb3556e08d305982e3862fdce257b9ac44604bee8fa73"
+          }
+        ],
+        "Chinese_path": true,
+        "no_overwrite": true,
+        "order_count_unchanged": true,
+        "saved_lines": 40,
+        "last_line_pixels_present": true
+      },
+      "presentation": {
+        "status": "passed",
+        "delivery": "manager",
+        "initial": {
+          "device_pixel_ratio": 1,
+          "width": 1028,
+          "height": 749,
+          "screen": {
+            "width": 1024,
+            "height": 768,
+            "available_width": 1024,
+            "available_height": 720
+          }
+        },
+        "samples": [
+          {
+            "scale": 1,
+            "emulation": true,
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1,
+            "document_width": 1440,
+            "fonts": {
+              "chinese": true,
+              "number": true
+            },
+            "icons": [
+              {
+                "source": "/icons/a09ba.svg",
+                "natural": 14,
+                "width": 14
+              },
+              {
+                "source": "/icons/7bfb4.svg",
+                "natural": 13,
+                "width": 13
+              }
+            ],
+            "table_scrollable": true,
+            "screenshot": "presentation-manager-100.png"
+          },
+          {
+            "scale": 1.25,
+            "emulation": true,
+            "width": 1152,
+            "height": 800,
+            "dpr": 1.25,
+            "document_width": 1137,
+            "fonts": {
+              "chinese": true,
+              "number": true
+            },
+            "icons": [
+              {
+                "source": "/icons/a09ba.svg",
+                "natural": 14,
+                "width": 14
+              },
+              {
+                "source": "/icons/7bfb4.svg",
+                "natural": 13,
+                "width": 13
+              }
+            ],
+            "table_scrollable": true,
+            "screenshot": "presentation-manager-125.png"
+          },
+          {
+            "scale": 1.5,
+            "emulation": true,
+            "width": 960,
+            "height": 667,
+            "dpr": 1.5,
+            "document_width": 945,
+            "fonts": {
+              "chinese": true,
+              "number": true
+            },
+            "icons": [
+              {
+                "source": "/icons/a09ba.svg",
+                "natural": 14,
+                "width": 14
+              },
+              {
+                "source": "/icons/7bfb4.svg",
+                "natural": 13,
+                "width": 13
+              }
+            ],
+            "table_scrollable": true,
+            "screenshot": "presentation-manager-150.png"
+          },
+          {
+            "scale": 2,
+            "emulation": true,
+            "width": 720,
+            "height": 500,
+            "dpr": 2,
+            "document_width": 705,
+            "fonts": {
+              "chinese": true,
+              "number": true
+            },
+            "icons": [
+              {
+                "source": "/icons/a09ba.svg",
+                "natural": 14,
+                "width": 14
+              },
+              {
+                "source": "/icons/7bfb4.svg",
+                "natural": 13,
+                "width": 13
+              }
+            ],
+            "table_scrollable": true,
+            "screenshot": "presentation-manager-200.png"
+          }
+        ],
+        "account_keyboard_focus_and_escape": true,
+        "scope": "Actual rendered DOM/fonts/assets and CDP scale emulation. Four emulations are not four actual OS DPI settings or multiple physical monitors."
+      },
+      "actual_OS_window_DPI": 96,
+      "physical_multi_monitor_and_other_OS_DPI": "requires_user_hardware_observation",
+      "close": {
+        "status": "passed",
+        "pid": 2856,
+        "close_message_posted": true,
+        "process_exit_observed": true,
+        "exit_code": 0,
+        "forced_termination": false,
+        "windows_before": [
+          {
+            "hwnd": 262686,
+            "pid": 2856,
+            "title": "记账器",
+            "class_name": "Tauri Window",
+            "visible": true,
+            "width": 1044,
+            "height": 788
+          },
+          {
+            "hwnd": 196800,
+            "pid": 2856,
+            "title": "",
+            "class_name": "Tao Thread Event Target",
+            "visible": true,
+            "width": 16,
+            "height": 16
+          },
+          {
+            "hwnd": 197164,
+            "pid": 2856,
+            "title": "MSCTFIME UI",
+            "class_name": "MSCTFIME UI",
+            "visible": false,
+            "width": 0,
+            "height": 0
+          },
+          {
+            "hwnd": 327980,
+            "pid": 2856,
+            "title": "Default IME",
+            "class_name": "IME",
+            "visible": false,
+            "width": 0,
+            "height": 0
+          }
+        ],
+        "target": {
+          "hwnd": 262686,
+          "pid": 2856,
+          "title": "记账器",
+          "class_name": "Tauri Window",
+          "visible": true,
+          "width": 1044,
+          "height": 788
+        },
+        "elapsed_seconds": 0.094,
+        "windows_after": []
+      },
+      "blocked_connection_close": {
+        "status": "passed",
+        "pid": 880,
+        "close_message_posted": true,
+        "process_exit_observed": true,
+        "exit_code": 0,
+        "forced_termination": false,
+        "windows_before": [
+          {
+            "hwnd": 262336,
+            "pid": 880,
+            "title": "记账器",
+            "class_name": "Tauri Window",
+            "visible": true,
+            "width": 1044,
+            "height": 788
+          },
+          {
+            "hwnd": 590020,
+            "pid": 880,
+            "title": "",
+            "class_name": "Tao Thread Event Target",
+            "visible": true,
+            "width": 16,
+            "height": 16
+          },
+          {
+            "hwnd": 393388,
+            "pid": 880,
+            "title": "MSCTFIME UI",
+            "class_name": "MSCTFIME UI",
+            "visible": false,
+            "width": 0,
+            "height": 0
+          },
+          {
+            "hwnd": 458920,
+            "pid": 880,
+            "title": "Default IME",
+            "class_name": "IME",
+            "visible": false,
+            "width": 0,
+            "height": 0
+          }
+        ],
+        "target": {
+          "hwnd": 262336,
+          "pid": 880,
+          "title": "记账器",
+          "class_name": "Tauri Window",
+          "visible": true,
+          "width": 1044,
+          "height": 788
+        },
+        "elapsed_seconds": 0.235,
+        "windows_after": []
+      },
+      "sandbox_cleaned": true
+    },
+    {
+      "status": "passed",
+      "delivery": "sales",
+      "presentation_checked": true,
+      "two_quote_image_tasks_completed": true,
+      "production_origin": "http://tauri.localhost",
+      "automatic_business_entry": true,
+      "no_configuration_or_login_controls": true,
+      "actual_IPC_HTTPS_submit": true,
+      "manual_login_direct_invoke_denied": true,
+      "sales_fields_restricted": true,
+      "secrets_not_in_frontend_storage": true,
+      "UI_idle_before_native_close": true,
+      "published_images": {
+        "files": [
+          {
+            "width": 1200,
+            "height": 1840,
+            "job_id": "8fa64cd3-f170-4317-9e3a-b080be327094",
+            "sha256": "8117481134fdab564f7c117ea576150567c604436d9038dfeba7a75cccc4334c"
+          },
+          {
+            "width": 1200,
+            "height": 1840,
+            "job_id": "d1a5d396-d760-4416-8b92-cd3dd6ad64e0",
+            "sha256": "2d7bc32905c44a4a4a63c85a4b0f645f6af0a4478925bed8d051a6b67ba21a08"
+          }
+        ],
+        "Chinese_path": true,
+        "no_overwrite": true,
+        "order_count_unchanged": true,
+        "saved_lines": 40,
+        "last_line_pixels_present": true
+      },
+      "presentation": {
+        "status": "passed",
+        "delivery": "sales",
+        "initial": {
+          "device_pixel_ratio": 1,
+          "width": 1028,
+          "height": 749,
+          "screen": {
+            "width": 1024,
+            "height": 768,
+            "available_width": 1024,
+            "available_height": 720
+          }
+        },
+        "samples": [
+          {
+            "scale": 1,
+            "emulation": true,
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1,
+            "document_width": 1440,
+            "fonts": {
+              "chinese": true,
+              "number": true
+            },
+            "icons": [
+              {
+                "source": "/icons/a09ba.svg",
+                "natural": 14,
+                "width": 14
+              }
+            ],
+            "table_scrollable": true,
+            "screenshot": "presentation-sales-100.png"
+          },
+          {
+            "scale": 1.25,
+            "emulation": true,
+            "width": 1152,
+            "height": 800,
+            "dpr": 1.25,
+            "document_width": 1137,
+            "fonts": {
+              "chinese": true,
+              "number": true
+            },
+            "icons": [
+              {
+                "source": "/icons/a09ba.svg",
+                "natural": 14,
+                "width": 14
+              }
+            ],
+            "table_scrollable": true,
+            "screenshot": "presentation-sales-125.png"
+          },
+          {
+            "scale": 1.5,
+            "emulation": true,
+            "width": 960,
+            "height": 667,
+            "dpr": 1.5,
+            "document_width": 945,
+            "fonts": {
+              "chinese": true,
+              "number": true
+            },
+            "icons": [
+              {
+                "source": "/icons/a09ba.svg",
+                "natural": 14,
+                "width": 14
+              }
+            ],
+            "table_scrollable": true,
+            "screenshot": "presentation-sales-150.png"
+          },
+          {
+            "scale": 2,
+            "emulation": true,
+            "width": 720,
+            "height": 500,
+            "dpr": 2,
+            "document_width": 705,
+            "fonts": {
+              "chinese": true,
+              "number": true
+            },
+            "icons": [
+              {
+                "source": "/icons/a09ba.svg",
+                "natural": 14,
+                "width": 14
+              }
+            ],
+            "table_scrollable": true,
+            "screenshot": "presentation-sales-200.png"
+          }
+        ],
+        "account_keyboard_focus_and_escape": true,
+        "scope": "Actual rendered DOM/fonts/assets and CDP scale emulation. Four emulations are not four actual OS DPI settings or multiple physical monitors."
+      },
+      "actual_OS_window_DPI": 96,
+      "physical_multi_monitor_and_other_OS_DPI": "requires_user_hardware_observation",
+      "close": {
+        "status": "passed",
+        "pid": 7760,
+        "close_message_posted": true,
+        "process_exit_observed": true,
+        "exit_code": 0,
+        "forced_termination": false,
+        "windows_before": [
+          {
+            "hwnd": 459302,
+            "pid": 7760,
+            "title": "记账器",
+            "class_name": "Tauri Window",
+            "visible": true,
+            "width": 1044,
+            "height": 788
+          },
+          {
+            "hwnd": 328240,
+            "pid": 7760,
+            "title": "",
+            "class_name": "Tao Thread Event Target",
+            "visible": true,
+            "width": 16,
+            "height": 16
+          },
+          {
+            "hwnd": 131660,
+            "pid": 7760,
+            "title": "MSCTFIME UI",
+            "class_name": "MSCTFIME UI",
+            "visible": false,
+            "width": 0,
+            "height": 0
+          },
+          {
+            "hwnd": 262716,
+            "pid": 7760,
+            "title": "Default IME",
+            "class_name": "IME",
+            "visible": false,
+            "width": 0,
+            "height": 0
+          }
+        ],
+        "target": {
+          "hwnd": 459302,
+          "pid": 7760,
+          "title": "记账器",
+          "class_name": "Tauri Window",
+          "visible": true,
+          "width": 1044,
+          "height": 788
+        },
+        "elapsed_seconds": 0.078,
+        "windows_after": []
+      },
+      "sandbox_cleaned": true
+    }
+  ],
+  "source_commit": "6ad35cec343714b7b702a2981c3d146e2a0bb0ea",
+  "worktree_dirty": true,
+  "current_step": "node.EXE",
+  "preflight": {
+    "status": "passed",
+    "node": "v22.23.3",
+    "rust": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6",
+    "cargo_jobs": 2,
+    "dependency_sources": "Cargo.toml/Cargo.lock and desktop/package-lock.json; download occurs after preflight",
+    "Windows_native_prerequisites": {
+      "MSVC_cpp_tools": true,
+      "Windows_SDK": true,
+      "WebView2_Runtime": true,
+      "WebView2_registered_versions": [
+        "154.0.4258.62"
+      ],
+      "process_elevated": true
+    }
+  },
+  "presentation_acceptance": "Actual OS DPI/physical multi-monitor and user visual acceptance pending; CDP emulation is separate.",
+  "font_assets": [
+    {
+      "file": "NotoSansSC-VF.ttf",
+      "expected_sha256": "d68bafcb48a2707749396aa12bbbd833cb70401f3a9a689fd2902c7e0d295964",
+      "sha256": "d68bafcb48a2707749396aa12bbbd833cb70401f3a9a689fd2902c7e0d295964",
+      "bytes": 17773132,
+      "source": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/Variable/TTF/Subset/NotoSansSC-VF.ttf"
+    },
+    {
+      "file": "InterVariable.woff2",
+      "expected_sha256": "693b77d4f32ee9b8bfc995589b5fad5e99adf2832738661f5402f9978429a8e3",
+      "sha256": "693b77d4f32ee9b8bfc995589b5fad5e99adf2832738661f5402f9978429a8e3",
+      "bytes": 352240,
+      "source": "https://raw.githubusercontent.com/rsms/inter/e3a3d4c57d5ecc01453a575621882a384c1995a3/docs/font-files/InterVariable.woff2"
+    }
+  ],
+  "implementation_sha256_LF": {
+    ".github/workflows/p07-windows.yml": "3552f6faa312a07447384897e4059a89ffa51ae9a0ae6240c250a3ef62ec1ed5",
+    "Cargo.lock": "ed19947197eb57a1e48bfb911d2846c5e2a132e8108503132810bb014c6b0fab",
+    "Cargo.toml": "5642d853e1987beedabefc4e5db15e5caf2e1a11274db247a569211ded01b129",
+    "crates/quote-core/Cargo.toml": "76e14d102f5ee24043c1c5e0c0b1b78ee13b831b4680d5edc9559f39adc5a390",
+    "crates/quote-core/src/bin/quote-shadow.rs": "84dc57cda725bbb643afd9a3366f40254b27e6ff46f7ca037a2638f22ab40e5a",
+    "crates/quote-core/src/calculation.rs": "c058322fec81b22a9f3f62ef03d6a8c62e827fac6a60a59ea7ba24b2dfe7d564",
+    "crates/quote-core/src/configuration.rs": "273bcb4171309b146ffd020ac80fbd8496a192ab7d4f2dabc7596bb9e11ee46a",
+    "crates/quote-core/src/lib.rs": "c90c4bf93211c7b0eb0d016344f22c47b725931d94e979cbea014a5cd6500d90",
+    "crates/quote-core/src/models.rs": "f7bd537baa71784bceac468e29df2b24edd5f1b51a048887a13621ec6a35a356",
+    "crates/quote-core/src/numbers.rs": "2c88b6ab1c3122cb93f9307f8b4165f6ec0f94a45e237fb67812e02f68123ef4",
+    "crates/quote-core/src/session.rs": "7e54fd6e111c6a6260f32db7694c549fb52079c03178c910a24fb4d767d183c6",
+    "crates/quote-core/tests/domain.rs": "d2ebf7dbc77809190e6143f74aabd7dd19236ea5085657f0af6de7504fdb457c",
+    "crates/quote-excel/Cargo.toml": "bbbab0196198f3d1e3f0e67679dca3bbff24b5a49cbc3f806327378c57ea68b9",
+    "crates/quote-excel/src/lib.rs": "5e54a69bad470a96fa9cf80ceca95296334d4c69e24e2009816ff736b7997c39",
+    "crates/quote-excel/src/read.rs": "7649852bf3a11182211a23f32cc36968d8076cbacd5d51019b467e3bb8f20d1b",
+    "crates/quote-excel/src/write.rs": "cc82df45a10bb38db93e7a7330dc61ceaed2467fb704ccfe90f9bbca581d0d88",
+    "crates/quote-excel/tests/format.rs": "3b7a3c31db533926f36dacfa6f9ebc7cb97cb929c8c44e1b3e7c0e903b22fde2",
+    "crates/quote-host/Cargo.toml": "f61bc9c7f7bd27035a5d7280ef345db6ee6cc9abd19fb7d365cc4058e3f941e2",
+    "crates/quote-host/src/auth.rs": "3c51ea57b5cecb48f06b84112d834b7b6ac33dbd5656c45e846b62ac37e77b70",
+    "crates/quote-host/src/backup.rs": "eceaaff7cef212a31e5ab20b4aedfdce92b1b23442585fd2d7a38ea9af4bb7da",
+    "crates/quote-host/src/casefold-v15.json": "24eb3573c56bae4928187f5f3626de6a271269178f47e4afc82cb36c1e815cc3",
+    "crates/quote-host/src/devices.rs": "7e6dc5c720036d888926d06b28d898c4efb0fa14f9b2a626b07861d0f0cbc5c1",
+    "crates/quote-host/src/files.rs": "d4022888ab77499778b7959c66644067586a633f45b8deda43d7e049c25ce1f5",
+    "crates/quote-host/src/host.rs": "cdd7fb7a489f5a4657fdf2ac0157735a60a8c9d250dc46e8530c93c7ceaed095",
+    "crates/quote-host/src/image.rs": "48845743a17b8a02b2eb4f98519408b897b6600f1d3062c10f93277583607a94",
+    "crates/quote-host/src/lib.rs": "779c983d241decfaf521652fd3ddae3c65ac737a458c6b0294bfcc8ad1f9469b",
+    "crates/quote-host/src/main.rs": "d3cf8b1ba1d86c665d0dcc9cfc8d432db65c1fe3bd378dca1def0db74ebced6f",
+    "crates/quote-host/src/outputs.rs": "4b6feccdfa9252daf4091f2c8965bb295189871f29c90b1fd69819e030a7b1bc",
+    "crates/quote-host/src/protocol.rs": "1a75af836ef5b9bf0554fff94a065f9bf8a19177b030dcd39dc35bd5fadc663e",
+    "crates/quote-host/src/query.rs": "1211b46fa84ee424fd4674fad4cb988c5cde9e97fd7acd86a16b182db44bb44b",
+    "crates/quote-host/src/service.rs": "6975c0c53a5e3e6e9509cb2c4aa1f2438477064c039439dbb98decc632079b60",
+    "crates/quote-host/src/transport.rs": "05d4f590eca73a7f4ef3589774ecc3e6962c90757aae8f15a663e37b03bb04b2",
+    "crates/quote-host/tests/boundary.rs": "a91487b80532ce416b2f7777762f7dc2614a0d59ee4f13b9c5e1fbea710b3546",
+    "crates/quote-host/tests/device_auth.rs": "bac54d74986de5765bdc8454e9201c5688febf32c552c554736d4d31743375a6",
+    "crates/quote-ledger/Cargo.toml": "73714cd98ef4103258e3b1976c47cc1c54a1242a8c06fb160079354f962ea7ab",
+    "crates/quote-ledger/src/integrity.rs": "2bf622a492d1c9d853c1a685899797b090e0f96a1d1ebd1d2102524f80713e73",
+    "crates/quote-ledger/src/lib.rs": "cb084fe1fef7a9cc60836ca4551578b2fd11a42c781f295d13ef95655c04406a",
+    "crates/quote-ledger/src/main.rs": "06242b3f96bc6d0095b2ab15e0aa2b398953d9a409c1dc2e97804a849e271854",
+    "crates/quote-ledger/src/paths.rs": "b0d9322aa61daa01e877c05cd58bef5888192c04b205595ae512e22255e64f14",
+    "crates/quote-ledger/src/store.rs": "c6aaa4b6a145a1bb69ef1897e0978598f15645098b67e3fe8a0bd275a370a925",
+    "desktop/package-lock.json": "a8ae37040b5fb282eeb5e51160baa4c386a1f171ee77052230a5ff43be960727",
+    "desktop/package.json": "4bc89169258dc4ed72288518fb7f46e1e6c3cc4a288503c9382b0b19d90af07d",
+    "desktop/playwright.config.ts": "0a499235b0503b4fefafd6cae3a4fccbb8463175dc8c668b1479f6c58eb7ef28",
+    "desktop/playwright.native-tools.config.ts": "c030f4f8ecf1a25240c0f431ff7a85234aac00bc0f2cddfd36d7048fe857ad8c",
+    "desktop/playwright.presentation.config.ts": "502c4211f1b065ce8dffe9858bb488846511496f2e5220dd888d0a31034b160a",
+    "desktop/public/icons/09c30.svg": "4675d28207183903aa226c31309ad5d21627aef900737cab226374c33de54530",
+    "desktop/public/icons/2eb61.svg": "fc026487878113a216b376a29afe78ea7cc972358a179b76478755e8efb7939b",
+    "desktop/public/icons/74181.svg": "ca6fbcb7772da09ace8e7114c68bcbae5ee4c0e341688b1abc11a2d97c3d8873",
+    "desktop/public/icons/7bfb4.svg": "8fcb17ad9bfa58ecc31856e7cfaaea4205c7b94b4ceb5d2bd9b30b9ce71764f7",
+    "desktop/public/icons/a09ba.svg": "fe9da9584ea1261b7fabd08829bffca2b5e1c8b8651681fdf3cc6dbfac54dff3",
+    "desktop/resources/fonts.json": "05b058fb794b22e71aef7e4bc9dd27afbdb1b1ec31e5fdde840e5fa1c6dca0d9",
+    "desktop/resources/licenses/Inter-OFL.txt": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a",
+    "desktop/resources/licenses/Noto-OFL.txt": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2",
+    "desktop/src/app.css": "c3c64c386d8e0ee2d2aefb4ee6adb09e99caca17f7da85528d8f00702d88d06f",
+    "desktop/src/App.tsx": "f2705fe25af4c74be8d3ed2f3a855dcfc67b7f38df33c00f7fba036bf9b62409",
+    "desktop/src/bridge.ts": "9272e3ef597f20a5a6415b4b49adc21c8679e38e147bd34862bca60e2f0dd6ef",
+    "desktop/src/contracts.ts": "51007f48cf10f5e9632694a54def20244c38d294917f871a1a0725fd530abd1e",
+    "desktop/src/features/ConnectionPage.tsx": "fab3ba7138134613bab5e39bfb0b1795c0e7820ea6b40b7b0c5559b0580ef5e8",
+    "desktop/src/features/DetailPage.tsx": "a0363592b9ae3532adb63a72f4e41ca86efb4c7669a1102f0da6bd425e9766cf",
+    "desktop/src/features/ManagementPages.tsx": "2c064be5c7b59ae87227ab478a8e9b1ef33be40bb12f25475745250b3c350557",
+    "desktop/src/features/OrdersPage.tsx": "0257de427d3eac6717dbe476d2d986a9d8591bedbaa2a892a0516dfe0c30fb24",
+    "desktop/src/features/QuotePage.tsx": "ac04c4855370149d859ffc9a6ee321ae7a2848775ddcf20547f7641d8f6dea7e",
+    "desktop/src/main.tsx": "c4122a275b5a5c6101bb28fc1fa113f9356fb3d6064a4b899a9d20a0851fe570",
+    "desktop/src/state/draft.ts": "6488a349e91e1e7df7cb00de59651e93223beddb1a9afb6cb3eb6c5e44a13459",
+    "desktop/src/state/format.ts": "7294f9ccc7c866797c6a2bd510b29b54110191903b82dda88bef833a8bd14fb5",
+    "desktop/src/state/useWorkbench.ts": "97b6c3ddc9d5b69bfb5e9c62fc04774bdbbc04e28b6f4ccfb88579e4cb601031",
+    "desktop/src/tokens.css": "5385da83d11e22118315af945ec390de15647adbb705b5de055ce7251d243646",
+    "desktop/src/ui/components.tsx": "c9c994fc84abdfd704958b159d237ac8391a9074d53d85c159ca67efd372b3d1",
+    "desktop/src-tauri/build.rs": "18068a9c3e5ce39adb0901f6c4ca794e87ac327ac60cd972d397f33a2dcb3532",
+    "desktop/src-tauri/capabilities/main.json": "0dc0fc54faa577dcd3a879ade5d2fb321e435fd69c34efcf19eba6c13aff273c",
+    "desktop/src-tauri/Cargo.toml": "b970c90c62a6fad1259702d23247cbdae52587ea98bc8d0f5c5003baf97c1e50",
+    "desktop/src-tauri/permissions/autogenerated/desktop_action.toml": "78d35cf83751692581c4138b77717c54ec53d48c76a56b362864939bce53a357",
+    "desktop/src-tauri/src/client.rs": "808b08f59215763e31798d01f52c60df3e471a8fcec546319f8ab2a8fc69e926",
+    "desktop/src-tauri/src/journal.rs": "aacab7dedfe15bcb794725e680a2c7d6a41b3ebe1e972eecb5fd5dbee8db16c9",
+    "desktop/src-tauri/src/lib.rs": "6db9aa12aa8a43d2389c8e0acdb15d6b0835f0e3c63860ee6e6124c7467b53ad",
+    "desktop/src-tauri/src/main.rs": "fa896ec72d6a05e36acbc1ffa93b97fd485c8a1d12547353f125eead7f6a212a",
+    "desktop/src-tauri/src/startup.rs": "d1208a9ce28caa8e3c0122901b9c1e1728cc5b6501f9ba88f187f8f2c469110d",
+    "desktop/src-tauri/src/tls.rs": "0bbfae71cebaf7abf11c9834cfa70736135379e87605a41a54426f59e68e6921",
+    "desktop/src-tauri/src/types.rs": "e9fa6d7ff6a8280402e9b927c867ec71c85d56a33378e40cc820fbd31e2c88b7",
+    "desktop/src-tauri/src/verification_window.rs": "728f4a82d2e346114b08627f9ae5f0481c5fa4d9c966ef4ff4632f122bc1e0eb",
+    "desktop/src-tauri/tauri.conf.json": "b90bdfc2825d6d156deb4fa613707f490bdf9047f9bcb8d341c95c5512fdab71",
+    "desktop/tests/draft.test.ts": "324fd6e805e4093c4bdf7a6883f4b89e05d638da497396ff017bc98e958e4138",
+    "desktop/tests/fonts.test.ts": "e0e344280ec74023f4afd0cc46c13423da6fbec19d9cbdf09028c5dccd000043",
+    "desktop/tests/native-cdp.mjs": "9417a30900c56d81d519decefa4d1c16d8397018aed27d9170791a4327153cd6",
+    "desktop/tests/native-cdp.test.ts": "c797eb40692491ef4452b6daeac71e9b757ad070f60eb283e8925c86f4392d8e",
+    "desktop/tests/native-origin.mjs": "825647bce9d1dd2be0f07e78012a767a82aa747aed6d75035c82245ffda6745a",
+    "desktop/tests/native-origin.test.ts": "77eeb0e45ac6a6c995ad904bc00d1b601c67f86b12678b96117920986472ecf5",
+    "desktop/tests/native-presentation.mjs": "3774376debb03916e69ad795e423561f97bba4bbc0b2c9d4575af8919f5fb44e",
+    "desktop/tests/ui/native-autostart.spec.ts": "49f08710e5d688de11a405a2a6bb3ffd549e6be0ecc3cdd2b06d4a7133495bd4",
+    "desktop/tests/ui/presentation.spec.ts": "9efa4f9740677681ccda95fb42d1bbe675d3cdf57ba16ae616e3b01830463e07",
+    "desktop/tests/ui/workbench.spec.ts": "95510190e5c3c1a8926782db2a2ffd789cc461c38c68d69fcdc8b40f9da96159",
+    "desktop/tests/windows-autostart.mjs": "d7fb334c2c4590057f85964f7f9443e33b5654621c436258f75dbd8089f302f5",
+    "desktop/tests/windows-smoke.mjs": "1c5ea6cee605bfbecc113a7283a0d7d04a310dbcefe662dbc49d95c915192a2a",
+    "desktop/tools/develop.mjs": "8cb7ef6dee1679072ec43bde66761a944ba75d0971df740a822335408acd6140",
+    "desktop/tools/prepare-fonts.mjs": "744c02811720d1a2fd7fefdb94ba85002f1c58a255498a21e593e53036a0e809",
+    "desktop/tsconfig.json": "c16750f08c9ba56eef5cc8e6a4051e2fc8e808cc66e9882041983efba9520832",
+    "docs/verification/P07-02-device-schema.sql": "19dcd9b2c58eca8ebdd892bfa4d57f657e000b30bede22fab2899c9563380379",
+    "rust-toolchain.toml": "559f488c181e0e9e77cf17c29de663977f036ec7ff2e2060585714bf53c52d62",
+    "tools/baseline_check.py": "6fb6939e96a3c91794ed60b8d6da01548d7061606f40bf00e303d31911b6ac57",
+    "tools/collect_p01_samples.py": "948644386da7f945597f8df43331e9c4e1c205ee828be2a490014fed84ac14f0",
+    "tools/p01_fixtures.py": "902eb2b7905cd35645843774548bf42a08b93a794a04943222ff39101d8cc6bc",
+    "tools/p01_oracle.py": "8217df29596b2b49fc0d6b4800ee97ca160907f6e6cd735fc2f0c2b733875816",
+    "tools/p01_validation.py": "deb19a82a23df83f3eb02171362502482560f8559a648c0195d32d6cfcf3bb4e",
+    "tools/p02_gui_check.py": "b2fe3f797bc2cf84ddc53f4f8dcaefd85bdce1a30184a90851f234cc032a91b3",
+    "tools/p03_file_check.py": "64b9cd2f4f3245ae8a7344c380cecdb435de73a98e3dec83d400d7b47327530a",
+    "tools/p03_format_check.py": "abe58b61efc2f05afca351f07acf3e17b5bbead5137e18addab023eb6be593ea",
+    "tools/p03_order_check.py": "bfb7c81d85fb4de8a01a2eca2592aff2708d2d43fbffdebd7eb66c0c02b20b75",
+    "tools/p03_shared_check.py": "103d30d5edc485a09e625d114bd0206e6498e8895e67caf8aad395afac1f7315",
+    "tools/p03_storage_check.py": "bc7ff7be43c930ebfa19e7a070ca846d477eff5d388889c285487b7c4e79fe1b",
+    "tools/p04_cache_check.py": "3b6a34de8fa7d00be475180d6a4ce50ebea534b2fa0f4dd71a3d256f6104680d",
+    "tools/p04_io_check.py": "d40e43318ec1a369e4f605d33860b4af1781f135602f12d5f3b01fe535648df8",
+    "tools/p04_metrics.py": "355a2845d20f4490baaa846752f4c1964bb74b92afb31f332f59ed86a919ff27",
+    "tools/p04_pagination_check.py": "341feb2fd846a7b0a42fa509a3459babcc4bc3fa3689060d92e05381859c61da",
+    "tools/p04_performance_check.py": "b21a3722964a8596e7d72d43d003330ebe78c7b267bb487081067ac795b7fca9",
+    "tools/p05_import.py": "5737c5f1833549d7d2e8b8fc8c51345dcf0fb8b63bb9e9480a7a7fa304e84d1e",
+    "tools/p05_import_check.py": "5c77ca4ef200a266af11c25a58a4977378287e692d0388e44143294a8da0eb73",
+    "tools/p05_ledger_check.py": "cb447be122ee6e661aae8e79a5d412aec024779a30bd5c2645cfc3312c68dbf8",
+    "tools/p05_output_check.py": "f04b089620cbe368796016258d6b1ce43c416ae644f1bcd5aa5abaa85068aa86",
+    "tools/p05_service_check.py": "c5500deef3609ba45b0bde219c1849dd6cb347b24fce26b37315638f86f131c4",
+    "tools/p06_cases.py": "bcc7d8966b4862d46a297b833e78b3118e83a71b2604abcde6644a2e09ccbd87",
+    "tools/p06_ci_fonts.py": "17cd09525e12c22a67fe3a130a2a27e517afde28dfb03da25590b8ea5945379f",
+    "tools/p06_core_check.py": "0fdbee292d07824a7090ca08d1c160c268cb1ecefff95d82b8d7bd41149fb94d",
+    "tools/p06_excel_check.py": "a7071b7c28e5f57e91f585318c06caabb5322555a8f9795440be54dd5903b460",
+    "tools/p06_host_check.py": "8a03e8303c4809b4dbc8681325b2d08b1b8efc20ea8655e0d197ea36afdfdf86",
+    "tools/p06_ledger_check.py": "5db42787afc25b38fc881d0d4f450ebab62711f60840e4732e88e4745a9816c5",
+    "tools/p06_reference_host.py": "700ab65db95bbc42a2518e3a78ab594c092f75cdccce5e4c21ae1b0f15c4a37d",
+    "tools/p06_resources.py": "5b520b2aa41798ccdf5d33d1cff0929452ccf7c0d74f09c44ef5ecfa269e435f",
+    "tools/p07_check_runner.py": "d248ae97ce501ca22a192ff41ac0c30932ae3858fae57f3d9409cb0fbbb78e41",
+    "tools/p07_desktop_check.py": "a6639d8e7abc8e631a90f28ea4558bfb702e669262c9bc80e81e29feaef81850",
+    "tools/p07_desktop_fixture.py": "40e569cb5932dfab21b61ebcf3274da31666c28410f759beaad6c7b462e8da85",
+    "tools/p07_dev_host.py": "8476851405a1dfed9b9378f60a61a4f29cd73ec4c3bc36e5b981d56157cd3eb2",
+    "tools/p07_device_check.py": "26f172a7b846ae7eb1802ac3a5b817664b6b299242dd9ef3d570a33c3f6d8acd",
+    "tools/p07_native_window.py": "17ffc27133324af97af1dd620faafeb326fe230eb3f7a74f92ec772995dd6f55",
+    "tools/p07_presentation_check.py": "5b6f4fd0f469633372581c69d7c33b4c6982890d385823923037d7183ea698ad",
+    "tools/p07_provision_device.py": "a3ebdcd19693f2e31ca730f807b93b9e050d5cd39a0a053de8969255183fb11a",
+    "tools/quote_service_host.py": "28302ae9a967d817c4f1dff8a4d6fc51107a9d321044736016abf0ba16ee19f4",
+    "tools/run_quote_client.py": "235141d8eb2ff2fefc0f48389a229cee463be0ad6007f94d3b7a09e05cd38ec8"
+  }
+}

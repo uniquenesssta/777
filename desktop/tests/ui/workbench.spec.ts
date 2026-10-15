@@ -48,6 +48,21 @@ test.afterAll(async ({ request }) => {
   const r = await request.post(host + "/cleanup", { data: {} });
   expect(await r.json()).toEqual({ sandbox_cleaned: true });
 });
+
+test("profit charts use the full real ledger across order pages", async ({
+  page,
+}) => {
+  await login(page);
+  await page.getByRole("button", { name: "利润分析", exact: true }).click();
+  await expect(
+    page.getByText("有效订单 25 笔", { exact: false }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "收入成本利润柱状图" }),
+  ).toBeVisible();
+  await expect(page.locator(".analysis-metrics")).toContainText("2,500.00");
+  await expect(page.locator(".analysis-metrics")).toContainText("1,250.00");
+});
 async function login(
   page: import("@playwright/test").Page,
   username = "manager",
@@ -329,10 +344,14 @@ test("confirmed write with failed detail refresh clears the original draft and n
   await expect(page.getByLabel("备注内容")).toHaveValue("失败后保留的备注草稿");
 });
 
-test("development keeps an explicit connection editor without exposing it as formal authentication", async ({page}) => {
+test("development keeps an explicit connection editor without exposing it as formal authentication", async ({
+  page,
+}) => {
   await login(page);
-  await page.getByRole("button", {name:"存储与备份",exact:true}).click();
-  await page.getByRole("button", {name:"开发连接设置",exact:true}).click();
-  await expect(page.getByLabel("服务地址", {exact:true})).toBeVisible();
-  await expect(page.getByRole("button", {name:"登录",exact:true})).toBeVisible();
+  await page.getByRole("button", { name: "存储与备份", exact: true }).click();
+  await page.getByRole("button", { name: "开发连接设置", exact: true }).click();
+  await expect(page.getByLabel("服务地址", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "登录", exact: true }),
+  ).toBeVisible();
 });

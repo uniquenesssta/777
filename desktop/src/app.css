@@ -957,3 +957,29 @@ textarea {
   .readonly-customer > div { flex: 1 1 160px; }
   .dialog-content[data-compact="true"] { width: min(380px, calc(100vw - 32px)); }
 }
+
+/* Business summaries keep the approved compact purple/gray visual language. */
+.profit-page { padding:24px; display:flex; flex-direction:column; gap:24px; min-width:0; }
+.profit-page h2 + p { margin-top:8px; }
+.analysis-filters { display:flex; align-items:end; gap:16px; flex-wrap:wrap; }
+.period-buttons { display:flex; padding:4px; border-radius:10px; background:var(--color-soft); }
+.analysis-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+.analysis-metrics article { display:flex; flex-direction:column; gap:12px; padding:20px; border-radius:12px; background:var(--color-soft); min-width:0; }
+.analysis-metrics small { color:var(--color-muted); }
+.analysis-metrics strong { font-size:clamp(18px,2vw,28px); overflow-wrap:anywhere; }
+.analysis-metrics [data-highlight=true] { background:var(--color-accent-soft); color:var(--color-accent-ink); }
+.chart-heading { margin-bottom:-12px; }
+.chart-legend { display:flex; gap:18px; font-size:12px; color:var(--color-muted); }
+.chart-legend span { display:flex; align-items:center; gap:6px; }
+.chart-legend i { width:9px; height:9px; border-radius:3px; }
+.profit-chart-scroll { overflow:auto; max-width:100%; }
+.chart-axis { font-size:11px; fill:var(--color-muted); }
+.analysis-data { border-top:1px solid var(--color-line); padding-top:16px; }
+.analysis-data summary { cursor:pointer; color:var(--color-accent); font-size:13px; }
+.analysis-caption { font-size:12px; }
+.directory-choice { display:flex; gap:12px; align-items:center; }
+.directory-choice .input { flex:1; min-width:0; }
+.directory-choice .button { flex:none; }
+.export-purpose { line-height:1.7; }
+@media(max-width:1000px){ .analysis-metrics{grid-template-columns:repeat(2,minmax(0,1fr));} .profit-page{padding:16px;gap:20px;} }
+@media(max-width:560px){ .analysis-metrics{grid-template-columns:minmax(0,1fr);} .directory-choice{flex-wrap:wrap;} }

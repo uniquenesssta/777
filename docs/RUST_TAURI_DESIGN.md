@@ -1,6 +1,6 @@
 # Rust + Tauri 拟议架构与迁移方案
 
-状态：P06原生Rust宿主已验收；P07-01已按用户指令验收；P07-02固定开发入口、设备授权与母子自动连接已验收；P07-03界面/资源/退出协调已实现，辅助通过、待Windows/用户验收。双安装包仍留04。后文初始拟议边界保留；当前实现见文末P07-01及[契约](verification/P07-01-desktop-contract.md)。真实服务部署/生产切换未执行。
+状态：P06原生Rust宿主已验收；P07-01已按用户指令验收；P07-02固定开发入口、设备授权与母子自动连接已验收；P07-03原界面/资源/退出Windows CI已通过，本轮新增利润图表/目录弹窗待新CI及用户验收。双安装包仍留04。后文初始拟议边界保留；当前实现见文末P07-01及[契约](verification/P07-01-desktop-contract.md)。真实服务部署/生产切换未执行。
 
 ## 1. 为什么先优化数据与规则
 
@@ -146,3 +146,7 @@ P06已按用户2026-10-14“收尾04”[全部验收](verification/P06-acceptanc
 ## P07-03当前资源与进程生命周期
 
 Noto Sans SC/Inter由构建脚本按固定提交/长度/SHA256准备，原OFL随本地资源内嵌；运行时不取字体CDN。React按逻辑宽度响应布局，原生DPI保持Tauri/WebView2处理；CDP模拟与物理显示器结果分开登记。开发入口由外层管理Rust服务和Tauri兄弟进程，Tauri beforeDev只管理Vite，避免窗口关闭把服务一并强制结束。正式原生关闭只对有业务写副作用的IPC计数，慢读取/连接不拦窗口，未知写仍恢复原DPAPI记录。详见[03契约](verification/P07-03-presentation-contract.md)；安装器/真实部署尚未执行。
+
+## P07-03业务界面补充
+
+利润分析从订单列表中独立为 `ProfitPage`，由宿主新增只读管理员 `/v1/analytics` 提供带账本revision的业务日历汇总，复用查询增量缓存/已保存整分金额；UI仅排版与绘图。Windows主窗口增加typed文件夹选择，直接复用锁定windows 0.62.2 COM/Shell接口，选中后仍由原发布设置API作权威路径/revision校验；无新增通用文件权限、图表库或网络UI依赖。角色、字段和共享目录边界见[补充契约](verification/P07-03-business-ui-contract.md)。

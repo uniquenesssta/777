@@ -1,0 +1,140 @@
+(node:5) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+> quote-desktop@0.1.0 test
+> node --import tsx --test tests/*.test.ts
+
+(node:18) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+TAP version 13
+# (node:25) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:25) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: late calculation cannot restore authority after any input or price change
+ok 1 - late calculation cannot restore authority after any input or price change
+  ---
+  duration_ms: 0.999437
+  type: 'test'
+  ...
+# Subtest: revision and display cents never pass through JS floating point
+ok 2 - revision and display cents never pass through JS floating point
+  ---
+  duration_ms: 0.303258
+  type: 'test'
+  ...
+# Subtest: only raw draft fields restore, never a claimed result or stored role
+ok 3 - only raw draft fields restore, never a claimed result or stored role
+  ---
+  duration_ms: 0.356437
+  type: 'test'
+  ...
+# Subtest: confirmed original order clears only its own raw draft and preserves edits during submit
+ok 4 - confirmed original order clears only its own raw draft and preserves edits during submit
+  ---
+  duration_ms: 15.872715
+  type: 'test'
+  ...
+# (node:26) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:26) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: pinned font download is atomic, cached and usable without network
+ok 5 - pinned font download is atomic, cached and usable without network
+  ---
+  duration_ms: 18.484314
+  type: 'test'
+  ...
+# Subtest: wrong download and corrupted cache never become accepted font assets
+ok 6 - wrong download and corrupted cache never become accepted font assets
+  ---
+  duration_ms: 7.933624
+  type: 'test'
+  ...
+# Subtest: ordinary font preparation keeps its Chinese CLI progress
+ok 7 - ordinary font preparation keeps its Chinese CLI progress
+  ---
+  duration_ms: 101.342558
+  type: 'test'
+  ...
+# Subtest: development preparation reports missing fonts without making network requests
+ok 8 - development preparation reports missing fonts without making network requests
+  ---
+  duration_ms: 5.534028
+  type: 'test'
+  ...
+# Subtest: offline development still rejects corrupted cached font bytes
+ok 9 - offline development still rejects corrupted cached font bytes
+  ---
+  duration_ms: 2.393777
+  type: 'test'
+  ...
+# Subtest: explicit font preparation cancellation rejects promptly and leaves no partial file
+ok 10 - explicit font preparation cancellation rejects promptly and leaves no partial file
+  ---
+  duration_ms: 1.969381
+  type: 'test'
+  ...
+# (node:27) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:27) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: native readiness preserves the underlying CDP error and attempt diagnostics
+ok 11 - native readiness preserves the underlying CDP error and attempt diagnostics
+  ---
+  duration_ms: 22.448643
+  type: 'test'
+  ...
+# Subtest: native readiness succeeds after transient refusal and bounds each connect attempt
+ok 12 - native readiness succeeds after transient refusal and bounds each connect attempt
+  ---
+  duration_ms: 2.378575
+  type: 'test'
+  ...
+# Subtest: a failed connection checkpoint closes the attached browser and does not retry
+ok 13 - a failed connection checkpoint closes the attached browser and does not retry
+  ---
+  duration_ms: 0.353833
+  type: 'test'
+  ...
+# (node:33) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:33) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: actual Windows Tauri production origins accept embedded-page paths
+ok 14 - actual Windows Tauri production origins accept embedded-page paths
+  ---
+  duration_ms: 0.731191
+  type: 'test'
+  ...
+# Subtest: Vite, browser error pages and lookalike hosts fail before waiting for login
+ok 15 - Vite, browser error pages and lookalike hosts fail before waiting for login
+  ---
+  duration_ms: 0.427262
+  type: 'test'
+  ...
+# (node:39) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:39) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: calendar ranges cross years and leap days without local timezone arithmetic
+ok 16 - calendar ranges cross years and leap days without local timezone arithmetic
+  ---
+  duration_ms: 1.550241
+  type: 'test'
+  ...
+# Subtest: chart coordinates support losses and huge exact cents without converting money to Number
+ok 17 - chart coordinates support losses and huge exact cents without converting money to Number
+  ---
+  duration_ms: 0.316628
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 398.121764
