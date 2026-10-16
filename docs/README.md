@@ -1,6 +1,8 @@
 # 文档与计划入口
 
-日期：2026-10-16（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；当前执行分支：`stage/p07-tauri-desktop`；P01收尾提交：`7099303`。
+日期：2026-10-17（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；当前执行分支：`stage/p07-tauri-desktop`；P01收尾提交：`7099303`。
+
+新增任务：[P07-06每日Excel备份与开发者预设隐藏副本](now/P07-tauri-desktop.md#p07-06-每日-excel-备份与开发者预设隐藏副本)已建档，实施待启动；每日Excel和隐藏副本是新的备份需求，P07-05仍待签收。本次未修改程序或Figma。
 
 ## 当前状态
 
@@ -10,7 +12,7 @@
 | 本轮授权 | 用户2026-10-16要求P08-01前补开发版目录/读取/封包UI，并要求先建任务书；既有推送授权有效 |
 | 文档工作 | [P07任务书](now/P07-tauri-desktop.md)因追加05移回now；01至04原验收、设计交接和历史证据保持 |
 | 当前开发阶段 / Atomic Task | [P07-05开发者存储与一键封包UI](now/P07-tauri-desktop.md#当前追加任务p07-05-开发者存储与一键封包-ui)执行中，Figma及功能已接入，本地辅助及[Windows实际UI封包/回归](verification/P07-05-ci-evidence-03.json)全部通过，用户视觉/交互签收待完成；原[阶段交接](verification/P07-acceptance.json)不覆盖新增范围 |
-| 下一项 | 先完成P07-05，再另行启动[P08迁移演练与正式切换](new/P08-cutover.md)；原实机观察与真实部署交接保留 |
+| 下一项 | 先完成P07-05与P07-06，再另行启动[P08迁移演练与正式切换](new/P08-cutover.md)；原实机观察与真实部署交接保留 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
