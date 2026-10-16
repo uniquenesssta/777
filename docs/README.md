@@ -9,8 +9,8 @@
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
 | 本轮授权 | 用户2026-10-14“开始P07”，23:14确认按开发配置/母子封包/无登录要求重规划；既有推送授权有效 |
 | 文档工作 | [P07任务书](now/P07-tauri-desktop.md)从new移入now；当前设计交接、组件映射、契约和辅助证据已保存；P06已归档 |
-| 当前开发阶段 / Atomic Task | P07-01与[02已验收](verification/P07-02-acceptance.json)，唯一stage/p07-tauri-desktop执行03；[当前c49d6a7 Windows CI已通过](verification/P07-03-ci-evidence-03.json)，目录/售价/Figma四状态/利润图表等当前代码已自动验证，待用户视觉及实际缩放/多屏验收 |
-| 下一项 | P07-03按用户授权接入[价格页Figma四状态稿](design/P07-price-maintenance-figma.md)，Windows CI已通过，待运行界面用户验收及物理缩放/多屏核对；04母子安装包、P08部署未启动 |
+| 当前开发阶段 / Atomic Task | P07-01/02及[03已按用户收尾](verification/P07-03-acceptance.json)，唯一stage/p07-tauri-desktop执行04；[03当前CI通过](verification/P07-03-ci-evidence-03.json)，04母子安装包待新Windows CI/目标机验收 |
+| 下一项 | 用户已收尾03；[P07-04母子封包/安装](verification/P07-04-packaging-contract.md)已启动，待新Windows CI及目标机验收；P08部署未启动 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
@@ -42,4 +42,4 @@
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
 
-当前结论：P01至P06已验收，P07-01/02已验收；03当前Windows CI通过，用户视觉及物理缩放/多屏待验收；04/P08未启动；当前Figma来源与组件映射见[设计映射](design/P07-component-map.md)。真实部署和历史切换门槛保留。
+当前结论：P01至P06已验收，P07-01/02/03已按用户指令收尾；04执行中，安装包/生命周期待新Windows CI和目标机验收；P08未启动；当前Figma来源与组件映射见[设计映射](design/P07-component-map.md)。真实部署和历史切换门槛保留。

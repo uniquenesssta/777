@@ -15,7 +15,9 @@
     "test:ui": "playwright test",
     "tauri": "node tools/develop.mjs",
     "dev:desktop": "node tools/develop.mjs dev",
-    "fonts:prepare": "node tools/prepare-fonts.mjs"
+    "fonts:prepare": "node tools/prepare-fonts.mjs",
+    "package:desktop": "node tools/package.mjs",
+    "deployment": "node tools/deployment.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "1.3.1",

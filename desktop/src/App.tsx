@@ -11,6 +11,9 @@ import {
   TasksPage,
 } from "./features/ManagementPages";
 import { Button, Icon } from "./ui/components";
+// A formal installer never embeds the developer connection/login form.
+const formalPackage = import.meta.env.VITE_QUOTE777_DELIVERY === "manager" ||
+  import.meta.env.VITE_QUOTE777_DELIVERY === "sales";
 export default function App() {
   const app = useWorkbench();
   const [menu, setMenu] = useState(false);
@@ -106,7 +109,7 @@ export default function App() {
           </>
         )}
       </header>
-      {!app.session ? app.delivery === "loading" || app.automatic ? (
+      {!app.session ? formalPackage || app.delivery === "loading" || app.automatic ? (
         <main className="connection-page"><section className="card connection-card" aria-busy={app.busy}>
           <h1>{app.busy || app.delivery === "loading" ? "正在连接…" : "暂时无法进入记账器"}</h1>
           <p className="muted">{app.busy || app.delivery === "loading" ? "请稍候" : "请重试；仍无法连接时请联系管理员。输入草稿会保留。"}</p>

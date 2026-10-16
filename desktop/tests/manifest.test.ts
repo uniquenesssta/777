@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { bundleConfig } from "../tools/package.mjs";
 
 const desktop = fileURLToPath(new URL("../", import.meta.url));
 const cli = path.join(desktop, "node_modules/@tauri-apps/cli/tauri.js");
@@ -13,7 +14,7 @@ const tracked = fs.readFileSync(
   "utf8",
 );
 
-function probe(manifest: string, action: "build" | "dev") {
+function probe(manifest: string, action: "build" | "dev", overlay?: Record<string, unknown>) {
   const folder = fs.mkdtempSync(path.join(os.tmpdir(), "777-manifest-check-"));
   try {
     const app = path.join(folder, "src-tauri");
@@ -33,11 +34,12 @@ function probe(manifest: string, action: "build" | "dev") {
     config.build.frontendDist = path.join(folder, "dist");
     fs.mkdirSync(config.build.frontendDist);
     fs.writeFileSync(path.join(app, "tauri.conf.json"), JSON.stringify(config));
+    if (overlay) fs.writeFileSync(path.join(app, "package.json"), JSON.stringify(overlay));
     // The intentionally absent workspace stops Cargo metadata after Tauri's
     // manifest pass: no compilation, dependency download, host or GUI startup.
     const result = spawnSync(
       process.execPath,
-      [cli, action, ...(action === "build" ? ["--no-bundle"] : [])],
+      [cli, action, ...(action === "build" ? ["--no-bundle"] : []), ...(overlay ? ["--config", path.join(app, "package.json")] : [])],
       {
         cwd: folder,
         encoding: "utf8",
@@ -78,5 +80,19 @@ test("tracked manifest stays unchanged through actual Tauri dev/build for LF and
       const result = probe(source, action);
       assert.equal(result.after, result.before);
     }
+  }
+});
+
+test("actual Tauri role and upgrade overlays preserve the source Cargo manifest", () => {
+  for (const kind of ["manager", "sales"]) {
+    const result = probe(tracked, "build", { identifier: `cn.uniqueness.quote777.${kind}`, mainBinaryName: `quote777-${kind}`, version: "0.1.1" });
+    assert.equal(result.after, result.before);
+  }
+});
+
+test("pinned Tauri parser accepts both complete Windows NSIS overlays", () => {
+  for (const kind of ["manager", "sales"]) {
+    const result = probe(tracked, "build", bundleConfig(kind, "0.1.0", "installer-hooks.nsh"));
+    assert.equal(result.after, result.before);
   }
 });

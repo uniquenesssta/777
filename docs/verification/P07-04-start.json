@@ -1,0 +1,13 @@
+{
+  "task": "P07-04",
+  "status": "implemented_auxiliary_checks_passed_Windows_CI_and_target_acceptance_pending",
+  "authorized_by": "user",
+  "user_instruction": "哦 收尾03开始04",
+  "started_at": "2026-10-16T12:29:18+08:00",
+  "phase_branch": "stage/p07-tauri-desktop",
+  "baseline": "8481b52423be828835846880962b11afde47e6a5",
+  "prior_acceptance": "P07-03-acceptance.json",
+  "scope": "manager/sales Windows NSIS packages, public config export and per-device enrollment, role/profile isolation, install/upgrade/uninstall/compatible rollback gates",
+  "P08_started": false,
+  "production_paths_accessed": false
+}

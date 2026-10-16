@@ -1,0 +1,16 @@
+{
+  "task": "P07-03",
+  "status": "accepted_by_user",
+  "accepted_by": "user",
+  "accepted_at": "2026-10-16T12:29:18+08:00",
+  "user_instruction": "哦 收尾03开始04",
+  "phase_branch": "stage/p07-tauri-desktop",
+  "accepted_source": "8481b52423be828835846880962b11afde47e6a5",
+  "tested_source": "c49d6a7a9050d0fe56e204566de050f22f5c2054",
+  "Windows_CI": "P07-03-ci-evidence-03.json",
+  "user_visual_acceptance": "explicit close instruction",
+  "hardware_evidence_boundary": "CI actual OS DPI96 plus CDP1/1.25/1.5/2. User explicitly closes03; no new quantified physical scaling or monitor measurements supplied, and none invented.",
+  "next": "P07-04",
+  "P08_started": false,
+  "production_replaced": false
+}

@@ -20,6 +20,29 @@ impl Bootstrap {
             return Err(DesktopError::new(403, "DELIVERY_ROLE_MISMATCH"));
         }
         crate::tls::build(&self.connection)?;
+        #[cfg(quote777_packaged)]
+        {
+            #[derive(Deserialize)]
+            #[serde(deny_unknown_fields)]
+            struct PublicConnection {
+                schema: String,
+                connection: Connection,
+            }
+            let expected: PublicConnection = serde_json::from_str(include_str!(concat!(
+                env!("OUT_DIR"),
+                "/package-connection.json"
+            )))
+            .map_err(|_| DesktopError::new(503, "PACKAGE_CONNECTION_INVALID"))?;
+            if expected.schema != "777-public-connection-v1"
+                || expected.connection.url.trim_end_matches('/')
+                    != self.connection.url.trim_end_matches('/')
+                || expected.connection.certificate_sha256 != self.connection.certificate_sha256
+                || expected.connection.certificate_pem.trim()
+                    != self.connection.certificate_pem.trim()
+            {
+                return Err(DesktopError::new(403, "PACKAGE_CONNECTION_MISMATCH"));
+            }
+        }
         if kind != "development"
             && (self.username.is_some()
                 || self.password.is_some()
@@ -56,4 +79,65 @@ pub fn delivery() -> &'static str {
 }
 pub fn formal() -> bool {
     delivery() != "development"
+}
+/// Keep native identities at their existing location when installer IDs become role-specific.
+pub fn formal_profile_root(local_app_data: &std::path::Path) -> Option<std::path::PathBuf> {
+    formal().then(|| {
+        local_app_data
+            .join("cn.uniqueness.quote777")
+            .join(delivery())
+    })
+}
+#[cfg(quote777_packaged)]
+pub fn package_info() -> serde_json::Value {
+    let mut info: serde_json::Value = serde_json::from_str(include_str!(concat!(
+        env!("OUT_DIR"),
+        "/package-metadata.json"
+    )))
+    .expect("validated package metadata");
+    assert_eq!(info["delivery"], delivery(), "PACKAGE_DELIVERY_MISMATCH");
+    info["verification"] = serde_json::json!(cfg!(feature = "verification"));
+    info["release"] = serde_json::json!(!cfg!(debug_assertions));
+    info
+}
+
+#[cfg(test)]
+mod package_tests {
+    #[test]
+    fn identity_path_does_not_depend_on_installer_identifier_or_version() {
+        let base = std::path::Path::new("user-local-data");
+        let root = super::formal_profile_root(base);
+        if super::formal() {
+            assert_eq!(
+                root,
+                Some(base.join("cn.uniqueness.quote777").join(super::delivery()))
+            );
+        } else {
+            assert!(root.is_none());
+        }
+    }
+
+    #[cfg(quote777_packaged)]
+    #[test]
+    fn native_bootstrap_rejects_an_operator_file_for_another_service() {
+        let public: serde_json::Value = serde_json::from_str(include_str!(concat!(
+            env!("OUT_DIR"),
+            "/package-connection.json"
+        )))
+        .unwrap();
+        let mut bootstrap = super::Bootstrap {
+            schema: "777-desktop-bootstrap-v1".into(),
+            delivery: super::delivery().into(),
+            connection: serde_json::from_value(public["connection"].clone()).unwrap(),
+            username: None,
+            password: None,
+            ticket: Some("a".repeat(43)),
+        };
+        bootstrap.validate(super::delivery()).unwrap();
+        bootstrap.connection.url = "https://localhost:18478".into();
+        assert_eq!(
+            bootstrap.validate(super::delivery()).unwrap_err().code,
+            "PACKAGE_CONNECTION_MISMATCH"
+        );
+    }
 }

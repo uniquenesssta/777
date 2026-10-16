@@ -1,3 +1,8 @@
+#![cfg_attr(
+    all(windows, not(debug_assertions), not(feature = "verification")),
+    windows_subsystem = "windows"
+)]
+
 #[cfg(windows)]
 mod directory_dialog;
 
@@ -91,7 +96,10 @@ mod shell {
             &std::env::args().skip(1).collect::<Vec<_>>(),
         )
         .expect("isolated verification window arguments");
-        let context = context();
+        let mut context = context();
+        if quote_desktop::delivery() != "development" {
+            context.config_mut().app.windows[0].create = false;
+        }
         #[cfg(feature = "verification")]
         let context = {
             let mut context = context;
@@ -106,7 +114,10 @@ mod shell {
             .setup(move |app| {
                 let root = app.path().app_local_data_dir()?;
                 let root = match quote_desktop::delivery() {
-                    "manager"=>root.join("manager"),"sales"=>root.join("sales"),
+                    "manager" | "sales" => quote_desktop::formal_profile_root(
+                        &std::path::PathBuf::from(std::env::var_os("LOCALAPPDATA")
+                            .ok_or_else(|| std::io::Error::other("LOCALAPPDATA_REQUIRED"))?)
+                    ).expect("formal profile"),
                     _ if cfg!(debug_assertions) => std::env::var_os("LOCALAPPDATA")
                         .map(std::path::PathBuf::from)
                         .ok_or_else(|| std::io::Error::other("LOCALAPPDATA_REQUIRED"))?
@@ -115,17 +126,26 @@ mod shell {
                 };
                 #[cfg(feature = "verification")]
                 let root = isolated.as_ref().map_or(root, |v| v.root.clone());
+                let user_data = root.join("webview2");
                 let client =
                     Desktop::new(root, false).map_err(|e| std::io::Error::other(e.code))?;
                 app.manage(Arc::new(ClientState { desktop: tokio::sync::Mutex::new(client), writes: AtomicUsize::new(0) }));
                 #[cfg(feature = "verification")]
-                if let Some(profile) = isolated {
+                let isolated_created = if let Some(profile) = isolated {
                     let config = &app.config().app.windows[0];
                     tauri::WebviewWindowBuilder::from_config(app, config)?
                         .data_directory(profile.data_directory())
                         .additional_browser_args(&profile.browser_args())
                         .build()?;
                     println!("{}", serde_json::json!({"verification_window": "created", "browser_arguments_source": "WebView2_API", "debug_port": profile.debug_port, "data_directory": profile.data_directory()}));
+                    true
+                } else { false };
+                #[cfg(not(feature = "verification"))]
+                let isolated_created = false;
+                if quote_desktop::delivery() != "development" && !isolated_created {
+                    tauri::WebviewWindowBuilder::from_config(app, &app.config().app.windows[0])?
+                        .data_directory(user_data)
+                        .build()?;
                 }
                 Ok(())
             })
@@ -144,6 +164,13 @@ mod shell {
     }
 }
 fn main() {
+    #[cfg(all(windows, quote777_packaged))]
+    if std::env::args().any(|a| a == "--package-info") {
+        let mut info = quote_desktop::package_info();
+        info["custom_protocol"] = serde_json::json!(!tauri::is_dev());
+        println!("{info}");
+        return;
+    }
     #[cfg(feature = "verification")]
     if std::env::args().any(|a| a == "--verification-build-info") {
         #[cfg(windows)]

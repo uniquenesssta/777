@@ -1,0 +1,44 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> quote-desktop@0.1.0 test
+> node --import tsx --test tests/*.test.ts
+
+✔ export strips development secrets and rejects unapproved configuration fields (2.270965ms)
+✔ release type is explicit and generated installers keep both roles isolated (0.887468ms)
+✔ release verification rejects corruption and path traversal before enrollment (36.254665ms)
+✔ enrollment refuses other role/service and preserves device and pending records (32.254548ms)
+✔ rollback permits only the same role, service and profile compatibility epoch (0.429837ms)
+✔ late calculation cannot restore authority after any input or price change (2.657664ms)
+✔ revision and display cents never pass through JS floating point (7.485859ms)
+✔ only raw draft fields restore, never a claimed result or stored role (0.717029ms)
+✔ confirmed original order clears only its own raw draft and preserves edits during submit (62.235807ms)
+✔ pinned font download is atomic, cached and usable without network (64.655376ms)
+✔ wrong download and corrupted cache never become accepted font assets (18.942258ms)
+✔ ordinary font preparation keeps its Chinese CLI progress (205.630503ms)
+✔ development preparation reports missing fonts without making network requests (1.493742ms)
+✔ offline development still rejects corrupted cached font bytes (17.63532ms)
+✔ explicit font preparation cancellation rejects promptly and leaves no partial file (3.026036ms)
+✔ actual pinned Tauri CLI reproduces the previous manifest rewrite (2639.592097ms)
+✔ tracked manifest stays unchanged through actual Tauri dev/build for LF and CRLF (765.724412ms)
+✔ actual Tauri role and upgrade overlays preserve the source Cargo manifest (428.701582ms)
+✔ pinned Tauri parser accepts both complete Windows NSIS overlays (426.176666ms)
+✔ native readiness preserves the underlying CDP error and attempt diagnostics (63.35196ms)
+✔ native readiness succeeds after transient refusal and bounds each connect attempt (13.612628ms)
+✔ a failed connection checkpoint closes the attached browser and does not retry (2.203016ms)
+✔ actual Windows Tauri production origins accept embedded-page paths (1.452123ms)
+✔ Vite, browser error pages and lookalike hosts fail before waiting for login (1.442378ms)
+✔ shortcuts span exactly one day, week, month or year from the same current instant (2.323357ms)
+✔ calendar subtraction clamps month ends and leap anniversaries while keeping the clock (0.307354ms)
+✔ business clock uses UTC+08 across midnight rather than the device timezone (0.394446ms)
+✔ datetime picker minute and abbreviated subsecond values keep a canonical exact boundary (2.527699ms)
+✔ chart coordinates support losses and huge exact cents without converting money to Number (4.232332ms)
+✔ profit pie keeps losses explicit and computes exact shares for huge cents and zero buckets (2.490593ms)
+✔ candle domain includes intra-period high and low rather than only closing totals (3.367348ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5265.022978

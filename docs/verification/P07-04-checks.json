@@ -1,0 +1,143 @@
+{
+  "task": "P07-04",
+  "recorded_date": "2026-10-16",
+  "status": "implemented_auxiliary_checks_passed_Windows_CI_and_target_acceptance_pending",
+  "phase_branch": "stage/p07-tauri-desktop",
+  "baseline": "8481b52423be828835846880962b11afde47e6a5",
+  "runtime": {
+    "os": "Linux",
+    "node": "v24.19.0",
+    "python": "3.12.14",
+    "rust": "1.97.1"
+  },
+  "checks": {
+    "node": {
+      "command": "npm --prefix desktop test",
+      "passed": 31,
+      "failed": 0,
+      "log": "P07-04-node-tests.log",
+      "scope": "config allowlist, role/profile separation, exclusive enrollment, corruption and rollback conflicts; actual pinned Tauri parser for complete NSIS overlays and manifest preservation"
+    },
+    "rust_debug": {
+      "command": "cargo test --locked -p quote-desktop --features verification -j2",
+      "passed": 13,
+      "failed": 0,
+      "log": "P07-04-rust-tests.log"
+    },
+    "rust_packaged_release": {
+      "command": "cargo test --locked --release -p quote-desktop --lib --features manager -j1",
+      "environment": {
+        "QUOTE777_PACKAGE_DELIVERY": "manager",
+        "QUOTE777_PACKAGE_CONNECTION": "public synthetic test certificate/config only",
+        "QUOTE777_PACKAGE_METADATA": "public synthetic test metadata",
+        "CARGO_PROFILE_RELEASE_CODEGEN_UNITS": "1"
+      },
+      "passed": 10,
+      "failed": 0,
+      "log": "P07-04-packaged-rust-tests.log",
+      "scope": "actual release-only compiled public service pin and profile stability, Linux library auxiliary evidence; no Windows installer claim"
+    },
+    "forbidden_verification_feature": {
+      "command": "cargo test --locked --release -p quote-desktop --lib --features manager,verification -j1",
+      "expected_exit": 101,
+      "actual_exit": 101,
+      "required_error": "PACKAGE_VERIFICATION_FORBIDDEN",
+      "log": "P07-04-forbidden-feature.log"
+    },
+    "python": {
+      "command": "python -m unittest discover -s tests -p 'test_p07_*.py' -v",
+      "total": 29,
+      "passed": 27,
+      "skipped": 2,
+      "failed": 0,
+      "skip_reason": "real Win32 window/file-sharing tests require Windows",
+      "log": "P07-04-python-tests.log"
+    },
+    "frontend": {
+      "development": "npm --prefix desktop run build: passed; actual artifact retained developer form and was rejected by production frontend gate",
+      "manager": "VITE_QUOTE777_DELIVERY=manager npm --prefix desktop run build: passed; actual artifact passed development-form exclusion gate",
+      "sales": "VITE_QUOTE777_DELIVERY=sales npm --prefix desktop run build: passed; actual artifact passed development-form exclusion gate",
+      "logs": [
+        "P07-04-build.log",
+        "P07-04-manager-build.log",
+        "P07-04-sales-build.log"
+      ],
+      "layout": "Approved Figma business layout unchanged; release build condition removes the developer login component"
+    },
+    "strict_clippy": {
+      "command": "cargo clippy --locked -p quote-desktop --features verification --all-targets -j2 -- -Dwarnings",
+      "result": "passed",
+      "log": "P07-04-clippy.log"
+    },
+    "rustfmt": {
+      "command": "cargo fmt --all -- --check",
+      "result": "passed"
+    },
+    "python_syntax": {
+      "command": "python -m py_compile tools/p07_package_check.py",
+      "result": "passed"
+    }
+  },
+  "retained_failure": {
+    "command": "default release codegen cargo test --locked --release -p quote-desktop --lib --features manager",
+    "exit": 101,
+    "diagnostic": "rustls .rlib archive failed to map a zero-length generated object; reproduced after cargo clean -p rustls, including -j1",
+    "log": "P07-04-release-archive-failure.log",
+    "resolution": "Auxiliary Linux test passed with CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1. No dependency, product build settings or tests changed; Windows CI still uses default release codegen. Root cause not asserted."
+  },
+  "new_windows_gate": {
+    "workflow": ".github/workflows/p07-windows.yml",
+    "entry": "tools/p07_package_check.py",
+    "roles": [
+      "manager",
+      "sales"
+    ],
+    "actual_packages": [
+      "current version NSIS",
+      "patch version +1 NSIS"
+    ],
+    "scope": [
+      "cross-role directory rejection",
+      "Chinese and spaced install path",
+      "PowerShell per-device preparation without Node/Python on client",
+      "installed non-verification native session and natural close",
+      "upgrade identity and WebView directory retention",
+      "direct downgrade rejection",
+      "compatible uninstall/reinstall rollback",
+      "uninstall retains profile",
+      "bounded owned WebView sandbox cleanup"
+    ],
+    "status": "pending new CI",
+    "test_packages": "public ephemeral fixture service only; not production deployment"
+  },
+  "target_acceptance_pending": [
+    "ordinary nonadministrator Windows user",
+    "clean machine without WebView2 with offline installation",
+    "complete installed business UI flow and draft migration/retention observation",
+    "user acceptance of actual manager/sales packages"
+  ],
+  "no_new_production_dependencies": true,
+  "lock_files_unchanged": true,
+  "production_paths_accessed": false,
+  "P07_04_accepted": false,
+  "P08_started": false,
+  "source_sha256_LF": {
+    ".github/workflows/p07-windows.yml": "19974f995d9045e45e0380a36530645f08a4bd7d31d9c2d4634e16602b6c4d63",
+    ".gitignore": "f94e81f945a08c41d4b456056e117b2ad6ffb22a8d9371368ca8243a2d78f65c",
+    "desktop/package.json": "3e3d7f8cfb5618c26ab5e9316d406af7ae4ee6d500034849ef248d63069b8ade",
+    "desktop/tools/deployment.mjs": "c1170b67a05bfb7a2fabba80b17c5b42dbff7ddcece1e84cf3b32fcf7697f89f",
+    "desktop/tools/package.mjs": "04964a7453753efda995e3f3d4e7411dcf9792d21dc59d06a0bb71642e3d7555",
+    "desktop/tools/enroll.ps1": "bd12f4d6ada54a63d2e0c8f2d27447dfe8dfafdbc7bc506cd591cdba258356c3",
+    "desktop/src-tauri/build.rs": "f5b3cc8ee1bdf2d7f5751a7af01879c33e1831d2f5241067e5400a1f60e4a457",
+    "desktop/src-tauri/src/lib.rs": "d8ad8f96b85d2122197ede853bdedb596b66d6c312072fc38469e7bd5a57f2ce",
+    "desktop/src-tauri/src/main.rs": "e21a8602db2132354ec13369f9db9790c4de2a8df772a04f94eaabe137c81515",
+    "desktop/src-tauri/src/startup.rs": "4a441f8bca5795908b5ed450c0e052cf8be709c6d8a4a65ac7905f0be3a7bb60",
+    "desktop/src/App.tsx": "548c2a428030e439bfe5388f924ccf4dae4968c13607c3cb30fdec18354be516",
+    "desktop/tests/deployment.test.ts": "b62ba17f3b57062d703c706d9d6eae1265f92fe8a8dd79eb1f348428757d8f4e",
+    "desktop/tests/manifest.test.ts": "4de94e7e3a85cc9fcc54df1020c0207a47cdb84c413001663649c3a85833fda3",
+    "desktop/tests/fixtures/service-cert.pem": "7d7771f02c3a3e45ffc77d3d7b38180aa482394c4f24a5a135e92638506299bc",
+    "tools/p07_package_check.py": "c52e3ada2c0e49d4c2084cbdd75bf491a68b902fd999681ed516df5ffab5a504",
+    "Cargo.lock": "fc5e17a3e1c5b9f44fbd0125ea600f74f0066364b15d49c9f18455a6a77820a7",
+    "desktop/package-lock.json": "a8ae37040b5fb282eeb5e51160baa4c386a1f171ee77052230a5ff43be960727"
+  }
+}

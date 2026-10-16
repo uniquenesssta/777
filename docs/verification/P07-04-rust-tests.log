@@ -1,0 +1,32 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running unittests src/lib.rs (target/debug/deps/quote_desktop-68aaa9265661582d)
+
+running 9 tests
+test client::tests::wire_rejects_arbitrary_paths_actor_and_unknown_commands ... ok
+test client::tests::display_preserves_exact_large_cents_and_safe_revision_strings ... ok
+test journal::tests::ancestor_links_are_rejected_before_creating_profile_or_writing ... ok
+test startup::package_tests::identity_path_does_not_depend_on_installer_identifier_or_version ... ok
+test types::close_tests::readonly_network_and_calculation_do_not_protect_close ... ok
+test journal::tests::pending_is_exclusive_and_corruption_is_never_silently_discarded ... ok
+test tls::tests::invalid_destinations_and_bad_pin_never_build_a_client ... ok
+test types::close_tests::writes_and_unknown_receipt_recovery_protect_close ... ok
+test tls::tests::pinned_legacy_ca_and_leaf_certificates_require_exact_identity_name_and_time ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/quote_desktop-76ea29527a0c1fc2)
+
+running 4 tests
+test verification_window::tests::normal_launch_has_no_verification_settings ... ok
+test verification_window::tests::invalid_ports_unknown_switches_and_relative_profiles_are_refused ... ok
+test verification_window::tests::marked_temp_profile_has_fixed_api_arguments_and_private_data_directory ... ok
+test verification_window::tests::production_marker_missing_marker_and_nonfixture_root_are_refused ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quote_desktop
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

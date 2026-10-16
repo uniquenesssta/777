@@ -1,0 +1,16 @@
+   Compiling quote-desktop v0.1.0 (/workspace/scratch/45a5dfca7a35/777/desktop/src-tauri)
+error: failed to run custom build command for `quote-desktop v0.1.0 (/workspace/scratch/45a5dfca7a35/777/desktop/src-tauri)`
+
+Caused by:
+  process didn't exit successfully: `/workspace/scratch/45a5dfca7a35/777/target/release/build/quote-desktop-50edd21835aade5c/build-script-build` (exit status: 101)
+  --- stdout
+  cargo:rustc-check-cfg=cfg(quote777_packaged)
+  cargo:rerun-if-env-changed=QUOTE777_PACKAGE_DELIVERY
+  cargo:rerun-if-env-changed=QUOTE777_PACKAGE_CONNECTION
+  cargo:rerun-if-env-changed=QUOTE777_PACKAGE_METADATA
+
+  --- stderr
+
+  thread 'main' (38) panicked at desktop/src-tauri/build.rs:20:9:
+  PACKAGE_VERIFICATION_FORBIDDEN
+  note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

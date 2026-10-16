@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。P07-01已按用户2026-10-14 23:39“收尾01，开始02”验收。P07-02已按用户2026-10-15“OK暂时没感受到问题，收尾02 开始03”验收。当前P07-03的Figma价格页、业务界面与原生链路已通过[c49d6a7 Windows CI](docs/verification/P07-03-ci-evidence-03.json)，当前待运行界面用户验收及物理缩放/多屏核对；P07-04与P08未启动。两种实际安装包留04，真实部署留P08。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
+P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](docs/now/P07-tauri-desktop.md)移入now。P07-01已按用户2026-10-14 23:39“收尾01，开始02”验收。P07-02已按用户2026-10-15“OK暂时没感受到问题，收尾02 开始03”验收。P07-03已通过[c49d6a7 Windows CI](docs/verification/P07-03-ci-evidence-03.json)，并按用户2026-10-16指令收尾；当前[P07-04母子封包/安装](docs/verification/P07-04-packaging-contract.md)执行中，待新CI与目标机验收。P08真实部署未启动。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -37,6 +37,8 @@ P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-ta
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P07-03按用户指令收尾并启动04：新增固定manager/sales的Windows NSIS封包、公开连接导出/单设备登记、独立安装标识和稳定凭证/草稿目录、交付哈希清单、升级卸载及兼容回退门槛。沿用现有依赖，[命令与验证边界](docs/verification/P07-04-packaging-contract.md)；实际Windows与目标机验收待完成，P08未启动。
 
 - 核对并登记当前Figma价格页版本的Windows CI通过：29项工具回归、24项前端测试、26项浏览器检查、16项业务协议及12项设备协议，母子原生入口、完整报价图和自然关闭通过。[证据与范围](docs/verification/P07-03-ci-evidence-03.json)。P07-02原验收保持，继续03；物理缩放/多屏及用户视觉待验收，04/P08未启动。
 
