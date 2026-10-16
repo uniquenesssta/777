@@ -4,7 +4,7 @@
 
 P07-01至04已按用户确认收尾，[原验收与交接](docs/verification/P07-acceptance.json)保持。当前按用户新要求执行[P07-05开发者存储与一键封包UI任务书](docs/now/P07-tauri-desktop.md#当前追加任务p07-05-开发者存储与一键封包-ui)：Figma与开发版存储/备份位置、真实数据读取、母子一键封包已接入；本地辅助检查及[f30fa59 Windows三项检查](docs/verification/P07-05-ci-evidence-03.json)全部通过，实际UI母子封包、安装回退、账本切换与备份已验证；用户视觉/交互签收待完成。[使用说明](docs/verification/P07-05-developer-ui.md)。任务书移回now，唯一分支仍为`stage/p07-tauri-desktop`。[P08](docs/new/P08-cutover.md)待本项完成后另行启动；原Windows通过范围和目标环境观察保持，不充作新增UI已验证。
 
-2026-10-17已按用户要求建立[P07-06每日Excel备份与开发者预设隐藏副本任务书](docs/now/P07-tauri-desktop.md#p07-06-每日-excel-备份与开发者预设隐藏副本)，实施待启动；05仍待签收，P08待05与06完成后另行启动。
+2026-10-17已按用户要求建立[P07-06每日双格式备份与开发者预设隐藏副本任务书](docs/now/P07-tauri-desktop.md#p07-06-每日双格式备份与开发者预设隐藏副本)，实施待启动；05仍待签收，P08待05与06完成后另行启动。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -39,6 +39,8 @@ P07-01至04已按用户确认收尾，[原验收与交接](docs/verification/P07
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P07-06按用户补充改为每日双格式：软件可导入恢复的数据文件和独立阅读Excel，同一快照在普通/隐藏位置各保存一套。加入实际恢复、兼容导入及不覆盖现用账本的验收；仍不备份程序、不增加历史管理页。本次仅修订任务书，实施待启动。
 
 - 创建P07-06任务书：只保留每日Excel业务备份和开发者预设、母端不可见不可改的隐藏副本；取消拟议滚动/完整服务包/程序文件/备份管理界面。明确独立可读、字段完整性、双位置失败处理及未定时间/留存；本次仅文档，旧备份不动，未启动实现。
 
