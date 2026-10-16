@@ -23,8 +23,8 @@ try {
   await page.getByRole('button',{name:'联网安装',exact:true}).click();
   await page.getByRole('button',{name:delivery==='manager'?'一键封包母版':'一键封包子版',exact:true}).click();
   await expect(page.getByText('构建中',{exact:true})).toBeVisible({timeout:15000});
-  await expect(page.getByRole('button',{name:'一键封包母版',exact:true})).toBeDisabled();
-  await expect(page.getByRole('button',{name:'一键封包子版',exact:true})).toBeDisabled();
+  await expect(page.locator('.developer-package-actions button')).toHaveCount(2);
+  for(const button of await page.locator('.developer-package-actions button').all())await expect(button).toBeDisabled();
   await capture('developer-building');
   const deadline = Date.now()+40*60*1000;
   while (Date.now()<deadline) {

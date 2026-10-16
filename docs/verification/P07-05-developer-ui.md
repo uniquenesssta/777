@@ -26,7 +26,7 @@
 | --- | --- |
 | 原生类型与未知请求保护 | `cargo test --locked -p quote-host -p quote-desktop --lib`，18项通过 |
 | 草稿、封包、已有前端回归 | `npm --prefix desktop test`，33项通过；三种前端构建及两种正式资源排除检查通过 |
-| 启动器/目录/进程回归 | `python -m unittest discover -s tests -p 'test_p07_*.py' -v`，本地43项中36通过、7项明确仅Windows执行 |
+| 启动器/目录/进程回归 | `python -m unittest discover -s tests -p 'test_p07_*.py' -v`，本地44项中37通过、7项明确仅Windows执行 |
 | 真数据、真备份、重启 | 构建debug `developer-bridge` example，再执行 `python tools/p07_developer_check.py --output <新证据目录>`；真实debug IPC→控制器→Rust HTTPS，A/B不同价格/订单及金额、备份完整独立恢复、保存后重启已在Linux隔离辅助环境通过 |
 | Windows真实封包UI | installer CI先编译真实debug开发窗口，由`windows-developer.mjs`点击对应母/子封包按钮，检查构建中互斥、完成产物、长路径窄窗与关闭；随后沿用P07-04实际安装/登记/升级/卸载/回退 |
 | Windows进程所有权 | `test_p07_owned_job.py`真实验证父Node等价启动器退出后，关闭Job仍终止其已创建的后代；Linux明确跳过 |

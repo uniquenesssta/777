@@ -98,6 +98,13 @@ class DeveloperTests(unittest.TestCase):
             self.operator.select(str(self.base / 'B'))
         self.dev.stop_host.assert_not_called()
 
+    def test_persisted_invalid_package_version_rejected_before_start_or_output_creation(self):
+        value = {**self.operator.preferences, 'version':'../../escape'}
+        self.operator.preferences_file.write_text(json.dumps(value))
+        with self.assertRaisesRegex(RuntimeError, 'DEVELOPER_PACKAGE_CONFIG_INVALID'):
+            Developer(self.dev, self.a, object())
+        self.assertFalse((self.base / 'escape').exists())
+
     def test_control_rejects_missing_token_and_browser_origin(self):
         old = {key:os.environ.get(key) for key in ['QUOTE777_DEVELOPER_PORT','QUOTE777_DEVELOPER_TOKEN']}
         self.operator.serve()

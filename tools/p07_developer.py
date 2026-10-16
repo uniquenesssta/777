@@ -41,6 +41,12 @@ def replace_json(path, value):
         temporary.unlink(missing_ok=True)
 
 
+def package_preferences(value):
+    if not isinstance(value.get('version'), str) or not re.fullmatch(r'\d+\.\d+\.\d+', value['version']) or value.get('runtime') not in ['downloadBootstrapper','offlineInstaller']:
+        raise RuntimeError('DEVELOPER_PACKAGE_CONFIG_INVALID')
+    return local(value['output'])
+
+
 class Developer:
     def __init__(self, dev, initial, process):
         self.dev, self.root, self.process = dev, initial, process
@@ -58,13 +64,17 @@ class Developer:
         self.preferences = dict(schema='777-developer-v1', root=str(initial), output=str(dev.DEV / 'packages'), version='0.1.0', runtime='downloadBootstrapper')
         self.credentials = {}
         if self.credentials_file.exists():
+            if local(self.credentials_file).stat().st_size > 2 * 1024 * 1024:raise RuntimeError('DEVELOPER_CONFIG_INVALID')
             raw = local(self.credentials_file).read_bytes()
             self.credentials = json.loads(dpapi(raw, decrypt=True) if os.name == 'nt' else raw)
         if self.preferences_file.exists():
+            if local(self.preferences_file).stat().st_size > 65536:raise RuntimeError('DEVELOPER_CONFIG_INVALID')
             value = json.loads(local(self.preferences_file).read_text(encoding='utf-8'))
             if set(value) != set(self.preferences) or value['schema'] != '777-developer-v1':
                 raise RuntimeError('DEVELOPER_CONFIG_INVALID')
             self.preferences = value
+            local(value['root'])
+            package_preferences(value)
         self.server = None
 
     def config(self, root=None):
@@ -193,7 +203,7 @@ class Developer:
         if delivery not in ['manager', 'sales']:raise RuntimeError('DELIVERY_REQUIRED')
         with self.job_lock:
             if self.job and self.job['state'] in ['running', 'cancelling']:raise RuntimeError('DEVELOPER_BUILD_BUSY')
-            output = local(self.preferences['output'])
+            output = package_preferences(self.preferences)
             for protected in [self.root, Path(self.config()['backup_dir']), self.dev.ROOT]:
                 if output == protected or protected in output.parents or output in protected.parents:
                     raise RuntimeError('DEVELOPER_OUTPUT_CONFLICT')
@@ -263,9 +273,7 @@ class Developer:
             if op == 'select':return self.select(data['root'], initialize=data['initialize'], backup_dir=data['backup_dir'], username=data.get('username'), password=data.get('password'))
             if op == 'backup_directory':return self.configure_backup(data['directory'])
             if op == 'save_package':
-                output = local(data['output'])
-                if not re.fullmatch(r'\d+\.\d+\.\d+', data['version']) or data['runtime'] not in ['downloadBootstrapper','offlineInstaller']:
-                    raise RuntimeError('DEVELOPER_PACKAGE_CONFIG_INVALID')
+                output = package_preferences(data)
                 preferences = {**self.preferences, 'output':str(output), 'version':data['version'], 'runtime':data['runtime']}
                 replace_json(self.preferences_file, preferences); self.preferences = preferences
                 return self.status()

@@ -502,7 +502,7 @@ export function useWorkbench() {
         setFeedback("位置已发布，销售端自动继承。");
       },
     );
-  const makeBackup = () =>
+  const makeBackup = (rethrow = false) =>
     run(
       async () => {
         await request("backup");
@@ -514,6 +514,7 @@ export function useWorkbench() {
         setBackup(r.value);
         savedFeedback(r, "维护备份已完成并核对。");
       },
+      rethrow,
     );
   const logout = () =>
     run(

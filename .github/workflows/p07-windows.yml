@@ -108,6 +108,13 @@ jobs:
         run: |
           python tools/p07_package_check.py --delivery ${{ matrix.delivery }} --jobs 2 --output reports/p07-04-${{ matrix.delivery }}
           if ($LASTEXITCODE -ne 0) { throw 'Actual installer lifecycle failed' }
+      - name: Upload compact developer UI evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: p07-05-${{ matrix.delivery }}-developer-ui
+          path: reports/p07-04-${{ matrix.delivery }}/developer-ui
+          if-no-files-found: warn
       - name: Upload isolated installer evidence and test packages
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
