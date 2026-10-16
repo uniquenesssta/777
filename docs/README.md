@@ -1,16 +1,16 @@
 # 文档与计划入口
 
-日期：2026-10-16（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；本轮收尾分支：`stage/p07-tauri-desktop`；P01收尾提交：`7099303`。
+日期：2026-10-16（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；当前执行分支：`stage/p07-tauri-desktop`；P01收尾提交：`7099303`。
 
 ## 当前状态
 
 | 项目 | 状态 |
 | --- | --- |
 | 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
-| 本轮授权 | 用户2026-10-14“开始P07”，23:14确认按开发配置/母子封包/无登录要求重规划；既有推送授权有效 |
-| 文档工作 | [P07任务书](old/P07-tauri-desktop.md)已按用户确认归档old；设计交接、组件映射、契约及历史证据保持 |
-| 当前开发阶段 / Atomic Task | P07-01至04已按用户确认收尾，见[阶段交接](verification/P07-acceptance.json)；[最新Windows CI](verification/P07-04-ci-evidence-02.json)三项全过；当前无执行中任务 |
-| 下一项 | [P08迁移演练与正式切换](new/P08-cutover.md)待启动；普通用户/干净系统等实机观察与真实部署交接保留 |
+| 本轮授权 | 用户2026-10-16要求P08-01前补开发版目录/读取/封包UI，并要求先建任务书；既有推送授权有效 |
+| 文档工作 | [P07任务书](now/P07-tauri-desktop.md)因追加05移回now；01至04原验收、设计交接和历史证据保持 |
+| 当前开发阶段 / Atomic Task | [P07-05开发者存储与一键封包UI](now/P07-tauri-desktop.md#当前追加任务p07-05-开发者存储与一键封包-ui)执行中，当前为需求与设计准备，软件未改；原[阶段交接](verification/P07-acceptance.json)不覆盖新增范围 |
+| 下一项 | 先完成P07-05，再另行启动[P08迁移演练与正式切换](new/P08-cutover.md)；原实机观察与真实部署交接保留 |
 | 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
 | Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
 
@@ -42,4 +42,4 @@
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
 
-当前结论：P01至P07软件交付已按相应范围验收归档，见[P07阶段交接](verification/P07-acceptance.json)；P08未启动，目标环境观察与真实部署交接保留；当前Figma来源与组件映射见[设计映射](design/P07-component-map.md)。真实部署和历史切换门槛保留。
+当前结论：P01至P06及P07-01至04原范围已验收；P07因追加[P07-05](now/P07-tauri-desktop.md)回到now执行，先设计再实现。原[P07阶段交接](verification/P07-acceptance.json)作为当时验收记录保留；P08未启动。当前Figma来源与组件映射见[设计映射](design/P07-component-map.md)，新增稿待完成后补实际节点。

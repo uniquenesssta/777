@@ -2,7 +2,7 @@
 
 版本：持续规划（2026-10-14母子交付修订）；初始日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P07-01至04的软件交付已按用户明确指令收尾，[阶段验收/交接](verification/P07-acceptance.json)与[归档任务书](old/P07-tauri-desktop.md)保存依据。最新5d7a5ec的[Windows CI](verification/P07-04-ci-evidence-02.json)三项全过；目标环境实机观察和真实部署继续交接P08。当前仍在唯一`stage/p07-tauri-desktop`收尾，本轮未启动P08或创建下一阶段分支。**
+**当前执行[P07-05开发者存储与一键封包UI](now/P07-tauri-desktop.md#当前追加任务p07-05-开发者存储与一键封包-ui)，用户要求先建任务书，按Figma→目录/读取/备份→母子封包→验证顺序推进。01至04原[验收/交接](verification/P07-acceptance.json)保持；因追加05，唯一P07任务书移回now。分支仍为`stage/p07-tauri-desktop`，追加基线de14a12；P08-01待本项完成后另行启动。**
 
 ## 1. 目标与边界
 
@@ -15,7 +15,7 @@
 
 ## 2. 阶段索引
 
-P01至P07已按各阶段交付范围验收归档old；当前无执行中任务。P07收尾分支仍为stage/p07-tauri-desktop；P08仍在new待启动，实机观察和真实部署交接项保留。
+P01至P06及P07-01至04原范围已验收；P07因追加05移回now。原Windows通过证据不覆盖新增UI；唯一分支仍为stage/p07-tauri-desktop，P08仍在new待05完成后启动，实机观察和真实部署交接项保留。
 
 | 阶段 | 任务书 | 前置 | 建议分支 | 状态 / 核心退出门槛 |
 | --- | --- | --- | --- | --- |
@@ -25,8 +25,8 @@ P01至P07已按各阶段交付范围验收归档old；当前无执行中任务�
 | P04 | [后台任务与性能](old/P04-performance.md) | P03已验收 | stage/p04-performance（已转接） | 01/02/03已验收，04短诊断通过；用户确认停电、授权先P05；正式06全档通过已按[用户接续](verification/P04-acceptance.json)验收收尾，无需重跑 |
 | P05 | [结构化存储与局域网服务](old/P05-data-service.md) | P04已验收 | stage/p05-data-service（历史） | [隔离交付已收尾](verification/P05-acceptance.json)，Windows52/52原证据保持；真实部署及历史切换交接后续 |
 | P06 | [Rust业务核心与适配](old/P06-rust-core.md) | 用户授权P05交接 | stage/p06-rust-core | [四项均已验收归档](verification/P06-acceptance.json)；Windows CI及本机212专项/43 Rust/561对照、原窗口/DPAPI/ACL/系统图片/v4恢复和资源核对通过，无需重跑 |
-| P07 | [Tauri界面与Windows交付](old/P07-tauri-desktop.md) | P06已验收 | stage/p07-tauri-desktop | 01至04软件交付已按用户指令收尾归档；[最新CI](verification/P07-04-ci-evidence-02.json)三项全过；[范围及P08交接](verification/P07-acceptance.json) |
-| P08 | [迁移演练与正式切换](new/P08-cutover.md) | P07已验收 | stage/p08-cutover | 待启动；全量对账、恢复演练及用户验收后才切换 |
+| P07 | [Tauri界面与Windows交付](now/P07-tauri-desktop.md) | P06已验收 | stage/p07-tauri-desktop | 01至04原验收保持；新增05开发者目录/读取/封包UI执行中，当前只完成任务书；新增设计和验证待执行 |
+| P08 | [迁移演练与正式切换](new/P08-cutover.md) | P07含追加05完成 | stage/p08-cutover | 待启动；先交付开发UI，再按授权全量对账、恢复演练及用户验收后才切换 |
 
 P01→P02→P03→P04 是现有Python的必要改进；P05把存储和服务契约固定并实现过渡链路；P06复用已验证样本/协议迁移到Rust；P07接界面；P08生产迁移。P05优先复用Python已有业务核心，避免先后造两套规则；Rust切换复用同一schema和API。若决定直接把P05的服务实现并入P06，须先调整任务依赖/验收和取得相应阶段授权，不能默默跳过门槛。
 

@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P07（Tauri界面与Windows交付）已按用户2026-10-16“P07-04收尾”完成软件交付范围验收，[任务书归档old](docs/old/P07-tauri-desktop.md)。[最新Windows CI](docs/verification/P07-04-ci-evidence-02.json)的原桌面流程、母版/子版实际安装、登记、升级、卸载与兼容回退均通过。当前分支仍为`stage/p07-tauri-desktop`；[P08](docs/new/P08-cutover.md)待启动，目标环境观察与真实部署/数据切换按[交接记录](docs/verification/P07-acceptance.json)保留。
+P07-01至04已按用户确认收尾，[原验收与交接](docs/verification/P07-acceptance.json)保持。当前按用户新要求执行[P07-05开发者存储与一键封包UI任务书](docs/now/P07-tauri-desktop.md#当前追加任务p07-05-开发者存储与一键封包-ui)：先Figma设计，再接入存储/备份位置、实际数据读取和母子一键封包。任务书移回now，唯一分支仍为`stage/p07-tauri-desktop`。[P08](docs/new/P08-cutover.md)待本项完成后另行启动；原Windows通过范围和目标环境观察保持，不充作新增UI已验证。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -17,7 +17,7 @@ P07（Tauri界面与Windows交付）已按用户2026-10-16“P07-04收尾”完�
 - [P03-03 Windows本机复查通过](docs/verification/P03-03-windows-evidence.json)
 - [P03-04订单备注、作废恢复与Windows一键检查](docs/verification/P03-04-order-contract.md)
 - [P03-04 Windows本机复查通过](docs/verification/P03-04-windows-evidence.json)
-- [P07归档任务书与桌面验收入口](docs/old/P07-tauri-desktop.md)
+- [P07当前任务书：开发者存储与一键封包UI](docs/now/P07-tauri-desktop.md)
 - [P06 Rust领域核心归档任务书](docs/old/P06-rust-core.md)
 - [P06-01契约与Windows运行步骤](docs/verification/P06-01-core-contract.md)
 - [P05数据与服务归档任务书](docs/old/P05-data-service.md)
@@ -37,6 +37,8 @@ P07（Tauri界面与Windows交付）已按用户2026-10-16“P07-04收尾”完�
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 按用户要求先建立[P07-05任务书](docs/now/P07-tauri-desktop.md#当前追加任务p07-05-开发者存储与一键封包-ui)，明确Figma先行、开发版存储/备份路径设置及真实读取、母子真实封包、失败/草稿/未知请求保护和验收清单；同步now及P08前置。原01至04验收保留，本次只改文档，尚未修改UI/原生能力或开始P08。
 
 - 按用户“P07-04收尾”登记[04验收](docs/verification/P07-04-acceptance.json)和[P07阶段交接](docs/verification/P07-acceptance.json)，归档任务书并修复入口链接。最新Windows三项CI全过，母子实际安装/升级/卸载/兼容回退及登记通过；目标环境实机观察保留交P08，本轮未启动P08或切换真实数据。
 
@@ -74,7 +76,7 @@ P07（Tauri界面与Windows交付）已按用户2026-10-16“P07-04收尾”完�
 
 - P07-01导航按用户标注调整：价格维护、利润分析、报表与图片任务、存储与备份移至顶部主导航，当前项高亮；退出登录保留右上角账户菜单，角色可见范围保持。前端构建及模拟IPC浏览器导航/布局检查通过；本次Windows实机视觉待确认，未启动02。
 
-- 按用户确认重排[P07任务书](docs/old/P07-tauri-desktop.md)与[P08交接](docs/new/P08-cutover.md)：开发版保留配置，封包明确母版/子版，正式版部署授权后无登录直达业务；02交付设备授权/自动会话及权限，03核对界面，04交付两种安装包。稳定actor与目录继承规则保持，新增要求待实现；本轮仅文档，原01自动证据保留，未收尾或启动下一项。
+- 按用户确认重排[P07任务书](docs/now/P07-tauri-desktop.md)与[P08交接](docs/new/P08-cutover.md)：开发版保留配置，封包明确母版/子版，正式版部署授权后无登录直达业务；02交付设备授权/自动会话及权限，03核对界面，04交付两种安装包。稳定actor与目录继承规则保持，新增要求待实现；本轮仅文档，原01自动证据保留，未收尾或启动下一项。
 
 - P07-01自动门槛通过：[Windows CI](docs/verification/P07-01-ci-evidence-06.json)56项指纹匹配76934b4，24工具/52 Rust/9前端/10协议/7浏览器及真实Tauri交互、自然退出/清理全部通过，含提权WebView2 153 API启动。[本机05](docs/verification/P07-01-windows-evidence-05.json)非提权WebView2 155也通过：0.047秒自然退出、临时占用等待2.359秒后完整清理，无强制终止；原始日志保留，本机dirty状态不推定为干净源码。代码不改、无需重跑；01待用户视觉/交互确认，02至04/P08未启动。
 

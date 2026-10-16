@@ -1,6 +1,6 @@
 # P07-02 自动连接与设备授权
 
-依据：[当前任务书](../old/P07-tauri-desktop.md)、[交付契约6.4](../MIGRATION_CONTRACT.md#64-已确认的开发版与母子版交付方式待实现)。用户2026-10-14 23:39收尾01并启动02，唯一分支仍为`stage/p07-tauri-desktop`，基线1043853。[01验收](P07-01-acceptance.json)保留原Windows证据；新增认证不追认为01已测。
+依据：[当前任务书](../now/P07-tauri-desktop.md)、[交付契约6.4](../MIGRATION_CONTRACT.md#64-已确认的开发版与母子版交付方式待实现)。用户2026-10-14 23:39收尾01并启动02，唯一分支仍为`stage/p07-tauri-desktop`，基线1043853。[01验收](P07-01-acceptance.json)保留原Windows证据；新增认证不追认为01已测。
 
 ## 固定开发入口
 
