@@ -16,5 +16,20 @@
   },
   "follow_up": "Use bounded 60 second page readiness wait and save elapsed time and discovered targets. This does not bypass readiness or any business assertion; the new Windows run must verify the result.",
   "other_jobs_at_recording": "sales and desktop-contracts still running; no success claimed",
-  "local_check": "node --check desktop/tests/windows-developer.mjs; git diff --check passed"
+  "local_check": "node --check desktop/tests/windows-developer.mjs; git diff --check passed",
+  "sales_follow_up": {
+    "job_id": 116875016327,
+    "result": "cancelled by next source push",
+    "artifact_id": 12033409816,
+    "artifact_sha256": "2b6d80b7b291e1e602f594ce8dc115695eec0d4a993031032b1b64c800a54dc6",
+    "download_verified": true,
+    "visual_review": "developer-building.png inspected; original ledger has canonical long path and actual sales package job running. Test order proves new empty ledger, enabled add product, return to original ledger, package button and mutual exclusion assertions reached.",
+    "not_claimed": [
+      "completed NSIS package",
+      "installer lifecycle",
+      "720 pixel layout"
+    ],
+    "building_png_sha256": "7d7c1540707787c0d8024199a8be482bd61d9c66dba0fbb883a6776ce87de322"
+  },
+  "desktop_contracts_follow_up": "Cancelled during release compilation by next source push; no full success claimed."
 }
