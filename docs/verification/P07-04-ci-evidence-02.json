@@ -1,0 +1,461 @@
+{
+  "task": "P07-04",
+  "recorded_date": "2026-10-16",
+  "branch": "stage/p07-tauri-desktop",
+  "source_commit": "5d7a5ec496d14400a0ac49342e66d743128cab8e",
+  "run_id": 38856533817,
+  "run_url": "https://github.com/uniquenesssta/777/actions/runs/38856533817",
+  "run_conclusion": "success",
+  "run_created_at": "2026-10-16T05:35:05Z",
+  "run_updated_at": "2026-10-16T05:55:44Z",
+  "evidence_source": "GitHub run/job metadata and complete decoded job logs, with parsed native installer reports. Artifact ZIP contents were not downloaded or independently fingerprint-compared.",
+  "jobs": [
+    {
+      "id": 116829144036,
+      "name": "desktop-contracts",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Pinned MSVC Rust and isolated verification dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Runner and owned native window lifecycle regression",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Windows build, real Rust HTTPS, browser and actual Tauri WebView2 lifecycle",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Device identity, manager/sales presentation and complete quote images",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Upload isolated evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        },
+        {
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19
+        }
+      ]
+    },
+    {
+      "id": 116829144346,
+      "name": "installers (manager)",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Pinned release prerequisites",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Actual role installer, upgrade, retained profiles and compatible rollback",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Upload isolated installer evidence and test packages",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12
+        },
+        {
+          "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13
+        },
+        {
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15
+        }
+      ]
+    },
+    {
+      "id": 116829144361,
+      "name": "installers (sales)",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Pinned release prerequisites",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Actual role installer, upgrade, retained profiles and compatible rollback",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Upload isolated installer evidence and test packages",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12
+        },
+        {
+          "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13
+        },
+        {
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15
+        }
+      ]
+    }
+  ],
+  "installers": [
+    {
+      "job_id": 116829144346,
+      "job_url": "https://github.com/uniquenesssta/777/actions/runs/38856533817/job/116829144346",
+      "delivery": "manager",
+      "status": "actual_Windows_installer_lifecycle_and_native_auth_passed_user_acceptance_pending",
+      "source_commit": "5d7a5ec496d14400a0ac49342e66d743128cab8e",
+      "package_versions": [
+        "0.1.0",
+        "0.1.1"
+      ],
+      "checks": [
+        "two_real_role_locked_NSIS_packages_and_manifests_built",
+        "cross_role_install_directory_rejected",
+        "first-install_real_installed_native_auth_and_natural_close",
+        "upgrade_real_installed_native_auth_and_natural_close",
+        "unreviewed_direct_downgrade_rejected",
+        "compatible-rollback_real_installed_native_auth_and_natural_close",
+        "upgrade_uninstall_and_controlled_rollback_preserve_DPAPI_identity_and_webview_directory"
+      ],
+      "runner_elevated": true,
+      "non_admin_user_acceptance": "pending if CI runner is elevated",
+      "full_installed_business_UI_acceptance": "pending user observation",
+      "close": {
+        "initial": {
+          "status": "passed",
+          "elapsed_seconds": 0.125,
+          "exit_code": 0,
+          "forced_termination": false,
+          "process_exit_observed": true
+        },
+        "upgrade": {
+          "status": "passed",
+          "elapsed_seconds": 0.094,
+          "exit_code": 0,
+          "forced_termination": false,
+          "process_exit_observed": true
+        },
+        "rollback": {
+          "status": "passed",
+          "elapsed_seconds": 0.172,
+          "exit_code": 0,
+          "forced_termination": false,
+          "process_exit_observed": true
+        }
+      },
+      "sandbox_cleanup": {
+        "status": "passed",
+        "timeout_seconds": 20,
+        "attempts": 1,
+        "transient_errors": [],
+        "sandbox_cleaned": true,
+        "forced_browser_termination": false,
+        "temporary_root": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\777-p06-native-host-aof4o5t1",
+        "elapsed_seconds": 0.141
+      },
+      "sandbox_cleaned": true,
+      "enrollment_regression": {
+        "tests": 4,
+        "result": "passed",
+        "both_roles": true,
+        "Get_FileHash_disabled": true
+      },
+      "packages": [
+        {
+          "delivery": "manager",
+          "version": "0.1.0",
+          "installer": "记账器母版_0.1.0_x64-setup.exe",
+          "source_commit": "5d7a5ec496d14400a0ac49342e66d743128cab8e"
+        },
+        {
+          "delivery": "manager",
+          "version": "0.1.0"
+        },
+        {
+          "delivery": "manager",
+          "version": "0.1.1",
+          "installer": "记账器母版_0.1.1_x64-setup.exe",
+          "source_commit": "5d7a5ec496d14400a0ac49342e66d743128cab8e"
+        },
+        {
+          "delivery": "manager",
+          "version": "0.1.1"
+        }
+      ]
+    },
+    {
+      "job_id": 116829144361,
+      "job_url": "https://github.com/uniquenesssta/777/actions/runs/38856533817/job/116829144361",
+      "delivery": "sales",
+      "status": "actual_Windows_installer_lifecycle_and_native_auth_passed_user_acceptance_pending",
+      "source_commit": "5d7a5ec496d14400a0ac49342e66d743128cab8e",
+      "package_versions": [
+        "0.1.0",
+        "0.1.1"
+      ],
+      "checks": [
+        "two_real_role_locked_NSIS_packages_and_manifests_built",
+        "cross_role_install_directory_rejected",
+        "first-install_real_installed_native_auth_and_natural_close",
+        "upgrade_real_installed_native_auth_and_natural_close",
+        "unreviewed_direct_downgrade_rejected",
+        "compatible-rollback_real_installed_native_auth_and_natural_close",
+        "upgrade_uninstall_and_controlled_rollback_preserve_DPAPI_identity_and_webview_directory"
+      ],
+      "runner_elevated": true,
+      "non_admin_user_acceptance": "pending if CI runner is elevated",
+      "full_installed_business_UI_acceptance": "pending user observation",
+      "close": {
+        "initial": {
+          "status": "passed",
+          "elapsed_seconds": 0.375,
+          "exit_code": 0,
+          "forced_termination": false,
+          "process_exit_observed": true
+        },
+        "upgrade": {
+          "status": "passed",
+          "elapsed_seconds": 0.157,
+          "exit_code": 0,
+          "forced_termination": false,
+          "process_exit_observed": true
+        },
+        "rollback": {
+          "status": "passed",
+          "elapsed_seconds": 0.094,
+          "exit_code": 0,
+          "forced_termination": false,
+          "process_exit_observed": true
+        }
+      },
+      "sandbox_cleanup": {
+        "status": "passed",
+        "timeout_seconds": 20,
+        "attempts": 1,
+        "transient_errors": [],
+        "sandbox_cleaned": true,
+        "forced_browser_termination": false,
+        "temporary_root": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\777-p06-native-host-782ycgcg",
+        "elapsed_seconds": 0.125
+      },
+      "sandbox_cleaned": true,
+      "enrollment_regression": {
+        "tests": 4,
+        "result": "passed",
+        "both_roles": true,
+        "Get_FileHash_disabled": true
+      },
+      "packages": [
+        {
+          "delivery": "sales",
+          "version": "0.1.0",
+          "installer": "记账器子版_0.1.0_x64-setup.exe",
+          "source_commit": "5d7a5ec496d14400a0ac49342e66d743128cab8e"
+        },
+        {
+          "delivery": "sales",
+          "version": "0.1.0"
+        },
+        {
+          "delivery": "sales",
+          "version": "0.1.1",
+          "installer": "记账器子版_0.1.1_x64-setup.exe",
+          "source_commit": "5d7a5ec496d14400a0ac49342e66d743128cab8e"
+        },
+        {
+          "delivery": "sales",
+          "version": "0.1.1"
+        }
+      ]
+    }
+  ],
+  "desktop_contracts": {
+    "job_id": 116829144036,
+    "conclusion": "success",
+    "Windows_runner_tests": 33,
+    "Windows_runner_skipped": 0,
+    "browser_tests_passed": 26,
+    "device_protocol_checks": 12,
+    "source_commit": "5d7a5ec496d14400a0ac49342e66d743128cab8e",
+    "worktree_dirty": false,
+    "scope": "Full original unit/build/lint/protocol/browser and actual native manager/sales presentation gates succeeded. Installed non-verification package lifecycle is recorded separately above."
+  },
+  "artifacts": [
+    {
+      "id": 12027728414,
+      "name": "p07-04-manager-isolated-installers",
+      "size_in_bytes": 487008595,
+      "github_digest": "sha256:45192b90dc1ec60b7ed8660c087af53d999985abab2a8e748e62b089ea0b3de8",
+      "archive_contents_independently_reviewed": false
+    },
+    {
+      "id": 12027654015,
+      "name": "p07-01-windows-evidence",
+      "size_in_bytes": 4114195,
+      "github_digest": "sha256:962afb32aafe5a1ec3c4a5c90d0847a0ca080e97543cccc6c6bd85292728d70b",
+      "archive_contents_independently_reviewed": false
+    },
+    {
+      "id": 12026974814,
+      "name": "p07-04-sales-isolated-installers",
+      "size_in_bytes": 487003843,
+      "github_digest": "sha256:36cbc59f447faef5bc4b757af7d1ddb657c1a93718680b4c4b850c8523a074fa",
+      "archive_contents_independently_reviewed": false
+    }
+  ],
+  "boundaries": [
+    "CI runner elevated: ordinary nonadministrator target-user behavior not separately demonstrated by this run",
+    "OfflineInstaller packages built, but clean machine without preinstalled WebView2 and no network not demonstrated",
+    "Installed package authentication and directory retention passed; WebView retention probe is not actual business-draft migration or a complete installed business UI walkthrough",
+    "Test packages trust an ephemeral fixture service; real host trust, devices, data migration and production deployment belong to P08"
+  ],
+  "prior_failure": "P07-04-ci-evidence-01.json",
+  "acceptance": "P07-04-acceptance.json",
+  "production_paths_accessed": false,
+  "P08_started": false
+}

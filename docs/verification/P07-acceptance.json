@@ -1,0 +1,28 @@
+{
+  "phase": "P07",
+  "status": "delivery_scope_accepted_by_user",
+  "accepted_at": "2026-10-16T14:10:02+08:00",
+  "user_instruction": "P07-04收尾",
+  "phase_branch": "stage/p07-tauri-desktop",
+  "source_commit": "5d7a5ec496d14400a0ac49342e66d743128cab8e",
+  "atomic_acceptances": [
+    "P07-01-acceptance.json",
+    "P07-02-acceptance.json",
+    "P07-03-acceptance.json",
+    "P07-04-acceptance.json"
+  ],
+  "latest_evidence": "P07-04-ci-evidence-02.json",
+  "archived_plan": "docs/old/P07-tauri-desktop.md",
+  "decision": "01至04软件交付已按用户指令收尾，归档P07；本轮不启动P08或建立第二条阶段分支。",
+  "carry_forward_to_P08": [
+    "普通非管理员Windows用户下的实际母子包观察（本轮CI为提权runner）",
+    "无预装WebView2且断网的干净系统离线安装观察",
+    "安装版完整业务流程与真实草稿迁移/保留观察（CI验证实际认证及目录探针，未冒充完整业务草稿）",
+    "实际物理缩放/多屏观察，保持P07-03原测量边界",
+    "常在线主机真实服务身份、自启动、人员/设备映射和真实数据迁移、备份恢复与正式切换"
+  ],
+  "P08_started": false,
+  "production_cutover": false,
+  "historical_reports_unchanged": true,
+  "successful_checks_need_not_be_repeated": true
+}

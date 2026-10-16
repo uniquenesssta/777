@@ -97,7 +97,7 @@ py -3 tools/baseline_check.py --gui-smoke --output reports/p01-windows-smoke-02.
 
 用户随后拉取`cdf1ca3`并完成第3节的两个人工窗口会话；两版报告均为`startup=ok`、`manual_session_finished`、`acceptance=requires_user_observation`和`sandbox_cleaned=true`，没有报告工具错误。结果保存在同一证据文件的`manual_launch_observations`中；公共环境/指纹字段合并保存，两个GUI结果分别保留。用户随后明确确认“页面切换文字控件关闭等都正常。”此人工观察单独记录于`user_confirmation`，保留历史工具报告原值。
 
-当前仓库事实已复核：根目录两份Python脚本具有直接启动入口；没有图标、.spec、打包脚本和安装包。缺失即为本次资源登记结果，不要求用户再回答Git可确认的信息，也不声称已验证仓库之外的旧发行包。用户明确的后续Windows桌面安装交付已列入[P07-04](../now/P07-tauri-desktop.md)，当前不新增Python打包任务。
+当前仓库事实已复核：根目录两份Python脚本具有直接启动入口；没有图标、.spec、打包脚本和安装包。缺失即为本次资源登记结果，不要求用户再回答Git可确认的信息，也不声称已验证仓库之外的旧发行包。用户明确的后续Windows桌面安装交付已列入[P07-04](../old/P07-tauri-desktop.md)，当前不新增Python打包任务。
 
 P01-01已验收收尾。收尾时下一项为P01-02业务金额规则与权限确认，其后续执行状态统一见[P01任务书](../old/P01-baseline.md)。P01整阶段尚未完成，任务书继续留在now；无需重跑已完成的检查或补交旧生产安装包来关闭本任务。
 

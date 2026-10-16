@@ -1,7 +1,7 @@
 {
   "task": "P07-04",
   "recorded_date": "2026-10-16",
-  "status": "Windows_installer_enrollment_failed_repaired_revalidation_pending",
+  "status": "accepted_by_user_delivery_scope",
   "phase_branch": "stage/p07-tauri-desktop",
   "baseline": "8481b52423be828835846880962b11afde47e6a5",
   "runtime": {
@@ -107,19 +107,14 @@
       "uninstall retains profile",
       "bounded owned WebView sandbox cleanup"
     ],
-    "status": "first run failed at unavailable Get-FileHash; repaired, new CI pending",
-    "test_packages": "public ephemeral fixture service only; not production deployment"
+    "status": "passed on Windows CI 38856533817 at 5d7a5ec",
+    "test_packages": "public ephemeral fixture service only; not production deployment",
+    "latest_evidence": "P07-04-ci-evidence-02.json"
   },
-  "target_acceptance_pending": [
-    "ordinary nonadministrator Windows user",
-    "clean machine without WebView2 with offline installation",
-    "complete installed business UI flow and draft migration/retention observation",
-    "user acceptance of actual manager/sales packages"
-  ],
   "no_new_production_dependencies": true,
   "lock_files_unchanged": true,
   "production_paths_accessed": false,
-  "P07_04_accepted": false,
+  "P07_04_accepted": true,
   "P08_started": false,
   "source_sha256_LF": {
     ".github/workflows/p07-windows.yml": "19974f995d9045e45e0380a36530645f08a4bd7d31d9c2d4634e16602b6c4d63",
@@ -144,7 +139,7 @@
     "baseline": "3cf10c12b8aafec1bf66f07b07e0152019a83081",
     "failure_evidence": "P07-04-ci-evidence-01.json",
     "change": "Replace Get-FileHash with .NET streaming SHA256; preserve size/hash rejection and exclusive bootstrap/profile guards",
-    "Windows_regression": "tests/test_p07_package_enrollment.py: four tests with both roles and the shipped script, command deliberately disabled; actual Windows execution pending",
+    "Windows_regression": "All four Windows script tests passed in desktop-contracts and both installer matrix jobs, covering both roles with Get-FileHash disabled.",
     "auxiliary_python": {
       "total": 33,
       "passed": 27,
@@ -166,5 +161,19 @@
       ".github/workflows/p07-windows.yml": "46936e021612c8ad2a2dae81268045efc6cbc92af882e9822f997f5c372df230"
     }
   },
-  "source_binding_note": "Top-level fingerprints preserve the initial implementation checks; enrollment_repair fingerprints bind this repair. Original check logs are unchanged."
+  "source_binding_note": "Top-level fingerprints preserve the initial implementation checks; enrollment_repair fingerprints bind this repair. Original check logs are unchanged.",
+  "acceptance_record": "P07-04-acceptance.json",
+  "initial_target_acceptance_pending": [
+    "ordinary nonadministrator Windows user",
+    "clean machine without WebView2 with offline installation",
+    "complete installed business UI flow and draft migration/retention observation",
+    "user acceptance of actual manager/sales packages"
+  ],
+  "carry_forward_to_P08": [
+    "普通非管理员Windows用户下的实际母子包观察（本轮CI为提权runner）",
+    "无预装WebView2且断网的干净系统离线安装观察",
+    "安装版完整业务流程与真实草稿迁移/保留观察（CI验证实际认证及目录探针，未冒充完整业务草稿）",
+    "实际物理缩放/多屏观察，保持P07-03原测量边界",
+    "常在线主机真实服务身份、自启动、人员/设备映射和真实数据迁移、备份恢复与正式切换"
+  ]
 }
