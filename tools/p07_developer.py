@@ -49,7 +49,7 @@ def package_preferences(value):
 
 class Developer:
     def __init__(self, dev, initial, process):
-        self.dev, self.root, self.process = dev, initial, process
+        self.dev, self.root, self.process = dev, local(initial, directory=True), process
         self.lock = threading.RLock()
         self.job_lock = threading.Lock()
         self.job = None
@@ -61,7 +61,7 @@ class Developer:
         self.user, self.password = 'admin', '123456'
         self.preferences_file = dev.DEV / 'developer.json'
         self.credentials_file = dev.DEV / 'developer-credentials.bin'
-        self.preferences = dict(schema='777-developer-v1', root=str(initial), output=str(dev.DEV / 'packages'), version='0.1.0', runtime='downloadBootstrapper')
+        self.preferences = dict(schema='777-developer-v1', root=str(self.root), output=str(dev.DEV / 'packages'), version='0.1.0', runtime='downloadBootstrapper')
         self.credentials = {}
         if self.credentials_file.exists():
             if local(self.credentials_file).stat().st_size > 2 * 1024 * 1024:raise RuntimeError('DEVELOPER_CONFIG_INVALID')
@@ -96,6 +96,7 @@ class Developer:
         return dict(root=str(self.root), backup_dir=cfg['backup_dir'], ledger_id=cfg['ledger_id'], last_backup=backups.get('last_success'), connection=self.connection(), preferences=self.preferences, job=job)
 
     def remember(self, root, user, password):
+        root = local(root, directory=True)
         cfg = self.config(root)
         credentials = {**self.credentials, str(root):dict(user=user, password=password, pin=cfg['certificate_sha256'])}
         raw = json.dumps(credentials).encode()
@@ -161,7 +162,7 @@ class Developer:
             remembered = self.credentials.get(str(root))
             if username and password:
                 user, secret = username, password
-            elif root == self.dev.DEV / 'host':
+            elif root == local(self.dev.DEV / 'host'):
                 user, secret = 'admin', '123456'
             elif remembered and remembered['pin'] == cfg['certificate_sha256']:
                 user, secret = remembered['user'], remembered['password']
@@ -190,6 +191,7 @@ class Developer:
         if self.job and self.job['state'] in ['running', 'cancelling']:
             raise RuntimeError('DEVELOPER_BUILD_BUSY')
         target = local(directory)
+        if target == local(self.config()['backup_dir']):return self.status()
         self.dev.stop_host(self.process)
         self.process = None
         try:
@@ -204,7 +206,7 @@ class Developer:
         with self.job_lock:
             if self.job and self.job['state'] in ['running', 'cancelling']:raise RuntimeError('DEVELOPER_BUILD_BUSY')
             output = package_preferences(self.preferences)
-            for protected in [self.root, Path(self.config()['backup_dir']), self.dev.ROOT]:
+            for protected in map(local, [self.root, Path(self.config()['backup_dir']), self.dev.ROOT]):
                 if output == protected or protected in output.parents or output in protected.parents:
                     raise RuntimeError('DEVELOPER_OUTPUT_CONFLICT')
             output.mkdir(parents=True, exist_ok=True)

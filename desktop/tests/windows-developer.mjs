@@ -5,8 +5,8 @@ import path from 'node:path';
 import { connectNativeBrowser } from './native-cdp.mjs';
 const [port, output, delivery, version, destination] = process.argv.slice(2);
 const browser = await connectNativeBrowser((endpoint, options) => chromium.connectOverCDP(endpoint, options), `http://127.0.0.1:${port}`);
+let page;
 try {
-  let page;
   for(let i=0;i<100;i++){page=browser.contexts().flatMap(c=>c.pages()).find(p=>!p.url().startsWith('devtools:')&&p.url()!=='about:blank');if(page)break;await new Promise(r=>setTimeout(r,100));}
   if(!page)throw Error('DEVELOPER_PAGE_REQUIRED');
   await expect(page.getByRole('button', {name:'开发部署',exact:true})).toBeVisible({timeout:60000});
@@ -71,4 +71,11 @@ try {
   await capture('developer-narrow');
   await cdp.send('Emulation.clearDeviceMetricsOverride');
   await cdp.detach();
+} catch(error) {
+  if(page) {
+    await page.screenshot({path:output+'/developer-error.png'}).catch(()=>{});
+    const diagnosis=await page.evaluate(async()=>({alerts:[...document.querySelectorAll('[role="alert"]')].map(n=>n.textContent),dialogs:[...document.querySelectorAll('[role="dialog"]')].map(n=>n.textContent),state:await window.__TAURI_INTERNALS__.invoke('desktop_action',{request:{action:'developer',request:{op:'status'}}}).catch(e=>({error:e}))})).catch(e=>({error:String(e)}));
+    fs.writeFileSync(output+'/developer-error.json',JSON.stringify(diagnosis,null,2));
+  }
+  throw error;
 } finally {await browser.close();}

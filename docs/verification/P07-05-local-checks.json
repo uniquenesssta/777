@@ -11,8 +11,8 @@
       "passed": 33
     },
     "python_regressions": {
-      "passed": 38,
-      "skipped_windows_only": 7
+      "passed": 40,
+      "skipped_windows_only": 8
     },
     "clippy_all_targets": "passed",
     "typescript_and_development_build": "passed",
@@ -31,8 +31,8 @@
       "status": "passed",
       "production_paths_accessed": false,
       "backup": {
-        "ledger_id": "5069c368-debe-4efa-ad84-0d4ea217745a",
-        "manifest_sha256": "a9f5ce42afaa04eb7a5af6762ae808059002d739bb076eaee7b42faf45b9a058",
+        "ledger_id": "0dc81675-f22a-4db3-b6d9-d377b90309b8",
+        "manifest_sha256": "5a2ede4b5f02e7d4754c5afc5f527ac0cd9e38f580a7ee02dbffd42b8563718b",
         "full_service_verified": true
       }
     }
@@ -70,10 +70,10 @@
     "desktop/src/features/DeveloperPage.tsx": "1c39f4cbfe0dd330f7a72220da1fff24519ec042c419a430439b16163da1c9d2",
     "desktop/src/state/developerDraft.ts": "835a2018e1e4bcf795ea41948f113ce58e752b10781fb2245030a380121e2389",
     "desktop/tests/developer-draft.test.ts": "29a168746c018d17ace52cf46f6fd965eb9f4d9c6f5a0c0d6f92745b3f25070d",
-    "desktop/tests/windows-developer.mjs": "dd93fd501b715b31fde9598eae6b35bbf73113f729e1b68acf2acf20570dfd02",
-    "tests/test_p07_developer.py": "2f6b08fdf55201fc2ab8f19156571bcbe37bdf35862bbdc01e39ebe896f1be42",
+    "desktop/tests/windows-developer.mjs": "66faa332659d453483d8bf2f01c9d8288dba6d33f6e093d3f136a7b47adfa678",
+    "tests/test_p07_developer.py": "43f254c570f0c4e8c5db4f04beb7107c059b4369e2ef0156490ac916690ecd04",
     "tests/test_p07_owned_job.py": "68c0174b2664ddcb9afc5a518cf73ae89839b3d0977edbc4fc0e8b61d18a0602",
-    "tools/p07_developer.py": "168d607b249f00e714b59ea85ee8949d0a1d676661272fa1c270611362f91755",
+    "tools/p07_developer.py": "25f7b1244f5fbdec050ac870b2ad714143cbaf0f3e6858ed9f4a2973becdad25",
     "tools/p07_developer_check.py": "6a43b27c9fb410bc85c6f99244a715a1cc1ad110e8b0a7c22cea1fd3728876b6",
     "tools/p07_developer_package_check.py": "caaaaec0712f796652cf9392de0dab45db3cf270abc44960002e292fa380c844",
     "tools/p07_owned_job.py": "5aadd3540321dd561e7ff5a0ebc31ea1d90502c08abb9b5071c51487de00138f",
@@ -122,5 +122,13 @@
       "TypeScript and development build passed"
     ],
     "windows_visual_recheck": "pending"
+  },
+  "canonical_identity_followup": {
+    "base_commit": "06d8ca47c0ec6672d246f0d8ffe80a11dc841729",
+    "checks": [
+      "48 Python tests: 40 passed, 8 Windows-only skipped",
+      "actual native A/B data, backup restore and restart passed"
+    ],
+    "change": "canonical initial root, credential keys, backup no-op and output protected-path comparisons; Windows short alias case added"
   }
 }

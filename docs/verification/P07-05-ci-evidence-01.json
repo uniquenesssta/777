@@ -1,0 +1,39 @@
+{
+  "task": "P07-05",
+  "source_commit": "06d8ca47c0ec6672d246f0d8ffe80a11dc841729",
+  "run_id": 38868934622,
+  "run_url": "https://github.com/uniquenesssta/777/actions/runs/38868934622",
+  "status": "not_passed",
+  "failed_jobs": [
+    116868584206,
+    116868584661
+  ],
+  "failure": "Actual developer UI initialized empty ledger and enabled price maintenance, but returning to initial ledger did not leave developer page within 60 seconds. Initial fixture used Windows short path while selected paths were resolved. Canonical identity fix and explicit Windows short-path test added; awaiting rerun.",
+  "partial_evidence": {
+    "actual_windows_empty_ledger_and_price_page": "passed before failing source return",
+    "figma_ready_page_and_420px_confirmation_visual_review": "passed at 1440px CDP comparison; not user acceptance",
+    "native_metrics": {
+      "native": {
+        "width": 1028,
+        "height": 749,
+        "dpr": 1
+      },
+      "comparison": "1440x884 and 720x900 are CDP viewport emulations, not physical monitor or OS DPI claims"
+    },
+    "artifact_id": 12033290184,
+    "artifact_sha256": "af658f3d6c4dc38e3cacbd76dad20332f654836fb022c6c39ce2d52a43eaf5cb",
+    "screenshots": {
+      "developer-ready.png": "f36df0e17afbadaeb798ce3df837f65f8099dea8e1411b5516139bb7b6a402a8",
+      "developer-native-window.png": "31526bf7aeee7a46bcdf8be8d7ec2443d563855889492ced7d27f583673becb4",
+      "developer-create-dialog.png": "05a3904fc412fceabe4725a1a148b037ba0810ead9ccb2de5ea1e310f36a9fd2",
+      "developer-new-ledger-prices.png": "d3652127261f708951d38852586426102d7a4202edef03973097f7c28728f736"
+    }
+  },
+  "not_claimed": [
+    "successful UI package",
+    "both installer regressions",
+    "720px check, not reached",
+    "overall Windows run passed",
+    "user sign-off"
+  ]
+}

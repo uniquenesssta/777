@@ -45,6 +45,29 @@ class DeveloperTests(unittest.TestCase):
         self.dev.stop_host.assert_not_called()
         self.assertEqual(self.operator.root, self.a)
 
+    def test_initial_root_and_credentials_use_one_canonical_directory_identity(self):
+        alias = self.devdir / '..' / 'development' / 'host'
+        operator = Developer(self.dev, alias, object())
+        operator.remember(alias, 'admin', 'secret')
+        self.assertEqual(str(operator.root), str(self.a.resolve()))
+        self.assertEqual(operator.preferences['root'], str(self.a.resolve()))
+        self.assertEqual(list(operator.credentials), [str(self.a.resolve())])
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows short path identity')
+    def test_windows_short_path_uses_the_same_saved_credentials(self):
+        import ctypes
+        from ctypes import wintypes
+        kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+        kernel.GetShortPathNameW.argtypes = [wintypes.LPCWSTR,wintypes.LPWSTR,wintypes.DWORD]
+        kernel.GetShortPathNameW.restype = wintypes.DWORD
+        buffer = ctypes.create_unicode_buffer(32768)
+        self.assertTrue(kernel.GetShortPathNameW(str(self.a),buffer,len(buffer)))
+        if buffer.value == str(self.a):self.skipTest('volume does not expose a distinct short alias')
+        operator = Developer(self.dev, Path(buffer.value), object())
+        operator.remember(Path(buffer.value), 'admin', 'secret')
+        self.assertEqual(str(operator.root), str(self.a.resolve()))
+        self.assertEqual(list(operator.credentials), [str(self.a.resolve())])
+
     def test_authentication_failure_preserves_running_service_and_configuration(self):
         b = self.host(self.base / 'B', 'b')
         self.dev.command.side_effect = RuntimeError('INVALID_CREDENTIALS')
@@ -84,6 +107,13 @@ class DeveloperTests(unittest.TestCase):
         self.assertEqual(original.read_bytes(), b'original')
         self.dev.command.assert_not_called()
         self.dev.stop_host.assert_not_called()
+
+    def test_same_backup_via_canonical_alias_keeps_current_service_running(self):
+        backup = self.devdir / '..' / 'development' / 'host-backups'
+        state = self.operator.configure_backup(str(backup))
+        self.assertEqual(state['backup_dir'], str(backup.resolve()))
+        self.dev.stop_host.assert_not_called()
+        self.dev.command.assert_not_called()
 
     def test_explicit_reauthentication_replaces_stale_saved_password_only_after_validation(self):
         b = self.host(self.base / 'B', 'b')
