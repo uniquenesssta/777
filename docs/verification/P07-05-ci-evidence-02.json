@@ -1,0 +1,20 @@
+{
+  "task": "P07-05",
+  "source_commit": "9511fd93e2a36877ea465dd11375145d5ac1f4d7",
+  "run_id": 38870961195,
+  "run_url": "https://github.com/uniquenesssta/777/actions/runs/38870961195",
+  "status": "not_passed",
+  "manager": {
+    "job_id": 116875016996,
+    "result": "failure",
+    "error": "DEVELOPER_PAGE_REQUIRED",
+    "observed": "CDP connected but no nonblank page was found within the test script 10 second page budget; no application operation or packaging was reached",
+    "artifact_id": 12033394493,
+    "artifact_sha256": "15102a4067db6acb45d46679cec7c3a1c6d8ec37b633fec6470b912bd8fe34e0",
+    "artifact_files": 1,
+    "artifact_downloaded": false
+  },
+  "follow_up": "Use bounded 60 second page readiness wait and save elapsed time and discovered targets. This does not bypass readiness or any business assertion; the new Windows run must verify the result.",
+  "other_jobs_at_recording": "sales and desktop-contracts still running; no success claimed",
+  "local_check": "node --check desktop/tests/windows-developer.mjs; git diff --check passed"
+}

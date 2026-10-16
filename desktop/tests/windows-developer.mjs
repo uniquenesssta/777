@@ -7,7 +7,9 @@ const [port, output, delivery, version, destination] = process.argv.slice(2);
 const browser = await connectNativeBrowser((endpoint, options) => chromium.connectOverCDP(endpoint, options), `http://127.0.0.1:${port}`);
 let page;
 try {
-  for(let i=0;i<100;i++){page=browser.contexts().flatMap(c=>c.pages()).find(p=>!p.url().startsWith('devtools:')&&p.url()!=='about:blank');if(page)break;await new Promise(r=>setTimeout(r,100));}
+  const pageStarted = Date.now();
+  while(Date.now()-pageStarted<60000){page=browser.contexts().flatMap(c=>c.pages()).find(p=>!p.isClosed()&&!p.url().startsWith('devtools:')&&p.url()!=='about:blank');if(page)break;await new Promise(r=>setTimeout(r,100));}
+  fs.writeFileSync(output+'/developer-startup.json',JSON.stringify({elapsed_ms:Date.now()-pageStarted,ready:!!page,contexts:browser.contexts().length,pages:browser.contexts().flatMap(c=>c.pages()).map(p=>({url:p.url(),closed:p.isClosed()}))},null,2));
   if(!page)throw Error('DEVELOPER_PAGE_REQUIRED');
   await expect(page.getByRole('button', {name:'开发部署',exact:true})).toBeVisible({timeout:60000});
   await page.getByRole('button', {name:'开发部署',exact:true}).click();
