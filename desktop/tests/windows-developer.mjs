@@ -14,6 +14,11 @@ try {
   await expect(page.getByText('本机服务', {exact:true})).toBeVisible();
   await page.evaluate(async()=>document.fonts.ready);
   const capture = async name => page.screenshot({path:output+'/'+name+'.png'});
+  await capture('developer-native-window');
+  const metrics=await page.evaluate(()=>({width:innerWidth,height:innerHeight,dpr:devicePixelRatio}));
+  fs.writeFileSync(output+'/native-metrics.json',JSON.stringify({native:metrics,comparison:'1440x884 and 720x900 are CDP viewport emulations, not physical monitor or OS DPI claims'},null,2));
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Emulation.setDeviceMetricsOverride',{width:1440,height:884,deviceScaleFactor:1,mobile:false});
   await capture('developer-ready');
   await page.getByRole('button',{name:'新建空账本',exact:true}).click();
   await expect(page.getByRole('dialog')).toContainText('当前账本与草稿保留');
@@ -57,8 +62,10 @@ try {
   const state = await page.evaluate(async()=>window.__TAURI_INTERNALS__.invoke('desktop_action',{request:{action:'developer',request:{op:'status'}}}));
   if(state.job.state!=='succeeded'||state.job.delivery!==delivery)throw Error('DEVELOPER_JOB_MISMATCH');
   fs.writeFileSync(output+'/developer-job.json',JSON.stringify(state.job,null,2));
-  const cdp = await page.context().newCDPSession(page);
   await cdp.send('Emulation.setDeviceMetricsOverride',{width:720,height:900,deviceScaleFactor:1,mobile:false});
+  await page.evaluate(()=>window.scrollTo(0,0));
+  const fields=await page.locator('.developer-path .compact-field').evaluateAll(nodes=>nodes.map(n=>{const label=n.querySelector('span').getBoundingClientRect(),input=n.querySelector('input').getBoundingClientRect();return Math.abs(label.top+label.height/2-input.top-input.height/2);}));
+  expect(fields.every(offset=>offset<2)).toBeTruthy();
   const sizes=await page.evaluate(()=>({viewport:innerWidth,document:document.documentElement.scrollWidth}));
   expect(sizes.document).toBeLessThanOrEqual(sizes.viewport+1);
   await capture('developer-narrow');

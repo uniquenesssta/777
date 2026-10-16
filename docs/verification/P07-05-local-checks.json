@@ -58,7 +58,7 @@
     "desktop/src-tauri/src/main.rs": "26fa4cc513eac57fafe73ecb73ea5c39e0be44b719acda75d607b8e50e1a1970",
     "desktop/src-tauri/src/types.rs": "79c9423ba779826f57788134c49bdb0b9549e694f62413bfb6e038ee9ae7ec1a",
     "desktop/src/App.tsx": "991123bfdf3d5820a07fe684eb869387ba0416692f33a05a586ac3577021dc9f",
-    "desktop/src/app.css": "52a3d93bccdec3817a6fe052c71cf92db3a26b69c9612d1a88f00482cd79764a",
+    "desktop/src/app.css": "4736d9793b6f048d4bc1b4c8552942934786b859590984e4322f4b183579f89c",
     "desktop/src/state/draft.ts": "fa40d9080f3d35474e71f34df0166f69ec7a2a0aa97a95da590b50c482a2b0fa",
     "desktop/src/state/useWorkbench.ts": "ba8ed579625a759df989ef9e9409168422c843f62b7610a986d0693aea131bce",
     "desktop/tools/package.mjs": "5b93e09c7fb0e55ba19fe171d4992d580342bb8a53fae0b93e919a2278e841ab",
@@ -70,7 +70,7 @@
     "desktop/src/features/DeveloperPage.tsx": "1c39f4cbfe0dd330f7a72220da1fff24519ec042c419a430439b16163da1c9d2",
     "desktop/src/state/developerDraft.ts": "835a2018e1e4bcf795ea41948f113ce58e752b10781fb2245030a380121e2389",
     "desktop/tests/developer-draft.test.ts": "29a168746c018d17ace52cf46f6fd965eb9f4d9c6f5a0c0d6f92745b3f25070d",
-    "desktop/tests/windows-developer.mjs": "21f0962c676a44126d061e6596ec7eb521e70c33b4894500c72d0e0e5f025f73",
+    "desktop/tests/windows-developer.mjs": "dd93fd501b715b31fde9598eae6b35bbf73113f729e1b68acf2acf20570dfd02",
     "tests/test_p07_developer.py": "2f6b08fdf55201fc2ab8f19156571bcbe37bdf35862bbdc01e39ebe896f1be42",
     "tests/test_p07_owned_job.py": "68c0174b2664ddcb9afc5a518cf73ae89839b3d0977edbc4fc0e8b61d18a0602",
     "tools/p07_developer.py": "168d607b249f00e714b59ea85ee8949d0a1d676661272fa1c270611362f91755",
@@ -113,5 +113,14 @@
       "folder picker accepts authorized developer local directories; business UNC rule preserved",
       "backup-now blocked when active business connection differs from displayed local ledger"
     ]
+  },
+  "responsive_followup": {
+    "base_commit": "1cbebe8b37fe6c96871450f85e5f2b7bac013323",
+    "trigger": "actual Windows screenshots at b0a1460 exposed inherited max-width:1200 compact-field column layout and 380px modal specificity",
+    "change": "developer fields remain horizontal; 420px modal overrides compact default; native and 1440/720 CDP screenshots separated",
+    "checks": [
+      "TypeScript and development build passed"
+    ],
+    "windows_visual_recheck": "pending"
   }
 }
