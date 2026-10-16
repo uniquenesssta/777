@@ -70,6 +70,14 @@ impl Args {
                 "--test-font-file",
             ],
             "inspect" => vec!["--root", "--auxiliary"],
+            "authorize" => vec!["--root", "--admin", "--auxiliary", "--secret-stdin"],
+            "configure-backup" => vec![
+                "--root",
+                "--backup-dir",
+                "--admin",
+                "--auxiliary",
+                "--secret-stdin",
+            ],
             "enable-devices" => vec!["--root", "--admin", "--auxiliary", "--secret-stdin"],
             "backup" => vec![
                 "--root",
@@ -162,6 +170,8 @@ async fn execute(a: Args) -> Result<Value> {
    if a.has("--auxiliary-font"){if cfg!(windows)||!auxiliary||!a.has("--isolated-test"){return fail(422,"AUXILIARY_FONT_FORBIDDEN")};service.font=Some(a.path("--auxiliary-font")?);}host::serve(service,a.has("--test-shutdown-stdin")).await?;Ok(json!({"status":"stopped","ownership_released":true}))},
   "enable-devices"=>{let _owner=files::Owner::acquire(&root)?;let mut s=Service::load(&root,auxiliary,true)?;let login=s.auth.login(&json!(a.get("--admin")?),&json!(a.secret(false)?),"enable-devices")?;let token=login["token"].as_str().unwrap();let result=(||{auth::Auth::admin(&s.auth.authenticate(token)?)?;if s.devices.is_some(){return Ok(json!({"status":"already_enabled"}))};quote_host::devices::Devices::create(&root.join("private/devices.sqlite3"))?;s.config["device_auth"]=json!(quote_host::devices::FORMAT);files::replace_json(&root.join("private/service.json"),&s.config)?;Ok(json!({"status":"device_auth_enabled_restart_required"}))})();let _=s.auth.logout(token);result},
   "inspect"=>{let s=Service::load(&root,auxiliary,true)?;Ok(json!({"inventory":integrity::inventory(&store::open(&s.ledger,false)?)?,"maintenance":s.config["maintenance"],"host_backend":s.config.get("service_backend").unwrap_or(&json!("python")),"private_security":s.config["private_security"],"certificate_sha256":s.config["certificate_sha256"]}))},
+  "authorize"=>quote_host::operator::authorize(&root,a.get("--admin")?,&a.secret(false)?,auxiliary),
+  "configure-backup"=>quote_host::operator::configure_backup(&root,&a.path("--backup-dir")?,a.get("--admin")?,&a.secret(false)?,auxiliary),
   "backup"=>{let _owner=files::Owner::acquire(&root)?;let mut s=Service::load(&root,auxiliary,true)?;let login=s.auth.login(&json!(a.get("--admin")?),&json!(a.secret(false)?),"offline-backup")?;let token=login["token"].as_str().unwrap();let actor=s.auth.authenticate(token)?;let result=(||{auth::Auth::admin(&actor)?;backup::create(&s,a.default("--kind","maintenance"))})();let _=s.auth.logout(token);result},
   "restore"=>backup::restore(&a.path("--package")?,&root,a.get("--admin")?,&a.secret(true)?,auxiliary),
   "select-host"=>host::select(host::Selection{root:&root,user:a.get("--admin")?,password:&a.secret(false)?,backend:a.get("--backend")?,worker:a.get("--worker").ok().map(Path::new),notices:a.get("--notices").ok().map(Path::new),upgrade:a.has("--upgrade-resources"),auxiliary}).map(|v|json!({"status":"selected_not_started","service_backend":v["service_backend"],"ledger_id":v["ledger_id"]})),

@@ -976,3 +976,33 @@ textarea {
 .pie-legend b { margin-left:auto; overflow-wrap:anywhere; }
 .pending-actions { display:flex; flex-direction:column; gap:8px; }
 @media(max-width:720px){ .profit-pie { flex-direction:column; align-items:stretch; gap:12px; } .profit-pie > svg { align-self:center; flex-basis:auto; max-width:100%; height:auto; } }
+
+/* P07-05 · Figma 70:1188, developer-only configuration workspace. */
+.developer-page { display:flex; flex-direction:column; gap:20px; min-width:0; width:100%; }
+.developer-title,.developer-heading,.developer-actions,.developer-runtime { display:flex; align-items:center; gap:12px; }
+.developer-title h1 { font-size:18px; line-height:24px; font-weight:500; margin:0; }
+.developer-heading { justify-content:space-between; }
+.developer-grid { display:grid; grid-template-columns:minmax(0,772fr) minmax(0,568fr); gap:20px; align-items:start; }
+.developer-card { display:flex; flex-direction:column; gap:20px; padding:24px; min-width:0; }
+.developer-card h2 { font-size:16px; line-height:24px; font-weight:500; margin:0; }
+.developer-card p { margin:0; }
+.developer-card small { font-size:12px; line-height:18px; }
+.developer-connected { color:var(--color-success); }
+.developer-path { display:flex; align-items:center; gap:8px; min-width:0; }
+.developer-card .compact-field { flex:1; min-width:0; width:100%; }
+.developer-card .compact-field > span { width:73px; flex:0 0 73px; }
+.developer-card .compact-field .input { min-width:0; width:100%; }
+.developer-path > .button { flex:0 0 96px; padding:8px; }
+.developer-source { padding:16px; background:var(--color-soft); display:flex; flex-direction:column; gap:8px; overflow-wrap:anywhere; }
+.developer-source small { color:var(--color-muted); }
+.developer-actions { gap:8px; flex-wrap:wrap; }
+.developer-runtime { gap:8px; flex-wrap:wrap; }
+.developer-runtime > span { font-size:13px; color:var(--color-muted); }
+.developer-package-actions { display:flex; gap:12px; }
+.developer-package-actions > .button { flex:1; }
+.developer-job-path { overflow-wrap:anywhere; }
+.developer-log { white-space:pre-wrap; overflow-wrap:anywhere; overflow:auto; max-height:240px; background:var(--color-soft); padding:16px; font-size:12px; }
+@media(max-width:1100px) { .developer-grid { grid-template-columns:1fr; } }
+@media(max-width:700px) { .developer-card { padding:16px; } .developer-path { flex-wrap:wrap; } .developer-path .compact-field { flex-basis:100%; } }
+
+.developer-dialog{width:min(420px,calc(100vw - 32px))}.developer-dialog .compact-field > span{width:73px;flex:0 0 73px}

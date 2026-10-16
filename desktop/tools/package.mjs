@@ -51,7 +51,7 @@ export async function verifyProductionFrontend(directory) {
   if (!scripts.length) throw Error('PRODUCTION_FRONTEND_MISSING');
   for (const name of scripts) {
     const source = await fs.readFile(path.join(directory, 'assets', name), 'utf8');
-    if (source.includes('current-password') || source.includes('服务证书（PEM）')) throw Error('DEVELOPMENT_FORM_IN_RELEASE');
+    if (source.includes('current-password') || source.includes('服务证书（PEM）') || source.includes('开发部署') || source.includes('DEVELOPER_LAUNCHER_REQUIRED')) throw Error('DEVELOPMENT_FORM_IN_RELEASE');
   }
 }
 async function run(args, env) {
@@ -132,5 +132,12 @@ export async function build(args) {
   } finally { await fs.rm(temporary, { recursive: true, force: true }); }
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  if (process.env.QUOTE777_PACKAGE_CONTROL_STDIN === '1') {
+    const { createInterface } = await import('node:readline');
+    const lines = createInterface({ input: process.stdin });
+    let authorized = false;
+    for await (const line of lines) { authorized = line === 'start'; break; }
+    if (!authorized) throw Error('PACKAGE_OWNER_REQUIRED');
+  }
   build(process.argv.slice(2)).catch(error => { console.error(error.code ?? error.message); process.exitCode = 1; });
 }

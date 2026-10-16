@@ -48,6 +48,21 @@ impl Desktop {
         Ok(self.store.read::<Pending>("pending.bin")?.is_some())
     }
     pub async fn directory_context(&mut self, target: &str) -> Result<String> {
+        #[cfg(all(
+            debug_assertions,
+            not(any(feature = "manager", feature = "sales", feature = "verification"))
+        ))]
+        if ["developer_root", "developer_backup", "developer_output"].contains(&target) {
+            self.admin()?;
+            let state = crate::developer::call(json!({"op":"status"})).await?;
+            return Ok(match target {
+                "developer_root" => state["root"].as_str(),
+                "developer_backup" => state["backup_dir"].as_str(),
+                _ => state["preferences"]["output"].as_str(),
+            }
+            .unwrap_or("")
+            .to_string());
+        }
         if !["export_dir", "image_dir"].contains(&target) {
             return Err(DesktopError::new(422, "INVALID_DIRECTORY_TARGET"));
         }
@@ -194,6 +209,29 @@ impl Desktop {
         use crate::startup::{self, Bootstrap, Credential};
         let kind = startup::delivery();
         if !startup::formal() {
+            #[cfg(all(
+                debug_assertions,
+                not(any(feature = "manager", feature = "sales", feature = "verification"))
+            ))]
+            if crate::developer::available() {
+                let config = crate::developer::bootstrap().await?;
+                let session = Box::pin(
+                    self.execute_inner(Action::Connect {
+                        connection: serde_json::from_value(config["connection"].clone())
+                            .map_err(|_| DesktopError::new(502, "DEVELOPER_CONFIG_INVALID"))?,
+                        username: config["username"]
+                            .as_str()
+                            .ok_or_else(|| DesktopError::new(502, "DEVELOPER_CONFIG_INVALID"))?
+                            .into(),
+                        password: config["password"]
+                            .as_str()
+                            .ok_or_else(|| DesktopError::new(502, "DEVELOPER_CONFIG_INVALID"))?
+                            .into(),
+                    }),
+                )
+                .await?;
+                return Ok(json!({"delivery":kind,"session":session,"automatic":true}));
+            }
             if let Some(config) = self.store.bootstrap::<Bootstrap>()? {
                 config.validate(kind)?;
                 let session = Box::pin(self.execute_inner(Action::Connect {
@@ -294,6 +332,31 @@ impl Desktop {
     }
     async fn execute_inner(&mut self, action: Action) -> Result<Value> {
         match action {
+            #[cfg(all(
+                debug_assertions,
+                not(any(feature = "manager", feature = "sales", feature = "verification"))
+            ))]
+            Action::Developer { request } => {
+                self.admin()?;
+                if request.protects_close() && self.has_pending()? {
+                    return Err(DesktopError::new(409, "PENDING_REQUEST_REQUIRES_QUERY"));
+                }
+                let switches = request.switches_data();
+                let mut data = serde_json::to_value(&request)
+                    .map_err(|_| DesktopError::new(422, "INVALID_BODY"))?;
+                if matches!(request, crate::developer::DeveloperAction::Package { .. }) {
+                    // The connection comes from the authenticated native session, not an arbitrary frontend URL.
+                    data["connection"] = serde_json::to_value(&self.session()?.connection)
+                        .map_err(|_| DesktopError::new(422, "INVALID_BODY"))?;
+                }
+                let result = crate::developer::call(data).await?;
+                if switches {
+                    self.session = None;
+                    self.calculation = None;
+                    self.auto_expires = 0;
+                }
+                Ok(result)
+            }
             Action::Bootstrap {} => self.bootstrap().await,
             Action::Connection {} => Ok(
                 json!({"delivery":crate::startup::delivery(),"automatic":crate::startup::formal() || self.store.bootstrap::<crate::startup::Bootstrap>()?.is_some(),"connection":if crate::startup::formal(){None}else{self.store.read::<Connection>("connection.bin")?},"pending":self.has_pending()?}),
@@ -635,6 +698,74 @@ fn display(v: &mut Value) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(all(
+        debug_assertions,
+        not(any(feature = "manager", feature = "sales", feature = "verification"))
+    ))]
+    #[tokio::test]
+    async fn developer_switch_and_backup_reject_pending_before_launcher_call() {
+        let root =
+            std::env::temp_dir().join(format!("777-developer-pending-{}", new_id().unwrap()));
+        let mut desktop = Desktop::new(root.clone(), !cfg!(windows)).unwrap();
+        let _ = rustls::crypto::ring::default_provider().install_default();
+        desktop.session = Some(Session {
+            http: reqwest::Client::new(),
+            connection: Connection {
+                url: "https://127.0.0.1:1".into(),
+                certificate_pem: String::new(),
+                certificate_sha256: "a".repeat(64),
+            },
+            token: "isolated".into(),
+            subject: "original".into(),
+            role: "admin".into(),
+        });
+        desktop
+            .store
+            .write(
+                "pending.bin",
+                &Pending {
+                    path: "/v1/orders".into(),
+                    body: json!({"request_id":"original"}),
+                    subject: "original".into(),
+                    url: "https://127.0.0.1:1".into(),
+                    pin: "a".repeat(64),
+                },
+            )
+            .unwrap();
+        let before = std::fs::read(root.join("pending.bin")).unwrap();
+        for request in [
+            json!({"op":"select","root":"ignored","initialize":false,"backup_dir":""}),
+            json!({"op":"backup_directory","directory":"ignored"}),
+        ] {
+            let action =
+                serde_json::from_value(json!({"action":"developer","request":request})).unwrap();
+            assert_eq!(
+                desktop.execute(action).await.unwrap_err().code,
+                "PENDING_REQUEST_REQUIRES_QUERY"
+            );
+            assert_eq!(std::fs::read(root.join("pending.bin")).unwrap(), before);
+        }
+        std::fs::remove_dir_all(root).unwrap();
+    }
+    #[test]
+    fn developer_wire_excludes_private_bootstrap_and_arbitrary_commands() {
+        for op in ["bootstrap", "shell", "read_file"] {
+            assert!(serde_json::from_value::<Action>(
+                json!({"action":"developer","request":{"op":op}})
+            )
+            .is_err());
+        }
+        #[cfg(any(
+            not(debug_assertions),
+            feature = "manager",
+            feature = "sales",
+            feature = "verification"
+        ))]
+        assert!(serde_json::from_value::<Action>(
+            json!({"action":"developer","request":{"op":"status"}})
+        )
+        .is_err());
+    }
     #[test]
     fn wire_rejects_arbitrary_paths_actor_and_unknown_commands() {
         for raw in [

@@ -5,6 +5,7 @@ pub mod backup;
 pub mod devices;
 pub mod files;
 pub mod host;
+pub mod operator;
 pub mod outputs;
 pub mod protocol;
 pub mod query;

@@ -11,6 +11,11 @@ compile_error!(
 );
 // Typed desktop boundary. The authenticated service remains the financial authority.
 mod client;
+#[cfg(all(
+    debug_assertions,
+    not(any(feature = "manager", feature = "sales", feature = "verification"))
+))]
+mod developer;
 mod journal;
 mod startup;
 mod tls;

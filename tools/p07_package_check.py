@@ -95,7 +95,12 @@ def main():
         for tag, number in [('initial', version), ('upgrade', upgrade_version)]:
             release = output / tag
             save()
-            run([node, str(package), '--delivery', args.delivery, '--connection', str(config), '--output', str(release), '--version', number], env=env)
+            if tag == 'initial':
+                from p07_developer_package_check import package_from_window
+                package_from_window(host, ROOT, args.delivery, number, release)
+                report['checks'].append('P07_05_actual_developer_UI_button_built_role_NSIS_package')
+            else:
+                run([node, str(package), '--delivery', args.delivery, '--connection', str(config), '--output', str(release), '--version', number], env=env)
             run([node, str(deployment), 'verify', '--release', str(release)])
             releases.append(release)
         initial, upgrade = releases

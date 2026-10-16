@@ -83,7 +83,7 @@ def prepare():
 
 def main():
     p=argparse.ArgumentParser();mode=p.add_mutually_exclusive_group();mode.add_argument('--frontend',action='store_true');mode.add_argument('--desktop',action='store_true');p.add_argument('--skip-build',action='store_true');p.add_argument('tauri_args',nargs=argparse.REMAINDER);args=p.parse_args()
-    host_process=None;frontend=None;primary=None
+    host_process=None;frontend=None;primary=None;developer=None
     try:
         probe=socket.socket()
         try: probe.bind(('127.0.0.1',PORT))
@@ -108,6 +108,12 @@ def main():
         finally:client.logout()
         print(f'本机开发服务已就绪：https://127.0.0.1:{PORT}；地址和证书保留，桌面端自动连接。',flush=True)
         if args.desktop:
+            from p07_developer import Developer
+            developer=Developer(sys.modules[__name__],host,host_process)
+            host_process=None  # Ownership transfers to the developer controller.
+            selected=developer.preferences['root']
+            if Path(selected)!=host:developer.select(selected)
+            developer.serve()
             stopping=threading.Event()
             if not sys.stdin.isatty():
                 # The Node launcher closes/writes its private pipe on cancellation.
@@ -127,6 +133,11 @@ def main():
         primary=error;raise
     finally:
         if frontend and frontend.poll() is None:frontend.terminate();frontend.wait(timeout=15)
+        if developer:
+            try:developer.close()
+            except Exception as error:
+                if primary:primary.add_note('开发任务收尾同时失败：'+str(error))
+                else:raise
         if host_process:
             try:stop_host(host_process)
             except Exception as error:

@@ -6,7 +6,7 @@
 #[cfg(windows)]
 mod directory_dialog;
 
-#[cfg(all(feature = "verification", any(windows, test)))]
+#[cfg(all(any(feature = "verification", debug_assertions), any(windows, test)))]
 mod verification_window;
 
 #[cfg(windows)]
@@ -91,7 +91,7 @@ mod shell {
         state.desktop.lock().await.execute(request).await
     }
     pub fn run() {
-        #[cfg(feature = "verification")]
+        #[cfg(any(feature = "verification", debug_assertions))]
         let isolated = crate::verification_window::WindowProfile::from_args(
             &std::env::args().skip(1).collect::<Vec<_>>(),
         )
@@ -100,7 +100,7 @@ mod shell {
         if quote_desktop::delivery() != "development" {
             context.config_mut().app.windows[0].create = false;
         }
-        #[cfg(feature = "verification")]
+        #[cfg(any(feature = "verification", debug_assertions))]
         let context = {
             let mut context = context;
             if isolated.is_some() {
@@ -124,13 +124,13 @@ mod shell {
                         .join("Quote777Development/desktop"),
                     _=>root,
                 };
-                #[cfg(feature = "verification")]
+                #[cfg(any(feature = "verification", debug_assertions))]
                 let root = isolated.as_ref().map_or(root, |v| v.root.clone());
                 let user_data = root.join("webview2");
                 let client =
                     Desktop::new(root, false).map_err(|e| std::io::Error::other(e.code))?;
                 app.manage(Arc::new(ClientState { desktop: tokio::sync::Mutex::new(client), writes: AtomicUsize::new(0) }));
-                #[cfg(feature = "verification")]
+                #[cfg(any(feature = "verification", debug_assertions))]
                 let isolated_created = if let Some(profile) = isolated {
                     let config = &app.config().app.windows[0];
                     tauri::WebviewWindowBuilder::from_config(app, config)?
@@ -140,7 +140,7 @@ mod shell {
                     println!("{}", serde_json::json!({"verification_window": "created", "browser_arguments_source": "WebView2_API", "debug_port": profile.debug_port, "data_directory": profile.data_directory()}));
                     true
                 } else { false };
-                #[cfg(not(feature = "verification"))]
+                #[cfg(not(any(feature = "verification", debug_assertions)))]
                 let isolated_created = false;
                 if quote_desktop::delivery() != "development" && !isolated_created {
                     tauri::WebviewWindowBuilder::from_config(app, &app.config().app.windows[0])?

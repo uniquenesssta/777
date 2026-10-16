@@ -42,6 +42,13 @@ jobs:
         run: |
           python tools/p07_desktop_check.py --ci-checks --jobs 2 --output reports/p07-01-ci
           if ($LASTEXITCODE -ne 0) { throw 'P07 desktop checks failed' }
+      - name: Developer native source switching and verified backup location
+        shell: pwsh
+        run: |
+          cargo build --locked -p quote-desktop --example developer-bridge -j 2
+          if ($LASTEXITCODE -ne 0) { throw 'Developer IPC driver build failed' }
+          python tools/p07_developer_check.py --output reports/p07-05-ci
+          if ($LASTEXITCODE -ne 0) { throw 'Developer source/backup checks failed' }
       - name: Device identity, manager/sales presentation and complete quote images
         shell: pwsh
         run: |
@@ -56,6 +63,7 @@ jobs:
             reports/p07-01-ci
             reports/p07-02-ci
             reports/p07-03-ci
+            reports/p07-05-ci
             desktop/test-results
           if-no-files-found: warn
   installers:
@@ -91,6 +99,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Pinned font setup failed' }
           cargo build --locked --release -j 2 -p quote-host -p quote-ledger
           if ($LASTEXITCODE -ne 0) { throw 'Isolated host build failed' }
+          npm --prefix desktop run build
+          if ($LASTEXITCODE -ne 0) { throw 'Developer UI build failed' }
+          cargo build --locked -p quote-desktop -j 2
+          if ($LASTEXITCODE -ne 0) { throw 'Developer debug window build failed' }
       - name: Actual role installer, upgrade, retained profiles and compatible rollback
         shell: pwsh
         run: |

@@ -6,6 +6,7 @@ import { ProfitPage } from "./features/ProfitPage";
 import { OrdersPage } from "./features/OrdersPage";
 import { DetailPage } from "./features/DetailPage";
 import { ConnectionPage } from "./features/ConnectionPage";
+import { DeveloperPage } from "./features/DeveloperPage";
 import {
   SettingsPage,
   TasksPage,
@@ -34,6 +35,7 @@ export default function App() {
     { route: "profit", label: "利润分析", admin: true },
     { route: "tasks", label: "导出记录" },
     { route: "settings", label: "存储与备份" },
+    ...(!formalPackage && app.delivery === "development" ? [{ route: "developer" as Route, label: "开发部署", admin: true }] : []),
   ];
   const nav = (route: Route) => {
     setMenu(false);
@@ -139,6 +141,7 @@ export default function App() {
           )}{" "}
           {app.route === "tasks" && <TasksPage app={app} />}{" "}
           {app.route === "settings" && <SettingsPage app={app} />}
+          {!formalPackage && app.delivery === "development" && app.route === "developer" && app.session.role === "admin" && <DeveloperPage app={app} />}
         </main>
       )}
     </>

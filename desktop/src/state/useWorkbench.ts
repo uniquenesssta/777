@@ -12,6 +12,7 @@ import type {
   AnalysisFilters,
   Session,
 } from "../contracts";
+import { selectDraftSource } from "./developerDraft";
 import { profitRange, type ProfitPreset } from "./profit";
 import { draftReducer, restorableDraft, snapshot } from "./draft";
 export type Route =
@@ -21,6 +22,7 @@ export type Route =
   | "prices"
   | "profit"
   | "tasks"
+  | "developer"
   | "settings";
 type Refreshed<T> = { value: T | null; error?: unknown };
 async function afterSaved<T>(read: () => Promise<T>): Promise<Refreshed<T>> {
@@ -65,12 +67,22 @@ export function useWorkbench() {
   const listScrollRef = useRef(0);
   const epoch = useRef(0);
   const busyRef = useRef(false);
+  const draftSource = useRef<string | null>((() => {
+    try { return JSON.parse(localStorage.getItem("777-desktop-draft-v1") ?? "null")?.source_pin ?? null; }
+    catch { return null; }
+  })());
+  function bindDeveloperDraft(pin: string) {
+    const next = selectDraftSource(localStorage, draftSource.current, pin);
+    draftSource.current = pin;
+    dispatch({type:"restore", raw:next});
+  }
   useEffect(() => {
     try {
       localStorage.setItem(
         "777-desktop-draft-v1",
         JSON.stringify({
           schema: "777-desktop-draft-v1",
+          ...(draftSource.current ? {source_pin:draftSource.current} : {}),
           details: draft.details,
           lines: draft.lines,
         }),
@@ -81,7 +93,7 @@ export function useWorkbench() {
     }
   }, [draft.details, draft.lines]);
   const run = useCallback(
-    async <T>(work: () => Promise<T>, done?: (v: T) => void) => {
+    async <T>(work: () => Promise<T>, done?: (v: T) => void, rethrow = false) => {
       if (busyRef.current) return;
       busyRef.current = true;
       setBusy(true);
@@ -93,6 +105,7 @@ export function useWorkbench() {
         if (current === epoch.current) done?.(result);
         return result;
       } catch (e) {
+        if (rethrow) throw e;
         if (current === epoch.current) {
           setFeedback(errorMessage(e));
           setIsError(true);
@@ -181,7 +194,7 @@ export function useWorkbench() {
           automatic: boolean;
           session: Session | null;
         }>("bootstrap");
-        const p = b.session ? await request<Catalog>("prices") : null;
+        const p = b.session ? await request<Catalog>("prices").catch(e => { if (errorCode(e) === "PRICES_NOT_PUBLISHED") return null; throw e; }) : null;
         const dirs = b.session ? await request<Preferences>("settings") : null;
         const c = b.session
           ? await request<{ connection: Connection | null }>("connection")
@@ -189,6 +202,7 @@ export function useWorkbench() {
         return { b, p, dirs, c };
       },
       ({ b, p, dirs, c }) => {
+        if (b.delivery === "development" && c?.connection) bindDeveloperDraft(c.connection.certificate_sha256);
         if (c) setConnection(c.connection);
         epoch.current++;
         setDelivery(b.delivery);
@@ -215,6 +229,7 @@ export function useWorkbench() {
         return { s, p, dirs };
       },
       ({ s, p, dirs }) => {
+        if(delivery === "development") bindDeveloperDraft(c.certificate_sha256);
         epoch.current++;
         setConnection(c);
         setSession(s);
@@ -532,6 +547,16 @@ export function useWorkbench() {
     if (next === "settings") void loadSettings();
   }
   return {
+    async developerOperation(operation: Record<string, unknown>) {
+      return run(async () => {
+        const result = await request<{connection:{certificate_sha256:string}}>("developer", {request:operation});
+        if (operation.op === "select") {
+          bindDeveloperDraft(result.connection.certificate_sha256);
+          window.location.reload();
+        }
+        return result;
+      }, undefined, true);
+    },
     listScrollRef,
     delivery,
     automatic,

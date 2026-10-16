@@ -2,7 +2,7 @@
 
 版本：持续规划（2026-10-14母子交付修订）；初始日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**当前执行[P07-05开发者存储与一键封包UI](now/P07-tauri-desktop.md#当前追加任务p07-05-开发者存储与一键封包-ui)，用户要求先建任务书，按Figma→目录/读取/备份→母子封包→验证顺序推进。01至04原[验收/交接](verification/P07-acceptance.json)保持；因追加05，唯一P07任务书移回now。分支仍为`stage/p07-tauri-desktop`，追加基线de14a12；P08-01待本项完成后另行启动。**
+**当前执行[P07-05开发者存储与一键封包UI](now/P07-tauri-desktop.md#当前追加任务p07-05-开发者存储与一键封包-ui)，用户在任务书后授权开始；Figma与目录/读取/备份/母子封包已接入，本地辅助检查通过，正在验证Windows实际开发窗口及安装产物；用户签收待完成。01至04原[验收/交接](verification/P07-acceptance.json)保持；因追加05，唯一P07任务书移回now。分支仍为`stage/p07-tauri-desktop`，追加基线de14a12；P08-01待本项完成后另行启动。**
 
 ## 1. 目标与边界
 

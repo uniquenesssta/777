@@ -2,7 +2,7 @@
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-P07-01至04已按用户确认收尾，[原验收与交接](docs/verification/P07-acceptance.json)保持。当前按用户新要求执行[P07-05开发者存储与一键封包UI任务书](docs/now/P07-tauri-desktop.md#当前追加任务p07-05-开发者存储与一键封包-ui)：先Figma设计，再接入存储/备份位置、实际数据读取和母子一键封包。任务书移回now，唯一分支仍为`stage/p07-tauri-desktop`。[P08](docs/new/P08-cutover.md)待本项完成后另行启动；原Windows通过范围和目标环境观察保持，不充作新增UI已验证。
+P07-01至04已按用户确认收尾，[原验收与交接](docs/verification/P07-acceptance.json)保持。当前按用户新要求执行[P07-05开发者存储与一键封包UI任务书](docs/now/P07-tauri-desktop.md#当前追加任务p07-05-开发者存储与一键封包-ui)：Figma与开发版存储/备份位置、真实数据读取、母子一键封包已接入；本地辅助检查通过，Windows实际UI封包与用户签收待完成。[使用说明](docs/verification/P07-05-developer-ui.md)。任务书移回now，唯一分支仍为`stage/p07-tauri-desktop`。[P08](docs/new/P08-cutover.md)待本项完成后另行启动；原Windows通过范围和目标环境观察保持，不充作新增UI已验证。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -37,6 +37,8 @@ P07-01至04已按用户确认收尾，[原验收与交接](docs/verification/P07
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P07-05按任务书先补齐六种Figma状态，再接入开发部署UI、受控目录读取/初始化、备份位置完整恢复验证、数据源草稿隔离和未知请求保护、Windows后台母子真实封包及Job取消。增加真实debug IPC/HTTPS检查与Windows按钮封包CI；正式前端排除开发UI，原生能力仅debug存在。当前Windows新提交验证及用户签收待完成，P08未启动。
 
 - 按用户要求先建立[P07-05任务书](docs/now/P07-tauri-desktop.md#当前追加任务p07-05-开发者存储与一键封包-ui)，明确Figma先行、开发版存储/备份路径设置及真实读取、母子真实封包、失败/草稿/未知请求保护和验收清单；同步now及P08前置。原01至04验收保留，本次只改文档，尚未修改UI/原生能力或开始P08。
 

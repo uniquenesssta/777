@@ -20,6 +20,7 @@ export const emptyDraft = (): Draft => ({
   calculatedRevision: null,
 });
 export type DraftAction =
+  | { type: "restore"; raw: string | null }
   | { type: "edit"; details?: Draft["details"]; lines?: DraftLine[] }
   | { type: "prices"; version: string }
   | { type: "calculated"; revision: string; result: Calculation }
@@ -27,6 +28,7 @@ export type DraftAction =
   | { type: "reset" }
   | { type: "committed"; snapshot: unknown; details: unknown };
 export function draftReducer(d: Draft, a: DraftAction): Draft {
+  if (a.type === "restore") return restorableDraft(a.raw);
   if (a.type === "reset") return emptyDraft();
   if (a.type === "committed") {
     const matches =

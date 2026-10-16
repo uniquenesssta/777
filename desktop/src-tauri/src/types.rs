@@ -24,6 +24,13 @@ pub struct Connection {
 #[derive(Deserialize)]
 #[serde(tag = "action", rename_all = "snake_case", deny_unknown_fields)]
 pub enum Action {
+    #[cfg(all(
+        debug_assertions,
+        not(any(feature = "manager", feature = "sales", feature = "verification"))
+    ))]
+    Developer {
+        request: crate::developer::DeveloperAction,
+    },
     Bootstrap {},
     Connection {},
     Connect {
@@ -103,6 +110,13 @@ impl Action {
     /// Only operations that can persist a request or mutate business state
     /// coordinate close. A slow login/query must not trap the user in a window.
     pub fn protects_close(&self) -> bool {
+        #[cfg(all(
+            debug_assertions,
+            not(any(feature = "manager", feature = "sales", feature = "verification"))
+        ))]
+        if let Self::Developer { request } = self {
+            return request.protects_close();
+        }
         matches!(
             self,
             Self::Submit { .. }
