@@ -79,6 +79,8 @@ jobs:
       - name: Pinned release prerequisites
         shell: pwsh
         run: |
+          python -m unittest discover -s tests -p 'test_p07_package_enrollment.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'Windows PowerShell enrollment regression failed' }
           rustup toolchain install 1.97.1 --profile minimal --component rustfmt,clippy
           if ($LASTEXITCODE -ne 0) { throw 'Rust setup failed' }
           python -m pip install -r requirements-baseline.txt -r requirements-service.txt

@@ -3,6 +3,16 @@ param(
     [Parameter(Mandatory = $true)][string]$GrantFile
 )
 $ErrorActionPreference = 'Stop'
+function Get-ReleaseFileHash([string]$Path) {
+    # Hashing must not depend on PowerShell command/module discovery.
+    # Stream through the built-in .NET SHA-256 provider without loading modules.
+    $algorithm = [Security.Cryptography.SHA256]::Create()
+    try {
+        $inputFile = [IO.File]::OpenRead($Path)
+        try { return [BitConverter]::ToString($algorithm.ComputeHash($inputFile)).Replace('-', '').ToLowerInvariant() }
+        finally { $inputFile.Dispose() }
+    } finally { $algorithm.Dispose() }
+}
 $release = (Resolve-Path -LiteralPath $ReleaseDirectory).Path
 $manifest = Get-Content -LiteralPath (Join-Path $release 'release.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 if ($manifest.schema -ne '777-desktop-release-v1' -or $manifest.delivery -notin @('manager', 'sales') -or
@@ -15,7 +25,7 @@ foreach ($entry in $manifest.files) {
     if (-not $entry.name -or $entry.name -in @('.', '..') -or $entry.name -match '[\\/:]' -or $entry.name -in $names -or $entry.sha256 -notmatch '^[a-f0-9]{64}$') { throw 'RELEASE_FILE_INVALID' }
     $names += $entry.name
     $file = Get-Item -LiteralPath (Join-Path $release $entry.name)
-    if ($file.Length -ne $entry.bytes -or (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant() -ne $entry.sha256) { throw 'RELEASE_HASH_MISMATCH' }
+    if ($file.Length -ne $entry.bytes -or (Get-ReleaseFileHash $file.FullName) -ne $entry.sha256) { throw 'RELEASE_HASH_MISMATCH' }
 }
 if ('connection.json' -notin $names -or "quote777-$($manifest.delivery).exe" -notin $names -or $manifest.installer -notin $names) { throw 'RELEASE_FILES_MISSING' }
 $public = Get-Content -LiteralPath (Join-Path $release 'connection.json') -Raw -Encoding UTF8 | ConvertFrom-Json

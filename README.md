@@ -38,6 +38,8 @@ P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-ta
 
 ## Change Log
 
+- 修复P07-04母子登记脚本在Windows找不到`Get-FileHash`而中止的问题：使用系统.NET流式SHA256，保留交付文件校验、逐设备登记和profile保护；新增Windows回归并前置到安装CI。首轮两种NSIS已构建，后续安装生命周期待重跑，[失败与修复证据](docs/verification/P07-04-ci-evidence-01.json)。
+
 - P07-03按用户指令收尾并启动04：新增固定manager/sales的Windows NSIS封包、公开连接导出/单设备登记、独立安装标识和稳定凭证/草稿目录、交付哈希清单、升级卸载及兼容回退门槛。沿用现有依赖，[命令与验证边界](docs/verification/P07-04-packaging-contract.md)；实际Windows与目标机验收待完成，P08未启动。
 
 - 核对并登记当前Figma价格页版本的Windows CI通过：29项工具回归、24项前端测试、26项浏览器检查、16项业务协议及12项设备协议，母子原生入口、完整报价图和自然关闭通过。[证据与范围](docs/verification/P07-03-ci-evidence-03.json)。P07-02原验收保持，继续03；物理缩放/多屏及用户视觉待验收，04/P08未启动。

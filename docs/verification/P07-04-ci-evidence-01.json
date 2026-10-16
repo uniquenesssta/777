@@ -1,0 +1,161 @@
+{
+  "task": "P07-04",
+  "recorded_date": "2026-10-16",
+  "phase_branch": "stage/p07-tauri-desktop",
+  "source_commit": "3cf10c12b8aafec1bf66f07b07e0152019a83081",
+  "run_id": 38853425749,
+  "run_url": "https://github.com/uniquenesssta/777/actions/runs/38853425749",
+  "run_conclusion": "failure",
+  "source": "GitHub run/job metadata and full decoded job logs; uploaded artifact contents not independently downloaded or reviewed",
+  "jobs": [
+    {
+      "id": 116819490294,
+      "name": "desktop-contracts",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Runner and owned native window lifecycle regression",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Windows build, real Rust HTTPS, browser and actual Tauri WebView2 lifecycle",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Device identity, manager/sales presentation and complete quote images",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        }
+      ]
+    },
+    {
+      "id": 116819490456,
+      "name": "installers (sales)",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Actual role installer, upgrade, retained profiles and compatible rollback",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 6
+        },
+        {
+          "name": "Upload isolated installer evidence and test packages",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        }
+      ]
+    },
+    {
+      "id": 116819490502,
+      "name": "installers (manager)",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Actual role installer, upgrade, retained profiles and compatible rollback",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 6
+        },
+        {
+          "name": "Upload isolated installer evidence and test packages",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        }
+      ]
+    }
+  ],
+  "failure": "Both manager and sales stopped when the shipped Windows PowerShell enrollment script called unavailable Get-FileHash. Hash verification was not bypassed. Native installed auth/upgrade/uninstall/rollback were not reached.",
+  "module_resolution_cause": "Not established by these logs; do not assert PSModulePath or runner module packaging as proven root cause.",
+  "installer_reports": [
+    {
+      "job_id": 116819490502,
+      "report": {
+        "task": "P07-04",
+        "delivery": "manager",
+        "status": "failed",
+        "production_paths_accessed": false,
+        "source_commit": "3cf10c12b8aafec1bf66f07b07e0152019a83081",
+        "checks": [
+          "two_real_role_locked_NSIS_packages_and_manifests_built",
+          "cross_role_install_directory_rejected"
+        ],
+        "runner_elevated": true,
+        "non_admin_user_acceptance": "pending if CI runner is elevated",
+        "full_installed_business_UI_acceptance": "pending user observation",
+        "package_versions": [
+          "0.1.0",
+          "0.1.1"
+        ],
+        "error": "RuntimeError: PACKAGE_COMMAND_RESULT_UNEXPECTED",
+        "sandbox_cleanup": {
+          "status": "passed",
+          "timeout_seconds": 20,
+          "attempts": 1,
+          "transient_errors": [],
+          "sandbox_cleaned": true,
+          "forced_browser_termination": false,
+          "temporary_root": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\777-p06-native-host-zufmd7b_",
+          "elapsed_seconds": 0.079
+        },
+        "sandbox_cleaned": true
+      },
+      "error_excerpt": "D:\\a\\777\\777\\reports\\p07-04-manager\\initial\\enroll.ps1 : The term 'Get-FileHash' is not recognized as the name of a \ncmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify \nthat the path is correct and try again.\n    + CategoryInfo          : ObjectNotFound: (Get-FileHash:String) [enroll.ps1], CommandNotFoundException\n    + FullyQualifiedErrorId : CommandNotFoundException,enroll.ps1\n "
+    },
+    {
+      "job_id": 116819490456,
+      "report": {
+        "task": "P07-04",
+        "delivery": "sales",
+        "status": "failed",
+        "production_paths_accessed": false,
+        "source_commit": "3cf10c12b8aafec1bf66f07b07e0152019a83081",
+        "checks": [
+          "two_real_role_locked_NSIS_packages_and_manifests_built",
+          "cross_role_install_directory_rejected"
+        ],
+        "runner_elevated": true,
+        "non_admin_user_acceptance": "pending if CI runner is elevated",
+        "full_installed_business_UI_acceptance": "pending user observation",
+        "package_versions": [
+          "0.1.0",
+          "0.1.1"
+        ],
+        "error": "RuntimeError: PACKAGE_COMMAND_RESULT_UNEXPECTED",
+        "sandbox_cleanup": {
+          "status": "passed",
+          "timeout_seconds": 20,
+          "attempts": 1,
+          "transient_errors": [],
+          "sandbox_cleaned": true,
+          "forced_browser_termination": false,
+          "temporary_root": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\777-p06-native-host-9cv7zjw3",
+          "elapsed_seconds": 0.093
+        },
+        "sandbox_cleaned": true
+      },
+      "error_excerpt": "D:\\a\\777\\777\\reports\\p07-04-sales\\initial\\enroll.ps1 : The term 'Get-FileHash' is not recognized as the name of a \ncmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify \nthat the path is correct and try again.\n    + CategoryInfo          : ObjectNotFound: (Get-FileHash:String) [enroll.ps1], CommandNotFoundException\n    + FullyQualifiedErrorId : CommandNotFoundException,enroll.ps1\n "
+    }
+  ],
+  "desktop_contracts": {
+    "job_id": 116819490294,
+    "conclusion": "success",
+    "scope": "Original full Windows build/unit/protocol/browser/native desktop steps succeeded; this is distinct from the two failed installed-package lifecycle jobs."
+  },
+  "repair": {
+    "source": "desktop/tools/enroll.ps1",
+    "change": "Stream each file through built-in .NET SHA256.ComputeHash; dispose the file and provider in finally. Keep the existing size/SHA256 verification and all enrollment/profile guards.",
+    "regression": "tests/test_p07_package_enrollment.py executes the shipped script in Windows PowerShell with Get-FileHash disabled for both roles, checks same-size tampering, role/service/secret rejection, exclusive bootstrap and existing-file retention.",
+    "status": "implemented; new Windows CI required"
+  },
+  "P07_04_accepted": false,
+  "P08_started": false,
+  "production_paths_accessed": false
+}

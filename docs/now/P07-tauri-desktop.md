@@ -1,5 +1,7 @@
 # P07 Tauri桌面界面与Windows交付
 
+04当前复验：首轮[Windows CI](../verification/P07-04-ci-evidence-01.json)原桌面门槛通过，两种实际NSIS已构建；母子登记因`Get-FileHash`不可用失败，尚未执行安装版自动认证/升级/卸载/回退。登记校验已改为.NET SHA256并新增Windows脚本回归，待新CI；04未验收，P08未启动。
+
 状态：执行中。用户2026-10-14 14:37:59（Asia/Shanghai）“开始P07”；前置P06已验收，基线为P06收尾`7a243d5d1d103ae968f27adb7f54fea41a64d9cb`。唯一阶段分支`stage/p07-tauri-desktop`。P07-01已按用户2026-10-14 23:39“收尾01，开始02”验收。P07-02已按用户2026-10-15“OK暂时没感受到问题，收尾02 开始03”验收。当前P07-03的Figma价格页及既有业务界面/原生链路已通过[c49d6a7 Windows CI](../verification/P07-03-ci-evidence-03.json)，用户2026-10-16明确收尾03并启动04，见[03验收](../verification/P07-03-acceptance.json)。当前P07-04在同一分支执行；真实部署P08未启动。
 
 设计权威来自本仓库`Figma@c517d8b3086932abe2dc01908e4dae3209b9f956`的[交接](../design/figma-handoff.md)、[状态](../design/figma-state.json)和[tokens](../design/figma-tokens.json)，Figma文件为[记账器](https://www.figma.com/design/2ek9bkIz5ldyhjZnnvIuNu)。只使用当前页21:2及其中已确认的紧凑紫灰横向布局，不使用归档旧稿；未改写Figma文件。实现映射见[P07组件映射](../design/P07-component-map.md)。

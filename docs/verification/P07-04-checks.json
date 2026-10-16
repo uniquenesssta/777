@@ -1,7 +1,7 @@
 {
   "task": "P07-04",
   "recorded_date": "2026-10-16",
-  "status": "implemented_auxiliary_checks_passed_Windows_CI_and_target_acceptance_pending",
+  "status": "Windows_installer_enrollment_failed_repaired_revalidation_pending",
   "phase_branch": "stage/p07-tauri-desktop",
   "baseline": "8481b52423be828835846880962b11afde47e6a5",
   "runtime": {
@@ -107,7 +107,7 @@
       "uninstall retains profile",
       "bounded owned WebView sandbox cleanup"
     ],
-    "status": "pending new CI",
+    "status": "first run failed at unavailable Get-FileHash; repaired, new CI pending",
     "test_packages": "public ephemeral fixture service only; not production deployment"
   },
   "target_acceptance_pending": [
@@ -139,5 +139,32 @@
     "tools/p07_package_check.py": "c52e3ada2c0e49d4c2084cbdd75bf491a68b902fd999681ed516df5ffab5a504",
     "Cargo.lock": "fc5e17a3e1c5b9f44fbd0125ea600f74f0066364b15d49c9f18455a6a77820a7",
     "desktop/package-lock.json": "a8ae37040b5fb282eeb5e51160baa4c386a1f171ee77052230a5ff43be960727"
-  }
+  },
+  "enrollment_repair": {
+    "baseline": "3cf10c12b8aafec1bf66f07b07e0152019a83081",
+    "failure_evidence": "P07-04-ci-evidence-01.json",
+    "change": "Replace Get-FileHash with .NET streaming SHA256; preserve size/hash rejection and exclusive bootstrap/profile guards",
+    "Windows_regression": "tests/test_p07_package_enrollment.py: four tests with both roles and the shipped script, command deliberately disabled; actual Windows execution pending",
+    "auxiliary_python": {
+      "total": 33,
+      "passed": 27,
+      "skipped": 6,
+      "failed": 0,
+      "skips": "two existing Win32 tests plus four new Windows PowerShell tests; no local Windows result claimed",
+      "log": "P07-04-enrollment-python.log"
+    },
+    "node": {
+      "passed": 31,
+      "failed": 0,
+      "log": "P07-04-enrollment-node.log"
+    },
+    "python_syntax": "passed",
+    "diff_check": "passed",
+    "source_sha256_LF": {
+      "desktop/tools/enroll.ps1": "840e6c0893f289751f0227af1d4a71d2ee4011ffa1234b76356bf7e6498f6af8",
+      "tests/test_p07_package_enrollment.py": "6d503d4482f2d9b50f1f669b7bc5eb19f423e2ec8549312fd1f4a753748afabd",
+      ".github/workflows/p07-windows.yml": "46936e021612c8ad2a2dae81268045efc6cbc92af882e9822f997f5c372df230"
+    }
+  },
+  "source_binding_note": "Top-level fingerprints preserve the initial implementation checks; enrollment_repair fingerprints bind this repair. Original check logs are unchanged."
 }
