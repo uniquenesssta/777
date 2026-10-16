@@ -1,0 +1,1055 @@
+{
+  "task": "P07-03",
+  "recorded_date": "2026-10-16",
+  "branch": "stage/p07-tauri-desktop",
+  "source_commit": "c49d6a7a9050d0fe56e204566de050f22f5c2054",
+  "scope": "Current Figma price UI and all prior P07-03 code through c49d6a7; Windows automated gates passed, physical hardware and user runtime acceptance remain pending.",
+  "run_id": 38749546392,
+  "run_url": "https://github.com/uniquenesssta/777/actions/runs/38749546392",
+  "run_conclusion": "success",
+  "job_id": 116472017292,
+  "job_url": "https://github.com/uniquenesssta/777/actions/runs/38749546392/job/116472017292",
+  "started_at": "2026-10-15T14:13:59Z",
+  "completed_at": "2026-10-15T14:44:41Z",
+  "evidence_source": "GitHub job metadata and its two complete printed report JSON objects; values retained as returned. Artifact ZIP/fingerprint contents were not independently downloaded or compared this turn.",
+  "artifact": {
+    "id": 11983070533,
+    "name": "p07-01-windows-evidence",
+    "size_in_bytes": 4103469,
+    "github_digest": "sha256:83cd4018a8bab14af498e1d77ee16adddf7e20fe425f8cdbc29e2a540d974b2c",
+    "archive_content_reviewed": false
+  },
+  "checks": {
+    "all_job_steps": "success",
+    "windows_runner_tests": 29,
+    "frontend_node22_tests": 24,
+    "browser_tests_passed": 26,
+    "browser_skipped": 0,
+    "desktop_protocol_checks": 16,
+    "device_protocol_checks": 12,
+    "real_native_Tauri_WebView2": true,
+    "roles": [
+      {
+        "role": "manager",
+        "automatic_entry": true,
+        "no_configuration_or_login": true,
+        "actual_IPC_HTTPS_submit": true,
+        "close_seconds": 0.078,
+        "blocked_connection_close_seconds": 0.094,
+        "forced_termination": false,
+        "pngs": [
+          {
+            "width": 1200,
+            "height": 1840,
+            "job_id": "301bbf74-17d6-4c4b-89b6-a268fc25a577",
+            "sha256": "c7327769260045154e2d687fd124cdf791340ad77a02696917bd18f1418193df"
+          },
+          {
+            "width": 1200,
+            "height": 1840,
+            "job_id": "8f1fbb05-aa9c-469f-98bb-f4ea2f2c1c97",
+            "sha256": "43eeda49de87252f19c2a9469f1e021d092096c5ab5602c2e12cc646db62e1b0"
+          }
+        ],
+        "order_lines": 40,
+        "Chinese_path": true,
+        "no_overwrite": true,
+        "order_count_unchanged": true,
+        "sandbox_cleaned": true,
+        "actual_OS_DPI": 96
+      },
+      {
+        "role": "sales",
+        "automatic_entry": true,
+        "no_configuration_or_login": true,
+        "actual_IPC_HTTPS_submit": true,
+        "close_seconds": 0.079,
+        "blocked_connection_close_seconds": null,
+        "forced_termination": false,
+        "pngs": [
+          {
+            "width": 1200,
+            "height": 1840,
+            "job_id": "8692a52f-782a-4051-a820-a3b5c0cf41d3",
+            "sha256": "78357c86ca75c0022b60ab7b9c1b03a78afba467f39dccaa461e2ecbe2e6aaea"
+          },
+          {
+            "width": 1200,
+            "height": 1840,
+            "job_id": "ae1d87aa-df1b-49c8-9b30-f84f17ceb3ce",
+            "sha256": "d105ad073a76a151811e0522fea93fcb59191290776051ea134cbee2e27f8d31"
+          }
+        ],
+        "order_lines": 40,
+        "Chinese_path": true,
+        "no_overwrite": true,
+        "order_count_unchanged": true,
+        "sandbox_cleaned": true,
+        "actual_OS_DPI": 96
+      }
+    ],
+    "CDP_emulations": [
+      1,
+      1.25,
+      1.5,
+      2
+    ],
+    "physical_other_OS_DPI_or_multi_monitor_verified": false,
+    "production_paths_accessed": false
+  },
+  "source_binding": {
+    "checkout_commit": "c49d6a7a9050d0fe56e204566de050f22f5c2054",
+    "desktop_report_commit": "c49d6a7a9050d0fe56e204566de050f22f5c2054",
+    "desktop_worktree_dirty": false,
+    "presentation_report_commit": "c49d6a7a9050d0fe56e204566de050f22f5c2054",
+    "presentation_worktree_dirty": true,
+    "presentation_dirty_cause": "Not independently attributed from the job log; no source fingerprint comparison claimed."
+  },
+  "job_steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 1,
+      "started_at": "2026-10-15T14:14:00Z",
+      "completed_at": "2026-10-15T14:14:02Z"
+    },
+    {
+      "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 2,
+      "started_at": "2026-10-15T14:14:02Z",
+      "completed_at": "2026-10-15T14:14:07Z"
+    },
+    {
+      "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 3,
+      "started_at": "2026-10-15T14:14:07Z",
+      "completed_at": "2026-10-15T14:14:07Z"
+    },
+    {
+      "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 4,
+      "started_at": "2026-10-15T14:14:07Z",
+      "completed_at": "2026-10-15T14:14:11Z"
+    },
+    {
+      "name": "Pinned MSVC Rust and isolated verification dependencies",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 5,
+      "started_at": "2026-10-15T14:14:11Z",
+      "completed_at": "2026-10-15T14:14:30Z"
+    },
+    {
+      "name": "Runner and owned native window lifecycle regression",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 6,
+      "started_at": "2026-10-15T14:14:30Z",
+      "completed_at": "2026-10-15T14:14:37Z"
+    },
+    {
+      "name": "Windows build, real Rust HTTPS, browser and actual Tauri WebView2 lifecycle",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 7,
+      "started_at": "2026-10-15T14:14:37Z",
+      "completed_at": "2026-10-15T14:35:34Z"
+    },
+    {
+      "name": "Device identity, manager/sales presentation and complete quote images",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 8,
+      "started_at": "2026-10-15T14:35:34Z",
+      "completed_at": "2026-10-15T14:44:33Z"
+    },
+    {
+      "name": "Upload isolated evidence",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 9,
+      "started_at": "2026-10-15T14:44:33Z",
+      "completed_at": "2026-10-15T14:44:36Z"
+    },
+    {
+      "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 16,
+      "started_at": "2026-10-15T14:44:36Z",
+      "completed_at": "2026-10-15T14:44:36Z"
+    },
+    {
+      "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 17,
+      "started_at": "2026-10-15T14:44:36Z",
+      "completed_at": "2026-10-15T14:44:37Z"
+    },
+    {
+      "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 18,
+      "started_at": "2026-10-15T14:44:37Z",
+      "completed_at": "2026-10-15T14:44:38Z"
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 19,
+      "started_at": "2026-10-15T14:44:38Z",
+      "completed_at": "2026-10-15T14:44:38Z"
+    }
+  ],
+  "printed_reports": {
+    "desktop": {
+      "task": "P07-01",
+      "status": "Windows_CI_build_protocol_browser_and_native_window_passed_visual_acceptance_pending",
+      "environment": {
+        "os": "Windows",
+        "python": "3.12.10"
+      },
+      "mode": "full_CI",
+      "cargo_jobs": 2,
+      "native_window": {
+        "status": "passed",
+        "actual_Tauri_WebView2": true,
+        "production_page_origin": "http://tauri.localhost",
+        "production_origin_checked_before_login": true,
+        "real_IPC_and_Rust_HTTPS": true,
+        "manager_submit": true,
+        "sales_cost_and_other_order_hidden": true,
+        "profile_isolated": true,
+        "UI_idle_before_native_close": true,
+        "close": {
+          "status": "passed",
+          "pid": 4328,
+          "close_message_posted": true,
+          "process_exit_observed": true,
+          "exit_code": 0,
+          "forced_termination": false,
+          "windows_before": [
+            {
+              "hwnd": 458770,
+              "pid": 4328,
+              "title": "记账器",
+              "class_name": "Tauri Window",
+              "visible": true,
+              "width": 1044,
+              "height": 788
+            },
+            {
+              "hwnd": 196970,
+              "pid": 4328,
+              "title": "",
+              "class_name": "Tao Thread Event Target",
+              "visible": true,
+              "width": 16,
+              "height": 16
+            },
+            {
+              "hwnd": 458896,
+              "pid": 4328,
+              "title": "MSCTFIME UI",
+              "class_name": "MSCTFIME UI",
+              "visible": false,
+              "width": 0,
+              "height": 0
+            },
+            {
+              "hwnd": 196988,
+              "pid": 4328,
+              "title": "Default IME",
+              "class_name": "IME",
+              "visible": false,
+              "width": 0,
+              "height": 0
+            }
+          ],
+          "target": {
+            "hwnd": 458770,
+            "pid": 4328,
+            "title": "记账器",
+            "class_name": "Tauri Window",
+            "visible": true,
+            "width": 1044,
+            "height": 788
+          },
+          "elapsed_seconds": 0.078,
+          "windows_after": []
+        },
+        "native_window_close_and_process_exit": true,
+        "sandbox_cleaned": true,
+        "sandbox_cleanup": {
+          "status": "passed",
+          "timeout_seconds": 20,
+          "attempts": 2,
+          "transient_errors": [
+            {
+              "type": "OSError",
+              "errno": 41,
+              "winerror": 145,
+              "path": "desktop\\webview2\\EBWebView\\Default"
+            }
+          ],
+          "sandbox_cleaned": true,
+          "forced_browser_termination": false,
+          "temporary_root": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\777-p06-native-host-honnplgm",
+          "elapsed_seconds": 0.36
+        }
+      },
+      "protocol": {
+        "status": "passed",
+        "checks": [
+          "certificate_pin_rejected_before_request",
+          "real_Rust_HTTPS_login_no_token_crosses_IPC",
+          "exact_cents_revision_and_frozen_draft_submission",
+          "append_only_note_void_restore_original_amount_and_revision",
+          "full_20_row_pagination_and_view_binding",
+          "authoritative_calendar_analytics_over_all_pages_through_native_HTTPS",
+          "exact_rolling_24_hours_reaches_service_and_future_interval_is_empty",
+          "authoritative_profit_OHLC_survives_native_IPC_and_HTTPS_with_empty_bucket_continuity",
+          "native_output_task_does_not_rebook_financial_order",
+          "sales_DTO_other_actor_and_management_commands_restricted",
+          "sales_native_analytics_and_directory_dialog_denied",
+          "service_independently_denies_sales_analytics_over_real_HTTPS",
+          "native_host_and_desktop_restart_original_receipt_identity_and_no_duplicate",
+          "money_above_JavaScript_integer_limit_remains_exact_string",
+          "server_price_change_refuses_stale_confirmation_without_booking",
+          "manual_cost_plus_final_prices_exact_preview_canonical_backup_restore_restart_frozen_orders_and_sales_redaction"
+        ],
+        "actual_transport": "Rust desktop IPC dispatcher -> Rustls pinned HTTPS -> standalone Rust host",
+        "production_paths_accessed": false,
+        "Windows_DPAPI": true,
+        "scope": "owned temporary profile, synthetic accounts/prices/orders, no installed service or real data",
+        "sandbox_cleaned": true
+      },
+      "production_paths_accessed": false,
+      "acceptance": "pending_actual_Windows_visual_and_interaction",
+      "source_commit": "c49d6a7a9050d0fe56e204566de050f22f5c2054",
+      "worktree_dirty": false,
+      "current_step": "等待 WebView2 释放临时目录并完成清理",
+      "preflight": {
+        "status": "passed",
+        "node": "v22.23.3",
+        "rust": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6",
+        "cargo_jobs": 2,
+        "dependency_sources": "Cargo.toml/Cargo.lock and desktop/package-lock.json; download occurs after preflight",
+        "Windows_native_prerequisites": {
+          "MSVC_cpp_tools": true,
+          "Windows_SDK": true,
+          "WebView2_Runtime": true,
+          "WebView2_registered_versions": [
+            "153.0.4234.48"
+          ],
+          "process_elevated": true
+        }
+      },
+      "reused_CI_scope": null,
+      "release_frontend": {
+        "asset_count": 14,
+        "asset_names": [
+          "/icons/price-chevron.svg",
+          "/index.html",
+          "/fonts/NotoSansSC-VF.ttf",
+          "/icons/price-trash.svg",
+          "/fonts/InterVariable.woff2",
+          "/assets/index-DwYOxRP3.css",
+          "/icons/2eb61.svg",
+          "/fonts/Noto-OFL.txt",
+          "/fonts/Inter-OFL.txt",
+          "/assets/index-DrZ37gzL.js",
+          "/icons/a09ba.svg",
+          "/icons/09c30.svg",
+          "/icons/7bfb4.svg",
+          "/icons/74181.svg"
+        ],
+        "custom_protocol": true,
+        "embedded_index": true,
+        "entry_css": true,
+        "entry_js": true,
+        "index_sha256": "e09da93500dda4faa10ff9d04a1220821ba2de18b8efd3fe5379b2175583b66c",
+        "release": true,
+        "tauri_is_dev": false,
+        "windows": true
+      },
+      "browser_font_fixture": {
+        "schema": "777-CI-font-v1",
+        "source": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/Variable/TTF/Subset/NotoSansSC-VF.ttf",
+        "sha256": "d68bafcb48a2707749396aa12bbbd833cb70401f3a9a689fd2902c7e0d295964",
+        "bytes": 17773132,
+        "license": "SIL Open Font License 1.1",
+        "scope": "CI-only explicit font fixture; not a system font installation or a product font selection"
+      },
+      "browser_tests": {
+        "startTime": "2026-10-15T14:33:53.165Z",
+        "duration": 93097.09400000001,
+        "expected": 26,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "native_window_interactions": {
+        "status": "passed",
+        "actual_Tauri_WebView2": true,
+        "production_page_origin": "http://tauri.localhost",
+        "production_origin_checked_before_login": true,
+        "real_IPC_and_Rust_HTTPS": true,
+        "manager_submit": true,
+        "sales_cost_and_other_order_hidden": true,
+        "profile_isolated": true,
+        "UI_idle_before_native_close": true
+      },
+      "native_window_close": {
+        "status": "passed",
+        "pid": 4328,
+        "close_message_posted": true,
+        "process_exit_observed": true,
+        "exit_code": 0,
+        "forced_termination": false,
+        "windows_before": [
+          {
+            "hwnd": 458770,
+            "pid": 4328,
+            "title": "记账器",
+            "class_name": "Tauri Window",
+            "visible": true,
+            "width": 1044,
+            "height": 788
+          },
+          {
+            "hwnd": 196970,
+            "pid": 4328,
+            "title": "",
+            "class_name": "Tao Thread Event Target",
+            "visible": true,
+            "width": 16,
+            "height": 16
+          },
+          {
+            "hwnd": 458896,
+            "pid": 4328,
+            "title": "MSCTFIME UI",
+            "class_name": "MSCTFIME UI",
+            "visible": false,
+            "width": 0,
+            "height": 0
+          },
+          {
+            "hwnd": 196988,
+            "pid": 4328,
+            "title": "Default IME",
+            "class_name": "IME",
+            "visible": false,
+            "width": 0,
+            "height": 0
+          }
+        ],
+        "target": {
+          "hwnd": 458770,
+          "pid": 4328,
+          "title": "记账器",
+          "class_name": "Tauri Window",
+          "visible": true,
+          "width": 1044,
+          "height": 788
+        },
+        "elapsed_seconds": 0.078,
+        "windows_after": []
+      },
+      "native_window_cleanup": {
+        "forced_process_tree_cleanup": false,
+        "exit_code": 0
+      },
+      "native_sandbox_cleanup": {
+        "status": "passed",
+        "timeout_seconds": 20,
+        "attempts": 2,
+        "transient_errors": [
+          {
+            "type": "OSError",
+            "errno": 41,
+            "winerror": 145,
+            "path": "desktop\\webview2\\EBWebView\\Default"
+          }
+        ],
+        "sandbox_cleaned": true,
+        "forced_browser_termination": false,
+        "temporary_root": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\777-p06-native-host-honnplgm",
+        "elapsed_seconds": 0.36
+      },
+      "native_cdp_connection": {
+        "status": "connected",
+        "endpoint": "http://127.0.0.1:49583",
+        "attempts": 4,
+        "browser_version": "153.0.4234.48",
+        "elapsed_ms": 1139
+      },
+      "native_window_origin": {
+        "observed_url": "http://tauri.localhost/",
+        "status": "origin_checked",
+        "production_origin": "http://tauri.localhost"
+      }
+    },
+    "presentation": {
+      "task": "P07-03",
+      "status": "Windows_device_auth_and_native_autostart_passed_acceptance_pending",
+      "environment": {
+        "os": "Windows",
+        "python": "3.12.10"
+      },
+      "production_paths_accessed": false,
+      "protocol": {
+        "status": "passed",
+        "checks": [
+          "manager_native_bootstrap_without_secret_IPC",
+          "formal_manual_login_direct_invoke_rejected",
+          "two_devices_same_stable_sales_actor_and_filtered_prices",
+          "restart_uses_same_DPAPI_device_and_actor",
+          "sales_cannot_read_other_actor_or_backups",
+          "same_actor_devices_share_own_orders_only",
+          "expired_session_recovers_without_password_or_identity_change",
+          "unknown_commit_restart_queries_original_receipt_without_duplicate",
+          "copied_credential_rejected_in_other_profile",
+          "one_device_revocation_rejects_live_session_without_affecting_peer",
+          "operator_new_grant_reauthorizes_revoked_device_without_deleting_pending",
+          "v5_independent_restore_preserves_ledger_and_revokes_all_devices_sessions_grants"
+        ],
+        "Windows_DPAPI": true,
+        "production_paths_accessed": false
+      },
+      "native": [
+        {
+          "status": "passed",
+          "delivery": "manager",
+          "presentation_checked": true,
+          "two_quote_image_tasks_completed": true,
+          "production_origin": "http://tauri.localhost",
+          "automatic_business_entry": true,
+          "no_configuration_or_login_controls": true,
+          "actual_IPC_HTTPS_submit": true,
+          "manual_login_direct_invoke_denied": true,
+          "sales_fields_restricted": false,
+          "secrets_not_in_frontend_storage": true,
+          "UI_idle_before_native_close": true,
+          "published_images": {
+            "files": [
+              {
+                "width": 1200,
+                "height": 1840,
+                "job_id": "301bbf74-17d6-4c4b-89b6-a268fc25a577",
+                "sha256": "c7327769260045154e2d687fd124cdf791340ad77a02696917bd18f1418193df"
+              },
+              {
+                "width": 1200,
+                "height": 1840,
+                "job_id": "8f1fbb05-aa9c-469f-98bb-f4ea2f2c1c97",
+                "sha256": "43eeda49de87252f19c2a9469f1e021d092096c5ab5602c2e12cc646db62e1b0"
+              }
+            ],
+            "Chinese_path": true,
+            "no_overwrite": true,
+            "order_count_unchanged": true,
+            "saved_lines": 40,
+            "last_line_pixels_present": true
+          },
+          "presentation": {
+            "status": "passed",
+            "delivery": "manager",
+            "initial": {
+              "device_pixel_ratio": 1,
+              "width": 1028,
+              "height": 749,
+              "screen": {
+                "width": 1024,
+                "height": 768,
+                "available_width": 1024,
+                "available_height": 720
+              }
+            },
+            "samples": [
+              {
+                "scale": 1,
+                "emulation": true,
+                "width": 1440,
+                "height": 1000,
+                "dpr": 1,
+                "document_width": 1440,
+                "fonts": {
+                  "chinese": true,
+                  "number": true
+                },
+                "icons": [
+                  {
+                    "source": "/icons/a09ba.svg",
+                    "natural": 14,
+                    "width": 14
+                  },
+                  {
+                    "source": "/icons/7bfb4.svg",
+                    "natural": 13,
+                    "width": 13
+                  }
+                ],
+                "table_scrollable": true,
+                "screenshot": "presentation-manager-100.png"
+              },
+              {
+                "scale": 1.25,
+                "emulation": true,
+                "width": 1152,
+                "height": 800,
+                "dpr": 1.25,
+                "document_width": 1137,
+                "fonts": {
+                  "chinese": true,
+                  "number": true
+                },
+                "icons": [
+                  {
+                    "source": "/icons/a09ba.svg",
+                    "natural": 14,
+                    "width": 14
+                  },
+                  {
+                    "source": "/icons/7bfb4.svg",
+                    "natural": 13,
+                    "width": 13
+                  }
+                ],
+                "table_scrollable": true,
+                "screenshot": "presentation-manager-125.png"
+              },
+              {
+                "scale": 1.5,
+                "emulation": true,
+                "width": 960,
+                "height": 667,
+                "dpr": 1.5,
+                "document_width": 945,
+                "fonts": {
+                  "chinese": true,
+                  "number": true
+                },
+                "icons": [
+                  {
+                    "source": "/icons/a09ba.svg",
+                    "natural": 14,
+                    "width": 14
+                  },
+                  {
+                    "source": "/icons/7bfb4.svg",
+                    "natural": 13,
+                    "width": 13
+                  }
+                ],
+                "table_scrollable": true,
+                "screenshot": "presentation-manager-150.png"
+              },
+              {
+                "scale": 2,
+                "emulation": true,
+                "width": 720,
+                "height": 500,
+                "dpr": 2,
+                "document_width": 705,
+                "fonts": {
+                  "chinese": true,
+                  "number": true
+                },
+                "icons": [
+                  {
+                    "source": "/icons/a09ba.svg",
+                    "natural": 14,
+                    "width": 14
+                  },
+                  {
+                    "source": "/icons/7bfb4.svg",
+                    "natural": 13,
+                    "width": 13
+                  }
+                ],
+                "table_scrollable": true,
+                "screenshot": "presentation-manager-200.png"
+              }
+            ],
+            "account_keyboard_focus_and_escape": true,
+            "scope": "Actual rendered DOM/fonts/assets and CDP scale emulation. Four emulations are not four actual OS DPI settings or multiple physical monitors."
+          },
+          "actual_OS_window_DPI": 96,
+          "physical_multi_monitor_and_other_OS_DPI": "requires_user_hardware_observation",
+          "close": {
+            "status": "passed",
+            "pid": 8928,
+            "close_message_posted": true,
+            "process_exit_observed": true,
+            "exit_code": 0,
+            "forced_termination": false,
+            "windows_before": [
+              {
+                "hwnd": 524644,
+                "pid": 8928,
+                "title": "记账器",
+                "class_name": "Tauri Window",
+                "visible": true,
+                "width": 1044,
+                "height": 788
+              },
+              {
+                "hwnd": 262214,
+                "pid": 8928,
+                "title": "",
+                "class_name": "Tao Thread Event Target",
+                "visible": true,
+                "width": 16,
+                "height": 16
+              },
+              {
+                "hwnd": 197128,
+                "pid": 8928,
+                "title": "MSCTFIME UI",
+                "class_name": "MSCTFIME UI",
+                "visible": false,
+                "width": 0,
+                "height": 0
+              },
+              {
+                "hwnd": 459224,
+                "pid": 8928,
+                "title": "Default IME",
+                "class_name": "IME",
+                "visible": false,
+                "width": 0,
+                "height": 0
+              }
+            ],
+            "target": {
+              "hwnd": 524644,
+              "pid": 8928,
+              "title": "记账器",
+              "class_name": "Tauri Window",
+              "visible": true,
+              "width": 1044,
+              "height": 788
+            },
+            "elapsed_seconds": 0.078,
+            "windows_after": []
+          },
+          "blocked_connection_close": {
+            "status": "passed",
+            "pid": 5764,
+            "close_message_posted": true,
+            "process_exit_observed": true,
+            "exit_code": 0,
+            "forced_termination": false,
+            "windows_before": [
+              {
+                "hwnd": 327750,
+                "pid": 5764,
+                "title": "记账器",
+                "class_name": "Tauri Window",
+                "visible": true,
+                "width": 1044,
+                "height": 788
+              },
+              {
+                "hwnd": 459086,
+                "pid": 5764,
+                "title": "",
+                "class_name": "Tao Thread Event Target",
+                "visible": true,
+                "width": 16,
+                "height": 16
+              },
+              {
+                "hwnd": 197152,
+                "pid": 5764,
+                "title": "MSCTFIME UI",
+                "class_name": "MSCTFIME UI",
+                "visible": false,
+                "width": 0,
+                "height": 0
+              },
+              {
+                "hwnd": 197148,
+                "pid": 5764,
+                "title": "Default IME",
+                "class_name": "IME",
+                "visible": false,
+                "width": 0,
+                "height": 0
+              }
+            ],
+            "target": {
+              "hwnd": 327750,
+              "pid": 5764,
+              "title": "记账器",
+              "class_name": "Tauri Window",
+              "visible": true,
+              "width": 1044,
+              "height": 788
+            },
+            "elapsed_seconds": 0.094,
+            "windows_after": []
+          },
+          "sandbox_cleaned": true
+        },
+        {
+          "status": "passed",
+          "delivery": "sales",
+          "presentation_checked": true,
+          "two_quote_image_tasks_completed": true,
+          "production_origin": "http://tauri.localhost",
+          "automatic_business_entry": true,
+          "no_configuration_or_login_controls": true,
+          "actual_IPC_HTTPS_submit": true,
+          "manual_login_direct_invoke_denied": true,
+          "sales_fields_restricted": true,
+          "secrets_not_in_frontend_storage": true,
+          "UI_idle_before_native_close": true,
+          "published_images": {
+            "files": [
+              {
+                "width": 1200,
+                "height": 1840,
+                "job_id": "8692a52f-782a-4051-a820-a3b5c0cf41d3",
+                "sha256": "78357c86ca75c0022b60ab7b9c1b03a78afba467f39dccaa461e2ecbe2e6aaea"
+              },
+              {
+                "width": 1200,
+                "height": 1840,
+                "job_id": "ae1d87aa-df1b-49c8-9b30-f84f17ceb3ce",
+                "sha256": "d105ad073a76a151811e0522fea93fcb59191290776051ea134cbee2e27f8d31"
+              }
+            ],
+            "Chinese_path": true,
+            "no_overwrite": true,
+            "order_count_unchanged": true,
+            "saved_lines": 40,
+            "last_line_pixels_present": true
+          },
+          "presentation": {
+            "status": "passed",
+            "delivery": "sales",
+            "initial": {
+              "device_pixel_ratio": 1,
+              "width": 1028,
+              "height": 749,
+              "screen": {
+                "width": 1024,
+                "height": 768,
+                "available_width": 1024,
+                "available_height": 720
+              }
+            },
+            "samples": [
+              {
+                "scale": 1,
+                "emulation": true,
+                "width": 1440,
+                "height": 1000,
+                "dpr": 1,
+                "document_width": 1440,
+                "fonts": {
+                  "chinese": true,
+                  "number": true
+                },
+                "icons": [
+                  {
+                    "source": "/icons/a09ba.svg",
+                    "natural": 14,
+                    "width": 14
+                  }
+                ],
+                "table_scrollable": true,
+                "screenshot": "presentation-sales-100.png"
+              },
+              {
+                "scale": 1.25,
+                "emulation": true,
+                "width": 1152,
+                "height": 800,
+                "dpr": 1.25,
+                "document_width": 1137,
+                "fonts": {
+                  "chinese": true,
+                  "number": true
+                },
+                "icons": [
+                  {
+                    "source": "/icons/a09ba.svg",
+                    "natural": 14,
+                    "width": 14
+                  }
+                ],
+                "table_scrollable": true,
+                "screenshot": "presentation-sales-125.png"
+              },
+              {
+                "scale": 1.5,
+                "emulation": true,
+                "width": 960,
+                "height": 667,
+                "dpr": 1.5,
+                "document_width": 945,
+                "fonts": {
+                  "chinese": true,
+                  "number": true
+                },
+                "icons": [
+                  {
+                    "source": "/icons/a09ba.svg",
+                    "natural": 14,
+                    "width": 14
+                  }
+                ],
+                "table_scrollable": true,
+                "screenshot": "presentation-sales-150.png"
+              },
+              {
+                "scale": 2,
+                "emulation": true,
+                "width": 720,
+                "height": 500,
+                "dpr": 2,
+                "document_width": 705,
+                "fonts": {
+                  "chinese": true,
+                  "number": true
+                },
+                "icons": [
+                  {
+                    "source": "/icons/a09ba.svg",
+                    "natural": 14,
+                    "width": 14
+                  }
+                ],
+                "table_scrollable": true,
+                "screenshot": "presentation-sales-200.png"
+              }
+            ],
+            "account_keyboard_focus_and_escape": true,
+            "scope": "Actual rendered DOM/fonts/assets and CDP scale emulation. Four emulations are not four actual OS DPI settings or multiple physical monitors."
+          },
+          "actual_OS_window_DPI": 96,
+          "physical_multi_monitor_and_other_OS_DPI": "requires_user_hardware_observation",
+          "close": {
+            "status": "passed",
+            "pid": 9808,
+            "close_message_posted": true,
+            "process_exit_observed": true,
+            "exit_code": 0,
+            "forced_termination": false,
+            "windows_before": [
+              {
+                "hwnd": 655378,
+                "pid": 9808,
+                "title": "记账器",
+                "class_name": "Tauri Window",
+                "visible": true,
+                "width": 1044,
+                "height": 788
+              },
+              {
+                "hwnd": 589852,
+                "pid": 9808,
+                "title": "",
+                "class_name": "Tao Thread Event Target",
+                "visible": true,
+                "width": 16,
+                "height": 16
+              },
+              {
+                "hwnd": 262682,
+                "pid": 9808,
+                "title": "MSCTFIME UI",
+                "class_name": "MSCTFIME UI",
+                "visible": false,
+                "width": 0,
+                "height": 0
+              },
+              {
+                "hwnd": 393590,
+                "pid": 9808,
+                "title": "Default IME",
+                "class_name": "IME",
+                "visible": false,
+                "width": 0,
+                "height": 0
+              }
+            ],
+            "target": {
+              "hwnd": 655378,
+              "pid": 9808,
+              "title": "记账器",
+              "class_name": "Tauri Window",
+              "visible": true,
+              "width": 1044,
+              "height": 788
+            },
+            "elapsed_seconds": 0.079,
+            "windows_after": []
+          },
+          "sandbox_cleaned": true
+        }
+      ],
+      "source_commit": "c49d6a7a9050d0fe56e204566de050f22f5c2054",
+      "worktree_dirty": true,
+      "current_step": "node.EXE",
+      "preflight": {
+        "status": "passed",
+        "node": "v22.23.3",
+        "rust": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.97.1\nLLVM version: 22.1.6",
+        "cargo_jobs": 2,
+        "dependency_sources": "Cargo.toml/Cargo.lock and desktop/package-lock.json; download occurs after preflight",
+        "Windows_native_prerequisites": {
+          "MSVC_cpp_tools": true,
+          "Windows_SDK": true,
+          "WebView2_Runtime": true,
+          "WebView2_registered_versions": [
+            "153.0.4234.48"
+          ],
+          "process_elevated": true
+        }
+      },
+      "presentation_acceptance": "Actual OS DPI/physical multi-monitor and user visual acceptance pending; CDP emulation is separate.",
+      "font_assets": [
+        {
+          "file": "NotoSansSC-VF.ttf",
+          "expected_sha256": "d68bafcb48a2707749396aa12bbbd833cb70401f3a9a689fd2902c7e0d295964",
+          "sha256": "d68bafcb48a2707749396aa12bbbd833cb70401f3a9a689fd2902c7e0d295964",
+          "bytes": 17773132,
+          "source": "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/Variable/TTF/Subset/NotoSansSC-VF.ttf"
+        },
+        {
+          "file": "InterVariable.woff2",
+          "expected_sha256": "693b77d4f32ee9b8bfc995589b5fad5e99adf2832738661f5402f9978429a8e3",
+          "sha256": "693b77d4f32ee9b8bfc995589b5fad5e99adf2832738661f5402f9978429a8e3",
+          "bytes": 352240,
+          "source": "https://raw.githubusercontent.com/rsms/inter/e3a3d4c57d5ecc01453a575621882a384c1995a3/docs/font-files/InterVariable.woff2"
+        }
+      ]
+    }
+  },
+  "current_task": {
+    "P07_02": "accepted, original P07-02-acceptance.json preserved; current user instruction reconfirms closure and continued P07-03",
+    "P07_03": "continuing, automated Windows CI passed; not closed",
+    "P07_04_and_P08": "not started"
+  },
+  "pending": [
+    "User observation of current UI and native directory picker",
+    "Actual Windows OS 125/150/200% scaling and physical multi-monitor acceptance",
+    "P07-03 final user acceptance"
+  ],
+  "no_source_or_dependency_changes_this_turn": true
+}

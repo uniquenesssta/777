@@ -2,7 +2,7 @@
 
 版本：持续规划（2026-10-14母子交付修订）；初始日期：2026-10-10；仓库：`uniquenesssta/777`；文档分支：`plans`；源码基线：`master@32e164d78643de8fa6cbd21a7ca634e1b318f855`。
 
-**P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](now/P07-tauri-desktop.md)移入now。P07-01已按用户2026-10-14 23:39“收尾01，开始02”验收。P07-02已按用户2026-10-15“OK暂时没感受到问题，收尾02 开始03”验收。当前P07-03原界面/字体/图片/关闭门槛已通过Windows CI；新增目录弹窗/导出记录、独立售价/行内明细与无提醒条/四种利润图表辅助核对，待新CI及用户验收；P07-04与P08未启动。两种实际安装包留04，真实部署留P08。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。**
+**P07已按用户“开始P07”从P06收尾7a243d5进入唯一分支`stage/p07-tauri-desktop`，[任务书](now/P07-tauri-desktop.md)移入now。P07-01已按用户2026-10-14 23:39“收尾01，开始02”验收。P07-02已按用户2026-10-15“OK暂时没感受到问题，收尾02 开始03”验收。当前P07-03的Figma价格页及既有业务界面/原生链路已通过[c49d6a7 Windows CI](verification/P07-03-ci-evidence-03.json)，待运行界面用户验收与实际缩放/多屏核对；P07-04与P08未启动。两种实际安装包留04，真实部署留P08。设计依据为本仓库Figma分支的当前批准稿，原P06验收与历史证据保持。**
 
 ## 1. 目标与边界
 
@@ -25,7 +25,7 @@ P01至P06已验收归档old；P07在now执行03，01/02已验收，唯一阶段�
 | P04 | [后台任务与性能](old/P04-performance.md) | P03已验收 | stage/p04-performance（已转接） | 01/02/03已验收，04短诊断通过；用户确认停电、授权先P05；正式06全档通过已按[用户接续](verification/P04-acceptance.json)验收收尾，无需重跑 |
 | P05 | [结构化存储与局域网服务](old/P05-data-service.md) | P04已验收 | stage/p05-data-service（历史） | [隔离交付已收尾](verification/P05-acceptance.json)，Windows52/52原证据保持；真实部署及历史切换交接后续 |
 | P06 | [Rust业务核心与适配](old/P06-rust-core.md) | 用户授权P05交接 | stage/p06-rust-core | [四项均已验收归档](verification/P06-acceptance.json)；Windows CI及本机212专项/43 Rust/561对照、原窗口/DPAPI/ACL/系统图片/v4恢复和资源核对通过，无需重跑 |
-| P07 | [Tauri界面与Windows交付](now/P07-tauri-desktop.md) | P06已验收 | stage/p07-tauri-desktop | 01/02已按用户指令验收；03原Windows CI通过，新增目录弹窗/利润图表待新CI及用户验收；04未启动 |
+| P07 | [Tauri界面与Windows交付](now/P07-tauri-desktop.md) | P06已验收 | stage/p07-tauri-desktop | 01/02已按用户指令验收；03当前c49d6a7 Windows CI已通过，用户视觉/物理缩放与多屏待验收；04未启动 |
 | P08 | [迁移演练与正式切换](new/P08-cutover.md) | P07已验收 | stage/p08-cutover | 待启动；全量对账、恢复演练及用户验收后才切换 |
 
 P01→P02→P03→P04 是现有Python的必要改进；P05把存储和服务契约固定并实现过渡链路；P06复用已验证样本/协议迁移到Rust；P07接界面；P08生产迁移。P05优先复用Python已有业务核心，避免先后造两套规则；Rust切换复用同一schema和API。若决定直接把P05的服务实现并入P06，须先调整任务依赖/验收和取得相应阶段授权，不能默默跳过门槛。
