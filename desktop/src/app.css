@@ -1009,3 +1009,8 @@ textarea {
 .developer-dialog .compact-field{flex-direction:row;align-items:center;gap:12px}
 .developer-dialog .compact-field > span{width:73px;flex:0 0 73px}
 .developer-dialog .developer-job-path{font-size:12px;line-height:20px;color:var(--color-muted)}
+
+.developer-grid > .developer-card:first-child { gap:12px; }
+.developer-restore-dialog[data-compact="true"] { width:min(540px,calc(100vw - 32px)); }
+.developer-restore-dialog .compact-field { flex:1; min-width:0; }
+.developer-restore-dialog .input { width:100%; min-width:0; }

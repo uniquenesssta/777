@@ -52,12 +52,23 @@ impl Desktop {
             debug_assertions,
             not(any(feature = "manager", feature = "sales", feature = "verification"))
         ))]
-        if ["developer_root", "developer_backup", "developer_output"].contains(&target) {
+        if [
+            "developer_root",
+            "developer_backup",
+            "developer_output",
+            "developer_hidden",
+            "developer_restore",
+            "developer_recovery_file",
+        ]
+        .contains(&target)
+        {
             self.admin()?;
             let state = crate::developer::call(json!({"op":"status"})).await?;
             return Ok(match target {
                 "developer_root" => state["root"].as_str(),
-                "developer_backup" => state["backup_dir"].as_str(),
+                "developer_backup" | "developer_recovery_file" => state["backup_dir"].as_str(),
+                "developer_hidden" => state["daily"]["hidden_dir"].as_str(),
+                "developer_restore" => state["root"].as_str(),
                 _ => state["preferences"]["output"].as_str(),
             }
             .unwrap_or("")
@@ -736,6 +747,8 @@ mod tests {
         for request in [
             json!({"op":"select","root":"ignored","initialize":false,"backup_dir":""}),
             json!({"op":"backup_directory","directory":"ignored"}),
+            json!({"op":"daily_backup","directory":"ignored","hidden":"ignored","hour":23}),
+            json!({"op":"restore_data","package":"ignored","target":"ignored"}),
         ] {
             let action =
                 serde_json::from_value(json!({"action":"developer","request":request})).unwrap();

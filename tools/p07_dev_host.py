@@ -72,7 +72,7 @@ def prepare():
         raise RuntimeError('DEVELOPMENT_HOST_CONFIG_CONFLICT')
     host_exe=ROOT/'target/release'/('quote-host.exe' if os.name=='nt' else 'quote-host')
     if config.get('rust_host_sha256')!=hashlib.sha256(host_exe.read_bytes()).hexdigest() or config.get('rust_worker_sha256')!=hashlib.sha256(binary.read_bytes()).hexdigest():
-        print('更新本机开发服务资源（保留证书、账本和价格；先建立维护备份）…',flush=True)
+        print('更新本机开发服务资源（保留证书、账本和价格；核对资源更新前后数据一致）…',flush=True)
         command(['select-host','--root',str(host),'--admin','admin','--backend','rust','--worker',str(binary),'--notices',str(ROOT/'THIRD_PARTY_NOTICES.md'),'--upgrade-resources'],'123456')
         config=json.loads((host/'private/service.json').read_text(encoding='utf-8'))
 

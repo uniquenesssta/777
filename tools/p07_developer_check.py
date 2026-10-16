@@ -25,7 +25,7 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
-    report = dict(task='P07-05', platform=os.name, scope='real debug native IPC, private controller and Rust HTTPS; no UI substitute', credential_storage='Windows DPAPI' if os.name == 'nt' else 'isolated auxiliary plaintext', checks=[], status='running', production_paths_accessed=False)
+    report = dict(task='P07-06', platform=os.name, scope='real debug native IPC, private controller and Rust HTTPS; no UI substitute', credential_storage='Windows DPAPI' if os.name == 'nt' else 'isolated auxiliary plaintext', checks=[], status='running', production_paths_accessed=False)
     controller = None
     native = None
     temporary = tempfile.TemporaryDirectory(prefix='777-developer-check-')
@@ -98,16 +98,78 @@ def main():
             old_backup = Path(controller.config()['backup_dir'])
             old_files = {str(p.relative_to(old_backup)):hashlib.sha256(p.read_bytes()).hexdigest() for p in old_backup.rglob('*') if p.is_file()}
             target = base / '新的 备份位置'
-            state = ipc('developer', request=dict(op='backup_directory', directory=str(target)))
-            assert state['backup_dir'] == str(target)
-            marker = json.loads((target / '777-backups.json').read_text())
-            entry = json.loads((target / '777-service-backups.json').read_text())['entries'][-1]
-            assert entry['full_service_verified'] and entry['verified_restore']
-            bundle = Path(entry['service_bundle'])
-            assert json.loads((bundle / 'manifest.json').read_text())['ledger_id'] == id_a
+            hidden = base / '隐藏 数据'
+            state = ipc('developer', request=dict(op='daily_backup', directory=str(target), hidden=str(hidden), hour=23))
+            assert state['backup_dir'] == str(target) and state['daily']['hidden_dir'] == str(hidden)
+            assert json.loads((target / '777-backups.json').read_text(encoding='utf-8'))['last_success'] is None
+            c = client()
+            try:
+                public=c.request('GET','/v1/backup')
+                assert str(hidden) not in json.dumps(public) and 'hidden_dir' not in json.dumps(public)
+                from quote_service.protocol import APIError
+                try:c.request('POST','/v1/backup-plan',dict(daily_hour=0))
+                except APIError as e:assert e.status==403
+                else:raise AssertionError('PUBLIC_BACKUP_PLAN_MUTATION_ACCEPTED')
+                entry=c.request('POST','/v1/backup',dict(kind='daily'))
+                assert c.request('POST','/v1/backup',dict(kind='daily'))==entry
+                folder = id_a+'-'+entry['business_date']+'-'+entry['backup_id']
+                pair = target / folder
+                assert {p.name for p in pair.iterdir()}=={'data.qbackup','data.xlsx'}
+                hashes={name:hashlib.sha256((pair/name).read_bytes()).hexdigest() for name in ['data.qbackup','data.xlsx']}
+                assert all((pair/n).read_bytes()==(hidden/folder/n).read_bytes() for n in hashes)
+                parked=hidden.with_name('hidden temporarily offline');hidden.rename(parked);hidden.write_text('unavailable')
+                try:
+                    assert c.request('POST','/v1/backup',dict(kind='daily'))==entry
+                    health=controller.status()['daily_result']
+                    assert health['normal']['ok'] and not health['hidden']['ok']
+                finally:hidden.unlink();parked.rename(hidden)
+                c.request('POST','/v1/backup',dict(kind='daily'))
+                assert controller.status()['daily_result']['hidden']['ok']
+                parked=target.with_name('normal temporarily offline');target.rename(parked);target.write_text('unavailable')
+                try:
+                    try:c.request('POST','/v1/backup',dict(kind='daily'))
+                    except APIError:pass
+                    else:raise AssertionError('FAILED_NORMAL_BACKUP_REPORTED_SUCCESS')
+                    health=controller.status()['daily_result']
+                    assert not health['normal']['ok'] and health['hidden']['ok']
+                finally:target.unlink();parked.rename(target)
+                assert c.request('POST','/v1/backup',dict(kind='daily'))==entry
+            finally:c.logout()
+            assert hashes=={n:hashlib.sha256((pair/n).read_bytes()).hexdigest() for n in hashes}
             assert old_files == {str(p.relative_to(old_backup)):hashlib.sha256(p.read_bytes()).hexdigest() for p in old_backup.rglob('*') if p.is_file()}
-            report['backup'] = dict(ledger_id=id_a, manifest_sha256=hashlib.sha256((bundle / 'manifest.json').read_bytes()).hexdigest(), full_service_verified=True)
-            report['checks'].append('new_backup_directory_full_bundle_independent_restore_and_old_backup_retained')
+            report['backup']=dict(ledger_id=id_a,snapshot_id=entry['backup_id'],hashes=hashes,bytes={n:(pair/n).stat().st_size for n in hashes})
+            report['checks'].append('dual_formats_identical_in_both_destinations_independent_failures_retry_same_snapshot_no_legacy_deletion')
+            report['checks'].append('public_API_cannot_change_daily_policy_or_observe_hidden_destination')
+            from openpyxl import load_workbook
+            book=load_workbook(pair/'data.xlsx',read_only=True)
+            try:
+                rows=list(book['账本_orders'].values); assert len(rows)==2
+                assert rows[1][rows[0].index('income_cents')]==order_a['income_cents']
+                assert all(cell.data_type!='f' for sheet in book for row in sheet for cell in row)
+            finally:book.close()
+            original_bytes=(pair/'data.qbackup').read_bytes()
+            invalid=base/'invalid.qbackup'
+            for field,value in [('sha256','0'*64),('format','777-data-backup-v999')]:
+                damaged=json.loads(original_bytes);damaged[field]=value;invalid.write_text(json.dumps(damaged),encoding='utf-8')
+                try:ipc('developer',request=dict(op='restore_data',package=str(invalid),target=str(base/'refused')))
+                except RuntimeError:pass
+                else:raise AssertionError('INVALID_RECOVERY_ACCEPTED')
+                assert controller.root==a and not (base/'refused').exists()
+            restored=base/'恢复 账本'
+            state=ipc('developer',request=dict(op='restore_data',package=str(pair/'data.qbackup'),target=str(restored)))
+            ipc('bootstrap');assert state['ledger_id']==id_a and state['daily']['hidden_dir']==str(hidden)
+            c=client()
+            try:
+                result=c.request('GET','/v1/orders');assert result['total']==1 and result['orders'][0]['order_id']==order_a['order_id']
+                assert result['totals']['income_cents']==order_a['income_cents']
+                assert c.request('POST','/v1/backup',dict(kind='daily'))['backup_id']==entry['backup_id']
+                assert controller.status()['daily_result']['hidden']['ok']
+            finally:c.logout()
+            try:ipc('developer',request=dict(op='restore_data',package=str(pair/'data.qbackup'),target=str(restored)))
+            except RuntimeError:pass
+            else:raise AssertionError('EXISTING_RESTORE_TARGET_OVERWRITTEN')
+            ipc('developer',request=dict(op='select',root=str(a),initialize=False,backup_dir=''));ipc('bootstrap')
+            report['checks'].append('real_native_import_restores_business_view_preserves_original_rejects_corruption_future_version_and_overwrite')
             controller.handle(dict(op='save_package', output=str(base / '安装包'), version='0.1.0', runtime='downloadBootstrapper'))
             native.communicate(timeout=15); assert native.returncode == 0; native = None
             controller.close(); controller = None

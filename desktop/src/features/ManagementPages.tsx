@@ -236,7 +236,7 @@ export function SettingsPage({ app }: { app: Workbench }) {
             disabled={app.busy || app.pending}
             onClick={() => void app.makeBackup()}
           >
-            创建并核对维护备份
+            生成今日备份
           </Button>
         </section>
       )}

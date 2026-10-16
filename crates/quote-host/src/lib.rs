@@ -2,6 +2,7 @@
 pub mod analytics;
 pub mod auth;
 pub mod backup;
+pub mod daily_backup;
 pub mod devices;
 pub mod files;
 pub mod host;
@@ -9,6 +10,7 @@ pub mod operator;
 pub mod outputs;
 pub mod protocol;
 pub mod query;
+pub mod recovery;
 pub mod service;
 use serde_json::Value;
 #[derive(Debug)]

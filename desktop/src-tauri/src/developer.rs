@@ -18,6 +18,15 @@ pub enum DeveloperAction {
     BackupDirectory {
         directory: String,
     },
+    DailyBackup {
+        directory: String,
+        hidden: String,
+        hour: u8,
+    },
+    RestoreData {
+        package: String,
+        target: String,
+    },
     SavePackage {
         output: String,
         version: String,
@@ -31,10 +40,16 @@ pub enum DeveloperAction {
 }
 impl DeveloperAction {
     pub fn switches_data(&self) -> bool {
-        matches!(self, Self::Select { .. })
+        matches!(self, Self::Select { .. } | Self::RestoreData { .. })
     }
     pub fn protects_close(&self) -> bool {
-        matches!(self, Self::Select { .. } | Self::BackupDirectory { .. })
+        matches!(
+            self,
+            Self::Select { .. }
+                | Self::BackupDirectory { .. }
+                | Self::DailyBackup { .. }
+                | Self::RestoreData { .. }
+        )
     }
 }
 pub fn available() -> bool {

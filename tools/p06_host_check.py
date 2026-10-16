@@ -21,7 +21,7 @@ def run_checks():
     return dict(status='passed' if r.wasSuccessful() else 'failed',tests_run=r.testsRun,failures=len(r.failures),errors=len(r.errors),skipped=r.skipped,test_ids=ids,log=log.getvalue(),failure_details=[dict(test_id=c.id(),error=t.strip().splitlines()[-1]) for c,t in r.failures+r.errors])
 def protocol_smoke(*,windows):
     if windows:actual_windows()
-    from native_host_fixture import Hosted,command
+    from native_host_fixture import Hosted,command,backup_pair,restore_data_backup
     from quote_core import QuoteSnapshot,NormalLine,DraftDetails
     from quote_service.client import CommitUnknown
     from quote_service.journal import Journal,MemoryJournal
@@ -77,19 +77,19 @@ def protocol_smoke(*,windows):
             else:assert (public/filename).read_bytes()==data
             tasks.append(task);contents.append(content)
         inventory=host.service.ledger.inventory();assert inventory['counts']==dict(orders=3,lines=4,notes=1,price_versions=2,import_batches=1,requests=7,audit_events=7);assert [inventory[k] for k in ['active_income_cents','active_cost_cents','active_profit_cents']]==['11500','4600','6900']
-        backup=manager.request('POST','/v1/backup',{'kind':'maintenance'});folder=Path(backup['service_bundle']);assert manifest(folder,auxiliary=not windows)['format']=='777-service-bundle-v4'
-        host.stop();restored=host.root/'native-restored';new_secret='isolated-new-password-123';restoration=command('restore',root=restored,secret=new_secret,package=folder,admin='manager');assert restoration['inventory']==inventory and restoration['maintenance'] is True
+        backup=manager.request('POST','/v1/backup',{'kind':'daily'});folder=backup_pair(host,backup);assert json.loads((folder/'data.qbackup').read_bytes())['format']=='777-data-backup-v1'
+        host.stop();restored=host.root/'native-restored';new_secret='isolated-new-password-123';restoration=restore_data_backup(host,backup,restored,password=new_secret);assert restoration['inventory']==inventory
         from quote_service.hosting import load
-        _,_,checked=load(restored,auxiliary=not windows,allow_maintenance=True);assert checked.ledger.inventory()==inventory
+        _,_,checked=load(restored,auxiliary=not windows);assert checked.ledger.inventory()==inventory
         with checked.auth.connection() as c:assert c.execute('SELECT count(*) FROM sessions').fetchone()[0]==0
         assert checked.ledger.query_request(imported['request_id'],host.admin)==imported
         for task,content in zip(tasks,contents):assert checked.outputs.content(host.admin,task['job_id'])==content
-        command('activate-restored',root=restored,old_host_stopped=True);host.host_root=restored;host.password=new_secret;host.config=json.loads((restored/'private/service.json').read_bytes());host.fault=restored/'private/test-fault.txt';host.start();new_manager=host.client('manager');assert new_manager.request('GET','/v1/orders')['total']==3
+        host.host_root=restored;host.password=new_secret;host.config=json.loads((restored/'private/service.json').read_bytes());host.fault=restored/'private/test-fault.txt';host.start();new_manager=host.client('recovered-manager');assert new_manager.request('GET','/v1/orders')['total']==3
         try:sales.request('GET','/v1/me')
-        except APIError as e:assert e.status==401
+        except APIError as e:assert e.status in (401,403)
         else:raise AssertionError('OLD_SESSION_SURVIVED')
         assert source.read_bytes()==raw and source.stat().st_mtime_ns==mtime
-        out=dict(status='passed',host_backend='standalone-rust',runtime_python_server_used=False,in_process_ledger_and_formats=True,actual_HTTPS_old_Client=True,native_host_exit_and_original_receipt_recovery=True,DPAPI_encrypted_pending_verified=windows,offline_historical_tool_import_plan_and_idempotency_preserved=True,source_hash_and_mtime_unchanged=True,independent_reader_excel_text_styles_and_private_cost=True,native_CJK_PNG_and_independent_Pillow_verified=bool(windows or host.font),Windows_system_CJK_font_verified=bool(windows and not host.font),public_directory_only_quote_outputs=True,v4_full_native_restore_and_original_receipts_outputs_equal=True,independent_Python_bundle_reader_equal=True,restored_maintenance_gate_and_explicit_isolated_activation=True,old_sessions_removed_on_restore=True,restored_Rust_HTTPS_accepts_old_client=True,inventory=inventory,host_private_directory_native_security=host.config['private_security'],scope='isolated Rust host processes, old API Client, offline synthetic migration tools and native full restore; no installed service, real E/share paths or production activation')
+        out=dict(status='passed',host_backend='standalone-rust',runtime_python_server_used=False,in_process_ledger_and_formats=True,actual_HTTPS_old_Client=True,native_host_exit_and_original_receipt_recovery=True,DPAPI_encrypted_pending_verified=windows,offline_historical_tool_import_plan_and_idempotency_preserved=True,source_hash_and_mtime_unchanged=True,independent_reader_excel_text_styles_and_private_cost=True,native_CJK_PNG_and_independent_Pillow_verified=bool(windows or host.font),Windows_system_CJK_font_verified=bool(windows and not host.font),public_directory_only_quote_outputs=True,v1_logical_data_restore_and_original_receipts_outputs_equal=True,independent_Python_ledger_reader_equal=True,restored_new_root_and_fresh_credentials=True,old_sessions_removed_on_restore=True,restored_Rust_HTTPS_accepts_old_client=True,inventory=inventory,host_private_directory_native_security=host.config['private_security'],scope='isolated Rust host processes, old API Client, offline synthetic migration tools and native logical data restore; no installed service, real E/share paths or production activation')
     finally:host.close()
     out['sandbox_cleaned']=True;return out
 

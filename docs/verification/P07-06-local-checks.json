@@ -1,0 +1,56 @@
+{
+  "task": "P07-06",
+  "status": "local_auxiliary_passed_windows_pending",
+  "base_commit": "09af9af329c55c1900dd35f461fa79224f785eb1",
+  "platform": "Linux auxiliary; not Windows acceptance",
+  "checks": {
+    "real_developer_import_and_dual_backup": {
+      "task": "P07-06",
+      "platform": "posix",
+      "scope": "real debug native IPC, private controller and Rust HTTPS; no UI substitute",
+      "credential_storage": "isolated auxiliary plaintext",
+      "checks": [
+        "A_B_A_real_prices_orders_and_exact_totals_isolated",
+        "nonempty_initialization_keeps_original_files_and_active_source",
+        "dual_formats_identical_in_both_destinations_independent_failures_retry_same_snapshot_no_legacy_deletion",
+        "public_API_cannot_change_daily_policy_or_observe_hidden_destination",
+        "real_native_import_restores_business_view_preserves_original_rejects_corruption_future_version_and_overwrite",
+        "saved_config_and_credentials_restart_with_same_actual_ledger"
+      ],
+      "status": "passed",
+      "production_paths_accessed": false,
+      "backup": {
+        "ledger_id": "fe95885b-3f0c-42e9-a971-21261b34423a",
+        "snapshot_id": "7c144c47-aa20-42af-b710-e35ae82e239e",
+        "hashes": {
+          "data.qbackup": "f048aa0911e82687e9a400a6de0d675c310aa8f6b1c86b480fc4ad21e16970c9",
+          "data.xlsx": "496c2e70aa1d85b54fb695909327a0e4bf4727d1e43fe756e28b1f41db9ac1dc"
+        },
+        "bytes": {
+          "data.qbackup": 5118,
+          "data.xlsx": 22320
+        }
+      }
+    },
+    "native_https_regressions": 31,
+    "node_tests": 33,
+    "typescript_noemit": "passed",
+    "rust_host_excel_tests": 38,
+    "desktop_library_tests": 11,
+    "python_developer_controller": {
+      "passed": 13,
+      "skipped_windows": 1
+    },
+    "clock_boundaries": "Beijing 23:00, midnight, no-change day, repeated invocation, missed-day catch-up, old cache cleanup without deleting target backups",
+    "python_p07_regressions": {
+      "passed": 40,
+      "skipped_windows": 8
+    },
+    "clippy_workspace_all_targets": "passed"
+  },
+  "limitations": [
+    "Actual Windows native UI, ACL and installed-role verification pending CI",
+    "Actual Microsoft Excel/WPS visual opening and user acceptance pending",
+    "Separate legacy p06 protocol probe failed in pre-existing historical import inventory before reaching backup; not counted as passed"
+  ]
+}

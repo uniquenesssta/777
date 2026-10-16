@@ -120,14 +120,40 @@ class NativeHostTests(unittest.TestCase):
         order=self.submit()
         with self.assertRaises(APIError) as e:self.sales.request('POST','/v1/outputs',{'request_id':order['request_id'],'order_id':order['order_id'],'expected_revision':1,'kind':'excel_quote'})
         self.assertEqual(e.exception.status,409)
-    def test_new_v4_backup_independent_python_restore_and_native_restore_no_old_sessions(self):
-        self.directories();order=self.submit();task=self.output(order);self.assertEqual(self.wait(task['job_id'])['state'],'done');entry=self.manager.request('POST','/v1/backup',{'kind':'maintenance'});folder=Path(entry['service_bundle']);m=manifest(folder,auxiliary=AUXILIARY);self.assertEqual(m['format'],'777-service-bundle-v4');before=self.host.service.ledger.inventory();old=restore(folder,self.host.root/'python-restored','manager','restored-password-123',auxiliary=AUXILIARY);self.assertEqual(old[0].inventory(),before)
-        native=command('restore',root=self.host.root/'native-restored',secret='restored-password-123',package=folder,admin='manager');self.assertEqual(native['inventory'],before);self.assertTrue(native['maintenance']);self.assertEqual(command('inspect',root=self.host.root/'native-restored')['inventory'],before)
-        self.assertEqual(hash_file(folder/'ledger.sqlite3'),m['files']['ledger.sqlite3'])
-    def test_invalid_bundle_resource_and_extra_file_refused_without_target_creation(self):
-        entry=self.manager.request('POST','/v1/backup',{'kind':'maintenance'});folder=Path(entry['service_bundle']);(folder/'extra').write_text('unowned')
-        with self.assertRaises(RuntimeError):command('restore',root=self.host.root/'refused',secret='restored-password-123',package=folder,admin='manager')
-        self.assertFalse((self.host.root/'refused').exists())
+    def test_daily_data_restore_preserves_every_ledger_field_and_output_without_old_sessions(self):
+        from native_host_fixture import backup_pair,restore_data_backup
+        from contextlib import closing
+        import sqlite3
+        self.directories();order=self.submit();task=self.output(order);self.assertEqual(self.wait(task['job_id'])['state'],'done')
+        self.sales.mutate('/v1/notes',dict(order_id=order['order_id'],body='=中文原始备注',expected_revision=1),MemoryJournal())
+        self.manager.mutate('/v1/state',dict(order_id=order['order_id'],state='void',reason='历史作废',expected_revision=2),MemoryJournal())
+        self.manager.mutate('/v1/state',dict(order_id=order['order_id'],state='active',reason='历史恢复',expected_revision=3),MemoryJournal())
+        entry=self.manager.request('POST','/v1/backup',{'kind':'daily'});folder=backup_pair(self.host,entry)
+        data=json.loads((folder/'data.qbackup').read_bytes())['data'];before=self.host.service.ledger.inventory()
+        target=self.host.root/'native-restored';native=restore_data_backup(self.host,entry,target)
+        self.assertEqual(native['inventory'],before);self.assertEqual(command('inspect',root=target)['inventory'],before)
+        with closing(sqlite3.connect(target/'private/ledger.sqlite3')) as c:
+            for name,table in data['ledger'].items():self.assertEqual([list(r) for r in c.execute('SELECT * FROM '+name+' ORDER BY rowid')],table['rows'])
+        with closing(sqlite3.connect(target/'private/auth.sqlite3')) as c:
+            self.assertEqual(c.execute('SELECT count(*) FROM sessions').fetchone()[0],0)
+            self.assertEqual(c.execute('SELECT username FROM users WHERE enabled=1').fetchall(),[('recovered-manager',)])
+        for name,raw in data['blobs'].items():self.assertEqual((target/'private'/name).read_bytes(),base64.b64decode(raw))
+        from openpyxl import load_workbook
+        book=load_workbook(folder/'data.xlsx',read_only=True)
+        try:
+            for name,table in data['ledger'].items():
+                rows=list(book['账本_'+name].values)
+                self.assertEqual(list(rows[0]),table['columns'])
+                self.assertEqual([list(r) for r in rows[1:]],[[('〈空值〉' if v is None else str(v) if not isinstance(v,str) else v or None) for v in r] for r in table['rows']])
+        finally:book.close()
+    def test_corrupt_or_future_data_refused_without_target_creation(self):
+        from native_host_fixture import backup_pair,restore_data_backup
+        entry=self.manager.request('POST','/v1/backup',{'kind':'daily'});file=backup_pair(self.host,entry)/'data.qbackup';raw=file.read_bytes()
+        for field,value in [('sha256','0'*64),('format','777-data-backup-v999')]:
+            data=json.loads(raw);data[field]=value;file.write_text(json.dumps(data),encoding='utf-8')
+            with self.assertRaises(RuntimeError):restore_data_backup(self.host,entry,self.host.root/'refused')
+            self.assertFalse((self.host.root/'refused').exists())
+        file.write_bytes(raw)
     def test_owner_lock_blocks_old_python_and_second_rust_start(self):
         with self.assertRaises(FileBusy):
             with file_lock(self.host.host_root/'service-owner'):pass
@@ -160,7 +186,7 @@ class NativeHostTests(unittest.TestCase):
         self.assertEqual(self.host.service.ledger.inventory(),before)
     def _payload_hash(self,key):
         with self.host.service.outputs.connection(readonly=True) as c:return c.execute('SELECT payload_sha256 FROM jobs WHERE job_id=?',(key,)).fetchone()[0]
-    def test_offline_native_selection_and_rollback_require_ownership_and_complete_backup(self):
+    def test_offline_native_selection_and_rollback_require_ownership_and_preserve_inventory(self):
         before=self.host.service.ledger.inventory()
         with self.assertRaises(RuntimeError):command('select-host',root=self.host.host_root,secret=self.host.password,admin='manager',backend='python')
         self.host.stop();selected=command('select-host',root=self.host.host_root,secret=self.host.password,admin='manager',backend='python');self.assertEqual(selected['service_backend'],'python');self.assertEqual(command('inspect',root=self.host.host_root)['inventory'],before)

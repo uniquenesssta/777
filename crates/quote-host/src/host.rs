@@ -240,7 +240,6 @@ pub fn select(options: Selection<'_>) -> Result<Value> {
             return Ok(s.config.clone());
         }
         let before = integrity::inventory(&store::open(&s.ledger, false)?)?;
-        backup::create(&s, "maintenance")?;
         let private = root.join("private");
         let mut config = s.config.clone();
         let mut replacements = vec![];
@@ -569,10 +568,9 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
                 ticks = 0;
                 if let Ok(s) = schedule_service.lock() {
                     if let Err(e) = backup::due(&s) {
-                        let _ = s.auth.record_backup(
-                            None,
-                            Some(&format!("BACKUP_OR_RETENTION_FAILED:{}", e.code)),
-                        );
+                        let _ = s
+                            .auth
+                            .record_backup(None, Some(&format!("DAILY_BACKUP_FAILED:{}", e.code)));
                     }
                 }
             }

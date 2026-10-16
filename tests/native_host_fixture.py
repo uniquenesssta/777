@@ -22,6 +22,12 @@ def command(name,*,root,secret=None,**options):
     lines=p.stdout.splitlines()
     if p.returncode:raise RuntimeError('native command failed: '+p.stderr.decode('utf-8','replace')[-500:])
     return json.loads(lines[-1])
+def backup_pair(host, entry):
+    return Path(host.config['backup_dir']) / (host.config['ledger_id'] + '-' + entry['business_date'] + '-' + entry['backup_id'])
+
+def restore_data_backup(host, entry, target, *, user='recovered-manager', password='restored-password-123'):
+    return command('restore-data', root=target, package=backup_pair(host,entry)/'data.qbackup', backup_dir=target.with_name(target.name+'-backups'), host=['127.0.0.1','localhost'], bind='127.0.0.1', port=host.port, admin=user, worker=WORKER, notices=ROOT/'THIRD_PARTY_NOTICES.md', secret=password)
+
 class Hosted:
     def __init__(self,*,font=None,bootstrap=True):
         self.temp=tempfile.TemporaryDirectory(prefix='777-p06-native-host-');self.root=Path(self.temp.name);self.host_root=self.root/'host';self.password=secrets.token_urlsafe(24);self.font=font or os.environ.get('P06_CI_FONT_FILE');self.process=None

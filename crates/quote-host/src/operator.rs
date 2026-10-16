@@ -51,6 +51,14 @@ pub fn configure_backup(
         if candidate.starts_with(&canonical_root) || canonical_root.starts_with(&candidate) {
             return fail(422, "BACKUP_DIRECTORY_CONFLICT");
         }
+        let daily = crate::daily_backup::config(&s)?;
+        let hidden = daily["hidden_dir"].as_str().unwrap();
+        if !hidden.is_empty() {
+            let h = Path::new(hidden).canonicalize()?;
+            if candidate.starts_with(&h) || h.starts_with(&candidate) {
+                return fail(422, "BACKUP_DIRECTORY_CONFLICT");
+            }
+        }
         if target.exists() {
             files::dir(target)?;
             if std::fs::read_dir(target)?.next().is_some() {
@@ -68,20 +76,60 @@ pub fn configure_backup(
                 "backups":[],"last_success":null,"last_error":null
             }))?,
         )?;
-        let previous = s.config.clone();
         s.config["backup_dir"] = json!(target.to_string_lossy());
         s.config["backup_store_id"] = json!(store);
-        let config_file = root.join("private/service.json");
-        files::replace_json(&config_file, &s.config)?;
-        // The existing full backup path performs independent restore verification.
-        match backup::create(&s, "maintenance") {
-            Ok(value) => Ok(value),
-            Err(error) => {
-                files::replace_json(&config_file, &previous)?;
-                Err(error)
-            }
-        }
+        files::replace_json(&root.join("private/service.json"), &s.config)?;
+        // Saving a location must not consume today's snapshot before later business writes.
+        backup::status(&s)
     })();
     let _ = s.auth.logout(token);
+    result
+}
+
+pub fn configure_daily(
+    root: &Path,
+    target: &Path,
+    hidden: &Path,
+    hour: u8,
+    user: &str,
+    password: &str,
+    auxiliary: bool,
+) -> Result<Value> {
+    // Authenticate before touching either destination. All setters are local operator commands.
+    authorize(root, user, password, auxiliary)?;
+    let previous = files::read_json(&root.join("private/service.json"))?;
+    let daily_path = root.join("private/daily-backup.json");
+    let old_daily = if daily_path.exists() {
+        Some(files::read_json(&daily_path)?)
+    } else {
+        None
+    };
+    let result = (|| {
+        if target == hidden || target.starts_with(hidden) || hidden.starts_with(target) {
+            return fail(422, "BACKUP_DIRECTORY_CONFLICT");
+        }
+        if hour > 23 {
+            return fail(422, "DAILY_BACKUP_CONFIG_INVALID");
+        }
+        // Validate the hidden destination against the candidate ordinary path before publishing either.
+        let _owner = files::Owner::acquire(root)?;
+        let mut candidate = Service::load(root, auxiliary, true)?;
+        if !target.exists() {
+            files::new_dir(target)?;
+        }
+        candidate.config["backup_dir"] = json!(target.to_string_lossy());
+        crate::daily_backup::configure(&candidate, hidden, hour)?;
+        drop(_owner);
+        configure_backup(root, target, user, password, auxiliary)?;
+        Ok(json!({"configured":true}))
+    })();
+    if result.is_err() {
+        files::replace_json(&root.join("private/service.json"), &previous)?;
+        if let Some(v) = old_daily {
+            files::replace_json(&daily_path, &v)?;
+        } else if daily_path.exists() {
+            std::fs::remove_file(daily_path)?;
+        }
+    }
     result
 }

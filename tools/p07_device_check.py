@@ -83,13 +83,14 @@ def protocol(binaries):
         assert target.ok('recover',retry=False)['result']['income_cents']=='2000'
         assert manager.ok('orders',q='',state='',offset=0,view='')['total']==4
         checks.append('operator_new_grant_reauthorizes_revoked_device_without_deleting_pending')
-        before=h.service.ledger.inventory();backup=admin.request('POST','/v1/backup',{'kind':'maintenance'});bundle=Path(backup['service_bundle']);assert json.loads((bundle/'manifest.json').read_text(encoding='utf-8'))['format']=='777-service-bundle-v5'
-        restored=h.root/'restored';command('restore',root=restored,package=bundle,admin='manager',secret=h.password)
-        with closing(sqlite3.connect(restored/'private/devices.sqlite3')) as c:
-            assert c.execute('SELECT count(*) FROM devices WHERE enabled=1').fetchone()[0]==0
-            assert c.execute('SELECT count(*) FROM device_sessions').fetchone()[0]==0
-            assert c.execute('SELECT count(*) FROM grants').fetchone()[0]==0
-        assert command('inspect',root=restored)['inventory']==before;checks.append('v5_independent_restore_preserves_ledger_and_revokes_all_devices_sessions_grants')
+        from native_host_fixture import restore_data_backup
+        before=h.service.ledger.inventory();backup=admin.request('POST','/v1/backup',{'kind':'daily'})
+        restored=h.root/'restored';restore_data_backup(h,backup,restored)
+        assert not (restored/'private/devices.sqlite3').exists()
+        with closing(sqlite3.connect(restored/'private/auth.sqlite3')) as c:
+            assert c.execute('SELECT count(*) FROM sessions').fetchone()[0]==0
+            assert c.execute('SELECT username FROM users WHERE enabled=1').fetchall()==[('recovered-manager',)]
+        assert command('inspect',root=restored)['inventory']==before;checks.append('v1_data_restore_preserves_ledger_without_old_devices_sessions_grants')
         return {'status':'passed','checks':checks,'Windows_DPAPI':os.name=='nt','production_paths_accessed':False}
     finally:
         for b in bridges:b.close()

@@ -90,10 +90,16 @@ class Developer:
 
     def status(self):
         cfg = self.config()
-        backups = json.loads(local(Path(cfg['backup_dir']) / '777-backups.json').read_text(encoding='utf-8'))
+        try:backups = json.loads(local(Path(cfg['backup_dir']) / '777-backups.json').read_text(encoding='utf-8'))
+        except (OSError, ValueError, RuntimeError):backups = dict(last_success=None)
         with self.job_lock:
             job = json.loads(json.dumps(self.job))
-        return dict(root=str(self.root), backup_dir=cfg['backup_dir'], ledger_id=cfg['ledger_id'], last_backup=backups.get('last_success'), connection=self.connection(), preferences=self.preferences, job=job)
+        daily_file=self.root / 'private/daily-backup.json'
+        daily=json.loads(local(daily_file).read_text(encoding="utf-8")) if daily_file.exists() else dict(hidden_dir='', daily_hour=23)
+        health_file=self.root / 'private/daily-backups.json'
+        health=json.loads(local(health_file).read_text(encoding="utf-8")) if health_file.exists() else dict(entries={})
+        latest=max(health['entries'], default=None)
+        return dict(daily=daily, daily_result=health['entries'].get(latest), root=str(self.root), backup_dir=cfg['backup_dir'], ledger_id=cfg['ledger_id'], last_backup=backups.get('last_success'), connection=self.connection(), preferences=self.preferences, job=job)
 
     def remember(self, root, user, password):
         root = local(root, directory=True)
@@ -200,13 +206,56 @@ class Developer:
             self.process = self.start(self.root)
         return self.status()
 
+    def configure_daily(self, directory, hidden, hour):
+        if self.job and self.job['state'] in ['running', 'cancelling']:
+            raise RuntimeError('DEVELOPER_BUILD_BUSY')
+        target, hidden = local(directory), local(hidden)
+        if not isinstance(hour, int) or isinstance(hour, bool) or not 0 <= hour <= 23:
+            raise RuntimeError('DAILY_BACKUP_CONFIG_INVALID')
+        self.dev.stop_host(self.process)
+        self.process = None
+        try:
+            self.dev.command(['configure-daily', '--root', str(self.root), '--backup-dir', str(target), '--hidden-dir', str(hidden), '--daily-hour', str(hour), '--admin', self.user], self.password)
+        finally:
+            self.process = self.start(self.root)
+        return self.status()
+
+    def restore_data(self, package, target):
+        if self.job and self.job['state'] in ['running', 'cancelling']:
+            raise RuntimeError('DEVELOPER_BUILD_BUSY')
+        package, target = local(package), local(target)
+        if package.suffix != '.qbackup' or not package.is_file():
+            raise RuntimeError('DATA_BACKUP_INVALID')
+        daily = self.status()['daily']
+        protected = [self.root, Path(self.config()['backup_dir']), self.dev.ROOT]
+        if daily['hidden_dir']:protected.append(Path(daily['hidden_dir']))
+        for location in map(local, protected):
+            if target == location or target in location.parents or location in target.parents:
+                raise RuntimeError('BACKUP_DIRECTORY_CONFLICT')
+        if target.exists() and (not target.is_dir() or any(target.iterdir())):
+            raise RuntimeError('RESTORE_REQUIRES_NEW_DIRECTORY')
+        backup = target.with_name(target.name + '-backups')
+        if backup.exists():raise RuntimeError('RESTORE_REQUIRES_NEW_DIRECTORY')
+        local(target.parent, directory=True)
+        if target.exists():target.rmdir()  # Explicitly selected empty recovery target.
+        user, secret = 'recovery-' + uuid.uuid4().hex[:12], secrets.token_urlsafe(32)
+        self.dev.command(['restore-data', '--package', str(package), '--root', str(target), '--backup-dir', str(backup), '--host', '127.0.0.1', '--host', 'localhost', '--bind', '127.0.0.1', '--port', str(self.dev.PORT), '--admin', user, '--worker', str(self.dev.ROOT / 'target/release' / ('quote-ledger.exe' if os.name == 'nt' else 'quote-ledger')), '--notices', str(self.dev.ROOT / 'THIRD_PARTY_NOTICES.md')], secret)
+        if daily['hidden_dir']:
+            self.dev.command(['configure-daily', '--root', str(target), '--backup-dir', str(backup), '--hidden-dir', daily['hidden_dir'], '--daily-hour', str(daily['daily_hour']), '--admin', user], secret)
+        self.remember(target, user, secret)
+        # Keep the original host running until the imported host has passed full validation.
+        return self.select(str(target), username=user, password=secret)
+
     def package(self, delivery, connection):
         if os.name != 'nt':raise RuntimeError('WINDOWS_PACKAGING_REQUIRED')
         if delivery not in ['manager', 'sales']:raise RuntimeError('DELIVERY_REQUIRED')
+        hidden = self.status()['daily']['hidden_dir']
         with self.job_lock:
             if self.job and self.job['state'] in ['running', 'cancelling']:raise RuntimeError('DEVELOPER_BUILD_BUSY')
             output = package_preferences(self.preferences)
-            for protected in map(local, [self.root, Path(self.config()['backup_dir']), self.dev.ROOT]):
+            locations = [self.root, Path(self.config()['backup_dir']), self.dev.ROOT]
+            if hidden:locations.append(Path(hidden))
+            for protected in map(local, locations):
                 if output == protected or protected in output.parents or output in protected.parents:
                     raise RuntimeError('DEVELOPER_OUTPUT_CONFLICT')
             output.mkdir(parents=True, exist_ok=True)
@@ -274,6 +323,8 @@ class Developer:
             if op == 'bootstrap':return dict(connection=self.connection(), username=self.user, password=self.password)
             if op == 'select':return self.select(data['root'], initialize=data['initialize'], backup_dir=data['backup_dir'], username=data.get('username'), password=data.get('password'))
             if op == 'backup_directory':return self.configure_backup(data['directory'])
+            if op == 'daily_backup':return self.configure_daily(data['directory'], data['hidden'], data['hour'])
+            if op == 'restore_data':return self.restore_data(data['package'], data['target'])
             if op == 'save_package':
                 output = package_preferences(data)
                 preferences = {**self.preferences, 'output':str(output), 'version':data['version'], 'runtime':data['runtime']}

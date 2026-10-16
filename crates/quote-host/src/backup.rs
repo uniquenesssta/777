@@ -1,6 +1,6 @@
 use crate::{
     auth::{self, Auth},
-    fail, files, host, number,
+    fail, files, host,
     outputs::Outputs,
     protocol,
     service::Service,
@@ -8,12 +8,12 @@ use crate::{
 };
 use quote_ledger::{
     integrity,
-    store::{self, id, uid},
+    store::{self, id},
 };
 use rusqlite::params;
 use serde_json::{json, Value};
 use std::{
-    collections::{BTreeMap, BTreeSet},
+    collections::BTreeSet,
     fs,
     path::{Path, PathBuf},
 };
@@ -45,7 +45,7 @@ fn manager(s: &Service) -> Result<(PathBuf, Value)> {
 pub fn status(s: &Service) -> Result<Value> {
     Ok(manager(s)?.1)
 }
-fn accounts(ledger: &Path, auth: &Auth) -> Result<()> {
+pub(crate) fn accounts(ledger: &Path, auth: &Auth) -> Result<()> {
     let c = store::open(ledger, false)?;
     let mut st=c.prepare("SELECT owner_id FROM orders UNION SELECT author_id FROM notes UNION SELECT actor_id FROM requests UNION SELECT published_by FROM price_versions")?;
     let owners = st
@@ -328,212 +328,13 @@ pub fn restore(
     result
 }
 pub fn create(s: &Service, kind: &str) -> Result<Value> {
-    let result = create_inner(s, kind);
-    match &result {
-        Ok(v) => s.auth.record_backup(Some(v), None)?,
-        Err(e) => {
-            let _ = s
-                .auth
-                .record_backup(None, Some(&format!("BACKUP_FAILED:{}", e.code)));
-        }
-    }
-    result
-}
-fn create_inner(s: &Service, kind: &str) -> Result<Value> {
     if !["rolling", "daily", "maintenance"].contains(&kind) {
         return fail(422, "INVALID_BACKUP_KIND");
     }
-    let (root, _) = manager(s)?;
-    let index = root.join("777-backups.json");
-    let _lock = files::Lock::acquire(&index)?;
-    let mut data = files::read_json(&index)?;
-    let key = uid()?;
-    let partial = root.join(format!(".{key}.partial"));
-    let final_ledger = root.join(&key);
-    files::new_dir(&partial)?;
-    let parent = root.join("service-bundles");
-    let service_index = root.join("777-service-backups.json");
-    let _service_lock = files::Lock::acquire(&service_index)?;
-    if !service_index.exists() {
-        if parent.exists() {
-            return fail(409, "UNOWNED_BACKUP_DIRECTORY");
-        }
-        files::new_dir(&parent)?;
-        files::replace_json(
-            &service_index,
-            &json!({"format":"777-service-backups-v1","ledger_id":s.config["ledger_id"],"entries":[]}),
-        )?;
-    }
-    let mut bundles = files::read_json(&service_index)?;
-    if bundles["format"] != "777-service-backups-v1"
-        || bundles["ledger_id"] != s.config["ledger_id"]
-    {
-        return fail(503, "SERVICE_BACKUP_INDEX_INVALID");
-    }
-    let bundle = parent.join(format!(".{key}.partial"));
-    let final_bundle = parent.join(&key);
-    files::new_dir(&bundle)?;
-    let result = (|| -> Result<Value> {
-        let inventory = integrity::backup(&s.ledger, &partial.join("ledger.sqlite3"))?;
-        let sha = files::sha(&partial.join("ledger.sqlite3"))?;
-        let created = store::now();
-        let ledger_manifest = json!({"format":"777-ledger-backup-v1","backup_id":key,"kind":kind,"created_at":created,"sha256":sha,"inventory":inventory,"attachments":[],"attachment_scope":"Ledger-only snapshot; complete attachments and runtime resources are in service_bundle."});
-        files::replace_json(&partial.join("manifest.json"), &ledger_manifest)?;
-        files::copy(
-            &partial.join("ledger.sqlite3"),
-            &bundle.join("ledger.sqlite3"),
-        )?;
-        files::snapshot(
-            &s.auth.path,
-            &bundle.join("auth.sqlite3"),
-            auth::APP,
-            auth::DDL,
-        )?;
-        let private = s.root.join("private");
-        let mut names = BASE.iter().map(|n| n.to_string()).collect::<Vec<_>>();
-        for name in ["tls-key.pem", "tls-cert.pem", "service.json"] {
-            files::copy(&private.join(name), &bundle.join(name))?;
-        }
-        let mut format = "777-service-bundle-v1";
-        if s.config.get("rust_worker_sha256").is_some() {
-            for name in WORKER {
-                files::copy(&private.join(name), &bundle.join(name))?;
-                names.push(name.into());
-            }
-            format = "777-service-bundle-v3";
-        }
-        if let Some(o) = &s.outputs {
-            names.extend(o.backup(&bundle)?);
-            if format == "777-service-bundle-v1" {
-                format = "777-service-bundle-v2";
-            }
-        }
-        if s.config.get("rust_host_sha256").is_some() {
-            for name in HOST {
-                files::copy(&private.join(name), &bundle.join(name))?;
-                names.push(name.into());
-            }
-            format = "777-service-bundle-v4";
-        }
-        if let Some(d) = &s.devices {
-            files::snapshot(
-                &d.path,
-                &bundle.join("devices.sqlite3"),
-                crate::devices::APP,
-                crate::devices::DDL,
-            )?;
-            names.push("devices.sqlite3".into());
-            format = "777-service-bundle-v5";
-        }
-        let filesmap = names
-            .iter()
-            .map(|n| Ok((n.clone(), files::sha(&bundle.join(n))?)))
-            .collect::<Result<BTreeMap<_, _>>>()?;
-        let m = json!({"format":format,"backup_id":key,"ledger_id":inventory["ledger_id"],"files":filesmap,"inventory":inventory});
-        files::replace_json(&bundle.join("manifest.json"), &m)?;
-        manifest(&bundle)?;
-        let verify = parent.join(format!(".verify-{key}"));
-        let c = s.auth.connection()?;
-        let user: String = c.query_row(
-            "SELECT username FROM users WHERE role='admin' ORDER BY username LIMIT 1",
-            [],
-            |r| r.get(0),
-        )?;
-        drop(c);
-        let password = base64::Engine::encode(
-            &base64::engine::general_purpose::URL_SAFE_NO_PAD,
-            auth::random::<24>()?,
-        );
-        let restored = restore(&bundle, &verify, &user, &password, s.auxiliary);
-        if verify.exists() {
-            fs::remove_dir_all(&verify)?;
-        }
-        if restored?["inventory"] != inventory {
-            return fail(503, "BACKUP_RESTORE_MISMATCH");
-        }
-        let entry = json!({"backup_id":key,"kind":kind,"created_at":created,"sha256":sha,"verified_restore":true,"service_bundle":final_bundle.to_string_lossy(),"full_service_verified":true});
-        fs::rename(&partial, &final_ledger)?;
-        fs::rename(&bundle, &final_bundle)?;
-        let mut ledger_entry = entry.clone();
-        ledger_entry
-            .as_object_mut()
-            .unwrap()
-            .remove("service_bundle");
-        ledger_entry
-            .as_object_mut()
-            .unwrap()
-            .remove("full_service_verified");
-        data["backups"]
-            .as_array_mut()
-            .ok_or_else(|| Error::new(503, "BACKUP_STORE_IDENTITY_CONFLICT"))?
-            .push(ledger_entry.clone());
-        data["last_success"] = ledger_entry;
-        data["last_error"] = Value::Null;
-        bundles["entries"]
-            .as_array_mut()
-            .ok_or_else(|| Error::new(503, "SERVICE_BACKUP_INDEX_INVALID"))?
-            .push(entry.clone());
-        files::replace_json(&service_index, &bundles)?;
-        files::replace_json(&index, &data)?;
-        Ok(entry)
-    })();
-    if let Err(e) = &result {
-        if partial.exists() {
-            let _ = fs::remove_dir_all(&partial);
-        }
-        if bundle.exists() {
-            let _ = fs::remove_dir_all(&bundle);
-        }
-        data["last_error"] = json!({"at":store::now(),"reason":e.code});
-        let _ = files::replace_json(&index, &data);
-    }
-    result
+    crate::daily_backup::create(s)
 }
 pub fn due(s: &Service) -> Result<Option<Value>> {
-    let (_, data) = manager(s)?;
-    let p = s.auth.backup_plan()?;
-    let now = time::OffsetDateTime::now_utc().to_offset(
-        time::UtcOffset::from_whole_seconds((number(&p["offset_minutes"])? * 60) as i32)
-            .map_err(|_| Error::new(422, "INVALID_BACKUP_PLAN"))?,
-    );
-    let parse = |v: &Value| -> Result<time::OffsetDateTime> {
-        time::OffsetDateTime::parse(
-            protocol::text(v, 128, true)?,
-            &time::format_description::well_known::Rfc3339,
-        )
-        .map_err(|_| Error::new(503, "BACKUP_INDEX_INVALID"))
-    };
-    let daily = data["backups"].as_array().unwrap().iter().any(|v| {
-        v["kind"] == "daily"
-            && parse(&v["created_at"])
-                .ok()
-                .is_some_and(|d| d.to_offset(now.offset()).date() == now.date())
-    });
-    let kind = if now.hour() as i64 >= number(&p["daily_hour"])? && !daily {
-        "daily"
-    } else {
-        "rolling"
-    };
-    if kind == "rolling" && !data["last_success"].is_null() {
-        let latest = &data["last_success"];
-        let root = PathBuf::from(s.config["backup_dir"].as_str().unwrap());
-        let key = protocol::text(&latest["backup_id"], 36, true)?;
-        id(key)?;
-        let m = files::read_json(&root.join(key).join("manifest.json"))?;
-        if m["inventory"]["revision"] == store::verify(&store::open(&s.ledger, false)?)?["revision"]
-            || now - parse(&latest["created_at"])?
-                < time::Duration::minutes(number(&p["interval_minutes"])?)
-        {
-            return Ok(None);
-        }
-    }
-    let entry = create(s, kind)?;
-    retain(
-        s,
-        number(&p["rolling"])? as usize,
-        number(&p["daily"])? as usize,
-    )?;
-    Ok(Some(entry))
+    crate::daily_backup::due(s)
 }
 pub fn retain(s: &Service, rolling: usize, daily: usize) -> Result<()> {
     let (root, _) = manager(s)?;

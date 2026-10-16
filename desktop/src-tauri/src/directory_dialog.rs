@@ -10,8 +10,8 @@ use windows::{
         },
         UI::Shell::{
             FileOpenDialog, IFileOpenDialog, IShellItem, SHCreateItemFromParsingName,
-            FOS_FORCEFILESYSTEM, FOS_NOCHANGEDIR, FOS_PATHMUSTEXIST, FOS_PICKFOLDERS,
-            SIGDN_FILESYSPATH,
+            FOS_FILEMUSTEXIST, FOS_FORCEFILESYSTEM, FOS_NOCHANGEDIR, FOS_PATHMUSTEXIST,
+            FOS_PICKFOLDERS, SIGDN_FILESYSPATH,
         },
     },
 };
@@ -28,7 +28,7 @@ fn allowed_path(path: &str, local: bool) -> bool {
         path.starts_with("\\\\")
     }
 }
-pub fn pick(owner: isize, initial: &str, local: bool) -> Result<Option<String>> {
+pub fn pick(owner: isize, initial: &str, local: bool, file: bool) -> Result<Option<String>> {
     unsafe {
         CoInitializeEx(None, COINIT_APARTMENTTHREADED)
             .ok()
@@ -40,14 +40,20 @@ pub fn pick(owner: isize, initial: &str, local: bool) -> Result<Option<String>> 
             dialog
                 .SetOptions(
                     dialog.GetOptions().map_err(unavailable)?
-                        | FOS_PICKFOLDERS
+                        | if file {
+                            FOS_FILEMUSTEXIST
+                        } else {
+                            FOS_PICKFOLDERS
+                        }
                         | FOS_FORCEFILESYSTEM
                         | FOS_PATHMUSTEXIST
                         | FOS_NOCHANGEDIR,
                 )
                 .map_err(unavailable)?;
             dialog
-                .SetTitle(&HSTRING::from(if local {
+                .SetTitle(&HSTRING::from(if file {
+                    "选择 .qbackup 恢复文件"
+                } else if local {
                     "选择本机文件夹"
                 } else {
                     "选择共享保存文件夹"

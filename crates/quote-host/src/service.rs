@@ -401,7 +401,7 @@ impl Service {
             ("GET", "/v1/backup") => {
                 Auth::admin(&a)?;
                 let status=backup::status(self).unwrap_or_else(|_|json!({"status":"unavailable","last_success":self.auth.backup_health().ok().map(|h|h["last_success"].clone())}));
-                let mut v = json!({"target":self.config["backup_dir"],"plan":self.auth.backup_plan()?,"service_health":self.auth.backup_health()?});
+                let mut v = json!({"target":self.config["backup_dir"],"plan":{"daily_hour":crate::daily_backup::config(self)?["daily_hour"],"utc_offset_minutes":480,"kind":"daily","automatic_retention":false},"service_health":self.auth.backup_health()?});
                 v.as_object_mut()
                     .unwrap()
                     .extend(status.as_object().unwrap().clone());
@@ -412,7 +412,10 @@ impl Service {
                 fields(data, &["kind"], &[])?;
                 backup::create(self, text(&data["kind"], 32, true)?)
             }
-            ("POST", "/v1/backup-plan") => self.auth.save_backup_plan(&a, data),
+            ("POST", "/v1/backup-plan") => {
+                Auth::admin(&a)?;
+                fail(403, "BACKUP_PLAN_DEVELOPER_ONLY")
+            }
             _ => {
                 if method == "GET" && path.starts_with("/v1/orders/") {
                     return self.order(&a, &path[11..]);

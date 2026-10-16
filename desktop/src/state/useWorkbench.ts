@@ -551,7 +551,7 @@ export function useWorkbench() {
     async developerOperation(operation: Record<string, unknown>) {
       return run(async () => {
         const result = await request<{connection:{certificate_sha256:string}}>("developer", {request:operation});
-        if (operation.op === "select") {
+        if (operation.op === "select" || operation.op === "restore_data") {
           bindDeveloperDraft(result.connection.certificate_sha256);
           window.location.reload();
         }

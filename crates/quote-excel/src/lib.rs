@@ -1,5 +1,6 @@
 //! Bounded read-only OOXML evidence and newly created 777-output-v1 reports.
 //! No existing workbook editor, formula engine, or financial calculator.
+pub mod backup;
 pub mod read;
 pub mod write;
 use base64::{engine::general_purpose::STANDARD, Engine};
