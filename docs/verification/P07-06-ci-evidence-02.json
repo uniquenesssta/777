@@ -1,0 +1,461 @@
+{
+  "task": "P07-06",
+  "run_id": 38951410596,
+  "source_commit": "5662c7651a3cf958ee9125365fda178babffb0cf",
+  "jobs": [
+    {
+      "id": 117143700038,
+      "name": "installers (sales)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 117143700192,
+      "name": "installers (manager)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 117143700381,
+      "name": "desktop-contracts",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12070860706,
+      "name": "p07-01-windows-evidence",
+      "size_in_bytes": 4128570,
+      "digest": "sha256:55da59de0a7d14ddb50a3e90b045a857275abd949ebe4fcf15f589647e757113",
+      "downloaded_and_zip_hash_verified": true
+    },
+    {
+      "id": 12070490832,
+      "name": "p07-05-manager-developer-ui",
+      "size_in_bytes": 1027978,
+      "digest": "sha256:8849748542860bac0dad68bbd8cbfc367e51a94822673b8e8f70816804b222b7",
+      "downloaded_and_zip_hash_verified": true
+    },
+    {
+      "id": 12070126767,
+      "name": "p07-05-sales-developer-ui",
+      "size_in_bytes": 1020141,
+      "digest": "sha256:079cfa3eef8dff6e17341a688c2eb1ae86f42514e4f8a97597cfa42d6dab802f",
+      "downloaded_and_zip_hash_verified": true
+    },
+    {
+      "id": 12069687022,
+      "name": "p07-04-manager-isolated-installers",
+      "size_in_bytes": 271086320,
+      "digest": "sha256:945e86a8a089e5f8f9f966a6610a3f9eab018cccb9b442c2ddeeb5b603d7cb01",
+      "downloaded_and_zip_hash_verified": false
+    },
+    {
+      "id": 12069234738,
+      "name": "p07-04-sales-isolated-installers",
+      "size_in_bytes": 271080755,
+      "digest": "sha256:931e99f17e64fb667637347191d751574659f7919a5563ecad101496a0703218",
+      "downloaded_and_zip_hash_verified": false
+    }
+  ],
+  "rust_workspace_tests": 81,
+  "run_url": "https://github.com/uniquenesssta/777/actions/runs/38951410596",
+  "conclusion": "success",
+  "production_paths_accessed": false,
+  "previous_run": {
+    "id": 38949419759,
+    "source_commit": "bfe0326ef7f4617bde1848e15e698d1096fcfef3",
+    "installers": "failed as recorded in P07-06-ci-evidence-01.json",
+    "desktop_contracts": "cancelled by corrected push during release compilation; prior Rust tests passed"
+  },
+  "developer_backup_recovery": {
+    "task": "P07-06",
+    "platform": "nt",
+    "scope": "real debug native IPC, private controller and Rust HTTPS; no UI substitute",
+    "credential_storage": "Windows DPAPI",
+    "checks": [
+      "A_B_A_real_prices_orders_and_exact_totals_isolated",
+      "nonempty_initialization_keeps_original_files_and_active_source",
+      "dual_formats_identical_in_both_destinations_independent_failures_retry_same_snapshot_no_legacy_deletion",
+      "public_API_cannot_change_daily_policy_or_observe_hidden_destination",
+      "real_native_import_restores_business_view_preserves_original_rejects_corruption_future_version_and_overwrite",
+      "saved_config_and_credentials_restart_with_same_actual_ledger"
+    ],
+    "status": "passed",
+    "production_paths_accessed": false,
+    "backup": {
+      "ledger_id": "7e461402-67f9-4dfd-9756-2c82dd20be37",
+      "snapshot_id": "1690bbdc-e719-4c35-b4bb-8cd4ff4be394",
+      "hashes": {
+        "data.qbackup": "f30df19c4b57bfc2cc78f2b71a73012b66c788315550fe81fbe75953fdd7c1f5",
+        "data.xlsx": "9e6bbc368c6f072e17447ab337eabdab74a9f9e9d12bc47ceb1537787eccb18c"
+      },
+      "bytes": {
+        "data.qbackup": 5118,
+        "data.xlsx": 22734
+      }
+    }
+  },
+  "developer_ui": {
+    "sales": {
+      "job": {
+        "bytes": 35050469,
+        "delivery": "sales",
+        "error": null,
+        "id": "05d65d9111d44406ab1d6576567a0900",
+        "output": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\777-p06-native-host-dhn0vz27\\developer\\packages\\sales-0.1.0-05d65d91",
+        "source_commit": "5662c7651a3cf958ee9125365fda178babffb0cf",
+        "state": "succeeded",
+        "version": "0.1.0"
+      },
+      "startup": {
+        "elapsed_ms": 1507,
+        "ready": true,
+        "contexts": 1,
+        "pages": [
+          {
+            "url": "http://tauri.localhost/",
+            "closed": false
+          }
+        ]
+      },
+      "metrics": {
+        "native": {
+          "width": 1028,
+          "height": 749,
+          "dpr": 1
+        },
+        "comparison": "1440x884 and 720x900 are CDP viewport emulations, not physical monitor or OS DPI claims"
+      },
+      "close": {
+        "status": "passed",
+        "exit_code": 0,
+        "forced_termination": false,
+        "elapsed_seconds": 0.218
+      },
+      "screenshots_sha256": {
+        "developer-restored.png": "d7009e70d6a3a021c0e3fba6bc39bd246f3e3c821e11c21e2373f08a1e8ced10",
+        "developer-building.png": "a8ea4a5bf49a20cd4b7d99d21b698e96aa37af087aca34b73e96161fdaa4b7de",
+        "developer-native-window.png": "cc62581f62752e0efa0e54792cc94e4081bdc2bd2513ca6fd8fcec9b2c60d00e",
+        "developer-new-ledger-prices.png": "d3652127261f708951d38852586426102d7a4202edef03973097f7c28728f736",
+        "developer-ready.png": "3fd8ed612bf0169d9a49c401a8f2fdea65a06bea924b9688dc665bfc8fc02c0d",
+        "developer-narrow.png": "38171cd1cc199f731f2c7ee975d43332400cf27269b4c38b5dbd1227651ef021",
+        "developer-restore-dialog.png": "dbc4c7938f65079875f28efd4470f4631967d6d8771e7e740248a0f7f433617a",
+        "developer-create-dialog.png": "06b4b42ba528400d3586f3c55f5343d8c9f1c3f4eff8b8bc3d5b9d182345a326",
+        "developer-succeeded.png": "c457135c631e09da94b8e6ee6dc7921d978517e6031e6d778807536b79d16e5b"
+      }
+    },
+    "manager": {
+      "job": {
+        "bytes": 35048284,
+        "delivery": "manager",
+        "error": null,
+        "id": "39ed5d22d8c142bfb3b634edac0e7045",
+        "output": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\777-p06-native-host-e79p6gvf\\developer\\packages\\manager-0.1.0-39ed5d22",
+        "source_commit": "5662c7651a3cf958ee9125365fda178babffb0cf",
+        "state": "succeeded",
+        "version": "0.1.0"
+      },
+      "startup": {
+        "elapsed_ms": 414,
+        "ready": true,
+        "contexts": 1,
+        "pages": [
+          {
+            "url": "http://tauri.localhost/",
+            "closed": false
+          }
+        ]
+      },
+      "metrics": {
+        "native": {
+          "width": 1028,
+          "height": 749,
+          "dpr": 1
+        },
+        "comparison": "1440x884 and 720x900 are CDP viewport emulations, not physical monitor or OS DPI claims"
+      },
+      "close": {
+        "status": "passed",
+        "exit_code": 0,
+        "forced_termination": false,
+        "elapsed_seconds": 0.203
+      },
+      "screenshots_sha256": {
+        "developer-restored.png": "0d886c425c3d214d7927f0522310ac36f8f549617caf410fad28e86b6835a7f4",
+        "developer-building.png": "d7de17be0bf0ff61fbca1efb55be82f357c3c123dfb1f65999077a3e081067b8",
+        "developer-native-window.png": "f4c55185530e90646f80cc102003411d156d69f84d194252fe555d9af1cd6749",
+        "developer-new-ledger-prices.png": "d3652127261f708951d38852586426102d7a4202edef03973097f7c28728f736",
+        "developer-ready.png": "f72c4e93e1ce720691ba7e7b9eb57f50916e316d7c39c9b1c9f5a2cdc9c30065",
+        "developer-narrow.png": "3869f30c88d564c056a89a356515a2a8782a3314b3d08d56ebeb0f7066f41e59",
+        "developer-restore-dialog.png": "bea9ce776d0d9509d797b4ce842ab35f7cc83307848e8f7ca9088d640e8ee681",
+        "developer-create-dialog.png": "ce32047550bcc3bb5f8344508a639d217b4748f88ae4a8a1f7e7f14d4ab2fd3f",
+        "developer-succeeded.png": "b1a516550bf4ce72b56ccd38be9c7fb158cb640c4f104f3a00a2f81b4724d7e9"
+      }
+    }
+  },
+  "installer_lifecycle": {
+    "sales": {
+      "source_commit": "5662c7651a3cf958ee9125365fda178babffb0cf",
+      "status": "actual_Windows_installer_lifecycle_and_native_auth_passed_user_acceptance_pending",
+      "checks": [
+        "P07_05_actual_developer_UI_button_built_role_NSIS_package",
+        "two_real_role_locked_NSIS_packages_and_manifests_built",
+        "cross_role_install_directory_rejected",
+        "first-install_real_installed_native_auth_and_natural_close",
+        "upgrade_real_installed_native_auth_and_natural_close",
+        "unreviewed_direct_downgrade_rejected",
+        "compatible-rollback_real_installed_native_auth_and_natural_close",
+        "upgrade_uninstall_and_controlled_rollback_preserve_DPAPI_identity_and_webview_directory"
+      ],
+      "runner_elevated": true,
+      "package_versions": [
+        "0.1.0",
+        "0.1.1"
+      ],
+      "sandbox_cleanup": {
+        "status": "passed",
+        "timeout_seconds": 20,
+        "attempts": 1,
+        "transient_errors": [],
+        "sandbox_cleaned": true,
+        "forced_browser_termination": false,
+        "temporary_root": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\777-p06-native-host-dhn0vz27",
+        "elapsed_seconds": 0.469
+      },
+      "close": {
+        "initial": {
+          "status": "passed",
+          "exit_code": 0,
+          "forced_termination": false,
+          "elapsed_seconds": 0.109
+        },
+        "upgrade": {
+          "status": "passed",
+          "exit_code": 0,
+          "forced_termination": false,
+          "elapsed_seconds": 0.141
+        },
+        "rollback": {
+          "status": "passed",
+          "exit_code": 0,
+          "forced_termination": false,
+          "elapsed_seconds": 0.11
+        }
+      }
+    },
+    "manager": {
+      "source_commit": "5662c7651a3cf958ee9125365fda178babffb0cf",
+      "status": "actual_Windows_installer_lifecycle_and_native_auth_passed_user_acceptance_pending",
+      "checks": [
+        "P07_05_actual_developer_UI_button_built_role_NSIS_package",
+        "two_real_role_locked_NSIS_packages_and_manifests_built",
+        "cross_role_install_directory_rejected",
+        "first-install_real_installed_native_auth_and_natural_close",
+        "upgrade_real_installed_native_auth_and_natural_close",
+        "unreviewed_direct_downgrade_rejected",
+        "compatible-rollback_real_installed_native_auth_and_natural_close",
+        "upgrade_uninstall_and_controlled_rollback_preserve_DPAPI_identity_and_webview_directory"
+      ],
+      "runner_elevated": true,
+      "package_versions": [
+        "0.1.0",
+        "0.1.1"
+      ],
+      "sandbox_cleanup": {
+        "status": "passed",
+        "timeout_seconds": 20,
+        "attempts": 1,
+        "transient_errors": [],
+        "sandbox_cleaned": true,
+        "forced_browser_termination": false,
+        "temporary_root": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\777-p06-native-host-e79p6gvf",
+        "elapsed_seconds": 0.25
+      },
+      "close": {
+        "initial": {
+          "status": "passed",
+          "exit_code": 0,
+          "forced_termination": false,
+          "elapsed_seconds": 0.079
+        },
+        "upgrade": {
+          "status": "passed",
+          "exit_code": 0,
+          "forced_termination": false,
+          "elapsed_seconds": 0.266
+        },
+        "rollback": {
+          "status": "passed",
+          "exit_code": 0,
+          "forced_termination": false,
+          "elapsed_seconds": 0.266
+        }
+      }
+    }
+  },
+  "desktop_contracts": {
+    "python": {
+      "total": 48,
+      "passed": 47,
+      "skipped": 1,
+      "skip_reason": "POSIX symlink case; Windows reparse tests are separate"
+    },
+    "frontend_tests": 33,
+    "browser_tests": {
+      "startTime": "2026-10-16T19:16:55.642Z",
+      "duration": 162394.661,
+      "expected": 26,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "fmt": "passed",
+    "strict_clippy": "passed",
+    "host_protocol": {
+      "status": "passed",
+      "checks": [
+        "certificate_pin_rejected_before_request",
+        "real_Rust_HTTPS_login_no_token_crosses_IPC",
+        "exact_cents_revision_and_frozen_draft_submission",
+        "append_only_note_void_restore_original_amount_and_revision",
+        "full_20_row_pagination_and_view_binding",
+        "authoritative_calendar_analytics_over_all_pages_through_native_HTTPS",
+        "exact_rolling_24_hours_reaches_service_and_future_interval_is_empty",
+        "authoritative_profit_OHLC_survives_native_IPC_and_HTTPS_with_empty_bucket_continuity",
+        "native_output_task_does_not_rebook_financial_order",
+        "sales_DTO_other_actor_and_management_commands_restricted",
+        "sales_native_analytics_and_directory_dialog_denied",
+        "service_independently_denies_sales_analytics_over_real_HTTPS",
+        "native_host_and_desktop_restart_original_receipt_identity_and_no_duplicate",
+        "money_above_JavaScript_integer_limit_remains_exact_string",
+        "server_price_change_refuses_stale_confirmation_without_booking",
+        "manual_cost_plus_final_prices_exact_preview_canonical_backup_restore_restart_frozen_orders_and_sales_redaction"
+      ],
+      "actual_transport": "Rust desktop IPC dispatcher -> Rustls pinned HTTPS -> standalone Rust host",
+      "production_paths_accessed": false,
+      "Windows_DPAPI": true,
+      "scope": "owned temporary profile, synthetic accounts/prices/orders, no installed service or real data",
+      "sandbox_cleaned": true
+    },
+    "device_protocol": {
+      "status": "passed",
+      "checks": [
+        "manager_native_bootstrap_without_secret_IPC",
+        "formal_manual_login_direct_invoke_rejected",
+        "two_devices_same_stable_sales_actor_and_filtered_prices",
+        "restart_uses_same_DPAPI_device_and_actor",
+        "sales_cannot_read_other_actor_or_backups",
+        "same_actor_devices_share_own_orders_only",
+        "expired_session_recovers_without_password_or_identity_change",
+        "unknown_commit_restart_queries_original_receipt_without_duplicate",
+        "copied_credential_rejected_in_other_profile",
+        "one_device_revocation_rejects_live_session_without_affecting_peer",
+        "operator_new_grant_reauthorizes_revoked_device_without_deleting_pending",
+        "v1_data_restore_preserves_ledger_without_old_devices_sessions_grants"
+      ],
+      "Windows_DPAPI": true,
+      "production_paths_accessed": false
+    },
+    "native_business": [
+      {
+        "delivery": "manager",
+        "status": "passed",
+        "actual_IPC_HTTPS_submit": true,
+        "published_images": {
+          "files": [
+            {
+              "width": 1200,
+              "height": 1840,
+              "job_id": "09690313-b099-4a6e-aaa4-94b15894daef",
+              "sha256": "64cefb551c1c7eb3dd9b8ca9c4cf9a4519c6bde10fc3ca064eb3ad9dbde825b2"
+            },
+            {
+              "width": 1200,
+              "height": 1840,
+              "job_id": "82e7df5c-0ca0-4af6-8111-7496acdf9761",
+              "sha256": "f967b2a98137de48089d6388012208476a0dc380a0e180a69b35751ca89ee78a"
+            }
+          ],
+          "Chinese_path": true,
+          "no_overwrite": true,
+          "order_count_unchanged": true,
+          "saved_lines": 40,
+          "last_line_pixels_present": true
+        },
+        "actual_OS_window_DPI": 96,
+        "natural_close_seconds": 0.062,
+        "sandbox_cleaned": true
+      },
+      {
+        "delivery": "sales",
+        "status": "passed",
+        "actual_IPC_HTTPS_submit": true,
+        "published_images": {
+          "files": [
+            {
+              "width": 1200,
+              "height": 1840,
+              "job_id": "7dd3a7aa-c885-42cb-9339-44f2e7d5b205",
+              "sha256": "f8207cf1db3be2e7d248768e6e3802aae59278b6841890ed6db21b62f44230a7"
+            },
+            {
+              "width": 1200,
+              "height": 1840,
+              "job_id": "b637d5e6-998e-43d1-9502-bf676c05ddf7",
+              "sha256": "c24cde30de463b3a30715e912af041a5f40930da448421f2ce80c239cbeb4ff5"
+            }
+          ],
+          "Chinese_path": true,
+          "no_overwrite": true,
+          "order_count_unchanged": true,
+          "saved_lines": 40,
+          "last_line_pixels_present": true
+        },
+        "actual_OS_window_DPI": 96,
+        "natural_close_seconds": 0.109,
+        "sandbox_cleaned": true
+      }
+    ]
+  },
+  "fingerprints_against_tested_commit": {
+    "p07-01-ci": {
+      "entries": 91,
+      "tracked_matches": 91,
+      "not_in_commit": [],
+      "mismatches": [],
+      "worktree_dirty": false
+    },
+    "p07-03-ci": {
+      "entries": 169,
+      "tracked_matches": 168,
+      "not_in_commit": [
+        "desktop/src-tauri/permissions/autogenerated/desktop_action.toml"
+      ],
+      "mismatches": [],
+      "worktree_dirty": false
+    }
+  },
+  "evidence_report_sha256": {
+    "p07-06-ci/report.json": "01cbfa59babb02a267dcfcabd7207bdbacae4a84694eff7e5a4611ddbedb3b3c",
+    "p07-03-ci/report.json": "a89cd90fd8e5aa60e070af510f38aed8d89fd3b869dff5aaf8f174c8009dafe0",
+    "p07-01-ci/report.json": "1129818919e87f373dd91c7362e8eec6bb402a3d4a988e15402f4810dca5247e"
+  },
+  "visual_review": {
+    "reviewed": [
+      "sales developer restore dialog 1440x884",
+      "sales restored data source 1440x884",
+      "sales narrow viewport 720x900",
+      "manager native window 1028x749"
+    ],
+    "result": "No observed overlap; compact existing purple/gray components and horizontal fields retained. Native window and emulated viewports are recorded separately; not user visual sign-off."
+  },
+  "remaining_acceptance": [
+    "Actual Microsoft Excel/WPS version and visual opening on the user machine; openpyxl/calamine parsing is not that acceptance.",
+    "User developer UI, folder picker and local path permissions acceptance; P07-05 remains pending user sign-off.",
+    "Non-elevated/clean-WebView2 target machine and physical DPI/multimonitor observations retain the existing P07/P08 handoff boundary."
+  ],
+  "stage_status": "Implementation and Windows automated checks complete; P07-06 awaits user/Excel acceptance; P08 not started.",
+  "source_after_validation": "Final evidence commit changes documentation only; tested executable source remains 5662c7651a3cf958ee9125365fda178babffb0cf."
+}
