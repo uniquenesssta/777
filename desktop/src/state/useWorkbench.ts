@@ -224,7 +224,7 @@ export function useWorkbench() {
           username,
           password,
         });
-        const p = await request<Catalog>("prices");
+        const p = await request<Catalog>("prices").catch(e => { if(errorCode(e) === "PRICES_NOT_PUBLISHED") return null; throw e; });
         const dirs = await request<Preferences>("settings");
         return { s, p, dirs };
       },
@@ -236,7 +236,7 @@ export function useWorkbench() {
         setPending(s.pending);
         setCatalog(p);
         setPreferences(dirs);
-        dispatch({ type: "prices", version: p.price_version_id });
+        if(p) dispatch({ type: "prices", version: p.price_version_id });
         setRoute("quote");
       },
     );
@@ -290,7 +290,7 @@ export function useWorkbench() {
       () => request<Catalog>("prices"),
       (p) => {
         setCatalog(p);
-        dispatch({ type: "prices", version: p.price_version_id });
+        if(p) dispatch({ type: "prices", version: p.price_version_id });
       },
     );
   const calculate = () => {

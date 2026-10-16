@@ -85,6 +85,14 @@ class DeveloperTests(unittest.TestCase):
         self.dev.command.assert_not_called()
         self.dev.stop_host.assert_not_called()
 
+    def test_explicit_reauthentication_replaces_stale_saved_password_only_after_validation(self):
+        b = self.host(self.base / 'B', 'b')
+        self.operator.remember(b, 'admin', 'old-secret')
+        with patch.object(self.operator, 'start', return_value=object()):
+            self.operator.select(str(b), username='admin', password='new-secret')
+        self.dev.command.assert_called_once_with(['authorize', '--root', str(b), '--admin', 'admin'], 'new-secret')
+        self.assertEqual(self.operator.credentials[str(b)]['password'], 'new-secret')
+
     def test_configuration_is_persistent_and_invalid_version_keeps_previous(self):
         self.operator.handle(dict(op='save_package', output=str(self.base / 'packages'), version='1.2.3', runtime='offlineInstaller'))
         before = self.operator.preferences_file.read_bytes()

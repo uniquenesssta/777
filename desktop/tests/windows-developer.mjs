@@ -1,6 +1,7 @@
 // Real debug Tauri window → typed native IPC → private launcher → real NSIS build.
 import { chromium, expect } from '@playwright/test';
 import fs from 'node:fs';
+import path from 'node:path';
 import { connectNativeBrowser } from './native-cdp.mjs';
 const [port, output, delivery, version, destination] = process.argv.slice(2);
 const browser = await connectNativeBrowser((endpoint, options) => chromium.connectOverCDP(endpoint, options), `http://127.0.0.1:${port}`);
@@ -18,6 +19,22 @@ try {
   await expect(page.getByRole('dialog')).toContainText('当前账本与草稿保留');
   await capture('developer-create-dialog');
   await page.getByRole('dialog').getByRole('button',{name:'取消',exact:true}).click();
+  const original = await page.getByLabel('存储位置',{exact:true}).inputValue();
+  await page.getByLabel('存储位置',{exact:true}).fill(path.join(path.dirname(destination),'新建账本'));
+  await page.getByLabel('备份位置',{exact:true}).fill(path.join(path.dirname(destination),'新建备份'));
+  await page.getByRole('button',{name:'新建空账本',exact:true}).click();
+  await page.getByRole('dialog').getByRole('button',{name:'创建并读取',exact:true}).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0,{timeout:60000});
+  await expect(page.getByRole('region',{name:'开发部署'})).toHaveCount(0,{timeout:60000});
+  await page.getByRole('button',{name:'价格维护',exact:true}).click();
+  await expect(page.getByRole('button',{name:'＋ 添加商品',exact:true})).toBeEnabled({timeout:15000});
+  await capture('developer-new-ledger-prices');
+  await page.getByRole('button',{name:'开发部署',exact:true}).click();
+  await page.getByLabel('存储位置',{exact:true}).fill(original);
+  await page.getByRole('button',{name:'读取此位置',exact:true}).click();
+  await expect(page.getByRole('region',{name:'开发部署'})).toHaveCount(0,{timeout:60000});
+  await page.getByRole('button',{name:'开发部署',exact:true}).click();
+  await expect(page.getByLabel('存储位置',{exact:true})).toHaveValue(original);
   await page.getByLabel('版本号',{exact:true}).fill(version);
   await page.getByLabel('输出位置',{exact:true}).fill(destination);
   await page.getByRole('button',{name:'联网安装',exact:true}).click();

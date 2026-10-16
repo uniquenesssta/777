@@ -327,7 +327,7 @@ impl Desktop {
         }
         self.store.clear("bootstrap.json")?;
         Ok(
-            json!({"delivery":kind,"automatic":true,"session":{"subject":v["subject"],"role":expected,"username":v["username"],"pending":self.has_pending()?}}),
+            json!({"delivery":kind,"automatic":true,"session":{"subject":v["subject"],"role":expected,"username":v["username"],"pending":self.has_pending()?,"pricing_mode_version":caps["pricing_mode_version"]}}),
         )
     }
     async fn execute_inner(&mut self, action: Action) -> Result<Value> {
@@ -416,7 +416,7 @@ impl Desktop {
                 self.store.clear("connection.bin")?;
                 self.store.write("connection.bin", &connection)?;
                 Ok(
-                    json!({"subject":subject,"role":role,"username":username,"pending":self.has_pending()?}),
+                    json!({"subject":subject,"role":role,"username":username,"pending":self.has_pending()?,"pricing_mode_version":capabilities["pricing_mode_version"]}),
                 )
             }
             Action::Disconnect {} => {

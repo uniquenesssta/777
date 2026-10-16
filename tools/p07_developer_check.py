@@ -72,7 +72,7 @@ def main():
             order_a = seed('root-a', '10')
             id_a = controller.status()['ledger_id']
             ipc('developer', request=dict(op='select', root=str(b), initialize=True, backup_dir=str(base / '备份 B')))
-            ipc('bootstrap')
+            assert ipc('bootstrap')['session']['pricing_mode_version'] == 'final-unit-v1'
             id_b = controller.status()['ledger_id']
             assert id_a != id_b
             order_b = seed('root-b', '20')

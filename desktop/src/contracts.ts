@@ -1,5 +1,6 @@
 export type Role = "admin" | "sales";
 export interface Session {
+  pricing_mode_version?: string | null;
   subject: string;
   role: Role;
   username: string;

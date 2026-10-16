@@ -18,6 +18,7 @@ def package_from_window(host, root, delivery, version, release):
     controller = Developer(SimpleNamespace(ROOT=root, DEV=devdir, PORT=host.port, command=command, stop_host=stop_host), host.host_root, host.process)
     host.process = None
     controller.user, controller.password = 'manager', host.password
+    controller.remember(host.host_root, 'manager', host.password)
     profile = host.root / 'desktop'
     connection = controller.connection()
     (profile / 'bootstrap.json').write_text(json.dumps(dict(schema='777-desktop-bootstrap-v1', delivery='development', connection=connection, username='manager', password=host.password)), encoding='utf-8')

@@ -22,7 +22,7 @@ export function PricesPage({ app }: { app: Workbench }) {
   const [confirm, setConfirm] = useState(false);
   const [focusRow, setFocusRow] = useState<string | null>(null);
   const newProduct = useRef<HTMLInputElement>(null);
-  const supported = app.catalog?.pricing_mode_version === "final-unit-v1";
+  const supported = (app.catalog?.pricing_mode_version ?? app.session?.pricing_mode_version) === "final-unit-v1";
   useEffect(() => {
     if (!focusRow) return;
     newProduct.current?.focus();

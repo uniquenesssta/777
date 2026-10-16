@@ -18,7 +18,17 @@ use windows::{
 fn unavailable(_: windows::core::Error) -> DesktopError {
     DesktopError::new(503, "DIRECTORY_DIALOG_UNAVAILABLE")
 }
-pub fn pick(owner: isize, initial: &str) -> Result<Option<String>> {
+fn allowed_path(path: &str, local: bool) -> bool {
+    if path.starts_with("\\\\?\\") || path.starts_with("\\\\.\\") {
+        return false;
+    }
+    if local {
+        std::path::Path::new(path).is_absolute() && !path.starts_with("\\\\")
+    } else {
+        path.starts_with("\\\\")
+    }
+}
+pub fn pick(owner: isize, initial: &str, local: bool) -> Result<Option<String>> {
     unsafe {
         CoInitializeEx(None, COINIT_APARTMENTTHREADED)
             .ok()
@@ -37,7 +47,11 @@ pub fn pick(owner: isize, initial: &str) -> Result<Option<String>> {
                 )
                 .map_err(unavailable)?;
             dialog
-                .SetTitle(&HSTRING::from("选择共享保存文件夹"))
+                .SetTitle(&HSTRING::from(if local {
+                    "选择本机文件夹"
+                } else {
+                    "选择共享保存文件夹"
+                }))
                 .map_err(unavailable)?;
             if !initial.is_empty() {
                 if let Ok(item) =
@@ -60,15 +74,39 @@ pub fn pick(owner: isize, initial: &str) -> Result<Option<String>> {
             let path = raw.to_string();
             CoTaskMemFree(Some(raw.0.cast()));
             let path = path.map_err(|_| DesktopError::new(503, "DIRECTORY_DIALOG_UNAVAILABLE"))?;
-            if !path.starts_with("\\\\")
-                || path.starts_with("\\\\?\\")
-                || path.starts_with("\\\\.\\")
-            {
-                return Err(DesktopError::new(422, "PUBLISHED_DIRECTORY_REQUIRES_UNC"));
+            if !allowed_path(&path, local) {
+                return Err(DesktopError::new(
+                    422,
+                    if local {
+                        "DEVELOPER_LOCAL_PATH_REQUIRED"
+                    } else {
+                        "PUBLISHED_DIRECTORY_REQUIRES_UNC"
+                    },
+                ));
             }
             Ok(Some(path))
         })();
         CoUninitialize();
         result
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::allowed_path;
+    #[test]
+    fn developer_local_selection_does_not_relax_shared_business_directories() {
+        assert!(allowed_path(r"D:\中文 账本", true));
+        assert!(!allowed_path(r"D:\中文 账本", false));
+        assert!(allowed_path(r"\\server\share\中文", false));
+        assert!(!allowed_path(r"\\server\share\中文", true));
+        for path in [
+            r"relative\path",
+            r"D:relative",
+            r"\\?\D:\data",
+            r"\\.\pipe\data",
+        ] {
+            assert!(!allowed_path(path, true));
+        }
     }
 }

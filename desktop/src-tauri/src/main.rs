@@ -75,14 +75,18 @@ mod shell {
         }
         if let Action::PickDirectory { ref target } = request {
             let initial = state.desktop.lock().await.directory_context(target).await?;
+            // directory_context authorizes the exact target before showing any dialog.
+            let local = ["developer_root", "developer_backup", "developer_output"]
+                .contains(&target.as_str());
             let owner = window
                 .hwnd()
                 .map_err(|_| DesktopError::new(503, "DIRECTORY_DIALOG_UNAVAILABLE"))?
                 .0 as isize;
-            let selected =
-                tokio::task::spawn_blocking(move || crate::directory_dialog::pick(owner, &initial))
-                    .await
-                    .map_err(|_| DesktopError::new(503, "DIRECTORY_DIALOG_UNAVAILABLE"))??;
+            let selected = tokio::task::spawn_blocking(move || {
+                crate::directory_dialog::pick(owner, &initial, local)
+            })
+            .await
+            .map_err(|_| DesktopError::new(503, "DIRECTORY_DIALOG_UNAVAILABLE"))??;
             return Ok(serde_json::json!({"directory":selected}));
         }
         let _writing = request

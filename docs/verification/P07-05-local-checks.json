@@ -11,7 +11,7 @@
       "passed": 33
     },
     "python_regressions": {
-      "passed": 37,
+      "passed": 38,
       "skipped_windows_only": 7
     },
     "clippy_all_targets": "passed",
@@ -31,8 +31,8 @@
       "status": "passed",
       "production_paths_accessed": false,
       "backup": {
-        "ledger_id": "56d51b1d-5a64-406d-aac8-ee01a23abeed",
-        "manifest_sha256": "4775fbd417e0edf43945e9e74b53003d2ad56949b1bdef9820062eae600506a5",
+        "ledger_id": "5069c368-debe-4efa-ad84-0d4ea217745a",
+        "manifest_sha256": "a9f5ce42afaa04eb7a5af6762ae808059002d739bb076eaee7b42faf45b9a058",
         "full_service_verified": true
       }
     }
@@ -53,30 +53,34 @@
     ".github/workflows/p07-windows.yml": "dc26df389008699aa838d2984bd9d3f744df2ddc6cc61aeb1f6678111617d00a",
     "crates/quote-host/src/lib.rs": "83f5a8e5c9becf263aec17895328bbac1c90678211d3a66caf3dc460ef153d94",
     "crates/quote-host/src/main.rs": "302e38a51f795889af23589da7478f0b9a97669a1ef63da329d767ba03bdd983",
-    "desktop/src-tauri/src/client.rs": "164bee14176155721902cd1857117c12e8d0a4022d438757f612cffd364e755e",
+    "desktop/src-tauri/src/client.rs": "c617e7b783763e70c2e31829437d18b96e0ce07316807b21d61520ba5c4188f0",
     "desktop/src-tauri/src/lib.rs": "f57ffb11530a957800e6d52f318b17603ddf37ab6ccfaf08e0f297ed7b66bff1",
-    "desktop/src-tauri/src/main.rs": "ae6f4c6642e16a98ed7a9fed0829c5ea265fde21db836382e2d50e97579dc23b",
+    "desktop/src-tauri/src/main.rs": "26fa4cc513eac57fafe73ecb73ea5c39e0be44b719acda75d607b8e50e1a1970",
     "desktop/src-tauri/src/types.rs": "79c9423ba779826f57788134c49bdb0b9549e694f62413bfb6e038ee9ae7ec1a",
     "desktop/src/App.tsx": "991123bfdf3d5820a07fe684eb869387ba0416692f33a05a586ac3577021dc9f",
     "desktop/src/app.css": "52a3d93bccdec3817a6fe052c71cf92db3a26b69c9612d1a88f00482cd79764a",
     "desktop/src/state/draft.ts": "fa40d9080f3d35474e71f34df0166f69ec7a2a0aa97a95da590b50c482a2b0fa",
-    "desktop/src/state/useWorkbench.ts": "99ff851b7092ef80c16dd225855fd094f8076b9ca0b6025f5516a140468dc7fb",
+    "desktop/src/state/useWorkbench.ts": "ba8ed579625a759df989ef9e9409168422c843f62b7610a986d0693aea131bce",
     "desktop/tools/package.mjs": "5b93e09c7fb0e55ba19fe171d4992d580342bb8a53fae0b93e919a2278e841ab",
     "tools/p07_dev_host.py": "a3074a1358a04ed659357e4dcb8a56a5f9a162951851ae0789124853932d32ec",
     "tools/p07_package_check.py": "5dfa9b5cfbdf2e61527ba436956f2006df349dd5e6a1abf04adb2c7d78965824",
     "crates/quote-host/src/operator.rs": "c1fe6979a666ca59298b48de8f59334ad570a13c83f95352e1e6db5dd9cf536d",
     "desktop/src-tauri/examples/developer-bridge.rs": "bcf877e735c2d9561c804c4888eb1e685d807f8dfb2cb110586de8fd8f7edb11",
     "desktop/src-tauri/src/developer.rs": "6a0fafc8a5465d80da02dba28c9e7a8b89ea8736d5e0c54d986074669fbd6977",
-    "desktop/src/features/DeveloperPage.tsx": "73af2a49194eb80096e90a2bd44b863414f918862762cce431ce7b9f920c0c05",
+    "desktop/src/features/DeveloperPage.tsx": "1c39f4cbfe0dd330f7a72220da1fff24519ec042c419a430439b16163da1c9d2",
     "desktop/src/state/developerDraft.ts": "835a2018e1e4bcf795ea41948f113ce58e752b10781fb2245030a380121e2389",
     "desktop/tests/developer-draft.test.ts": "29a168746c018d17ace52cf46f6fd965eb9f4d9c6f5a0c0d6f92745b3f25070d",
-    "desktop/tests/windows-developer.mjs": "be2a049bd4c9f0a793b3a166c7a608476e48bccb094305fe2c9cb22f8f383da2",
-    "tests/test_p07_developer.py": "91903fc0cac9d0821b8c0997d87312a25e794d8c47c065be8610c83cf1c4ed15",
+    "desktop/tests/windows-developer.mjs": "21f0962c676a44126d061e6596ec7eb521e70c33b4894500c72d0e0e5f025f73",
+    "tests/test_p07_developer.py": "2f6b08fdf55201fc2ab8f19156571bcbe37bdf35862bbdc01e39ebe896f1be42",
     "tests/test_p07_owned_job.py": "68c0174b2664ddcb9afc5a518cf73ae89839b3d0977edbc4fc0e8b61d18a0602",
-    "tools/p07_developer.py": "a2172758597cc285cadac15fbe1299a4137f3c1d3f4d3e66aa1f59df2b995eb9",
-    "tools/p07_developer_check.py": "aaab999bdae57f339d7f903c52fd11b6f5d0a7021a0591a154a473464400af2a",
-    "tools/p07_developer_package_check.py": "0477df4c6255255c8dba9334a91ceb38405395a6588ae880026f1d2b581dca91",
-    "tools/p07_owned_job.py": "5aadd3540321dd561e7ff5a0ebc31ea1d90502c08abb9b5071c51487de00138f"
+    "tools/p07_developer.py": "168d607b249f00e714b59ea85ee8949d0a1d676661272fa1c270611362f91755",
+    "tools/p07_developer_check.py": "6a43b27c9fb410bc85c6f99244a715a1cc1ad110e8b0a7c22cea1fd3728876b6",
+    "tools/p07_developer_package_check.py": "caaaaec0712f796652cf9392de0dab45db3cf270abc44960002e292fa380c844",
+    "tools/p07_owned_job.py": "5aadd3540321dd561e7ff5a0ebc31ea1d90502c08abb9b5071c51487de00138f",
+    "crates/quote-host/src/service.rs": "cb82112b018feb62345e8ded730edfd6d7f5969887922f44aef50b5965f0ac02",
+    "desktop/src-tauri/src/directory_dialog.rs": "de988dd0c159cf549f3a458411ed9bd568445ecc0f24861e79068045625d2f9d",
+    "desktop/src/contracts.ts": "3a1f4aa5d2222cb32f0980c7a91c0834fb44a794e5fb531f22b58877f67d21d0",
+    "desktop/src/features/PricesPage.tsx": "91327deaf9e373eb6ad7f2f93cf921426d97254425b699f719d690a0f605effe"
   },
   "followup": {
     "base_commit": "9690a008e13a1462620f7b7831fa179cbebce983",
@@ -89,6 +93,25 @@
       "10 developer controller tests passed",
       "44 Python tests: 37 passed, 7 Windows-only skipped",
       "TypeScript and development build passed"
+    ]
+  },
+  "empty_ledger_followup": {
+    "base_commit": "b0a14605cae59d69476d0a70c146aebe600bf967",
+    "checks": [
+      "real native bootstrap advertises final-unit-v1 before first price publication",
+      "18 Rust library tests passed",
+      "45 Python tests: 38 passed and 7 Windows-only skipped",
+      "TypeScript and development frontend build passed",
+      "explicit replacement of stale saved credentials validated before switching",
+      "final clippy all targets passed"
+    ],
+    "windows_pending": [
+      "native local-folder selection policy",
+      "actual empty ledger creation then price maintenance and source return before UI package build"
+    ],
+    "changes": [
+      "folder picker accepts authorized developer local directories; business UNC rule preserved",
+      "backup-now blocked when active business connection differs from displayed local ledger"
     ]
   }
 }

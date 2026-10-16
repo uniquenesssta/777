@@ -159,12 +159,12 @@ class Developer:
         else:
             cfg = self.config(root)
             remembered = self.credentials.get(str(root))
-            if root == self.dev.DEV / 'host':
+            if username and password:
+                user, secret = username, password
+            elif root == self.dev.DEV / 'host':
                 user, secret = 'admin', '123456'
             elif remembered and remembered['pin'] == cfg['certificate_sha256']:
                 user, secret = remembered['user'], remembered['password']
-            elif username and password:
-                user, secret = username, password
             else:
                 raise RuntimeError('DEVELOPER_CREDENTIAL_REQUIRED')
             self.dev.command(['authorize', '--root', str(root), '--admin', user], secret)

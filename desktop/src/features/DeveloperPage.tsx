@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+import { stamp } from "../state/format";
 import { request, errorCode, errorMessage } from "../bridge";
 import { Badge, Button, Field, Input, Modal } from "../ui/components";
 import type { Workbench } from "../state/useWorkbench";
 
 type Job = { id:string; state:"running"|"cancelling"|"cancelled"|"failed"|"succeeded"; delivery:string; version:string; output:string; lines:string[]; error:string|null; bytes:number|null; source_commit?:string };
-type Configuration = { root:string; backup_dir:string; ledger_id:string; last_backup:{created_at?:string}|null; connection:{url:string}; preferences:{output:string; version:string; runtime:string}; job:Job|null };
+type Configuration = { root:string; backup_dir:string; ledger_id:string; last_backup:{created_at?:string}|null; connection:{url:string;certificate_sha256:string}; preferences:{output:string; version:string; runtime:string}; job:Job|null };
 const labels: Record<string,string> = {
   DEVELOPER_LAUNCHER_REQUIRED:"请使用开发版启动命令打开软件，再进入开发部署。",
   DEVELOPER_LOCAL_PATH_REQUIRED:"请选择本机完整目录。",
@@ -12,6 +13,7 @@ const labels: Record<string,string> = {
   DEVELOPER_DIRECTORY_REQUIRED:"所选目录不存在。",
   DEVELOPER_LOOPBACK_HOST_REQUIRED:"此目录未配置为本机开发服务。远程或正式主机请通过连接设置读取。",
   DEVELOPER_CREDENTIAL_REQUIRED:"首次读取此账本需要验证管理员。",
+  UNAUTHENTICATED:"管理员验证未通过，请核对所选账本的账号和密码。",
   DEVELOPER_EMPTY_DIRECTORY_REQUIRED:"新建账本需要空目录，已有内容已保留。",
   DEVELOPER_DATA_EXISTS:"当前目录已有账本，请选择新的空目录。",
   BACKUP_DIRECTORY_CONFLICT:"账本和备份目录必须独立，不能相互包含。",
@@ -49,6 +51,7 @@ export function DeveloperPage({app}:{app:Workbench}) {
   }
   const building=state?.job?.state==="running"||state?.job?.state==="cancelling";
   const disabled=busy||app.busy;
+  const connectedToLocal=!!state&&app.connection?.certificate_sha256===state.connection.certificate_sha256;
   async function pick(target:string, update:(v:string)=>void){await run(async()=>{const r=await request<{directory:string|null}>("pick_directory",{target});if(r.directory)update(r.directory);});}
   async function select(initialize:boolean){await run(async()=>{
     // Ask for credentials only for an unknown existing data source, before changing it.
@@ -59,7 +62,8 @@ export function DeveloperPage({app}:{app:Workbench}) {
       const result=await app.developerOperation(op);
       if(result)setDialog(null);
     } catch(e) {
-      if(errorCode(e)==="DEVELOPER_CREDENTIAL_REQUIRED")setDialog("authorize");else throw e;
+      if(errorCode(e)==="DEVELOPER_CREDENTIAL_REQUIRED")setDialog("authorize");
+      else {if(!initialize&&["UNAUTHENTICATED","ADMIN_REQUIRED"].includes(errorCode(e)))setDialog("authorize");throw e;}
     } finally {setPassword("");}
   });}
   async function pack(delivery:string){await run(async()=>{
@@ -75,10 +79,10 @@ export function DeveloperPage({app}:{app:Workbench}) {
         <div className="developer-heading"><h2>数据与备份</h2><small className={available?"developer-connected":"muted"}>{available?"本机服务":"连接不可用"}</small></div>
         <div className="developer-path"><Field label="存储位置" compact><Input value={root} onChange={e=>setRoot(e.target.value)} title={root} disabled={disabled||building}/></Field><Button variant="outline" disabled={disabled||building} onClick={()=>void pick("developer_root",setRoot)}>选择目录</Button></div>
         <div className="developer-actions"><Button disabled={disabled||building||app.pending||!root} onClick={()=>void select(false)}>读取此位置</Button><Button variant="outline" disabled={disabled||building||app.pending} onClick={()=>setDialog("create")}>新建空账本</Button></div>
-        <div className="developer-source"><p>本机账本：{state?.root??"—"}</p><small>{state?`账本标识 ${state.ledger_id}`:"正在读取当前数据源"}</small>{error&&dialog===null&&<p className="inline-error" role="alert">{error}</p>}</div>
+        <div className="developer-source"><p>本机账本：{state?.root??"—"}</p><small>{state?`账本标识 ${state.ledger_id}`:"正在读取当前数据源"}</small>{state&&!connectedToLocal&&<small>当前业务连接未读取此账本，点击“读取此位置”连接。</small>}{error&&dialog===null&&<p className="inline-error" role="alert">{error}</p>}</div>
         <div className="developer-path"><Field label="备份位置" compact><Input value={backup} onChange={e=>setBackup(e.target.value)} title={backup} disabled={disabled||building}/></Field><Button variant="outline" disabled={disabled||building} onClick={()=>void pick("developer_backup",setBackup)}>选择目录</Button></div>
-        <div className="developer-actions"><Button variant="outline" disabled={disabled||building||app.pending||!backup} onClick={()=>void run(async()=>{const r=await app.developerOperation({op:"backup_directory",directory:backup});if(r)accept(r as unknown as Configuration);})}>保存备份位置</Button><Button variant="ghost" disabled={disabled||building||app.pending} onClick={()=>void run(async()=>{await app.makeBackup(true);accept(await action<Configuration>({op:"status"}));})}>立即备份</Button></div>
-        <small className="muted">最近备份 {state?.last_backup?.created_at??"尚无备份"}</small>
+        <div className="developer-actions"><Button variant="outline" disabled={disabled||building||app.pending||!backup} onClick={()=>void run(async()=>{const r=await app.developerOperation({op:"backup_directory",directory:backup});if(r)accept(r as unknown as Configuration);})}>保存备份位置</Button><Button variant="ghost" disabled={disabled||building||app.pending||!connectedToLocal} onClick={()=>void run(async()=>{await app.makeBackup(true);accept(await action<Configuration>({op:"status"}));})}>立即备份</Button></div>
+        <small className="muted">最近备份 {state?.last_backup?.created_at?stamp(state.last_backup.created_at):"尚无备份"}</small>
       </section>
       <section className="card developer-card">
         <h2>应用封包</h2>
