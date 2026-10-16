@@ -39,7 +39,7 @@ v1导入使用固定表和列允许清单，拒绝未知字段/表、未知版�
 - 客户、单号、联系方式：orders.details_json，展开到`结构字段`；商品/价格版本及项目：price_versions.payload_json。
 - 原始数量/折扣：orders.input_json、lines.raw_json、normalized_json；成交价格：lines.price_json。金额`*_cents`单位为分，完整整数文本。
 - 备注：notes；作废/恢复历史：audit_events；每次业务操作的原始回执：requests；历史导入映射及报告：import_batches。
-- 关联：price_id连接价格表；order_id连接订单；owner_id/actor_id/author_id/published_by连接人员.id；request_id连接请求。结构字段采用JSON Pointer路径，嵌套对象和数组逐值展开。
+- 关联：price_id连接价格表；order_id连接订单；owner_id/actor_id/author_id/published_by连接人员.id；request_id连接请求。结构字段采用JSON Pointer路径，嵌套对象和数组逐值展开，并标注客户/商品/数量、高宽（米）、单价（元）、倍率、折扣及计价方式等中文字段说明。
 - 所有单元格是文本，前导零和长整数不经浮点转换；用户文本不成为公式；无宏、外部链接或外部数据查询。
 - NULL显示`〈空值〉`，空字符串显示空白，零显示`0`；原始类型和值由.qbackup无歧义保存。订单active/void分别表示有效/作废。
 - 超过30000个UTF-16单元的字符串，按最多12000个Unicode字符分段写入`长文本`，记录工作表、原始数据行、字段及分段号；连接分段可还原原值。结构展开中的长值同样处理。

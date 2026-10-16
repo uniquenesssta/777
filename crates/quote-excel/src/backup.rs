@@ -26,9 +26,11 @@ fn write_sheet(book: &mut Workbook, name: &str, rows: &[Vec<String>]) -> Result<
         ws.set_freeze_panes(1, 0).map_err(|_| bad())?;
         let style = Format::new().set_num_format("@");
         let head = style.clone().set_bold();
+        for j in 0..header.len() {
+            ws.set_column_width(j as u16, 24).map_err(|_| bad())?;
+        }
         for (i, row) in chunk.enumerate() {
             for (j, s) in row.iter().enumerate() {
-                ws.set_column_width(j as u16, 24).map_err(|_| bad())?;
                 ws.write_string_with_format(
                     i as u32,
                     j as u16,
@@ -43,6 +45,24 @@ fn write_sheet(book: &mut Workbook, name: &str, rows: &[Vec<String>]) -> Result<
 }
 fn chinese(key: &str) -> &str {
     match key {
+        "product_id" => "商品标识",
+        "price_version_id" => "价格版本标识",
+        "customer" => "客户名称",
+        "order_ref" => "业务单号",
+        "wechat" => "联系方式",
+        "q" => "数量",
+        "h" => "高（米）",
+        "w" => "宽（米）",
+        "sale" => "销售单价（元，计价方式见pricing_mode）",
+        "cost" => "成本单价（元）",
+        "k" => "倍率",
+        "percent" => "折扣百分数（90表示九折）",
+        "single" => "单件计价标志（true为单件）",
+        "pricing_mode" => "计价方式（manual手填；cost_plus成本乘倍率；无此字段为历史单价乘倍率）",
+        "line_kind" => "明细类型（normal商品；discount折扣）",
+        "name" => "显示名称",
+        "source_base64" => "已导入源文件原始字节（base64）",
+        "source_bytes" => "已导入源文件字节数",
         "id" => "主体编号",
         "singleton" => "唯一记录标志",
         "schema_version" => "结构版本",
@@ -130,7 +150,10 @@ fn flatten(v: &Value, path: String, out: &mut Vec<Vec<String>>, source: &str, ro
                 flatten(v, format!("{path}/{i}"), out, source, row)
             }
         }
-        _ => out.push(vec![source.into(), row.to_string(), path, value(v)]),
+        _ => {
+            let label = chinese(path.rsplit('/').next().unwrap_or(&path)).to_string();
+            out.push(vec![source.into(), row.to_string(), path, value(v), label]);
+        }
     }
 }
 pub fn write(data: &Value) -> Result<Vec<u8>> {
@@ -174,6 +197,7 @@ pub fn write(data: &Value) -> Result<Vec<u8>> {
         "数据行（从1起）".into(),
         "字段路径（JSON Pointer）".into(),
         "原始值".into(),
+        "中文字段说明".into(),
     ]];
     let mut tables = Vec::new();
     for (group, prefix) in [("ledger", "账本"), ("outputs", "输出")] {
