@@ -1,0 +1,40 @@
+{
+  "task": "P07-06",
+  "source_commit": "bfe0326ef7f4617bde1848e15e698d1096fcfef3",
+  "run_id": 38949419759,
+  "run_url": "https://github.com/uniquenesssta/777/actions/runs/38949419759",
+  "status": "failed",
+  "jobs": {
+    "installers (manager)": {
+      "id": 117137028368,
+      "conclusion": "failure"
+    },
+    "installers (sales)": {
+      "id": 117137027891,
+      "conclusion": "failure"
+    },
+    "desktop-contracts": {
+      "id": 117137028337,
+      "conclusion": "in_progress_at_recording"
+    }
+  },
+  "failure": {
+    "stage": "real developer window: save daily backup settings before installer build",
+    "observed_alert": "请选择新的空备份目录，旧备份会保留。",
+    "cause": "Python resolves the existing Windows 8.3 backup path to its long spelling; the Rust setter compared raw paths, misclassified the unchanged directory as a new nonempty destination and rolled back the daily settings.",
+    "fix": "Compare validated canonical directory identities before deciding that an existing destination is new; retain the empty-directory rule for genuinely different destinations. UI check compares actual saved directory identity, requiring a nonempty saved path."
+  },
+  "downloaded_evidence": {
+    "artifact_id": 12068771399,
+    "name": "p07-05-manager-developer-ui",
+    "zip_sha256": "27c7d855430919b507100eca022a418f471ba0007b8e364cbb08c8684d90ef20",
+    "zip_hash_verified": true,
+    "error_json_and_screenshot_reviewed": true
+  },
+  "local_fix_checks": {
+    "rust_host_library_tests": 9,
+    "rustfmt": "passed",
+    "node_check_windows_developer": "passed"
+  },
+  "acceptance": "Failed run retained; corrected code requires a new Windows run. No user acceptance or P08 start."
+}

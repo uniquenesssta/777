@@ -47,7 +47,9 @@ try {
   await page.getByRole('button',{name:'保存备份设置',exact:true}).click();
   await expect(page.getByRole('button',{name:'保存备份设置',exact:true})).toBeEnabled({timeout:60000});
   const devState=()=>page.evaluate(async()=>window.__TAURI_INTERNALS__.invoke('desktop_action',{request:{action:'developer',request:{op:'status'}}}));
-  expect((await devState()).daily.hidden_dir.toLowerCase()).toBe(hidden.toLowerCase());
+  const savedHidden=(await devState()).daily.hidden_dir;
+  expect(savedHidden).not.toBe('');
+  expect(fs.realpathSync.native(savedHidden).toLowerCase()).toBe(fs.realpathSync.native(hidden).toLowerCase());
   await page.getByRole('button',{name:'生成今日备份',exact:true}).click();
   await expect(page.getByRole('button',{name:'生成今日备份',exact:true})).toBeEnabled({timeout:60000});
   const backed=await devState();

@@ -34,11 +34,15 @@ pub fn configure_backup(
     let token = login["token"].as_str().unwrap();
     let result = (|| {
         Auth::admin(&s.auth.authenticate(token)?)?;
-        if target == Path::new(s.config["backup_dir"].as_str().unwrap()) {
-            return backup::status(&s);
-        }
         if target.exists() {
             files::dir(target)?;
+            // Windows may describe one directory by either its 8.3 alias or
+            // its long name. Saving the daily policy must not treat that as
+            // selecting a different, nonempty backup destination.
+            let current = Path::new(s.config["backup_dir"].as_str().unwrap());
+            if current.exists() && target.canonicalize()? == current.canonicalize()? {
+                return backup::status(&s);
+            }
         } else {
             files::local(&target.with_file_name(".777-parent-check"), false)?;
         }
@@ -47,7 +51,11 @@ pub fn configure_backup(
             .ok_or_else(|| crate::Error::new(422, "BACKUP_PATH_INVALID"))?;
         files::dir(parent)?;
         let canonical_root = root.canonicalize()?;
-        let candidate = parent.canonicalize()?.join(target.file_name().unwrap());
+        let candidate = if target.exists() {
+            target.canonicalize()?
+        } else {
+            parent.canonicalize()?.join(target.file_name().unwrap())
+        };
         if candidate.starts_with(&canonical_root) || canonical_root.starts_with(&candidate) {
             return fail(422, "BACKUP_DIRECTORY_CONFLICT");
         }
