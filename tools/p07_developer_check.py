@@ -198,6 +198,40 @@ def main():
             report['backup']=dict(ledger_id=id_a,snapshot_id=entry['backup_id'],hashes=hashes,bytes={n:(pair/n).stat().st_size for n in hashes})
             report['checks'].append('dual_formats_identical_in_both_destinations_independent_failures_retry_same_snapshot_no_legacy_deletion')
             report['checks'].append('public_API_cannot_change_daily_policy_or_observe_hidden_destination')
+            # User regression: current ordinary directory exists but its index is missing.
+            # Both public developer setters must repair it before reading status.
+            # Previously daily save rolled back an already validated hidden UNC destination.
+            saved_config = controller.config()
+            marker = target / '777-backups.json'
+            preserved = {str(p.relative_to(target)):hashlib.sha256(p.read_bytes()).hexdigest()
+                         for p in target.rglob('*') if p.is_file() and p != marker}
+            for operation in ['daily_backup', 'backup_directory']:
+                marker.unlink()
+                if operation == 'daily_backup':
+                    state = ipc('developer', request=dict(op=operation, directory=str(target), hidden=str(hidden), hour=23))
+                else:
+                    state = ipc('developer', request=dict(op=operation, directory=str(target)))
+                assert state['daily']['hidden_dir'] == str(hidden)
+                assert controller.config() == saved_config
+                assert json.loads(marker.read_text(encoding='utf-8'))['store_id'] == saved_config['backup_store_id']
+                assert preserved == {str(p.relative_to(target)):hashlib.sha256(p.read_bytes()).hexdigest()
+                                     for p in target.rglob('*') if p.is_file() and p != marker}
+                c = client()
+                try:assert c.request('POST','/v1/backup',dict(kind='daily')) == entry
+                finally:c.logout()
+                assert controller.status()['daily_result']['hidden']['ok']
+                assert hashes == {n:hashlib.sha256((pair/n).read_bytes()).hexdigest() for n in hashes}
+            original_marker = marker.read_bytes()
+            for damaged in [b'corrupt index', json.dumps({**json.loads(original_marker), 'store_id':'00000000-0000-4000-8000-000000000001'}).encode()]:
+                marker.write_bytes(damaged)
+                try:
+                    ipc('developer', request=dict(op='daily_backup', directory=str(target), hidden=str(hidden), hour=23))
+                except RuntimeError:pass
+                else:raise AssertionError('EXISTING_INVALID_INDEX_OVERWRITTEN')
+                assert marker.read_bytes() == damaged and controller.config() == saved_config
+                marker.write_bytes(original_marker)
+            report['checks'].append('missing_current_index_resaved_by_both_setters_preserves_identity_files_snapshot_and_hidden_configuration')
+            report['checks'].append('corrupt_or_foreign_current_index_rejected_without_overwrite_or_configuration_loss')
             from openpyxl import load_workbook
             book=load_workbook(pair/'data.xlsx',read_only=True)
             try:

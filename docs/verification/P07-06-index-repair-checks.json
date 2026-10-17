@@ -1,0 +1,63 @@
+{
+  "task": "P07-06",
+  "platform": "posix",
+  "scope": "real debug native IPC, private controller and Rust HTTPS; no UI substitute",
+  "credential_storage": "isolated auxiliary plaintext",
+  "checks": [
+    "A_B_A_real_prices_orders_and_exact_totals_isolated",
+    "native_selected_directories_actual_Excel_and_Windows_PNG_outputs",
+    "nonempty_initialization_keeps_original_files_and_active_source",
+    "populated_destinations_preserve_existing_files_and_hidden_system_attributes",
+    "dual_formats_identical_in_both_destinations_independent_failures_retry_same_snapshot_no_legacy_deletion",
+    "public_API_cannot_change_daily_policy_or_observe_hidden_destination",
+    "missing_current_index_resaved_by_both_setters_preserves_identity_files_snapshot_and_hidden_configuration",
+    "corrupt_or_foreign_current_index_rejected_without_overwrite_or_configuration_loss",
+    "real_native_import_restores_business_view_preserves_original_rejects_corruption_future_version_and_overwrite",
+    "saved_config_and_credentials_restart_with_same_actual_ledger"
+  ],
+  "status": "passed",
+  "production_paths_accessed": false,
+  "workspace": "/tmp/777-developer-check-8y2zhmxm",
+  "backup": {
+    "ledger_id": "0f66337f-ecb5-42f5-b511-898e3c853a76",
+    "snapshot_id": "77f2f362-8438-4950-90fb-40b6359bb390",
+    "hashes": {
+      "data.qbackup": "5ffb43c25efedb696ed39fe4de2f5147ccac05c3c7436ff920e94d966f414686",
+      "data.xlsx": "fb9a2d38222bf34f3de5d3cf9baf0353e16da7a4ea39df296677e5dc9e66e93b"
+    },
+    "bytes": {
+      "data.qbackup": 30640,
+      "data.xlsx": 25430
+    }
+  },
+  "baseline": "e0fc91e5f7274fefe9aada8f85c13d97f11b8e28",
+  "branch": "stage/p07-tauri-desktop",
+  "user_log_finding": {
+    "failed_operation": "configure-daily",
+    "failed_step": "read existing ordinary backup index",
+    "filename": "777-backups.json",
+    "windows_os_error": 2,
+    "attempts": 3,
+    "hidden_configuration_rolled_back": true,
+    "index_initially_missing_reason": "unknown"
+  },
+  "unit_checks": {
+    "rust_host_library": "10 passed",
+    "python_developer": "14 passed, 1 Windows-only skipped",
+    "rustfmt": "passed",
+    "strict_clippy_host_all_targets": "passed"
+  },
+  "limitations": [
+    "Auxiliary POSIX execution, not Windows or physical user share acceptance",
+    "Windows Hidden/System, DPAPI, actual SMB and mapped paths remain in the existing Windows workflow",
+    "Recreated index is empty; retained old backup files are not scanned into invented history"
+  ],
+  "windows_validation": "pending new branch push",
+  "implementation_sha256": {
+    "crates/quote-host/src/backup.rs": "7a4769c869f3f25877ab83ef08da6582cd6c5c166fab6231daf9722bafe394d5",
+    "crates/quote-host/src/operator.rs": "4bf6d9482724b10cd9484660540fad5f2029de0ac83994983bf81ab9c7a8f727",
+    "tools/p07_developer.py": "354b48d03f4c41942763cf3808831ad9785b1e571f51da258a8852dfa1e583e4",
+    "tools/p07_developer_check.py": "2e0b6790fbf31952109b34d3f4e5805a68192695841dfc9ff42183a17417e96a",
+    "tests/test_p07_developer.py": "59748f2059d101bacd364bcedc7f5547b3b670328d54bb3072fa42e02cd364f0"
+  }
+}

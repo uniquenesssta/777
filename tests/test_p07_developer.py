@@ -38,6 +38,15 @@ class DeveloperTests(unittest.TestCase):
         (root / 'service-cert.pem').write_text('isolated certificate')
         return root
 
+    def test_resaving_current_backup_still_runs_authenticated_native_configuration(self):
+        target = self.operator.config()['backup_dir']
+        (Path(target) / '777-backups.json').unlink()
+        self.operator.start = Mock(return_value=object())
+        self.operator.configure_backup(target)
+        self.dev.stop_host.assert_called_once_with(self.initial_process)
+        self.assertEqual(self.dev.command.call_args.args[0][0], 'configure-backup')
+        self.operator.start.assert_called_once_with(self.a)
+
     def test_unknown_existing_root_requires_credentials_before_stopping_current_service(self):
         b = self.host(self.base / 'B 中文', 'b')
         with self.assertRaisesRegex(RuntimeError, 'DEVELOPER_CREDENTIAL_REQUIRED'):
@@ -108,12 +117,13 @@ class DeveloperTests(unittest.TestCase):
         self.dev.command.assert_not_called()
         self.dev.stop_host.assert_not_called()
 
-    def test_same_backup_via_canonical_alias_keeps_current_service_running(self):
+    def test_same_backup_alias_is_validated_by_native_setter(self):
         backup = self.devdir / '..' / 'development' / 'host-backups'
+        self.operator.start = Mock(return_value=object())
         state = self.operator.configure_backup(str(backup))
         self.assertEqual(state['backup_dir'], str(backup.resolve()))
-        self.dev.stop_host.assert_not_called()
-        self.dev.command.assert_not_called()
+        self.dev.stop_host.assert_called_once_with(self.initial_process)
+        self.dev.command.assert_called_once_with(['configure-backup', '--root', str(self.a), '--backup-dir', str(backup.resolve()), '--admin', 'admin'], '123456')
 
     def test_explicit_reauthentication_replaces_stale_saved_password_only_after_validation(self):
         b = self.host(self.base / 'B', 'b')

@@ -44,24 +44,39 @@ fn manager(s: &Service) -> Result<(PathBuf, Value)> {
 }
 /// Adopt a usable backup directory without replacing unrelated files or permissions.
 pub(crate) fn destination(path: &Path) -> Result<Value> {
+    destination_with_identity(path, None)
+}
+/// Explicitly saving the current destination may recreate a missing index, but
+/// must never replace an existing index or adopt a different store identity.
+pub(crate) fn configured_destination(path: &Path, store_id: &str) -> Result<Value> {
+    id(store_id)?;
+    destination_with_identity(path, Some(store_id))
+}
+fn destination_with_identity(path: &Path, expected: Option<&str>) -> Result<Value> {
     if !path.exists() {
         files::new_dir(path)?;
     }
     let security = files::writable_directory(path)?;
     let marker = path.join("777-backups.json");
-    if marker.exists() {
+    if marker.try_exists()? {
         let value = files::read_json(&marker)?;
         if value["format"] != "777-backups-v1"
             || !value["backups"].is_array()
             || value["store_id"].as_str().is_none_or(|s| id(s).is_err())
+            || expected.is_some_and(|s| value["store_id"] != s)
         {
             return fail(409, "BACKUP_STORE_IDENTITY_CONFLICT");
         }
         return Ok(value);
     }
-    let value = json!({"format":"777-backups-v1","store_id":store::uid()?,
+    let identity = expected.map(str::to_owned).map_or_else(store::uid, Ok)?;
+    let value = json!({"format":"777-backups-v1","store_id":identity,
         "security":security,"backups":[],"last_success":null,"last_error":null});
     files::new_file(&marker, &serde_json::to_vec(&value)?)?;
+    quote_diagnostics::event(
+        "backup.index.created",
+        json!({"path":marker,"repaired_current_destination":expected.is_some()}),
+    );
     Ok(value)
 }
 
@@ -430,4 +445,46 @@ pub fn retain(s: &Service, rolling: usize, daily: usize) -> Result<()> {
         fs::remove_dir_all(p)?;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod destination_tests {
+    use super::*;
+    #[test]
+    fn explicit_resave_repairs_only_missing_index_and_keeps_identity_and_files() {
+        let root = std::env::temp_dir().join(format!("777-index-repair-{}", store::uid().unwrap()));
+        fs::create_dir(&root).unwrap();
+        struct Owned(PathBuf);
+        impl Drop for Owned {
+            fn drop(&mut self) {
+                let _ = fs::remove_dir_all(&self.0);
+            }
+        }
+        let _owned = Owned(root.clone());
+        let original = destination(&root).unwrap();
+        let identity = original["store_id"].as_str().unwrap();
+        let marker = root.join("777-backups.json");
+        let retained = root.join("old-backup.qbackup");
+        fs::write(&retained, b"existing backup must remain").unwrap();
+        fs::remove_file(&marker).unwrap();
+        let restored = configured_destination(&root, identity).unwrap();
+        assert_eq!(restored["store_id"], original["store_id"]);
+        assert_eq!(fs::read(&retained).unwrap(), b"existing backup must remain");
+        let intact = fs::read(&marker).unwrap();
+        configured_destination(&root, identity).unwrap();
+        assert_eq!(fs::read(&marker).unwrap(), intact);
+        let another = store::uid().unwrap();
+        assert_eq!(
+            configured_destination(&root, &another).unwrap_err().code,
+            "BACKUP_STORE_IDENTITY_CONFLICT"
+        );
+        assert_eq!(fs::read(&marker).unwrap(), intact);
+        fs::write(&marker, b"corrupted index").unwrap();
+        assert!(configured_destination(&root, identity).is_err());
+        assert_eq!(fs::read(&marker).unwrap(), b"corrupted index");
+        fs::remove_file(&marker).unwrap();
+        fs::create_dir(&marker).unwrap();
+        assert!(configured_destination(&root, identity).is_err());
+        assert!(marker.is_dir());
+    }
 }

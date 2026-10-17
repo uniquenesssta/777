@@ -202,7 +202,6 @@ class Developer:
         if self.job and self.job['state'] in ['running', 'cancelling']:
             raise RuntimeError('DEVELOPER_BUILD_BUSY')
         target = local(directory)
-        if target == local(self.config()['backup_dir']):return self.status()
         self.dev.stop_host(self.process)
         self.process = None
         try:

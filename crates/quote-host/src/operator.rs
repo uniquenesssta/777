@@ -40,7 +40,10 @@ pub fn configure_backup(
             // selecting a different, nonempty backup destination.
             let current = Path::new(s.config["backup_dir"].as_str().unwrap());
             if current.exists() && target.canonicalize()? == current.canonicalize()? {
-                files::writable_directory(target)?;
+                let store_id = s.config["backup_store_id"]
+                    .as_str()
+                    .ok_or_else(|| crate::Error::new(422, "HOST_CONFIG_INVALID"))?;
+                backup::configured_destination(target, store_id)?;
                 return backup::status(&s);
             }
         }
