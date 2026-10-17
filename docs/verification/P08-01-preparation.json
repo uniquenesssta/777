@@ -1,0 +1,140 @@
+{
+  "task": "P08-01",
+  "status": "prepared_pending_site_inventory",
+  "recorded_at": "2026-10-17T21:44:20+08:00",
+  "repository": "uniquenesssta/777",
+  "branch": "stage/p08-cutover",
+  "source_commit": "aca4ce3b27381abb70920f410c5ead3b1bf2a2ae",
+  "source_tree": "27a4fc9c629a138375beca83a1bb16093835d046",
+  "authorization": {
+    "started_at": "2026-10-17T21:36:55+08:00",
+    "instruction": "开始P08-01",
+    "followup_answers": [
+      "没有历史订单",
+      "改用 192.168.4.23",
+      "先用 1 台"
+    ]
+  },
+  "migration": {
+    "status": "not_applicable_user_confirmed_zero_history",
+    "source_files": [],
+    "historical_order_count": 0,
+    "import_executed": false,
+    "source_directories_scanned": false,
+    "historical_money_reconciliation": "not_applicable_no_historical_transactions",
+    "development_data_policy": "Keep existing development data; never copy it to production implicitly"
+  },
+  "site_plan": {
+    "service_host": "192.168.4.23",
+    "supersedes_host_plan": "192.168.4.38",
+    "manager_count": 1,
+    "sales_count": null,
+    "ordinary_backup_candidate": "\\\\192.168.4.23\\共享\\backup",
+    "candidate_basis": "prior user backup feedback; not read or verified in this task",
+    "host_os": null,
+    "service_account": null,
+    "maintenance_owner": null,
+    "service_root": null,
+    "https_origin": null,
+    "certificate_der_sha256": null,
+    "autostart_registration": null,
+    "hidden_backup_root": null,
+    "output_root": null,
+    "device_actor_mappings": []
+  },
+  "protocols": {
+    "rule_version": "business-v1",
+    "numeric_profile": "numeric-v1",
+    "pricing_mode_version": "final-unit-v1",
+    "ledger_schema_version": 2,
+    "ledger_schema_hash": "1e36e82360f009d6301e0a1f0aec55a43eb43b67050be5084c940eb0c7d7ee71",
+    "readable_ledger_schema_versions": [
+      1,
+      2
+    ],
+    "service": "777-service-v1",
+    "device": "777-device-auth-v1",
+    "query": "777-query-v1",
+    "output": "777-output-v1",
+    "write_recovery": "777-data-backup-v2",
+    "read_recovery": [
+      "777-data-backup-v1",
+      "777-data-backup-v2"
+    ],
+    "public_connection": "777-public-connection-v1",
+    "enrollment": "777-desktop-bootstrap-v1",
+    "package": "777-desktop-package-v1",
+    "release_manifest": "777-desktop-release-v1",
+    "profile_compatibility_epoch": 1
+  },
+  "deliveries": {
+    "source_version": "0.1.0",
+    "artifact_status": "pending_final_local_packaging",
+    "manager": {
+      "identifier": "cn.uniqueness.quote777.manager",
+      "manifest_sha256": null
+    },
+    "sales": {
+      "identifier": "cn.uniqueness.quote777.sales",
+      "manifest_sha256": null
+    },
+    "installer_validation": "cancelled_by_user_not_rerun",
+    "remote_test_packages_downloaded": false
+  },
+  "p07_handoff": {
+    "taskbook": "docs/old/P07-tauri-desktop.md",
+    "transfer_reason": "User explicitly started next phase; preserve incomplete acceptance facts",
+    "original_acceptance": "docs/verification/P07-acceptance.json",
+    "additional_05_06_signoff": "no_separate_acceptance_record",
+    "latest_functional_ci": {
+      "run_id": 39036319450,
+      "sha": "aca4ce3b27381abb70920f410c5ead3b1bf2a2ae",
+      "status_at_start": "in_progress",
+      "desktop_contracts": "in_progress",
+      "installers": "skipped"
+    },
+    "previous_functional_ci": {
+      "run_id": 39031873989,
+      "sha": "b1f744787405973d6af60559fa35554857113143",
+      "conclusion": "success"
+    }
+  },
+  "source_sha256": {
+    "Cargo.lock": "305af348a3e24c4aea977549d5c962a4dc575d75b3f449c02631c24b89d0cb38",
+    "desktop/package-lock.json": "a8ae37040b5fb282eeb5e51160baa4c386a1f171ee77052230a5ff43be960727",
+    "crates/quote-core/src/models.rs": "2f8f157bde5573a0aa7ffec4bc9e7533f34f53806c69b2335290922c15c25fcd",
+    "crates/quote-ledger/src/store.rs": "16c692853a0b8a20b380423877b3b308e54197963a976bbcb1f708006dabac05",
+    "crates/quote-ledger/src/migrate.sql": "b57eba1a0563f64cf2ad2d5b26c9ce840b4307d972ff9121f84ef2818e72ca47",
+    "crates/quote-host/src/service.rs": "de67ca88b234fa0d37ea9abae8212b2302304af98b804c553a11da4107aa1b32",
+    "crates/quote-host/src/devices.rs": "7e6dc5c720036d888926d06b28d898c4efb0fa14f9b2a626b07861d0f0cbc5c1",
+    "crates/quote-host/src/recovery.rs": "23ed0e4d53531e27f338030c764cbaa3f6dbb9d4cb170a7ea911038ec8637344",
+    "desktop/tools/deployment.mjs": "c1170b67a05bfb7a2fabba80b17c5b42dbff7ddcece1e84cf3b32fcf7697f89f",
+    "desktop/tools/package.mjs": "bf59d86bdf6fa71c35a790ac6fa66ef492865be12f47edf682a18235322affa9",
+    "tools/p07_provision_device.py": "a3ebdcd19693f2e31ca730f807b93b9e050d5cd39a0a053de8969255183fb11a"
+  },
+  "verification": {
+    "kind": "documentation_and_source_inspection_only",
+    "new_business_code": false,
+    "new_build_or_tests_run": false,
+    "windows_site_acceptance": false,
+    "live_host_contacted": false,
+    "links_and_diff": "passed",
+    "relative_file_links_checked": 550,
+    "markdown_files_checked": 14,
+    "source_fingerprints_checked": 11
+  },
+  "pending": [
+    "Actual host OS, machine identity and maintenance owner",
+    "Service run identity, directory access, root, HTTPS origin/certificate and startup registration",
+    "One manager workstation/user/stable actor/device mapping; actual sales list when known",
+    "Ordinary and hidden backup/output destinations under actual service identity",
+    "Final locally produced release manifests and file hashes; no cancelled build preparation validation"
+  ],
+  "not_authorized_or_executed": [
+    "P08-02 actual installation/deployment",
+    "Production import or cutover",
+    "Issuing device grants",
+    "Changing live ledger, backup or access permissions",
+    "Deleting development or historical data"
+  ]
+}

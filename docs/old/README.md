@@ -14,6 +14,8 @@
 
 [P05数据与服务](P05-data-service.md)按用户“收尾P05-04开始P06-01”归档，见[阶段范围交接](../verification/P05-acceptance.json)。真实部署/历史切换交接后续，原报告保持。
 
-[P06 Rust核心/存储/格式/独立宿主](P06-rust-core.md)按用户2026-10-14 14:32:51“收尾04”全部验收归档，见[阶段验收](../verification/P06-acceptance.json)。Windows CI与本机212专项/43 Rust/561对照、原母子窗口/DPAPI/ACL/系统图片/v4恢复及资源核对通过；原资料保持；P07后续交付见[任务书](../now/P07-tauri-desktop.md)和下方阶段交接；真实部署与历史切换交接P08。
+[P06 Rust核心/存储/格式/独立宿主](P06-rust-core.md)按用户2026-10-14 14:32:51“收尾04”全部验收归档，见[阶段验收](../verification/P06-acceptance.json)。Windows CI与本机212专项/43 Rust/561对照、原母子窗口/DPAPI/ACL/系统图片/v4恢复及资源核对通过；原资料保持；P07后续交付见[任务书](../old/P07-tauri-desktop.md)和下方阶段交接；真实部署与历史切换交接P08。
 
-P07曾按用户2026-10-16 14:10:02“P07-04收尾”完成01至04验收并归档，原[阶段验收/范围交接](../verification/P07-acceptance.json)保持。用户随后追加开发版存储/备份、读取及母子一键封包UI，[P07唯一任务书移回now](../now/P07-tauri-desktop.md)，登记05；旧验收不等于05通过，P08待05完成后另行启动。
+P07曾按用户2026-10-16 14:10:02“P07-04收尾”完成01至04验收并归档，原[阶段验收/范围交接](../verification/P07-acceptance.json)保持。用户随后追加开发版存储/备份、读取及母子一键封包UI，曾将[P07任务书](P07-tauri-desktop.md)移回now并登记05；旧验收不等于05通过。
+
+2026-10-17用户明确“开始P08-01”，[P07任务书](P07-tauri-desktop.md)按后续阶段接续转接归档，保留05/06无单独签收、07增补WindowsCI结果待登记的事实；原验收不重写。当前唯一任务书为[P08](../now/P08-cutover.md)。

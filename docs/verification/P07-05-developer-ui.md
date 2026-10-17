@@ -31,7 +31,7 @@
 | Windows真实封包UI | installer CI先编译真实debug开发窗口，由`windows-developer.mjs`点击对应母/子封包按钮，先真实新建空账本并验证价格页可添加商品，再切回原源；检查构建中互斥、完成产物、长路径窄窗与关闭；随后沿用P07-04实际安装/登记/升级/卸载/回退 |
 | Windows进程所有权 | `test_p07_owned_job.py`真实验证父Node等价启动器退出后，关闭Job仍终止其已创建的后代；Linux明确跳过 |
 
-新增测试材料均位于明确创建的隔离临时目录，未访问真实生产账本。新Windows证据单独绑定新提交，旧P07-04通过不替代本项。界面设计见[映射](../design/P07-developer-figma.md)，验收门槛仍以[任务书](../now/P07-tauri-desktop.md)为准。
+新增测试材料均位于明确创建的隔离临时目录，未访问真实生产账本。新Windows证据单独绑定新提交，旧P07-04通过不替代本项。界面设计见[映射](../design/P07-developer-figma.md)，验收门槛仍以[任务书](../old/P07-tauri-desktop.md)为准。
 
 Windows 06d8ca4轮已通过实际新建空账本和首个商品入口，但切回初始账本超时，未生成成功封包；[该轮实测记录](P07-05-ci-evidence-01.json)单列。已统一短路径/完整路径的账本与凭据标识，等待新提交复验。
 

@@ -1,24 +1,20 @@
 # 文档与计划入口
 
-2026-10-17实施：[P07-07可读Excel、客户归集与订单续编、导出定位和分次日志](now/P07-tauri-desktop.md#p07-07-可读excel客户归集与订单续编导出定位和分次日志)已按用户“开始吧”实施，进入Windows验证。明确按月分表、月内按日阅读；同一客户的淘宝ID/微信号下保留多笔独立订单，可新建或续编；先Figma后UI，导出记录可打开实际文件夹，日志每次启动独立目录并集中一个运行文件。Figma与功能接入完成，本地辅助检查通过；Windows及用户阅读/交互验收待完成。05/06未收尾，P08须待05、06、07完成后另行启动。
-
-日期：2026-10-17（Asia/Shanghai）。仓库：`uniquenesssta/777`。规划基线分支：`plans`；当前执行分支：`stage/p07-tauri-desktop`；P01收尾提交：`7099303`。
-
-新增任务：[P07-06每日双格式备份与开发者预设隐藏副本](now/P07-tauri-desktop.md#p07-06-每日双格式备份与开发者预设隐藏副本)已完成实现与[Windows自动验证](verification/P07-06-ci-evidence-02.json)，待实际Excel/WPS与用户验收；每日恢复格式、Excel阅读格式及两种文件的隐藏副本是新的备份需求，P07-05仍待签收。Figma已先行补齐，双格式与实际导入读取已通过Windows检查。
+2026-10-17已按用户“开始P08-01”启动[P08](now/P08-cutover.md)，唯一执行分支 `stage/p08-cutover`，基线 `aca4ce3`。用户确认无历史订单，历史迁移范围为0；常在线服务主机改为192.168.4.23，首批母版1台。协议/身份/备份格式已按源码登记，实际主机运行账户、自启动、目录和设备映射待落实。P07按接续指令转接归档，未补造05/06单独签收或07增补Windows结果；已取消的母子构建准备验证不重新安排。
 
 ## 当前状态
 
 | 项目 | 状态 |
 | --- | --- |
-| 审计基线 | `master@32e164d78643de8fa6cbd21a7ca634e1b318f855` |
-| 本轮授权 | 用户2026-10-17明确“开始吧”，授权按P07-07设计、实现及验证；既有推送授权有效 |
-| 文档工作 | [P07任务书](now/P07-tauri-desktop.md)因追加05移回now；01至04原验收、设计交接和历史证据保持 |
-| 当前开发阶段 / Atomic Task | P07唯一阶段任务书；P07-07已实现待Windows验证，先核对契约并制作Figma；05/06仍待相应用户验收，原证据保持 |
-| 下一项 | 先完成P07-05、P07-06与P07-07，再另行启动[P08迁移演练与正式切换](new/P08-cutover.md)；原实机观察与真实部署交接保留 |
-| 业务源码 | 根目录原文件名现共用quote_app/quote_core；[原版归档](baseline/original/README.md)仍按原manifest校验，历史证据不改 |
-| Windows / 局域网验收 | Windows隔离GUI和P01-04小档心跳已测；[格式复查18/18通过](baseline/p01-04-windows-format-evidence.json)，原性能缺陷保留；P02-01核心本机检查已通过（58通过、2跳过），P02-02本机检查已通过（76通过、2项既有权限跳过），新增18项配置全过；P02-03本机94通过/2项既有权限跳过，03已验收；完整业务、部署及SMB验收留后续 |
+| 当前阶段 / Atomic Task | [P08-01](now/P08-cutover.md)，实际主机登记待落实 |
+| 唯一执行分支 / 基线 | `stage/p08-cutover` / `aca4ce3b27381abb70920f410c5ead3b1bf2a2ae` |
+| 历史数据 | 用户明确没有历史订单，迁移范围0；不运行导入或补造历史对账 |
+| 主机与终端 | 192.168.4.23；首批母版1台，设备主体映射待登记，子版未定 |
+| 本轮交付 | [协议/部署准备登记](verification/P08-01-preparation.json)及[P08任务书](now/P08-cutover.md) |
+| 原P07 | [任务书转接old](old/P07-tauri-desktop.md)，01至04原验收保持，未追加05/06/07全项验收 |
+| 后续 | 先补实际主机、账户、自启动、目录和发行清单；P08-02至04未启动 |
 
-[主任务书](MASTER_PLAN.md) 是计划、阶段状态和阶段入口的权威索引；[审计报告](audit/python-audit.md) 保存证据；[迁移契约](MIGRATION_CONTRACT.md) 保存业务、字段与数据规则；[架构方案](RUST_TAURI_DESIGN.md) 保存拟议边界。根 README 的 Change Log 是唯一变更摘要，不再创建平行日志。
+[主任务书](MASTER_PLAN.md)为阶段索引，[迁移契约](MIGRATION_CONTRACT.md)为业务规则权威；根README的Change Log为唯一变更摘要。
 
 ## new / now / old 生命周期
 
@@ -36,7 +32,7 @@
 
 - `plans` 仅承载规划及其记录；本轮从上述 master 基线创建。不得向 main/master 顺带提交。
 - 启动一个开发阶段时，先公告该阶段唯一分支名称和真实基线，再在授权内创建或复用；阶段内 Atomic Task 复用它。P01已在stage/p01-baseline收尾；P02在stage/p02-calculation收尾；P03在stage/p03-file-safety收尾；P04复用唯一stage/p04-performance。
-- P01实际分支 `stage/p01-baseline` 以已核验的 `plans@78a1e1d` 为基线，业务源码与master原始blob一致；P02实际分支stage/p02-calculation基于P01验收提交7099303；P03实际分支stage/p03-file-safety基于P02验收提交96735ad；P04实际分支stage/p04-performance基于P03验收提交823a487；P05已按用户依赖例外授权从31c8784建立stage/p05-data-service；P06已从7710132建立stage/p06-rust-core，P07从P06收尾7a243d5建立stage/p07-tauri-desktop，P08仍为拟议，不从master重开。
+- P01实际分支 `stage/p01-baseline` 以已核验的 `plans@78a1e1d` 为基线，业务源码与master原始blob一致；P02实际分支stage/p02-calculation基于P01验收提交7099303；P03实际分支stage/p03-file-safety基于P02验收提交96735ad；P04实际分支stage/p04-performance基于P03验收提交823a487；P05已按用户依赖例外授权从31c8784建立stage/p05-data-service；P06已从7710132建立stage/p06-rust-core，P07从P06收尾7a243d5建立stage/p07-tauri-desktop，P08按用户2026-10-17启动指令从P07的aca4ce3创建stage/p08-cutover，不从master重开。
 - 开发分支携带当前任务书记录。需同步 plans 索引时只同步文档且核对最新状态；不要把 plans 旧代码合并回开发分支，不为了同步文档制造第二条开发分支。
 - 恢复工作必须核对主任务书、now、真实分支/提交和工作区；三者不一致先查证，禁止从文件名推断完成。
 
@@ -46,4 +42,4 @@
 
 基线只有 LICENSE 和两份脚本，无 README、docs、依赖锁、测试或 CI 配置；本轮建立所需文档，未假设其他项目的阶段编号、Figma 或验证结果适用于本仓库。
 
-当前结论：P01至P06及P07-01至04原范围已验收；P07因追加[P07-05](now/P07-tauri-desktop.md)回到now执行，先设计再实现。原[P07阶段交接](verification/P07-acceptance.json)作为当时验收记录保留；P08未启动。当前Figma来源与组件映射见[设计映射](design/P07-component-map.md)，新增开发部署稿见[P07-05设计映射](design/P07-developer-figma.md)。
+当前结论：P08-01执行中，P07按用户后续阶段指令转接归档，保留未验收事实。当前Figma和原功能设计仍见[映射](design/P07-component-map.md)及[P07追加任务](old/P07-tauri-desktop.md)。

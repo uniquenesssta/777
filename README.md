@@ -1,12 +1,8 @@
 # 记账器 / 报价利润计算器
 
-2026-10-17实施：[P07-07可读Excel、客户归集与订单续编、导出定位和分次日志](docs/now/P07-tauri-desktop.md#p07-07-可读excel客户归集与订单续编导出定位和分次日志)已按用户“开始吧”实施，进入Windows验证。明确按月分表、月内按日阅读；同一客户的淘宝ID/微信号下保留多笔独立订单，可新建或续编；先Figma后UI，导出记录可打开实际文件夹，日志每次启动独立目录并集中一个运行文件。Figma与功能接入完成，本地辅助检查通过；Windows及用户阅读/交互验收待完成。05/06未收尾，P08须待05、06、07完成后另行启动。
+2026-10-17已按用户“开始P08-01”启动[P08](docs/now/P08-cutover.md)，唯一执行分支 `stage/p08-cutover`，基线 `aca4ce3`。用户确认无历史订单，历史迁移范围为0；常在线服务主机改为192.168.4.23，首批母版1台。协议/身份/备份格式已按源码登记，实际主机运行账户、自启动、目录和设备映射待落实。P07按接续指令转接归档，未补造05/06单独签收或07增补Windows结果；已取消的母子构建准备验证不重新安排。
 
 当前业务基线是两份 Python + Tkinter 脚本：每日汇总母版，以及读取共享 JSON 价格的子版。`master` 基线提交为 `32e164d78643de8fa6cbd21a7ca634e1b318f855`。
-
-P07-01至04已按用户确认收尾，[原验收与交接](docs/verification/P07-acceptance.json)保持。当前按用户新要求执行[P07-05开发者存储与一键封包UI任务书](docs/now/P07-tauri-desktop.md#当前追加任务p07-05-开发者存储与一键封包-ui)：Figma与开发版存储/备份位置、真实数据读取、母子一键封包已接入；本地辅助检查及[f30fa59 Windows三项检查](docs/verification/P07-05-ci-evidence-03.json)全部通过，实际UI母子封包、安装回退、账本切换与备份已验证；用户视觉/交互签收待完成。[使用说明](docs/verification/P07-05-developer-ui.md)。任务书移回now，唯一分支仍为`stage/p07-tauri-desktop`。[P08](docs/new/P08-cutover.md)待本项完成后另行启动；原Windows通过范围和目标环境观察保持，不充作新增UI已验证。
-
-2026-10-17已按用户要求建立[P07-06每日双格式备份与开发者预设隐藏副本任务书](docs/now/P07-tauri-desktop.md#p07-06-每日双格式备份与开发者预设隐藏副本)，已完成实现与Windows自动验证，待实际Excel/WPS与用户验收；05仍待签收，P08待05、06、07完成后另行启动。
 
 - [P01-01运行基线与Windows检查](docs/baseline/P01-01-environment.md)
 - [P01-02业务决策、金额示例与权限矩阵](docs/baseline/P01-02-decisions.md)
@@ -21,7 +17,7 @@ P07-01至04已按用户确认收尾，[原验收与交接](docs/verification/P07
 - [P03-03 Windows本机复查通过](docs/verification/P03-03-windows-evidence.json)
 - [P03-04订单备注、作废恢复与Windows一键检查](docs/verification/P03-04-order-contract.md)
 - [P03-04 Windows本机复查通过](docs/verification/P03-04-windows-evidence.json)
-- [P07当前任务书：开发者存储与一键封包UI](docs/now/P07-tauri-desktop.md)
+- [P07转接归档：Tauri界面与追加功能](docs/old/P07-tauri-desktop.md)
 - [P06 Rust领域核心归档任务书](docs/old/P06-rust-core.md)
 - [P06-01契约与Windows运行步骤](docs/verification/P06-01-core-contract.md)
 - [P05数据与服务归档任务书](docs/old/P05-data-service.md)
@@ -41,6 +37,8 @@ P07-01至04已按用户确认收尾，[原验收与交接](docs/verification/P07
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- 启动P08-01并建立 `stage/p08-cutover`：登记无历史订单、主机192.168.4.23及首批1台母版；冻结现有服务/设备/恢复数据协议，列明实际部署资料缺口。P07转接归档并保留原验证边界；本轮仅文档与源码基线核对，未导入数据、封包或部署。见[P08任务书](docs/now/P08-cutover.md)。
 
 - P07-07增补：订单修改记录可展开查看字段/明细位置的前后差异；大范围内部财务报表自动按月及完整订单拆分，各文件标明批次，导出记录可翻页并独立重试。小报表仍生成一份，历史文件不改写；启动仍为 `npm run dev`。母子封包检查继续跳过。详见[实现与边界](docs/verification/P07-07-implementation.md)。
 
@@ -72,7 +70,7 @@ P07-01至04已按用户确认收尾，[原验收与交接](docs/verification/P07
 
 - P07-05按任务书先补齐六种Figma状态，再接入开发部署UI、受控目录读取/初始化、备份位置完整恢复验证、数据源草稿隔离和未知请求保护、Windows后台母子真实封包及Job取消。增加真实debug IPC/HTTPS检查与Windows按钮封包CI；区分开发本机文件夹和业务共享目录，空账本通过真实服务能力允许首次价格维护；正式前端排除开发UI，原生能力仅debug存在。f30fa59 Windows三个任务全部通过，真实母子UI封包/安装回退、Windows DPAPI下A/B账本读取与备份恢复、33项前端/26项浏览器及既有业务回归均通过；本次仅追加文档记录。用户视觉/交互签收待完成，P08未启动。
 
-- 按用户要求先建立[P07-05任务书](docs/now/P07-tauri-desktop.md#当前追加任务p07-05-开发者存储与一键封包-ui)，明确Figma先行、开发版存储/备份路径设置及真实读取、母子真实封包、失败/草稿/未知请求保护和验收清单；同步now及P08前置。原01至04验收保留，本次只改文档，尚未修改UI/原生能力或开始P08。
+- 按用户要求先建立[P07-05任务书](docs/old/P07-tauri-desktop.md#当前追加任务p07-05-开发者存储与一键封包-ui)，明确Figma先行、开发版存储/备份路径设置及真实读取、母子真实封包、失败/草稿/未知请求保护和验收清单；同步now及P08前置。原01至04验收保留，本次只改文档，尚未修改UI/原生能力或开始P08。
 
 - 按用户“P07-04收尾”登记[04验收](docs/verification/P07-04-acceptance.json)和[P07阶段交接](docs/verification/P07-acceptance.json)，归档任务书并修复入口链接。最新Windows三项CI全过，母子实际安装/升级/卸载/兼容回退及登记通过；目标环境实机观察保留交P08，本轮未启动P08或切换真实数据。
 
@@ -110,7 +108,7 @@ P07-01至04已按用户确认收尾，[原验收与交接](docs/verification/P07
 
 - P07-01导航按用户标注调整：价格维护、利润分析、报表与图片任务、存储与备份移至顶部主导航，当前项高亮；退出登录保留右上角账户菜单，角色可见范围保持。前端构建及模拟IPC浏览器导航/布局检查通过；本次Windows实机视觉待确认，未启动02。
 
-- 按用户确认重排[P07任务书](docs/now/P07-tauri-desktop.md)与[P08交接](docs/new/P08-cutover.md)：开发版保留配置，封包明确母版/子版，正式版部署授权后无登录直达业务；02交付设备授权/自动会话及权限，03核对界面，04交付两种安装包。稳定actor与目录继承规则保持，新增要求待实现；本轮仅文档，原01自动证据保留，未收尾或启动下一项。
+- 按用户确认重排[P07任务书](docs/old/P07-tauri-desktop.md)与[P08交接](docs/now/P08-cutover.md)：开发版保留配置，封包明确母版/子版，正式版部署授权后无登录直达业务；02交付设备授权/自动会话及权限，03核对界面，04交付两种安装包。稳定actor与目录继承规则保持，新增要求待实现；本轮仅文档，原01自动证据保留，未收尾或启动下一项。
 
 - P07-01自动门槛通过：[Windows CI](docs/verification/P07-01-ci-evidence-06.json)56项指纹匹配76934b4，24工具/52 Rust/9前端/10协议/7浏览器及真实Tauri交互、自然退出/清理全部通过，含提权WebView2 153 API启动。[本机05](docs/verification/P07-01-windows-evidence-05.json)非提权WebView2 155也通过：0.047秒自然退出、临时占用等待2.359秒后完整清理，无强制终止；原始日志保留，本机dirty状态不推定为干净源码。代码不改、无需重跑；01待用户视觉/交互确认，02至04/P08未启动。
 
