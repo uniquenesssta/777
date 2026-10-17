@@ -13,6 +13,14 @@
       "没有历史订单",
       "改用 192.168.4.23",
       "先用 1 台"
+    ],
+    "amendments": [
+      {
+        "at": "2026-10-17T21:59:51+08:00",
+        "instruction": "那还是改为4.38吧",
+        "service_host": "192.168.4.38",
+        "ordinary_backup_candidate_changed": false
+      }
     ]
   },
   "migration": {
@@ -25,8 +33,8 @@
     "development_data_policy": "Keep existing development data; never copy it to production implicitly"
   },
   "site_plan": {
-    "service_host": "192.168.4.23",
-    "supersedes_host_plan": "192.168.4.38",
+    "service_host": "192.168.4.38",
+    "supersedes_host_plan": "192.168.4.23",
     "manager_count": 1,
     "sales_count": null,
     "ordinary_backup_candidate": "\\\\192.168.4.23\\共享\\backup",
@@ -40,7 +48,8 @@
     "autostart_registration": null,
     "hidden_backup_root": null,
     "output_root": null,
-    "device_actor_mappings": []
+    "device_actor_mappings": [],
+    "host_plan_note": "Restores original P01 host by latest user instruction; backup destination remains unchanged"
   },
   "protocols": {
     "rule_version": "business-v1",
@@ -136,5 +145,6 @@
     "Issuing device grants",
     "Changing live ledger, backup or access permissions",
     "Deleting development or historical data"
-  ]
+  ],
+  "updated_at": "2026-10-17T22:00:23+08:00"
 }
