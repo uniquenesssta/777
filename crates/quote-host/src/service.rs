@@ -117,6 +117,8 @@ impl Service {
         } else {
             None
         };
+        // v1 upgrade is atomic and occurs only after validating this service and resources.
+        drop(store::open(&ledger, true)?);
         Ok(Self {
             root: root.into(),
             config,
@@ -133,6 +135,9 @@ impl Service {
     pub fn order(&self, a: &Actor, key: &str) -> Result<Value> {
         let c = store::open(&self.ledger, false)?;
         c.execute_batch("BEGIN")?;
+        Self::order_on(&c, a, key)
+    }
+    fn order_on(c: &rusqlite::Connection, a: &Actor, key: &str) -> Result<Value> {
         let value=c.query_row("SELECT owner_id,revision,state,price_id,created_at,rule_version,numeric_profile,details_json,income_cents,cost_cents,profit_cents FROM orders WHERE order_id=?",[key],|r|Ok((r.get::<_,String>(0)?,json!({"order_id":key,"revision":r.get::<_,i64>(1)?,"state":r.get::<_,String>(2)?,"price_version_id":r.get::<_,String>(3)?,"created_at":r.get::<_,String>(4)?,"rule_version":r.get::<_,String>(5)?,"numeric_profile":r.get::<_,String>(6)?,"details":serde_json::from_str::<Value>(&r.get::<_,String>(7)?).map_err(|_|rusqlite::Error::InvalidQuery)?,"income_cents":r.get::<_,i64>(8)?.to_string(),"cost_cents":r.get::<_,i64>(9)?.to_string(),"profit_cents":r.get::<_,i64>(10)?.to_string()})))).optional()?;
         let (owner, mut v) = value.ok_or_else(|| Error::new(404, "NOT_FOUND"))?;
         if a.role != "admin" && owner != a.subject {
@@ -147,9 +152,47 @@ impl Service {
         let mut st=c.prepare("SELECT sequence,raw_json,normalized_json,subtotal_before_cents,income_cents,cost_cents,profit_cents FROM lines WHERE order_id=? ORDER BY sequence")?;
         let lines=st.query_map([key],|r|{let mut n=serde_json::from_str::<Value>(&r.get::<_,String>(2)?).map_err(|_|rusqlite::Error::InvalidQuery)?;protocol::normalized(&mut n,a);let f=protocol::financial(json!({"income_cents":r.get::<_,i64>(4)?.to_string(),"cost_cents":r.get::<_,i64>(5)?.to_string(),"profit_cents":r.get::<_,i64>(6)?.to_string()}),a);let mut l=json!({"sequence":r.get::<_,i64>(0)?,"raw":serde_json::from_str::<Value>(&r.get::<_,String>(1)?).map_err(|_|rusqlite::Error::InvalidQuery)?,"normalized":n,"subtotal_before_cents":r.get::<_,i64>(3)?.to_string()});l.as_object_mut().unwrap().extend(f.as_object().unwrap().clone());Ok(l)})?.collect::<std::result::Result<Vec<_>,_>>()?;
         v["lines"] = json!(lines);
+        let ids = quote_ledger::editing::object_rows(
+            c,
+            "SELECT line_id FROM lines WHERE order_id=? ORDER BY sequence",
+            key,
+        )?;
+        for (line, id) in v["lines"].as_array_mut().unwrap().iter_mut().zip(ids) {
+            line["line_id"] = id["line_id"].clone();
+        }
+        v["customer_id"] = c
+            .query_row(
+                "SELECT customer_id FROM orders WHERE order_id=?",
+                [key],
+                |r| r.get::<_, Option<String>>(0),
+            )?
+            .map_or(Value::Null, Value::String);
+        let history=quote_ledger::editing::object_rows(c,"SELECT revision,snapshot_json,created_at,actor_id FROM order_versions WHERE order_id=? ORDER BY revision DESC",key)?;
+        let mut versions = vec![];
+        for h in history {
+            let rev = h["revision"]
+                .as_i64()
+                .ok_or_else(|| Error::new(503, "INVALID_DATABASE"))?;
+            let snap = quote_ledger::editing::validate_archive(
+                c,
+                key,
+                rev,
+                h["snapshot_json"]
+                    .as_str()
+                    .ok_or_else(|| Error::new(503, "INVALID_DATABASE"))?,
+            )?;
+            let o = &snap["order"];
+            versions.push(protocol::financial(json!({"revision":rev.to_string(),"created_at":h["created_at"],"details":serde_json::from_str::<Value>(o["details_json"].as_str().ok_or_else(||Error::new(503,"INVALID_DATABASE"))?)?,"income_cents":o["income_cents"].to_string(),"cost_cents":o["cost_cents"].to_string(),"profit_cents":o["profit_cents"].to_string()}),a));
+        }
+        v["history"] = json!(versions);
         let mut st=c.prepare("SELECT note_id,author_id,body,created_at FROM notes WHERE order_id=? ORDER BY created_at,note_id")?;
         let notes=st.query_map([key],|r|Ok(json!({"note_id":r.get::<_,String>(0)?,"author":r.get::<_,String>(1)?,"body":r.get::<_,String>(2)?,"created_at":r.get::<_,String>(3)?})))?.collect::<std::result::Result<Vec<_>,_>>()?;
         v["notes"] = json!(notes);
+        v["updated_at"] = json!(c.query_row(
+            "SELECT max(created_at) FROM audit_events WHERE order_id=?",
+            [key],
+            |r| r.get::<_, Option<String>>(0)
+        )?);
         Ok(v)
     }
     pub fn prepare_output(&self) -> Result<Option<Work>> {
@@ -249,6 +292,50 @@ impl Service {
             if path == "/v1/outputs" && method == "GET" {
                 return o.listing(&a);
             }
+            if path == "/v1/outputs/report" && method == "POST" {
+                Auth::admin(&a)?;
+                fields(data, &["request_id", "from", "to"], &[])?;
+                let mut d = data.clone();
+                d["kind"] = json!("excel_period");
+                let key = text(&d["request_id"], 36, true)?;
+                store::id(key)?;
+                let mut fp = d.clone();
+                fp["actor"] = json!(a.subject);
+                fp["role"] = json!(a.role);
+                if let Some(v) = o.receipt(&a, key, Some(&store::hash(store::encoded(&fp))))? {
+                    return Ok(v);
+                }
+                let date_format = time::format_description::parse("[year]-[month]-[day]")
+                    .map_err(|_| Error::new(422, "INVALID_OUTPUT_REQUEST"))?;
+                let from = text(&d["from"], 10, true)?;
+                let to = text(&d["to"], 10, true)?;
+                for value in [from, to] {
+                    if value.len() != 10 || time::Date::parse(value, &date_format).is_err() {
+                        return fail(422, "INVALID_OUTPUT_REQUEST");
+                    }
+                }
+                if from > to {
+                    return fail(422, "INVALID_OUTPUT_REQUEST");
+                }
+                let c = store::open(&self.ledger, false)?;
+                c.execute_batch("BEGIN")?;
+                let mut st=c.prepare("SELECT order_id FROM orders WHERE date(created_at,'+8 hours')>=? AND date(created_at,'+8 hours')<=? ORDER BY created_at,order_id")?;
+                let ids = st
+                    .query_map([from, to], |r| r.get::<_, String>(0))?
+                    .collect::<std::result::Result<Vec<_>, _>>()?;
+                let mut orders = vec![];
+                let mut size = 0;
+                for id in ids {
+                    let mut order = Self::order_on(&c, &a, &id)?;
+                    order.as_object_mut().unwrap().remove("history");
+                    size += store::encoded(&order).len();
+                    if size > 2 * 1024 * 1024 {
+                        return fail(413, "OUTPUT_SNAPSHOT_TOO_LARGE");
+                    }
+                    orders.push(order);
+                }
+                return o.enqueue(&a,&d,json!({"orders":orders,"range":{"from":from,"to":to,"timezone":"Asia/Shanghai"},"ledger_revision":store::verify(&c)?["revision"]}));
+            }
             if path == "/v1/outputs" && method == "POST" {
                 fields(
                     data,
@@ -264,6 +351,9 @@ impl Service {
                 }
                 store::id(text(&d["order_id"], 36, true)?)?;
                 if number(&d["expected_revision"])? < 1 {
+                    return fail(422, "INVALID_OUTPUT_REQUEST");
+                }
+                if d["kind"] == "excel_period" {
                     return fail(422, "INVALID_OUTPUT_REQUEST");
                 }
                 if d["kind"] == "excel_admin" {
@@ -292,6 +382,7 @@ impl Service {
             match (method, parts.as_slice()) {
                 ("GET", [id]) => return o.status(&a, id),
                 ("GET", [id, "content"]) => return o.content(&a, id),
+                ("GET", [id, "location"]) => return o.location(&a, id),
                 ("POST", [id, "retry"]) => {
                     fields(data, &["request_id"], &[])?;
                     return o.retry(&a, id, text(&data["request_id"], 36, true)?);
@@ -353,6 +444,61 @@ impl Service {
                     details: protocol::details(&data["details"])?,
                 })?;
                 Ok(protocol::financial(v, &a))
+            }
+            ("POST", "/v1/customer-orders") => {
+                crate::customers::listing(&store::open(&self.ledger, false)?, &a, data)
+            }
+            ("POST", "/v1/order-preview") | ("POST", "/v1/order-save") => {
+                let saving = path == "/v1/order-save";
+                fields(
+                    data,
+                    &["snapshot", "order_id", "expected_revision", "sources"],
+                    if saving {
+                        &["request_id", "details", "customer"]
+                    } else {
+                        &[]
+                    },
+                )?;
+                if !data["order_id"].is_null() && !data["order_id"].is_string() {
+                    return fail(422, "INVALID_BUSINESS_INPUT");
+                }
+                let oid = data["order_id"].as_str().map(str::to_string);
+                if let Some(oid) = &oid {
+                    store::id(oid)?;
+                }
+                let expected = if data["expected_revision"].is_null() {
+                    None
+                } else {
+                    Some(number(&data["expected_revision"])?)
+                };
+                let sources: Vec<Option<String>> = serde_json::from_value(data["sources"].clone())
+                    .map_err(|_| Error::new(422, "INVALID_BUSINESS_INPUT"))?;
+                let snapshot = protocol::quote(&data["snapshot"])?;
+                if saving {
+                    let v = self.mutate(Mutation::SaveOrder {
+                        request_id: text(&data["request_id"], 36, true)?.into(),
+                        actor: a.clone(),
+                        order_id: oid,
+                        expected_revision: expected,
+                        snapshot,
+                        details: protocol::details(&data["details"])?,
+                        sources,
+                        customer: data["customer"].clone(),
+                    })?;
+                    Ok(protocol::financial(v, &a))
+                } else {
+                    let c = store::open(&self.ledger, false)?;
+                    c.execute_batch("BEGIN")?;
+                    let (result, _) = quote_ledger::editing::preview(
+                        &c,
+                        &a,
+                        oid.as_deref(),
+                        expected,
+                        &snapshot,
+                        &sources,
+                    )?;
+                    Ok(protocol::calculated(result, &a))
+                }
             }
             ("GET", "/v1/analytics") => self.queries.analytics(&self.ledger, &a, query),
             ("GET", "/v1/orders") => self.queries.listing(&self.ledger, &a, query),

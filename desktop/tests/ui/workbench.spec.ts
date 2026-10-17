@@ -541,3 +541,30 @@ for (const username of ["manager", "sales-one"]) {
     }
   });
 }
+
+test("P07-07 customer match edits the chosen order and exports period financial report", async ({page})=>{
+  await login(page);
+  await page.getByLabel("订单号",{exact:true}).fill("00000");
+  const match=page.getByRole("region",{name:"匹配客户与订单"});
+  await expect(match.getByRole("button",{name:"继续编辑",exact:true})).toBeVisible();
+  await page.screenshot({path:"test-results/p07-07-customer-match.png"});
+  await match.getByRole("button",{name:"继续编辑",exact:true}).click();
+  await expect(page.getByText("已保存版本 1",{exact:true})).toBeVisible();
+  await page.getByLabel("第1行数量",{exact:true}).fill("2");
+  await page.getByRole("button",{name:"计算报价",exact:true}).click();
+  await page.getByRole("button",{name:"保存修改",exact:true}).click();
+  await page.getByRole("button",{name:"确认提交",exact:true}).click();
+  await expect(page.getByText("修改记录",{exact:true})).toBeVisible();
+  await page.screenshot({path:"test-results/p07-07-edited-order.png"});
+  await page.getByRole("button",{name:"订单记录",exact:true}).click();
+  await page.getByRole("button",{name:"按客户查看",exact:true}).click();
+  await page.getByLabel("搜索客户",{exact:true}).fill("客户0");
+  await page.getByRole("button",{name:"查找",exact:true}).click();
+  await expect(page.locator(".customer-group")).toHaveCount(1);
+  await page.screenshot({path:"test-results/p07-07-customer-group.png"});
+  await page.getByRole("button",{name:"导出记录",exact:true}).click();
+  await page.getByRole("button",{name:"导出 Excel",exact:true}).click();
+  await expect(page.getByRole("button",{name:"打开文件夹",exact:true})).toBeVisible();
+  await expect(page.getByText("内部财务报表（期间）",{exact:true})).toBeVisible();
+  await page.screenshot({path:"test-results/p07-07-report-folder.png"});
+});

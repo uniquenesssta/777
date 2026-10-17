@@ -1,14 +1,13 @@
 use crate::{paths, store::*, Error, Result};
 use base64::{engine::general_purpose::STANDARD, Engine};
 use num_bigint::BigInt;
-use quote_core::{
-    calculation::calculate,
-    models::{NUMERIC_PROFILE, RULE_VERSION},
-};
+use quote_core::models::{NUMERIC_PROFILE, RULE_VERSION};
 use rusqlite::{types::Value as SqlValue, Connection, OptionalExtension};
 use serde_json::{json, Value};
 use std::{fs::OpenOptions, path::Path, time::Duration};
-const TABLES: [&str; 7] = [
+pub const TABLES: [&str; 9] = [
+    "customers",
+    "order_versions",
     "orders",
     "lines",
     "notes",
@@ -20,6 +19,9 @@ const TABLES: [&str; 7] = [
 pub fn rows(c: &Connection, table: &str) -> Result<Vec<Vec<Value>>> {
     if !TABLES.contains(&table) {
         return Err(Error::new("VALIDATION"));
+    }
+    if ["customers", "order_versions"].contains(&table) && verify(c)?["schema_version"] == 1 {
+        return Ok(vec![]);
     }
     let mut stmt = c.prepare(&format!("SELECT * FROM {table}"))?;
     let count = stmt.column_count();
@@ -52,6 +54,9 @@ pub fn inventory(c: &Connection) -> Result<Value> {
     }
     let mut counts = serde_json::Map::new();
     for table in TABLES {
+        if ["customers", "order_versions"].contains(&table) && meta["schema_version"] == 1 {
+            continue;
+        }
         counts.insert(
             table.into(),
             json!(
@@ -87,7 +92,8 @@ pub fn inventory(c: &Connection) -> Result<Value> {
         };
         let q = decode_quote(serde_json::from_str(s(5)?)?)?;
         let p = load_prices(c, s(2)?)?;
-        let result = calculate(&q, &p);
+        let overrides = crate::editing::saved_prices(c, s(0)?, s(2)?)?;
+        let result = quote_core::calculation::calculate_with_prices(&q, &p, overrides.as_deref());
         if result.status != "ok"
             || order[3] != RULE_VERSION
             || order[4] != NUMERIC_PROFILE
@@ -151,6 +157,20 @@ pub fn inventory(c: &Connection) -> Result<Value> {
             sums[2] += a.profit();
         }
     }
+    for archived in rows(c, "order_versions")? {
+        crate::editing::validate_archive(
+            c,
+            archived[0]
+                .as_str()
+                .ok_or_else(|| Error::new("INVALID_DATABASE"))?,
+            archived[1]
+                .as_i64()
+                .ok_or_else(|| Error::new("INVALID_DATABASE"))?,
+            archived[2]
+                .as_str()
+                .ok_or_else(|| Error::new("INVALID_DATABASE"))?,
+        )?;
+    }
     for batch in rows(c, "import_batches")? {
         let map: Value = serde_json::from_str(
             batch[5]
@@ -186,7 +206,7 @@ pub fn inventory(c: &Connection) -> Result<Value> {
         }
     }
     Ok(
-        json!({"ledger_id":meta["ledger_id"],"schema_version":1,"schema_hash":SCHEMA_HASH,"revision":meta["revision"],"counts":counts,"active_income_cents":sums[0].to_string(),"active_cost_cents":sums[1].to_string(),"active_profit_cents":sums[2].to_string()}),
+        json!({"ledger_id":meta["ledger_id"],"schema_version":meta["schema_version"],"schema_hash":meta["schema_hash"],"revision":meta["revision"],"counts":counts,"active_income_cents":sums[0].to_string(),"active_cost_cents":sums[1].to_string(),"active_profit_cents":sums[2].to_string()}),
     )
 }
 pub fn backup(source: &Path, target: &Path) -> Result<Value> {
@@ -255,7 +275,12 @@ pub fn apply_import(
     let adds = data["rows"]
         .as_object()
         .ok_or_else(|| Error::new("VALIDATION"))?;
-    if adds.len() != 7 || TABLES.iter().any(|t| !adds.contains_key(*t)) {
+    if adds.len() != 7
+        || TABLES
+            .iter()
+            .filter(|t| !["customers", "order_versions"].contains(t))
+            .any(|t| !adds.contains_key(*t))
+    {
         return Err(Error::new("VALIDATION"));
     }
     // This is a fixed-table import delta, not arbitrary SQL or an external API.
@@ -276,8 +301,8 @@ pub fn apply_import(
         }
         let width = match table {
             "price_versions" | "requests" => 7,
-            "orders" => 14,
-            "lines" => 11,
+            "orders" => 15,
+            "lines" => 12,
             "notes" => 6,
             "audit_events" | "import_batches" => 8,
             _ => unreachable!(),

@@ -2,7 +2,8 @@
 import atexit
 import json
 import logging
-from logging.handlers import RotatingFileHandler
+from datetime import datetime, timezone, timedelta
+import uuid
 import os
 from pathlib import Path
 import threading
@@ -13,6 +14,56 @@ _LOGGER = None
 _RECENT = {}
 _ROOT = Path(__file__).resolve().parents[1]
 
+class SessionFileHandler(logging.Handler):
+    """One cross-process lock and rotation convention shared with Rust fs2."""
+    def __init__(self, directory, limit=4*1024*1024):
+        super().__init__()
+        self.directory = directory
+        self.limit = limit
+        self.warned = False
+
+    def emit(self, record):
+        try:
+            raw = (self.format(record) + '\n').encode('utf-8')
+            if len(raw) > 16384:
+                return
+            with open(self.directory / 'runtime.lock', 'a+b') as lock:
+                deadline = time.monotonic() + .1
+                while True:
+                    try:
+                        if os.name == 'nt':
+                            import msvcrt
+                            lock.seek(0)
+                            msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+                        else:
+                            import fcntl
+                            fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        break
+                    except OSError:
+                        if time.monotonic() >= deadline: raise
+                        time.sleep(.002)
+                try:
+                    path = self.directory / 'runtime.jsonl'
+                    if (path.stat().st_size if path.exists() else 0) + len(raw) > self.limit:
+                        (self.directory / 'runtime.4.jsonl').unlink(missing_ok=True)
+                        for i in range(3, 0, -1):
+                            previous = self.directory / f'runtime.{i}.jsonl'
+                            if previous.exists(): previous.replace(self.directory / f'runtime.{i+1}.jsonl')
+                        if path.exists(): path.replace(self.directory / 'runtime.1.jsonl')
+                    with path.open('ab') as stream:
+                        stream.write(raw)
+                        stream.flush()
+                finally:
+                    if os.name == 'nt':
+                        lock.seek(0)
+                        msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+                    else:
+                        fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+        except OSError:
+            if not self.warned:
+                self.warned = True
+                print('LOG_WRITE_FAILED: ' + str(self.directory))
+
 def initialize(root=None):
     global _LOGGER
     with _LOCK:
@@ -21,12 +72,14 @@ def initialize(root=None):
         root = Path(root or _ROOT)
         os.environ['QUOTE777_LOG_ROOT'] = str(root)
         try:
-            directory = root / 'logs'
-            directory.mkdir(exist_ok=True)
+            session = datetime.now(timezone(timedelta(hours=8))).strftime('%Y-%m-%d_%H%M%S') + '_' + uuid.uuid4().hex[:12]
+            directory = root / 'logs' / session
+            directory.mkdir(parents=True, exist_ok=False)
+            os.environ['QUOTE777_LOG_SESSION'] = session
             logger = logging.getLogger('quote777.development')
             logger.propagate = False
             logger.setLevel(logging.INFO)
-            handler = RotatingFileHandler(directory / 'development.jsonl', maxBytes=4*1024*1024, backupCount=4, encoding='utf-8')
+            handler = SessionFileHandler(directory)
             handler.setFormatter(logging.Formatter('%(message)s'))
             logger.addHandler(handler)
             _LOGGER = logger
@@ -37,7 +90,7 @@ def initialize(root=None):
     atexit.register(lambda: event('runtime.stop'))
 
 def _write(name, fields):
-    _LOGGER.info(json.dumps(dict(time_unix_ms=int(time.time()*1000), pid=os.getpid(), component='development', event=name, fields=fields), ensure_ascii=False))
+    _LOGGER.info(json.dumps(dict(time_unix_ms=int(time.time()*1000), pid=os.getpid(), component='development', session=os.environ.get('QUOTE777_LOG_SESSION'), event=name, fields=fields), ensure_ascii=False))
 
 def event(name, **fields):
     if _LOGGER is None:

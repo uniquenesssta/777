@@ -529,6 +529,25 @@ impl Desktop {
                 self.calculation = None;
                 result
             }
+            Action::CustomerOrders{query,offset,group_id,order_offset} => self.request("POST","/v1/customer-orders",Some(&json!({"query":query,"offset":offset,"group_id":group_id,"order_offset":order_offset.unwrap_or(0)}))).await,
+            Action::OrderPreview{snapshot,sources,order_id,expected_revision,draft_revision} => {
+                revision(&draft_revision)?;
+                self.calculation=None;
+                let expected=expected_revision.map(|s|revision(&s)).transpose()?;
+                let context=json!({"snapshot":snapshot,"sources":sources,"order_id":order_id,"expected_revision":expected});
+                let result=self.request("POST","/v1/order-preview",Some(&context)).await?;
+                self.calculation=Some(Calculation{snapshot:context,revision:draft_revision.clone(),result:result.clone()});
+                Ok(json!({"draft_revision":draft_revision,"result":result}))
+            }
+            Action::SaveOrder{snapshot,sources,order_id,expected_revision,draft_revision,details,customer} => {
+                let expected=expected_revision.map(|s|revision(&s)).transpose()?;
+                let mut context=json!({"snapshot":snapshot,"sources":sources,"order_id":order_id,"expected_revision":expected});
+                let c=self.calculation.as_ref().ok_or_else(||DesktopError::new(409,"CALCULATION_REQUIRED"))?;
+                if c.snapshot!=context||c.revision!=draft_revision||c.result["status"]!="ok"{return Err(DesktopError::new(409,"CALCULATION_STALE"));}
+                context["details"]=details;context["customer"]=customer;
+                let result=self.mutate("/v1/order-save",context).await;
+                self.calculation=None;result
+            }
             Action::Orders {
                 q,
                 state,
@@ -615,6 +634,28 @@ impl Desktop {
                 self.request("POST","/v1/settings",Some(&json!({"revision":revision(&rev)?,"export_dir":export_dir,"image_dir":image_dir}))).await
             }
             Action::Outputs {} => self.request("GET", "/v1/outputs", None).await,
+            Action::OpenOutputFolder { job_id } => {
+                let location = self
+                    .request(
+                        "GET",
+                        &format!("/v1/outputs/{}/location", identifier(&job_id)?),
+                        None,
+                    )
+                    .await?;
+                let path = location["output_path"]
+                    .as_str()
+                    .ok_or_else(|| DesktopError::new(409, "OUTPUT_LOCATION_UNAVAILABLE"))?
+                    .to_owned();
+                let url = self.session()?.connection.url.clone();
+                tokio::task::spawn_blocking(move || crate::output_folder::open(&path, &url))
+                    .await
+                    .map_err(|_| DesktopError::new(503, "OUTPUT_FOLDER_UNAVAILABLE"))??;
+                Ok(json!({"opened":true}))
+            }
+            Action::CreateReport{from,to}=>{
+                self.admin()?;
+                self.mutate("/v1/outputs/report",json!({"from":from,"to":to})).await
+            },
             Action::CreateOutput {
                 order_id,
                 expected_revision,
@@ -660,12 +701,12 @@ impl Desktop {
                 if !receipt["result"].is_null() {
                     self.store.clear("pending.bin")?;
                     return Ok(
-                        json!({"pending":false,"result":receipt["result"],"path":p.path,"submitted":if p.path=="/v1/orders" {p.body.clone()} else {Value::Null}}),
+                        json!({"pending":false,"result":receipt["result"],"path":p.path,"submitted":if ["/v1/orders","/v1/order-save"].contains(&p.path.as_str()) {p.body.clone()} else {Value::Null}}),
                     );
                 }
                 if retry {
                     return Ok(
-                        json!({"pending":false,"result":self.send_pending(&p).await?,"path":p.path,"submitted":if p.path=="/v1/orders" {p.body.clone()} else {Value::Null}}),
+                        json!({"pending":false,"result":self.send_pending(&p).await?,"path":p.path,"submitted":if ["/v1/orders","/v1/order-save"].contains(&p.path.as_str()) {p.body.clone()} else {Value::Null}}),
                     );
                 }
                 Ok(json!({"pending":true,"result":null,"request_id":p.body["request_id"]}))

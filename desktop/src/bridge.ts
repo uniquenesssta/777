@@ -6,6 +6,15 @@ export function request<T>(
   return invoke<T>("desktop_action", { request: { action, ...data } });
 }
 const errors: Record<string, string> = {
+  OUTPUT_SNAPSHOT_TOO_LARGE: "所选报表数据量过大，请缩小日期范围后分批导出。",
+  OUTPUT_TOO_LARGE: "生成文件过大，请缩小日期范围后分批导出。",
+  CUSTOMER_SELECTION_REQUIRED:"找到已有客户，请在匹配结果中选择该客户，再保存独立订单。",
+  CUSTOMER_IDENTITY_CONFLICT:"淘宝 ID 与微信号对应的信息不一致，请重新选择客户或修正填写信息。",
+  CUSTOMER_ORDER_NUMBER_EXISTS:"该客户已存在此订单号，请继续编辑原订单，或填写不同订单号。",
+  OUTPUT_FOLDER_ON_HOST: "文件保存在服务主机本地，请在该主机打开；当前电脑无法直接访问此位置。",
+  OUTPUT_FOLDER_UNAVAILABLE: "无法打开该次导出的文件夹，请检查共享连接、目录是否存在及访问权限。",
+  OUTPUT_LOCATION_UNAVAILABLE: "这条导出记录没有可用的文件位置。",
+  OUTPUT_NOT_READY: "文件尚未生成完成，请稍后再打开。",
   DIRECTORY_DIALOG_UNAVAILABLE: "暂时无法打开文件夹选择窗口，请重试或填写完整路径。",
   FILESYSTEM_PATH_REQUIRED: "请选择完整的文件夹路径。",
   INVALID_PUBLISHED_DIRECTORY: "请选择有效的完整保存路径。",

@@ -15,8 +15,7 @@ class DiagnosticsTests(unittest.TestCase):
     def test_flood_redaction_os_errors_and_rotation(self):
         with tempfile.TemporaryDirectory() as tmp:
             logger = logging.Logger('diagnostics-test')
-            from logging.handlers import RotatingFileHandler
-            handler = RotatingFileHandler(Path(tmp) / 'development.jsonl', maxBytes=1024, backupCount=4, encoding='utf-8')
+            handler = diagnostics.SessionFileHandler(Path(tmp), limit=4096)
             logger.addHandler(handler)
             with patch.object(diagnostics, '_LOGGER', logger), patch.object(diagnostics, '_RECENT', {}):
                 for _ in range(10000):
@@ -25,16 +24,27 @@ class DiagnosticsTests(unittest.TestCase):
                 diagnostics.failure('package', RuntimeError('password=VERY_SECRET token=SECRET'))
                 diagnostics.event('runtime.stop')
                 handler.flush()
-                rows=[json.loads(s) for s in (Path(tmp)/'development.jsonl').read_text(encoding='utf-8').splitlines()]
+                rows=[json.loads(s) for s in (Path(tmp)/'runtime.jsonl').read_text(encoding='utf-8').splitlines()]
                 self.assertLessEqual(len(rows), 5)
                 self.assertTrue(any(r['fields'].get('suppressed') == 9999 for r in rows))
-                raw=(Path(tmp)/'development.jsonl').read_text(encoding='utf-8')
+                raw=(Path(tmp)/'runtime.jsonl').read_text(encoding='utf-8')
                 self.assertNotIn('VERY_SECRET', raw)
                 self.assertIn('Access denied', raw)
                 for i in range(300): diagnostics.event('different', sequence=i)
-                self.assertEqual(len(list(Path(tmp).glob('development.jsonl*'))), 5)
-                self.assertTrue(all(p.stat().st_size <= 1024 for p in Path(tmp).iterdir()))
+                self.assertEqual(len(list(Path(tmp).glob('runtime*.jsonl'))), 5)
+                self.assertTrue(all(p.stat().st_size <= 4096 for p in Path(tmp).iterdir()))
             handler.close()
+
+    def test_separate_launches_and_shared_child_session(self):
+        import os, subprocess
+        with tempfile.TemporaryDirectory() as tmp:
+            env={**os.environ,'PYTHONPATH':str(ROOT/'tools')}
+            script="import p07_diagnostics as d; d.initialize(__import__('sys').argv[1]); d.event('parent'); import subprocess,sys,os; subprocess.run([sys.executable,'-c',\"import p07_diagnostics as d,logging,os; from pathlib import Path; l=logging.Logger('child'); l.addHandler(d.SessionFileHandler(Path(os.environ['QUOTE777_LOG_ROOT'])/'logs'/os.environ['QUOTE777_LOG_SESSION'])); l.info('child')\"],check=True)"
+            for _ in range(2): subprocess.run([sys.executable,'-c',script,tmp],env=env,check=True,capture_output=True)
+            folders=list((Path(tmp)/'logs').iterdir());self.assertEqual(len(folders),2)
+            for folder in folders:
+                self.assertEqual({p.name for p in folder.iterdir()},{'runtime.jsonl','runtime.lock'})
+                raw=(folder/'runtime.jsonl').read_text();self.assertIn('parent',raw);self.assertIn('child',raw)
 
     def test_control_poll_does_not_log_payload(self):
         from p07_developer import Developer

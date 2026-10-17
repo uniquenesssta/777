@@ -19,7 +19,10 @@ struct Logger {
 static LOGGER: OnceLock<Mutex<Logger>> = OnceLock::new();
 
 pub fn init(component: &str) {
-    let directory = std::env::var_os("QUOTE777_LOG_ROOT")
+    if LOGGER.get().is_some() {
+        return;
+    }
+    let root = std::env::var_os("QUOTE777_LOG_ROOT")
         .map(PathBuf::from)
         .or_else(|| {
             std::env::current_exe()
@@ -28,6 +31,32 @@ pub fn init(component: &str) {
         })
         .unwrap_or_else(|| PathBuf::from("."))
         .join("logs");
+    let session = std::env::var("QUOTE777_LOG_SESSION")
+        .ok()
+        .filter(|s| {
+            !s.is_empty()
+                && s.len() <= 96
+                && s.bytes()
+                    .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_')
+        })
+        .unwrap_or_else(|| {
+            let now = time::OffsetDateTime::now_utc()
+                .to_offset(time::UtcOffset::from_hms(8, 0, 0).unwrap());
+            format!(
+                "{:04}-{:02}-{:02}_{:02}{:02}{:02}_{}_{}",
+                now.year(),
+                now.month() as u8,
+                now.day(),
+                now.hour(),
+                now.minute(),
+                now.second(),
+                std::process::id(),
+                now.nanosecond()
+            )
+        });
+    // Called once at executable startup, before worker threads/children exist.
+    std::env::set_var("QUOTE777_LOG_SESSION", &session);
+    let directory = root.join(session);
     let _ = LOGGER.set(Mutex::new(Logger {
         directory,
         component: component.into(),
@@ -93,40 +122,41 @@ impl Logger {
             .create(true)
             .truncate(false)
             .write(true)
-            .open(self.directory.join(format!("{}.lock", self.component)))?;
-        // Do not wait for another process holding the rotation lock.
-        lock.try_lock_exclusive()?;
-        let path = self.directory.join(format!("{}.jsonl", self.component));
+            .open(self.directory.join("runtime.lock"))?;
+        // The same lock covers append and rotation in Rust and Python.
+        let deadline = Instant::now() + Duration::from_millis(100);
+        loop {
+            match lock.try_lock_exclusive() {
+                Ok(()) => break,
+                Err(e) if e.kind() == io::ErrorKind::WouldBlock && Instant::now() < deadline => {
+                    std::thread::sleep(Duration::from_millis(2))
+                }
+                Err(e) => return Err(e),
+            }
+        }
+        let path = self.directory.join("runtime.jsonl");
         let line = serde_json::to_vec(
-            &json!({"time_unix_ms":SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_millis(),"pid":std::process::id(),"component":self.component,"event":name,"fields":fields}),
+            &json!({"time_unix_ms":SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_millis(),"pid":std::process::id(),"component":self.component,"session":self.directory.file_name().map(|s|s.to_string_lossy()),"event":name,"fields":fields}),
         )?;
         if line.len() > 16384 {
             return Ok(());
         }
         if path.metadata().map(|m| m.len()).unwrap_or(0) + line.len() as u64 + 1 > LIMIT {
-            let old = self
-                .directory
-                .join(format!("{}.{}.jsonl", self.component, COPIES));
+            let old = self.directory.join(format!("runtime.{COPIES}.jsonl"));
             if old.exists() {
                 fs::remove_file(old)?;
             }
             for i in (1..COPIES).rev() {
-                let from = self
-                    .directory
-                    .join(format!("{}.{}.jsonl", self.component, i));
+                let from = self.directory.join(format!("runtime.{i}.jsonl"));
                 if from.exists() {
                     fs::rename(
                         from,
-                        self.directory
-                            .join(format!("{}.{}.jsonl", self.component, i + 1)),
+                        self.directory.join(format!("runtime.{}.jsonl", i + 1)),
                     )?;
                 }
             }
             if path.exists() {
-                fs::rename(
-                    &path,
-                    self.directory.join(format!("{}.1.jsonl", self.component)),
-                )?;
+                fs::rename(&path, self.directory.join("runtime.1.jsonl"))?;
             }
         }
         let mut file = OpenOptions::new().create(true).append(true).open(path)?;
@@ -160,7 +190,7 @@ mod tests {
             event("failure", json!({"code":"PATH_UNAVAILABLE"}));
         }
         event("runtime.stop", json!({}));
-        let raw = fs::read_to_string(directory.join("test.jsonl")).unwrap();
+        let raw = fs::read_to_string(directory.join("runtime.jsonl")).unwrap();
         let rows: Vec<Value> = raw
             .lines()
             .map(|v| serde_json::from_str(v).unwrap())
@@ -180,16 +210,16 @@ mod tests {
             recent: HashMap::new(),
         };
         for _ in 0..6 {
-            fs::write(directory.join("test.jsonl"), vec![b' '; LIMIT as usize]).unwrap();
+            fs::write(directory.join("runtime.jsonl"), vec![b' '; LIMIT as usize]).unwrap();
             logger
                 .write("test.error", json!({"path":"\\\\server\\共享","os_code":5}))
                 .unwrap();
         }
-        assert!(directory.join("test.4.jsonl").exists());
-        assert!(!directory.join("test.5.jsonl").exists());
+        assert!(directory.join("runtime.4.jsonl").exists());
+        assert!(!directory.join("runtime.5.jsonl").exists());
         assert_eq!(fs::read(directory.join("unrelated.txt")).unwrap(), b"keep");
         let record: Value =
-            serde_json::from_slice(&fs::read(directory.join("test.jsonl")).unwrap()).unwrap();
+            serde_json::from_slice(&fs::read(directory.join("runtime.jsonl")).unwrap()).unwrap();
         assert_eq!(record["fields"]["os_code"], 5);
         fs::remove_dir_all(directory).unwrap();
     }

@@ -5,7 +5,7 @@ import sqlite3
 from contextlib import closing
 from functools import lru_cache
 
-VERSION = 1
+VERSION = 2
 APPLICATION_ID = 0x3737374C
 DDL = (
 '''CREATE TABLE ledger_meta (singleton INTEGER PRIMARY KEY CHECK(singleton=1), schema_version INTEGER NOT NULL, schema_hash TEXT NOT NULL, ledger_id TEXT NOT NULL, revision INTEGER NOT NULL CHECK(revision>=0), active_price_id TEXT REFERENCES price_versions(price_id)) STRICT''',
@@ -27,6 +27,12 @@ for table in ('price_versions','lines','notes','requests','audit_events'):
     DDL += tuple(f"CREATE TRIGGER {table}_no_{op.lower()} BEFORE {op} ON {table} BEGIN SELECT RAISE(ABORT,'APPEND_ONLY'); END" for op in ('UPDATE','DELETE'))
 
 
+LEGACY_DDL = DDL
+from pathlib import Path
+MIGRATION_SQL = (Path(__file__).resolve().parents[1] / "crates/quote-ledger/src/migrate.sql").read_text(encoding="utf-8")
+MIGRATION = tuple(line.rstrip(";") for line in MIGRATION_SQL.splitlines() if line.strip())
+DDL = LEGACY_DDL + MIGRATION
+
 def signature(connection):
     rows = connection.execute("SELECT type,name,tbl_name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name").fetchall()
     # Ordered arrays + compact UTF-8 JSON can be reproduced by Rust directly.
@@ -34,8 +40,8 @@ def signature(connection):
     return hashlib.sha256(canonical.encode('utf-8')).hexdigest()
 
 
-@lru_cache(maxsize=1)
-def expected_hash():
+@lru_cache(maxsize=2)
+def expected_hash(version=VERSION):
     with closing(sqlite3.connect(':memory:')) as connection:
-        for sql in DDL:connection.execute(sql)
+        for sql in (LEGACY_DDL if version == 1 else DDL):connection.execute(sql)
         return signature(connection)

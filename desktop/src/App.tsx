@@ -11,7 +11,7 @@ import {
   SettingsPage,
   TasksPage,
 } from "./features/ManagementPages";
-import { Button, Icon } from "./ui/components";
+import { Button, Icon, Modal } from "./ui/components";
 // A formal installer never embeds the developer connection/login form.
 const formalPackage = import.meta.env.VITE_QUOTE777_DELIVERY === "manager" ||
   import.meta.env.VITE_QUOTE777_DELIVERY === "sales";
@@ -144,6 +144,9 @@ export default function App() {
           {!formalPackage && app.delivery === "development" && app.route === "developer" && app.session.role === "admin" && <DeveloperPage app={app} />}
         </main>
       )}
-    </>
+    <Modal open={!!app.draftChange} onOpenChange={(v)=>!v&&app.cancelDraftChange()} title="尚有未保存的修改" description="继续当前编辑，或放弃草稿并切换。" compact>
+        <div className="dialog-actions"><Button variant="outline" onClick={app.cancelDraftChange}>继续编辑</Button><Button onClick={app.confirmDraftChange}>放弃修改</Button></div>
+      </Modal>
+      </>
   );
 }

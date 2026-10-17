@@ -62,7 +62,7 @@ def protocol_smoke(*,windows):
             if kind.startswith('excel_'):
                 book=load_workbook(io.BytesIO(data))
                 try:
-                    fields=dict(list(book['Order'].values)[1:]);assert fields['order_ref']=='00003' and fields['income_cents']=='4000';assert ('cost_cents' in fields)==(kind=='excel_admin');assert all(w.freeze_panes=='A2' and all(c.font.bold for c in w[1]) for w in book);assert all(c.number_format=='@' and c.data_type!='f' for w in book for row in w for c in row)
+                    fields=dict(list(book['Order'].values)[1:]);assert fields['order_ref']=='00003' and fields['income_cents']=='4000';assert ('cost_cents' in fields)==(kind=='excel_admin');assert all(w.freeze_panes==('E2' if w.title.endswith('月') else 'A2' if w.title!='阅读说明' else None) and all(c.font.bold for c in w[1]) for w in book);assert all(c.number_format=='@' and c.data_type!='f' for w in book for row in w for c in row)
                 finally:book.close()
             else:
                 from PIL import Image
@@ -76,8 +76,8 @@ def protocol_smoke(*,windows):
                 assert not (public/filename).exists()
             else:assert (public/filename).read_bytes()==data
             tasks.append(task);contents.append(content)
-        inventory=host.service.ledger.inventory();assert inventory['counts']==dict(orders=3,lines=4,notes=1,price_versions=2,import_batches=1,requests=7,audit_events=7);assert [inventory[k] for k in ['active_income_cents','active_cost_cents','active_profit_cents']]==['11500','4600','6900']
-        backup=manager.request('POST','/v1/backup',{'kind':'daily'});folder=backup_pair(host,backup);assert json.loads((folder/'data.qbackup').read_bytes())['format']=='777-data-backup-v1'
+        inventory=host.service.ledger.inventory();assert inventory['counts']==dict(orders=3,lines=4,notes=1,price_versions=2,import_batches=1,requests=7,audit_events=7,customers=0,order_versions=0);assert [inventory[k] for k in ['active_income_cents','active_cost_cents','active_profit_cents']]==['11500','4600','6900']
+        backup=manager.request('POST','/v1/backup',{'kind':'daily'});folder=backup_pair(host,backup);assert json.loads((folder/'data.qbackup').read_bytes())['format']=='777-data-backup-v2'
         host.stop();restored=host.root/'native-restored';new_secret='isolated-new-password-123';restoration=restore_data_backup(host,backup,restored,password=new_secret);assert restoration['inventory']==inventory
         from quote_service.hosting import load
         _,_,checked=load(restored,auxiliary=not windows);assert checked.ledger.inventory()==inventory
@@ -85,7 +85,8 @@ def protocol_smoke(*,windows):
         assert checked.ledger.query_request(imported['request_id'],host.admin)==imported
         for task,content in zip(tasks,contents):assert checked.outputs.content(host.admin,task['job_id'])==content
         host.host_root=restored;host.password=new_secret;host.config=json.loads((restored/'private/service.json').read_bytes());host.fault=restored/'private/test-fault.txt';host.start();new_manager=host.client('recovered-manager');assert new_manager.request('GET','/v1/orders')['total']==3
-        try:sales.request('GET','/v1/me')
+        prior=host.client('sales-one',login=False);prior.token=sales.token
+        try:prior.request('GET','/v1/me')
         except APIError as e:assert e.status in (401,403)
         else:raise AssertionError('OLD_SESSION_SURVIVED')
         assert source.read_bytes()==raw and source.stat().st_mtime_ns==mtime

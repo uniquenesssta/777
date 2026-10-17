@@ -77,7 +77,9 @@ fn sheet(book: &mut Workbook, name: &str, rows: Vec<Vec<String>>) -> Result<()> 
 }
 pub fn write(payload: &Value) -> Result<Vec<u8>> {
     let kind = payload["kind"].as_str().ok_or_else(invalid)?;
-    if payload["format"] != "777-output-v1" || !matches!(kind, "excel_quote" | "excel_admin") {
+    if payload["format"] != "777-output-v1"
+        || !matches!(kind, "excel_quote" | "excel_admin" | "excel_period")
+    {
         return Err(Error::new("OUTPUT_VERSION_CONFLICT"));
     }
     let order = &payload["order"];
@@ -89,6 +91,47 @@ pub fn write(payload: &Value) -> Result<Vec<u8>> {
     let mut workbook = Workbook::new();
     let date = ExcelDateTime::from_ymd(2000, 1, 1).map_err(|_| invalid())?;
     workbook.set_properties(&DocProperties::new().set_creation_datetime(&date));
+    if kind == "excel_period" {
+        let orders = payload["orders"].as_array().ok_or_else(invalid)?;
+        crate::readable::write(
+            &mut workbook,
+            orders,
+            true,
+            &format!(
+                "内部财务报表 · {} 至 {}（北京时间，按原订单日期，包含作废记录但不计入合计）",
+                text(&payload["range"]["from"])?,
+                text(&payload["range"]["to"])?
+            ),
+        )?;
+        let mut metadata = vec![
+            vec!["format".into(), "777-output-v1".into()],
+            vec!["job_id".into(), text(&payload["job_id"])?],
+            vec!["payload_sha256".into(), hash],
+            vec!["kind".into(), kind.into()],
+        ];
+        if let Some(stamp) = payload["generated_at"].as_str() {
+            metadata.push(vec!["generated_at".into(), stamp.into()]);
+            metadata.push(vec![
+                "ledger_revision".into(),
+                payload["ledger_revision"].to_string(),
+            ]);
+            metadata.push(vec!["range".into(), payload["range"].to_string()]);
+        }
+        sheet(&mut workbook, "Protocol", metadata)?;
+        let bytes = workbook.save_to_buffer().map_err(|_| invalid())?;
+        if bytes.len() > OUTPUT_LIMIT {
+            return Err(Error::new("OUTPUT_TOO_LARGE"));
+        }
+        return Ok(bytes);
+    }
+    if payload["presentation"] == "monthly-v1" {
+        crate::readable::write(
+            &mut workbook,
+            std::slice::from_ref(order),
+            kind == "excel_admin",
+            "单笔订单导出",
+        )?;
+    }
     sheet(
         &mut workbook,
         "Protocol",

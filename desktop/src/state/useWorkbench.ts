@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { errorCode, errorMessage, request } from "../bridge";
 import type {
+  CustomerGroup,
+  CustomerListing,
   Calculation,
   Catalog,
   Connection,
@@ -14,7 +16,7 @@ import type {
 } from "../contracts";
 import { selectDraftSource } from "./developerDraft";
 import { profitRange, type ProfitPreset } from "./profit";
-import { draftReducer, restorableDraft, snapshot } from "./draft";
+import { draftReducer, restorableDraft, snapshot, draftContext } from "./draft";
 export type Route =
   | "quote"
   | "orders"
@@ -41,6 +43,7 @@ export function useWorkbench() {
   const [draft, dispatch] = useReducer(draftReducer, null, () =>
     restorableDraft(localStorage.getItem("777-desktop-draft-v1")),
   );
+  const [draftChange, setDraftChange] = useState<(() => void) | null>(null);
   const [route, setRoute] = useState<Route>("quote");
   const [feedback, setFeedback] = useState("");
   const [isError, setIsError] = useState(false);
@@ -85,13 +88,15 @@ export function useWorkbench() {
           ...(draftSource.current ? {source_pin:draftSource.current} : {}),
           details: draft.details,
           lines: draft.lines,
+          editing: draft.editing,
+          customer: draft.customer,
         }),
       );
     } catch {
       setFeedback("当前草稿无法保存到本机，请保持窗口打开。");
       setIsError(true);
     }
-  }, [draft.details, draft.lines]);
+  }, [draft.details, draft.lines, draft.editing, draft.customer]);
   const run = useCallback(
     async <T>(work: () => Promise<T>, done?: (v: T) => void, rethrow = false) => {
       if (busyRef.current) return;
@@ -124,6 +129,7 @@ export function useWorkbench() {
             epoch.current++;
             setSession(null);
             setSelected(null);
+          setDraftChange(null);
             setCatalog(null);
             setListing(null);
             setAnalysis(null);
@@ -285,6 +291,23 @@ export function useWorkbench() {
       ),
     [run],
   );
+  function guardDraft(work: () => void) {
+    if (pending || busy) return;
+    if (draft.lines.length) setDraftChange(() => work); else work();
+  }
+  const beginEdit = (order_id:string) => run(() => request<Order>("order",{order_id}),order => {
+    if(order.state!=="active")return;
+    const work=()=>{dispatch({type:"load_order",order});setSelected(order);setRoute("quote");};
+    if(draft.lines.length)setDraftChange(()=>work);else work();
+  });
+  function chooseCustomer(group:CustomerGroup, reset=false) {
+    const first=group.orders[0];if(!first)return;
+    const details={...group.details,order_ref:reset?"":draft.details.order_ref};
+    const customer=first.customer_id?{customer_id:first.customer_id}:{anchor_order_id:first.order_id};
+    const work=()=>{dispatch({type:reset?"customer":"link_customer",details,customer});setRoute("quote");};
+    if(reset)guardDraft(work);else work();
+  }
+  const customerOrders = (query:string,offset=0,group_id?:string,order_offset=0) => request<CustomerListing>("customer_orders",{query,offset,group_id:group_id??null,order_offset});
   const refreshPrices = () =>
     run(
       () => request<Catalog>("prices"),
@@ -297,8 +320,11 @@ export function useWorkbench() {
     const revision = draft.revision;
     return run(
       () =>
-        request<{ draft_revision: string; result: Calculation }>("calculate", {
+        request<{ draft_revision: string; result: Calculation }>("order_preview", {
           snapshot: snapshot(draft),
+          sources:draft.lines.map(l=>l.source??null),
+          order_id:draft.editing?.order_id??null,
+          expected_revision:draft.editing?.revision??null,
           draft_revision: revision,
         }),
       (v) => {
@@ -311,12 +337,17 @@ export function useWorkbench() {
     );
   };
   const submit = () => {
+    const context=draftContext(draft);
     const submitted = snapshot(draft),
       details = draft.details;
     return run(
       async () => {
-        const receipt = await request<{ order_id: string }>("submit", {
+        const receipt = await request<{ order_id: string }>("save_order", {
           snapshot: submitted,
+          sources:draft.lines.map(l=>l.source??null),
+          order_id:draft.editing?.order_id??null,
+          expected_revision:draft.editing?.revision??null,
+          customer:draft.customer??{},
           details,
           draft_revision: draft.revision,
         });
@@ -326,7 +357,7 @@ export function useWorkbench() {
       },
       (r) => {
         setPending(false);
-        dispatch({ type: "committed", snapshot: submitted, details });
+        dispatch({ type: "committed", snapshot: submitted, details,context });
         setSelected(r.value);
         setListing(null);
         setAnalysis(null);
@@ -449,18 +480,19 @@ export function useWorkbench() {
           pending: boolean;
           result: { order_id?: string } | null;
           path?: string;
-          submitted?: { snapshot: unknown; details: unknown };
+          submitted?: { snapshot: unknown; details: unknown; order_id?:string; expected_revision?:string; sources?:unknown; customer?:unknown };
         }>("recover", { retry }),
       (v) => {
         setPending(v.pending);
         if (!v.pending && v.result) {
           setFeedback("原请求已确认保存。");
-          if (v.path === "/v1/orders") {
+          if (v.path === "/v1/orders" || v.path === "/v1/order-save") {
             if (v.submitted)
               dispatch({
                 type: "committed",
                 snapshot: v.submitted.snapshot,
                 details: v.submitted.details,
+                context:v.path==="/v1/order-save"?{order_id:v.submitted.order_id??null,expected_revision:v.submitted.expected_revision==null?null:String(v.submitted.expected_revision),sources:v.submitted.sources,customer:v.submitted.customer??{}}:undefined,
               });
             else dispatch({ type: "invalidate" });
           }
@@ -558,6 +590,13 @@ export function useWorkbench() {
         return result;
       }, undefined, true);
     },
+    draftChange,
+    confirmDraftChange:()=>{const work=draftChange;setDraftChange(null);work?.();},
+    cancelDraftChange:()=>setDraftChange(null),
+    cancelEdit:()=>guardDraft(()=>{dispatch({type:"reset"});setRoute("orders");void loadOrders({...filters,view:""});}),
+    beginEdit,
+    chooseCustomer,
+    customerOrders,
     listScrollRef,
     delivery,
     automatic,
@@ -597,6 +636,8 @@ export function useWorkbench() {
     loadJobs,
     output,
     retryOutput,
+    createReport:(from:string,to:string)=>run(async()=>{await request("create_report",{from,to});return afterSaved(()=>request<{jobs:Job[]}>("outputs"));},r=>{setJobs(r.value?.jobs??[]);savedFeedback(r,"内部财务报表任务已创建。");}),
+    openOutputFolder: (job_id: string) => run(() => request("open_output_folder", {job_id})),
     recover,
     loadSettings,
     saveSettings,

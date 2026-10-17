@@ -38,6 +38,7 @@ export type RawLine =
     }
   | { line_kind: "discount"; percent: string; name: string };
 export interface Line extends Record<string, unknown> {
+  line_id?: string;
   sequence: number;
   raw: RawLine;
   normalized: Record<string, string>;
@@ -65,7 +66,12 @@ export interface Calculation {
   issues: { reason: string; field: string; line_index: number | null }[];
   warnings: unknown[];
 }
+export interface CustomerChoice { customer_id?: string; anchor_order_id?: string; new_customer?: boolean }
+export interface CustomerGroup { group_id:string; details:Order["details"]; orders:Order[]; total:number; active_count:number; totals:Money; order_offset:number }
+export interface CustomerListing { groups:CustomerGroup[]; total:number; offset:number; limit:number }
 export interface Order extends Money {
+  customer_id?: string | null;
+  history?: {revision:string;created_at:string;details:Order["details"];income_cents:string;cost_cents?:string;profit_cents?:string}[];
   order_id: string;
   revision: string;
   state: "active" | "void";
@@ -96,6 +102,7 @@ export interface Preferences {
   image_dir: string;
 }
 export interface Job {
+  range?:{from:string;to:string};
   job_id: string;
   order_id: string;
   kind: string;

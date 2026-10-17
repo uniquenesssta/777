@@ -1,3 +1,4 @@
+import { CustomerMatches } from "./CustomerOrders";
 import { useEffect, useRef, useState } from "react";
 import type { Line, Money, Order, RawLine } from "../contracts";
 import type { Workbench } from "../state/useWorkbench";
@@ -73,6 +74,7 @@ export function Summary({
   );
 }
 export function QuotePage({ app }: { app: Workbench }) {
+  const [matchQuery,setMatchQuery] = useState("");
   const [confirm, setConfirm] = useState(false);
   const [confirmRevision, setConfirmRevision] = useState("");
   const { draft, catalog, dispatch } = app;
@@ -143,18 +145,20 @@ export function QuotePage({ app }: { app: Workbench }) {
                 key={k}
               >
                 <Input
-                  maxLength={4096}
+                  maxLength={256}
                   value={draft.details[k]}
-                  onChange={(e) =>
+                  onChange={(e) => { setMatchQuery(e.target.value);
                     dispatch({
                       type: "edit",
                       details: { ...draft.details, [k]: e.target.value },
-                    })
+                    });}
                   }
                 />
               </Field>
             ))}
           </div>
+          {draft.editing ? <div className="customer-match editing-context"><strong>编辑订单 {draft.details.order_ref || "未填写订单号"}</strong><span>已保存版本 {draft.editing.revision}</span><Button variant="ghost" onClick={()=>void app.readOrder(draft.editing!.order_id)}>查看修改记录</Button></div> : null}
+          <CustomerMatches app={app} query={matchQuery} />
           <div className="section-heading">
             <h2>
               商品明细{" "}
@@ -212,9 +216,9 @@ export function QuotePage({ app }: { app: Workbench }) {
                       </Button>
                     </div>
                   );
-                const price = catalog?.items.find(
-                  (p) => p.product_id === raw.product_id,
-                );
+                const current = catalog?.items.find((p) => p.product_id === raw.product_id);
+                const frozen=l.frozen?.product_id===raw.product_id?l.frozen:undefined;
+                const price=frozen?{...current,...frozen,unit_sale:frozen.sale,pricing_mode:undefined}:current;
                 return (
                   <div className="quote-row" key={l.id} id={`quote-line-${l.id}`}>
                     <small className="row-number">
@@ -222,7 +226,7 @@ export function QuotePage({ app }: { app: Workbench }) {
                     </small>
                     <div className="product-cell">
                       <select className="product-select" aria-label={`第${index + 1}行商品`} value={raw.product_id} onChange={e => editLine(l.id, "product_id", e.target.value)} disabled={!catalog}>
-                        {!price && <option value={raw.product_id}>{raw.product_id}（已下架）</option>}
+                        {!current && <option value={raw.product_id}>{raw.product_id}（已下架）</option>}
                         {catalog?.items.map(p => <option key={p.product_id} value={p.product_id}>{p.product_id}</option>)}
                       </select>
                       <small>{price?.single ? "单件计价" : "面积计价"}</small>
@@ -333,9 +337,9 @@ export function QuotePage({ app }: { app: Workbench }) {
               } else void app.calculate();
             }}
           >
-            {app.busy ? "处理中…" : valid ? "核对并提交订单" : "计算报价"}
+            {app.busy ? "处理中…" : valid ? (draft.editing?"保存修改":"核对并提交订单") : "计算报价"}
           </Button>
-          <p>提交前再次核对价格与商品信息。</p>
+          {draft.editing && <Button variant="ghost" disabled={app.busy||app.pending} onClick={app.cancelEdit}>取消编辑</Button>}
           {app.pending && (
             <section className="pending-actions" aria-label="原请求处理">
               <p>{!app.isError && app.feedback ? app.feedback : "原请求结果待核查。"}</p>
@@ -355,7 +359,7 @@ export function QuotePage({ app }: { app: Workbench }) {
       <Modal
         open={confirm}
         onOpenChange={(v) => !app.busy && setConfirm(v)}
-        title="确认提交订单"
+        title={draft.editing?"确认保存修改":"确认提交订单"}
         description={`${draft.details.customer || "未填写客户"} · ${draft.details.order_ref || "未填写订单号"}`}
         compact
       >

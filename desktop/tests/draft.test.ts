@@ -99,3 +99,8 @@ test("confirmed original order clears only its own raw draft and preserves edits
   assert.equal(kept.calculation, null);
   assert.ok(BigInt(kept.revision) > BigInt(d.revision));
 });
+test("late edit receipt cannot clear another order with identical customer and goods",()=>{
+ const d={...emptyDraft(),editing:{order_id:"second",revision:"1"},details:{customer:"same",order_ref:"",wechat:""}};
+ const result=draftReducer(d,{type:"committed",snapshot:{price_version_id:"",rule_version:"business-v1",numeric_profile:"numeric-v1",lines:[]},details:d.details,context:{order_id:"first",expected_revision:"1",sources:[],customer:{}}});
+ assert.equal(result.editing?.order_id,"second");
+});

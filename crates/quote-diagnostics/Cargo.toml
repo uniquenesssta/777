@@ -8,3 +8,4 @@ license.workspace = true
 [dependencies]
 serde_json.workspace = true
 fs2 = "=0.4.3"
+time.workspace = true

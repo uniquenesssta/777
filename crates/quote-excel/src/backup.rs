@@ -162,6 +162,16 @@ pub fn write(data: &Value) -> Result<Vec<u8>> {
     let created =
         ExcelDateTime::parse_from_str(stamp.get(..19).ok_or_else(bad)?).map_err(|_| bad())?;
     book.set_properties(&DocProperties::new().set_creation_datetime(&created));
+    crate::readable::write(
+        &mut book,
+        &crate::readable::backup_orders(data)?,
+        true,
+        &format!(
+            "每日完整备份 · {} · 快照 {}",
+            value(&data["business_date"]),
+            value(&data["snapshot_id"])
+        ),
+    )?;
     let mut info = vec![vec!["项目".into(), "说明".into()]];
     for (k, label) in [
         ("format", "恢复格式"),

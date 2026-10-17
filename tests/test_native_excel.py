@@ -226,7 +226,11 @@ class LegacyWorkerCompatibilityTests(unittest.TestCase):
         from quote_service.hosting import initialize,load
         from quote_service.backend import select_backend
         self.temp=tempfile.TemporaryDirectory(prefix='777-p06-legacy-format-');self.root=Path(self.temp.name)
-        secret='legacy-fixture-password-123';initialize(self.root/'host',self.root/'backups','manager',secret,hosts=['localhost'],auxiliary=os.name!='nt')
+        from quote_ledger import Ledger
+        create=Ledger.create
+        secret='legacy-fixture-password-123'
+        with patch.object(Ledger,'create',side_effect=lambda path:create(path,schema_version=1)):
+            initialize(self.root/'host',self.root/'backups','manager',secret,hosts=['localhost'],auxiliary=os.name!='nt')
         select_backend(self.root/'host','manager',secret,'rust',binary=self.binary,notices=ROOT/'THIRD_PARTY_NOTICES.md',auxiliary=os.name!='nt')
         _,_,self.service=load(self.root/'host',auxiliary=os.name!='nt')
         self.actor=self.service.auth.authenticate(self.service.auth.login('manager',secret,'fixture')['token'])

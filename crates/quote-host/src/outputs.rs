@@ -15,7 +15,8 @@ use std::{
 pub const DDL: &str = include_str!("../../../docs/verification/P06-04-output-schema.sql");
 const APP: i64 = 926365519;
 const LIMIT: usize = 4 * 1024 * 1024;
-const PROJECTION: &str = "job_id,order_id,kind,state,attempts,error,blob_sha256,size,created_at";
+const PROJECTION: &str =
+    "job_id,order_id,kind,state,attempts,error,blob_sha256,size,created_at,payload_json";
 pub struct Outputs {
     pub path: PathBuf,
     ledger_id: String,
@@ -48,12 +49,12 @@ fn job(r: &rusqlite::Row<'_>) -> rusqlite::Result<Job> {
 }
 fn projection(r: &rusqlite::Row<'_>) -> rusqlite::Result<Value> {
     Ok(
-        json!({"job_id":r.get::<_,String>(0)?,"order_id":r.get::<_,String>(1)?,"kind":r.get::<_,String>(2)?,"state":r.get::<_,String>(3)?,"attempts":r.get::<_,i64>(4)?,"error":r.get::<_,Option<String>>(5)?,"blob_sha256":r.get::<_,Option<String>>(6)?,"size":r.get::<_,Option<i64>>(7)?,"created_at":r.get::<_,String>(8)?,"format":"777-output-v1"}),
+        json!({"job_id":r.get::<_,String>(0)?,"order_id":r.get::<_,String>(1)?,"kind":r.get::<_,String>(2)?,"state":r.get::<_,String>(3)?,"attempts":r.get::<_,i64>(4)?,"error":r.get::<_,Option<String>>(5)?,"blob_sha256":r.get::<_,Option<String>>(6)?,"size":r.get::<_,Option<i64>>(7)?,"created_at":r.get::<_,String>(8)?,"range":serde_json::from_str::<Value>(&r.get::<_,String>(9)?).map_err(|_|rusqlite::Error::InvalidQuery)?["range"],"format":"777-output-v1"}),
     )
 }
 fn extension(kind: &str) -> Result<&'static str> {
     match kind {
-        "excel_quote" | "excel_admin" => Ok(".xlsx"),
+        "excel_quote" | "excel_admin" | "excel_period" => Ok(".xlsx"),
         "quote_png" => Ok(".png"),
         _ => fail(422, "INVALID_OUTPUT_REQUEST"),
     }
@@ -66,6 +67,7 @@ pub fn public_order(mut v: Value) -> Value {
             "state",
             "price_version_id",
             "created_at",
+            "updated_at",
             "details",
             "income_cents",
             "notes",
@@ -178,7 +180,9 @@ impl Outputs {
             .query_row("SELECT * FROM jobs WHERE job_id=?", [key], job)
             .optional()?
             .ok_or_else(|| Error::new(404, "NOT_FOUND"))?;
-        if a.role != "admin" && (j.actor != a.subject || j.kind == "excel_admin") {
+        if a.role != "admin"
+            && (j.actor != a.subject || matches!(j.kind.as_str(), "excel_admin" | "excel_period"))
+        {
             return fail(404, "NOT_FOUND");
         }
         Ok(j)
@@ -205,12 +209,19 @@ impl Outputs {
         {
             return fail(429, "OUTPUT_QUEUE_FULL");
         }
-        let order = if kind == "excel_admin" {
+        if matches!(kind, "excel_admin" | "excel_period") && a.role != "admin" {
+            return fail(403, "FORBIDDEN");
+        }
+        let order = if matches!(kind, "excel_admin" | "excel_period") {
             order
         } else {
             public_order(order)
         };
-        let payload = json!({"format":"777-output-v1","job_id":key,"kind":kind,"order":order});
+        let payload = if kind == "excel_period" {
+            json!({"format":"777-output-v1","presentation":"monthly-v1","generated_at":store::now(),"job_id":key,"kind":kind,"orders":order["orders"],"range":order["range"],"ledger_revision":order["ledger_revision"]})
+        } else {
+            json!({"format":"777-output-v1","presentation":"monthly-v1","generated_at":store::now(),"job_id":key,"kind":kind,"order":order})
+        };
         let raw = encoded(&payload);
         if raw.len() > 2 * 1024 * 1024 {
             return fail(413, "OUTPUT_SNAPSHOT_TOO_LARGE");
@@ -221,7 +232,11 @@ impl Outputs {
                 key,
                 a.subject,
                 a.role,
-                order["order_id"].as_str(),
+                if kind == "excel_period" {
+                    Some(key)
+                } else {
+                    order["order_id"].as_str()
+                },
                 kind,
                 raw,
                 hash(encoded(&payload)),
@@ -249,6 +264,20 @@ impl Outputs {
             projection,
         )?)
     }
+    pub fn location(&self, a: &Actor, key: &str) -> Result<Value> {
+        let c = self.connection()?;
+        self.owned(&c, a, key)?;
+        let (state, path): (String, Option<String>) = c.query_row(
+            "SELECT state,output_path FROM jobs WHERE job_id=?",
+            [key],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )?;
+        if state != "done" {
+            return fail(409, "OUTPUT_NOT_READY");
+        }
+        let path = path.ok_or_else(|| Error::new(409, "OUTPUT_LOCATION_UNAVAILABLE"))?;
+        Ok(json!({"output_path":path}))
+    }
     pub fn listing(&self, a: &Actor) -> Result<Value> {
         let c = self.connection()?;
         let mut st = c.prepare(&format!(
@@ -256,7 +285,7 @@ impl Outputs {
             if a.role == "admin" {
                 ""
             } else {
-                " WHERE actor_id=? AND kind!='excel_admin'"
+                " WHERE actor_id=? AND kind NOT IN ('excel_admin','excel_period')"
             }
         ))?;
         let rows = if a.role == "admin" {
@@ -433,28 +462,29 @@ impl Outputs {
             .collect::<std::result::Result<Vec<_>, _>>()?;
         let mut names = vec![];
         for j in jobs {
-            let old:Option<(i64,i64,i64,i64,String)>=l.query_row("SELECT revision,income_cents,cost_cents,profit_cents,details_json FROM orders WHERE order_id=?",[&j.order],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?))).optional()?;
-            let o = &j.payload["order"];
-            let valid = old.as_ref().is_some_and(|r| {
-                r.0 >= o["revision"].as_i64().unwrap_or(1)
-                    && exact_cents(&o["income_cents"], r.1)
-                    && serde_json::from_str::<Value>(&r.4).ok().as_ref() == Some(&o["details"])
-            });
-            if !valid
-                || hash(encoded(&j.payload)) != j.payload_hash
+            if hash(encoded(&j.payload)) != j.payload_hash
                 || j.payload["format"] != "777-output-v1"
                 || j.payload["job_id"] != j.id
                 || j.payload["kind"] != j.kind
             {
                 return fail(503, "OUTPUT_LEDGER_BINDING_INVALID");
             }
-            if j.kind == "excel_admin"
-                && (j.role != "admin"
-                    || old.as_ref().is_none_or(|r| {
-                        !exact_cents(&o["cost_cents"], r.2) || !exact_cents(&o["profit_cents"], r.3)
-                    }))
-            {
+            let admin = matches!(j.kind.as_str(), "excel_admin" | "excel_period");
+            if admin && j.role != "admin" {
                 return fail(503, "OUTPUT_LEDGER_BINDING_INVALID");
+            }
+            if j.kind == "excel_period" {
+                for o in j.payload["orders"]
+                    .as_array()
+                    .ok_or_else(|| Error::new(503, "OUTPUT_LEDGER_BINDING_INVALID"))?
+                {
+                    validate_order_binding(&l, o, admin)?;
+                }
+            } else {
+                if j.payload["order"]["order_id"] != j.order {
+                    return fail(503, "OUTPUT_LEDGER_BINDING_INVALID");
+                }
+                validate_order_binding(&l, &j.payload["order"], admin)?;
             }
             if j.blob_hash.is_some() {
                 self.blob(&j)?;
@@ -514,7 +544,7 @@ impl Work {
             };
             let sha = hash(&raw);
             blob = Some((sha.clone(), raw.len()));
-            if self.job.kind == "excel_admin" {
+            if matches!(self.job.kind.as_str(), "excel_admin" | "excel_period") {
                 return Ok(self.path.clone());
             }
             let dir = self.preferences[if self.job.kind == "quote_png" {
@@ -654,4 +684,33 @@ pub fn publish(source: &Path, root: &Path, name: &str, sha: &str) -> Result<Path
 fn exact_cents(value: &Value, cents: i64) -> bool {
     let expected = cents.to_string();
     value.as_str() == Some(expected.as_str())
+}
+
+fn validate_order_binding(c: &Connection, o: &Value, admin: bool) -> Result<()> {
+    let bad = || Error::new(503, "OUTPUT_LEDGER_BINDING_INVALID");
+    let oid = o["order_id"].as_str().ok_or_else(bad)?;
+    let revision = o["revision"].as_i64().filter(|r| *r > 0).ok_or_else(bad)?;
+    let mut old = quote_ledger::editing::snapshot(c, oid)?["order"].clone();
+    if store::verify(c)?["schema_version"] == 2 {
+        let archive:Option<(i64,String)>=c.query_row("SELECT revision,snapshot_json FROM order_versions WHERE order_id=? AND revision>=? ORDER BY revision LIMIT 1",params![oid,revision],|r|Ok((r.get(0)?,r.get(1)?))).optional()?;
+        if let Some((rev, raw)) = archive {
+            old = quote_ledger::editing::validate_archive(c, oid, rev, &raw)?["order"].clone();
+        }
+    }
+    if old["revision"].as_i64().is_none_or(|r| r < revision)
+        || serde_json::from_str::<Value>(old["details_json"].as_str().ok_or_else(bad)?)?
+            != o["details"]
+    {
+        return Err(bad());
+    }
+    for k in if admin {
+        vec!["income_cents", "cost_cents", "profit_cents"]
+    } else {
+        vec!["income_cents"]
+    } {
+        if !exact_cents(&o[k], old[k].as_i64().ok_or_else(bad)?) {
+            return Err(bad());
+        }
+    }
+    Ok(())
 }

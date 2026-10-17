@@ -5,6 +5,7 @@ Previously imported lookalikes from a different legacy hash are refused rather
 than merged or silently imported twice. No imported catalog becomes active.
 """
 from dataclasses import asdict
+from quote_core.models import price_wire
 import base64
 import json
 import uuid
@@ -192,7 +193,7 @@ def apply_source(ledger, actor, owner_id, raw, kind, *, expected_review_sha256,
                 add_prices(prices)
                 rid = uid('order-request:' + oid)
                 amounts = result.totals
-                c.execute('INSERT INTO orders VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                c.execute('INSERT INTO orders(order_id,owner_id,price_id,rule_version,numeric_profile,input_json,details_json,income_cents,cost_cents,profit_cents,state,revision,created_at,request_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
                           (oid, owner_id, prices.price_version_id, RULE_VERSION, NUMERIC_PROFILE,
                            encoded(asdict(snapshot)), encoded(order['details']), amounts.income_cents,
                            amounts.cost_cents, amounts.profit_cents, order['state'], 1, order['created_at'], rid))
@@ -205,9 +206,9 @@ def apply_source(ledger, actor, owner_id, raw, kind, *, expected_review_sha256,
                 for line, source_row in zip(result.lines, details):
                     source_lid = source_row['values'].get('明细ID')
                     lid = uid('line:' + oid + ':' + str(source_lid or line.sequence))
-                    c.execute('INSERT INTO lines VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+                    c.execute('INSERT INTO lines(line_id,order_id,sequence,kind,raw_json,normalized_json,price_json,income_cents,cost_cents,profit_cents,subtotal_before_cents) VALUES(?,?,?,?,?,?,?,?,?,?,?)',
                               (lid, oid, line.sequence, line.raw.line_kind, encoded(asdict(line.raw)),
-                               encoded(dict(line.normalized)), encoded(asdict(line.price)) if line.price else None,
+                               encoded(dict(line.normalized)), encoded(price_wire(line.price)) if line.price else None,
                                line.amounts.income_cents, line.amounts.cost_cents, line.amounts.profit_cents,
                                line.subtotal_before_cents))
                     row_map.append({'source_sheet': '利润明细', 'source_row': source_row['row'],

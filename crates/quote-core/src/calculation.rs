@@ -6,8 +6,15 @@ use serde_json::json;
 use std::collections::HashMap;
 
 pub fn calculate(q: &Quote, p: &Prices) -> QuoteResult {
+    calculate_with_prices(q, p, None)
+}
+pub fn calculate_with_prices(
+    q: &Quote,
+    p: &Prices,
+    prices: Option<&[Option<PriceItem>]>,
+) -> QuoteResult {
     let mut index = None;
-    match calculate_checked(q, p, &mut index) {
+    match calculate_checked(q, p, &mut index, prices) {
         Ok(r) => r,
         Err(f) => QuoteResult::invalid(Some(q), vec![Issue::validation(f, index)]),
     }
@@ -16,7 +23,11 @@ fn calculate_checked(
     q: &Quote,
     p: &Prices,
     index: &mut Option<usize>,
+    prices: Option<&[Option<PriceItem>]>,
 ) -> Result<QuoteResult, Fault> {
+    if prices.is_some_and(|p| p.len() != q.lines.len()) {
+        return Err(Fault::new("LINE_CAPACITY", "lines"));
+    }
     validate_models(q, p)?;
     if q.rule_version != json!(RULE_VERSION) || q.numeric_profile != json!(NUMERIC_PROFILE) {
         return Err(Fault::new("RULE_VERSION_UNSUPPORTED", "rule_version"));
@@ -74,10 +85,13 @@ fn calculate_checked(
                 w,
                 ..
             } => {
-                let price = product_id
-                    .as_str()
-                    .and_then(|id| catalog.get(id))
+                let price = prices
+                    .and_then(|p| p[i].as_ref())
+                    .or_else(|| product_id.as_str().and_then(|id| catalog.get(id).copied()))
                     .ok_or_else(|| Fault::new("PRODUCT_NOT_FOUND", "product_id"))?;
+                if price.product_id != *product_id {
+                    return Err(Fault::new("PRODUCT_NOT_FOUND", "product_id"));
+                }
                 let single = price
                     .single
                     .as_bool()
@@ -112,7 +126,7 @@ fn calculate_checked(
                     ("cost".into(), expense.text()),
                     ("k".into(), k.text()),
                 ]);
-                (amount, Some((*price).clone()), normalized)
+                (amount, Some(price.clone()), normalized)
             }
         };
         income = income

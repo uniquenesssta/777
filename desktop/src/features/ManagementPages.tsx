@@ -9,6 +9,8 @@ import {
   Input,
 } from "../ui/components";
 export function TasksPage({ app }: { app: Workbench }) {
+  const today=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+  const [from,setFrom]=useState(today.slice(0,7)+"-01"),[to,setTo]=useState(today);
   useEffect(() => {
     if (
       !app.jobs.some((j) =>
@@ -40,6 +42,7 @@ export function TasksPage({ app }: { app: Workbench }) {
         {app.session?.role === "admin" ? "或“内部财务报表”" : ""}
         后，可在这里查看进度和保存结果，失败时重试。
       </p>
+      {app.session?.role==="admin"&&<form className="order-filters" onSubmit={e=>{e.preventDefault();void app.createReport(from,to);}}><strong>内部财务报表</strong><Field label="报表开始日期"><Input type="date" required value={from} max={to} onChange={e=>setFrom(e.target.value)}/></Field><Field label="报表结束日期"><Input type="date" required value={to} min={from} onChange={e=>setTo(e.target.value)}/></Field><Button type="submit" disabled={app.busy||app.pending||!from||!to||from>to}>导出 Excel</Button><small>按月分表、月内按日，金额单位为元。</small></form>}
       <div className="orders-table-scroll">
         <table className="orders-table">
           <thead>
@@ -59,17 +62,18 @@ export function TasksPage({ app }: { app: Workbench }) {
                   {{
                     excel_quote: "报价表",
                     excel_admin: "内部财务报表",
+                    excel_period: "内部财务报表（期间）",
                     quote_png: "报价图片",
                   }[j.kind] ?? j.kind}
                 </td>
                 <td>
-                  <Button
+                  {j.kind==="excel_period"?<span>{j.range?.from} 至 {j.range?.to}</span>:<Button
                     variant="ghost"
                     onClick={() => void app.readOrder(j.order_id)}
                     disabled={app.busy}
                   >
                     {j.order_id.slice(0, 8)}
-                  </Button>
+                  </Button>}
                 </td>
                 <td>{stamp(j.created_at)}</td>
                 <td>
@@ -84,9 +88,12 @@ export function TasksPage({ app }: { app: Workbench }) {
                   </Badge>
                 </td>
                 <td>
-                  {j.state === "done" ? "已保存到发布位置" : j.error || "—"}
+                  {j.state === "done" ? "文件已生成" : j.error || "—"}
                 </td>
                 <td>
+                  {j.state === "done" && (
+                    <Button variant="ghost" disabled={app.busy} title="打开该次导出文件所在的文件夹" onClick={() => void app.openOutputFolder(j.job_id)}>打开文件夹</Button>
+                  )}
                   {j.state === "failed" && (
                     <Button
                       variant="outline"

@@ -91,12 +91,13 @@ class Outputs:
         if actor.role != 'admin' and row['actor_id'] != actor.subject: raise APIError(404, 'NOT_FOUND')
         if fingerprint is not None and row['fingerprint'] != fingerprint: raise Conflict('Output request payload changed')
         result=json.loads(row['result_json'])
-        if result.get('kind')=='excel_admin' and actor.role!='admin':raise APIError(404,'NOT_FOUND')
+        if result.get('kind') in {'excel_admin','excel_period'} and actor.role!='admin':raise APIError(404,'NOT_FOUND')
         if actor.role!='admin' and result.get('job_id'):
             with self.connection(readonly=True) as c:self._job(c,actor,result['job_id'])
         return result
 
     def enqueue(self, actor, data, order):
+        if data.get("kind")=="excel_period":raise APIError(409,"OUTPUT_NATIVE_REPORT_REQUIRED")
         key = identifier(data['request_id']); fingerprint = payload_hash({'actor': actor.subject, 'role': actor.role, **data})
         with self._lock, self.connection() as c:
             c.execute('BEGIN IMMEDIATE')
@@ -118,7 +119,7 @@ class Outputs:
 
     def _job(self, c, actor, key):
         identifier(key); row = c.execute('SELECT * FROM jobs WHERE job_id=?', (key,)).fetchone()
-        if row is None or actor.role != 'admin' and row['actor_id'] != actor.subject or row['kind'] == 'excel_admin' and actor.role != 'admin': raise APIError(404, 'NOT_FOUND')
+        if row is None or actor.role != 'admin' and row['actor_id'] != actor.subject or row['kind'] in {'excel_admin','excel_period'} and actor.role != 'admin': raise APIError(404, 'NOT_FOUND')
         return row
 
     @staticmethod
@@ -130,7 +131,7 @@ class Outputs:
 
     def listing(self, actor):
         with self.connection(readonly=True) as c:
-            rows = c.execute('SELECT * FROM jobs'+('' if actor.role == 'admin' else " WHERE actor_id=? AND kind!='excel_admin'")+ ' ORDER BY created_at DESC,job_id DESC LIMIT 100', () if actor.role == 'admin' else (actor.subject,))
+            rows = c.execute('SELECT * FROM jobs'+('' if actor.role == 'admin' else " WHERE actor_id=? AND kind NOT IN ('excel_admin','excel_period')")+ ' ORDER BY created_at DESC,job_id DESC LIMIT 100', () if actor.role == 'admin' else (actor.subject,))
             return {'jobs': [self.project(row) for row in rows], 'limit': 100, 'format': FORMAT}
 
     def retry(self, actor, key, request_id):
@@ -208,7 +209,7 @@ class Outputs:
                 with self._lock, self.connection() as c:
                     c.execute('UPDATE jobs SET blob_sha256=?,size=? WHERE job_id=?', (sha, len(raw), key))
                 if fault: fault('rendered')
-                if row['kind'] == 'excel_admin': target = path
+                if row['kind'] in {'excel_admin','excel_period'}: target = path
                 else:
                     directory = preferences['image_dir' if row['kind'] == 'quote_png' else 'export_dir']
                     if not directory: raise APIError(409, 'OUTPUT_DIRECTORY_NOT_PUBLISHED')
@@ -239,11 +240,20 @@ class Outputs:
     def validate_ledger(self, ledger):
         with self.connection(readonly=True) as c, ledger.connection(readonly=True) as l:
             for row in c.execute('SELECT * FROM jobs'):
-                payload=json.loads(row['payload_json']);order=payload.get('order',{})
-                original=l.execute('SELECT * FROM orders WHERE order_id=?',(row['order_id'],)).fetchone()
-                if payload_hash(payload)!=row['payload_sha256'] or payload.get('format')!=FORMAT or payload.get('job_id')!=row['job_id'] or payload.get('kind')!=row['kind'] or row['kind'] not in KINDS or not original or original['revision']<order.get('revision',1) or str(original['income_cents'])!=order.get('income_cents') or json.loads(original['details_json'])!=order.get('details'):
+                payload=json.loads(row['payload_json'])
+                if payload_hash(payload)!=row['payload_sha256'] or payload.get('format')!=FORMAT or payload.get('job_id')!=row['job_id'] or payload.get('kind')!=row['kind'] or row['kind'] not in KINDS:
                     raise APIError(503,'OUTPUT_LEDGER_BINDING_INVALID')
-                if row['kind']=='excel_admin' and (row['role']!='admin' or any(str(original[k])!=order.get(k) for k in ('cost_cents','profit_cents'))):raise APIError(503,'OUTPUT_LEDGER_BINDING_INVALID')
+                admin=row['kind'] in {'excel_admin','excel_period'}
+                if admin and row['role']!='admin':raise APIError(503,'OUTPUT_LEDGER_BINDING_INVALID')
+                orders=payload.get('orders',[]) if row['kind']=='excel_period' else [payload.get('order',{})]
+                for order in orders:
+                    original=l.execute('SELECT * FROM orders WHERE order_id=?',(order.get('order_id'),)).fetchone()
+                    if l.execute('PRAGMA user_version').fetchone()[0]==2:
+                        archived=l.execute('SELECT snapshot_json FROM order_versions WHERE order_id=? AND revision>=? ORDER BY revision LIMIT 1',(order.get('order_id'),order.get('revision',1))).fetchone()
+                        if archived:original=json.loads(archived[0])['order']
+                    if not original or original['revision']<order.get('revision',1) or str(original['income_cents'])!=order.get('income_cents') or json.loads(original['details_json'])!=order.get('details') or (row['kind']!='excel_period' and order.get('order_id')!=row['order_id']):
+                        raise APIError(503,'OUTPUT_LEDGER_BINDING_INVALID')
+                    if admin and any(str(original[k])!=order.get(k) for k in ('cost_cents','profit_cents')):raise APIError(503,'OUTPUT_LEDGER_BINDING_INVALID')
                 if row['blob_sha256'] is not None:self._blob(row)
 
 

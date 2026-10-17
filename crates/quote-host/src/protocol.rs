@@ -191,6 +191,9 @@ pub fn financial(v: Value, a: &Actor) -> Value {
     let keys = [
         "order_id",
         "note_id",
+        "customer_id",
+        "details",
+        "created_at",
         "revision",
         "request_id",
         "price_version_id",

@@ -11,7 +11,7 @@ fn run(path: &Path, input: Value, crash: Option<&str>) -> Result<Value> {
         .ok_or_else(|| Error::new("VALIDATION"))?;
     if op == "xlsx_capabilities" {
         return Ok(
-            json!({"implementation":"quote-excel-v1","formats":["777-excel-read-v1","777-output-v1"]}),
+            json!({"implementation":"quote-excel-v1","ledger_schema":2,"formats":["777-excel-read-v1","777-output-v1"]}),
         );
     }
     if matches!(op, "xlsx_read" | "xlsx_write") {
@@ -55,6 +55,12 @@ fn run(path: &Path, input: Value, crash: Option<&str>) -> Result<Value> {
     }
     if op == "active_prices" {
         return Ok(serde_json::to_value(active_prices(&open(path, false)?)?)?);
+    }
+    if op == "migrate" {
+        let actor: Actor =
+            serde_json::from_value(input["actor"].clone()).map_err(|_| Error::new("VALIDATION"))?;
+        actor.admin()?;
+        return integrity::inventory(&open(path, true)?);
     }
     if op == "import_apply" {
         let actor: Actor =

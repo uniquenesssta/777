@@ -6,14 +6,27 @@ use rusqlite::{types::Value as SqlValue, Connection};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::{collections::BTreeMap, fs, path::Path};
-pub const FORMAT: &str = "777-data-backup-v1";
+pub const FORMAT: &str = "777-data-backup-v2";
+pub const LEGACY_FORMAT: &str = "777-data-backup-v1";
 pub const LIMIT: usize = 256 * 1024 * 1024;
-const LEDGER: [&str; 8] = [
+const LEGACY_LEDGER: [&str; 8] = [
     "price_versions",
     "requests",
     "orders",
     "lines",
     "notes",
+    "import_batches",
+    "audit_events",
+    "ledger_meta",
+];
+const LEDGER: [&str; 10] = [
+    "price_versions",
+    "requests",
+    "customers",
+    "orders",
+    "lines",
+    "notes",
+    "order_versions",
     "import_batches",
     "audit_events",
     "ledger_meta",
@@ -76,8 +89,11 @@ pub fn capture(s: &Service, date: &str) -> Result<Data> {
     let c = store::open(&s.ledger, false)?;
     let _tx = c.unchecked_transaction()?;
     let inventory = integrity::inventory(&c)?;
-    let ledger = LEDGER
-        .into_iter()
+    let legacy = inventory["schema_version"] == 1;
+    let tables: &[&str] = if legacy { &LEGACY_LEDGER } else { &LEDGER };
+    let ledger = tables
+        .iter()
+        .copied()
         .map(|n| {
             Ok((
                 n.into(),
@@ -107,7 +123,7 @@ pub fn capture(s: &Service, date: &str) -> Result<Data> {
         }
     }
     Ok(Data {
-        format: FORMAT.into(),
+        format: if legacy { LEGACY_FORMAT } else { FORMAT }.into(),
         snapshot_id: store::uid()?,
         created_at: store::now(),
         business_date: date.into(),
@@ -122,7 +138,7 @@ pub fn capture(s: &Service, date: &str) -> Result<Data> {
 pub fn encode(data: &Data) -> Result<Vec<u8>> {
     let raw = serde_json::to_vec(data)?;
     let result = serde_json::to_vec(&Envelope {
-        format: FORMAT.into(),
+        format: data.format.clone(),
         sha256: store::hash(&raw),
         data: data.clone(),
     })?;
@@ -136,7 +152,7 @@ pub fn decode(raw: &[u8]) -> Result<Data> {
         return fail(413, "DATA_BACKUP_TOO_LARGE");
     }
     let e: Envelope = serde_json::from_slice(raw).map_err(|_| invalid())?;
-    if e.format != FORMAT || e.data.format != FORMAT {
+    if ![FORMAT, LEGACY_FORMAT].contains(&e.format.as_str()) || e.data.format != e.format {
         return fail(422, "DATA_BACKUP_VERSION_UNSUPPORTED");
     }
     if store::hash(serde_json::to_vec(&e.data)?) != e.sha256 {
@@ -144,8 +160,13 @@ pub fn decode(raw: &[u8]) -> Result<Data> {
     }
     store::id(&e.data.snapshot_id)?;
     store::id(e.data.inventory["ledger_id"].as_str().ok_or_else(invalid)?)?;
-    if e.data.ledger.len() != LEDGER.len()
-        || LEDGER.iter().any(|n| !e.data.ledger.contains_key(*n))
+    let tables: &[&str] = if e.format == LEGACY_FORMAT {
+        &LEGACY_LEDGER
+    } else {
+        &LEDGER
+    };
+    if e.data.ledger.len() != tables.len()
+        || tables.iter().any(|n| !e.data.ledger.contains_key(*n))
         || (!e.data.outputs.is_empty()
             && (e.data.outputs.len() != OUTPUT.len()
                 || OUTPUT.iter().any(|n| !e.data.outputs.contains_key(*n))))
@@ -182,15 +203,35 @@ fn insert(c: &Connection, name: &str, t: &Table) -> Result<()> {
     Ok(())
 }
 pub fn restore_ledger(data: &Data, path: &Path) -> Result<()> {
-    store::create(path)?;
+    store::create_version(path, data.format == LEGACY_FORMAT)?;
     fill_ledger(data, path)
 }
 fn fill_ledger(data: &Data, path: &Path) -> Result<()> {
-    let mut c = store::open(path, true)?;
+    let mut c = Connection::open(path)?;
+    let meta = store::verify(&c)?;
+    if meta["revision"] != 0 {
+        return fail(409, "RESTORE_REQUIRES_NEW_DIRECTORY");
+    }
+    c.execute_batch("PRAGMA foreign_keys=OFF")?;
     let tx = c.transaction()?;
+    let legacy = data.format == LEGACY_FORMAT;
+    if (meta["schema_version"] == 1) != legacy {
+        for name in LEDGER {
+            tx.execute_batch(&format!("DROP TABLE IF EXISTS {name}"))?;
+        }
+        tx.execute_batch(store::DDL)?;
+        if !legacy {
+            tx.execute_batch(store::MIGRATION)?;
+        }
+        tx.execute_batch(&format!(
+            "PRAGMA user_version={}",
+            if legacy { 1 } else { 2 }
+        ))?;
+    }
     tx.execute_batch("PRAGMA defer_foreign_keys=ON;DELETE FROM ledger_meta;")?;
-    for name in LEDGER {
-        insert(&tx, name, &data.ledger[name])?;
+    let tables: &[&str] = if legacy { &LEGACY_LEDGER } else { &LEDGER };
+    for name in tables {
+        insert(&tx, name, &data.ledger[*name])?;
     }
     if integrity::inventory(&tx)? != data.inventory {
         return fail(422, "DATA_BACKUP_INVENTORY_MISMATCH");
@@ -302,9 +343,10 @@ pub fn restore(path: &Path, init: host::Init) -> Result<Value> {
                 .map_err(|e| Error::new(422, &e.code))?;
             files::new_file(&cache.join("data.xlsx"), &excel)?;
         }
-        Service::load(&root, auxiliary, false)?;
+        let restored = Service::load(&root, auxiliary, false)?;
+        let current_inventory = integrity::inventory(&store::open(&restored.ledger, false)?)?;
         Ok(
-            json!({"status":"restored","snapshot_id":data.snapshot_id,"inventory":data.inventory,"root":root.to_string_lossy()}),
+            json!({"status":"restored","snapshot_id":data.snapshot_id,"inventory":current_inventory,"source_inventory":data.inventory,"root":root.to_string_lossy()}),
         )
     })();
     if result.is_err() {
@@ -331,7 +373,7 @@ mod tests {
         restore_ledger(&decoded, &path).unwrap();
         {
             let c = store::open(&path, false).unwrap();
-            for name in LEDGER {
+            for name in LEGACY_LEDGER {
                 assert!(
                     table(&c, &format!("SELECT * FROM {name} ORDER BY rowid")).unwrap()
                         == decoded.ledger[name]

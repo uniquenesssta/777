@@ -2,6 +2,7 @@
 //! No existing workbook editor, formula engine, or financial calculator.
 pub mod backup;
 pub mod read;
+pub mod readable;
 pub mod write;
 use base64::{engine::general_purpose::STANDARD, Engine};
 use serde::Serialize;

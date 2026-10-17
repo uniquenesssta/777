@@ -1,3 +1,4 @@
+import { CustomerOrders } from "./CustomerOrders";
 import { useState, useRef, useLayoutEffect } from "react";
 import type { Workbench } from "../state/useWorkbench";
 import { money, stamp } from "../state/format";
@@ -7,6 +8,7 @@ export function OrdersPage({
 }: {
   app: Workbench;
 }) {
+  const [customerMode,setCustomerMode]=useState(false);
   const [q, setQ] = useState(app.filters.q);
   const [state, setState] = useState(app.filters.state);
   const page = app.listing;
@@ -14,6 +16,7 @@ export function OrdersPage({
   useLayoutEffect(() => {
     if (scroll.current) scroll.current.scrollTop = app.listScrollRef.current;
   }, [app.listing]);
+  if(customerMode)return <CustomerOrders app={app} onAll={()=>setCustomerMode(false)}/>;
   return (
     <section className="card orders-card" data-node-id="32:96">
       <div className="section-heading">
@@ -21,6 +24,7 @@ export function OrdersPage({
           {app.session?.role === "admin" ? "订单记录" : "我的订单"}{" "}
           <small>{page?.total ?? 0} 条</small>
         </h2>
+        <Button variant="outline" onClick={()=>setCustomerMode(true)}>按客户查看</Button>
         <Button
           variant="ghost"
           disabled={app.busy}

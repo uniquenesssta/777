@@ -57,6 +57,28 @@ pub enum Action {
         details: Value,
         draft_revision: String,
     },
+    CustomerOrders {
+        query: String,
+        offset: u32,
+        group_id: Option<String>,
+        order_offset: Option<u32>,
+    },
+    OrderPreview {
+        snapshot: Value,
+        sources: Value,
+        order_id: Option<String>,
+        expected_revision: Option<String>,
+        draft_revision: String,
+    },
+    SaveOrder {
+        snapshot: Value,
+        sources: Value,
+        order_id: Option<String>,
+        expected_revision: Option<String>,
+        draft_revision: String,
+        details: Value,
+        customer: Value,
+    },
     Orders {
         q: String,
         state: String,
@@ -96,6 +118,13 @@ pub enum Action {
         image_dir: String,
     },
     Outputs {},
+    OpenOutputFolder {
+        job_id: String,
+    },
+    CreateReport {
+        from: String,
+        to: String,
+    },
     CreateOutput {
         order_id: String,
         expected_revision: String,
@@ -127,6 +156,9 @@ impl Action {
             Self::Calculate { .. } => "Calculate",
             Self::Submit { .. } => "Submit",
             Self::Orders { .. } => "Orders",
+            Self::CustomerOrders { .. } => "CustomerOrders",
+            Self::OrderPreview { .. } => "OrderPreview",
+            Self::SaveOrder { .. } => "SaveOrder",
             Self::Order { .. } => "Order",
             Self::Note { .. } => "Note",
             Self::SetState { .. } => "SetState",
@@ -136,6 +168,8 @@ impl Action {
             Self::Settings { .. } => "Settings",
             Self::SaveSettings { .. } => "SaveSettings",
             Self::Outputs { .. } => "Outputs",
+            Self::OpenOutputFolder { .. } => "OpenOutputFolder",
+            Self::CreateReport { .. } => "CreateReport",
             Self::CreateOutput { .. } => "CreateOutput",
             Self::RetryOutput { .. } => "RetryOutput",
             Self::Recover { .. } => "Recover",
@@ -160,7 +194,9 @@ impl Action {
                 | Self::SetState { .. }
                 | Self::PublishPrices { .. }
                 | Self::SaveSettings { .. }
+                | Self::CreateReport { .. }
                 | Self::CreateOutput { .. }
+                | Self::SaveOrder { .. }
                 | Self::RetryOutput { .. }
                 | Self::Recover { .. }
                 | Self::Backup {}

@@ -113,6 +113,7 @@ def main():
                         assert found['state'] != 'failed' and time.monotonic() < deadline, found
                         time.sleep(.1)
                     assert list(directory.glob('*' + suffix)), found
+                    if os.name == 'nt':ipc('open_output_folder',job_id=job['job_id'])
             report['checks'].append('native_selected_directories_actual_Excel_and_Windows_PNG_outputs')
             before = controller.preferences_file.read_bytes()
             unknown = base / 'unknown'; unknown.mkdir(); (unknown / 'keep.txt').write_text('preserve')

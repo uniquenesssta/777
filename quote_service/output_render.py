@@ -11,7 +11,7 @@ from .protocol import APIError
 
 FORMAT = '777-output-v1'
 MAX_BYTES = 4 * 1024 * 1024
-KINDS = {'excel_quote': '.xlsx', 'excel_admin': '.xlsx', 'quote_png': '.png'}
+KINDS = {'excel_quote': '.xlsx', 'excel_admin': '.xlsx', 'excel_period': '.xlsx', 'quote_png': '.png'}
 
 
 def _cjk_font():
@@ -60,7 +60,7 @@ def excel_rows(payload):
 
 def render(payload, native=None):
     if payload.get('format') != FORMAT or payload.get('kind') not in KINDS: raise APIError(409,'OUTPUT_VERSION_CONFLICT')
-    kind = payload['kind']; order = payload['order']; output = io.BytesIO()
+    kind = payload['kind']; order = payload.get('order'); output = io.BytesIO()
     if kind.startswith('excel_'):
         if native is not None:
             from quote_files.native_excel import FormatReview
@@ -68,6 +68,7 @@ def render(payload, native=None):
             except FormatReview as exc: raise APIError(422,str(exc)) from None
             validate(raw,payload,native=native)
             return raw
+        if payload.get('presentation')=='monthly-v1':raise APIError(409,'OUTPUT_NATIVE_RENDERER_REQUIRED')
         from openpyxl import Workbook
         from openpyxl.styles import Font
         workbook = Workbook(); workbook.remove(workbook.active)
@@ -111,6 +112,13 @@ def validate(raw, payload, native=None):
     if not 0 < len(raw) <= MAX_BYTES: raise APIError(422, 'OUTPUT_BLOB_INVALID')
     expected = payload_hash(payload)
     if payload['kind'].startswith('excel_'):
+        if payload.get('presentation')=='monthly-v1':
+            if native is None:raise APIError(409,'OUTPUT_NATIVE_RENDERER_REQUIRED')
+            # Read every cell/style from the immutable payload's native reference.
+            # No writer is allowed to touch the existing report file.
+            if native.excel_document(raw)!=native.excel_document(native.excel_render(payload)):
+                raise APIError(422,'OUTPUT_BLOB_INVALID')
+            return
         rows=excel_rows(payload)
         if native is not None:
             from quote_files.native_excel import FormatReview

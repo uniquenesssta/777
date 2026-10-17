@@ -1,9 +1,13 @@
-import type { Calculation, RawLine } from "../contracts";
+import type { Calculation, RawLine, Order, CustomerChoice } from "../contracts";
 export interface DraftLine {
   id: string;
   raw: RawLine;
+  source?: string;
+  frozen?: {product_id:string;sale:string;k:string;single:boolean};
 }
 export interface Draft {
+  editing?: {order_id:string;revision:string};
+  customer?: CustomerChoice;
   revision: string;
   details: { customer: string; order_ref: string; wechat: string };
   lines: DraftLine[];
@@ -21,19 +25,26 @@ export const emptyDraft = (): Draft => ({
 });
 export type DraftAction =
   | { type: "restore"; raw: string | null }
+  | { type: "load_order"; order:Order }
+  | { type: "customer"; details:Draft["details"]; customer:CustomerChoice }
+  | { type: "link_customer"; details:Draft["details"]; customer:CustomerChoice }
   | { type: "edit"; details?: Draft["details"]; lines?: DraftLine[] }
   | { type: "prices"; version: string }
   | { type: "calculated"; revision: string; result: Calculation }
   | { type: "invalidate" }
   | { type: "reset" }
-  | { type: "committed"; snapshot: unknown; details: unknown };
+  | { type: "committed"; snapshot: unknown; details: unknown; context?:unknown };
 export function draftReducer(d: Draft, a: DraftAction): Draft {
   if (a.type === "restore") return restorableDraft(a.raw);
-  if (a.type === "reset") return emptyDraft();
+  if (a.type === "reset") return {...emptyDraft(),priceVersion:d.priceVersion};
+  if (a.type === "load_order") return {...emptyDraft(), priceVersion:d.priceVersion, revision:(BigInt(d.revision)+1n).toString(), editing:{order_id:a.order.order_id,revision:a.order.revision}, customer:a.order.customer_id?{customer_id:a.order.customer_id}:{}, details:a.order.details, lines:a.order.lines.map(l=>({id:crypto.randomUUID(),raw:l.raw,source:l.line_id,frozen:l.raw.line_kind==="normal"?{product_id:l.raw.product_id,sale:String(l.normalized.sale??""),k:String(l.normalized.k??"1"),single:l.normalized.h===undefined}:undefined}))};
+  if (a.type === "link_customer") return {...d,details:a.details,customer:a.customer,revision:(BigInt(d.revision)+1n).toString(),calculation:null,calculatedRevision:null};
+  if (a.type === "customer") return {...emptyDraft(),priceVersion:d.priceVersion,revision:(BigInt(d.revision)+1n).toString(),details:a.details,customer:a.customer};
   if (a.type === "committed") {
     const matches =
       stableRaw(snapshot(d)) === stableRaw(a.snapshot) &&
-      stableRaw(d.details) === stableRaw(a.details);
+      stableRaw(d.details) === stableRaw(a.details) &&
+      (a.context === undefined ? !d.editing : stableRaw(draftContext(d)) === stableRaw(a.context));
     return {
       ...(matches ? emptyDraft() : d),
       priceVersion: d.priceVersion,
@@ -58,6 +69,7 @@ export function draftReducer(d: Draft, a: DraftAction): Draft {
     calculatedRevision: null,
   };
 }
+export function draftContext(d:Draft){return {order_id:d.editing?.order_id??null,expected_revision:d.editing?.revision??null,sources:d.lines.map(l=>l.source??null),customer:d.customer??{}};}
 export function snapshot(d: Draft) {
   return {
     price_version_id: d.priceVersion,
@@ -94,7 +106,9 @@ export function restorableDraft(raw: string | null): Draft {
       )
     )
       return fresh;
-    return { ...fresh, lines: p.lines, details: p.details };
+    const editing = p.editing && typeof p.editing.order_id === "string" && /^\d+$/.test(p.editing.revision) ? p.editing : undefined;
+    const customer = p.customer && typeof p.customer === "object" ? p.customer : undefined;
+    return { ...fresh, lines: p.lines, details: p.details, editing, customer };
   } catch {
     return fresh;
   }

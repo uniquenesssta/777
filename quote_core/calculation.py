@@ -10,7 +10,7 @@ from .numbers import (
 )
 
 
-def calculate_quote(snapshot, prices):
+def calculate_quote(snapshot, prices, *, line_prices=None):
     index = None
     warnings = []
     try:
@@ -20,6 +20,8 @@ def calculate_quote(snapshot, prices):
                 or snapshot.price_version_id != prices.price_version_id):
             raise ValidationError("PRICE_VERSION_MISMATCH", "price_version_id")
         if not snapshot.lines or len(snapshot.lines) > LINE_LIMIT:
+            raise ValidationError("LINE_CAPACITY", "lines")
+        if line_prices is not None and len(line_prices) != len(snapshot.lines):
             raise ValidationError("LINE_CAPACITY", "lines")
         catalog = {}
         for item in prices.items:
@@ -42,9 +44,11 @@ def calculate_quote(snapshot, prices):
                 if not income:
                     warnings.append(Issue("WARNING", "DISCOUNT_ZERO_SUBTOTAL", "percent", index))
             else:
-                if not isinstance(raw.product_id, str) or raw.product_id not in catalog:
+                frozen = line_prices[index-1] if line_prices is not None else None
+                if not isinstance(raw.product_id, str) or (frozen is None and raw.product_id not in catalog):
                     raise ValidationError("PRODUCT_NOT_FOUND", "product_id")
-                price = catalog[raw.product_id]
+                price = frozen or catalog[raw.product_id]
+                if price.product_id != raw.product_id:raise ValidationError("PRODUCT_NOT_FOUND", "product_id")
                 if type(price.single) is not bool:
                     raise ValidationError("SINGLE_NOT_BOOLEAN", "single")
                 q = parse_number(raw.q, field="q")

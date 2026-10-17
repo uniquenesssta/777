@@ -1,7 +1,8 @@
-//! Windows Rust HTTPS host, preserving 777-service-v1 and ledger-v1.
+//! Windows Rust HTTPS host, preserving 777-service-v1 and versioned ledgers.
 pub mod analytics;
 pub mod auth;
 pub mod backup;
+mod customers;
 pub mod daily_backup;
 pub mod devices;
 pub mod files;
@@ -35,6 +36,9 @@ impl From<quote_ledger::Error> for Error {
             "LINK_OR_TYPE_DISALLOWED" => (422, "PATH_TYPE_CONFLICT"),
             "FORBIDDEN" => (403, "FORBIDDEN"),
             "CONFLICT" => (409, "REVISION_OR_PRICE_CONFLICT"),
+            "CUSTOMER_SELECTION_REQUIRED" => (409, "CUSTOMER_SELECTION_REQUIRED"),
+            "CUSTOMER_IDENTITY_CONFLICT" => (409, "CUSTOMER_IDENTITY_CONFLICT"),
+            "CUSTOMER_ORDER_NUMBER_EXISTS" => (409, "CUSTOMER_ORDER_NUMBER_EXISTS"),
             "BUSY" => (503, "STORE_BUSY_OR_UNAVAILABLE"),
             "PRICES_NOT_PUBLISHED" => (409, "PRICES_NOT_PUBLISHED"),
             "INVALID_DATABASE" => (503, "LEDGER_UNAVAILABLE"),

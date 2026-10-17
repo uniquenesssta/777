@@ -86,6 +86,7 @@ export function DetailPage({ app }: { app: Workbench }) {
               )}
             </div>
           </div>
+          {!!order.history?.length && <section className="note-history"><h3>修改记录</h3>{order.history.map(h=><div key={h.revision}><p>版本 {h.revision} · {h.details.order_ref || "未填写订单号"} · 收入 ¥{money(h.income_cents)}</p><small>修改于 {stamp(h.created_at)}</small></div>)}</section>}
           <section className="note-history">
             <h3>备注记录</h3>
             {order.notes.length ? (
@@ -109,6 +110,7 @@ export function DetailPage({ app }: { app: Workbench }) {
           <Button disabled={app.busy} onClick={() => app.navigate("orders")}>
             返回订单记录
           </Button>
+          {order.state==="active" && <Button disabled={app.busy||app.pending} onClick={()=>void app.beginEdit(order.order_id)}>继续编辑</Button>}
           <div className="button-pair">
             <Button
               variant="outline"

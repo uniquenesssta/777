@@ -122,11 +122,15 @@ class StructuredLedgerTests(unittest.TestCase):
 
     def test_raw_sql_cannot_change_or_delete_immutable_business_history(self):
         order=self.order();self.ledger.append_note(uid(),SALES,order['order_id'],'说明',expected_revision=1)
-        for table in ('price_versions','lines','notes','requests','audit_events','orders'):
+        for table in ('price_versions','notes','requests','audit_events','orders'):
             with self.subTest(table=table),self.ledger.connection() as c,self.assertRaises(sqlite3.IntegrityError):
                 c.execute('DELETE FROM '+table)
         with self.ledger.connection() as c,self.assertRaises(sqlite3.IntegrityError):c.execute('UPDATE orders SET income_cents=999')
         self.assertEqual(self.ledger.inventory()['active_income_cents'],'1800')
+        # v2 allows revisioned line replacement; an unaudited direct deletion is
+        # detected by financial inventory rather than treated as a valid edit.
+        with self.ledger.connection() as c:c.execute('DELETE FROM lines')
+        with self.assertRaises(InvalidDatabase):self.ledger.inventory()
 
     def test_note_revision_ownership_and_append_only_replay(self):
         order=self.order();request=uid()

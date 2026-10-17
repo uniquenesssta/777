@@ -17,6 +17,7 @@ mod client;
 ))]
 mod developer;
 mod journal;
+mod output_folder;
 mod startup;
 mod tls;
 mod types;

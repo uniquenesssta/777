@@ -1,0 +1,11 @@
+ALTER TABLE orders ADD COLUMN customer_id TEXT REFERENCES customers(customer_id);
+ALTER TABLE lines ADD COLUMN price_version_id TEXT REFERENCES price_versions(price_id);
+CREATE TABLE customers (customer_id TEXT PRIMARY KEY, name TEXT NOT NULL, wechat TEXT NOT NULL, created_at TEXT NOT NULL) STRICT;
+CREATE TABLE order_versions (order_id TEXT NOT NULL REFERENCES orders(order_id), revision INTEGER NOT NULL, snapshot_json TEXT NOT NULL, actor_id TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY(order_id,revision)) STRICT;
+CREATE INDEX orders_customer ON orders(customer_id,created_at,order_id);
+DROP TRIGGER orders_immutable;
+CREATE TRIGGER orders_immutable BEFORE UPDATE OF order_id,owner_id,created_at,request_id ON orders BEGIN SELECT RAISE(ABORT,'ORDER_IDENTITY_IMMUTABLE'); END;
+DROP TRIGGER lines_no_update;
+DROP TRIGGER lines_no_delete;
+CREATE TRIGGER order_versions_no_update BEFORE UPDATE ON order_versions BEGIN SELECT RAISE(ABORT,'APPEND_ONLY'); END;
+CREATE TRIGGER order_versions_no_delete BEFORE DELETE ON order_versions BEGIN SELECT RAISE(ABORT,'APPEND_ONLY'); END;

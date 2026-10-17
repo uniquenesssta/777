@@ -41,7 +41,7 @@ pub fn status(s: &Service) -> Result<Value> {
     }
 }
 fn public_entry(e: &Value) -> Value {
-    json!({"backup_id":e["snapshot_id"],"kind":"daily","created_at":e["created_at"],"business_date":e["date"],"verified_restore":true,"verification":"logical-ledger-inventory","format":recovery::FORMAT})
+    json!({"backup_id":e["snapshot_id"],"kind":"daily","created_at":e["created_at"],"business_date":e["date"],"verified_restore":true,"verification":"logical-ledger-inventory","format":e.get("data_format").cloned().unwrap_or_else(||json!(recovery::LEGACY_FORMAT))})
 }
 fn ensure_destination(_s: &Service, p: &Path) -> Result<()> {
     files::dir(p)
@@ -122,7 +122,7 @@ fn create_date(s: &Service, date: &str, current: &str) -> Result<Value> {
         generated?;
     }
     let data = recovery::decode(&files::read(&cache.join("data.qbackup"), recovery::LIMIT)?)?;
-    let mut e = json!({"date":date,"snapshot_id":data.snapshot_id,"created_at":data.created_at,"normal":null,"hidden":null});
+    let mut e = json!({"data_format":data.format,"date":date,"snapshot_id":data.snapshot_id,"created_at":data.created_at,"normal":null,"hidden":null});
     for (label, target) in [
         ("normal", s.config["backup_dir"].as_str().unwrap()),
         ("hidden", cfg["hidden_dir"].as_str().unwrap()),

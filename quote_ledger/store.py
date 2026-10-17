@@ -53,12 +53,13 @@ def require_admin(actor):
 
 def verify(connection):
     if sqlite3.sqlite_version_info < (3,37,0):raise InvalidDatabase('需要SQLite3.37或更高版本')
-    if (connection.execute('PRAGMA user_version').fetchone()[0] != schema.VERSION
+    version = connection.execute('PRAGMA user_version').fetchone()[0]
+    if (version not in (1, schema.VERSION)
             or connection.execute('PRAGMA application_id').fetchone()[0] != schema.APPLICATION_ID):
         raise InvalidDatabase('未知数据库/版本，原件保留；不自动覆盖')
     try:
         meta = connection.execute('SELECT * FROM ledger_meta WHERE singleton=1').fetchone()
-        if not meta or meta['schema_version'] != schema.VERSION or meta['schema_hash'] != schema.expected_hash() or schema.signature(connection) != schema.expected_hash():
+        if not meta or meta['schema_version'] != version or meta['schema_hash'] != schema.expected_hash(version) or schema.signature(connection) != schema.expected_hash(version):
             raise InvalidDatabase('schema不兼容或被改变，原件保留')
     except sqlite3.DatabaseError as exc:raise InvalidDatabase('schema不可读，原件保留') from exc
     return meta
@@ -71,7 +72,8 @@ class Ledger:
         with self.connection(readonly=True):pass
 
     @classmethod
-    def create(cls, path):
+    def create(cls, path, *, schema_version=schema.VERSION):
+        if schema_version not in (1,schema.VERSION):raise InvalidDatabase('未知创建版本')
         path = local_path(path,exists=False)
         for sidecar in (path.with_name(path.name+'-wal'),path.with_name(path.name+'-shm')):
             local_path(sidecar,exists=False)
@@ -82,10 +84,10 @@ class Ledger:
             connection = sqlite3.connect(path,isolation_level=None)
             connection.execute('PRAGMA foreign_keys=ON');connection.execute('PRAGMA journal_mode=WAL')
             connection.execute('PRAGMA synchronous=FULL');connection.execute('BEGIN IMMEDIATE')
-            for sql in schema.DDL:connection.execute(sql)
-            connection.execute('INSERT INTO ledger_meta VALUES(1,?,?,?,?,NULL)',(schema.VERSION,schema.expected_hash(),str(uuid.uuid4()),0))
+            for sql in (schema.LEGACY_DDL if schema_version==1 else schema.DDL):connection.execute(sql)
+            connection.execute('INSERT INTO ledger_meta VALUES(1,?,?,?,?,NULL)',(schema_version,schema.expected_hash(schema_version),str(uuid.uuid4()),0))
             connection.execute(f'PRAGMA application_id={schema.APPLICATION_ID}')
-            connection.execute(f'PRAGMA user_version={schema.VERSION}');connection.execute('COMMIT')
+            connection.execute(f'PRAGMA user_version={schema_version}');connection.execute('COMMIT')
         except BaseException:
             if connection is not None:connection.close();connection=None
             for leaf in (path,path.with_name(path.name+'-wal'),path.with_name(path.name+'-shm')):
@@ -107,7 +109,19 @@ class Ledger:
         try:
             connection.execute('PRAGMA foreign_keys=ON')
             if readonly:connection.execute('PRAGMA query_only=ON')
-            verify(connection)
+            meta = verify(connection)
+            if not readonly and meta['schema_version'] == 1:
+                try:
+                    connection.execute('BEGIN IMMEDIATE')
+                    if verify(connection)['schema_version'] == 1:
+                        for sql in schema.MIGRATION: connection.execute(sql)
+                        connection.execute('UPDATE ledger_meta SET schema_version=?,schema_hash=? WHERE singleton=1', (schema.VERSION,schema.expected_hash()))
+                        connection.execute(f'PRAGMA user_version={schema.VERSION}')
+                    verify(connection)
+                    connection.execute('COMMIT')
+                except BaseException:
+                    if connection.in_transaction: connection.execute('ROLLBACK')
+                    raise
             if not readonly:
                 if connection.execute('PRAGMA journal_mode=WAL').fetchone()[0]!='wal':raise InvalidDatabase('WAL模式不可用')
                 connection.execute('PRAGMA synchronous=FULL')
@@ -177,10 +191,10 @@ class Ledger:
             result = calculate_quote(snapshot,prices.config.prices)
             if result.status!='ok':raise LedgerError('报价无效：'+','.join(i.reason for i in result.issues))
             order_id = str(uuid.uuid4());totals=result.totals
-            c.execute('INSERT INTO orders VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+            c.execute('INSERT INTO orders(order_id,owner_id,price_id,rule_version,numeric_profile,input_json,details_json,income_cents,cost_cents,profit_cents,state,revision,created_at,request_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
                 (order_id,actor.subject,snapshot.price_version_id,RULE_VERSION,NUMERIC_PROFILE,encoded(asdict(snapshot)),encoded(asdict(details)),totals.income_cents,totals.cost_cents,totals.profit_cents,'active',1,now(),request_id))
             for line in result.lines:
-                c.execute('INSERT INTO lines VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+                c.execute('INSERT INTO lines(line_id,order_id,sequence,kind,raw_json,normalized_json,price_json,income_cents,cost_cents,profit_cents,subtotal_before_cents) VALUES(?,?,?,?,?,?,?,?,?,?,?)',
                     (str(uuid.uuid4()),order_id,line.sequence,line.raw.line_kind,encoded(asdict(line.raw)),encoded(dict(line.normalized)),encoded(price_wire(line.price)) if line.price else None,line.amounts.income_cents,line.amounts.cost_cents,line.amounts.profit_cents,line.subtotal_before_cents))
                 if self.fault:self.fault('line_inserted',c)
             return {'order_id':order_id,'revision':1,**totals.cents_payload()},order_id,None
@@ -234,7 +248,7 @@ class Ledger:
 def inventory(c):
     meta=verify(c)
     if c.execute('PRAGMA quick_check').fetchone()[0]!='ok' or c.execute('PRAGMA foreign_key_check').fetchall():raise InvalidDatabase('数据库完整性/外键核对失败')
-    counts={table:c.execute('SELECT COUNT(*) FROM '+table).fetchone()[0] for table in ('orders','lines','notes','price_versions','import_batches','audit_events','requests')}
+    counts={table:c.execute('SELECT COUNT(*) FROM '+table).fetchone()[0] for table in ('orders','lines','notes','price_versions','import_batches','audit_events','requests') + (('customers','order_versions') if meta['schema_version']==2 else ())}
     if counts['requests']!=meta['revision'] or counts['audit_events']!=counts['requests']:
         raise InvalidDatabase('回执/审计/revision链不完整')
     prices={}
@@ -251,7 +265,12 @@ def inventory(c):
                 item=dict(item);kind=item.pop('line_kind')
                 lines.append(DiscountLine(**item) if kind=='discount' else NormalLine(**item) if kind=='normal' else None)
             snapshot=QuoteSnapshot(raw['price_version_id'],tuple(lines),raw['rule_version'],raw['numeric_profile'])
-            calculated=calculate_quote(snapshot,prices[order['price_id']])
+            rows=c.execute('SELECT * FROM lines WHERE order_id=? ORDER BY sequence',(order['order_id'],)).fetchall()
+            frozen=[]
+            for saved,item in zip(rows,lines):
+                catalog=prices[(saved['price_version_id'] if meta['schema_version']==2 else None) or order['price_id']]
+                frozen.append(None if isinstance(item,DiscountLine) else next(p for p in catalog.items if p.product_id==item.product_id))
+            calculated=calculate_quote(snapshot,prices[order['price_id']],line_prices=frozen)
             if calculated.status!='ok':raise ValueError('计算失败')
             rows=c.execute('SELECT * FROM lines WHERE order_id=? ORDER BY sequence',(order['order_id'],)).fetchall()
             if (order['rule_version'],order['numeric_profile'])!=(RULE_VERSION,NUMERIC_PROFILE) or len(rows)!=len(calculated.lines):raise ValueError('规则/行数不一致')
@@ -263,4 +282,25 @@ def inventory(c):
                 if actual!=expected:raise ValueError('明细快照不一致')
             if order['state']=='active':totals=[a+b for a,b in zip(totals,(amounts.income_cents,amounts.cost_cents,amounts.profit_cents))]
         except (KeyError,TypeError,ValueError) as exc:raise InvalidDatabase('订单/明细/快照核对失败') from exc
-    return {'ledger_id':meta['ledger_id'],'schema_version':schema.VERSION,'schema_hash':meta['schema_hash'],'revision':meta['revision'],'counts':counts,'active_income_cents':str(totals[0]),'active_cost_cents':str(totals[1]),'active_profit_cents':str(totals[2])}
+    if meta['schema_version']==2:
+        for version in c.execute('SELECT * FROM order_versions'):
+            try:
+                snap=json.loads(version['snapshot_json']); order=snap['order']; rows=snap['lines']
+                current=c.execute('SELECT * FROM orders WHERE order_id=?',(version['order_id'],)).fetchone()
+                if not current or order['revision']!=version['revision'] or not 0<order['revision']<current['revision']:raise ValueError('revision')
+                if any(order[k]!=current[k] for k in ('order_id','owner_id','created_at','request_id')):raise ValueError('identity')
+                if not c.execute("SELECT 1 FROM audit_events WHERE order_id=? AND operation='save_order' AND before_json=?",(version['order_id'],version['snapshot_json'])).fetchone():raise ValueError('audit')
+                raw=json.loads(order['input_json']); inputs=[]; frozen=[]
+                for item,saved in zip(raw['lines'],rows):
+                    item=dict(item);kind=item.pop('line_kind');line=DiscountLine(**item) if kind=='discount' else NormalLine(**item)
+                    inputs.append(line); catalog=prices[saved.get('price_version_id') or order['price_id']]
+                    frozen.append(None if kind=='discount' else next(p for p in catalog.items if p.product_id==line.product_id))
+                q=QuoteSnapshot(raw['price_version_id'],tuple(inputs),raw['rule_version'],raw['numeric_profile'])
+                result=calculate_quote(q,prices[order['price_id']],line_prices=frozen)
+                if result.status!='ok' or len(rows)!=len(raw['lines']) or q.price_version_id!=order['price_id']:raise ValueError('snapshot')
+                if tuple(order[k] for k in ('income_cents','cost_cents','profit_cents'))!=tuple(getattr(result.totals,k) for k in ('income_cents','cost_cents','profit_cents')):raise ValueError('totals')
+                for saved,line in zip(rows,result.lines):
+                    expected=(line.sequence,line.raw.line_kind,encoded(asdict(line.raw)),encoded(dict(line.normalized)),encoded(price_wire(line.price)) if line.price else None,line.amounts.income_cents,line.amounts.cost_cents,line.amounts.profit_cents,line.subtotal_before_cents)
+                    if saved['order_id']!=version['order_id'] or tuple(saved[k] for k in ('sequence','kind','raw_json','normalized_json','price_json','income_cents','cost_cents','profit_cents','subtotal_before_cents'))!=expected:raise ValueError('lines')
+            except (KeyError,TypeError,ValueError,StopIteration) as exc:raise InvalidDatabase('历史订单快照核对失败') from exc
+    return {'ledger_id':meta['ledger_id'],'schema_version':meta['schema_version'],'schema_hash':meta['schema_hash'],'revision':meta['revision'],'counts':counts,'active_income_cents':str(totals[0]),'active_cost_cents':str(totals[1]),'active_profit_cents':str(totals[2])}

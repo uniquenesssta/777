@@ -12,8 +12,12 @@ import os
 from pathlib import Path
 import sqlite3
 import subprocess
+import uuid
+from datetime import datetime, timezone
+_PROCESS_LOG_SESSION=datetime.now(timezone.utc).strftime("%Y-%m-%d_%H%M%S")+"_"+uuid.uuid4().hex[:12]
 from quote_core import (Amounts, CalculatedLine, DiscountLine, NormalLine, PriceItem, PriceSnapshot,
     QuoteSnapshot, DraftDetails, QuoteResult, Issue)
+from quote_core.models import price_wire
 from quote_ledger.store import Ledger, Principal, require_admin, verify, encoded, inventory
 from quote_ledger.paths import LedgerError, Conflict, Forbidden, InvalidDatabase, UnknownCommit, local_path
 
@@ -54,6 +58,7 @@ class RustLedger:
         self.expected_sha256=expected_sha256;self.timeout=timeout;self.test_fault=test_fault;self.fault=None
         self._call({'op':'inventory'})
         capabilities=self._call({'op':'xlsx_capabilities'})
+        self.ledger_schema=capabilities.pop('ledger_schema',1)
         if capabilities=={'implementation':'legacy-financial-v1','formats':[]}:
             self.format_backend='python-v1-compatibility'
             self.native_formats=None
@@ -77,7 +82,8 @@ class RustLedger:
         if self.test_fault:args.append('--test-fault='+self.test_fault)
         request_id=payload.get('request_id',payload.get('delta',{}).get('request_id'))
         try:
-            p=subprocess.run(args,input=encoded(payload).encode('utf-8'),stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            env=dict(os.environ);env.setdefault('QUOTE777_LOG_ROOT',str(Path(__file__).resolve().parents[1]));env.setdefault('QUOTE777_LOG_SESSION',_PROCESS_LOG_SESSION)
+            p=subprocess.run(args,env=env,input=encoded(payload).encode('utf-8'),stdout=subprocess.PIPE,stderr=subprocess.PIPE,
                 timeout=self.timeout if timeout is None else timeout,check=False,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
             if p.returncode or len(p.stdout)>128*1024*1024:raise ValueError('native result unavailable')
             reply=json.loads(p.stdout)
@@ -115,7 +121,7 @@ class RustLedger:
     def publish_prices(self,request_id,actor,prices,*,expected_price_version_id=None):
         require_admin(actor)
         if type(prices) is not PriceSnapshot:raise LedgerError('需要价格快照')
-        return self._call(dict(op='publish_prices',request_id=request_id,actor=self.actor(actor),prices=asdict(prices),expected_price_version_id=expected_price_version_id))
+        return self._call(dict(op='publish_prices',request_id=request_id,actor=self.actor(actor),prices={'price_version_id':prices.price_version_id,'items':[price_wire(p) for p in prices.items]},expected_price_version_id=expected_price_version_id))
     def submit_order(self,request_id,actor,snapshot,details=DraftDetails()):
         if type(details) is not DraftDetails:raise LedgerError('需要文本身份')
         return self._call(dict(op='submit_order',request_id=request_id,actor=self.actor(actor),snapshot=snapshot_wire(snapshot),details=asdict(details)))
@@ -148,6 +154,8 @@ class RustLedger:
     def native_import(self,actor,owner_id,raw,kind,**kwargs):
         require_admin(actor)
         from quote_import.store import apply_source,verify_provenance
+        # Upgrade a verified legacy database before constructing the fixed-width delta.
+        if self.ledger_schema==2 and self.inventory()["schema_version"] == 1:self._call(dict(op="migrate",actor=self.actor(actor)))
         tables=('orders','lines','notes','price_versions','import_batches','audit_events','requests')
         memory=sqlite3.connect(':memory:',isolation_level=None);memory.row_factory=sqlite3.Row
         try:

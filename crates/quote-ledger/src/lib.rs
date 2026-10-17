@@ -1,4 +1,5 @@
 //! Native ledger-v1 storage. Authentication stays at the trusted service boundary.
+pub mod editing;
 pub mod integrity;
 pub mod paths;
 pub mod store;
@@ -44,6 +45,7 @@ mod tests {
     fn frozen_schema_hash_matches_native_sqlite_metadata() {
         let c = rusqlite::Connection::open_in_memory().unwrap();
         c.execute_batch(store::DDL).unwrap();
+        c.execute_batch(store::MIGRATION).unwrap();
         assert_eq!(store::schema_hash(&c).unwrap(), store::SCHEMA_HASH);
     }
     #[test]
