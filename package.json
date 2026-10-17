@@ -2,6 +2,7 @@
   "name": "quote777-development",
   "private": true,
   "scripts": {
-    "dev": "node desktop/tools/develop.mjs dev"
+    "dev": "node desktop/tools/develop.mjs dev",
+    "deploy:host": "node deployment/launch.mjs"
   }
 }

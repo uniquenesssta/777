@@ -599,7 +599,11 @@ test("P07-07 continue existing draft from another order preserves pending edits"
     await page.getByRole("button",{name:"订单记录",exact:true}).click();
     await page.getByLabel("搜索订单",{exact:true}).fill("00001");
     await page.getByRole("button",{name:"筛选",exact:true}).click();
-    await page.getByRole("button",{name:"查看详情",exact:true}).click();
+    const otherOrder = page.getByRole("row").filter({
+      has: page.getByRole("cell", { name: "00001", exact: true }),
+    });
+    await expect(otherOrder).toHaveCount(1);
+    await otherOrder.getByRole("button",{name:"查看详情",exact:true}).click();
     await page.getByRole("button",{name:"继续编辑",exact:true}).click();
   };
   await readOther();

@@ -1,9 +1,9 @@
 name: P07 Windows Tauri desktop
 on:
   push:
-    branches: [stage/p07-tauri-desktop]
+    branches: [stage/p07-tauri-desktop, stage/p08-cutover]
   pull_request:
-    branches: [stage/p07-tauri-desktop]
+    branches: [stage/p07-tauri-desktop, stage/p08-cutover]
   workflow_dispatch:
     inputs:
       verify_installers:
@@ -43,6 +43,16 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_p07_*.py' -v
           if ($LASTEXITCODE -ne 0) { throw 'Runner regression failed' }
+      - name: P08 deployment policy and PowerShell syntax
+        shell: pwsh
+        run: |
+          python -m unittest discover -s tests -p 'test_p08_*.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'P08 deployment policy failed' }
+          Get-ChildItem deployment/windows/*.ps1 | ForEach-Object {
+            $tokens = $null; $parseErrors = $null
+            [Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$parseErrors) | Out-Null
+            if ($parseErrors.Count) { throw ($parseErrors | Out-String) }
+          }
       - name: Windows build, real Rust HTTPS, browser and actual Tauri WebView2 lifecycle
         shell: pwsh
         run: |
@@ -53,6 +63,11 @@ jobs:
         run: |
           python tools/p07_customer_orders_check.py --output reports/p07-07-ci
           if ($LASTEXITCODE -ne 0) { throw 'P07-07 native customer order checks failed' }
+      - name: P08 production supervisor shutdown channel
+        shell: pwsh
+        run: |
+          python tools/p08_host_check.py --output reports/p08-02-host
+          if ($LASTEXITCODE -ne 0) { throw 'P08 native supervisor check failed' }
       - name: Runtime diagnostics retain actual Windows IO errors
         shell: pwsh
         run: |
@@ -87,6 +102,7 @@ jobs:
             reports/p07-06-ci
             reports/p07-06-paths
             reports/p07-07-ci
+            reports/p08-02-host
             desktop/test-results
           if-no-files-found: warn
   installers:

@@ -45,3 +45,7 @@ P07-03时间选择按用户后续明确的1天/1周/1月/1年调整：四个“�
 ## P07-05 开发部署追加
 
 新增页面、失败/构建状态和两种紧凑弹窗见[P07-05 Figma映射](P07-developer-figma.md)。复用现有组件与token，正式母子包不包含该入口。
+
+## P08-02 设置页职责与地址展示
+
+设置页迁至 `features/settings/SettingsPage.tsx`，导出记录页迁至 `features/TasksPage.tsx`，App直接导入，不保留双页面混合模块。正式设置地址别名来源于P08可编辑Figma变体92:1556及字段92:1646，复用原Input/Button/token，不新增图片资产；原整页布局差异不在本次重做范围。详见[P08-02实现](../verification/P08-02-deployment.md)。

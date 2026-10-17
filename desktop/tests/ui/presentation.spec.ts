@@ -81,12 +81,12 @@ async function bootstrap(
               case "settings":
                 return {
                   revision: "1",
-                  export_dir: "\\\\localhost\\中文共享\\报价表",
-                  image_dir: "\\\\localhost\\中文共享\\报价图片",
+                  export_dir: chartCase === "managed-locations" ? "\\\\192.168.4.23\\共享\\报价表" : "\\\\localhost\\中文共享\\报价表",
+                  image_dir: chartCase === "managed-locations" ? "\\\\192.168.4.23\\共享\\报价图片" : "\\\\localhost\\中文共享\\报价图片",
                 };
               case "backup_status":
                 return {
-                  target: "synthetic",
+                  target: chartCase === "managed-locations" ? "\\\\192.168.4.23\\共享\\backup" : "synthetic",
                   last_success: { created_at: "2026-10-15T12:34:56Z" },
                   last_error: null,
                 };
@@ -94,7 +94,7 @@ async function bootstrap(
                 return {
                   directory:
                     (request as any).target === "export_dir"
-                      ? "\\\\localhost\\中文共享\\新报价表"
+                      ? chartCase === "managed-locations" ? "\\\\192.168.4.23\\共享\\新报价表" : "\\\\localhost\\中文共享\\新报价表"
                       : null,
                 };
               case "save_settings":
@@ -593,4 +593,28 @@ test("zero-profit orders keep empty pie and flat candles finite", async ({
   await expect(
     page.getByRole("img", { name: /开0.00，高0.00，低0.00，收0.00/ }),
   ).toHaveCount(2);
+});
+
+test("formal settings conceal managed addresses while preserving the actual saved directory", async ({ page }) => {
+  await bootstrap(page, "manager", false, "managed-locations");
+  await page.getByRole("button", { name: "存储与备份", exact: true }).click();
+  const table = page.getByLabel("报价表保存位置", { exact: true });
+  const image = page.getByLabel("报价图片保存位置", { exact: true });
+  await expect(table).toHaveValue("已配置的报价表位置");
+  await expect(image).toHaveValue("已配置的报价图片位置");
+  await expect(table).toHaveAttribute("readonly", "");
+  await expect(page.getByText("当前服务", { exact: true })).toHaveCount(0);
+  await expect(page.locator(".settings")).not.toContainText("192.168.4.23");
+  expect(await page.locator(".settings input").evaluateAll(nodes => nodes.every(n => {
+    const field = n as HTMLInputElement;
+    return ![field.value, field.title, field.getAttribute("aria-label") ?? ""].some(v => v.includes("192.168.4.23"));
+  }))).toBe(true);
+  await page.getByRole("button", { name: "选择报价表保存文件夹", exact: true }).click();
+  await expect(table).toHaveValue("已配置的报价表位置");
+  await page.getByRole("button", { name: "发布保存位置", exact: true }).click();
+  await expect.poll(() => page.evaluate(() => (window as any).__businessRequests.filter((r: any) => r.action === "save_settings").at(-1))).toMatchObject({
+    export_dir: "\\\\192.168.4.23\\共享\\新报价表",
+    image_dir: "\\\\192.168.4.23\\共享\\报价图片",
+  });
+  await expect(table).toHaveValue("已配置的报价表位置");
 });

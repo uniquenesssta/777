@@ -1,0 +1,206 @@
+{
+  "task": "P08-02",
+  "status": "implemented_partial_pending_Windows_and_site",
+  "recorded_at": "2026-10-17T15:01:59.686822+00:00",
+  "repository": "uniquenesssta/777",
+  "branch": "stage/p08-cutover",
+  "baseline_commit": "91c86b42cd6ece05540d6166033c02297e16274d",
+  "authorization": {
+    "instruction": "开始推进02",
+    "at": "2026-10-17T22:30:19+08:00",
+    "P08_01_retroactive_acceptance": false,
+    "P08_03_started": false
+  },
+  "implemented": [
+    "Windows local identity inventory without initialization",
+    "new native host preparation with failed-configuration resume preserving the ledger",
+    "owner SID and resource digest checks for independent startup task lifecycle",
+    "production stdin shutdown channel reusing graceful drain",
+    "packaged settings .23 display aliases preserving real directory saves",
+    "responsibility split for settings/export pages",
+    "nonunique previous browser locator fixed by exact order row"
+  ],
+  "checks": {
+    "frontend_units": {
+      "status": "passed",
+      "tests": 38
+    },
+    "deployment_policy_units": {
+      "status": "passed",
+      "tests": 4,
+      "mock_native_prepare": true
+    },
+    "typescript": {
+      "status": "passed",
+      "command": "npm exec -- tsc --noEmit",
+      "intermediate_extraction_import_errors": "corrected; latest rerun exit 0"
+    },
+    "frontend_build": {
+      "status": "passed",
+      "command": "npm run build",
+      "scope": "web assets only; no manager/sales installers",
+      "warnings": "dependency use client directives and npm proxy config warning"
+    },
+    "rust_format": {
+      "status": "passed",
+      "command": "cargo fmt --all --check"
+    },
+    "rust_host_clippy": {
+      "status": "passed",
+      "command": "cargo clippy --locked -p quote-host --bin quote-host -- -D warnings"
+    },
+    "rust_host_release_build": {
+      "status": "passed",
+      "scope": "auxiliary host binary, not Windows installer"
+    },
+    "native_https_supervisor": {
+      "task": "P08-02",
+      "scope": "synthetic_native_supervisor_channel",
+      "status": "passed",
+      "windows": false,
+      "windows_task_registration": "not_executed",
+      "live_hosts_contacted": false,
+      "checks": [
+        "production_stdin_flag_without_isolated_test",
+        "pinned_https_login_and_capabilities",
+        "graceful_stop_closes_port_preserves_inventory_releases_owner",
+        "restart_same_ledger_and_identity"
+      ]
+    },
+    "browser": {
+      "status": "discovered_only",
+      "tests": 30,
+      "files": 3,
+      "execution": "not run locally; Windows CI pending"
+    },
+    "PowerShell": {
+      "status": "pending_Windows_CI_parser",
+      "task_registration": "not executed"
+    },
+    "auxiliary_scope": "No Windows, Linux or macOS product acceptance is claimed by these local checks.",
+    "logs": {
+      "path": "docs/verification/P08-02-auxiliary.log",
+      "sha256": "109ffabf72eb9e9ad53f779c4ebfcc9ce5c1cc732cfc53ee94194178904ae8fc",
+      "inputs": [
+        {
+          "name": "frontend_unit",
+          "bytes": 3896,
+          "sha256": "901033f8c794f0fc596680062f44cd2234d332d5ab81c3d1f4c36bf0b4e61775"
+        },
+        {
+          "name": "deployment_unit",
+          "bytes": 850,
+          "sha256": "f81b5e7bd4124339859ee88bb05c140d59cccb5dd7d3cb6c9348a6c6d17f60b2"
+        },
+        {
+          "name": "typescript",
+          "bytes": 99,
+          "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+        },
+        {
+          "name": "frontend_build",
+          "bytes": 5662,
+          "sha256": "17dd40f5666f2b780ad757cf9ca9cccc90110874e87cd9cc503480e49057e27e"
+        },
+        {
+          "name": "rust_host_build",
+          "bytes": 1145,
+          "sha256": "6ad22313a22d7d561ce2a5de0690d1f7abf09f4b56f2ec5885d52cab3ba86f48"
+        },
+        {
+          "name": "clippy",
+          "bytes": 1068,
+          "sha256": "33bc10775b64592b99f4492318d16fc4592e192d0734cc94b055bb55d0c0f977"
+        },
+        {
+          "name": "browser_discovery",
+          "bytes": 3417,
+          "sha256": "1f8320241041060abf94a3ffe2d589ca0947ddb922e3aca125a3d51d40e7496d"
+        },
+        {
+          "name": "native_supervisor",
+          "bytes": 379,
+          "sha256": "a9a7961de7d26c17cb37ff1a9d2943f2f71939082e0f527571893bef045c27dc"
+        }
+      ],
+      "normalization": "ANSI color removed and trailing whitespace trimmed; original input SHA256 values retained"
+    },
+    "relative_document_links": {
+      "status": "passed",
+      "count": 403
+    },
+    "diff_whitespace": {
+      "status": "passed"
+    }
+  },
+  "figma": {
+    "file_key": "2ek9bkIz5ldyhjZnnvIuNu",
+    "frame": "92:1556",
+    "field_context": "92:1646",
+    "editable": true,
+    "screenshot_inspected": true,
+    "new_image_assets": false,
+    "layout_scope": "display aliases in existing settings layout"
+  },
+  "windows_ci": {
+    "status": "pending_push",
+    "workflow": ".github/workflows/p07-windows.yml",
+    "installers": "skipped by default; cancelled preparation validation not rerun",
+    "previous": {
+      "run_id": 39036319450,
+      "commit": "aca4ce3b27381abb70920f410c5ead3b1bf2a2ae",
+      "conclusion": "failure",
+      "browser_tests": 29,
+      "browser_failures": 1,
+      "reason": "global detail button locator matched 20 buttons",
+      "fix": "assert exact order 00001 row unique, click its detail button; original draft assertions retained"
+    }
+  },
+  "site": {
+    "live_hosts_contacted": false,
+    "startup_registered": false,
+    "firewall_modified": false,
+    "device_grants_issued": false,
+    "historical_orders_migrated": 0,
+    "development_data_migrated": false,
+    "remote_test_packages_downloaded": false,
+    "host_os_accounts_roots_device_mappings": "not supplied; inventory command available"
+  },
+  "ha": {
+    "planned_order": [
+      "192.168.4.23",
+      "192.168.4.38"
+    ],
+    "implemented": "single HTTPS ledger only",
+    "replication": false,
+    "automatic_failover": false,
+    "replication_mode": "not selected; unanswered questions are not a decision",
+    "standby_independent_writer": "explicitly refused"
+  },
+  "pending": [
+    "actual site inventory and identity under which backups are accessible",
+    "replication acknowledgement, exclusive writer failover and shared receipts/device state",
+    "Windows startup registration, reboot and native business entry",
+    "daily dual-format backup and independent recovery under actual identity",
+    "first manager and actual sales device mapping",
+    "final local package release manifests and user acceptance"
+  ],
+  "source_sha256": {
+    "crates/quote-host/src/main.rs": "84e5f55cfa1cda7392635bac98756029c86bbd0cda903d7476cc57c3e30e0982",
+    "deployment/host/cli.py": "12e4e1e36f33a980d6f42210fb5189afa928a31d8edec595c20e896b34daf122",
+    "deployment/host/policy.py": "523932fc1a61333497140cd13b2a8e856de31b163ab40d9264a9e8f6a5b71651",
+    "deployment/host/native.py": "71ed564204209360a07785592df5072fb122258376a0a9f05ffd5c962fef02e6",
+    "deployment/host/prepare.py": "3c0abd92e050ebe16a87900c50b230c70571e0104a2ae3b76b2727851110aa53",
+    "deployment/windows/host-run.ps1": "52f5761b21264a6932aa448ce4a7158043bd95c47c2e4ee860115d888342fdf9",
+    "deployment/windows/host-task.ps1": "81080d04e3c6a821076929de5bb2d53c666d6b68bca41ddc5891c6c7acbb325c",
+    "deployment/windows/host-identity.ps1": "6e25df4f0235cd6c31b02b40dd5fa782cd7b5786186bee7820551aee918e33fa",
+    "desktop/src/features/settings/SettingsPage.tsx": "2bf78dcd0b78756c6295d9b1f08a62ded08176579c8f64b5572189bae605f594",
+    "desktop/src/features/settings/managedLocations.ts": "354631f7f82eb9e0120412ea743915f2ea2559eabd758445a5c61004f946ed40",
+    "desktop/src/features/TasksPage.tsx": "85d80b83b62aa8b54c479bed682967025e5c82e6dc16b61eae6694bd44cee9fc",
+    "desktop/tests/ui/workbench.spec.ts": "39b50efaf7f17cc896dc03504c80bdff32353b91752b5a00c1eff8a787d90ac4",
+    "desktop/tests/ui/presentation.spec.ts": "7e60820f9796437b5b0110f34b6a6b09bd614fa62ff64424174064d58b410c5b",
+    "tests/test_p08_deployment.py": "28f37ef020c115076eeb23c6afbb1e60d132746e0694652f8b56733cbb9f8111",
+    "tools/p08_host_check.py": "abba4bd380fcbb8bd48078b21ed65c07348d46c45f8c5db01ab443ffa8eeefeb",
+    ".github/workflows/p07-windows.yml": "fc861fc19a5c4474caea3b1997f3c71851df3a313656a9838b220040ec3f8a95"
+  }
+}

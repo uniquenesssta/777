@@ -117,7 +117,9 @@
       "sha": "aca4ce3b27381abb70920f410c5ead3b1bf2a2ae",
       "status_at_start": "in_progress",
       "desktop_contracts": "in_progress",
-      "installers": "skipped"
+      "installers": "skipped",
+      "final_result": "failure",
+      "failure": "one browser test clicked nonunique detail buttons after filtering; fixed in P08-02, new Windows run pending"
     },
     "previous_functional_ci": {
       "run_id": 39031873989,
@@ -191,6 +193,17 @@
       "Role-aware settings concealment including address-bearing summaries",
       "Targeted failover and redaction evidence"
     ],
-    "actual_failover_or_replication_enabled": false
+    "actual_failover_or_replication_enabled": false,
+    "settings_concealment": "implemented_in_P08-02_pending_Windows_UI_check"
+  },
+  "handoff_to_02": {
+    "at": "2026-10-17T22:30:19+08:00",
+    "instruction": "开始推进02",
+    "acceptance_of_01": false,
+    "implementation": "docs/verification/P08-02-deployment.md",
+    "remaining": [
+      "replication and single-writer failover",
+      "actual site identity and startup verification"
+    ]
   }
 }

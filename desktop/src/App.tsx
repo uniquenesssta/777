@@ -7,10 +7,8 @@ import { OrdersPage } from "./features/OrdersPage";
 import { DetailPage } from "./features/DetailPage";
 import { ConnectionPage } from "./features/ConnectionPage";
 import { DeveloperPage } from "./features/DeveloperPage";
-import {
-  SettingsPage,
-  TasksPage,
-} from "./features/ManagementPages";
+import { SettingsPage } from "./features/settings/SettingsPage";
+import { TasksPage } from "./features/TasksPage";
 import { Button, Icon, Modal } from "./ui/components";
 // A formal installer never embeds the developer connection/login form.
 const formalPackage = import.meta.env.VITE_QUOTE777_DELIVERY === "manager" ||

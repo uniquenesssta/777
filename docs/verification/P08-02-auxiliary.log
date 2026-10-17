@@ -1,0 +1,251 @@
+P08-02 auxiliary checks; Windows/site acceptance NOT performed.
+
+=== frontend_unit ===
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> quote-desktop@0.1.0 test
+> node --import tsx --test tests/*.test.ts
+
+✔ export strips development secrets and rejects unapproved configuration fields (1.749081ms)
+✔ release type is explicit and generated installers keep both roles isolated (0.851946ms)
+✔ release verification rejects corruption and path traversal before enrollment (44.824627ms)
+✔ enrollment refuses other role/service and preserves device and pending records (62.782642ms)
+✔ rollback permits only the same role, service and profile compatibility epoch (0.658727ms)
+✔ A to B to A preserves raw drafts without moving authority or drafts across ledgers (1.316903ms)
+✔ unavailable local storage fails before replacing the current source record (0.564045ms)
+✔ late calculation cannot restore authority after any input or price change (1.26865ms)
+✔ revision and display cents never pass through JS floating point (2.1161ms)
+✔ only raw draft fields restore, never a claimed result or stored role (0.491626ms)
+✔ confirmed original order clears only its own raw draft and preserves edits during submit (8.17763ms)
+✔ late edit receipt cannot clear another order with identical customer and goods (0.257426ms)
+✔ pinned font download is atomic, cached and usable without network (21.758734ms)
+✔ wrong download and corrupted cache never become accepted font assets (8.77868ms)
+✔ ordinary font preparation keeps its Chinese CLI progress (95.765921ms)
+✔ development preparation reports missing fonts without making network requests (2.049981ms)
+✔ offline development still rejects corrupted cached font bytes (4.509665ms)
+✔ explicit font preparation cancellation rejects promptly and leaves no partial file (5.563303ms)
+✔ formal location labels conceal the selected service address without changing stored paths (1.832315ms)
+✔ development and other destinations remain readable, including addresses sharing a numeric prefix (0.410154ms)
+✔ actual pinned Tauri CLI reproduces the previous manifest rewrite (2186.343133ms)
+✔ tracked manifest stays unchanged through actual Tauri dev/build for LF and CRLF (320.807977ms)
+✔ actual Tauri role and upgrade overlays preserve the source Cargo manifest (146.544312ms)
+✔ pinned Tauri parser accepts both complete Windows NSIS overlays (124.131261ms)
+✔ native readiness preserves the underlying CDP error and attempt diagnostics (21.724569ms)
+✔ native readiness succeeds after transient refusal and bounds each connect attempt (2.100747ms)
+✔ a failed connection checkpoint closes the attached browser and does not retry (0.345988ms)
+✔ actual Windows Tauri production origins accept embedded-page paths (1.013108ms)
+✔ Vite, browser error pages and lookalike hosts fail before waiting for login (0.51433ms)
+✔ packages saved inside a selected source folder do not dirty later builds or hide source changes (44.948748ms)
+✔ shortcuts span exactly one day, week, month or year from the same current instant (2.19674ms)
+✔ calendar subtraction clamps month ends and leap anniversaries while keeping the clock (0.222023ms)
+✔ business clock uses UTC+08 across midnight rather than the device timezone (0.147461ms)
+✔ datetime picker minute and abbreviated subsecond values keep a canonical exact boundary (0.236525ms)
+✔ chart coordinates support losses and huge exact cents without converting money to Number (0.22681ms)
+✔ profit pie keeps losses explicit and computes exact shares for huge cents and zero buckets (1.877222ms)
+✔ candle domain includes intra-period high and low rather than only closing totals (1.423533ms)
+✔ UI diagnostics record fixed metadata without customer, cost, message or stack text (2.272229ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3117.526975
+
+=== deployment_unit ===
+test_host_root_and_evidence_are_not_overwritten (test_p08_deployment.DeploymentPolicyTests.test_host_root_and_evidence_are_not_overwritten) ... ok
+test_standby_or_wrong_machine_cannot_become_an_independent_writer (test_p08_deployment.DeploymentPolicyTests.test_standby_or_wrong_machine_cannot_become_an_independent_writer) ... ok
+test_failure_leaves_host_stopped_and_authenticated_configure_resumes_without_reinitializing (test_p08_deployment.PreparationTests.test_failure_leaves_host_stopped_and_authenticated_configure_resumes_without_reinitializing) ... ok
+test_ineligible_standby_and_overlapping_backup_fail_before_build_or_init (test_p08_deployment.PreparationTests.test_ineligible_standby_and_overlapping_backup_fail_before_build_or_init) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.011s
+
+OK
+
+=== typescript ===
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+=== frontend_build ===
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> quote-desktop@0.1.0 build
+> node tools/prepare-fonts.mjs && tsc --noEmit && vite build
+
+准备完整构建字体；缺失文件需联网下载，每个文件最多等待60秒。
+vite v8.3.4 building client environment for production...
+transforming...
+✓ 95 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.35 kB │ gzip:   0.28 kB
+dist/assets/index-CW90UZ3H.css   26.91 kB │ gzip:   5.96 kB
+dist/assets/index-DWMe0P7p.js   350.45 kB │ gzip: 108.32 kB
+
+[MODULE_LEVEL_DIRECTIVE] The semantics of the module level directive "use client" in "node_modules/@radix-ui/react-dialog/dist/index.mjs" may not be preserved when bundling.
+   ╭─[ node_modules/@radix-ui/react-dialog/dist/index.mjs:1:1 ]
+   │
+ 1 │ "use client";
+   │ ──────┬──────
+   │       ╰──────── module level directive may not be preserved
+   │
+   │ Help: For more information, see https://rolldown.rs/in-depth/directives#other-directives
+───╯
+
+[MODULE_LEVEL_DIRECTIVE] The semantics of the module level directive "use client" in "node_modules/@radix-ui/react-primitive/dist/index.mjs" may not be preserved when bundling.
+   ╭─[ node_modules/@radix-ui/react-primitive/dist/index.mjs:1:1 ]
+   │
+ 1 │ "use client";
+   │ ──────┬──────
+   │       ╰──────── module level directive may not be preserved
+   │
+   │ Help: For more information, see https://rolldown.rs/in-depth/directives#other-directives
+───╯
+
+[MODULE_LEVEL_DIRECTIVE] The semantics of the module level directive "use client" in "node_modules/@radix-ui/react-portal/dist/index.mjs" may not be preserved when bundling.
+   ╭─[ node_modules/@radix-ui/react-portal/dist/index.mjs:1:1 ]
+   │
+ 1 │ "use client";
+   │ ──────┬──────
+   │       ╰──────── module level directive may not be preserved
+   │
+   │ Help: For more information, see https://rolldown.rs/in-depth/directives#other-directives
+───╯
+
+[MODULE_LEVEL_DIRECTIVE] The semantics of the module level directive "use client" in "node_modules/@radix-ui/react-focus-guards/dist/index.mjs" may not be preserved when bundling.
+   ╭─[ node_modules/@radix-ui/react-focus-guards/dist/index.mjs:1:1 ]
+   │
+ 1 │ "use client";
+   │ ──────┬──────
+   │       ╰──────── module level directive may not be preserved
+   │
+   │ Help: For more information, see https://rolldown.rs/in-depth/directives#other-directives
+───╯
+
+[MODULE_LEVEL_DIRECTIVE] The semantics of the module level directive "use client" in "node_modules/@radix-ui/react-presence/dist/index.mjs" may not be preserved when bundling.
+   ╭─[ node_modules/@radix-ui/react-presence/dist/index.mjs:1:1 ]
+   │
+ 1 │ "use client";
+   │ ──────┬──────
+   │       ╰──────── module level directive may not be preserved
+   │
+   │ Help: For more information, see https://rolldown.rs/in-depth/directives#other-directives
+───╯
+
+[MODULE_LEVEL_DIRECTIVE] The semantics of the module level directive "use client" in "node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs" may not be preserved when bundling.
+   ╭─[ node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs:1:1 ]
+   │
+ 1 │ "use client";
+   │ ──────┬──────
+   │       ╰──────── module level directive may not be preserved
+   │
+   │ Help: For more information, see https://rolldown.rs/in-depth/directives#other-directives
+───╯
+
+[MODULE_LEVEL_DIRECTIVE] The semantics of the module level directive "use client" in "node_modules/@radix-ui/react-focus-scope/dist/index.mjs" may not be preserved when bundling.
+   ╭─[ node_modules/@radix-ui/react-focus-scope/dist/index.mjs:1:1 ]
+   │
+ 1 │ "use client";
+   │ ──────┬──────
+   │       ╰──────── module level directive may not be preserved
+   │
+   │ Help: For more information, see https://rolldown.rs/in-depth/directives#other-directives
+───╯
+
+✓ built in 216ms
+
+=== rust_host_build ===
+   Compiling syn v3.0.9
+   Compiling time v0.3.44
+   Compiling syn v2.0.119
+   Compiling sync_wrapper v1.0.2
+   Compiling base64 v0.23.1
+   Compiling axum-core v0.5.6
+   Compiling pem v4.0.0
+   Compiling quote-diagnostics v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-diagnostics)
+   Compiling yasna v0.6.0
+   Compiling serde_derive v1.0.228
+   Compiling rcgen v0.14.10
+   Compiling tokio-macros v2.7.2
+   Compiling tokio v1.52.3
+   Compiling serde v1.0.228
+   Compiling quote-excel v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-excel)
+   Compiling quote-core v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-core)
+   Compiling quote-ledger v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-ledger)
+   Compiling tokio-util v0.7.20
+   Compiling tower v0.5.3
+   Compiling tokio-rustls v0.26.6
+   Compiling fs-err v3.3.2
+   Compiling h2 v0.4.20
+   Compiling hyper v1.12.0
+   Compiling hyper-util v0.1.21
+   Compiling axum-server v0.8.0
+   Compiling axum v0.8.9
+   Compiling quote-host v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-host)
+    Finished `release` profile [optimized] target(s) in 24.29s
+
+=== clippy ===
+    Checking tokio v1.52.3
+    Checking time v0.3.44
+    Checking serde v1.0.228
+    Checking sync_wrapper v1.0.2
+    Checking quick-xml v0.41.0
+    Checking base64 v0.23.1
+    Checking axum-core v0.5.6
+    Checking pem v4.0.0
+    Checking quote-core v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-core)
+    Checking yasna v0.6.0
+    Checking quote-excel v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-excel)
+    Checking quote-diagnostics v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-diagnostics)
+    Checking rcgen v0.14.10
+    Checking quote-ledger v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-ledger)
+    Checking tokio-util v0.7.20
+    Checking tower v0.5.3
+    Checking tokio-rustls v0.26.6
+    Checking fs-err v3.3.2
+    Checking h2 v0.4.20
+    Checking hyper v1.12.0
+    Checking hyper-util v0.1.21
+    Checking axum-server v0.8.0
+    Checking axum v0.8.9
+    Checking quote-host v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-host)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 12.22s
+
+=== browser_discovery ===
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+Listing tests:
+  native-autostart.spec.ts:22:3 › manager native completion uses submitted DetailPage controls and records success last
+  native-autostart.spec.ts:22:3 › sales native completion uses submitted DetailPage controls and records success last
+  native-autostart.spec.ts:34:1 › busy or disabled submitted workspace cannot publish a passing checkpoint
+  presentation.spec.ts:227:3 › manager local fonts, original icons and compact layout at four emulated scales
+  presentation.spec.ts:254:3 › manager failed automatic entry retries without technical/login controls
+  presentation.spec.ts:227:3 › sales local fonts, original icons and compact layout at four emulated scales
+  presentation.spec.ts:254:3 › sales failed automatic entry retries without technical/login controls
+  presentation.spec.ts:270:1 › keyboard dialog returns focus and fonts fall back without a banner
+  presentation.spec.ts:288:1 › manager directory selection is a draft until published and cancellation preserves the path
+  presentation.spec.ts:336:1 › sales inherits readonly directories and sees only its export explanation
+  presentation.spec.ts:355:1 › profit shows aggregate bars rather than orders and switches calendar periods
+  presentation.spec.ts:466:1 › four chart types share one snapshot and remain readable at wide and narrow widths
+  presentation.spec.ts:550:1 › old service never fabricates candlesticks from aggregate totals
+  presentation.spec.ts:570:1 › zero-profit orders keep empty pie and flat candles finite
+  presentation.spec.ts:598:1 › formal settings conceal managed addresses while preserving the actual saved directory
+  workbench.spec.ts:52:1 › profit charts use the full real ledger across order pages
+  workbench.spec.ts:100:1 › real Rust quote, compact confirmation, append note, void/restore and full pagination
+  workbench.spec.ts:142:1 › input edit invalidates result and late calculation cannot reenable submit
+  workbench.spec.ts:162:1 › sales DTO and pages contain no cost/profit and settings inherit
+  workbench.spec.ts:194:1 › unknown commit requires original receipt check and restart never double books
+  workbench.spec.ts:214:1 › current Figma quote geometry and all original assets load at their exported sizes
+  workbench.spec.ts:275:1 › manager price publication, readonly inherited directories and real output task progress
+  workbench.spec.ts:304:1 › confirmed write with failed detail refresh clears the original draft and never offers a duplicate submit
+  workbench.spec.ts:356:1 › development keeps an explicit connection editor without exposing it as formal authentication
+  workbench.spec.ts:368:1 › price editor keeps final manual sale separate from cost markup and persists automatic mode
+  workbench.spec.ts:499:3 › manager direct add, inline product changes and shared column alignment
+  workbench.spec.ts:499:3 › sales-one direct add, inline product changes and shared column alignment
+  workbench.spec.ts:545:1 › P07-07 customer match edits the chosen order and exports period financial report
+  workbench.spec.ts:593:1 › P07-07 continue existing draft from another order preserves pending edits
+  workbench.spec.ts:622:1 › P07-07 report parts can page, retry one file and locate its folder
+Total: 30 tests in 3 files
+
+=== native_supervisor ===
+{"task": "P08-02", "scope": "synthetic_native_supervisor_channel", "status": "passed", "windows": false, "windows_task_registration": "not_executed", "live_hosts_contacted": false, "checks": ["production_stdin_flag_without_isolated_test", "pinned_https_login_and_capabilities", "graceful_stop_closes_port_preserves_inventory_releases_owner", "restart_same_ledger_and_identity"]}
