@@ -16,19 +16,24 @@ pub fn local(path: &Path, exists: bool) -> Result<()> {
     Ok(paths::local(path, exists)?)
 }
 pub fn dir(path: &Path) -> Result<()> {
-    if !fs::metadata(path)?.is_dir() {
-        return fail(422, "DIRECTORY_INVALID");
+    if !paths::absolute(path) {
+        return fail(422, "FILESYSTEM_PATH_REQUIRED");
     }
-    local(&path.join(".777-path-check"), false)
+    for ancestor in path.ancestors() {
+        if !fs::metadata(ancestor)?.is_dir() {
+            return fail(422, "DIRECTORY_INVALID");
+        }
+    }
+    Ok(())
 }
 pub fn new_dir(path: &Path) -> Result<()> {
-    local(&path.join(".777-path-check"), false).or_else(|_| {
-        local(&path.with_file_name(".777-parent-check"), false)?;
-        if path.exists() {
-            return fail(409, "EXISTS");
-        }
-        Ok(())
-    })?;
+    if !paths::absolute(path) {
+        return fail(422, "FILESYSTEM_PATH_REQUIRED");
+    }
+    let parent = path
+        .parent()
+        .ok_or_else(|| Error::new(422, "DIRECTORY_INVALID"))?;
+    dir(parent)?;
     fs::create_dir(path)?;
     #[cfg(unix)]
     {

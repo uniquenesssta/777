@@ -43,8 +43,6 @@ pub fn configure_backup(
                 files::writable_directory(target)?;
                 return backup::status(&s);
             }
-        } else {
-            files::local(&target.with_file_name(".777-parent-check"), false)?;
         }
         let candidate = if target.exists() {
             target.canonicalize()?

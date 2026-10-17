@@ -616,13 +616,6 @@ pub fn publish(source: &Path, root: &Path, name: &str, sha: &str) -> Result<Path
         if !m.is_file() || m.file_type().is_symlink() || m.len() > LIMIT as u64 {
             return fail(409, "OUTPUT_FILE_CONFLICT");
         }
-        #[cfg(windows)]
-        {
-            use std::os::windows::fs::MetadataExt;
-            if m.file_attributes() & 0x400 != 0 {
-                return fail(409, "OUTPUT_FILE_CONFLICT");
-            }
-        }
         if hash(fs::read(&target)?) != sha {
             return fail(409, "OUTPUT_FILE_CONFLICT");
         }

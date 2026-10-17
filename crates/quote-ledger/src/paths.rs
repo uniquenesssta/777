@@ -38,13 +38,6 @@ pub fn local(path: &Path, exists: bool) -> Result<()> {
                 {
                     return Err(Error::new("LINK_OR_TYPE_DISALLOWED"));
                 }
-                #[cfg(windows)]
-                {
-                    use std::os::windows::fs::MetadataExt;
-                    if p == path && m.file_attributes() & 0x400 != 0 {
-                        return Err(Error::new("LINK_OR_TYPE_DISALLOWED"));
-                    }
-                }
             }
             Err(e) if p == path && !exists && e.kind() == std::io::ErrorKind::NotFound => (),
             Err(e) if e.kind() == std::io::ErrorKind::PermissionDenied => {

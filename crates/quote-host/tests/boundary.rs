@@ -184,6 +184,8 @@ fn selected_directory_alias_writes_and_shares_the_same_owner_lock() {
     let actual = temp.0.join("actual");
     let alias = temp.0.join("selected alias");
     std::fs::create_dir(&actual).unwrap();
+    std::fs::create_dir(actual.join(".777-path-check")).unwrap();
+    std::fs::create_dir(actual.join(".777-parent-check")).unwrap();
     std::os::unix::fs::symlink(&actual, &alias).unwrap();
     files::writable_directory(&alias).unwrap();
     files::new_file(&alias.join("keep.txt"), b"original").unwrap();
