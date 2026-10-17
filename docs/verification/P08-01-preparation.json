@@ -1,6 +1,6 @@
 {
   "task": "P08-01",
-  "status": "prepared_pending_site_inventory",
+  "status": "requirements_extended_pending_failover_design_and_site_inventory",
   "recorded_at": "2026-10-17T21:44:20+08:00",
   "repository": "uniquenesssta/777",
   "branch": "stage/p08-cutover",
@@ -20,6 +20,16 @@
         "instruction": "那还是改为4.38吧",
         "service_host": "192.168.4.38",
         "ordinary_backup_candidate_changed": false
+      },
+      {
+        "at": "2026-10-17T22:15:48+08:00",
+        "instruction": "先写4.23 再写4.38 但是4.23在封包之后的母版设置中不可见",
+        "service_host_order": [
+          "192.168.4.23",
+          "192.168.4.38"
+        ],
+        "manager_settings_hidden_host": "192.168.4.23",
+        "ordinary_backup_candidate_changed": false
       }
     ]
   },
@@ -33,8 +43,8 @@
     "development_data_policy": "Keep existing development data; never copy it to production implicitly"
   },
   "site_plan": {
-    "service_host": "192.168.4.38",
-    "supersedes_host_plan": "192.168.4.23",
+    "service_host": "192.168.4.23",
+    "supersedes_host_plan": "192.168.4.38",
     "manager_count": 1,
     "sales_count": null,
     "ordinary_backup_candidate": "\\\\192.168.4.23\\共享\\backup",
@@ -49,7 +59,14 @@
     "hidden_backup_root": null,
     "output_root": null,
     "device_actor_mappings": [],
-    "host_plan_note": "Restores original P01 host by latest user instruction; backup destination remains unchanged"
+    "host_plan_note": "Latest requirement: prefer .23 then .38; ordered failover is not implemented",
+    "service_host_order": [
+      "192.168.4.23",
+      "192.168.4.38"
+    ],
+    "manager_settings_hidden_hosts": [
+      "192.168.4.23"
+    ]
   },
   "protocols": {
     "rule_version": "business-v1",
@@ -130,9 +147,17 @@
     "links_and_diff": "passed",
     "relative_file_links_checked": 550,
     "markdown_files_checked": 14,
-    "source_fingerprints_checked": 11
+    "source_fingerprints_checked": 11,
+    "latest_requirement_amendment": {
+      "at": "2026-10-17T22:15:48+08:00",
+      "files": 7,
+      "relative_file_links_checked": 386,
+      "result": "passed; JSON decisions and documentation-only scope checked",
+      "new_business_code": false
+    }
   },
   "pending": [
+    "Design/implement ordered .23 -> .38 service endpoints, replication/acknowledgement, single-writer failover and packaged manager settings concealment",
     "Actual host OS, machine identity and maintenance owner",
     "Service run identity, directory access, root, HTTPS origin/certificate and startup registration",
     "One manager workstation/user/stable actor/device mapping; actual sales list when known",
@@ -146,5 +171,26 @@
     "Changing live ledger, backup or access permissions",
     "Deleting development or historical data"
   ],
-  "updated_at": "2026-10-17T22:00:23+08:00"
+  "updated_at": "2026-10-17T22:17:38+08:00",
+  "ordered_hosts_requirement": {
+    "status": "recorded_not_implemented",
+    "preferred": "192.168.4.23",
+    "standby": "192.168.4.38",
+    "manager_settings_visibility": "Do not display/edit .23 connection configuration or echo its address in related settings summaries; developer deployment configuration remains accessible",
+    "visibility_scope": "ordinary packaged manager settings only; not a promise of network endpoint secrecy",
+    "current_implementation": "one HTTPS origin with certificate pin; pending requests bound to that identity",
+    "replication_mode": null,
+    "replication_mode_status": "not_selected_by_user",
+    "write_policy": "Single authoritative writer; no independent dual writes or switching to a stale standby",
+    "unknown_commit_policy": "Resolve original request receipt before another write; never generate a new ID merely because endpoint changed",
+    "required_before_activation": [
+      "Ordered endpoint and trust configuration",
+      "Replica consistency and acknowledgement contract",
+      "Exclusive writer and safe promotion/rejoin",
+      "Shared stable actors, device revocation and request receipts",
+      "Role-aware settings concealment including address-bearing summaries",
+      "Targeted failover and redaction evidence"
+    ],
+    "actual_failover_or_replication_enabled": false
+  }
 }
