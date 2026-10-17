@@ -70,3 +70,5 @@ npm run deploy:host -- status --root 'D:\Quote777Host'
 上轮 `aca4ce3` 的Windows功能CI [39036319450](https://github.com/uniquenesssta/777/actions/runs/39036319450)最终失败：29个浏览器用例中1个用例在筛选后对全页“查看详情”调用click，匹配20个按钮触发strict mode错误。原Rust检查已通过；后续原生客户订单步骤尚未执行，不写成通过。本次按订单号00001的具体行定位并断言唯一，再点击该行详情，保持原草稿/放弃行为断言，未削弱成随便取第一行。
 
 本次功能CI扩展到P08分支，新增部署策略检查、PowerShell语法解析、正常监管退出的原生HTTPS检查及正式设置地址隐藏浏览器用例。母子installers仍默认跳过。新增Windows任务注册/重启、真实主机部署、跨机复制/接管和完整P08-02验收没有完成。
+
+代码已提交 `a72fa83`，新一轮[Windows功能CI39043402540](https://github.com/uniquenesssta/777/actions/runs/39043402540)已启动：记录时desktop-contracts运行中，installers已跳过，尚无通过结论。本条仅登记发起状态，后续以实际完成结果为准。

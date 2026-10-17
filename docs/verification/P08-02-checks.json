@@ -143,7 +143,7 @@
     "layout_scope": "display aliases in existing settings layout"
   },
   "windows_ci": {
-    "status": "pending_push",
+    "status": "in_progress",
     "workflow": ".github/workflows/p07-windows.yml",
     "installers": "skipped by default; cancelled preparation validation not rerun",
     "previous": {
@@ -154,6 +154,20 @@
       "browser_failures": 1,
       "reason": "global detail button locator matched 20 buttons",
       "fix": "assert exact order 00001 row unique, click its detail button; original draft assertions retained"
+    },
+    "source_commit": "a72fa83f367722071532b43def7c6a7a301d293f",
+    "run_id": 39043402540,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/39043402540",
+    "observed_at": "2026-10-17T15:04:36.766797+00:00",
+    "desktop_contracts_job": {
+      "id": 117427242146,
+      "status": "in_progress",
+      "conclusion": null
+    },
+    "installers_job": {
+      "id": 117427243227,
+      "status": "completed",
+      "conclusion": "skipped"
     }
   },
   "site": {
