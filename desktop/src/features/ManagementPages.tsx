@@ -157,7 +157,7 @@ export function SettingsPage({ app }: { app: Workbench }) {
             title={exportDir}
             readOnly={!admin}
             onChange={(e) => setExport(e.target.value)}
-            placeholder="由管理员发布的共享位置"
+            placeholder="由管理员发布的保存位置"
           />
           {admin && (
             <Button
@@ -183,7 +183,7 @@ export function SettingsPage({ app }: { app: Workbench }) {
             title={imageDir}
             readOnly={!admin}
             onChange={(e) => setImage(e.target.value)}
-            placeholder="由管理员发布的共享位置"
+            placeholder="由管理员发布的保存位置"
           />
           {admin && (
             <Button
@@ -203,7 +203,7 @@ export function SettingsPage({ app }: { app: Workbench }) {
       {admin ? (
         <>
           <p className="muted">
-            请选择网络共享文件夹，也可填写共享路径；保存后子版自动继承。
+            请选择保存文件夹，也可填写完整路径；保存后子版自动继承。
           </p>
           <Button
             onClick={() => app.saveSettings(exportDir, imageDir)}

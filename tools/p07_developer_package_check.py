@@ -5,6 +5,7 @@ from pathlib import Path
 import shutil
 import socket
 import subprocess
+import uuid
 from types import SimpleNamespace
 from p07_developer import Developer
 from p07_dev_host import command, stop_host
@@ -26,10 +27,13 @@ def package_from_window(host, root, delivery, version, release):
     with socket.socket() as sock:
         sock.bind(('127.0.0.1',0)); port = sock.getsockname()[1]
     process = None
+    # Exercise a selected output folder inside the source checkout, including the next build's clean-source gate.
+    package_output = root / ('package-location-check-' + uuid.uuid4().hex)
+    package_output.mkdir()
     try:
         with (evidence / 'process.log').open('wb') as log:
             process = subprocess.Popen([str(root / 'target/debug/quote-desktop.exe'), '--verification-window', '--profile', str(profile), '--debug-port', str(port)], stdout=log, stderr=subprocess.STDOUT)
-            result = subprocess.run([shutil.which('node'), str(root / 'desktop/tests/windows-developer.mjs'), str(port), str(evidence), delivery, version, str(devdir / 'packages')], cwd=root / 'desktop', timeout=2500)
+            result = subprocess.run([shutil.which('node'), str(root / 'desktop/tests/windows-developer.mjs'), str(port), str(evidence), delivery, version, str(package_output)], cwd=root / 'desktop', timeout=2500)
             if result.returncode:raise RuntimeError('DEVELOPER_WINDOW_PACKAGE_FAILED')
             job = json.loads((evidence / 'developer-job.json').read_text(encoding='utf-8'))
             shutil.copytree(job['output'], release)
@@ -43,3 +47,4 @@ def package_from_window(host, root, delivery, version, release):
         host.process = controller.process; controller.process = None
         controller.close()
         for key in ['QUOTE777_DEVELOPER_PORT','QUOTE777_DEVELOPER_TOKEN']:os.environ.pop(key,None)
+        shutil.rmtree(package_output)

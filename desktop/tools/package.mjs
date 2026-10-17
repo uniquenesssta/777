@@ -61,6 +61,16 @@ async function run(args, env) {
     child.once('exit', code => code === 0 ? resolve() : reject(Error('TAURI_BUILD_FAILED: ' + code)));
   });
 }
+// Only the newly created, empty output directory is excluded; tracked source stays checked.
+export async function ignoreGeneratedOutput(output, repository = root) {
+  const relative = path.relative(await fs.realpath(repository), await fs.realpath(output));
+  if (!relative || relative === '..' || relative.startsWith('..' + path.sep) || path.isAbsolute(relative)) return;
+  if ((await fs.readdir(output)).length) throw Error('PACKAGE_OUTPUT_NOT_EMPTY');
+  const gitPath = execFileSync('git', ['rev-parse', '--git-path', 'info/exclude'], { cwd: repository, encoding: 'utf8' }).trim();
+  const pattern = '/' + relative.split(path.sep).join('/').replace(/[\\*?\[\]]/g, character => '\\' + character) + '/';
+  await fs.appendFile(path.resolve(repository, gitPath), '\n' + pattern + '\n');
+}
+
 export async function build(args) {
   const a = options(args, ['--delivery', '--connection', '--output', '--version', '--webview']);
   const delivery = a['--delivery'], identity = requireDelivery(delivery);
@@ -74,6 +84,7 @@ export async function build(args) {
   const output = path.resolve(a['--output']);
   // Exclusive creation makes stale installers impossible to mistake for this build.
   await fs.mkdir(output, { recursive: false });
+  await ignoreGeneratedOutput(output);
   await fs.mkdir(path.join(root, 'target'), { recursive: true });
   const temporary = await fs.mkdtemp(path.join(root, 'target', 'package-input-'));
   try {
