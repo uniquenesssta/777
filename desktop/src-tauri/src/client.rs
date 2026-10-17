@@ -607,6 +607,9 @@ impl Desktop {
                 )
                 .await
             }
+            Action::OrderChanges {order_id,revision:rev} => {
+                self.request("GET",&format!("/v1/orders/{}/changes/{}",identifier(&order_id)?,revision(&rev)?),None).await
+            }
             Action::Order { order_id } => {
                 self.request(
                     "GET",
@@ -660,7 +663,7 @@ impl Desktop {
                 self.admin()?;
                 self.request("POST","/v1/settings",Some(&json!({"revision":revision(&rev)?,"export_dir":export_dir,"image_dir":image_dir}))).await
             }
-            Action::Outputs {} => self.request("GET", "/v1/outputs", None).await,
+            Action::Outputs { offset } => self.request("GET", &format!("/v1/outputs?offset={offset}"), None).await,
             Action::OpenOutputFolder { job_id } => {
                 let location = self
                     .request(

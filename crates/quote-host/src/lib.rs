@@ -8,10 +8,12 @@ pub mod devices;
 pub mod files;
 pub mod host;
 pub mod operator;
+mod order_changes;
 pub mod outputs;
 pub mod protocol;
 pub mod query;
 pub mod recovery;
+mod report_exports;
 pub mod service;
 use serde_json::Value;
 #[derive(Debug)]

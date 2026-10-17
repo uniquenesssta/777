@@ -1,0 +1,332 @@
+
+## Rust affected packages (65 tests)
+   Compiling time-macros v0.2.24
+   Compiling tokio v1.52.3
+   Compiling serde v1.0.228
+   Compiling try-lock v0.2.5
+   Compiling base64 v0.23.1
+   Compiling zerofrom v0.1.8
+   Compiling stable_deref_trait v1.2.1
+   Compiling sync_wrapper v1.0.2
+   Compiling yoke v0.8.3
+   Compiling want v0.3.2
+   Compiling simdutf8 v0.1.5
+   Compiling scopeguard v1.2.0
+   Compiling core_detect v1.0.0
+   Compiling ipnet v2.12.2
+   Compiling zerovec v0.11.8
+   Compiling writeable v0.6.4
+   Compiling encoding_rs v0.8.42
+   Compiling pem v4.0.0
+   Compiling quote-core v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-core)
+   Compiling litemap v0.8.3
+   Compiling zerotrie v0.2.5
+   Compiling tinystr v0.8.4
+   Compiling potential_utf v0.1.6
+   Compiling utf8_iter v1.0.4
+   Compiling time v0.3.44
+   Compiling icu_normalizer_data v2.3.0
+   Compiling icu_properties_data v2.3.0
+   Compiling icu_locale_core v2.3.0
+   Compiling icu_collections v2.3.0
+   Compiling minimal-lexical v0.2.1
+   Compiling axum-core v0.5.6
+   Compiling quick-xml v0.41.0
+   Compiling nom v7.1.3
+   Compiling icu_provider v2.3.1
+   Compiling quote-diagnostics v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-diagnostics)
+   Compiling yasna v0.6.0
+   Compiling quote-excel v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-excel)
+   Compiling icu_properties v2.3.0
+   Compiling icu_normalizer v2.3.0
+   Compiling rcgen v0.14.10
+   Compiling thiserror v2.0.21
+   Compiling quote-ledger v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-ledger)
+   Compiling rusticata-macros v4.1.0
+   Compiling openssl-probe v0.2.1
+   Compiling asn1-rs v0.7.2
+   Compiling rustls-native-certs v0.8.5
+   Compiling lazy_static v1.5.1
+   Compiling quote-desktop v0.1.0 (/workspace/scratch/45a5dfca7a35/777/desktop/src-tauri)
+   Compiling idna_adapter v1.2.2
+   Compiling idna v1.1.0
+   Compiling rustls-platform-verifier v0.7.1
+   Compiling data-encoding v2.11.1
+   Compiling debug_unsafe v0.1.4
+   Compiling codepage v0.1.3
+   Compiling url v2.5.8
+   Compiling atoi_simd v0.18.1
+   Compiling byteorder v1.5.0
+   Compiling der-parser v10.0.0
+   Compiling oid-registry v0.8.1
+   Compiling tokio-util v0.7.20
+   Compiling tokio-rustls v0.26.6
+   Compiling tower v0.5.3
+   Compiling fs-err v3.3.2
+   Compiling x509-parser v0.18.1
+   Compiling fast-float2 v0.2.4
+   Compiling h2 v0.4.20
+   Compiling calamine v0.36.1
+   Compiling tower-http v0.6.11
+   Compiling hyper v1.12.0
+   Compiling hyper-util v0.1.21
+   Compiling axum-server v0.8.0
+   Compiling axum v0.8.9
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.13.5
+   Compiling quote-host v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-host)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 36.50s
+     Running unittests src/lib.rs (target/debug/deps/quote_desktop-dbdc60d34f481eb9)
+
+running 13 tests
+test client::tests::developer_wire_excludes_private_bootstrap_and_arbitrary_commands ... ok
+test client::tests::display_preserves_exact_large_cents_and_safe_revision_strings ... ok
+test client::tests::wire_rejects_arbitrary_paths_actor_and_unknown_commands ... ok
+test journal::tests::ancestor_links_are_rejected_before_creating_profile_or_writing ... ok
+test output_folder::tests::remote_host_local_drive_is_not_this_computer ... ok
+test startup::package_tests::identity_path_does_not_depend_on_installer_identifier_or_version ... ok
+test types::close_tests::readonly_network_and_calculation_do_not_protect_close ... ok
+test types::close_tests::ui_diagnostics_only_accept_known_events_and_metadata ... ok
+test tls::tests::invalid_destinations_and_bad_pin_never_build_a_client ... ok
+test types::close_tests::writes_and_unknown_receipt_recovery_protect_close ... ok
+test tls::tests::pinned_legacy_ca_and_leaf_certificates_require_exact_identity_name_and_time ... ok
+test journal::tests::pending_is_exclusive_and_corruption_is_never_silently_discarded ... ok
+test client::tests::developer_switch_and_backup_reject_pending_before_launcher_call ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running unittests src/main.rs (target/debug/deps/quote_desktop-0eba06cea2c9bd43)
+
+running 4 tests
+test verification_window::tests::invalid_ports_unknown_switches_and_relative_profiles_are_refused ... ok
+test verification_window::tests::marked_temp_profile_has_fixed_api_arguments_and_private_data_directory ... ok
+test verification_window::tests::normal_launch_has_no_verification_settings ... ok
+test verification_window::tests::production_marker_missing_marker_and_nonfixture_root_are_refused ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quote_excel-c1779aede9740061)
+
+running 1 test
+test backup::tests::literal_strings_and_long_values ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/format.rs (target/debug/deps/format-af678ee07d85434a)
+
+running 7 tests
+test output_version_and_financial_capacity_are_rejected ... ok
+test external_relationships_fail_closed ... ok
+test calamine_candidate_loses_decimal_token_while_selected_reader_retains_it ... ok
+test formulas_are_refused_even_with_a_cached_value ... ok
+test corrupt_encoding_entities_and_unknown_namespace_are_refused ... ok
+test duplicate_cells_and_capacity_fail_instead_of_truncation ... ok
+test text_roles_precision_and_new_workbook_styles_are_stable ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running tests/readable.rs (target/debug/deps/readable-88ccef307b0e92e9)
+
+running 1 test
+test months_use_beijing_days_and_totals_exclude_voids_without_losing_ids ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running unittests src/lib.rs (target/debug/deps/quote_host-eff7095489988d8c)
+
+running 13 tests
+test analytics::tests::business_midnight_empty_days_and_exact_large_aggregates ... ok
+test analytics::tests::candle_accumulates_beyond_i64_and_respects_exact_window ... ok
+test analytics::tests::bad_and_unbounded_ranges_are_rejected ... ok
+test analytics::tests::monday_weeks_cross_year_and_negative_margin ... ok
+test analytics::tests::cumulative_candles_sort_instants_merge_ties_and_carry_empty_buckets ... ok
+test analytics::tests::leap_months_years_and_unknown_legacy_dates ... ok
+test analytics::tests::rolling_time_cutoffs_exclude_the_rest_of_the_boundary_days ... ok
+test backup::destination_tests::explicit_resave_repairs_only_missing_index_and_keeps_identity_and_files ... ok
+test recovery::tests::published_v1_fixture_survives_source_version_changes_with_exact_rows ... ok
+test report_exports::tests::small_multimonth_and_empty_reports_remain_one_file_and_failures_rollback ... ok
+test report_exports::tests::oversized_report_splits_whole_orders_by_beijing_month_with_one_snapshot_and_receipt ... ok
+test report_exports::tests::batch_over_one_hundred_parts_is_pageable_and_one_failed_part_retries_without_duplication ... ok
+test daily_backup::tests::beijing_rollover_restart_dedup_missed_days_and_unchanged_ledger ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.71s
+
+     Running unittests src/main.rs (target/debug/deps/quote_host-0d1e0ecf62e8dce3)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/analytics.rs (target/debug/deps/analytics-225485b8590fe3cb)
+
+running 2 tests
+test analytics_denies_sales_before_accessing_a_ledger ... ok
+test full_ledger_aggregate_tracks_void_restore_and_preserves_frozen_prices ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/boundary.rs (target/debug/deps/boundary-28b14b5d1a58422c)
+
+running 12 tests
+test exclusive_publish_preserves_an_existing_target_and_rejects_different_bytes ... ok
+test native_ace_identity_resolves_display_aliases_without_widening_the_allowlist ... ok
+test protected_dacl_requires_exact_inheritable_allowlist ... ok
+test sales_projection_is_an_allowlist_and_exact_cents_stay_strings ... ok
+test same_host_owner_lock_excludes_second_native_instance ... ok
+test png_without_approved_readable_font_fails_explicitly ... ok
+test public_quote_input_cannot_claim_actor_totals_or_boolean_numbers ... ok
+test nested_duplicate_json_bad_unicode_and_nonfinite_are_rejected ... ok
+test selected_directory_alias_writes_and_shares_the_same_owner_lock ... ok
+test username_and_search_share_full_unicode_casefold ... ok
+test native_auth_original_schema_rejects_extra_trigger_without_repair ... ok
+test native_scrypt_matches_accepted_python_verifier ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.41s
+
+     Running tests/customer_orders.rs (target/debug/deps/customer_orders-14f08a39f4e04bc5)
+
+running 4 tests
+test migration_preserves_v1_readonly_and_unknown_schema_is_not_repaired ... ok
+test editing_keeps_prices_revisions_customer_groups_old_exports_and_recoverable_backup ... ok
+test customer_choice_ambiguity_permissions_and_bad_sources_are_atomic ... ok
+test differences_are_historical_positioned_and_permission_filtered ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 16.63s
+
+     Running tests/device_auth.rs (target/debug/deps/device_auth-345638ee76801ac0)
+
+running 8 tests
+test development_short_password_is_not_a_production_account_policy ... ok
+test manager_package_or_forged_role_does_not_elevate_sales ... ok
+test expired_material_and_expired_sessions_cannot_authorize ... ok
+test only_admin_can_issue_list_or_revoke_devices ... ok
+test enrollment_is_idempotent_only_for_the_original_persisted_device ... ok
+test listings_and_audit_do_not_expose_grants_credentials_or_tokens ... ok
+test revoke_one_device_invalidates_live_sessions_and_preserves_other_device ... ok
+test account_epoch_and_restore_invalidate_credentials_without_changing_actor ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.01s
+
+   Doc-tests quote_desktop
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quote_excel
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quote_host
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+## Final batch planner (3 tests after packing refinement)
+   Compiling quote-host v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-host)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.27s
+     Running unittests src/lib.rs (target/debug/deps/quote_host-92e19ba2adfd860c)
+
+running 3 tests
+test report_exports::tests::small_multimonth_and_empty_reports_remain_one_file_and_failures_rollback ... ok
+test report_exports::tests::batch_over_one_hundred_parts_is_pageable_and_one_failed_part_retries_without_duplication ... ok
+test report_exports::tests::oversized_report_splits_whole_orders_by_beijing_month_with_one_snapshot_and_receipt ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 2.99s
+
+
+## Frontend unit (36 tests)
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> quote-desktop@0.1.0 test
+> node --import tsx --test tests/*.test.ts
+
+✔ export strips development secrets and rejects unapproved configuration fields (1.952756ms)
+✔ release type is explicit and generated installers keep both roles isolated (3.1506ms)
+✔ release verification rejects corruption and path traversal before enrollment (37.182182ms)
+✔ enrollment refuses other role/service and preserves device and pending records (35.508208ms)
+✔ rollback permits only the same role, service and profile compatibility epoch (0.422563ms)
+✔ A to B to A preserves raw drafts without moving authority or drafts across ledgers (1.287438ms)
+✔ unavailable local storage fails before replacing the current source record (0.486339ms)
+✔ late calculation cannot restore authority after any input or price change (3.356258ms)
+✔ revision and display cents never pass through JS floating point (0.494742ms)
+✔ only raw draft fields restore, never a claimed result or stored role (0.408482ms)
+✔ confirmed original order clears only its own raw draft and preserves edits during submit (23.792803ms)
+✔ late edit receipt cannot clear another order with identical customer and goods (0.370736ms)
+✔ pinned font download is atomic, cached and usable without network (13.387996ms)
+✔ wrong download and corrupted cache never become accepted font assets (6.272366ms)
+✔ ordinary font preparation keeps its Chinese CLI progress (127.779149ms)
+✔ development preparation reports missing fonts without making network requests (1.72265ms)
+✔ offline development still rejects corrupted cached font bytes (2.672043ms)
+✔ explicit font preparation cancellation rejects promptly and leaves no partial file (2.414177ms)
+✔ actual pinned Tauri CLI reproduces the previous manifest rewrite (2179.762653ms)
+✔ tracked manifest stays unchanged through actual Tauri dev/build for LF and CRLF (331.893483ms)
+✔ actual Tauri role and upgrade overlays preserve the source Cargo manifest (184.615637ms)
+✔ pinned Tauri parser accepts both complete Windows NSIS overlays (177.865194ms)
+✔ native readiness preserves the underlying CDP error and attempt diagnostics (24.146964ms)
+✔ native readiness succeeds after transient refusal and bounds each connect attempt (3.290149ms)
+✔ a failed connection checkpoint closes the attached browser and does not retry (0.675101ms)
+✔ actual Windows Tauri production origins accept embedded-page paths (0.797365ms)
+✔ Vite, browser error pages and lookalike hosts fail before waiting for login (0.590434ms)
+✔ packages saved inside a selected source folder do not dirty later builds or hide source changes (60.220035ms)
+✔ shortcuts span exactly one day, week, month or year from the same current instant (2.486324ms)
+✔ calendar subtraction clamps month ends and leap anniversaries while keeping the clock (0.415032ms)
+✔ business clock uses UTC+08 across midnight rather than the device timezone (0.205638ms)
+✔ datetime picker minute and abbreviated subsecond values keep a canonical exact boundary (0.284716ms)
+✔ chart coordinates support losses and huge exact cents without converting money to Number (1.036353ms)
+✔ profit pie keeps losses explicit and computes exact shares for huge cents and zero buckets (7.078354ms)
+✔ candle domain includes intra-period high and low rather than only closing totals (2.263832ms)
+✔ UI diagnostics record fixed metadata without customer, cost, message or stack text (1.779116ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3303.625308
+
+## Strict Clippy final
+    Checking quote-host v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-host)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.08s
+
+## Native IPC to Rust HTTPS
+{"status": "passed", "checks": ["native_preview_save_same_order_with_revision_and_history", "native_repeated_edits_use_latest_revision_line_sources_and_exact_history", "native_historical_before_after_values_are_frozen_per_edit", "native_separate_order_number_same_customer_exact_aggregate", "native_period_report_completed_folder_correctly_requires_Windows", "native_restart_keeps_edited_order"]}
+
+## Browser discovery only
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+Listing tests:
+  native-autostart.spec.ts:22:3 › manager native completion uses submitted DetailPage controls and records success last
+  native-autostart.spec.ts:22:3 › sales native completion uses submitted DetailPage controls and records success last
+  native-autostart.spec.ts:34:1 › busy or disabled submitted workspace cannot publish a passing checkpoint
+  presentation.spec.ts:227:3 › manager local fonts, original icons and compact layout at four emulated scales
+  presentation.spec.ts:254:3 › manager failed automatic entry retries without technical/login controls
+  presentation.spec.ts:227:3 › sales local fonts, original icons and compact layout at four emulated scales
+  presentation.spec.ts:254:3 › sales failed automatic entry retries without technical/login controls
+  presentation.spec.ts:270:1 › keyboard dialog returns focus and fonts fall back without a banner
+  presentation.spec.ts:288:1 › manager directory selection is a draft until published and cancellation preserves the path
+  presentation.spec.ts:336:1 › sales inherits readonly directories and sees only its export explanation
+  presentation.spec.ts:355:1 › profit shows aggregate bars rather than orders and switches calendar periods
+  presentation.spec.ts:466:1 › four chart types share one snapshot and remain readable at wide and narrow widths
+  presentation.spec.ts:550:1 › old service never fabricates candlesticks from aggregate totals
+  presentation.spec.ts:570:1 › zero-profit orders keep empty pie and flat candles finite
+  workbench.spec.ts:52:1 › profit charts use the full real ledger across order pages
+  workbench.spec.ts:100:1 › real Rust quote, compact confirmation, append note, void/restore and full pagination
+  workbench.spec.ts:142:1 › input edit invalidates result and late calculation cannot reenable submit
+  workbench.spec.ts:162:1 › sales DTO and pages contain no cost/profit and settings inherit
+  workbench.spec.ts:194:1 › unknown commit requires original receipt check and restart never double books
+  workbench.spec.ts:214:1 › current Figma quote geometry and all original assets load at their exported sizes
+  workbench.spec.ts:275:1 › manager price publication, readonly inherited directories and real output task progress
+  workbench.spec.ts:304:1 › confirmed write with failed detail refresh clears the original draft and never offers a duplicate submit
+  workbench.spec.ts:356:1 › development keeps an explicit connection editor without exposing it as formal authentication
+  workbench.spec.ts:368:1 › price editor keeps final manual sale separate from cost markup and persists automatic mode
+  workbench.spec.ts:499:3 › manager direct add, inline product changes and shared column alignment
+  workbench.spec.ts:499:3 › sales-one direct add, inline product changes and shared column alignment
+  workbench.spec.ts:545:1 › P07-07 customer match edits the chosen order and exports period financial report
+  workbench.spec.ts:593:1 › P07-07 continue existing draft from another order preserves pending edits
+  workbench.spec.ts:618:1 › P07-07 report parts can page, retry one file and locate its folder
+Total: 29 tests in 3 files

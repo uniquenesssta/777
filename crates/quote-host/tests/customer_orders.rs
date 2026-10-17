@@ -297,3 +297,101 @@ fn customer_choice_ambiguity_permissions_and_bad_sources_are_atomic() {
     assert_eq!(inventory["counts"]["orders"], 2);
     assert_eq!(inventory["counts"]["order_versions"], 0);
 }
+
+#[test]
+fn differences_are_historical_positioned_and_permission_filtered() {
+    let mut f = Fixture::new();
+    f.prices("v1", Value::Null, "10");
+    let first = f.post("/v1/order-save", draft("v1", "001"));
+    let id = first["order_id"].as_str().unwrap().to_owned();
+    let old = f.get(&format!("/v1/orders/{id}"));
+    let mut edit = draft("v1", "001");
+    edit["order_id"] = json!(id);
+    edit["expected_revision"] = json!(1);
+    edit["customer"] = json!({"customer_id":first["customer_id"]});
+    edit["sources"] = json!([old["lines"][0]["line_id"], null]);
+    let mut line = old["lines"][0]["raw"].clone();
+    line["q"] = json!("2");
+    edit["snapshot"]["lines"] = json!([line,{"line_kind":"discount","percent":"90","name":"折扣"}]);
+    f.post("/v1/order-save", edit.clone());
+    let diff = f.get(&format!("/v1/orders/{id}/changes/1"));
+    assert_eq!(diff["to_revision"], "2");
+    let changes = diff["changes"].as_array().unwrap();
+    assert!(changes
+        .iter()
+        .any(|c| c["field"] == "数量" && c["before"] == "1" && c["after"] == "2"));
+    assert!(changes.iter().any(|c| c["section"] == "第 2 项（新增）"
+        && c["field"] == "顺序折扣（%）"
+        && c["after"] == "90"));
+    assert!(changes
+        .iter()
+        .any(|c| c["section"] == "订单合计" && c["field"] == "收入" && c["after"] == "1800"));
+    // An intervening note increments the order revision without changing lines.
+    f.post("/v1/notes",json!({"request_id":store::uid().unwrap(),"order_id":id,"expected_revision":2,"body":"备注"}));
+    let current = f.get(&format!("/v1/orders/{id}"));
+    edit["request_id"] = json!(store::uid().unwrap());
+    edit["expected_revision"] = json!(3);
+    edit["sources"] = json!([current["lines"][0]["line_id"]]);
+    edit["snapshot"]["lines"] = json!([old["lines"][0]["raw"]]);
+    f.post("/v1/order-save", edit);
+    assert_eq!(f.get(&format!("/v1/orders/{id}/changes/1")), diff);
+    let deletion = f.get(&format!("/v1/orders/{id}/changes/3"));
+    assert!(deletion["changes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|c| c["section"] == "第 2 项（删除）" && c["after"].is_null()));
+    let c = store::open(&f.s.ledger, false).unwrap();
+    let owner: String = c
+        .query_row("SELECT owner_id FROM orders WHERE order_id=?", [&id], |r| {
+            r.get(0)
+        })
+        .unwrap();
+    drop(c);
+    // A different sales owner cannot read the manager's history. The sales
+    // owner's own history below contains only public financial fields.
+    f.post(
+        "/v1/accounts",
+        json!({"username":"sales-diff","password":"fixture-secret-123","role":"sales"}),
+    );
+    let sales =
+        f.s.auth
+            .login(&json!("sales-diff"), &json!("fixture-secret-123"), "sales")
+            .unwrap()["token"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+    assert!(f
+        .s
+        .handle(
+            "GET",
+            &format!("/v1/orders/{id}/changes/1"),
+            &sales,
+            &Value::Null,
+            "",
+            "test"
+        )
+        .is_err());
+    assert!(!owner.is_empty());
+    f.token = sales;
+    let own = f.post("/v1/order-save", draft("v1", "sales-order"));
+    let own_id = own["order_id"].as_str().unwrap();
+    let before = f.get(&format!("/v1/orders/{own_id}"));
+    let mut edit = draft("v1", "sales-order");
+    edit["order_id"] = json!(own_id);
+    edit["expected_revision"] = json!(1);
+    edit["sources"] = json!([before["lines"][0]["line_id"]]);
+    edit["snapshot"]["lines"][0]["q"] = json!("3");
+    edit["customer"] = json!({"customer_id":own["customer_id"]});
+    f.post("/v1/order-save", edit);
+    let sales_diff = f.get(&format!("/v1/orders/{own_id}/changes/1"));
+    let raw = serde_json::to_string(&sales_diff).unwrap();
+    for forbidden in ["成本", "利润", "\"K\"", "cost_cents", "profit_cents"] {
+        assert!(!raw.contains(forbidden));
+    }
+    assert!(sales_diff["changes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|c| c["field"] == "数量" && c["after"] == "3"));
+}

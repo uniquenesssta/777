@@ -31,6 +31,11 @@ def main():
             current=call('order',order_id=old['order_id'])
             assert str(receipt['revision'])==str(revision+1) and current['income_cents']==income and len(current['history'])==revision
         checks.append('native_repeated_edits_use_latest_revision_line_sources_and_exact_history')
+        change=call('order_changes',order_id=old['order_id'],revision='2')
+        assert change['to_revision']=='3' and any(c['field']=='数量' and c['before']=='1' and c['after']=='2' for c in change['changes']),change
+        change=call('order_changes',order_id=old['order_id'],revision='3')
+        assert change['to_revision']=='4' and any(c['field']=='数量' and c['before']=='2' and c['after']=='3' for c in change['changes']),change
+        checks.append('native_historical_before_after_values_are_frozen_per_edit')
         details={**old['details'],'order_ref':'独立订单00002'}
         context=dict(order_id=None,expected_revision=None,sources=[None],snapshot=dict(price_version_id='2026.10.13',rule_version='business-v1',numeric_profile='numeric-v1',lines=[old['lines'][0]['raw']]))
         call('order_preview',**context,draft_revision='11');new=call('save_order',**context,draft_revision='11',details=details,customer={'customer_id':current['customer_id']})
@@ -45,6 +50,8 @@ def main():
             assert record['state']!='failed' and time.monotonic()<deadline,record
             time.sleep(.1)
         assert record['kind']=='excel_period' and record['range']['from']==year+'-01-01'
+        assert record['batch']['count']==1 and record['batch']['part']==1
+        listing=call('outputs',offset=100);assert listing['jobs']==[] and listing['offset']==100 and listing['total']>=1
         import base64
         content=scenario.host.client('manager').request('GET','/v1/outputs/'+job['job_id']+'/content')
         (args.output/'P07-07-readable-example.xlsx').write_bytes(base64.b64decode(content['data_base64'],validate=True))

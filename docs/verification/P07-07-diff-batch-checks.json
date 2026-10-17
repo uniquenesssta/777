@@ -1,0 +1,77 @@
+{
+  "task": "P07-07 additions: revision differences and automatic report splitting",
+  "baseline": "b1f744787405973d6af60559fa35554857113143",
+  "branch": "stage/p07-tauri-desktop",
+  "authorization": "User selected these two additions at 2026-10-17 21:03 Asia/Shanghai; continuous editing confirmed usable.",
+  "status": "implemented, local auxiliary checks passed; Windows functional CI pending push; user visual confirmation pending",
+  "figma": {
+    "file": "2ek9bkIz5ldyhjZnnvIuNu",
+    "page": "21:2",
+    "nodes": [
+      "89:1533",
+      "89:1623"
+    ],
+    "editable": true,
+    "screenshots_inspected": true
+  },
+  "passed": {
+    "rust_affected_packages": 65,
+    "batch_after_refinement": 3,
+    "frontend_unit": 36,
+    "typescript": true,
+    "frontend_build": true,
+    "strict_clippy": true,
+    "rustfmt": true,
+    "native_ipc_checks": 6
+  },
+  "coverage": [
+    "Historical before/after values remain stable after another edit and an intervening note; additions/removals/discount/quantity and sales redaction",
+    "3.2MB synthetic input exceeds the old total limit; actual workbooks read back, exact total 3003 cents excluding void order; every order appears exactly once",
+    "Beijing month boundary, one common ledger revision and timestamp, small cross-month and empty ranges stay one file",
+    "105 parts (small private test budget) are fully pageable, sales cannot see financial parts; retry one failed part preserves all frozen payloads",
+    "Read failure after staging rolls back all jobs and receipt; single order beyond 2MB rolls back explicitly; same request returns original receipt",
+    "Native IPC/HTTPS: repeated save, per-revision changes, customer grouping, period workbook and batch metadata, output offset, restart"
+  ],
+  "limits": [
+    "Local checks are auxiliary, not Windows visual acceptance.",
+    "Browser suite discovers 29 tests; no new local browser execution claimed. New browser tests run in Windows CI.",
+    "Folder opening returns WINDOWS_REQUIRED on auxiliary host; Windows actual folder outcome belongs to CI/user.",
+    "Historical row identity is not inferred: changed cells are compared by explicit detail position.",
+    "One individual order over capacity remains an explicit error; no partial report acceptance or order truncation.",
+    "Packaging/installer jobs remain disabled by user scope."
+  ],
+  "source_logs": [
+    {
+      "check": "Rust affected packages (65 tests)",
+      "bytes": 10612,
+      "sha256": "5e23befffe7880918ef1e966cb7b467238ff5577c67ac8d28380e0adee501e2c"
+    },
+    {
+      "check": "Final batch planner (3 tests after packing refinement)",
+      "bytes": 707,
+      "sha256": "8c77807ab7841c3b293463063c480b287f85fd924112a4898e4b164ced52cfe7"
+    },
+    {
+      "check": "Frontend unit (36 tests)",
+      "bytes": 3682,
+      "sha256": "30b261d6d7f72236370c70dcac514f54ff32f2f18d8f16fa2cf71f7f288cd3a0"
+    },
+    {
+      "check": "Strict Clippy final",
+      "bytes": 159,
+      "sha256": "4f3fb1caf24648585bdc38c54d15ac2af0e1938728913c0ed897b8b2423a19d7"
+    },
+    {
+      "check": "Native IPC to Rust HTTPS",
+      "bytes": 397,
+      "sha256": "85211227748f5c55ad45085b773613fd21ca27fe4ef3752d7ae1076ed780867f"
+    },
+    {
+      "check": "Browser discovery only",
+      "bytes": 3298,
+      "sha256": "0321e3fbc68d39b0a45421ca9cc11fee9cd9a0109dc897645bafc155dd136eb0"
+    }
+  ],
+  "combined_log": "P07-07-diff-batch-checks.log",
+  "combined_sha256": "e07287b7c6b131e6a45ec101f8c197bdd6f37fe8d00670f089c4951b4936d968"
+}

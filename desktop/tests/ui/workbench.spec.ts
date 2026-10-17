@@ -569,7 +569,13 @@ test("P07-07 customer match edits the chosen order and exports period financial 
   await page.getByRole("button",{name:"计算报价",exact:true}).click();
   await page.getByRole("button",{name:"保存修改",exact:true}).click();
   await page.getByRole("button",{name:"确认提交",exact:true}).click();
-  await expect(page.getByText(/版本 2 ·/)).toBeVisible();
+  await expect(page.locator("summary").filter({hasText:"版本 2 → 3"})).toBeVisible();
+  await page.locator("summary").filter({hasText:"版本 2 → 3"}).click();
+  const diff=page.locator(".revision-diff[open]");
+  await expect(diff.getByRole("columnheader",{name:"修改前",exact:true})).toBeVisible();
+  const quantity=diff.getByRole("row").filter({hasText:"第 1 项 · 数量"});
+  await expect(quantity.getByRole("cell").nth(1)).toHaveText("2");
+  await expect(quantity.getByRole("cell").nth(2)).toHaveText("3");
   await page.screenshot({path:"test-results/p07-07-edited-order.png"});
   await page.getByRole("button",{name:"订单记录",exact:true}).click();
   await page.getByRole("button",{name:"按客户查看",exact:true}).click();
@@ -605,4 +611,35 @@ test("P07-07 continue existing draft from another order preserves pending edits"
   await dialog.getByRole("button",{name:"放弃修改",exact:true}).click();
   await expect(page.getByLabel("订单号",{exact:true})).toHaveValue("00001");
   await expect(page.getByLabel("第1行数量",{exact:true})).toHaveValue("1");
+});
+
+// Presentation-only fixture: the server's real 105-part creation, pagination,
+// permissions and immutable retry are covered in report_exports Rust tests.
+test("P07-07 report parts can page, retry one file and locate its folder", async ({page})=>{
+  await login(page);
+  let retried=false;const folders:string[]=[];const retryIds:string[]=[];
+  const id=(part:number)=>`00000000-0000-4000-8000-${String(part).padStart(12,"0")}`;
+  await page.route(host+"/action",async route=>{
+    const data=route.request().postDataJSON();
+    if(data.action==="outputs") {
+      const offset=data.offset??0;
+      const jobs=Array.from({length:Math.min(100,105-offset)},(_,i)=>{const part=offset+i+1;return {job_id:id(part),order_id:id(1),kind:"excel_period",state:part===101&&!retried?"failed":"done",error:part===101&&!retried?"生成失败":null,created_at:"2026-10-17T13:00:00Z",range:{from:"2026-01-01",to:"2026-10-31"},batch:{id:id(1),part,count:105,from:"2026-10-01",to:"2026-10-31",order_count:25}};});
+      await route.fulfill({json:{ok:{jobs,offset,total:105,limit:100}}});return;
+    }
+    if(data.action==="retry_output"){retryIds.push(data.job_id);retried=true;await route.fulfill({json:{ok:{}}});return;}
+    if(data.action==="open_output_folder"){folders.push(data.job_id);await route.fulfill({json:{ok:{}}});return;}
+    await route.continue();
+  });
+  await page.getByRole("button",{name:"导出记录",exact:true}).click();
+  await expect(page.getByText("共 105 项",{exact:true})).toBeVisible();
+  await page.getByRole("button",{name:"下一页",exact:true}).click();
+  await expect(page.getByText("第 2 / 2 页",{exact:true})).toBeVisible();
+  const part=page.getByRole("row").filter({hasText:"第 101 / 105 份"});
+  await expect(part.getByRole("button",{name:"打开文件夹"})).toHaveCount(0);
+  await part.getByRole("button",{name:"重新导出",exact:true}).click();
+  await expect(page.getByText("第 2 / 2 页",{exact:true})).toBeVisible();
+  await part.getByRole("button",{name:"打开文件夹",exact:true}).click();
+  expect(retryIds).toEqual([id(101)]);expect(folders).toEqual([id(101)]);
+  await expect(page.getByRole("button",{name:"下一页",exact:true})).toBeDisabled();
+  await page.screenshot({path:"test-results/p07-07-report-parts.png"});
 });

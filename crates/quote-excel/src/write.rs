@@ -103,6 +103,15 @@ pub fn write(payload: &Value) -> Result<Vec<u8>> {
                 text(&payload["range"]["to"])?
             ),
         )?;
+        if let Some(batch) = payload.get("batch") {
+            sheet(&mut workbook,"分批说明",vec![
+                vec!["导出批次".into(),text(&batch["id"])?],
+                vec!["文件序号".into(),format!("第 {} / {} 份",text(&batch["part"])?,text(&batch["count"])?)],
+                vec!["本份订单日期".into(),format!("{} 至 {}",text(&batch["from"])?,text(&batch["to"])?)],
+                vec!["本份订单数".into(),text(&batch["order_count"])?],
+                vec!["合计范围".into(),"日小计、月合计仅覆盖本文件；同批次各份订单互不重复，核对完整范围请收齐所有文件。".into()],
+            ])?;
+        }
         let mut metadata = vec![
             vec!["format".into(), "777-output-v1".into()],
             vec!["job_id".into(), text(&payload["job_id"])?],

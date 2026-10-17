@@ -135,9 +135,14 @@ impl Service {
     pub fn order(&self, a: &Actor, key: &str) -> Result<Value> {
         let c = store::open(&self.ledger, false)?;
         c.execute_batch("BEGIN")?;
-        Self::order_on(&c, a, key)
+        Self::order_on(&c, a, key, true)
     }
-    fn order_on(c: &rusqlite::Connection, a: &Actor, key: &str) -> Result<Value> {
+    fn order_on(
+        c: &rusqlite::Connection,
+        a: &Actor,
+        key: &str,
+        include_history: bool,
+    ) -> Result<Value> {
         let value=c.query_row("SELECT owner_id,revision,state,price_id,created_at,rule_version,numeric_profile,details_json,income_cents,cost_cents,profit_cents FROM orders WHERE order_id=?",[key],|r|Ok((r.get::<_,String>(0)?,json!({"order_id":key,"revision":r.get::<_,i64>(1)?,"state":r.get::<_,String>(2)?,"price_version_id":r.get::<_,String>(3)?,"created_at":r.get::<_,String>(4)?,"rule_version":r.get::<_,String>(5)?,"numeric_profile":r.get::<_,String>(6)?,"details":serde_json::from_str::<Value>(&r.get::<_,String>(7)?).map_err(|_|rusqlite::Error::InvalidQuery)?,"income_cents":r.get::<_,i64>(8)?.to_string(),"cost_cents":r.get::<_,i64>(9)?.to_string(),"profit_cents":r.get::<_,i64>(10)?.to_string()})))).optional()?;
         let (owner, mut v) = value.ok_or_else(|| Error::new(404, "NOT_FOUND"))?;
         if a.role != "admin" && owner != a.subject {
@@ -167,24 +172,26 @@ impl Service {
                 |r| r.get::<_, Option<String>>(0),
             )?
             .map_or(Value::Null, Value::String);
-        let history=quote_ledger::editing::object_rows(c,"SELECT revision,snapshot_json,created_at,actor_id FROM order_versions WHERE order_id=? ORDER BY revision DESC",key)?;
-        let mut versions = vec![];
-        for h in history {
-            let rev = h["revision"]
-                .as_i64()
-                .ok_or_else(|| Error::new(503, "INVALID_DATABASE"))?;
-            let snap = quote_ledger::editing::validate_archive(
-                c,
-                key,
-                rev,
-                h["snapshot_json"]
-                    .as_str()
-                    .ok_or_else(|| Error::new(503, "INVALID_DATABASE"))?,
-            )?;
-            let o = &snap["order"];
-            versions.push(protocol::financial(json!({"revision":rev.to_string(),"created_at":h["created_at"],"details":serde_json::from_str::<Value>(o["details_json"].as_str().ok_or_else(||Error::new(503,"INVALID_DATABASE"))?)?,"income_cents":o["income_cents"].to_string(),"cost_cents":o["cost_cents"].to_string(),"profit_cents":o["profit_cents"].to_string()}),a));
+        if include_history {
+            let history=quote_ledger::editing::object_rows(c,"SELECT revision,snapshot_json,created_at,actor_id FROM order_versions WHERE order_id=? ORDER BY revision DESC",key)?;
+            let mut versions = vec![];
+            for h in history {
+                let rev = h["revision"]
+                    .as_i64()
+                    .ok_or_else(|| Error::new(503, "INVALID_DATABASE"))?;
+                let snap = quote_ledger::editing::validate_archive(
+                    c,
+                    key,
+                    rev,
+                    h["snapshot_json"]
+                        .as_str()
+                        .ok_or_else(|| Error::new(503, "INVALID_DATABASE"))?,
+                )?;
+                let o = &snap["order"];
+                versions.push(protocol::financial(json!({"revision":rev.to_string(),"created_at":h["created_at"],"details":serde_json::from_str::<Value>(o["details_json"].as_str().ok_or_else(||Error::new(503,"INVALID_DATABASE"))?)?,"income_cents":o["income_cents"].to_string(),"cost_cents":o["cost_cents"].to_string(),"profit_cents":o["profit_cents"].to_string()}),a));
+            }
+            v["history"] = json!(versions);
         }
-        v["history"] = json!(versions);
         let mut st=c.prepare("SELECT note_id,author_id,body,created_at FROM notes WHERE order_id=? ORDER BY created_at,note_id")?;
         let notes=st.query_map([key],|r|Ok(json!({"note_id":r.get::<_,String>(0)?,"author":r.get::<_,String>(1)?,"body":r.get::<_,String>(2)?,"created_at":r.get::<_,String>(3)?})))?.collect::<std::result::Result<Vec<_>,_>>()?;
         v["notes"] = json!(notes);
@@ -290,7 +297,16 @@ impl Service {
                 .as_ref()
                 .ok_or_else(|| Error::new(503, "OUTPUTS_NOT_INITIALIZED"))?;
             if path == "/v1/outputs" && method == "GET" {
-                return o.listing(&a);
+                let mut offset = 0u32;
+                let mut seen = false;
+                for (k, v) in form_urlencoded::parse(query.as_bytes()) {
+                    if k != "offset" || seen {
+                        return fail(422, "INVALID_QUERY");
+                    }
+                    offset = v.parse().map_err(|_| Error::new(422, "INVALID_QUERY"))?;
+                    seen = true;
+                }
+                return o.listing_page(&a, offset);
             }
             if path == "/v1/outputs/report" && method == "POST" {
                 Auth::admin(&a)?;
@@ -320,21 +336,15 @@ impl Service {
                 let c = store::open(&self.ledger, false)?;
                 c.execute_batch("BEGIN")?;
                 let mut st=c.prepare("SELECT order_id FROM orders WHERE date(created_at,'+8 hours')>=? AND date(created_at,'+8 hours')<=? ORDER BY created_at,order_id")?;
-                let ids = st
-                    .query_map([from, to], |r| r.get::<_, String>(0))?
-                    .collect::<std::result::Result<Vec<_>, _>>()?;
-                let mut orders = vec![];
-                let mut size = 0;
-                for id in ids {
-                    let mut order = Self::order_on(&c, &a, &id)?;
-                    order.as_object_mut().unwrap().remove("history");
-                    size += store::encoded(&order).len();
-                    if size > 2 * 1024 * 1024 {
-                        return fail(413, "OUTPUT_SNAPSHOT_TOO_LARGE");
-                    }
-                    orders.push(order);
-                }
-                return o.enqueue(&a,&d,json!({"orders":orders,"range":{"from":from,"to":to,"timezone":"Asia/Shanghai"},"ledger_revision":store::verify(&c)?["revision"]}));
+                let ids = st.query_map([from, to], |r| r.get::<_, String>(0))?;
+                let revision = store::verify(&c)?["revision"].clone();
+                return crate::report_exports::enqueue(
+                    o,
+                    &a,
+                    &d,
+                    &revision,
+                    ids.map(|id| Self::order_on(&c, &a, &id?, false)),
+                );
             }
             if path == "/v1/outputs" && method == "POST" {
                 fields(
@@ -564,6 +574,19 @@ impl Service {
             }
             _ => {
                 if method == "GET" && path.starts_with("/v1/orders/") {
+                    let pieces: Vec<_> =
+                        path.trim_start_matches("/v1/orders/").split('/').collect();
+                    if let [id, "changes", rev] = pieces.as_slice() {
+                        store::id(id)?;
+                        let revision: i64 = rev
+                            .parse()
+                            .ok()
+                            .filter(|r| *r > 0 && *r < i64::MAX)
+                            .ok_or_else(|| Error::new(422, "INVALID_QUERY"))?;
+                        let c = store::open(&self.ledger, false)?;
+                        c.execute_batch("BEGIN")?;
+                        return crate::order_changes::read(&c, &a, id, revision);
+                    }
                     return self.order(&a, &path[11..]);
                 }
                 if method == "POST" && path.starts_with("/v1/accounts/") {

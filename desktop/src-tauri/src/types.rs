@@ -99,6 +99,10 @@ pub enum Action {
     Order {
         order_id: String,
     },
+    OrderChanges {
+        order_id: String,
+        revision: String,
+    },
     Note {
         order_id: String,
         expected_revision: String,
@@ -128,7 +132,10 @@ pub enum Action {
         export_dir: String,
         image_dir: String,
     },
-    Outputs {},
+    Outputs {
+        #[serde(default)]
+        offset: u32,
+    },
     OpenOutputFolder {
         job_id: String,
     },
@@ -207,6 +214,7 @@ impl Action {
             Self::OrderPreview { .. } => "OrderPreview",
             Self::SaveOrder { .. } => "SaveOrder",
             Self::Order { .. } => "Order",
+            Self::OrderChanges { .. } => "OrderChanges",
             Self::Note { .. } => "Note",
             Self::SetState { .. } => "SetState",
             Self::PublishPrices { .. } => "PublishPrices",

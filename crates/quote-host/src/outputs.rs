@@ -48,8 +48,10 @@ fn job(r: &rusqlite::Row<'_>) -> rusqlite::Result<Job> {
     })
 }
 fn projection(r: &rusqlite::Row<'_>) -> rusqlite::Result<Value> {
+    let payload: Value =
+        serde_json::from_str(&r.get::<_, String>(9)?).map_err(|_| rusqlite::Error::InvalidQuery)?;
     Ok(
-        json!({"job_id":r.get::<_,String>(0)?,"order_id":r.get::<_,String>(1)?,"kind":r.get::<_,String>(2)?,"state":r.get::<_,String>(3)?,"attempts":r.get::<_,i64>(4)?,"error":r.get::<_,Option<String>>(5)?,"blob_sha256":r.get::<_,Option<String>>(6)?,"size":r.get::<_,Option<i64>>(7)?,"created_at":r.get::<_,String>(8)?,"range":serde_json::from_str::<Value>(&r.get::<_,String>(9)?).map_err(|_|rusqlite::Error::InvalidQuery)?["range"],"format":"777-output-v1"}),
+        json!({"batch":payload.get("batch"),"job_id":r.get::<_,String>(0)?,"order_id":r.get::<_,String>(1)?,"kind":r.get::<_,String>(2)?,"state":r.get::<_,String>(3)?,"attempts":r.get::<_,i64>(4)?,"error":r.get::<_,Option<String>>(5)?,"blob_sha256":r.get::<_,Option<String>>(6)?,"size":r.get::<_,Option<i64>>(7)?,"created_at":r.get::<_,String>(8)?,"range":payload["range"],"format":"777-output-v1"}),
     )
 }
 fn extension(kind: &str) -> Result<&'static str> {
@@ -279,23 +281,30 @@ impl Outputs {
         Ok(json!({"output_path":path}))
     }
     pub fn listing(&self, a: &Actor) -> Result<Value> {
+        self.listing_page(a, 0)
+    }
+    pub fn listing_page(&self, a: &Actor, offset: u32) -> Result<Value> {
         let c = self.connection()?;
-        let mut st = c.prepare(&format!(
-            "SELECT {PROJECTION} FROM jobs{} ORDER BY created_at DESC,job_id DESC LIMIT 100",
-            if a.role == "admin" {
-                ""
-            } else {
-                " WHERE actor_id=? AND kind NOT IN ('excel_admin','excel_period')"
-            }
-        ))?;
-        let rows = if a.role == "admin" {
-            st.query_map([], projection)?
-                .collect::<std::result::Result<Vec<_>, _>>()?
+        let scope = if a.role == "admin" {
+            "1=1"
         } else {
-            st.query_map([&a.subject], projection)?
-                .collect::<std::result::Result<Vec<_>, _>>()?
+            "actor_id=?1 AND kind NOT IN ('excel_admin','excel_period')"
         };
-        Ok(json!({"jobs":rows,"limit":100,"format":"777-output-v1"}))
+        let params: Vec<&dyn rusqlite::ToSql> = if a.role == "admin" {
+            vec![]
+        } else {
+            vec![&a.subject]
+        };
+        let total: i64 = c.query_row(
+            &format!("SELECT count(*) FROM jobs WHERE {scope}"),
+            params.as_slice(),
+            |r| r.get(0),
+        )?;
+        let mut st=c.prepare(&format!("SELECT {PROJECTION} FROM jobs WHERE {scope} ORDER BY created_at DESC,order_id DESC,CAST(json_extract(payload_json,'$.batch.part') AS INTEGER),job_id DESC LIMIT 100 OFFSET {offset}"))?;
+        let rows = st
+            .query_map(params.as_slice(), projection)?
+            .collect::<std::result::Result<Vec<_>, _>>()?;
+        Ok(json!({"jobs":rows,"limit":100,"offset":offset,"total":total,"format":"777-output-v1"}))
     }
     pub fn retry(&self, a: &Actor, key: &str, rid: &str) -> Result<Value> {
         id(rid)?;

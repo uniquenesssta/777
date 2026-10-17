@@ -6,6 +6,7 @@ export function request<T>(
   return invoke<T>("desktop_action", { request: { action, ...data } });
 }
 const errors: Record<string, string> = {
+  OUTPUT_SINGLE_ORDER_TOO_LARGE: "单笔订单已超过单个报表容量，无法继续按完整订单拆分。请检查该订单的明细或过长备注；本次未创建部分报表。",
   OUTPUT_SNAPSHOT_TOO_LARGE: "所选报表数据量过大，请缩小日期范围后分批导出。",
   OUTPUT_TOO_LARGE: "生成文件过大，请缩小日期范围后分批导出。",
   CUSTOMER_SELECTION_REQUIRED:"找到已有客户，请在匹配结果中选择该客户，再保存独立订单。",

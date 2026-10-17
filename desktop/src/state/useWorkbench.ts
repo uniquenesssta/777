@@ -7,6 +7,7 @@ import type {
   Catalog,
   Connection,
   Job,
+  JobListing,
   Listing,
   Order,
   Preferences,
@@ -66,6 +67,8 @@ export function useWorkbench() {
   );
   const [selected, setSelected] = useState<Order | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobsOffset,setJobsOffset]=useState(0),[jobsTotal,setJobsTotal]=useState(0);
+  function acceptJobs(v:JobListing|null) {setJobs(v?.jobs??[]);setJobsOffset(v?.offset??0);setJobsTotal(v?.total??v?.jobs.length??0);}
   const [preferences, setPreferences] = useState<Preferences | null>(null);
   const [backup, setBackup] = useState<Record<string, unknown> | null>(null);
   const listScrollRef = useRef(0);
@@ -136,7 +139,7 @@ export function useWorkbench() {
             setCatalog(null);
             setListing(null);
             setAnalysis(null);
-            setJobs([]);
+            acceptJobs(null);
             setBackup(null);
             setPreferences(null);
             dispatch({ type: "invalidate" });
@@ -188,7 +191,7 @@ export function useWorkbench() {
       setCatalog(null);
       setListing(null);
       setAnalysis(null);
-      setJobs([]);
+      acceptJobs(null);
       setBackup(null);
       setPreferences(null);
       dispatch({ type: "invalidate" });
@@ -458,12 +461,8 @@ export function useWorkbench() {
       },
     );
   const loadJobs = useCallback(
-    () =>
-      run(
-        () => request<{ jobs: Job[] }>("outputs"),
-        (v) => setJobs(v.jobs),
-      ),
-    [run],
+    (offset=jobsOffset) => run(()=>request<JobListing>("outputs",{offset}),acceptJobs),
+    [run,jobsOffset],
   );
   const output = (kind: string) =>
     selected &&
@@ -474,10 +473,10 @@ export function useWorkbench() {
           expected_revision: selected.revision,
           kind,
         });
-        return afterSaved(() => request<{ jobs: Job[] }>("outputs"));
+        return afterSaved(() => request<JobListing>("outputs"));
       },
       (r) => {
-        setJobs(r.value?.jobs ?? []);
+        acceptJobs(r.value);
         setRoute("tasks");
         savedFeedback(r, "输出任务已创建，订单不会重复入账。");
       },
@@ -486,10 +485,10 @@ export function useWorkbench() {
     run(
       async () => {
         await request("retry_output", { job_id: id });
-        return afterSaved(() => request<{ jobs: Job[] }>("outputs"));
+        return afterSaved(() => request<JobListing>("outputs",{offset:jobsOffset}));
       },
       (r) => {
-        setJobs(r.value?.jobs ?? []);
+        acceptJobs(r.value);
         savedFeedback(r, "原输出任务已重试。");
       },
     );
@@ -580,7 +579,7 @@ export function useWorkbench() {
           setSelected(null);
           setListing(null);
           setAnalysis(null);
-          setJobs([]);
+          acceptJobs(null);
           setBackup(null);
           setPreferences(null);
           dispatch({ type: "invalidate" });
@@ -655,9 +654,10 @@ export function useWorkbench() {
     readOrder,
     publish,
     loadJobs,
+    jobsOffset,jobsTotal,
     output,
     retryOutput,
-    createReport:(from:string,to:string)=>run(async()=>{await request("create_report",{from,to});return afterSaved(()=>request<{jobs:Job[]}>("outputs"));},r=>{setJobs(r.value?.jobs??[]);savedFeedback(r,"内部财务报表任务已创建。");}),
+    createReport:(from:string,to:string)=>run(async()=>{await request("create_report",{from,to});return afterSaved(()=>request<JobListing>("outputs"));},r=>{acceptJobs(r.value);savedFeedback(r,"内部财务报表任务已创建。");}),
     openOutputFolder: (job_id: string) => run(() => request("open_output_folder", {job_id})),
     recover,
     loadSettings,

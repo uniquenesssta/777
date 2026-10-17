@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { OrderHistory } from "./OrderHistory";
 import type { Workbench } from "../state/useWorkbench";
 import { money, stamp } from "../state/format";
 import { Summary } from "./QuotePage";
@@ -86,7 +87,7 @@ export function DetailPage({ app }: { app: Workbench }) {
               )}
             </div>
           </div>
-          {!!order.history?.length && <section className="note-history"><h3>修改记录</h3>{order.history.map(h=><div key={h.revision}><p>版本 {h.revision} · {h.details.order_ref || "未填写订单号"} · 收入 ¥{money(h.income_cents)}</p><small>修改于 {stamp(h.created_at)}</small></div>)}</section>}
+          <OrderHistory order={order} />
           <section className="note-history">
             <h3>备注记录</h3>
             {order.notes.length ? (
