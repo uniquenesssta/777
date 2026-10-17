@@ -74,3 +74,5 @@ npm run deploy:host -- status --root 'D:\Quote777Host'
 代码已提交 `a72fa83`，新一轮[Windows功能CI39043402540](https://github.com/uniquenesssta/777/actions/runs/39043402540)已启动：记录时desktop-contracts运行中，installers已跳过，尚无通过结论。本条仅登记发起状态，后续以实际完成结果为准。
 
 该轮随后失败于新增部署单元检查：Windows路径短名/完整名称不一致时，服务根未规范化而备份目录已规范化，导致重叠目录没有在构建前被拒绝。现已将经本地磁盘/重解析检查的服务根也规范化；原拒绝断言保留，本地4项重跑通过，Windows复查待新提交触发。原生和浏览器步骤本轮尚未执行，见[首轮Windows失败记录](P08-02-windows-ci.json)。
+
+修复提交 `ae313a1` 的[第二轮Windows功能CI39043638535](https://github.com/uniquenesssta/777/actions/runs/39043638535)中，4项部署检查及PowerShell语法解析已通过；记录时正在执行Windows Rust/浏览器/WebView2步骤，后续后台/备份检查尚未执行，installers仍跳过。计划任务注册和真实重启仍未在服务主机验证。

@@ -25,5 +25,15 @@
   },
   "cause": "Host root was compared without canonical resolution against resolved backup paths; Windows short/long path aliases could bypass overlap detection.",
   "correction": "Canonicalize the validated local host root as well as backup locations; keep original fail-before-build assertion unchanged.",
-  "verification": "4 auxiliary deployment tests passed again; corrected Windows run pending"
+  "verification": "4 auxiliary deployment tests passed again; Windows rerun deployment tests and PowerShell parser passed; later functional checks pending",
+  "rerun": {
+    "source_commit": "ae313a159475c4ac4f1956bc6376a8257221d9a4",
+    "run_id": 39043638535,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/39043638535",
+    "status": "in_progress",
+    "deployment_units": "4 passed",
+    "PowerShell_parser": "passed",
+    "remaining_functional_steps": "in_progress_or_pending",
+    "installers": "skipped"
+  }
 }

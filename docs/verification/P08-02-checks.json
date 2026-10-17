@@ -29,7 +29,12 @@
       "status": "passed",
       "tests": 4,
       "mock_native_prepare": true,
-      "latest_rerun": "passed after canonical host-root correction"
+      "latest_rerun": "passed after canonical host-root correction",
+      "Windows_rerun": {
+        "status": "passed",
+        "tests": 4,
+        "run_id": 39043638535
+      }
     },
     "typescript": {
       "status": "passed",
@@ -75,7 +80,7 @@
       "execution": "not run locally; Windows CI pending"
     },
     "PowerShell": {
-      "status": "pending_Windows_CI_parser",
+      "status": "passed_Windows_CI_parser_only",
       "task_registration": "not executed"
     },
     "auxiliary_scope": "No Windows, Linux or macOS product acceptance is claimed by these local checks.",
@@ -149,7 +154,7 @@
     "layout_scope": "display aliases in existing settings layout"
   },
   "windows_ci": {
-    "status": "first_run_failed_canonical_root_fix_pending_push",
+    "status": "in_progress",
     "workflow": ".github/workflows/p07-windows.yml",
     "installers": "skipped by default; cancelled preparation validation not rerun",
     "previous": {
@@ -161,21 +166,44 @@
       "reason": "global detail button locator matched 20 buttons",
       "fix": "assert exact order 00001 row unique, click its detail button; original draft assertions retained"
     },
-    "source_commit": "a72fa83f367722071532b43def7c6a7a301d293f",
-    "run_id": 39043402540,
-    "url": "https://github.com/uniquenesssta/777/actions/runs/39043402540",
-    "observed_at": "2026-10-17T15:04:36.766797+00:00",
+    "source_commit": "ae313a159475c4ac4f1956bc6376a8257221d9a4",
+    "run_id": 39043638535,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/39043638535",
+    "observed_at": "2026-10-17T15:08:49.472153+00:00",
     "desktop_contracts_job": {
-      "id": 117427242146,
-      "status": "completed",
-      "conclusion": "failure"
+      "id": 117427925945,
+      "status": "in_progress",
+      "conclusion": null
     },
     "installers_job": {
-      "id": 117427243227,
+      "id": 117427926826,
       "status": "completed",
       "conclusion": "skipped"
     },
-    "failure_record": "docs/verification/P08-02-windows-ci.json"
+    "failure_record": "docs/verification/P08-02-windows-ci.json",
+    "first_P08_run": {
+      "run_id": 39043402540,
+      "source_commit": "a72fa83f367722071532b43def7c6a7a301d293f",
+      "url": "https://github.com/uniquenesssta/777/actions/runs/39043402540",
+      "desktop_contracts_job": {
+        "id": 117427242146,
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      "installers_job": {
+        "id": 117427243227,
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      "failure_record": "docs/verification/P08-02-windows-ci.json"
+    },
+    "completed_steps": [
+      "P07 runner regression",
+      "P08 deployment units and PowerShell syntax"
+    ],
+    "pending_steps": [
+      "Windows Rust/browser/WebView2 and later functional stages"
+    ]
   },
   "site": {
     "live_hosts_contacted": false,
