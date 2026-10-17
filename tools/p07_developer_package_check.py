@@ -33,7 +33,7 @@ def package_from_window(host, root, delivery, version, release):
     try:
         with (evidence / 'process.log').open('wb') as log:
             process = subprocess.Popen([str(root / 'target/debug/quote-desktop.exe'), '--verification-window', '--profile', str(profile), '--debug-port', str(port)], stdout=log, stderr=subprocess.STDOUT)
-            result = subprocess.run([shutil.which('node'), str(root / 'desktop/tests/windows-developer.mjs'), str(port), str(evidence), delivery, version, str(package_output)], cwd=root / 'desktop', timeout=2500)
+            result = subprocess.run([shutil.which('node'), str(root / 'desktop/tests/windows-developer.mjs'), str(port), str(evidence), delivery, version, str(package_output), str(devdir)], cwd=root / 'desktop', timeout=2500)
             if result.returncode:raise RuntimeError('DEVELOPER_WINDOW_PACKAGE_FAILED')
             job = json.loads((evidence / 'developer-job.json').read_text(encoding='utf-8'))
             shutil.copytree(job['output'], release)

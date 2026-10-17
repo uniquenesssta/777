@@ -3,7 +3,8 @@ import { chromium, expect } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { connectNativeBrowser } from './native-cdp.mjs';
-const [port, output, delivery, version, destination] = process.argv.slice(2);
+const [port, output, delivery, version, destination, fixtureRoot] = process.argv.slice(2);
+if (!fixtureRoot) throw Error("OWNED_DATA_FIXTURE_REQUIRED");
 const browser = await connectNativeBrowser((endpoint, options) => chromium.connectOverCDP(endpoint, options), `http://127.0.0.1:${port}`);
 let page;
 try {
@@ -27,8 +28,8 @@ try {
   await capture('developer-create-dialog');
   await page.getByRole('dialog').getByRole('button',{name:'取消',exact:true}).click();
   const original = await page.getByLabel('存储位置',{exact:true}).inputValue();
-  await page.getByLabel('存储位置',{exact:true}).fill(path.join(path.dirname(destination),'新建账本'));
-  await page.getByLabel('备份位置',{exact:true}).fill(path.join(path.dirname(destination),'新建备份'));
+  await page.getByLabel('存储位置',{exact:true}).fill(path.join(fixtureRoot,'新建账本'));
+  await page.getByLabel('备份位置',{exact:true}).fill(path.join(fixtureRoot,'新建备份'));
   await page.getByRole('button',{name:'新建空账本',exact:true}).click();
   await page.getByRole('dialog').getByRole('button',{name:'创建并读取',exact:true}).click();
   await expect(page.getByRole('dialog')).toHaveCount(0,{timeout:60000});
@@ -42,7 +43,7 @@ try {
   await expect(page.getByRole('region',{name:'开发部署'})).toHaveCount(0,{timeout:60000});
   await page.getByRole('button',{name:'开发部署',exact:true}).click();
   await expect(page.getByLabel('存储位置',{exact:true})).toHaveValue(original);
-  const hidden=path.join(path.dirname(destination),'隐藏每日副本');
+  const hidden=path.join(fixtureRoot,'隐藏每日副本');
   await page.getByLabel('隐藏位置',{exact:true}).fill(hidden);
   await page.getByRole('button',{name:'保存备份设置',exact:true}).click();
   await expect(page.getByRole('button',{name:'保存备份设置',exact:true})).toBeEnabled({timeout:60000});
@@ -57,7 +58,7 @@ try {
   const restoreFile=path.join(backed.backup_dir,`${backed.ledger_id}-${backed.last_backup.business_date}-${backed.last_backup.backup_id}`,'data.qbackup');
   await page.getByRole('button',{name:'导入备份',exact:true}).click();
   await page.getByLabel('恢复文件',{exact:true}).fill(restoreFile);
-  await page.getByLabel('新存储位置',{exact:true}).fill(path.join(path.dirname(destination),'恢复读取账本'));
+  await page.getByLabel('新存储位置',{exact:true}).fill(path.join(fixtureRoot,'恢复读取账本'));
   await capture('developer-restore-dialog');
   await page.getByRole('button',{name:'导入并读取',exact:true}).click();
   await expect(page.getByRole('region',{name:'开发部署'})).toHaveCount(0,{timeout:60000});

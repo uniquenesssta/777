@@ -56,3 +56,5 @@ v1导入使用固定表和列允许清单，拒绝未知字段/表、未知版�
 
 
 目录兼容性：Windows共享/映射/移动盘账本使用SQLite DELETE回滚日志，本机固定盘继续WAL，均保留同步写入及单主机占用锁。私有子目录在支持的本机文件系统加固权限；共享/移动盘按既有文件系统权限访问，配置记录`existing_filesystem_permissions`，不冒称已配置NTFS私有ACL。依据[SQLite官方WAL文档](https://www.sqlite.org/wal.html)，网络路径不使用共享内存WAL。用户所选文件夹由实际运行主机及其账户访问，目录不可达和权限不足分别报告；目录可选不代表系统授予写权限。
+
+目录检查不依赖固定探测文件名，避免用户已有同名目录被误拒绝。受管理的数据文件仍须是普通文件，真实文件符号链接及同名异内容拒绝；不把所有Windows reparse属性等同于符号链接，Windows文件系统提供程序还会使用其他标签（见[Microsoft Reparse Point Tags](https://learn.microsoft.com/en-us/windows/win32/fileio/reparse-point-tags)）。本次未进行实际OneDrive服务联调，不把属性校验调整当作该服务已验收。

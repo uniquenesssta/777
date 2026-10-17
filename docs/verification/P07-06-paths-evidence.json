@@ -1,10 +1,10 @@
 {
   "task": "P07-06 selectable filesystem folders",
-  "source_commit": "f70e28b9ff3ac195e284c649d216d0315fc8e053",
+  "source_commit": "9014dbaefa6a2efd4132ab5b478a774097f0961b",
   "status": "local_passed_windows_pending",
   "local": {
     "platform": "Linux auxiliary only",
-    "rust": "34 existing quote-host/quote-ledger tests plus new actual directory alias/owner-lock regression passed",
+    "rust": "35 quote-host/quote-ledger tests passed after the final path-type changes; includes aliases, same-directory owner lock and unrelated sentinel-name directories",
     "python": {
       "total": 48,
       "passed": 40,
@@ -50,17 +50,59 @@
     },
     "limits": [
       "Windows PNG, Hidden/System attributes, Windows permissions and mapped/UNC paths are not exercised by Linux; conditional labels in the raw integration report do not imply those checks ran."
-    ]
+    ],
+    "integration_source": "f70e28b9ff3ac195e284c649d216d0315fc8e053"
   },
   "windows": {
-    "run_id": 38998403765,
-    "url": "https://github.com/uniquenesssta/777/actions/runs/38998403765",
-    "status": "superseded_before_completion",
-    "reason": "Follow-up fixes the remaining shared-only UI hint and source-folder package output, with actual installer-path regression."
+    "run_id": 38999331452,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/38999331452",
+    "status": "directory_checks_passed_installer_fixture_failed",
+    "installer_failure": {
+      "manager_job": 117298928837,
+      "sales_job": 117298929045,
+      "error": "CLEAN_SOURCE_REQUIRED",
+      "cause": "windows-developer.mjs derived synthetic ledger/backup/recovery locations from the package destination parent. Moving the package destination into the source checkout also moved those unrelated test data directories into the checkout.",
+      "fix": "Give the UI fixture an explicit owned data root independent of the package destination; keep the actual package destination inside the checkout.",
+      "artifact": {
+        "id": 12088557487,
+        "sha256": "48af9ebbb5cf623c9c9ccb559e67c3086c6c9b96f1d9e1206e4566dac477a20d",
+        "sha256_verified": true
+      },
+      "verified_failure_state": {
+        "hidden_dir": "D:\\a\\777\\777\\隐藏每日副本",
+        "normal_backup_ok": true,
+        "hidden_backup_ok": true,
+        "package_output": "D:\\a\\777\\777\\package-location-check-85bfbc15d6ca417091573e8404e84103\\sales-0.1.0-de231385",
+        "job_state": "failed",
+        "job_log": [
+          "CLEAN_SOURCE_REQUIRED"
+        ]
+      }
+    },
+    "passed_steps": [
+      "Windows build, real Rust HTTPS, browser and actual Tauri WebView2 lifecycle",
+      "Developer source switching, daily dual-format backup and recovery",
+      "Actual SMB mapped drive, hidden folders and selected junction paths"
+    ],
+    "remaining_step": "Device/presentation step superseded when publishing the installer fixture correction; complete final run still required."
   },
   "user_environment": {
     "Z_drive": "not accessed",
     "physical_removable_disk": "not accessed",
     "production_data_accessed": false
-  }
+  },
+  "windows_history": [
+    {
+      "run_id": 38998403765,
+      "url": "https://github.com/uniquenesssta/777/actions/runs/38998403765",
+      "status": "superseded_before_completion",
+      "reason": "Follow-up fixes the remaining shared-only UI hint and source-folder package output, with actual installer-path regression."
+    },
+    {
+      "run_id": 38999122385,
+      "source_commit": "7c34de68d89064271fd12c9324134f863561a2e3",
+      "status": "superseded_before_completion",
+      "reason": "Final path review removed fixed sentinel-name collisions and blanket reparse attributes; regular file/symlink checks remain."
+    }
+  ]
 }
