@@ -205,10 +205,21 @@ async fn execute(a: Args) -> Result<Value> {
 }
 #[tokio::main(flavor = "multi_thread", worker_threads = 4)]
 async fn main() {
+    quote_diagnostics::init("host");
     let result = match Args::parse() {
-        Ok(a) => execute(a).await,
+        Ok(a) => {
+            let command = a.command.clone();
+            quote_diagnostics::event("command.start", json!({"command":command}));
+            let result = execute(a).await;
+            quote_diagnostics::event(
+                "command.finish",
+                json!({"command":command,"error":result.as_ref().err().map(|e|&e.code)}),
+            );
+            result
+        }
         Err(e) => Err(e),
     };
+    quote_diagnostics::event("runtime.stop", json!({"ok":result.is_ok()}));
     match result {
         Ok(v) => println!("{}", v),
         Err(e) => {

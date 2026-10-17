@@ -1,6 +1,7 @@
 """Persistent loopback-only development host; contains synthetic data only."""
 import argparse, hashlib, json, os, secrets, shutil, signal, socket, sqlite3, subprocess, sys, threading
 from contextlib import closing
+import p07_diagnostics as diagnostics
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -40,10 +41,12 @@ def stop_host(process):
     if process.returncode:raise RuntimeError(f'DEVELOPMENT_HOST_EXIT_FAILED: {process.returncode}')
 
 def command(args, password=None):
+    diagnostics.event("command.start", command=args[0])
     cmd = [str(ROOT/'target/release'/('quote-host.exe' if os.name == 'nt' else 'quote-host')), *args]
     if os.name != 'nt': cmd.append('--auxiliary')
     if password is not None: cmd.append('--secret-stdin')
     r = subprocess.run(cmd, input=None if password is None else json.dumps({'password':password}).encode(), capture_output=True,timeout=90)
+    diagnostics.event("command.finish", command=args[0], returncode=r.returncode)
     if r.returncode: raise RuntimeError(r.stderr.decode('utf-8','replace')[-1500:])
     return json.loads(r.stdout.splitlines()[-1])
 
@@ -82,6 +85,7 @@ def prepare():
     return host
 
 def main():
+    diagnostics.initialize(ROOT)
     p=argparse.ArgumentParser();mode=p.add_mutually_exclusive_group();mode.add_argument('--frontend',action='store_true');mode.add_argument('--desktop',action='store_true');p.add_argument('--skip-build',action='store_true');p.add_argument('tauri_args',nargs=argparse.REMAINDER);args=p.parse_args()
     host_process=None;frontend=None;primary=None;developer=None
     try:
@@ -130,6 +134,7 @@ def main():
         print('开发启动已中止，正在关闭本轮服务…',flush=True)
         return 130
     except BaseException as error:
+        diagnostics.failure("development.run", error)
         primary=error;raise
     finally:
         if frontend and frontend.poll() is None:frontend.terminate();frontend.wait(timeout=15)

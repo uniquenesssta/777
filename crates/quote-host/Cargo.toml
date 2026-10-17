@@ -6,6 +6,7 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
+quote-diagnostics = { path = "../quote-diagnostics" }
 quote-core = { path = "../quote-core" }
 quote-ledger = { path = "../quote-ledger" }
 quote-excel = { path = "../quote-excel" }

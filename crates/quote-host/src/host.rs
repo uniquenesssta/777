@@ -362,6 +362,18 @@ async fn handler(
         body::{to_bytes, Body},
         http::{Response, StatusCode},
     };
+    let started = std::time::Instant::now();
+    let method_log = if req.method() == "POST" {
+        "POST"
+    } else {
+        "GET/other"
+    };
+    let route = req.uri().path().split('/').nth(2).unwrap_or("");
+    let route_log = match route {
+        "auth" | "devices" | "prices" | "orders" | "backups" | "settings" | "outputs"
+        | "calculate" | "health" => route.to_owned(),
+        _ => "other".into(),
+    };
     let result = (|| -> Result<(String, String, String, String)> {
         let headers = req.headers();
         for name in ["authorization", "content-type", "content-length"] {
@@ -455,6 +467,16 @@ async fn handler(
         Ok(v) => (200, v),
         Err(e) => (e.status, json!({"error":e.code})),
     };
+    quote_diagnostics::event(
+        "http.finish",
+        json!({"method":method_log,"route":route_log,"status":status,"error":value.get("error")}),
+    );
+    if started.elapsed() >= Duration::from_secs(5) {
+        quote_diagnostics::event(
+            "http.slow",
+            json!({"route":route_log,"seconds":started.elapsed().as_secs()}),
+        );
+    }
     let body = store::encoded(&value);
     Response::builder()
         .status(StatusCode::from_u16(status).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR))
@@ -563,6 +585,7 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
                 ticks = 0;
                 if let Ok(s) = schedule_service.lock() {
                     if let Err(e) = backup::due(&s) {
+                        quote_diagnostics::event("backup.schedule.error", json!({"error":e.code}));
                         let _ = s
                             .auth
                             .record_backup(None, Some(&format!("DAILY_BACKUP_FAILED:{}", e.code)));

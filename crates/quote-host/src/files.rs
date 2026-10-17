@@ -20,7 +20,9 @@ pub fn dir(path: &Path) -> Result<()> {
         return fail(422, "FILESYSTEM_PATH_REQUIRED");
     }
     for ancestor in path.ancestors() {
-        if !fs::metadata(ancestor)?.is_dir() {
+        if !quote_diagnostics::io_result("directory.metadata", ancestor, fs::metadata(ancestor))?
+            .is_dir()
+        {
             return fail(422, "DIRECTORY_INVALID");
         }
     }
@@ -34,7 +36,7 @@ pub fn new_dir(path: &Path) -> Result<()> {
         .parent()
         .ok_or_else(|| Error::new(422, "DIRECTORY_INVALID"))?;
     dir(parent)?;
-    fs::create_dir(path)?;
+    quote_diagnostics::io_result("directory.create", path, fs::create_dir(path))?;
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
@@ -51,9 +53,9 @@ pub fn new_file(path: &Path, raw: &[u8]) -> Result<()> {
         use std::os::unix::fs::OpenOptionsExt;
         o.mode(0o600);
     }
-    let mut f = o.open(path)?;
-    f.write_all(raw)?;
-    f.sync_all()?;
+    let mut f = quote_diagnostics::io_result("file.create", path, o.open(path))?;
+    quote_diagnostics::io_result("file.write", path, f.write_all(raw))?;
+    quote_diagnostics::io_result("file.sync", path, f.sync_all())?;
     Ok(())
 }
 pub fn read(path: &Path, limit: usize) -> Result<Vec<u8>> {
@@ -61,7 +63,7 @@ pub fn read(path: &Path, limit: usize) -> Result<Vec<u8>> {
     if path.metadata()?.len() > limit as u64 {
         return fail(413, "FILE_TOO_LARGE");
     }
-    let raw = fs::read(path)?;
+    let raw = quote_diagnostics::io_result("file.read", path, fs::read(path))?;
     if raw.len() > limit {
         return fail(413, "FILE_TOO_LARGE");
     }

@@ -13,16 +13,23 @@ import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from quote_service.journal import dpapi
+import p07_diagnostics as diagnostics
 
 
 def local(path, *, directory=False):
     p = Path(path)
     if not p.is_absolute() or (os.name == 'nt' and str(p).startswith('\\\\.\\')):
         raise RuntimeError('FILESYSTEM_PATH_REQUIRED')
-    if directory and not p.is_dir():
-        raise RuntimeError('DEVELOPER_DIRECTORY_REQUIRED')
-    # Canonical identity prevents aliases from bypassing existing-data protection.
-    return p.resolve()
+    try:
+        if directory:
+            import stat
+            if not stat.S_ISDIR(p.stat().st_mode):
+                raise RuntimeError('DEVELOPER_DIRECTORY_REQUIRED')
+        # Canonical identity prevents aliases from bypassing existing-data protection.
+        return p.resolve()
+    except OSError as error:
+        diagnostics.failure('path.resolve', error)
+        raise
 
 
 def replace_json(path, value):
@@ -89,7 +96,9 @@ class Developer:
     def status(self):
         cfg = self.config()
         try:backups = json.loads(local(Path(cfg['backup_dir']) / '777-backups.json').read_text(encoding='utf-8'))
-        except (OSError, ValueError, RuntimeError):backups = dict(last_success=None)
+        except (OSError, ValueError, RuntimeError) as error:
+            diagnostics.failure("backup.status", error)
+            backups = dict(last_success=None)
         with self.job_lock:
             job = json.loads(json.dumps(self.job))
         daily_file=self.root / 'private/daily-backup.json'
@@ -205,7 +214,9 @@ class Developer:
     def configure_daily(self, directory, hidden, hour):
         if self.job and self.job['state'] in ['running', 'cancelling']:
             raise RuntimeError('DEVELOPER_BUILD_BUSY')
+        diagnostics.event("backup.configure.request", normal_path=directory, hidden_path=hidden, hour=hour)
         target, hidden = local(directory), local(hidden)
+        diagnostics.event("backup.configure.resolved", normal_path=str(target), hidden_path=str(hidden))
         if not isinstance(hour, int) or isinstance(hour, bool) or not 0 <= hour <= 23:
             raise RuntimeError('DAILY_BACKUP_CONFIG_INVALID')
         self.dev.stop_host(self.process)
@@ -284,8 +295,10 @@ class Developer:
                 with self.job_lock:
                     self.job['bytes'] = sum(p.stat().st_size for p in destination.iterdir() if p.is_file())
                     self.job['source_commit'] = manifest['source_commit']
+            diagnostics.event('package.finish', state=state, error=error, returncode=code)
             with self.job_lock:self.job.update(state=state, error=error)
-        except Exception:
+        except Exception as error:
+            diagnostics.failure("package", error)
             with self.job_lock:self.job.update(state='cancelled' if self.cancelled.is_set() else 'failed', error='DEVELOPER_BUILD_FAILED')
         finally:
             with self.job_lock:
@@ -302,6 +315,20 @@ class Developer:
             if self.build_owner:self.build_owner.close(); self.build_owner = None
 
     def handle(self, data):
+        op = data.get('op')
+        allowed = {'status','bootstrap','select','backup_directory','daily_backup','restore_data','save_package','package','cancel','open_output'}
+        operation = op if isinstance(op, str) and op in allowed else 'invalid'
+        quiet = operation in {'status', 'bootstrap'}
+        if not quiet:diagnostics.event('control.start', operation=operation)
+        try:
+            value = self._handle(data)
+            if not quiet:diagnostics.event('control.finish', operation=operation)
+            return value
+        except Exception as error:
+            diagnostics.failure(operation, error)
+            raise
+
+    def _handle(self, data):
         with self.lock:
             op = data.get('op')
             if op == 'status':return self.status()

@@ -65,6 +65,7 @@ fn run(path: &Path, input: Value, crash: Option<&str>) -> Result<Value> {
     mutate(&mut open(path, true)?, m, crash)
 }
 fn main() {
+    quote_diagnostics::init("ledger");
     let args: Vec<String> = std::env::args().collect();
     let mut allowed = cfg!(windows);
     let mut crash = None;
@@ -93,6 +94,10 @@ fn main() {
             _ => Err(Error::new("CAPACITY")),
         }
     };
+    quote_diagnostics::event(
+        "runtime.stop",
+        json!({"error":result.as_ref().err().map(|e|&e.code)}),
+    );
     println!(
         "{}",
         match result {

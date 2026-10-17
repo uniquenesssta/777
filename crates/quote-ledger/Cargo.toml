@@ -7,6 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
+quote-diagnostics = { path = "../quote-diagnostics" }
 quote-core = { path = "../quote-core" }
 quote-excel = { path = "../quote-excel" }
 rusqlite.workspace = true

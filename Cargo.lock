@@ -2753,6 +2753,7 @@ dependencies = [
  "base64 0.22.1",
  "getrandom 0.2.16",
  "quote-core",
+ "quote-diagnostics",
  "rcgen",
  "reqwest",
  "rustls",
@@ -2764,6 +2765,14 @@ dependencies = [
  "tokio",
  "windows",
  "x509-parser",
+]
+
+[[package]]
+name = "quote-diagnostics"
+version = "0.1.0"
+dependencies = [
+ "fs2",
+ "serde_json",
 ]
 
 [[package]]
@@ -2796,6 +2805,7 @@ dependencies = [
  "num-bigint",
  "png 0.18.1",
  "quote-core",
+ "quote-diagnostics",
  "quote-excel",
  "quote-ledger",
  "rcgen",
@@ -2819,6 +2829,7 @@ dependencies = [
  "getrandom 0.2.16",
  "num-bigint",
  "quote-core",
+ "quote-diagnostics",
  "quote-excel",
  "rusqlite",
  "serde",

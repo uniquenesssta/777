@@ -70,7 +70,7 @@ fn deliver(s: &Service, target: &Path, date: &str, snapshot: &str, cache: &Path)
                 return fail(503, "DATA_BACKUP_HASH_INVALID");
             }
         }
-        fs::rename(&partial, &folder)?;
+        quote_diagnostics::io_result("backup.publish", &folder, fs::rename(&partial, &folder))?;
         Ok(())
     })();
     if partial.exists() {
@@ -98,6 +98,7 @@ fn create_date(s: &Service, date: &str, current: &str) -> Result<Value> {
         }
         let tmp = root.join(format!(".{}.partial", store::uid()?));
         files::new_dir(&tmp)?;
+        quote_diagnostics::event("backup.snapshot.start", json!({"date":date}));
         let generated: Result<()> = (|| {
             let data = recovery::capture(s, date)?;
             let raw = recovery::encode(&data)?;
@@ -114,6 +115,10 @@ fn create_date(s: &Service, date: &str, current: &str) -> Result<Value> {
         if tmp.exists() {
             let _ = fs::remove_dir_all(tmp);
         }
+        quote_diagnostics::event(
+            "backup.snapshot.finish",
+            json!({"date":date,"error":generated.as_ref().err().map(|e|&e.code)}),
+        );
         generated?;
     }
     let data = recovery::decode(&files::read(&cache.join("data.qbackup"), recovery::LIMIT)?)?;
@@ -122,6 +127,10 @@ fn create_date(s: &Service, date: &str, current: &str) -> Result<Value> {
         ("normal", s.config["backup_dir"].as_str().unwrap()),
         ("hidden", cfg["hidden_dir"].as_str().unwrap()),
     ] {
+        quote_diagnostics::event(
+            "backup.delivery.start",
+            json!({"destination":label,"path":target,"date":date}),
+        );
         let result = (|| {
             if target.is_empty() {
                 return fail(422, "HIDDEN_BACKUP_NOT_CONFIGURED");
@@ -141,6 +150,10 @@ fn create_date(s: &Service, date: &str, current: &str) -> Result<Value> {
             }
             deliver(s, Path::new(target), date, &data.snapshot_id, &cache)
         })();
+        quote_diagnostics::event(
+            "backup.delivery.finish",
+            json!({"destination":label,"path":target,"date":date,"error":result.as_ref().err().map(|e|&e.code)}),
+        );
         e[label] = match result {
             Ok(()) => json!({"ok":true,"target":target}),
             Err(err) => json!({"ok":false,"target":target,"error":err.code}),
@@ -217,6 +230,10 @@ fn due_at(s: &Service, clock: time::OffsetDateTime) -> Result<Option<Value>> {
     create_date(s, &current, &current).map(Some)
 }
 pub fn configure(s: &Service, hidden: &Path, hour: u8) -> Result<Value> {
+    quote_diagnostics::event(
+        "backup.configure",
+        json!({"hidden_path":hidden,"hour":hour}),
+    );
     if hour > 23 {
         return fail(422, "DAILY_BACKUP_CONFIG_INVALID");
     }

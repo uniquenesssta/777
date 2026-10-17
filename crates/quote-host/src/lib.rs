@@ -50,6 +50,7 @@ impl From<rusqlite::Error> for Error {
 }
 impl From<std::io::Error> for Error {
     fn from(e: std::io::Error) -> Self {
+        quote_diagnostics::io_error("host.io", None, &e);
         match e.kind() {
             std::io::ErrorKind::PermissionDenied => Self::new(403, "PATH_PERMISSION_DENIED"),
             std::io::ErrorKind::NotFound => Self::new(503, "PATH_UNAVAILABLE"),

@@ -31,6 +31,11 @@ pub fn local(path: &Path, exists: bool) -> Result<()> {
         } else {
             fs::metadata(p)
         };
+        if let Err(ref error) = metadata {
+            if !(p == path && !exists && error.kind() == std::io::ErrorKind::NotFound) {
+                quote_diagnostics::io_error("path.metadata", Some(p), error);
+            }
+        }
         match metadata {
             Ok(m) => {
                 if p == path && (!m.is_file() || m.file_type().is_symlink())

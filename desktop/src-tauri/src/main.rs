@@ -176,6 +176,7 @@ mod shell {
     }
 }
 fn main() {
+    quote_diagnostics::init("desktop");
     #[cfg(all(windows, quote777_packaged))]
     if std::env::args().any(|a| a == "--package-info") {
         let mut info = quote_desktop::package_info();
@@ -197,7 +198,10 @@ fn main() {
         return;
     }
     #[cfg(windows)]
-    shell::run();
+    {
+        shell::run();
+        quote_diagnostics::event("runtime.stop", serde_json::json!({"ok":true}));
+    }
     #[cfg(not(windows))]
     {
         eprintln!("ACTUAL_WINDOWS_REQUIRED");

@@ -42,6 +42,11 @@ jobs:
         run: |
           python tools/p07_desktop_check.py --ci-checks --jobs 2 --output reports/p07-01-ci
           if ($LASTEXITCODE -ne 0) { throw 'P07 desktop checks failed' }
+      - name: Runtime diagnostics retain actual Windows IO errors
+        shell: pwsh
+        run: |
+          python tools/p07_diagnostics_check.py
+          if ($LASTEXITCODE -ne 0) { throw 'Runtime diagnostics failed' }
       - name: Developer source switching, daily dual-format backup and recovery
         shell: pwsh
         run: |

@@ -8,6 +8,10 @@ pub struct DesktopError {
 pub type Result<T> = std::result::Result<T, DesktopError>;
 impl DesktopError {
     pub fn new(status: u16, code: &str) -> Self {
+        quote_diagnostics::event(
+            "desktop.error",
+            serde_json::json!({"status":status,"code":code}),
+        );
         Self {
             status,
             code: code.into(),
@@ -107,6 +111,38 @@ pub enum Action {
     Backup {},
 }
 impl Action {
+    pub fn diagnostic_name(&self) -> &'static str {
+        match self {
+            #[cfg(all(
+                debug_assertions,
+                not(any(feature = "manager", feature = "sales", feature = "verification"))
+            ))]
+            Self::Developer { .. } => "Developer",
+            Self::Bootstrap { .. } => "Bootstrap",
+            Self::Connection { .. } => "Connection",
+            Self::Connect { .. } => "Connect",
+            Self::Disconnect { .. } => "Disconnect",
+            Self::Prices { .. } => "Prices",
+            Self::PricePreview { .. } => "PricePreview",
+            Self::Calculate { .. } => "Calculate",
+            Self::Submit { .. } => "Submit",
+            Self::Orders { .. } => "Orders",
+            Self::Order { .. } => "Order",
+            Self::Note { .. } => "Note",
+            Self::SetState { .. } => "SetState",
+            Self::PublishPrices { .. } => "PublishPrices",
+            Self::Analytics { .. } => "Analytics",
+            Self::PickDirectory { .. } => "PickDirectory",
+            Self::Settings { .. } => "Settings",
+            Self::SaveSettings { .. } => "SaveSettings",
+            Self::Outputs { .. } => "Outputs",
+            Self::CreateOutput { .. } => "CreateOutput",
+            Self::RetryOutput { .. } => "RetryOutput",
+            Self::Recover { .. } => "Recover",
+            Self::BackupStatus { .. } => "BackupStatus",
+            Self::Backup { .. } => "Backup",
+        }
+    }
     /// Only operations that can persist a request or mutate business state
     /// coordinate close. A slow login/query must not trap the user in a window.
     pub fn protects_close(&self) -> bool {

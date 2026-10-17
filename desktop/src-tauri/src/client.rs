@@ -200,6 +200,16 @@ impl Desktop {
         }
     }
     pub async fn execute(&mut self, action: Action) -> Result<Value> {
+        let operation = action.diagnostic_name();
+        quote_diagnostics::event("desktop.action.start", json!({"operation":operation}));
+        let result = self.execute_logged(action).await;
+        quote_diagnostics::event(
+            "desktop.action.finish",
+            json!({"operation":operation,"error":result.as_ref().err().map(|e|&e.code)}),
+        );
+        result
+    }
+    async fn execute_logged(&mut self, action: Action) -> Result<Value> {
         if crate::startup::formal()
             && !matches!(
                 action,

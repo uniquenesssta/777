@@ -3,6 +3,7 @@ __pycache__/
 .venv/
 reports/
 /target/
+/logs/
 
 /desktop/node_modules/
 /desktop/dist/
