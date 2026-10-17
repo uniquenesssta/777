@@ -1,0 +1,78 @@
+{
+  "task": "P07-07 edit re-entry follow-up",
+  "source_base": "6335a8a69ad579f126bb936cc7a8529cf605ffd8",
+  "user_report": "2026-10-17 19:58 Asia/Shanghai: 2次编辑失败",
+  "input_log": {
+    "sha256": "0963a1b1bce5786b0c80173911c965aa3af204a4eb07d648d9a63fdd3f73d239",
+    "records": 60,
+    "raw_log_published": false,
+    "interpretation": "one SaveOrder success explicitly recorded; identical successes were deduplicated and desktop shutdown summary is missing, so the second preview/save outcome and exact click chronology cannot be reconstructed"
+  },
+  "reproduced_path": "edit saved order -> alter quantity -> read saved history/details -> Continue Edit must resume draft; switch another order -> Continue Editing must return original draft",
+  "before": {
+    "status": "failed",
+    "actual_route": "detail",
+    "expected_route": "quote"
+  },
+  "after": {
+    "status": "passed",
+    "transport": "actual React useWorkbench hook -> native IPC -> standalone Rust HTTPS",
+    "checks": [
+      "same saved version resumes current modified draft without replacement",
+      "first save, reopen latest version, second save with exact income and two archived revisions",
+      "another order asks before replacing draft; Continue Editing preserves original order and quantity; explicit discard loads chosen order",
+      "three native sequential edits use fresh line identifiers and revision; no duplicate customer turnover; restart retains final amount",
+      "UI metadata written to shared runtime.jsonl; no DesktopError in real trace"
+    ]
+  },
+  "platform": "Linux auxiliary; not actual Windows browser/WebView2 evidence",
+  "temporary_test_dependency": {
+    "react-test-renderer": "19.3.0",
+    "isolated_from_repository_dependencies": true,
+    "not_added_to_product": true
+  },
+  "checks": {
+    "frontend_unit_tests": 36,
+    "desktop_rust_tests": 17,
+    "strict_clippy": "passed",
+    "frontend_build": "passed",
+    "diagnostics_rust_tests": 2
+  },
+  "logs": {
+    "before-hook": {
+      "path": "docs/verification/P07-07-edit-checks/before-hook.log",
+      "sha256": "b47af286c6c335898df9963b7c8212543bd0787a5d182f24be4eb50609f69e75"
+    },
+    "after-hook": {
+      "path": "docs/verification/P07-07-edit-checks/after-hook.log",
+      "sha256": "0992ebc02dd1e63d2bac85248bb42b53d1cdad5bdaddd04b4c9c84cd51b27600"
+    },
+    "native-repeat": {
+      "path": "docs/verification/P07-07-edit-checks/native-repeat.log",
+      "sha256": "8cd2f6f34ff2f5a0a562a832ff9803640c371fb87f3d8f1e67ff3fa2bd999ecc"
+    },
+    "frontend-unit": {
+      "path": "docs/verification/P07-07-edit-checks/frontend-unit.log",
+      "sha256": "c7e39557557a7cfb0919d2a2d0a74aac6f9768accaa013aed469cc80349d8720"
+    },
+    "rust-tests": {
+      "path": "docs/verification/P07-07-edit-checks/rust-tests.log",
+      "sha256": "d565d5e4d7d19fc528771fd0c2564485ff729d2d231ac1881c127bf8e653cc78"
+    },
+    "clippy": {
+      "path": "docs/verification/P07-07-edit-checks/clippy.log",
+      "sha256": "1e528e7815cdbe8a593c6bfbcc555cfe1ff95f941e25508551eea8121ae49621"
+    }
+  },
+  "limits": [
+    "User log alone does not uniquely prove this was the only cause on the user machine.",
+    "New browser regression paths are added; Windows and user recheck pending.",
+    "Installer verification remains skipped per user instruction."
+  ],
+  "production_paths_accessed": false,
+  "logging_fix": {
+    "critical_operations": "record each edit, preview and save immediately; not reliant on graceful shutdown",
+    "noise": "queries and repeated frontend errors still deduplicated; shared bounded session file unchanged",
+    "proof": "docs/verification/P07-07-edit-checks/critical-trace.json"
+  }
+}

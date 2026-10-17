@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "source": "owned synthetic fixture",
+  "trace_sha256": "24dbcd00bf97eaf969129b80ce47565478abe80a05ad0055c16f738f5e8a65ac",
+  "save_records": {
+    "desktop.action.start": 2,
+    "desktop.action.finish": 2
+  },
+  "ui_events": {
+    "draft_context": 7,
+    "edit_requested": 6,
+    "edit_loaded": 4,
+    "edit_resumed": 1,
+    "save_requested": 2,
+    "save_confirmed": 2,
+    "draft_switch_requested": 2,
+    "draft_continued": 1,
+    "draft_switch_confirmed": 1
+  },
+  "desktop_errors": 0,
+  "user_runtime_published": false
+}

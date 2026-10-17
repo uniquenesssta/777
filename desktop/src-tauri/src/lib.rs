@@ -26,4 +26,4 @@ pub use startup::delivery;
 pub use startup::formal_profile_root;
 #[cfg(quote777_packaged)]
 pub use startup::package_info;
-pub use types::{Action, Connection, DesktopError, Result};
+pub use types::{Action, Connection, DesktopError, Result, UiErrorKind, UiEvent, UiSource};

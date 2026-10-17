@@ -1,0 +1,5 @@
+    Checking quote-diagnostics v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-diagnostics)
+    Checking quote-ledger v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-ledger)
+    Checking quote-desktop v0.1.0 (/workspace/scratch/45a5dfca7a35/777/desktop/src-tauri)
+    Checking quote-host v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-host)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.72s

@@ -17,6 +17,7 @@ import type {
 import { selectDraftSource } from "./developerDraft";
 import { profitRange, type ProfitPreset } from "./profit";
 import { draftReducer, restorableDraft, snapshot, draftContext } from "./draft";
+import { uiDiagnostic } from "./uiDiagnostics";
 export type Route =
   | "quote"
   | "orders"
@@ -97,6 +98,7 @@ export function useWorkbench() {
       setIsError(true);
     }
   }, [draft.details, draft.lines, draft.editing, draft.customer]);
+  useEffect(() => { uiDiagnostic("draft_context", draft); }, [draft.editing?.order_id, draft.editing?.revision]);
   const run = useCallback(
     async <T>(work: () => Promise<T>, done?: (v: T) => void, rethrow = false) => {
       if (busyRef.current) return;
@@ -110,6 +112,7 @@ export function useWorkbench() {
         if (current === epoch.current) done?.(result);
         return result;
       } catch (e) {
+        if (e instanceof Error) uiDiagnostic("frontend_error", undefined, e);
         if (rethrow) throw e;
         if (current === epoch.current) {
           setFeedback(errorMessage(e));
@@ -293,12 +296,27 @@ export function useWorkbench() {
   );
   function guardDraft(work: () => void) {
     if (pending || busy) return;
-    if (draft.lines.length) setDraftChange(() => work); else work();
+    if (draft.lines.length) {
+      uiDiagnostic("draft_switch_requested", draft);
+      setDraftChange(() => work);
+    } else work();
   }
-  const beginEdit = (order_id:string) => run(() => request<Order>("order",{order_id}),order => {
+  const beginEdit = (order_id:string) => run(() => {
+    uiDiagnostic("edit_requested", draft);
+    return request<Order>("order",{order_id});
+  },order => {
     if(order.state!=="active")return;
-    const work=()=>{dispatch({type:"load_order",order});setSelected(order);setRoute("quote");};
-    if(draft.lines.length)setDraftChange(()=>work);else work();
+    // Reading details/history does not abandon the draft. Resume this same
+    // saved version without replacing any in-progress line changes.
+    if (draft.editing?.order_id === order.order_id && draft.editing.revision === order.revision) {
+      uiDiagnostic("edit_resumed", draft);
+      setDraftChange(null);
+      setSelected(order);
+      setRoute("quote");
+      return;
+    }
+    const work=()=>{uiDiagnostic("edit_loaded", draft);dispatch({type:"load_order",order});setSelected(order);setRoute("quote");};
+    if(draft.lines.length){uiDiagnostic("draft_switch_requested", draft);setDraftChange(()=>work);}else work();
   });
   function chooseCustomer(group:CustomerGroup, reset=false) {
     const first=group.orders[0];if(!first)return;
@@ -342,6 +360,7 @@ export function useWorkbench() {
       details = draft.details;
     return run(
       async () => {
+        uiDiagnostic("save_requested", draft);
         const receipt = await request<{ order_id: string }>("save_order", {
           snapshot: submitted,
           sources:draft.lines.map(l=>l.source??null),
@@ -357,6 +376,7 @@ export function useWorkbench() {
       },
       (r) => {
         setPending(false);
+        uiDiagnostic("save_confirmed", draft);
         dispatch({ type: "committed", snapshot: submitted, details,context });
         setSelected(r.value);
         setListing(null);
@@ -591,7 +611,8 @@ export function useWorkbench() {
       }, undefined, true);
     },
     draftChange,
-    confirmDraftChange:()=>{const work=draftChange;setDraftChange(null);work?.();},
+    confirmDraftChange:()=>{const work=draftChange;uiDiagnostic("draft_switch_confirmed",draft);setDraftChange(null);work?.();},
+    resumeDraft:()=>{uiDiagnostic("draft_continued",draft);setDraftChange(null);setRoute("quote");},
     cancelDraftChange:()=>setDraftChange(null),
     cancelEdit:()=>guardDraft(()=>{dispatch({type:"reset"});setRoute("orders");void loadOrders({...filters,view:""});}),
     beginEdit,

@@ -1,0 +1,49 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> quote-desktop@0.1.0 test
+> node --import tsx --test tests/*.test.ts
+
+✔ export strips development secrets and rejects unapproved configuration fields (1.872573ms)
+✔ release type is explicit and generated installers keep both roles isolated (0.778836ms)
+✔ release verification rejects corruption and path traversal before enrollment (23.077557ms)
+✔ enrollment refuses other role/service and preserves device and pending records (52.970659ms)
+✔ rollback permits only the same role, service and profile compatibility epoch (0.57401ms)
+✔ A to B to A preserves raw drafts without moving authority or drafts across ledgers (0.886847ms)
+✔ unavailable local storage fails before replacing the current source record (0.366699ms)
+✔ late calculation cannot restore authority after any input or price change (1.557832ms)
+✔ revision and display cents never pass through JS floating point (0.382332ms)
+✔ only raw draft fields restore, never a claimed result or stored role (0.559628ms)
+✔ confirmed original order clears only its own raw draft and preserves edits during submit (9.696641ms)
+✔ late edit receipt cannot clear another order with identical customer and goods (0.392347ms)
+✔ pinned font download is atomic, cached and usable without network (21.723856ms)
+✔ wrong download and corrupted cache never become accepted font assets (15.601169ms)
+✔ ordinary font preparation keeps its Chinese CLI progress (108.743454ms)
+✔ development preparation reports missing fonts without making network requests (4.877469ms)
+✔ offline development still rejects corrupted cached font bytes (8.890946ms)
+✔ explicit font preparation cancellation rejects promptly and leaves no partial file (2.537838ms)
+✔ actual pinned Tauri CLI reproduces the previous manifest rewrite (2437.224572ms)
+✔ tracked manifest stays unchanged through actual Tauri dev/build for LF and CRLF (289.034052ms)
+✔ actual Tauri role and upgrade overlays preserve the source Cargo manifest (131.900761ms)
+✔ pinned Tauri parser accepts both complete Windows NSIS overlays (116.353171ms)
+✔ native readiness preserves the underlying CDP error and attempt diagnostics (22.084441ms)
+✔ native readiness succeeds after transient refusal and bounds each connect attempt (5.750066ms)
+✔ a failed connection checkpoint closes the attached browser and does not retry (0.446628ms)
+✔ actual Windows Tauri production origins accept embedded-page paths (1.159636ms)
+✔ Vite, browser error pages and lookalike hosts fail before waiting for login (1.019876ms)
+✔ packages saved inside a selected source folder do not dirty later builds or hide source changes (34.583036ms)
+✔ shortcuts span exactly one day, week, month or year from the same current instant (1.67677ms)
+✔ calendar subtraction clamps month ends and leap anniversaries while keeping the clock (0.169353ms)
+✔ business clock uses UTC+08 across midnight rather than the device timezone (0.138327ms)
+✔ datetime picker minute and abbreviated subsecond values keep a canonical exact boundary (0.237355ms)
+✔ chart coordinates support losses and huge exact cents without converting money to Number (0.253299ms)
+✔ profit pie keeps losses explicit and computes exact shares for huge cents and zero buckets (1.80437ms)
+✔ candle domain includes intra-period high and low rather than only closing totals (1.146116ms)
+✔ UI diagnostics record fixed metadata without customer, cost, message or stack text (1.228899ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3273.715858

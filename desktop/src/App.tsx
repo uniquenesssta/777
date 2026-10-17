@@ -145,7 +145,7 @@ export default function App() {
         </main>
       )}
     <Modal open={!!app.draftChange} onOpenChange={(v)=>!v&&app.cancelDraftChange()} title="尚有未保存的修改" description="继续当前编辑，或放弃草稿并切换。" compact>
-        <div className="dialog-actions"><Button variant="outline" onClick={app.cancelDraftChange}>继续编辑</Button><Button onClick={app.confirmDraftChange}>放弃修改</Button></div>
+        <div className="dialog-actions"><Button variant="outline" onClick={app.resumeDraft}>继续编辑</Button><Button onClick={app.confirmDraftChange}>放弃修改</Button></div>
       </Modal>
       </>
   );

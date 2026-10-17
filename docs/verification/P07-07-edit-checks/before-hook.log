@@ -1,0 +1,19 @@
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: same order Continue Edit must return to the existing draft
+
+'detail' !== 'quote'
+
+    at <anonymous> (/tmp/p07-hook-tests/repeat-edit.tsx:20:9) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'detail',
+  expected: 'quote',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

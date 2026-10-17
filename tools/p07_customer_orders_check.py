@@ -23,11 +23,19 @@ def main():
         saved=call('save_order',**context,draft_revision='10',details=old['details'],customer={});assert saved['order_id']==old['order_id'] and str(saved['revision'])=='2'
         current=call('order',order_id=old['order_id']);assert len(current['history'])==1 and current['income_cents']=='20000'
         checks.append('native_preview_save_same_order_with_revision_and_history')
+        for revision,quantity,income in [(2,'2','30000'),(3,'3','40000')]:
+            lines=[l['raw'].copy() for l in current['lines']];lines[0]['q']=quantity
+            context=dict(order_id=old['order_id'],expected_revision=str(current['revision']),sources=[l['line_id'] for l in current['lines']],snapshot=dict(price_version_id='2026.10.13',rule_version='business-v1',numeric_profile='numeric-v1',lines=lines))
+            call('order_preview',**context,draft_revision=str(revision+10))
+            receipt=call('save_order',**context,draft_revision=str(revision+10),details=current['details'],customer={'customer_id':current['customer_id']})
+            current=call('order',order_id=old['order_id'])
+            assert str(receipt['revision'])==str(revision+1) and current['income_cents']==income and len(current['history'])==revision
+        checks.append('native_repeated_edits_use_latest_revision_line_sources_and_exact_history')
         details={**old['details'],'order_ref':'独立订单00002'}
         context=dict(order_id=None,expected_revision=None,sources=[None],snapshot=dict(price_version_id='2026.10.13',rule_version='business-v1',numeric_profile='numeric-v1',lines=[old['lines'][0]['raw']]))
         call('order_preview',**context,draft_revision='11');new=call('save_order',**context,draft_revision='11',details=details,customer={'customer_id':current['customer_id']})
         groups=call('customer_orders',query=old['details']['customer'],offset=0,group_id=current['customer_id'],order_offset=0)
-        assert groups['total']==1 and groups['groups'][0]['total']==2 and groups['groups'][0]['totals']['income_cents']=='30000',groups
+        assert groups['total']==1 and groups['groups'][0]['total']==2 and groups['groups'][0]['totals']['income_cents']=='50000',groups
         assert new['order_id']!=old['order_id'];checks.append('native_separate_order_number_same_customer_exact_aggregate')
         year=time.strftime('%Y');job=call('create_report',**{'from':year+'-01-01','to':year+'-12-31'})
         deadline=time.monotonic()+45
@@ -45,7 +53,7 @@ def main():
         else:assert opened.get('error',{}).get('code')=='WINDOWS_REQUIRED',opened
         checks.append('native_period_report_completed_and_actual_folder_action' if os.name=='nt' else 'native_period_report_completed_folder_correctly_requires_Windows')
         scenario.stop_bridge();scenario.start_bridge();call('bootstrap');call('connect',connection=scenario.connection(),username='manager',password=scenario.host.password)
-        assert call('order',order_id=old['order_id'])['income_cents']=='20000';checks.append('native_restart_keeps_edited_order')
+        assert call('order',order_id=old['order_id'])['income_cents']=='40000';checks.append('native_restart_keeps_edited_order')
         (args.output/'report.json').write_text(json.dumps(dict(task='P07-07',platform=os.name,checks=checks,status='passed',production_paths_accessed=False),ensure_ascii=False,indent=2))
         print(json.dumps(dict(status='passed',checks=checks),ensure_ascii=False))
     finally:

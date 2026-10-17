@@ -551,10 +551,25 @@ test("P07-07 customer match edits the chosen order and exports period financial 
   await match.getByRole("button",{name:"继续编辑",exact:true}).click();
   await expect(page.getByText("已保存版本 1",{exact:true})).toBeVisible();
   await page.getByLabel("第1行数量",{exact:true}).fill("2");
+  await page.getByRole("button",{name:"查看修改记录",exact:true}).click();
+  await page.getByRole("button",{name:"继续编辑",exact:true}).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByLabel("第1行数量",{exact:true})).toHaveValue("2");
   await page.getByRole("button",{name:"计算报价",exact:true}).click();
   await page.getByRole("button",{name:"保存修改",exact:true}).click();
   await page.getByRole("button",{name:"确认提交",exact:true}).click();
   await expect(page.getByText("修改记录",{exact:true})).toBeVisible();
+  await page.getByRole("button",{name:"继续编辑",exact:true}).click();
+  await expect(page.getByText("已保存版本 2",{exact:true})).toBeVisible();
+  await page.getByLabel("第1行数量",{exact:true}).fill("3");
+  await page.getByRole("button",{name:"查看修改记录",exact:true}).click();
+  await page.getByRole("button",{name:"继续编辑",exact:true}).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByLabel("第1行数量",{exact:true})).toHaveValue("3");
+  await page.getByRole("button",{name:"计算报价",exact:true}).click();
+  await page.getByRole("button",{name:"保存修改",exact:true}).click();
+  await page.getByRole("button",{name:"确认提交",exact:true}).click();
+  await expect(page.getByText(/版本 2 ·/)).toBeVisible();
   await page.screenshot({path:"test-results/p07-07-edited-order.png"});
   await page.getByRole("button",{name:"订单记录",exact:true}).click();
   await page.getByRole("button",{name:"按客户查看",exact:true}).click();
@@ -567,4 +582,27 @@ test("P07-07 customer match edits the chosen order and exports period financial 
   await expect(page.getByRole("button",{name:"打开文件夹",exact:true})).toBeVisible();
   await expect(page.getByText("内部财务报表（期间）",{exact:true})).toBeVisible();
   await page.screenshot({path:"test-results/p07-07-report-folder.png"});
+});
+
+test("P07-07 continue existing draft from another order preserves pending edits",async({page})=>{
+  await login(page);
+  await page.getByLabel("订单号",{exact:true}).fill("00000");
+  await page.getByRole("region",{name:"匹配客户与订单"}).getByRole("button",{name:"继续编辑",exact:true}).click();
+  await page.getByLabel("第1行数量",{exact:true}).fill("4");
+  const readOther=async()=>{
+    await page.getByRole("button",{name:"订单记录",exact:true}).click();
+    await page.getByLabel("搜索订单",{exact:true}).fill("00001");
+    await page.getByRole("button",{name:"筛选",exact:true}).click();
+    await page.getByRole("button",{name:"查看详情",exact:true}).click();
+    await page.getByRole("button",{name:"继续编辑",exact:true}).click();
+  };
+  await readOther();
+  const dialog=page.getByRole("dialog",{name:"尚有未保存的修改"});
+  await dialog.getByRole("button",{name:"继续编辑",exact:true}).click();
+  await expect(page.getByLabel("订单号",{exact:true})).toHaveValue("00000");
+  await expect(page.getByLabel("第1行数量",{exact:true})).toHaveValue("4");
+  await readOther();
+  await dialog.getByRole("button",{name:"放弃修改",exact:true}).click();
+  await expect(page.getByLabel("订单号",{exact:true})).toHaveValue("00001");
+  await expect(page.getByLabel("第1行数量",{exact:true})).toHaveValue("1");
 });

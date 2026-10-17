@@ -1,0 +1,1 @@
+{"status": "passed", "checks": ["native_preview_save_same_order_with_revision_and_history", "native_repeated_edits_use_latest_revision_line_sources_and_exact_history", "native_separate_order_number_same_customer_exact_aggregate", "native_period_report_completed_folder_correctly_requires_Windows", "native_restart_keeps_edited_order"]}

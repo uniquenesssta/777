@@ -28,6 +28,17 @@ pub struct Connection {
 #[derive(Deserialize)]
 #[serde(tag = "action", rename_all = "snake_case", deny_unknown_fields)]
 pub enum Action {
+    UiDiagnostic {
+        event: UiEvent,
+        order_id: Option<String>,
+        revision: Option<String>,
+        draft_revision: Option<String>,
+        lines: Option<u16>,
+        error_kind: Option<UiErrorKind>,
+        source: Option<UiSource>,
+        line: Option<u32>,
+        column: Option<u32>,
+    },
     #[cfg(all(
         debug_assertions,
         not(any(feature = "manager", feature = "sales", feature = "verification"))
@@ -139,9 +150,45 @@ pub enum Action {
     BackupStatus {},
     Backup {},
 }
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum UiEvent {
+    EditRequested,
+    EditResumed,
+    EditLoaded,
+    DraftSwitchRequested,
+    DraftSwitchConfirmed,
+    DraftContinued,
+    SaveRequested,
+    SaveConfirmed,
+    DraftContext,
+    FrontendError,
+}
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum UiErrorKind {
+    TypeError,
+    ReferenceError,
+    RangeError,
+    SyntaxError,
+    Error,
+    Unknown,
+}
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum UiSource {
+    Workbench,
+    Draft,
+    Quote,
+    Detail,
+    Application,
+    Other,
+}
 impl Action {
     pub fn diagnostic_name(&self) -> &'static str {
         match self {
+            Self::UiDiagnostic { .. } => "UiDiagnostic",
             #[cfg(all(
                 debug_assertions,
                 not(any(feature = "manager", feature = "sales", feature = "verification"))
@@ -247,6 +294,16 @@ pub fn new_id() -> Result<String> {
 #[cfg(test)]
 mod close_tests {
     use super::*;
+    #[test]
+    fn ui_diagnostics_only_accept_known_events_and_metadata() {
+        let mut value = serde_json::json!({"action":"ui_diagnostic","event":"frontend_error","error_kind":"type_error","source":"quote","line":12,"column":4});
+        assert!(serde_json::from_value::<Action>(value.clone()).is_ok());
+        value["message"] = serde_json::json!("customer/cost/body");
+        assert!(serde_json::from_value::<Action>(value.clone()).is_err());
+        value.as_object_mut().unwrap().remove("message");
+        value["event"] = serde_json::json!("arbitrary-user-text");
+        assert!(serde_json::from_value::<Action>(value).is_err());
+    }
     #[test]
     fn readonly_network_and_calculation_do_not_protect_close() {
         assert!(!Action::Bootstrap {}.protects_close());

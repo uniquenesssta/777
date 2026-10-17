@@ -200,10 +200,26 @@ impl Desktop {
         }
     }
     pub async fn execute(&mut self, action: Action) -> Result<Value> {
+        if matches!(action, Action::UiDiagnostic { .. }) {
+            return self.execute_inner(action).await;
+        }
         let operation = action.diagnostic_name();
-        quote_diagnostics::event("desktop.action.start", json!({"operation":operation}));
+        let record: fn(&str, Value) = if matches!(
+            action,
+            Action::Order { .. }
+                | Action::OrderPreview { .. }
+                | Action::SaveOrder { .. }
+                | Action::Submit { .. }
+                | Action::Note { .. }
+                | Action::SetState { .. }
+        ) {
+            quote_diagnostics::event_each
+        } else {
+            quote_diagnostics::event
+        };
+        record("desktop.action.start", json!({"operation":operation}));
         let result = self.execute_logged(action).await;
-        quote_diagnostics::event(
+        record(
             "desktop.action.finish",
             json!({"operation":operation,"error":result.as_ref().err().map(|e|&e.code)}),
         );
@@ -353,6 +369,17 @@ impl Desktop {
     }
     async fn execute_inner(&mut self, action: Action) -> Result<Value> {
         match action {
+            Action::UiDiagnostic { event, order_id, revision: order_revision, draft_revision, lines, error_kind, source, line, column } => {
+                if let Some(id) = &order_id { identifier(id)?; }
+                for r in [order_revision.as_deref(), draft_revision.as_deref()].into_iter().flatten() {
+                    if r.is_empty() || r.len() > 40 || !r.bytes().all(|b| b.is_ascii_digit()) {
+                        return Err(DesktopError::new(422, "INVALID_REVISION"));
+                    }
+                }
+                let record = if matches!(event, crate::UiEvent::FrontendError) { quote_diagnostics::event } else { quote_diagnostics::event_each };
+                record("ui.event", json!({"event":event,"order_id":order_id,"revision":order_revision,"draft_revision":draft_revision,"lines":lines,"error_kind":error_kind,"source":source,"line":line,"column":column}));
+                Ok(Value::Null)
+            }
             #[cfg(all(
                 debug_assertions,
                 not(any(feature = "manager", feature = "sales", feature = "verification"))

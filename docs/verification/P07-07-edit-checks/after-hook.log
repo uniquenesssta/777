@@ -1,0 +1,2 @@
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+PASS real hook + native IPC: resume same draft, save, reopen, second save, exact totals/history, guarded switch preserves or explicitly discards draft

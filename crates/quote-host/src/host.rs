@@ -371,7 +371,9 @@ async fn handler(
     let route = req.uri().path().split('/').nth(2).unwrap_or("");
     let route_log = match route {
         "auth" | "devices" | "prices" | "orders" | "backups" | "settings" | "outputs"
-        | "calculate" | "health" => route.to_owned(),
+        | "calculate" | "health" | "order-preview" | "order-save" | "customer-orders" => {
+            route.to_owned()
+        }
         _ => "other".into(),
     };
     let result = (|| -> Result<(String, String, String, String)> {
@@ -467,7 +469,12 @@ async fn handler(
         Ok(v) => (200, v),
         Err(e) => (e.status, json!({"error":e.code})),
     };
-    quote_diagnostics::event(
+    let record = if ["order-preview", "order-save"].contains(&route_log.as_str()) {
+        quote_diagnostics::event_each
+    } else {
+        quote_diagnostics::event
+    };
+    record(
         "http.finish",
         json!({"method":method_log,"route":route_log,"status":status,"error":value.get("error")}),
     );

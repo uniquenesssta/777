@@ -78,16 +78,26 @@ pub fn init(component: &str) {
 }
 
 pub fn event(name: &str, fields: Value) {
+    record(name, fields, true);
+}
+/// Records each business action even if the process later exits abnormally.
+/// Uses the same bounded file, rotation and write deadline as other events.
+pub fn event_each(name: &str, fields: Value) {
+    record(name, fields, false);
+}
+fn record(name: &str, fields: Value, deduplicate: bool) {
     let Some(logger) = LOGGER.get() else { return };
     let Ok(mut logger) = logger.lock() else {
         return;
     };
     let key = format!("{name}:{fields}");
     let now = Instant::now();
-    if let Some((since, count)) = logger.recent.get_mut(&key) {
-        if since.elapsed() < Duration::from_secs(60) {
-            *count += 1;
-            return;
+    if deduplicate {
+        if let Some((since, count)) = logger.recent.get_mut(&key) {
+            if since.elapsed() < Duration::from_secs(60) {
+                *count += 1;
+                return;
+            }
         }
     }
     // Flush suppressed counts on the next event, including normal shutdown.
@@ -106,7 +116,9 @@ pub fn event(name: &str, fields: Value) {
     if logger.recent.len() >= 256 {
         logger.recent.clear();
     }
-    logger.recent.insert(key, (now, 0));
+    if deduplicate {
+        logger.recent.insert(key, (now, 0));
+    }
     if logger.write(name, fields).is_err() {
         // One warning per process; logging failure never fails a business operation.
         static WARNED: OnceLock<()> = OnceLock::new();
@@ -189,14 +201,18 @@ mod tests {
         for _ in 0..10000 {
             event("failure", json!({"code":"PATH_UNAVAILABLE"}));
         }
+        event_each("save", json!({"status":"ok"}));
+        event_each("save", json!({"status":"ok"}));
         event("runtime.stop", json!({}));
         let raw = fs::read_to_string(directory.join("runtime.jsonl")).unwrap();
         let rows: Vec<Value> = raw
             .lines()
             .map(|v| serde_json::from_str(v).unwrap())
             .collect();
-        assert_eq!(rows.len(), 3);
-        assert_eq!(rows[1]["fields"]["suppressed"], 9999);
+        assert_eq!(rows.len(), 5);
+        assert_eq!(rows[1]["event"], "save");
+        assert_eq!(rows[2]["event"], "save");
+        assert_eq!(rows[3]["fields"]["suppressed"], 9999);
         fs::remove_dir_all(directory).unwrap();
     }
     #[test]

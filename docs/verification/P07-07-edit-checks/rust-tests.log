@@ -1,0 +1,52 @@
+   Compiling quote-diagnostics v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-diagnostics)
+   Compiling quote-desktop v0.1.0 (/workspace/scratch/45a5dfca7a35/777/desktop/src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.57s
+     Running unittests src/lib.rs (target/debug/deps/quote_desktop-d8cf13aa65c6ecbe)
+
+running 13 tests
+test client::tests::developer_wire_excludes_private_bootstrap_and_arbitrary_commands ... ok
+test client::tests::display_preserves_exact_large_cents_and_safe_revision_strings ... ok
+test client::tests::wire_rejects_arbitrary_paths_actor_and_unknown_commands ... ok
+test startup::package_tests::identity_path_does_not_depend_on_installer_identifier_or_version ... ok
+test journal::tests::ancestor_links_are_rejected_before_creating_profile_or_writing ... ok
+test tls::tests::invalid_destinations_and_bad_pin_never_build_a_client ... ok
+test types::close_tests::readonly_network_and_calculation_do_not_protect_close ... ok
+test output_folder::tests::remote_host_local_drive_is_not_this_computer ... ok
+test types::close_tests::writes_and_unknown_receipt_recovery_protect_close ... ok
+test types::close_tests::ui_diagnostics_only_accept_known_events_and_metadata ... ok
+test journal::tests::pending_is_exclusive_and_corruption_is_never_silently_discarded ... ok
+test tls::tests::pinned_legacy_ca_and_leaf_certificates_require_exact_identity_name_and_time ... ok
+test client::tests::developer_switch_and_backup_reject_pending_before_launcher_call ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src/main.rs (target/debug/deps/quote_desktop-74783c0750291000)
+
+running 4 tests
+test verification_window::tests::normal_launch_has_no_verification_settings ... ok
+test verification_window::tests::marked_temp_profile_has_fixed_api_arguments_and_private_data_directory ... ok
+test verification_window::tests::invalid_ports_unknown_switches_and_relative_profiles_are_refused ... ok
+test verification_window::tests::production_marker_missing_marker_and_nonfixture_root_are_refused ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quote_diagnostics-19f33a7cd126fd00)
+
+running 2 tests
+test tests::repeated_events_are_counted_without_flooding ... ok
+test tests::rotates_only_owned_logs_and_preserves_json ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+   Doc-tests quote_desktop
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quote_diagnostics
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
