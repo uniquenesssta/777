@@ -29,6 +29,10 @@ impl Error {
 impl From<quote_ledger::Error> for Error {
     fn from(e: quote_ledger::Error) -> Self {
         let (status, code) = match e.code.as_str() {
+            "FILESYSTEM_PATH_REQUIRED" => (422, "FILESYSTEM_PATH_REQUIRED"),
+            "PATH_UNAVAILABLE" => (503, "PATH_UNAVAILABLE"),
+            "PATH_PERMISSION_DENIED" => (403, "PATH_PERMISSION_DENIED"),
+            "LINK_OR_TYPE_DISALLOWED" => (422, "PATH_TYPE_CONFLICT"),
             "FORBIDDEN" => (403, "FORBIDDEN"),
             "CONFLICT" => (409, "REVISION_OR_PRICE_CONFLICT"),
             "BUSY" => (503, "STORE_BUSY_OR_UNAVAILABLE"),
@@ -45,8 +49,13 @@ impl From<rusqlite::Error> for Error {
     }
 }
 impl From<std::io::Error> for Error {
-    fn from(_: std::io::Error) -> Self {
-        Self::new(503, "HOST_IO_UNAVAILABLE")
+    fn from(e: std::io::Error) -> Self {
+        match e.kind() {
+            std::io::ErrorKind::PermissionDenied => Self::new(403, "PATH_PERMISSION_DENIED"),
+            std::io::ErrorKind::NotFound => Self::new(503, "PATH_UNAVAILABLE"),
+            std::io::ErrorKind::AlreadyExists => Self::new(409, "PATH_ALREADY_EXISTS"),
+            _ => Self::new(503, "HOST_IO_UNAVAILABLE"),
+        }
     }
 }
 impl From<serde_json::Error> for Error {

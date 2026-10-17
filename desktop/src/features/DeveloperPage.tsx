@@ -13,17 +13,14 @@ const labels: Record<string,string> = {
   RESTORE_REQUIRES_NEW_DIRECTORY:"请选择新的空目录，已有账本未改动。",
   DAILY_BACKUP_CONFIG_INVALID:"每日时间请输入 0 到 23 的整点小时。",
   DEVELOPER_LAUNCHER_REQUIRED:"请使用开发版启动命令打开软件，再进入开发部署。",
-  DEVELOPER_LOCAL_PATH_REQUIRED:"请选择本机完整目录。",
-  DEVELOPER_PATH_REPARSE_POINT:"目录包含重定向链接，请选择实际目录。",
+  FILESYSTEM_PATH_REQUIRED:"请选择完整的文件夹路径。",
   DEVELOPER_DIRECTORY_REQUIRED:"所选目录不存在。",
   DEVELOPER_LOOPBACK_HOST_REQUIRED:"此目录未配置为本机开发服务。远程或正式主机请通过连接设置读取。",
   DEVELOPER_CREDENTIAL_REQUIRED:"首次读取此账本需要验证管理员。",
   UNAUTHENTICATED:"管理员验证未通过，请核对所选账本的账号和密码。",
   DEVELOPER_EMPTY_DIRECTORY_REQUIRED:"新建账本需要空目录，已有内容已保留。",
   DEVELOPER_DATA_EXISTS:"当前目录已有账本，请选择新的空目录。",
-  BACKUP_DIRECTORY_CONFLICT:"账本和备份目录必须独立，不能相互包含。",
-  BACKUP_REQUIRES_EMPTY_DIRECTORY:"请选择新的空备份目录，旧备份会保留。",
-  DEVELOPER_OUTPUT_CONFLICT:"安装包目录必须与源码、账本和备份目录分开。",
+  BACKUP_DIRECTORY_CONFLICT:"普通备份和隐藏副本请选择不同目录；恢复位置不能覆盖现用数据。",
   DEVELOPER_BUILD_BUSY:"已有封包任务正在运行，请等待完成或取消。",
   DEVELOPER_PACKAGE_CONFIG_INVALID:"请填写有效版本号（如 0.1.0）和安装方式。",
   DEVELOPER_OPERATION_FAILED:"操作未完成，请检查目录、权限和服务状态。",
@@ -86,7 +83,7 @@ export function DeveloperPage({app}:{app:Workbench}) {
         <div className="developer-heading"><h2>数据与备份</h2><small className={available?"developer-connected":"muted"}>{available?"本机服务":"连接不可用"}</small></div>
         <div className="developer-path"><Field label="存储位置" compact><Input value={root} onChange={e=>setRoot(e.target.value)} title={root} disabled={disabled||building}/></Field><Button variant="outline" disabled={disabled||building} onClick={()=>void pick("developer_root",setRoot)}>选择目录</Button></div>
         <div className="developer-actions"><Button disabled={disabled||building||app.pending||!root} onClick={()=>void select(false)}>读取此位置</Button><Button variant="outline" disabled={disabled||building||app.pending} onClick={()=>setDialog("create")}>新建空账本</Button><Button variant="outline" disabled={disabled||building||app.pending} onClick={()=>{setError("");setDialog("restore");}}>导入备份</Button></div>
-        <div className="developer-source"><p>本机账本：{state?.root??"—"}</p><small>{state?`账本标识 ${state.ledger_id}`:"正在读取当前数据源"}</small>{state&&!connectedToLocal&&<small>当前业务连接未读取此账本，点击“读取此位置”连接。</small>}{error&&dialog===null&&<p className="inline-error" role="alert">{error}</p>}</div>
+        <div className="developer-source"><p>当前账本：{state?.root??"—"}</p><small>{state?`账本标识 ${state.ledger_id}`:"正在读取当前数据源"}</small>{state&&!connectedToLocal&&<small>当前业务连接未读取此账本，点击“读取此位置”连接。</small>}{error&&dialog===null&&<p className="inline-error" role="alert">{error}</p>}</div>
         <div className="developer-path"><Field label="备份位置" compact><Input value={backup} onChange={e=>setBackup(e.target.value)} title={backup} disabled={disabled||building}/></Field><Button variant="outline" disabled={disabled||building} onClick={()=>void pick("developer_backup",setBackup)}>选择目录</Button></div>
         <div className="developer-path"><Field label="隐藏位置" compact><Input value={hidden} onChange={e=>setHidden(e.target.value)} title={hidden} disabled={disabled||building}/></Field><Button variant="outline" disabled={disabled||building} onClick={()=>void pick("developer_hidden",setHidden)}>选择目录</Button></div>
         <Field label="每日时间" compact><Input type="number" min="0" max="23" value={hour} onChange={e=>setHour(e.target.value)} disabled={disabled||building} aria-label="每日备份小时（北京时间）"/></Field>
@@ -112,7 +109,7 @@ export function DeveloperPage({app}:{app:Workbench}) {
     </section>
     <Modal open={dialog!==null} onOpenChange={v=>{if(!disabled){setDialog(v?dialog:null);setPassword("");}}} title={dialog==="restore"?"导入备份":dialog==="create"?"新建空账本":"验证管理员"} compact className={`developer-dialog${dialog==="restore"?" developer-restore-dialog":""}`}>
       {error&&<p className="inline-error" role="alert">{error}</p>}
-      {dialog==="restore"?<><p>恢复到新的空目录，当前账本与草稿保留。</p><div className="developer-path"><Field label="恢复文件" compact><Input disabled={disabled} value={restoreFile} onChange={e=>setRestoreFile(e.target.value)}/></Field><Button variant="outline" disabled={disabled} onClick={()=>void pick("developer_recovery_file",setRestoreFile)}>选择文件</Button></div><div className="developer-path"><Field label="新存储位置" compact><Input disabled={disabled} value={restoreRoot} onChange={e=>setRestoreRoot(e.target.value)}/></Field><Button variant="outline" disabled={disabled} onClick={()=>void pick("developer_restore",setRestoreRoot)}>选择目录</Button></div></>:dialog==="create"?<><p className="developer-job-path">账本：{root}<br/>备份：{backup}</p><p>在两个空目录中初始化新账本。当前账本与草稿保留。</p></>:<><p>使用所选账本已有的管理员身份读取。</p><Field label="管理员账号" compact><Input autoComplete="username" value={username} onChange={e=>setUsername(e.target.value)}/></Field><Field label="密码" compact><Input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)}/></Field></>}
+      {dialog==="restore"?<><p>恢复到新的空目录，当前账本与草稿保留。</p><div className="developer-path"><Field label="恢复文件" compact><Input disabled={disabled} value={restoreFile} onChange={e=>setRestoreFile(e.target.value)}/></Field><Button variant="outline" disabled={disabled} onClick={()=>void pick("developer_recovery_file",setRestoreFile)}>选择文件</Button></div><div className="developer-path"><Field label="新存储位置" compact><Input disabled={disabled} value={restoreRoot} onChange={e=>setRestoreRoot(e.target.value)}/></Field><Button variant="outline" disabled={disabled} onClick={()=>void pick("developer_restore",setRestoreRoot)}>选择目录</Button></div></>:dialog==="create"?<><p className="developer-job-path">账本：{root}<br/>备份：{backup}</p><p>在空数据目录中初始化新账本。备份目录的已有文件、当前账本与草稿保留。</p></>:<><p>使用所选账本已有的管理员身份读取。</p><Field label="管理员账号" compact><Input autoComplete="username" value={username} onChange={e=>setUsername(e.target.value)}/></Field><Field label="密码" compact><Input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)}/></Field></>}
       <div className="dialog-actions"><Button variant="outline" disabled={disabled} onClick={()=>setDialog(null)}>取消</Button><Button disabled={disabled||(dialog==="restore"&&(!restoreFile||!restoreRoot))} onClick={()=>void (dialog==="restore"?run(async()=>{const r=await app.developerOperation({op:"restore_data",package:restoreFile,target:restoreRoot});if(r){hydrated.current=false;accept(r as unknown as Configuration);setDialog(null);}}):select(dialog==="create"))}>{dialog==="restore"?"导入并读取":dialog==="create"?"创建并读取":"验证并读取"}</Button></div>
     </Modal>
   </section>;

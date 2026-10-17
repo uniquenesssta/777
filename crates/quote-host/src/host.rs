@@ -141,15 +141,14 @@ pub fn initialize(v: Init) -> Result<Value> {
     let worker_sha = files::sha(&v.worker)?;
     let executable = std::env::current_exe()?;
     let host_sha = files::sha(&executable)?;
-    if v.root.exists() || v.backups.exists() || v.root == v.backups {
+    if v.root.exists() || v.root == v.backups {
         return fail(409, "HOST_REQUIRES_NEW_DIRECTORIES");
     }
     files::new_dir(&v.root)?;
     let private = v.root.join("private");
     files::new_dir(&private)?;
     let security = files::protect(&private, v.auxiliary)?;
-    files::new_dir(&v.backups)?;
-    let backup_security = files::protect(&v.backups, v.auxiliary)?;
+    let backup_destination = crate::backup::destination(&v.backups)?;
     let inventory = store::create(&private.join("ledger.sqlite3"))?;
     Auth::create(&private.join("auth.sqlite3"), &v.user, &v.secret)?;
     Outputs::create(
@@ -172,11 +171,7 @@ pub fn initialize(v: Init) -> Result<Value> {
     }
     files::new_file(&private.join("tls-key.pem"), key.serialize_pem().as_bytes())?;
     files::new_file(&private.join("tls-cert.pem"), cert.pem().as_bytes())?;
-    let storeid = uid()?;
-    files::replace_json(
-        &v.backups.join("777-backups.json"),
-        &json!({"format":"777-backups-v1","store_id":storeid,"security":backup_security,"backups":[],"last_success":null,"last_error":null}),
-    )?;
+    let storeid = &backup_destination["store_id"];
     let fingerprint = hash(cert.der());
     let config = json!({"schema":"777-host-v1","ledger_id":inventory["ledger_id"],"backup_store_id":storeid,"backup_dir":v.backups.to_string_lossy(),"bind":v.bind,"port":v.port,"certificate_sha256":fingerprint,"private_security":security,"maintenance":false,"ledger_backend":"rust","rust_worker_sha256":worker_sha,"service_backend":"rust","rust_host_sha256":host_sha});
     files::replace_json(&private.join("service.json"), &config)?;

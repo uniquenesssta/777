@@ -16,7 +16,7 @@ pub fn local(path: &Path, exists: bool) -> Result<()> {
     Ok(paths::local(path, exists)?)
 }
 pub fn dir(path: &Path) -> Result<()> {
-    if !fs::symlink_metadata(path)?.is_dir() {
+    if !fs::metadata(path)?.is_dir() {
         return fail(422, "DIRECTORY_INVALID");
     }
     local(&path.join(".777-path-check"), false)
@@ -161,6 +161,43 @@ impl Owner {
         Ok(Self { _file: f })
     }
 }
+/// Probe only our own unique file. Never alter a user-selected directory's ACL/attributes.
+pub fn writable_directory(path: &Path) -> Result<Value> {
+    dir(path)?;
+    let probe = path.join(format!(".777-write-check-{}", uid()?));
+    let result = new_file(&probe, b"777");
+    if probe.exists() {
+        fs::remove_file(&probe)?;
+    }
+    result?;
+    Ok(json!({"status":"existing_filesystem_permissions"}))
+}
+
+#[cfg(windows)]
+pub fn protect(path: &Path, auxiliary: bool) -> Result<Value> {
+    if auxiliary {
+        return fail(400, "WINDOWS_SECURITY_CANNOT_BE_DISABLED");
+    }
+    let inherited = writable_directory(path)?;
+    // Remote/removable destinations use the permissions already granted by their owner.
+    // Keep native hardening for supported local private directories, without requiring NTFS.
+    if paths::journal_mode(&path.join(".permission-check")) == "DELETE" {
+        return Ok(inherited);
+    }
+    match native_protect(path, auxiliary) {
+        Ok(value) => Ok(value),
+        Err(error)
+            if matches!(
+                error.code.as_str(),
+                "NATIVE_SECURITY_FAILED" | "PATH_PERMISSION_DENIED"
+            ) =>
+        {
+            Ok(inherited)
+        }
+        Err(error) => Err(error),
+    }
+}
+
 #[cfg(not(windows))]
 pub fn protect(path: &Path, auxiliary: bool) -> Result<Value> {
     dir(path)?;
@@ -170,7 +207,7 @@ pub fn protect(path: &Path, auxiliary: bool) -> Result<Value> {
     Ok(json!({"status":"auxiliary_no_native_security_claim"}))
 }
 #[cfg(windows)]
-pub fn protect(path: &Path, auxiliary: bool) -> Result<Value> {
+fn native_protect(path: &Path, auxiliary: bool) -> Result<Value> {
     use std::{ffi::c_void, os::windows::ffi::OsStrExt};
     if auxiliary {
         return fail(400, "WINDOWS_SECURITY_CANNOT_BE_DISABLED");

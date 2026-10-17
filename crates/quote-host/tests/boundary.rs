@@ -176,3 +176,22 @@ fn png_without_approved_readable_font_fails_explicitly() {
         "OUTPUT_CJK_FONT_UNAVAILABLE"
     );
 }
+
+#[cfg(unix)]
+#[test]
+fn selected_directory_alias_writes_and_shares_the_same_owner_lock() {
+    let temp = Temp::new();
+    let actual = temp.0.join("actual");
+    let alias = temp.0.join("selected alias");
+    std::fs::create_dir(&actual).unwrap();
+    std::os::unix::fs::symlink(&actual, &alias).unwrap();
+    files::writable_directory(&alias).unwrap();
+    files::new_file(&alias.join("keep.txt"), b"original").unwrap();
+    assert_eq!(std::fs::read(actual.join("keep.txt")).unwrap(), b"original");
+    let owner = files::Owner::acquire(&alias).unwrap();
+    assert!(files::Owner::acquire(&actual).is_err());
+    std::os::unix::fs::symlink(actual.join("keep.txt"), alias.join("file-link")).unwrap();
+    assert!(files::read(&alias.join("file-link"), 100).is_err());
+    drop(owner);
+    assert!(files::Owner::acquire(&actual).is_ok());
+}

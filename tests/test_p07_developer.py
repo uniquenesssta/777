@@ -163,10 +163,10 @@ class DeveloperTests(unittest.TestCase):
         self.assertEqual(state['root'],str(self.a))
         self.assertNotIn('password',json.dumps(state))
 
-    @unittest.skipIf(os.name=='nt','Windows reparse points covered by Windows native path boundary')
-    def test_symlink_path_rejected_before_any_command(self):
+    @unittest.skipIf(os.name=='nt','Windows junction exercised by native path integration')
+    def test_directory_alias_resolves_to_same_data_identity(self):
         alias=self.base/'alias';alias.symlink_to(self.a,target_is_directory=True)
-        with self.assertRaisesRegex(RuntimeError,'DEVELOPER_PATH_REPARSE_POINT'):local(alias)
+        self.assertEqual(local(alias, directory=True), local(self.a, directory=True))
 
 
 if __name__ == '__main__':unittest.main()

@@ -17,13 +17,11 @@ from quote_service.journal import dpapi
 
 def local(path, *, directory=False):
     p = Path(path)
-    if not p.is_absolute() or str(p).startswith(('\\\\', '//')):
-        raise RuntimeError('DEVELOPER_LOCAL_PATH_REQUIRED')
-    for ancestor in [p, *p.parents]:
-        if ancestor.is_symlink() or (ancestor.exists() and getattr(ancestor.stat(), 'st_file_attributes', 0) & 0x400):
-            raise RuntimeError('DEVELOPER_PATH_REPARSE_POINT')
+    if not p.is_absolute() or (os.name == 'nt' and str(p).startswith('\\\\.\\')):
+        raise RuntimeError('FILESYSTEM_PATH_REQUIRED')
     if directory and not p.is_dir():
         raise RuntimeError('DEVELOPER_DIRECTORY_REQUIRED')
+    # Canonical identity prevents aliases from bypassing existing-data protection.
     return p.resolve()
 
 
@@ -124,7 +122,7 @@ class Developer:
         binary = self.dev.ROOT / 'target/release' / ('quote-host.exe' if os.name == 'nt' else 'quote-host')
         worker = binary.with_name('quote-ledger.exe' if os.name == 'nt' else 'quote-ledger')
         if cfg.get('rust_host_sha256') != hashlib.sha256(binary.read_bytes()).hexdigest() or cfg.get('rust_worker_sha256') != hashlib.sha256(worker.read_bytes()).hexdigest():
-            # Existing host selection takes a verified maintenance backup before resource upgrades.
+            # Authenticate and validate existing resources before switching the selected host.
             self.dev.command(['select-host', '--root', str(root), '--admin', user, '--backend', 'rust', '--worker', str(worker), '--notices', str(self.dev.ROOT / 'THIRD_PARTY_NOTICES.md'), '--upgrade-resources'], secret)
 
     def start(self, root):
@@ -153,15 +151,13 @@ class Developer:
             return self.status()
         if initialize:
             backup = local(backup_dir)
-            for p in [root, backup]:
-                local(p.parent, directory=True)
-                if p.exists() and (not p.is_dir() or any(p.iterdir())):
-                    raise RuntimeError('DEVELOPER_EMPTY_DIRECTORY_REQUIRED')
-            if root == backup or root in backup.parents or backup in root.parents:
+            local(root.parent, directory=True)
+            if root.exists() and (not root.is_dir() or any(root.iterdir())):
+                raise RuntimeError('DEVELOPER_EMPTY_DIRECTORY_REQUIRED')
+            if root == backup:
                 raise RuntimeError('BACKUP_DIRECTORY_CONFLICT')
             user, secret = 'admin', secrets.token_urlsafe(32)
-            for p in [root, backup]:
-                if p.exists():p.rmdir()  # Explicitly selected, verified empty initialization targets.
+            if root.exists():root.rmdir()  # Explicitly selected empty initialization target.
             self.dev.command(['init', '--root', str(root), '--backup-dir', str(backup), '--host', '127.0.0.1', '--host', 'localhost', '--bind', '127.0.0.1', '--port', str(self.dev.PORT), '--admin', user, '--worker', str(self.dev.ROOT / 'target/release' / ('quote-ledger.exe' if os.name == 'nt' else 'quote-ledger')), '--notices', str(self.dev.ROOT / 'THIRD_PARTY_NOTICES.md')], secret)
         else:
             cfg = self.config(root)
@@ -227,11 +223,6 @@ class Developer:
         if package.suffix != '.qbackup' or not package.is_file():
             raise RuntimeError('DATA_BACKUP_INVALID')
         daily = self.status()['daily']
-        protected = [self.root, Path(self.config()['backup_dir']), self.dev.ROOT]
-        if daily['hidden_dir']:protected.append(Path(daily['hidden_dir']))
-        for location in map(local, protected):
-            if target == location or target in location.parents or location in target.parents:
-                raise RuntimeError('BACKUP_DIRECTORY_CONFLICT')
         if target.exists() and (not target.is_dir() or any(target.iterdir())):
             raise RuntimeError('RESTORE_REQUIRES_NEW_DIRECTORY')
         backup = target.with_name(target.name + '-backups')
@@ -249,15 +240,9 @@ class Developer:
     def package(self, delivery, connection):
         if os.name != 'nt':raise RuntimeError('WINDOWS_PACKAGING_REQUIRED')
         if delivery not in ['manager', 'sales']:raise RuntimeError('DELIVERY_REQUIRED')
-        hidden = self.status()['daily']['hidden_dir']
         with self.job_lock:
             if self.job and self.job['state'] in ['running', 'cancelling']:raise RuntimeError('DEVELOPER_BUILD_BUSY')
             output = package_preferences(self.preferences)
-            locations = [self.root, Path(self.config()['backup_dir']), self.dev.ROOT]
-            if hidden:locations.append(Path(hidden))
-            for protected in map(local, locations):
-                if output == protected or protected in output.parents or output in protected.parents:
-                    raise RuntimeError('DEVELOPER_OUTPUT_CONFLICT')
             output.mkdir(parents=True, exist_ok=True)
             local(output, directory=True)
             key = uuid.uuid4().hex
@@ -352,7 +337,8 @@ class Developer:
                     value = owner.handle(json.loads(self.rfile.read(length)))
                     result = {'value':value}
                 except Exception as error:
-                    code = str(error)
+                    code = ('PATH_PERMISSION_DENIED' if isinstance(error, PermissionError) else
+                            'PATH_UNAVAILABLE' if isinstance(error, FileNotFoundError) else str(error))
                     # CLI failures are structured JSON; never return arbitrary exception text/secrets.
                     try:code = json.loads(code)['error']
                     except (ValueError, KeyError, TypeError):pass

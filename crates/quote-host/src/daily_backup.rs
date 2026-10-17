@@ -43,14 +43,8 @@ pub fn status(s: &Service) -> Result<Value> {
 fn public_entry(e: &Value) -> Value {
     json!({"backup_id":e["snapshot_id"],"kind":"daily","created_at":e["created_at"],"business_date":e["date"],"verified_restore":true,"verification":"logical-ledger-inventory","format":recovery::FORMAT})
 }
-fn ensure_destination(s: &Service, p: &Path) -> Result<()> {
-    files::dir(p)?;
-    let p = p.canonicalize()?;
-    let root = s.root.canonicalize()?;
-    if p.starts_with(&root) || root.starts_with(&p) {
-        return fail(422, "BACKUP_DIRECTORY_CONFLICT");
-    }
-    Ok(())
+fn ensure_destination(_s: &Service, p: &Path) -> Result<()> {
+    files::dir(p)
 }
 fn deliver(s: &Service, target: &Path, date: &str, snapshot: &str, cache: &Path) -> Result<()> {
     ensure_destination(s, target)?;
@@ -232,27 +226,20 @@ pub fn configure(s: &Service, hidden: &Path, hour: u8) -> Result<Value> {
     ensure_destination(s, hidden)?;
     let normal = Path::new(s.config["backup_dir"].as_str().unwrap()).canonicalize()?;
     let h = hidden.canonicalize()?;
-    if h.starts_with(&normal) || normal.starts_with(&h) {
+    if h == normal {
         return fail(422, "BACKUP_DIRECTORY_CONFLICT");
     }
     let marker = hidden.join("777-hidden-data.json");
-    if marker.exists() {
-        if files::read_json(&marker)?["format"] != "777-hidden-data-v1" {
-            return fail(409, "BACKUP_STORE_IDENTITY_CONFLICT");
-        }
-    } else if fs::read_dir(hidden)?.next().is_some() {
-        return fail(409, "BACKUP_REQUIRES_EMPTY_DIRECTORY");
+    if marker.exists() && files::read_json(&marker)?["format"] != "777-hidden-data-v1" {
+        return fail(409, "BACKUP_STORE_IDENTITY_CONFLICT");
     }
-    files::protect(hidden, s.auxiliary)?;
+    files::writable_directory(hidden)?;
     if !marker.exists() {
         files::new_file(
             &marker,
             &serde_json::to_vec(&json!({"format":"777-hidden-data-v1"}))?,
         )?;
     }
-    let test = hidden.join(format!(".write-check-{}", store::uid()?));
-    files::new_file(&test, b"777")?;
-    fs::remove_file(test)?;
     let cfg = json!({"format":"777-daily-config-v1","hidden_dir":hidden.to_string_lossy(),"daily_hour":hour});
     files::replace_json(&s.root.join("private/daily-backup.json"), &cfg)?;
     Ok(cfg)

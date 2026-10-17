@@ -133,8 +133,10 @@ pub fn open(path: &Path, write: bool) -> Result<Connection> {
     c.execute_batch("PRAGMA foreign_keys=ON")?;
     verify(&c)?;
     if write {
-        let mode: String = c.query_row("PRAGMA journal_mode=WAL", [], |r| r.get(0))?;
-        if mode != "wal" {
+        let expected = paths::journal_mode(path);
+        let mode: String =
+            c.query_row(&format!("PRAGMA journal_mode={expected}"), [], |r| r.get(0))?;
+        if !mode.eq_ignore_ascii_case(expected) {
             return Err(Error::new("INVALID_DATABASE"));
         }
         c.execute_batch("PRAGMA synchronous=FULL")?;
@@ -161,7 +163,10 @@ pub fn create(path: &Path) -> Result<Value> {
     drop(owned);
     let make = || -> Result<Value> {
         let c = Connection::open(path)?;
-        c.execute_batch("PRAGMA foreign_keys=ON;PRAGMA journal_mode=WAL;PRAGMA synchronous=FULL;BEGIN IMMEDIATE")?;
+        c.execute_batch(&format!(
+            "PRAGMA foreign_keys=ON;PRAGMA journal_mode={};PRAGMA synchronous=FULL;BEGIN IMMEDIATE",
+            paths::journal_mode(path)
+        ))?;
         c.execute_batch(DDL)?;
         if schema_hash(&c)? != SCHEMA_HASH {
             return Err(Error::new("SCHEMA_SOURCE_MISMATCH"));

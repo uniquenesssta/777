@@ -42,6 +42,29 @@ fn manager(s: &Service) -> Result<(PathBuf, Value)> {
     }
     Ok((p, v))
 }
+/// Adopt a usable backup directory without replacing unrelated files or permissions.
+pub(crate) fn destination(path: &Path) -> Result<Value> {
+    if !path.exists() {
+        files::new_dir(path)?;
+    }
+    let security = files::writable_directory(path)?;
+    let marker = path.join("777-backups.json");
+    if marker.exists() {
+        let value = files::read_json(&marker)?;
+        if value["format"] != "777-backups-v1"
+            || !value["backups"].is_array()
+            || value["store_id"].as_str().is_none_or(|s| id(s).is_err())
+        {
+            return fail(409, "BACKUP_STORE_IDENTITY_CONFLICT");
+        }
+        return Ok(value);
+    }
+    let value = json!({"format":"777-backups-v1","store_id":store::uid()?,
+        "security":security,"backups":[],"last_success":null,"last_error":null});
+    files::new_file(&marker, &serde_json::to_vec(&value)?)?;
+    Ok(value)
+}
+
 pub fn status(s: &Service) -> Result<Value> {
     Ok(manager(s)?.1)
 }

@@ -49,6 +49,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Developer IPC driver build failed' }
           python tools/p07_developer_check.py --output reports/p07-06-ci
           if ($LASTEXITCODE -ne 0) { throw 'Developer source/backup checks failed' }
+      - name: Actual SMB mapped drive, hidden folders and selected junction paths
+        shell: pwsh
+        run: |
+          python tools/p07_paths_check.py --output reports/p07-06-paths
+          if ($LASTEXITCODE -ne 0) { throw 'Selected filesystem path checks failed' }
       - name: Device identity, manager/sales presentation and complete quote images
         shell: pwsh
         run: |
@@ -64,6 +69,7 @@ jobs:
             reports/p07-02-ci
             reports/p07-03-ci
             reports/p07-06-ci
+            reports/p07-06-paths
             desktop/test-results
           if-no-files-found: warn
   installers:

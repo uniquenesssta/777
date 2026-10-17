@@ -606,23 +606,7 @@ pub fn validate(raw: &[u8], payload: &Value) -> Result<()> {
     Ok(())
 }
 fn published_dir(path: &Path) -> Result<()> {
-    if !path.is_absolute() {
-        return fail(422, "OUTPUT_DIRECTORY_INVALID");
-    }
-    for p in path.ancestors() {
-        let m = fs::symlink_metadata(p)?;
-        if !m.is_dir() || m.file_type().is_symlink() {
-            return fail(422, "OUTPUT_DIRECTORY_UNSAFE");
-        }
-        #[cfg(windows)]
-        {
-            use std::os::windows::fs::MetadataExt;
-            if m.file_attributes() & 0x400 != 0 {
-                return fail(422, "OUTPUT_DIRECTORY_UNSAFE");
-            }
-        }
-    }
-    Ok(())
+    files::dir(path)
 }
 pub fn publish(source: &Path, root: &Path, name: &str, sha: &str) -> Result<PathBuf> {
     published_dir(root)?;

@@ -6,8 +6,15 @@ export function request<T>(
   return invoke<T>("desktop_action", { request: { action, ...data } });
 }
 const errors: Record<string, string> = {
-  DIRECTORY_DIALOG_UNAVAILABLE: "暂时无法打开文件夹选择窗口，请重试或填写共享路径。",
-  PUBLISHED_DIRECTORY_REQUIRES_UNC: "请选择网络共享文件夹，保存后其他电脑才能共用。",
+  DIRECTORY_DIALOG_UNAVAILABLE: "暂时无法打开文件夹选择窗口，请重试或填写完整路径。",
+  FILESYSTEM_PATH_REQUIRED: "请选择完整的文件夹路径。",
+  INVALID_PUBLISHED_DIRECTORY: "请选择有效的完整保存路径。",
+  PATH_PERMISSION_DENIED: "没有权限读写所选位置，请检查该文件夹或共享盘的权限。",
+  PATH_UNAVAILABLE: "所选位置无法访问，请检查磁盘或共享连接。",
+  PATH_ALREADY_EXISTS: "目标文件已存在，原文件已保留。",
+  PATH_TYPE_CONFLICT: "目标位置存在同名文件夹或文件链接，请检查后重试。",
+  BACKUP_STORE_IDENTITY_CONFLICT: "目录中的备份标识不匹配，已有文件未被覆盖。",
+  HOST_IO_UNAVAILABLE: "读写未完成，请检查剩余空间、文件占用和连接状态。",
   INVALID_DIRECTORY_TARGET: "请选择报价表或报价图片的保存位置。",
   INVALID_ANALYTICS_QUERY: "请检查图表分组和起止时间。",
   ANALYTICS_RANGE_TOO_LARGE: "时间范围过大，请缩小范围或改用周、月、年分组。",

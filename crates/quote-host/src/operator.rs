@@ -1,6 +1,5 @@
 //! Local, authenticated maintenance operations; never exposed as arbitrary client paths.
 use crate::{auth::Auth, backup, fail, files, service::Service, Result};
-use quote_ledger::store::uid;
 use serde_json::{json, Value};
 use std::path::Path;
 
@@ -41,51 +40,32 @@ pub fn configure_backup(
             // selecting a different, nonempty backup destination.
             let current = Path::new(s.config["backup_dir"].as_str().unwrap());
             if current.exists() && target.canonicalize()? == current.canonicalize()? {
+                files::writable_directory(target)?;
                 return backup::status(&s);
             }
         } else {
             files::local(&target.with_file_name(".777-parent-check"), false)?;
         }
-        let parent = target
-            .parent()
-            .ok_or_else(|| crate::Error::new(422, "BACKUP_PATH_INVALID"))?;
-        files::dir(parent)?;
-        let canonical_root = root.canonicalize()?;
         let candidate = if target.exists() {
             target.canonicalize()?
         } else {
+            let parent = target
+                .parent()
+                .ok_or_else(|| crate::Error::new(422, "BACKUP_PATH_INVALID"))?;
+            files::dir(parent)?;
             parent.canonicalize()?.join(target.file_name().unwrap())
         };
-        if candidate.starts_with(&canonical_root) || canonical_root.starts_with(&candidate) {
-            return fail(422, "BACKUP_DIRECTORY_CONFLICT");
-        }
         let daily = crate::daily_backup::config(&s)?;
         let hidden = daily["hidden_dir"].as_str().unwrap();
         if !hidden.is_empty() {
             let h = Path::new(hidden).canonicalize()?;
-            if candidate.starts_with(&h) || h.starts_with(&candidate) {
+            if candidate == h {
                 return fail(422, "BACKUP_DIRECTORY_CONFLICT");
             }
         }
-        if target.exists() {
-            files::dir(target)?;
-            if std::fs::read_dir(target)?.next().is_some() {
-                return fail(409, "BACKUP_REQUIRES_EMPTY_DIRECTORY");
-            }
-        } else {
-            files::new_dir(target)?;
-        }
-        let security = files::protect(target, auxiliary)?;
-        let store = uid()?;
-        files::new_file(
-            &target.join("777-backups.json"),
-            &serde_json::to_vec(&json!({
-                "format":"777-backups-v1","store_id":store,"security":security,
-                "backups":[],"last_success":null,"last_error":null
-            }))?,
-        )?;
+        let destination = backup::destination(target)?;
         s.config["backup_dir"] = json!(target.to_string_lossy());
-        s.config["backup_store_id"] = json!(store);
+        s.config["backup_store_id"] = destination["store_id"].clone();
         files::replace_json(&root.join("private/service.json"), &s.config)?;
         // Saving a location must not consume today's snapshot before later business writes.
         backup::status(&s)
@@ -113,7 +93,7 @@ pub fn configure_daily(
         None
     };
     let result = (|| {
-        if target == hidden || target.starts_with(hidden) || hidden.starts_with(target) {
+        if target == hidden {
             return fail(422, "BACKUP_DIRECTORY_CONFLICT");
         }
         if hour > 23 {

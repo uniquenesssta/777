@@ -343,38 +343,8 @@ fn directory(v: &Value) -> Result<String> {
     if s.chars().any(|c| c < ' ') {
         return fail(422, "INVALID_PUBLISHED_DIRECTORY");
     }
-    #[cfg(windows)]
-    {
-        if !s.starts_with("\\\\")
-            || s.starts_with("\\\\?\\")
-            || s.starts_with("\\\\.\\")
-            || s.chars().any(|c| "*?:<>|\"".contains(c))
-        {
-            return fail(422, "PUBLISHED_DIRECTORY_REQUIRES_UNC");
-        }
-        let parts = s[2..].split(['\\', '/']).collect::<Vec<_>>();
-        if parts.len() < 2 || parts[0].is_empty() || parts[1].is_empty() {
-            return fail(422, "PUBLISHED_DIRECTORY_REQUIRES_UNC");
-        }
-        let mut clean = parts[..2].to_vec();
-        for p in &parts[2..] {
-            match *p {
-                "." | "" => (),
-                ".." => {
-                    if clean.len() > 2 {
-                        clean.pop();
-                    }
-                }
-                _ => clean.push(p),
-            }
-        }
-        Ok(format!("\\\\{}", clean.join("\\")))
+    if !quote_ledger::paths::absolute(Path::new(s)) {
+        return fail(422, "INVALID_PUBLISHED_DIRECTORY");
     }
-    #[cfg(not(windows))]
-    {
-        if !Path::new(s).is_absolute() {
-            return fail(422, "INVALID_PUBLISHED_DIRECTORY");
-        }
-        Ok(s.to_string())
-    }
+    Ok(s.to_string())
 }

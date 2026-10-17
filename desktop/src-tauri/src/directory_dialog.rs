@@ -18,15 +18,12 @@ use windows::{
 fn unavailable(_: windows::core::Error) -> DesktopError {
     DesktopError::new(503, "DIRECTORY_DIALOG_UNAVAILABLE")
 }
-fn allowed_path(path: &str, local: bool) -> bool {
-    if path.starts_with("\\\\?\\") || path.starts_with("\\\\.\\") {
-        return false;
-    }
-    if local {
-        std::path::Path::new(path).is_absolute() && !path.starts_with("\\\\")
-    } else {
-        path.starts_with("\\\\")
-    }
+fn allowed_path(path: &str, _local: bool) -> bool {
+    use std::path::{Component, Path, Prefix};
+    let path = Path::new(path);
+    path.is_absolute()
+        && matches!(path.components().next(), Some(Component::Prefix(p)) if matches!(p.kind(),
+        Prefix::Disk(_) | Prefix::UNC(_, _) | Prefix::VerbatimDisk(_) | Prefix::VerbatimUNC(_, _)))
 }
 pub fn pick(owner: isize, initial: &str, local: bool, file: bool) -> Result<Option<String>> {
     unsafe {
@@ -53,10 +50,8 @@ pub fn pick(owner: isize, initial: &str, local: bool, file: bool) -> Result<Opti
             dialog
                 .SetTitle(&HSTRING::from(if file {
                     "选择 .qbackup 恢复文件"
-                } else if local {
-                    "选择本机文件夹"
                 } else {
-                    "选择共享保存文件夹"
+                    "选择保存文件夹"
                 }))
                 .map_err(unavailable)?;
             if !initial.is_empty() {
@@ -81,14 +76,7 @@ pub fn pick(owner: isize, initial: &str, local: bool, file: bool) -> Result<Opti
             CoTaskMemFree(Some(raw.0.cast()));
             let path = path.map_err(|_| DesktopError::new(503, "DIRECTORY_DIALOG_UNAVAILABLE"))?;
             if !allowed_path(&path, local) {
-                return Err(DesktopError::new(
-                    422,
-                    if local {
-                        "DEVELOPER_LOCAL_PATH_REQUIRED"
-                    } else {
-                        "PUBLISHED_DIRECTORY_REQUIRES_UNC"
-                    },
-                ));
+                return Err(DesktopError::new(422, "FILESYSTEM_PATH_REQUIRED"));
             }
             Ok(Some(path))
         })();
@@ -101,17 +89,14 @@ pub fn pick(owner: isize, initial: &str, local: bool, file: bool) -> Result<Opti
 mod tests {
     use super::allowed_path;
     #[test]
-    fn developer_local_selection_does_not_relax_shared_business_directories() {
+    fn all_folder_pickers_accept_filesystem_locations() {
         assert!(allowed_path(r"D:\中文 账本", true));
-        assert!(!allowed_path(r"D:\中文 账本", false));
+        assert!(allowed_path(r"D:\中文 账本", false));
         assert!(allowed_path(r"\\server\share\中文", false));
-        assert!(!allowed_path(r"\\server\share\中文", true));
-        for path in [
-            r"relative\path",
-            r"D:relative",
-            r"\\?\D:\data",
-            r"\\.\pipe\data",
-        ] {
+        assert!(allowed_path(r"\\server\share\中文", true));
+        assert!(allowed_path(r"\\?\D:\data", true));
+        assert!(allowed_path(r"\\?\UNC\server\share\data", false));
+        for path in [r"relative\path", r"D:relative", r"\\.\pipe\data"] {
             assert!(!allowed_path(path, true));
         }
     }
