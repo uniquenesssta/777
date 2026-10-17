@@ -1,7 +1,7 @@
 {
   "task": "P07-06 selectable filesystem folders",
-  "source_commit": "9014dbaefa6a2efd4132ab5b478a774097f0961b",
-  "status": "local_passed_windows_pending",
+  "source_commit": "a0ad75c895faca108581de7071a1b2e50b5b33ea",
+  "status": "windows_automated_passed_user_acceptance_pending",
   "local": {
     "platform": "Linux auxiliary only",
     "rust": "35 quote-host/quote-ledger tests passed after the final path-type changes; includes aliases, same-directory owner lock and unrelated sentinel-name directories",
@@ -54,37 +54,414 @@
     "integration_source": "f70e28b9ff3ac195e284c649d216d0315fc8e053"
   },
   "windows": {
-    "run_id": 38999331452,
-    "url": "https://github.com/uniquenesssta/777/actions/runs/38999331452",
-    "status": "directory_checks_passed_installer_fixture_failed",
-    "installer_failure": {
-      "manager_job": 117298928837,
-      "sales_job": 117298929045,
-      "error": "CLEAN_SOURCE_REQUIRED",
-      "cause": "windows-developer.mjs derived synthetic ledger/backup/recovery locations from the package destination parent. Moving the package destination into the source checkout also moved those unrelated test data directories into the checkout.",
-      "fix": "Give the UI fixture an explicit owned data root independent of the package destination; keep the actual package destination inside the checkout.",
-      "artifact": {
-        "id": 12088557487,
-        "sha256": "48af9ebbb5cf623c9c9ccb559e67c3086c6c9b96f1d9e1206e4566dac477a20d",
-        "sha256_verified": true
+    "run_id": 39001249889,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/39001249889",
+    "status": "completed_success",
+    "source_commit": "a0ad75c895faca108581de7071a1b2e50b5b33ea",
+    "jobs": [
+      {
+        "id": 117304571437,
+        "name": "installers (manager)",
+        "status": "completed",
+        "conclusion": "success"
       },
-      "verified_failure_state": {
-        "hidden_dir": "D:\\a\\777\\777\\隐藏每日副本",
-        "normal_backup_ok": true,
-        "hidden_backup_ok": true,
-        "package_output": "D:\\a\\777\\777\\package-location-check-85bfbc15d6ca417091573e8404e84103\\sales-0.1.0-de231385",
-        "job_state": "failed",
-        "job_log": [
-          "CLEAN_SOURCE_REQUIRED"
-        ]
+      {
+        "id": 117304571579,
+        "name": "desktop-contracts",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 117304571726,
+        "name": "installers (sales)",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "installers": {
+      "manager": {
+        "status": "actual_Windows_installer_lifecycle_and_native_auth_passed_user_acceptance_pending",
+        "source_commit": "a0ad75c895faca108581de7071a1b2e50b5b33ea",
+        "checks": [
+          "P07_05_actual_developer_UI_button_built_role_NSIS_package",
+          "two_real_role_locked_NSIS_packages_and_manifests_built",
+          "cross_role_install_directory_rejected",
+          "first-install_real_installed_native_auth_and_natural_close",
+          "upgrade_real_installed_native_auth_and_natural_close",
+          "unreviewed_direct_downgrade_rejected",
+          "compatible-rollback_real_installed_native_auth_and_natural_close",
+          "upgrade_uninstall_and_controlled_rollback_preserve_DPAPI_identity_and_webview_directory"
+        ],
+        "package_versions": [
+          "0.1.0",
+          "0.1.1"
+        ],
+        "runner_elevated": true,
+        "sandbox_cleaned": true,
+        "actual_developer_job": {
+          "delivery": "manager",
+          "version": "0.1.0",
+          "state": "succeeded",
+          "source_commit": "a0ad75c895faca108581de7071a1b2e50b5b33ea",
+          "output": "D:\\a\\777\\777\\package-location-check-3740eb0acfe44d5d8ee222d38f613e12\\manager-0.1.0-46097873",
+          "bytes": 35051297
+        }
+      },
+      "sales": {
+        "status": "actual_Windows_installer_lifecycle_and_native_auth_passed_user_acceptance_pending",
+        "source_commit": "a0ad75c895faca108581de7071a1b2e50b5b33ea",
+        "checks": [
+          "P07_05_actual_developer_UI_button_built_role_NSIS_package",
+          "two_real_role_locked_NSIS_packages_and_manifests_built",
+          "cross_role_install_directory_rejected",
+          "first-install_real_installed_native_auth_and_natural_close",
+          "upgrade_real_installed_native_auth_and_natural_close",
+          "unreviewed_direct_downgrade_rejected",
+          "compatible-rollback_real_installed_native_auth_and_natural_close",
+          "upgrade_uninstall_and_controlled_rollback_preserve_DPAPI_identity_and_webview_directory"
+        ],
+        "package_versions": [
+          "0.1.0",
+          "0.1.1"
+        ],
+        "runner_elevated": true,
+        "sandbox_cleaned": true,
+        "actual_developer_job": {
+          "delivery": "sales",
+          "version": "0.1.0",
+          "state": "succeeded",
+          "source_commit": "a0ad75c895faca108581de7071a1b2e50b5b33ea",
+          "output": "D:\\a\\777\\777\\package-location-check-ed9b2c9a66b44a69b6857dec1b396858\\sales-0.1.0-46816de4",
+          "bytes": 35045828
+        }
       }
     },
+    "artifacts": [
+      {
+        "id": 12090021206,
+        "name": "p07-05-sales-developer-ui",
+        "size_in_bytes": 1029093,
+        "digest": "sha256:3d69f28b3e22f12266e7afc4052afe2555541ffc02eb270ac87e989cb729fecc",
+        "downloaded_and_zip_hash_verified": true
+      },
+      {
+        "id": 12089901928,
+        "name": "p07-04-manager-isolated-installers",
+        "size_in_bytes": 271099748,
+        "digest": "sha256:b7a4464fc9fe3777f9df7fcdb0fa9590b27bb00f6879ecc48ace372f3f436e6a",
+        "downloaded_and_zip_hash_verified": false
+      },
+      {
+        "id": 12089389869,
+        "name": "p07-01-windows-evidence",
+        "size_in_bytes": 4113821,
+        "digest": "sha256:e0a9c82094a53a24a337431b4100b2417086b8d4a8789e9e1de8252eb9cc4b14",
+        "downloaded_and_zip_hash_verified": true
+      },
+      {
+        "id": 12089269470,
+        "name": "p07-05-manager-developer-ui",
+        "size_in_bytes": 1037069,
+        "digest": "sha256:0342444b210433693d9ab5122bcf19a57aec79d8d49bda682a5724671b28714d",
+        "downloaded_and_zip_hash_verified": true
+      },
+      {
+        "id": 12089179765,
+        "name": "p07-04-sales-isolated-installers",
+        "size_in_bytes": 271088063,
+        "digest": "sha256:51236a3b2eec4aa57e881dcd832a82448a85ada568273ee8bdac68e7546a2be5",
+        "downloaded_and_zip_hash_verified": false
+      }
+    ],
+    "visual_review": {
+      "reviewed": [
+        "sales succeeded 1440x884",
+        "sales restore dialog 1440x884",
+        "sales narrow 720x900",
+        "manager native 1028x749"
+      ],
+      "result": "No observed overlap; native viewport and CDP emulations are separate. User visual acceptance remains pending."
+    },
+    "completed_at": "2026-10-17T04:39:06Z",
     "passed_steps": [
+      "Actual role installer, upgrade, retained profiles and compatible rollback",
+      "Runner and owned native window lifecycle regression",
       "Windows build, real Rust HTTPS, browser and actual Tauri WebView2 lifecycle",
       "Developer source switching, daily dual-format backup and recovery",
-      "Actual SMB mapped drive, hidden folders and selected junction paths"
+      "Actual SMB mapped drive, hidden folders and selected junction paths",
+      "Device identity, manager/sales presentation and complete quote images",
+      "Actual role installer, upgrade, retained profiles and compatible rollback"
     ],
-    "remaining_step": "Device/presentation step superseded when publishing the installer fixture correction; complete final run still required."
+    "verified_reports": {
+      "reports/p07-06-ci/report.json": {
+        "task": "P07-06",
+        "platform": "nt",
+        "scope": "real debug native IPC, private controller and Rust HTTPS; no UI substitute",
+        "credential_storage": "Windows DPAPI",
+        "checks": [
+          "A_B_A_real_prices_orders_and_exact_totals_isolated",
+          "native_selected_directories_actual_Excel_and_Windows_PNG_outputs",
+          "nonempty_initialization_keeps_original_files_and_active_source",
+          "populated_destinations_preserve_existing_files_and_hidden_system_attributes",
+          "dual_formats_identical_in_both_destinations_independent_failures_retry_same_snapshot_no_legacy_deletion",
+          "public_API_cannot_change_daily_policy_or_observe_hidden_destination",
+          "real_native_import_restores_business_view_preserves_original_rejects_corruption_future_version_and_overwrite",
+          "saved_config_and_credentials_restart_with_same_actual_ledger"
+        ],
+        "status": "passed",
+        "production_paths_accessed": false,
+        "workspace": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\777-developer-check-cygq3pzq",
+        "backup": {
+          "ledger_id": "0e65c276-854d-4010-b604-b0699e333965",
+          "snapshot_id": "172a74af-c2ba-40b6-8eb8-eb16063ef9e4",
+          "hashes": {
+            "data.qbackup": "6b0693a20b5b4251b05d7b382b212c46b5d8f1c15bc2b954360173f8015279ce",
+            "data.xlsx": "6eb0831197213f4210f13220438b83e9695d39e9221095876d64892d6972abbe"
+          },
+          "bytes": {
+            "data.qbackup": 134216,
+            "data.xlsx": 27697
+          }
+        }
+      },
+      "reports/p07-06-paths/report.json": {
+        "task": "P07-06 selectable folders",
+        "status": "passed",
+        "production_paths_accessed": false,
+        "source_commit": "a0ad75c895faca108581de7071a1b2e50b5b33ea",
+        "mapping": {
+          "drive": "Z:",
+          "share": "\\\\localhost\\777-check-d236952fe62a"
+        },
+        "owned_share_cleanup": true
+      },
+      "reports/p07-06-paths/shared/report.json": {
+        "task": "P07-06",
+        "platform": "nt",
+        "scope": "real debug native IPC, private controller and Rust HTTPS; no UI substitute",
+        "credential_storage": "Windows DPAPI",
+        "checks": [
+          "actual_UNC_ledger_uses_rollback_journal",
+          "A_B_A_real_prices_orders_and_exact_totals_isolated",
+          "native_selected_directories_actual_Excel_and_Windows_PNG_outputs",
+          "nonempty_initialization_keeps_original_files_and_active_source",
+          "populated_destinations_preserve_existing_files_and_hidden_system_attributes",
+          "raw_selected_alias_accepted_by_Rust_CLI_and_same_backup_identity_reused",
+          "read_only_share_reports_permission_denied_and_preserves_configuration",
+          "dual_formats_identical_in_both_destinations_independent_failures_retry_same_snapshot_no_legacy_deletion",
+          "public_API_cannot_change_daily_policy_or_observe_hidden_destination",
+          "real_native_import_restores_business_view_preserves_original_rejects_corruption_future_version_and_overwrite",
+          "saved_config_and_credentials_restart_with_same_actual_ledger"
+        ],
+        "status": "passed",
+        "production_paths_accessed": false,
+        "workspace": "\\\\localhost\\777-check-d236952fe62a\\777-developer-check-w9izf62t",
+        "backup": {
+          "ledger_id": "b63a22d1-1bb6-4b3f-8011-4efd8758fce9",
+          "snapshot_id": "7e482632-cc18-45ee-8fae-cfe412c0ddf2",
+          "hashes": {
+            "data.qbackup": "915b7c414b0a9e07cfbf3d36c589c6cca8ca5e9c9fc9291f22f748a713bf7aae",
+            "data.xlsx": "017be2593ff86cf8d89d163e907482fccd05ab514bbbfd7daa105ada3341d73f"
+          },
+          "bytes": {
+            "data.qbackup": 134118,
+            "data.xlsx": 27724
+          }
+        }
+      },
+      "reports/p07-06-paths/junction/report.json": {
+        "task": "P07-06",
+        "platform": "nt",
+        "scope": "real debug native IPC, private controller and Rust HTTPS; no UI substitute",
+        "credential_storage": "Windows DPAPI",
+        "checks": [
+          "A_B_A_real_prices_orders_and_exact_totals_isolated",
+          "native_selected_directories_actual_Excel_and_Windows_PNG_outputs",
+          "nonempty_initialization_keeps_original_files_and_active_source",
+          "populated_destinations_preserve_existing_files_and_hidden_system_attributes",
+          "raw_selected_alias_accepted_by_Rust_CLI_and_same_backup_identity_reused",
+          "dual_formats_identical_in_both_destinations_independent_failures_retry_same_snapshot_no_legacy_deletion",
+          "public_API_cannot_change_daily_policy_or_observe_hidden_destination",
+          "real_native_import_restores_business_view_preserves_original_rejects_corruption_future_version_and_overwrite",
+          "saved_config_and_credentials_restart_with_same_actual_ledger"
+        ],
+        "status": "passed",
+        "production_paths_accessed": false,
+        "workspace": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\777-paths-w1ojln9_\\junction-target\\777-developer-check-_q021igw",
+        "backup": {
+          "ledger_id": "d51e3e4b-f440-460e-bb54-6dbc925b6c06",
+          "snapshot_id": "2458a17d-fbf4-4628-a1cd-053d93d77b31",
+          "hashes": {
+            "data.qbackup": "c29cad9f7aba15cf35fb3251688356a166179e7c42cc3e1a094fa651a21f9e53",
+            "data.xlsx": "1484dfe8d86fbdbea50883fab796a3a2ce3eed9b18377ea4fdf0deb534f30d55"
+          },
+          "bytes": {
+            "data.qbackup": 133854,
+            "data.xlsx": 27722
+          }
+        }
+      }
+    },
+    "evidence_report_sha256": {
+      "reports/p07-06-ci/report.json": "9373877e901c6d72e76d789bde4504d38a3dc6be62fc6937ce74a8430fa634ab",
+      "reports/p07-06-paths/report.json": "253afd71aedf929669a1071314c1c576a3a9f7930cb1d3600faa18071fe09176",
+      "reports/p07-06-paths/shared/report.json": "9ea4556e0fb658a7e567004657b2b2f2f761115053caa291866a9a0192096440",
+      "reports/p07-06-paths/junction/report.json": "4c1008e2dcd1742b89f07e2d055eaa623effd7ba4e177e525bc6288dffe2aa5c",
+      "reports/p07-01-ci/report.json": "d2544655fc686c44b17532ea7fdbf05f4e8b48677483af183eb25319846aa49c",
+      "reports/p07-03-ci/report.json": "1c60142ba4f570e05377baa61aea71ee24ddea8cdda1ae0bac7f8228406cf5cd",
+      "desktop/test-results/report.json": "9f37463449f7f4a777b8fa19c5c42d2e7617d6c6a1a2d0addfcd11e4579a3cf8"
+    },
+    "regressions": {
+      "desktop_status": "Windows_CI_build_protocol_browser_and_native_window_passed_visual_acceptance_pending",
+      "business_protocol": {
+        "status": "passed",
+        "checks": [
+          "certificate_pin_rejected_before_request",
+          "real_Rust_HTTPS_login_no_token_crosses_IPC",
+          "exact_cents_revision_and_frozen_draft_submission",
+          "append_only_note_void_restore_original_amount_and_revision",
+          "full_20_row_pagination_and_view_binding",
+          "authoritative_calendar_analytics_over_all_pages_through_native_HTTPS",
+          "exact_rolling_24_hours_reaches_service_and_future_interval_is_empty",
+          "authoritative_profit_OHLC_survives_native_IPC_and_HTTPS_with_empty_bucket_continuity",
+          "native_output_task_does_not_rebook_financial_order",
+          "sales_DTO_other_actor_and_management_commands_restricted",
+          "sales_native_analytics_and_directory_dialog_denied",
+          "service_independently_denies_sales_analytics_over_real_HTTPS",
+          "native_host_and_desktop_restart_original_receipt_identity_and_no_duplicate",
+          "money_above_JavaScript_integer_limit_remains_exact_string",
+          "server_price_change_refuses_stale_confirmation_without_booking",
+          "manual_cost_plus_final_prices_exact_preview_canonical_backup_restore_restart_frozen_orders_and_sales_redaction"
+        ],
+        "actual_transport": "Rust desktop IPC dispatcher -> Rustls pinned HTTPS -> standalone Rust host",
+        "production_paths_accessed": false,
+        "Windows_DPAPI": true,
+        "scope": "owned temporary profile, synthetic accounts/prices/orders, no installed service or real data",
+        "sandbox_cleaned": true
+      },
+      "device_protocol": {
+        "status": "passed",
+        "checks": [
+          "manager_native_bootstrap_without_secret_IPC",
+          "formal_manual_login_direct_invoke_rejected",
+          "two_devices_same_stable_sales_actor_and_filtered_prices",
+          "restart_uses_same_DPAPI_device_and_actor",
+          "sales_cannot_read_other_actor_or_backups",
+          "same_actor_devices_share_own_orders_only",
+          "expired_session_recovers_without_password_or_identity_change",
+          "unknown_commit_restart_queries_original_receipt_without_duplicate",
+          "copied_credential_rejected_in_other_profile",
+          "one_device_revocation_rejects_live_session_without_affecting_peer",
+          "operator_new_grant_reauthorizes_revoked_device_without_deleting_pending",
+          "v1_data_restore_preserves_ledger_without_old_devices_sessions_grants"
+        ],
+        "Windows_DPAPI": true,
+        "production_paths_accessed": false
+      },
+      "native_business": [
+        {
+          "delivery": "manager",
+          "status": "passed",
+          "actual_IPC_HTTPS_submit": true,
+          "published_images": {
+            "files": [
+              {
+                "width": 1200,
+                "height": 1840,
+                "job_id": "268e87d1-4450-4f8d-84b5-f3d9cef599c3",
+                "sha256": "f1c6d5721fbe8475eda9ff190d68e5e4f25ea64b58f42f347e0f38c296dd3aaf"
+              },
+              {
+                "width": 1200,
+                "height": 1840,
+                "job_id": "6804488b-74ad-41fb-b7d6-0e560ec30a06",
+                "sha256": "9c3851fdf9537e81b4415bcb8c26654c39f2785ba0f3468c7b74491da1e1389a"
+              }
+            ],
+            "Chinese_path": true,
+            "no_overwrite": true,
+            "order_count_unchanged": true,
+            "saved_lines": 40,
+            "last_line_pixels_present": true
+          },
+          "actual_OS_window_DPI": 96,
+          "sandbox_cleaned": true,
+          "natural_close_seconds": 0.094
+        },
+        {
+          "delivery": "sales",
+          "status": "passed",
+          "actual_IPC_HTTPS_submit": true,
+          "published_images": {
+            "files": [
+              {
+                "width": 1200,
+                "height": 1840,
+                "job_id": "3064e16f-1817-4838-90ff-be52b7651cbe",
+                "sha256": "7833f970ca578f7490308c32f108cab1226330c7c42a0a2e65e2a135c49ccb9b"
+              },
+              {
+                "width": 1200,
+                "height": 1840,
+                "job_id": "fcaf87d0-e15b-4ae8-8ddb-e1b33ab22222",
+                "sha256": "18edb6096e355896152484daf37ce64a57383a5481ca39643b32fdd3bddabcec"
+              }
+            ],
+            "Chinese_path": true,
+            "no_overwrite": true,
+            "order_count_unchanged": true,
+            "saved_lines": 40,
+            "last_line_pixels_present": true
+          },
+          "actual_OS_window_DPI": 96,
+          "sandbox_cleaned": true,
+          "natural_close_seconds": 0.094
+        }
+      ],
+      "browser_stats": {
+        "startTime": "2026-10-17T04:25:58.037Z",
+        "duration": 107311.922,
+        "expected": 26,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "tests": {
+        "Windows_tools": {
+          "total": 48,
+          "passed": 47,
+          "POSIX_only_skipped": 1
+        },
+        "frontend": {
+          "passed": 34,
+          "failed": 0
+        },
+        "Rust_workspace": {
+          "passed": 81,
+          "failed": 0
+        }
+      }
+    },
+    "fingerprints_against_tested_commit": {
+      "p07-01-ci": {
+        "entries": 92,
+        "tracked_matches": 92,
+        "not_in_commit": [],
+        "mismatches": [],
+        "source_commit": "a0ad75c895faca108581de7071a1b2e50b5b33ea",
+        "worktree_dirty": false
+      },
+      "p07-03-ci": {
+        "entries": 171,
+        "tracked_matches": 170,
+        "not_in_commit": [
+          "desktop/src-tauri/permissions/autogenerated/desktop_action.toml"
+        ],
+        "mismatches": [],
+        "source_commit": "a0ad75c895faca108581de7071a1b2e50b5b33ea",
+        "worktree_dirty": false
+      }
+    }
   },
   "user_environment": {
     "Z_drive": "not accessed",
@@ -103,6 +480,157 @@
       "source_commit": "7c34de68d89064271fd12c9324134f863561a2e3",
       "status": "superseded_before_completion",
       "reason": "Final path review removed fixed sentinel-name collisions and blanket reparse attributes; regular file/symlink checks remain."
+    },
+    {
+      "run_id": 38999331452,
+      "url": "https://github.com/uniquenesssta/777/actions/runs/38999331452",
+      "status": "directory_checks_passed_installer_fixture_failed",
+      "installer_failure": {
+        "manager_job": 117298928837,
+        "sales_job": 117298929045,
+        "error": "CLEAN_SOURCE_REQUIRED",
+        "cause": "windows-developer.mjs derived synthetic ledger/backup/recovery locations from the package destination parent. Moving the package destination into the source checkout also moved those unrelated test data directories into the checkout.",
+        "fix": "Give the UI fixture an explicit owned data root independent of the package destination; keep the actual package destination inside the checkout.",
+        "artifact": {
+          "id": 12088557487,
+          "sha256": "48af9ebbb5cf623c9c9ccb559e67c3086c6c9b96f1d9e1206e4566dac477a20d",
+          "sha256_verified": true
+        },
+        "verified_failure_state": {
+          "hidden_dir": "D:\\a\\777\\777\\隐藏每日副本",
+          "normal_backup_ok": true,
+          "hidden_backup_ok": true,
+          "package_output": "D:\\a\\777\\777\\package-location-check-85bfbc15d6ca417091573e8404e84103\\sales-0.1.0-de231385",
+          "job_state": "failed",
+          "job_log": [
+            "CLEAN_SOURCE_REQUIRED"
+          ]
+        }
+      },
+      "passed_steps": [
+        "Windows build, real Rust HTTPS, browser and actual Tauri WebView2 lifecycle",
+        "Developer source switching, daily dual-format backup and recovery",
+        "Actual SMB mapped drive, hidden folders and selected junction paths"
+      ],
+      "remaining_step": "Device/presentation step superseded when publishing the installer fixture correction; complete final run still required.",
+      "source_commit": "9014dbaefa6a2efd4132ab5b478a774097f0961b",
+      "verified_log_reports": [
+        {
+          "task": "P07-06",
+          "platform": "nt",
+          "scope": "real debug native IPC, private controller and Rust HTTPS; no UI substitute",
+          "credential_storage": "Windows DPAPI",
+          "checks": [
+            "A_B_A_real_prices_orders_and_exact_totals_isolated",
+            "native_selected_directories_actual_Excel_and_Windows_PNG_outputs",
+            "nonempty_initialization_keeps_original_files_and_active_source",
+            "populated_destinations_preserve_existing_files_and_hidden_system_attributes",
+            "dual_formats_identical_in_both_destinations_independent_failures_retry_same_snapshot_no_legacy_deletion",
+            "public_API_cannot_change_daily_policy_or_observe_hidden_destination",
+            "real_native_import_restores_business_view_preserves_original_rejects_corruption_future_version_and_overwrite",
+            "saved_config_and_credentials_restart_with_same_actual_ledger"
+          ],
+          "status": "passed",
+          "production_paths_accessed": false,
+          "workspace": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\777-developer-check-16pz2iuw",
+          "backup": {
+            "ledger_id": "aad8dbea-e105-450c-bd31-55ad12760998",
+            "snapshot_id": "e68024fa-9a79-48e2-a04e-b3d8faac01a7",
+            "hashes": {
+              "data.qbackup": "963abebf594ad12bf33e73c51c50c9fa3e08850a59bf6ded9808209ab7fabbce",
+              "data.xlsx": "222e32317327eec6a06d2c2c9e7b9894d4b209321d242a38047802dd2f951b21"
+            },
+            "bytes": {
+              "data.qbackup": 132396,
+              "data.xlsx": 27693
+            }
+          }
+        },
+        {
+          "task": "P07-06",
+          "platform": "nt",
+          "scope": "real debug native IPC, private controller and Rust HTTPS; no UI substitute",
+          "credential_storage": "Windows DPAPI",
+          "checks": [
+            "actual_UNC_ledger_uses_rollback_journal",
+            "A_B_A_real_prices_orders_and_exact_totals_isolated",
+            "native_selected_directories_actual_Excel_and_Windows_PNG_outputs",
+            "nonempty_initialization_keeps_original_files_and_active_source",
+            "populated_destinations_preserve_existing_files_and_hidden_system_attributes",
+            "raw_selected_alias_accepted_by_Rust_CLI_and_same_backup_identity_reused",
+            "read_only_share_reports_permission_denied_and_preserves_configuration",
+            "dual_formats_identical_in_both_destinations_independent_failures_retry_same_snapshot_no_legacy_deletion",
+            "public_API_cannot_change_daily_policy_or_observe_hidden_destination",
+            "real_native_import_restores_business_view_preserves_original_rejects_corruption_future_version_and_overwrite",
+            "saved_config_and_credentials_restart_with_same_actual_ledger"
+          ],
+          "status": "passed",
+          "production_paths_accessed": false,
+          "workspace": "\\\\localhost\\777-check-9bfae5924d30\\777-developer-check-0ico_e4f",
+          "backup": {
+            "ledger_id": "a4af945d-b581-438f-8f3b-944f211ce1ce",
+            "snapshot_id": "14d18933-7184-4849-9b16-62855db8bb2f",
+            "hashes": {
+              "data.qbackup": "163aff88babfbacb4bff4c99820918b943ef43c7a7d2d9d37f62556cdae69e92",
+              "data.xlsx": "9abdb84cdc1c0176b36a1384a6160125e9288997d73f72a332fa5910c2302425"
+            },
+            "bytes": {
+              "data.qbackup": 134810,
+              "data.xlsx": 27730
+            }
+          }
+        },
+        {
+          "task": "P07-06",
+          "platform": "nt",
+          "scope": "real debug native IPC, private controller and Rust HTTPS; no UI substitute",
+          "credential_storage": "Windows DPAPI",
+          "checks": [
+            "A_B_A_real_prices_orders_and_exact_totals_isolated",
+            "native_selected_directories_actual_Excel_and_Windows_PNG_outputs",
+            "nonempty_initialization_keeps_original_files_and_active_source",
+            "populated_destinations_preserve_existing_files_and_hidden_system_attributes",
+            "raw_selected_alias_accepted_by_Rust_CLI_and_same_backup_identity_reused",
+            "dual_formats_identical_in_both_destinations_independent_failures_retry_same_snapshot_no_legacy_deletion",
+            "public_API_cannot_change_daily_policy_or_observe_hidden_destination",
+            "real_native_import_restores_business_view_preserves_original_rejects_corruption_future_version_and_overwrite",
+            "saved_config_and_credentials_restart_with_same_actual_ledger"
+          ],
+          "status": "passed",
+          "production_paths_accessed": false,
+          "workspace": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\777-paths-p8eldja1\\junction-target\\777-developer-check-avu369ph",
+          "backup": {
+            "ledger_id": "9b6d36a1-39f0-48d5-b09c-9c1faf09732e",
+            "snapshot_id": "c6691c81-654e-4f11-b8fd-03416bf7e9f2",
+            "hashes": {
+              "data.qbackup": "e47781e7567822796d6318826cbfb7e2cf74c94c7e14095cf23535e5472eb790",
+              "data.xlsx": "93fd81478ecd842219482eff0630cc28425d811e6d85dd23d4479af07acf34c2"
+            },
+            "bytes": {
+              "data.qbackup": 132738,
+              "data.xlsx": 27727
+            }
+          }
+        },
+        {
+          "task": "P07-06 selectable folders",
+          "status": "passed",
+          "production_paths_accessed": false,
+          "source_commit": "9014dbaefa6a2efd4132ab5b478a774097f0961b",
+          "mapping": {
+            "drive": "Z:",
+            "share": "\\\\localhost\\777-check-9bfae5924d30"
+          },
+          "owned_share_cleanup": true
+        }
+      ]
     }
-  ]
+  ],
+  "runtime_unchanged_from": "9014dbaefa6a2efd4132ab5b478a774097f0961b",
+  "remaining_acceptance": [
+    "Actual user Z drive and physical removable disk permissions; isolated SMB and directory-junction coverage does not access those devices.",
+    "Actual Excel/WPS opening and version; automatic parsing is not that acceptance.",
+    "User UI acceptance; P07-05/06 remain pending, P08 not started."
+  ],
+  "source_after_validation": "Final evidence commit changes documentation only; tested executable source remains a0ad75c895faca108581de7071a1b2e50b5b33ea."
 }

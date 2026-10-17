@@ -4,7 +4,7 @@
 
 **当前执行[P07-05开发者存储与一键封包UI](now/P07-tauri-desktop.md#当前追加任务p07-05-开发者存储与一键封包-ui)，用户在任务书后授权开始；Figma与目录/读取/备份/母子封包已接入，本地辅助及[f30fa59 Windows三项检查](verification/P07-05-ci-evidence-03.json)全部通过，真实开发窗口母子封包、安装回退和数据/备份验证完成；用户签收待完成。01至04原[验收/交接](verification/P07-acceptance.json)保持；因追加05，唯一P07任务书移回now。分支仍为`stage/p07-tauri-desktop`，追加基线de14a12；P08-01待本项完成后另行启动。**
 
-2026-10-17新增：[P07-06每日双格式备份与开发者预设隐藏副本](now/P07-tauri-desktop.md#p07-06-每日双格式备份与开发者预设隐藏副本)已按用户“开始P07-06”完成实现，先Figma后UI，[5662c76 Windows三项检查](verification/P07-06-ci-evidence-02.json)全部通过；实际Excel/WPS与用户验收待完成。仅每日可导入恢复的数据文件与Excel阅读文件，以及两种文件的隐藏副本，取代旧备份方案中的冲突要求。05待签收状态保持；P08须待05与06完成后另行授权启动。
+2026-10-17新增：[P07-06每日双格式备份与开发者预设隐藏副本](now/P07-tauri-desktop.md#p07-06-每日双格式备份与开发者预设隐藏副本)已按用户“开始P07-06”完成实现，先Figma后UI，[5662c76 Windows三项检查](verification/P07-06-ci-evidence-02.json)全部通过；实际Excel/WPS与用户验收待完成。仅每日可导入恢复的数据文件与Excel阅读文件，以及两种文件的隐藏副本，取代旧备份方案中的冲突要求。目录追加后的[a0ad75c Windows三项检查](verification/P07-06-paths-evidence.json)也全部通过，覆盖SMB/映射盘/Hidden+System、目录连接、双格式恢复和源码目录内母子封包。05待签收状态保持；P08须待05与06完成后另行授权启动。
 
 ## 1. 目标与边界
 
@@ -27,7 +27,7 @@ P01至P06及P07-01至04原范围已验收；P07因追加05移回now。原Windows
 | P04 | [后台任务与性能](old/P04-performance.md) | P03已验收 | stage/p04-performance（已转接） | 01/02/03已验收，04短诊断通过；用户确认停电、授权先P05；正式06全档通过已按[用户接续](verification/P04-acceptance.json)验收收尾，无需重跑 |
 | P05 | [结构化存储与局域网服务](old/P05-data-service.md) | P04已验收 | stage/p05-data-service（历史） | [隔离交付已收尾](verification/P05-acceptance.json)，Windows52/52原证据保持；真实部署及历史切换交接后续 |
 | P06 | [Rust业务核心与适配](old/P06-rust-core.md) | 用户授权P05交接 | stage/p06-rust-core | [四项均已验收归档](verification/P06-acceptance.json)；Windows CI及本机212专项/43 Rust/561对照、原窗口/DPAPI/ACL/系统图片/v4恢复和资源核对通过，无需重跑 |
-| P07 | [Tauri界面与Windows交付](now/P07-tauri-desktop.md) | P06已验收 | stage/p07-tauri-desktop | 01至04原验收保持；新增05已完成Figma与功能接入；母子Windows实际UI封包、目录/备份检查通过，最终Windows回归通过；用户签收待完成；06任务书已建立，实施待启动 |
+| P07 | [Tauri界面与Windows交付](now/P07-tauri-desktop.md) | P06已验收 | stage/p07-tauri-desktop | 01至04原验收保持；新增05已完成Figma与功能接入；母子Windows实际UI封包、目录/备份检查通过，最终Windows回归通过；用户签收待完成；06每日双格式备份及目录追加已实现，a0ad75c Windows三项检查通过，用户路径/Excel验收待完成 |
 | P08 | [迁移演练与正式切换](new/P08-cutover.md) | P07含追加05与06完成 | stage/p08-cutover | 待启动；先交付开发UI，再按授权全量对账、恢复演练及用户验收后才切换 |
 
 P01→P02→P03→P04 是现有Python的必要改进；P05把存储和服务契约固定并实现过渡链路；P06复用已验证样本/协议迁移到Rust；P07接界面；P08生产迁移。P05优先复用Python已有业务核心，避免先后造两套规则；Rust切换复用同一schema和API。若决定直接把P05的服务实现并入P06，须先调整任务依赖/验收和取得相应阶段授权，不能默默跳过门槛。
