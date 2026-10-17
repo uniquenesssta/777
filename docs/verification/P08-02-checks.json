@@ -28,7 +28,8 @@
     "deployment_policy_units": {
       "status": "passed",
       "tests": 4,
-      "mock_native_prepare": true
+      "mock_native_prepare": true,
+      "latest_rerun": "passed after canonical host-root correction"
     },
     "typescript": {
       "status": "passed",
@@ -80,7 +81,7 @@
     "auxiliary_scope": "No Windows, Linux or macOS product acceptance is claimed by these local checks.",
     "logs": {
       "path": "docs/verification/P08-02-auxiliary.log",
-      "sha256": "109ffabf72eb9e9ad53f779c4ebfcc9ce5c1cc732cfc53ee94194178904ae8fc",
+      "sha256": "1eb1389041ef1e5ae9bfc64b8c23bc681600b5938992303346bfc911d7f4cf9f",
       "inputs": [
         {
           "name": "frontend_unit",
@@ -121,6 +122,11 @@
           "name": "native_supervisor",
           "bytes": 379,
           "sha256": "a9a7961de7d26c17cb37ff1a9d2943f2f71939082e0f527571893bef045c27dc"
+        },
+        {
+          "name": "deployment_unit_after_canonical_root_fix",
+          "bytes": 850,
+          "sha256": "881ac0dc31f9782373f44672d025ffc63f02fa99a6334b777110cc81085d2531"
         }
       ],
       "normalization": "ANSI color removed and trailing whitespace trimmed; original input SHA256 values retained"
@@ -143,7 +149,7 @@
     "layout_scope": "display aliases in existing settings layout"
   },
   "windows_ci": {
-    "status": "in_progress",
+    "status": "first_run_failed_canonical_root_fix_pending_push",
     "workflow": ".github/workflows/p07-windows.yml",
     "installers": "skipped by default; cancelled preparation validation not rerun",
     "previous": {
@@ -161,14 +167,15 @@
     "observed_at": "2026-10-17T15:04:36.766797+00:00",
     "desktop_contracts_job": {
       "id": 117427242146,
-      "status": "in_progress",
-      "conclusion": null
+      "status": "completed",
+      "conclusion": "failure"
     },
     "installers_job": {
       "id": 117427243227,
       "status": "completed",
       "conclusion": "skipped"
-    }
+    },
+    "failure_record": "docs/verification/P08-02-windows-ci.json"
   },
   "site": {
     "live_hosts_contacted": false,
@@ -202,7 +209,7 @@
   "source_sha256": {
     "crates/quote-host/src/main.rs": "84e5f55cfa1cda7392635bac98756029c86bbd0cda903d7476cc57c3e30e0982",
     "deployment/host/cli.py": "12e4e1e36f33a980d6f42210fb5189afa928a31d8edec595c20e896b34daf122",
-    "deployment/host/policy.py": "523932fc1a61333497140cd13b2a8e856de31b163ab40d9264a9e8f6a5b71651",
+    "deployment/host/policy.py": "771def8235d97619173e3030d1e8e27d8d0663f072aa00caedc43e66e329e7dd",
     "deployment/host/native.py": "71ed564204209360a07785592df5072fb122258376a0a9f05ffd5c962fef02e6",
     "deployment/host/prepare.py": "3c0abd92e050ebe16a87900c50b230c70571e0104a2ae3b76b2727851110aa53",
     "deployment/windows/host-run.ps1": "52f5761b21264a6932aa448ce4a7158043bd95c47c2e4ee860115d888342fdf9",

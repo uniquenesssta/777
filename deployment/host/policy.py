@@ -28,7 +28,9 @@ def local_root(value, *, new=False):
             raise ValueError('DEPLOYMENT_ROOT_REPARSE_POINT')
     if new and (path.exists() or not path.parent.is_dir()):
         raise ValueError('NEW_HOST_ROOT_WITH_EXISTING_PARENT_REQUIRED')
-    return path
+    # Windows may provide an 8.3 alias for the parent (notably TEMP). Compare
+    # both the host root and backup destinations in the same canonical form.
+    return path.resolve(strict=False)
 
 
 def manifest(root):

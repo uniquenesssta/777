@@ -1,0 +1,29 @@
+{
+  "task": "P08-02",
+  "run_id": 39043402540,
+  "url": "https://github.com/uniquenesssta/777/actions/runs/39043402540",
+  "source_commit": "a72fa83f367722071532b43def7c6a7a301d293f",
+  "job_id": 117427242146,
+  "conclusion": "failure",
+  "observed": {
+    "P07_runner": {
+      "tests": 52,
+      "skipped": 1,
+      "conclusion": "passed"
+    },
+    "P08_deployment": {
+      "tests": 4,
+      "passed": 3,
+      "failed": 1,
+      "test": "test_ineligible_standby_and_overlapping_backup_fail_before_build_or_init",
+      "expected_error": "SEPARATE",
+      "actual_error": "not enough values to unpack (expected 2, got 0)"
+    },
+    "PowerShell_parser": "not_executed_after_unit_failure",
+    "Rust_browser_and_native": "not_executed",
+    "installers": "skipped"
+  },
+  "cause": "Host root was compared without canonical resolution against resolved backup paths; Windows short/long path aliases could bypass overlap detection.",
+  "correction": "Canonicalize the validated local host root as well as backup locations; keep original fail-before-build assertion unchanged.",
+  "verification": "4 auxiliary deployment tests passed again; corrected Windows run pending"
+}
