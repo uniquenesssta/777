@@ -18,7 +18,7 @@ export default defineConfig({
   reporter: [["list"], ["json", { outputFile: "test-results/report.json" }]],
   webServer: [
     {
-      command: "npm run dev",
+      command: "npm run dev:web",
       url: "http://127.0.0.1:29346",
       reuseExistingServer: false,
     },

@@ -1,0 +1,7 @@
+{
+  "name": "quote777-development",
+  "private": true,
+  "scripts": {
+    "dev": "node desktop/tools/develop.mjs dev"
+  }
+}

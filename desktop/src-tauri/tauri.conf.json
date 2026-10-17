@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "identifier": "cn.uniqueness.quote777",
   "build": {
-    "beforeDevCommand": "npm run dev",
+    "beforeDevCommand": "npm run dev:web",
     "beforeBuildCommand": "npm run build",
     "devUrl": "http://127.0.0.1:29346",
     "frontendDist": "../dist"
