@@ -1,0 +1,1 @@
+{"status": "passed", "check": "native_v1_qbackup_full_restore_migrates_to_v2_and_reports_current_and_source_inventory", "income_cents": "2000", "source_preserved": true, "production_paths_accessed": false}

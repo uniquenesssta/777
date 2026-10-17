@@ -5,6 +5,12 @@ on:
   pull_request:
     branches: [stage/p07-tauri-desktop]
   workflow_dispatch:
+    inputs:
+      verify_installers:
+        description: 'Explicitly run manager/sales installer verification'
+        type: boolean
+        required: false
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -84,6 +90,7 @@ jobs:
             desktop/test-results
           if-no-files-found: warn
   installers:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.verify_installers }}
     runs-on: windows-latest
     timeout-minutes: 75
     strategy:

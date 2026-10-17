@@ -40,7 +40,14 @@ class NativeHostTests(unittest.TestCase):
         expected=calculated(calculate_quote(QuoteSnapshot('fixture-v1',(NormalLine('单件','4'),)),PriceSnapshot('fixture-v1',(PriceItem('单件','10','4','1',True),))),self.host.service.auth.authenticate(self.sales.token))
         self.assertEqual(result,expected)
         order=self.submit();data=self.sales.request('GET','/v1/orders/'+order['order_id']);self.assertEqual(data['details']['order_ref'],'00003');self.assertNotIn('cost_cents',data);self.assertNotIn('cost',data['lines'][0]['normalized'])
-        full=self.manager.request('GET','/v1/orders/'+order['order_id']);self.assertEqual(full['cost_cents'],'1600');self.assertEqual(full,self.host.service.order(self.host.admin,order['order_id']))
+        full=self.manager.request('GET','/v1/orders/'+order['order_id']);self.assertEqual(full['cost_cents'],'1600')
+        self.assertIsNone(full['customer_id']);self.assertEqual(full['history'],[]);self.assertIsNotNone(full['updated_at'])
+        # The independent legacy service compares its original business contract;
+        # the versioned native fields are checked above and in customer_orders.rs.
+        original={k:v for k,v in full.items() if k not in {'customer_id','history','updated_at'}}
+        original['lines']=[{k:v for k,v in line.items() if k!='line_id'} for line in original['lines']]
+        self.assertTrue(all(line['line_id'] for line in full['lines']))
+        self.assertEqual(original,self.host.service.order(self.host.admin,order['order_id']))
     def test_same_request_two_threads_once_and_conflicting_payload_rejected(self):
         key=str(uuid.uuid4());data={'request_id':key,'snapshot':{'price_version_id':'fixture-v1','lines':[{'line_kind':'normal','product_id':'单件','q':'4'}]},'details':{'customer':'客户','order_ref':'00003','wechat':'微信'}}
         values=[];threads=[threading.Thread(target=lambda:values.append(self.sales.request('POST','/v1/orders',data))) for _ in range(2)]
@@ -105,7 +112,7 @@ class NativeHostTests(unittest.TestCase):
         for c,kind in [(self.sales,'excel_quote'),(self.manager,'excel_admin')]:
             task=self.output(order,kind,c);self.assertEqual(self.wait(task['job_id'],c)['state'],'done');content=c.request('GET','/v1/outputs/'+task['job_id']+'/content');raw=base64.b64decode(content['data_base64']);self.assertEqual(hashlib.sha256(raw).hexdigest(),content['sha256']);book=load_workbook(io.BytesIO(raw));fields=dict(list(book['Order'].values)[1:]);self.assertEqual(fields['order_ref'],'00003');self.assertEqual(fields['income_cents'],'4000');self.assertEqual('cost_cents' in fields,kind=='excel_admin')
             for sheet in book:
-                self.assertEqual(sheet.freeze_panes,'A2')
+                self.assertEqual(sheet.freeze_panes, 'E2' if sheet.title.endswith('月') else None if sheet.title == '阅读说明' else 'A2')
                 for row in sheet:
                     for cell in row:self.assertEqual(cell.number_format,'@');self.assertNotEqual(cell.data_type,'f')
             book.close()
