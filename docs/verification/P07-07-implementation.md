@@ -43,6 +43,6 @@
 
 Figma：[四个主视图及状态映射](../design/P07-customer-orders-figma.md)。[仓库示例Excel](../examples/P07-07-readable-example.xlsx)由实际原生程序用隔离合成订单生成，不包含用户真实客户数据；仅用于阅读排版预览，不替代用户账本备份。
 
-当前Windows检查：[39029435457](https://github.com/uniquenesssta/777/actions/runs/39029435457)，绑定f4c2b60，实现推送后启动；结果待核对。新增字段的独立主机比较保留原业务字段逐项核对，并另外核对客户/历史/行ID；未改变原生业务运行代码。
+当前Windows功能检查：[39030166963](https://github.com/uniquenesssta/777/actions/runs/39030166963)，绑定52b92fa；母子installers已确认skipped，功能结果待核对。上一轮39029435457已按范围调整取消。新增字段的独立主机比较保留原业务字段逐项核对，并另外核对客户/历史/行ID；未改变原生业务运行代码。
 
 19:48范围调整：用户明确不需要Windows母子构建准备/封包验证。工作流默认跳过installers，仅显式手动开启才执行；39029435457由新一轮功能检查取代，不等待母子包。

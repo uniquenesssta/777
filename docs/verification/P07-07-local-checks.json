@@ -60,9 +60,16 @@
     }
   },
   "windows": {
-    "run_id": 39029435457,
-    "url": "https://github.com/uniquenesssta/777/actions/runs/39029435457",
-    "status": "in_progress"
+    "run_id": 39030166963,
+    "source_commit": "52b92faeaefabae44c3a950942aecb84ad02bb2a",
+    "url": "https://github.com/uniquenesssta/777/actions/runs/39030166963",
+    "status": "in_progress",
+    "installers": "skipped per user 2026-10-17 19:48 Asia/Shanghai",
+    "superseded_run": {
+      "id": 39029435457,
+      "status": "cancelled per user scope change",
+      "not_a_functional_failure": true
+    }
   },
   "sample": {
     "path": "docs/examples/P07-07-readable-example.xlsx",
