@@ -60,7 +60,8 @@
       "Windows_PowerShell_5_1_runtime_tests": 2
     },
     "PowerShell_parser": "passed",
-    "native_portable_prepare_retry": "passed"
+    "native_portable_prepare_retry": "passed",
+    "final_status_observed_at": "2026-10-18T03:26:20.017527+00:00"
   },
   "source_sha256": {
     ".github/workflows/p07-windows.yml": "07f64fa947d10d87981f9c1654627685b0257e6685271d80ca31dc436d417be8",

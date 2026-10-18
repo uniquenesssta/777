@@ -12,12 +12,16 @@
     "scope": "auxiliary logic only; not Windows product acceptance"
   },
   "Windows_runtime_checks": {
-    "status": "pending new CI",
+    "status": "passed",
     "new_cases": [
       "interrupted prepare resumes without reinitializing; repeated running setup skips password/task mutation",
       "elevation cannot change original SID",
       "HTTPS accepts correct pin and known 401 response; rejects wrong pin and unrelated 200"
-    ]
+    ],
+    "evidence": "Windows workflow step 7: P08 deployment policy and PowerShell syntax, success",
+    "deployment_unit_cases": 11,
+    "Windows_only_runtime_cases": 5,
+    "PowerShell_parser": "passed"
   },
   "site_evidence": {
     "source": "user supplied output and confirmation, no remote admin session",
@@ -48,5 +52,37 @@
     "replication_and_failover": "not_implemented",
     "new_ledger_on_standby": "refused",
     "production_business_password_embedded": false
+  },
+  "source_sha256": {
+    "deployment/bundle/archive.py": "91c4e8da5b85c3776f5e2d11b6d937e5cb40bf118c6623733874c73fa0b3ef58",
+    "deployment/windows/portable/HostProbe.cs": "4faec23c8f625286ba98632b6e0244c41b7b09b23ad4ca05c6f8a3e76aa56c8b",
+    "deployment/windows/portable/check.cmd": "e40014cfe8c53967bbca7d7aa8dcbbe034ed8c58c52c5d118a35b58478a5298f",
+    "deployment/windows/portable/collect.cmd": "9941e963a22ddcb79eb77385620be2018a81fe0722ac0cec53b74f7b5efd7614",
+    "deployment/windows/portable/host-access.ps1": "c2f18c7579fdecb0787ef4132308f4819cbfb9e14b742f1913b586baaee8138f",
+    "deployment/windows/portable/host-check.ps1": "3d375d6a435e222a3d74722f69fb3d3296355b416a43719ebe99fc87aff95e53",
+    "deployment/windows/portable/host-console.ps1": "a3236ffd2177f59c68c0a128a0c85304ea059da30d9d6eb7fcd95cf48e046306",
+    "deployment/windows/portable/host-defaults.json": "e491b371dd0d821b6b1526ae14d970c8e8554e50361b95ba6a6250edde3d4094",
+    "deployment/windows/portable/host-log.ps1": "a9fee9123a338716ecf26e8148376f2f943f471e7b6aac6e7d18bd924d2bdcfd",
+    "deployment/windows/portable/host-native.ps1": "489a2e12d16961fca9d366968ca2ae5bc2b3216a4bff0f1962a5717d78c97137",
+    "deployment/windows/portable/host-package.ps1": "2e926b6f524140a6241982b37039f475365ab4aa461d67c39511915200bb4f92",
+    "deployment/windows/portable/host-paths.ps1": "b55cbc8126d272051b2199357c8bc4b5434600b65a33f27d30c5cca8a3cbecdc",
+    "deployment/windows/portable/host-prepare.ps1": "18ad7b57c3693d7bc836d6fc396eef1fb34eb6b02a3fa76e328bc45266a19c28",
+    "deployment/windows/portable/host-setup.ps1": "773dcb83b542e8308fcd4571c0b9f0ad52fecd14702a243ef6ed3fe160acd4e5",
+    "deployment/windows/portable/host-site.ps1": "6505c163eff347f3b510333022941464ca5e5130631142f89dc80c8c4a6bfa37",
+    "deployment/windows/portable/host.ps1": "8911e0fed3cabaf9868fe1013a7c4faeef519be80023694c11b3f24057d2c98e",
+    "deployment/windows/portable/manage.cmd": "0fb7dce70cf06b1adce5c6fca4a8864974abbf2110809e6f8fd9234a43cf113f",
+    "deployment/windows/portable/setup.cmd": "7de0dae9068968a6a5e5c35686d3bed4b5769d6b1feb5e40387c7c63eddc6689",
+    "tests/test_p08_console.py": "9a2d5e98c5cd813916438115ebe856893db3a02e9b2a80dfe12040cd8112d617"
+  },
+  "code_commit": "b76a7444fef9aeda7b6c8fdb99e4625a2ff89f22",
+  "new_Windows_functional_CI": {
+    "run_id": 39093485763,
+    "source_commit": "b76a7444fef9aeda7b6c8fdb99e4625a2ff89f22",
+    "url": "https://github.com/uniquenesssta/777/actions/runs/39093485763",
+    "observed_at": "2026-10-18T03:26:20.017221+00:00",
+    "deployment_and_PowerShell_step": "success",
+    "full_functional_status": "in_progress",
+    "installers": "skipped",
+    "job_log_download": "not yet available while job is running"
   }
 }

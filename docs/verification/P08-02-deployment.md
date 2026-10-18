@@ -49,7 +49,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1
 随后先在4.23上准备独立的新服务根，路径以下仅作示例。服务根的父目录必须存在，目标根必须尚不存在，位于本机固定磁盘且不经重解析点；备份位置可选本机或UNC的独立目录，原生程序继续核对映射/链接身份及访问能力：
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation prepare -Root D:\Quote777Host -Backup '\\192.168.4.23\共享\backup' -Hidden D:\Quote777Hidden
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation prepare -Root D:\Quote777Service -Backup '\\192.168.4.23\共享\backup' -Hidden D:\Quote777Hidden
 ```
 
 准备会要求输入新的业务管理员密码（12～128字符），成功后服务仍停止。若中途配置失败，保留现有目录、用原管理员密码，将上述 `prepare` 改为 `configure` 补配；不会重新初始化或删除账本。密码只通过UTF-8标准输入传给原生程序，不在参数、环境、日志或报告保存。
@@ -57,9 +57,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation pr
 准备主机的同一Windows用户在提权PowerShell中注册任务。此时凭证框要求该Windows账户的实际密码，与业务密码不同：
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation install -Root D:\Quote777Host
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation start -Root D:\Quote777Host
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation status -Root D:\Quote777Host
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation install -Root D:\Quote777Service
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation start -Root D:\Quote777Service
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation status -Root D:\Quote777Service
 ```
 
 只有明确的install会注册开机任务/相应防火墙规则，不会默认启动服务。后台运行时无需保持开发者版、母版或子版打开。维护前使用 `-Operation stop` 请求正常退出，确认任务停止且LastTaskResult=0；remove只移除本账本已停止的任务/规则，保留业务数据。任务Running不单独证明HTTPS、实际业务和每日备份已验收。
@@ -107,3 +107,5 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation st
 在开发电脑拉取后可运行`npm run package:host -- --skip-build`重新封装已有原生exe；本轮未改Rust资源。若无已有资源则正常运行`npm run package:host`。服务电脑解压新版包后直接双击入口，不删除D:\Quote777Service；无须输入长命令，也无须SDK。实际新版ZIP仍由用户Windows开发电脑本地生成，不下载远端测试包。
 
 独立后台包上一轮Windows功能CI39090902645已最终success，installers跳过，真实原生准备/补配夹具也通过。本轮菜单新增Windows检查另见[双击入口记录](P08-02-console-checks.json)，不混用旧CI为新入口作验收。母子版构建准备保持取消，4.38复制与安全接管仍未实现。
+
+双击入口代码提交`b76a744`，新增[Windows CI39093485763](https://github.com/uniquenesssta/777/actions/runs/39093485763)的部署检查与PowerShell解析步骤已success，涵盖11项部署检查（其中5项需实际Windows运行），包括新的重复部署/补配、账户不变和HTTPS指纹检查。记录时其余完整功能阶段仍在运行，installers保持skipped，不补记整轮成功。
