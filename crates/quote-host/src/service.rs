@@ -239,6 +239,39 @@ impl Service {
         query: &str,
         peer: &str,
     ) -> Result<Value> {
+        if path.starts_with("/v1/automatic/") {
+            return crate::automatic::api::handle(self, method, path, token, "", data, peer);
+        }
+        let context = crate::automatic::business::context(self, token)?;
+        if let Some(ctx) = &context {
+            crate::automatic::permissions::authorize(
+                self,
+                &ctx.manifest.as_ref().unwrap().capabilities,
+                method,
+                path,
+                data,
+            )?;
+        }
+        let result = self.handle_inner(method, path, token, data, query, peer)?;
+        match context {
+            Some(ctx) => crate::automatic::business::response(
+                self,
+                &ctx.manifest.unwrap().capabilities,
+                path,
+                result,
+            ),
+            None => Ok(result),
+        }
+    }
+    fn handle_inner(
+        &mut self,
+        method: &str,
+        path: &str,
+        token: &str,
+        data: &Value,
+        query: &str,
+        peer: &str,
+    ) -> Result<Value> {
         if crate::cluster::config::read(&self.root)?
             .is_some_and(|c| c.role == crate::cluster::config::Role::Replica)
         {
@@ -262,13 +295,18 @@ impl Service {
                 devices.session(&self.auth, data)
             };
         }
-        let a = self
-            .auth
-            .authenticate(token)
-            .or_else(|e| match &self.devices {
-                Some(d) => d.authenticate(&self.auth, token),
-                None => Err(e),
-            })?;
+        let a = if token.starts_with("a2.") {
+            crate::automatic::sessions::lookup(&self.auth.connection()?, token)?
+                .actor
+                .ok_or_else(crate::automatic::denied)?
+        } else {
+            self.auth
+                .authenticate(token)
+                .or_else(|e| match &self.devices {
+                    Some(d) => d.authenticate(&self.auth, token),
+                    None => Err(e),
+                })?
+        };
         if let Some(d) = &self.devices {
             match (method, path) {
                 ("POST", "/v1/device-grants") => return d.issue(&self.auth, &a, data),
@@ -322,7 +360,17 @@ impl Service {
                     offset = v.parse().map_err(|_| Error::new(422, "INVALID_QUERY"))?;
                     seen = true;
                 }
-                return o.listing_page(&a, offset);
+                let finance = if token.starts_with("a2.") {
+                    crate::automatic::sessions::lookup(&self.auth.connection()?, token)?
+                        .manifest
+                        .unwrap()
+                        .capabilities
+                        .iter()
+                        .any(|v| v == "finance")
+                } else {
+                    a.role == "admin"
+                };
+                return o.listing_page_scoped(&a, offset, finance);
             }
             if path == "/v1/outputs/report" && method == "POST" {
                 Auth::admin(&a)?;
@@ -610,8 +658,20 @@ impl Service {
                 }
                 if method == "GET" && path.starts_with("/v1/requests/") {
                     let key = &path[13..];
-                    let mut v = store::query_request(&store::open(&self.ledger, false)?, key, &a)
-                        .map_err(|e| {
+                    let receipt_actor = if token.starts_with("a2.") {
+                        Actor {
+                            subject: a.subject.clone(),
+                            role: "sales".into(),
+                        }
+                    } else {
+                        a.clone()
+                    };
+                    let mut v = store::query_request(
+                        &store::open(&self.ledger, false)?,
+                        key,
+                        &receipt_actor,
+                    )
+                    .map_err(|e| {
                         if e.code == "FORBIDDEN" {
                             Error::new(404, "NOT_FOUND")
                         } else {
@@ -622,7 +682,7 @@ impl Service {
                         v = self
                             .outputs
                             .as_ref()
-                            .map(|o| o.receipt(&a, key, None))
+                            .map(|o| o.receipt(&receipt_actor, key, None))
                             .transpose()?
                             .flatten()
                             .unwrap_or(Value::Null)

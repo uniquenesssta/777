@@ -106,23 +106,29 @@ pub fn database(path: &Path, application: i64, ddl: &str) -> Result<Connection> 
     let c = Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_WRITE)?;
     c.busy_timeout(Duration::from_secs(3))?;
     c.execute_batch("PRAGMA foreign_keys=ON;PRAGMA synchronous=FULL")?;
-    static EXPECTED: OnceLock<Mutex<std::collections::HashMap<i64, String>>> = OnceLock::new();
+    static EXPECTED: OnceLock<Mutex<std::collections::HashMap<(i64, i64), String>>> =
+        OnceLock::new();
+    let version: i64 = c.query_row("PRAGMA user_version", [], |r| r.get(0))?;
+    let auth_v2 = application == crate::auth::APP && version == 2;
     let mut hashes = EXPECTED
         .get_or_init(Default::default)
         .lock()
         .map_err(|_| Error::new(503, "STORE_UNAVAILABLE"))?;
-    let expected = if let Some(s) = hashes.get(&application) {
+    let expected = if let Some(s) = hashes.get(&(application, version)) {
         s.clone()
     } else {
         let temp = Connection::open_in_memory()?;
         temp.execute_batch(ddl)?;
+        if auth_v2 {
+            temp.execute_batch(crate::automatic::schema::EXTRA)?;
+        }
         let sig = quote_ledger::store::schema_hash(&temp)?;
-        hashes.insert(application, sig.clone());
+        hashes.insert((application, version), sig.clone());
         sig
     };
     drop(hashes);
     if c.query_row("PRAGMA application_id", [], |r| r.get::<_, i64>(0))? != application
-        || c.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))? != 1
+        || (version != 1 && !auth_v2)
         || quote_ledger::store::schema_hash(&c)? != expected
     {
         return fail(

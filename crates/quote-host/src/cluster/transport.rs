@@ -83,6 +83,10 @@ impl Peer {
         let object = body
             .as_object_mut()
             .ok_or_else(|| Error::new(422, "CLUSTER_BODY_INVALID"))?;
+        object.insert(
+            "snapshot_protocol".into(),
+            json!(super::snapshot::FORMAT_V2),
+        );
         object.insert("node_id".into(), json!(self.config.node_id));
         object.insert("cluster_id".into(), json!(self.config.cluster_id));
         object.insert("ledger_id".into(), json!(self.config.ledger_id));

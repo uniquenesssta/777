@@ -1,6 +1,7 @@
 //! Windows Rust HTTPS host, preserving 777-service-v1 and versioned ledgers.
 pub mod analytics;
 pub mod auth;
+pub mod automatic;
 pub mod backup;
 pub mod cluster;
 mod customers;

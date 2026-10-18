@@ -127,7 +127,12 @@ impl Auth {
             .map(|r| (r.2.as_slice(), r.3.as_slice()))
             .unwrap_or((b"777-no-such-user!", &[0u8; 32]));
         let good = verifier(secret, salt)?.ct_eq(expected).unwrap_u8() == 1;
-        if !good || row.as_ref().is_none_or(|r| r.4 != 1) {
+        let device_only = if crate::automatic::schema::enabled(&c)? {
+            row.as_ref().map(|r| c.query_row("SELECT EXISTS(SELECT 1 FROM principal_modes WHERE subject=? AND mode='device_only')", [&r.0], |r|r.get::<_,bool>(0))).transpose()?.unwrap_or(false)
+        } else {
+            false
+        };
+        if !good || device_only || row.as_ref().is_none_or(|r| r.4 != 1) {
             self.attempts.insert(key, (a.0 + 1, a.1));
             self.attempts.insert(peerkey, (b.0 + 1, b.1));
             return fail(401, "UNAUTHENTICATED");
@@ -229,14 +234,25 @@ impl Auth {
         let (role, on, mut salt, mut hashed) = row.ok_or_else(|| Error::new(404, "NOT_FOUND"))?;
         let next_role = data["role"].as_str().unwrap_or(&role);
         let next_on = data["enabled"].as_bool().map(i64::from).unwrap_or(on);
-        if role == "admin"
-            && on == 1
-            && (next_role != "admin" || next_on != 1)
-            && tx.query_row(
+        let admin_count: i64 = if crate::automatic::schema::enabled(&tx)? {
+            tx.query_row("SELECT count(*) FROM users WHERE role='admin' AND enabled=1 AND id NOT IN (SELECT subject FROM principal_modes WHERE mode='device_only')",[],|r|r.get(0))?
+        } else {
+            tx.query_row(
                 "SELECT count(*) FROM users WHERE role='admin' AND enabled=1",
                 [],
-                |r| r.get::<_, i64>(0),
-            )? <= 1
+                |r| r.get(0),
+            )?
+        };
+        let legacy_target = if crate::automatic::schema::enabled(&tx)? {
+            !tx.query_row("SELECT EXISTS(SELECT 1 FROM principal_modes WHERE subject=? AND mode='device_only')",[key],|r|r.get::<_,bool>(0))?
+        } else {
+            true
+        };
+        if role == "admin"
+            && legacy_target
+            && on == 1
+            && (next_role != "admin" || next_on != 1)
+            && admin_count <= 1
         {
             return fail(409, "LAST_ADMIN_REQUIRED");
         }

@@ -374,12 +374,17 @@ async fn handler(
     let route_log = match route {
         "auth" | "devices" | "prices" | "orders" | "backups" | "settings" | "outputs"
         | "calculate" | "health" | "order-preview" | "order-save" | "customer-orders"
-        | "cluster" => route.to_owned(),
+        | "cluster" | "automatic" => route.to_owned(),
         _ => "other".into(),
     };
-    let result = (|| -> Result<(String, String, String, String)> {
+    let result = (|| -> Result<(String, String, String, String, String)> {
         let headers = req.headers();
-        for name in ["authorization", "content-type", "content-length"] {
+        for name in [
+            "authorization",
+            "content-type",
+            "content-length",
+            "x-777-package-authorization",
+        ] {
             if headers.get_all(name).iter().count() > 1 {
                 return fail(400, "DUPLICATE_HEADERS");
             }
@@ -417,89 +422,126 @@ async fn handler(
         {
             return fail(415, "JSON_REQUIRED");
         }
+        if req.uri().path().starts_with("/v1/automatic/") && req.uri().query().is_some() {
+            return fail(422, "INVALID_QUERY");
+        }
+        let package_token = headers
+            .get("x-777-package-authorization")
+            .map(|v| v.to_str().map_err(|_| Error::new(401, "UNAUTHENTICATED")))
+            .transpose()?
+            .unwrap_or("");
+        if package_token.len() > 64
+            || !package_token.is_empty() && !req.uri().path().starts_with("/v1/automatic/")
+        {
+            return fail(400, "INVALID_HEADERS");
+        }
+        let package_token = package_token
+            .strip_prefix("Bearer ")
+            .unwrap_or("")
+            .to_owned();
         Ok((
             req.method().as_str().into(),
             req.uri().path().into(),
             req.uri().query().unwrap_or("").into(),
             token,
+            package_token,
         ))
     })();
     let result = match result {
         Err(e) => Err(e),
-        Ok((method, path, query, token)) => match state.capacity.clone().try_acquire_owned() {
-            Err(_) => fail(429, "SERVICE_CAPACITY"),
-            Ok(permit) => {
-                let data = if method == "POST" {
-                    match tokio::time::timeout(
-                        Duration::from_secs(10),
-                        to_bytes(
-                            req.into_body(),
-                            if path.starts_with("/v1/cluster/") {
-                                2 * protocol::BODY_LIMIT
-                            } else {
-                                protocol::BODY_LIMIT
-                            },
-                        ),
-                    )
-                    .await
-                    {
-                        Ok(Ok(raw)) => protocol::decode(
-                            &raw,
-                            if path.starts_with("/v1/cluster/") {
-                                2 * protocol::BODY_LIMIT
-                            } else {
-                                protocol::BODY_LIMIT
-                            },
-                        ),
-                        Ok(Err(_)) => fail(413, "BODY_TOO_LARGE"),
-                        Err(_) => fail(408, "BODY_TIMEOUT"),
-                    }
-                } else {
-                    Ok(Value::Null)
-                };
-                match data {
-                    Err(e) => Err(e),
-                    Ok(data) if state.peer.is_some() => {
-                        let _permit = permit;
-                        if path.starts_with("/v1/cluster/") {
-                            fail(409, "CLUSTER_REPLICA_CANNOT_WRITE")
-                        } else {
-                            state
-                                .peer
-                                .as_ref()
-                                .unwrap()
-                                .forward(&method, &path, &query, &token, &data)
-                                .await
-                        }
-                    }
-                    Ok(data) => {
-                        let dirty = state.dirty.clone();
-                        tokio::task::spawn_blocking(move || {
-                            let _permit = permit;
-                            let mut service = state
-                                .service
-                                .lock()
-                                .map_err(|_| Error::new(503, "SERVICE_UNAVAILABLE"))?;
-                            let changes = crate::cluster::runtime::changes(&method, &path, &data);
-                            let result = service.handle(
-                                &method,
-                                &path,
-                                &token,
-                                &data,
-                                &query,
-                                &peer.ip().to_string(),
-                            );
-                            if changes {
-                                dirty.store(true, Ordering::SeqCst);
-                            }
-                            result
-                        })
+        Ok((method, path, query, token, package_token)) => {
+            match state.capacity.clone().try_acquire_owned() {
+                Err(_) => fail(429, "SERVICE_CAPACITY"),
+                Ok(permit) => {
+                    let data = if method == "POST" {
+                        match tokio::time::timeout(
+                            Duration::from_secs(10),
+                            to_bytes(
+                                req.into_body(),
+                                if path.starts_with("/v1/automatic/") {
+                                    65536
+                                } else if path.starts_with("/v1/cluster/") {
+                                    2 * protocol::BODY_LIMIT
+                                } else {
+                                    protocol::BODY_LIMIT
+                                },
+                            ),
+                        )
                         .await
-                        .unwrap_or_else(|_| fail(500, "SERVICE_FAILED"))
+                        {
+                            Ok(Ok(raw)) => protocol::decode(
+                                &raw,
+                                if path.starts_with("/v1/automatic/") {
+                                    65536
+                                } else if path.starts_with("/v1/cluster/") {
+                                    2 * protocol::BODY_LIMIT
+                                } else {
+                                    protocol::BODY_LIMIT
+                                },
+                            ),
+                            Ok(Err(_)) => fail(413, "BODY_TOO_LARGE"),
+                            Err(_) => fail(408, "BODY_TIMEOUT"),
+                        }
+                    } else {
+                        Ok(Value::Null)
+                    };
+                    match data {
+                        Err(e) => Err(e),
+                        Ok(data) if state.peer.is_some() => {
+                            let _permit = permit;
+                            if path.starts_with("/v1/cluster/") {
+                                fail(409, "CLUSTER_REPLICA_CANNOT_WRITE")
+                            } else {
+                                state
+                                    .peer
+                                    .as_ref()
+                                    .unwrap()
+                                    .forward(&method, &path, &query, &token, &data)
+                                    .await
+                            }
+                        }
+                        Ok(data) => {
+                            let dirty = state.dirty.clone();
+                            tokio::task::spawn_blocking(move || {
+                                let _permit = permit;
+                                let mut service = state
+                                    .service
+                                    .lock()
+                                    .map_err(|_| Error::new(503, "SERVICE_UNAVAILABLE"))?;
+                                let changes =
+                                    crate::cluster::runtime::changes(&method, &path, &data);
+                                let result = if path.starts_with("/v1/automatic/") {
+                                    crate::automatic::api::handle(
+                                        &service,
+                                        &method,
+                                        &path,
+                                        &token,
+                                        &package_token,
+                                        &data,
+                                        &peer.ip().to_string(),
+                                    )
+                                } else {
+                                    service.handle(
+                                        &method,
+                                        &path,
+                                        &token,
+                                        &data,
+                                        &query,
+                                        &peer.ip().to_string(),
+                                    )
+                                };
+                                if changes {
+                                    dirty.store(true, Ordering::SeqCst);
+                                }
+                                result
+                            })
+                            .await
+                            .unwrap_or_else(|_| fail(500, "SERVICE_FAILED"))
+                        }
                     }
                 }
             }
-        },
+        }
     };
     let (status, value) = match result {
         Ok(v) => (200, v),
@@ -624,6 +666,16 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
             h.graceful_shutdown(Some(Duration::from_secs(45)));
         }
     });
+    let pairing = match crate::automatic::pairing::start(service.clone(), stop.clone()).await {
+        Ok(value) => value,
+        Err(error) => {
+            quote_diagnostics::event(
+                "automatic.binding.start_failed",
+                json!({"error":error.code}),
+            );
+            None
+        }
+    };
     let output_service = service.clone();
     let output_stop = stop.clone();
     let output_dirty = dirty.clone();
@@ -727,6 +779,9 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
         synchronization
             .await
             .map_err(|_| Error::new(503, "CLUSTER_WORKER_FAILED"))?;
+    }
+    if let Some(pairing) = pairing {
+        let _ = pairing.await;
     }
     result?;
     Ok(())

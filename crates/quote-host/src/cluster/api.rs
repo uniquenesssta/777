@@ -19,6 +19,11 @@ pub fn handle(
     peer: &str,
 ) -> Result<Value> {
     let config = config::ensure_primary(&s.root)?;
+    let mut data = data.clone();
+    let snapshot_protocol = data
+        .as_object_mut()
+        .and_then(|v| v.remove("snapshot_protocol"));
+    let data = &data;
     if method != "POST" {
         return fail(405, "METHOD_NOT_ALLOWED");
     }
@@ -46,6 +51,14 @@ pub fn handle(
     }
     let node = text(&data["node_id"], 36, true)?;
     membership::authenticate(&s.root, node, token)?;
+    let auth = s.auth.connection()?;
+    crate::automatic::nodes::authorize(&auth, node)?;
+    if crate::automatic::schema::enabled(&auth)?
+        && !path.ends_with("/forward")
+        && snapshot_protocol.as_ref() != Some(&json!(snapshot::FORMAT_V2))
+    {
+        return fail(426, "PROTOCOL_UPGRADE_REQUIRED");
+    }
     if data["cluster_id"] != config.cluster_id || data["ledger_id"] != config.ledger_id {
         return fail(409, "CLUSTER_IDENTITY_CONFLICT");
     }

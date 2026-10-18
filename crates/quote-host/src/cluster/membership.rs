@@ -208,3 +208,45 @@ pub fn retained(root: &Path) -> Result<std::collections::BTreeSet<(u64, String)>
         .collect::<std::result::Result<_, _>>()?;
     Ok(result)
 }
+
+/// The auto-authorization intent is durable before this independently committed peer.
+pub fn automatic_peer(root: &Path, node: &str, digest: &str) -> Result<()> {
+    id(node)?;
+    if !super::snapshot::hex(digest) {
+        return fail(422, "AUTOMATIC_DIGEST_INVALID");
+    }
+    let mut c = connection(root)?;
+    let tx = c.transaction()?;
+    let row: Option<(String, bool)> = tx
+        .query_row(
+            "SELECT credential,enabled FROM peers WHERE id=?",
+            [node],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )
+        .optional()?;
+    if let Some((expected, enabled)) = row {
+        if !enabled || expected != digest {
+            return fail(409, "NODE_IDENTITY_CONFLICT");
+        }
+    } else {
+        let count: i64 = tx.query_row("SELECT count(*) FROM peers", [], |r| r.get(0))?;
+        if count >= 128 {
+            return fail(429, "CLUSTER_PEER_CAPACITY");
+        }
+        tx.execute(
+            "INSERT INTO peers(id,credential,enabled) VALUES(?,?,1)",
+            params![node, digest],
+        )?;
+    }
+    tx.commit()?;
+    Ok(())
+}
+
+pub fn known_peer(root: &Path, node: &str) -> Result<bool> {
+    id(node)?;
+    Ok(connection(root)?.query_row(
+        "SELECT EXISTS(SELECT 1 FROM peers WHERE id=?)",
+        [node],
+        |r| r.get(0),
+    )?)
+}

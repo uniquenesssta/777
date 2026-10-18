@@ -1,0 +1,10 @@
+CREATE TABLE site_binding (id INTEGER PRIMARY KEY CHECK(id=1), site_id TEXT UNIQUE NOT NULL, ledger_id TEXT NOT NULL, profile_json TEXT NOT NULL) STRICT;
+CREATE TABLE issuers (id TEXT PRIMARY KEY, digest TEXT UNIQUE NOT NULL, capabilities_json TEXT NOT NULL, enabled INTEGER NOT NULL CHECK(enabled IN (0,1)), epoch INTEGER NOT NULL) STRICT;
+CREATE TABLE package_grants (id TEXT PRIMARY KEY, issuer_id TEXT NOT NULL REFERENCES issuers(id), digest TEXT UNIQUE NOT NULL, manifest_json TEXT NOT NULL, status TEXT NOT NULL CHECK(status IN ('active','closed','revoked')), devices INTEGER NOT NULL DEFAULT 0, nodes INTEGER NOT NULL DEFAULT 0) STRICT;
+CREATE TABLE principal_modes (subject TEXT PRIMARY KEY REFERENCES users(id), mode TEXT NOT NULL CHECK(mode IN ('legacy_password','device_only'))) STRICT;
+CREATE TABLE automatic_devices (id TEXT PRIMARY KEY, subject TEXT UNIQUE NOT NULL REFERENCES users(id), package_id TEXT NOT NULL REFERENCES package_grants(id), digest TEXT UNIQUE NOT NULL, enabled INTEGER NOT NULL CHECK(enabled IN (0,1)), epoch INTEGER NOT NULL) STRICT;
+CREATE TABLE automatic_sessions (digest TEXT PRIMARY KEY, kind TEXT NOT NULL CHECK(kind IN ('issuer','device')), principal_id TEXT NOT NULL, epoch INTEGER NOT NULL, user_epoch INTEGER NOT NULL, expires INTEGER NOT NULL) STRICT;
+CREATE TABLE automatic_nodes (id TEXT PRIMARY KEY, package_id TEXT NOT NULL REFERENCES package_grants(id), digest TEXT UNIQUE NOT NULL, permit_digest TEXT NOT NULL, permit_expires INTEGER NOT NULL, state TEXT NOT NULL CHECK(state IN ('reserved','active','revoked'))) STRICT;
+CREATE TABLE automatic_receipts (scope TEXT NOT NULL, request_id TEXT NOT NULL, fingerprint TEXT NOT NULL, response_json TEXT NOT NULL, PRIMARY KEY(scope,request_id)) STRICT;
+CREATE TABLE automatic_audit (sequence INTEGER PRIMARY KEY, actor TEXT NOT NULL, operation TEXT NOT NULL, target TEXT NOT NULL, at INTEGER NOT NULL) STRICT;
+CREATE TABLE upgrade_bindings (id TEXT PRIMARY KEY, issuer_id TEXT NOT NULL REFERENCES issuers(id), pair_digest TEXT NOT NULL, challenge TEXT, expires INTEGER NOT NULL, completed INTEGER NOT NULL CHECK(completed IN (0,1))) STRICT;

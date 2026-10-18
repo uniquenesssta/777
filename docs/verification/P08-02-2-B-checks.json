@@ -1,0 +1,19 @@
+{
+  "phase": "P08-02-2-B",
+  "source_baseline": "97af52691ed72379ea2047dd1de6440ec3f250de",
+  "environment": "isolated synthetic Rust protocol/storage checks; auxiliary deployment fixture",
+  "tests": {
+    "automatic_installation": 14,
+    "device_auth": 8,
+    "cluster_protocol": 3,
+    "customer_orders": 4
+  },
+  "total_passed": 29,
+  "clippy": "passed",
+  "format": "passed",
+  "field_upgrade": "not_run",
+  "windows_native_execution": "not_run",
+  "installer_builds": "not_run",
+  "linux_macos_product_acceptance": "not_run",
+  "final_node_guard_recheck": "4 existing node checks passed after guard tightening"
+}

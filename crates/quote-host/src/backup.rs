@@ -318,6 +318,9 @@ pub fn restore(
         drop(st);
         let tx = c.unchecked_transaction()?;
         tx.execute("DELETE FROM sessions", [])?;
+        if crate::automatic::schema::enabled(&tx)? {
+            tx.execute_batch("DELETE FROM automatic_sessions; DELETE FROM site_binding; UPDATE issuers SET enabled=0,epoch=epoch+1; UPDATE package_grants SET status='revoked'; UPDATE automatic_devices SET enabled=0,epoch=epoch+1; UPDATE automatic_nodes SET state='revoked';")?;
+        }
         for id in ids {
             let salt = auth::random::<16>()?;
             let hashed = if id == admin {

@@ -1,0 +1,87 @@
+P08-02-2 B — isolated synthetic protocol/deployment checks
+Field hosts contacted: none
+Windows installer/build-preparation checks: not run
+Windows UAC/DPAPI/task/firewall execution: not run
+
+$ cargo test -p quote-host --test automatic_installation --test device_auth --test cluster_protocol --test customer_orders --offline
+   Compiling quote-host v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-host)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.40s
+     Running tests/automatic_installation.rs (target/debug/deps/automatic_installation-dbc3130847e6faea)
+
+running 14 tests
+test automatic_checks::authorization::first_pairing_rejects_wrong_secret_and_challenge_and_confirmation_closes_it ... ok
+test automatic_checks::authorization::same_role_upgrade_changes_scope_without_changing_subject_and_revoked_device_stays_revoked ... ok
+test automatic_checks::business::host_redacts_limited_manager_and_blocks_financial_output_downloads_retries_and_receipts ... ok
+test automatic_checks::authorization::expiry_close_and_revocation_are_distinct_and_live_sessions_are_checked ... ok
+test automatic_checks::authorization::expired_package_stops_new_identity_but_keeps_registered_identity ... ok
+test automatic_checks::business::two_sales_devices_do_not_share_orders_or_customer_matches ... ok
+test automatic_checks::authorization::multi_install_identity_retry_capacity_and_secret_storage ... ok
+test automatic_checks::nodes::node_join_is_separate_resumable_and_revocation_blocks_replication ... ok
+test automatic_checks::nodes::legacy_peer_adoption_requires_old_node_proof_and_preserves_id ... ok
+test automatic_checks::authorization::forged_manifest_cross_site_and_password_login_do_not_elevate ... ok
+test automatic_checks::nodes::sales_package_cannot_create_node_even_when_it_sends_manager_fields ... ok
+test automatic_checks::nodes::new_auth_snapshot_declares_compatibility_and_legacy_users_keep_their_ids ... ok
+test automatic_checks::upgrade::schema_upgrade_is_idempotent_and_rejects_unknown_schema ... ok
+test automatic_checks::upgrade::upgrade_and_interrupted_publication_preserve_ledger_tls_backups_and_task_identity has been running for over 60 seconds
+test automatic_checks::upgrade::upgrade_and_interrupted_publication_preserve_ledger_tls_backups_and_task_identity ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 70.32s
+
+     Running tests/cluster_protocol.rs (target/debug/deps/cluster_protocol-ef1f67542ccdf0b4)
+
+running 3 tests
+test manifest_paths_identity_hashes_and_monotonic_publication_are_enforced ... ok
+test tickets_bind_exactly_one_node_and_revocation_blocks_retry_and_forward_credentials ... ok
+test live_transfer_lease_retains_generation_until_acknowledged ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.15s
+
+     Running tests/customer_orders.rs (target/debug/deps/customer_orders-2f706fa32a9703f4)
+
+running 4 tests
+test migration_preserves_v1_readonly_and_unknown_schema_is_not_repaired ... ok
+test editing_keeps_prices_revisions_customer_groups_old_exports_and_recoverable_backup ... ok
+test differences_are_historical_positioned_and_permission_filtered ... ok
+test customer_choice_ambiguity_permissions_and_bad_sources_are_atomic ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.70s
+
+     Running tests/device_auth.rs (target/debug/deps/device_auth-91a1e5bb7618e420)
+
+running 8 tests
+test manager_package_or_forged_role_does_not_elevate_sales ... ok
+test listings_and_audit_do_not_expose_grants_credentials_or_tokens ... ok
+test expired_material_and_expired_sessions_cannot_authorize ... ok
+test revoke_one_device_invalidates_live_sessions_and_preserves_other_device ... ok
+test development_short_password_is_not_a_production_account_policy ... ok
+test enrollment_is_idempotent_only_for_the_original_persisted_device ... ok
+test only_admin_can_issue_list_or_revoke_devices ... ok
+test account_epoch_and_restore_invalidate_credentials_without_changing_actor ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 16.85s
+
+
+$ cargo clippy -p quote-host --all-targets --offline -- -D warnings
+    Checking quote-host v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-host)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.40s
+
+$ cargo fmt --all -- --check
+passed
+$ git diff --check
+passed
+
+$ cargo test -p quote-host --test automatic_installation automatic_checks::nodes --offline
+   Compiling quote-host v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-host)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.05s
+     Running tests/automatic_installation.rs (target/debug/deps/automatic_installation-dbc3130847e6faea)
+
+running 4 tests
+test automatic_checks::nodes::node_join_is_separate_resumable_and_revocation_blocks_replication ... ok
+test automatic_checks::nodes::sales_package_cannot_create_node_even_when_it_sends_manager_fields ... ok
+test automatic_checks::nodes::legacy_peer_adoption_requires_old_node_proof_and_preserves_id ... ok
+test automatic_checks::nodes::new_auth_snapshot_declares_compatibility_and_legacy_users_keep_their_ids ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 9.38s
+
+
+The final node guard rejects an existing legacy peer ID until original-secret adoption succeeds.

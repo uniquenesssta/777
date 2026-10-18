@@ -1,3 +1,4 @@
+mod automatic_cli;
 mod cluster_cli;
 use quote_host::{
     auth, backup, fail, files,
@@ -50,6 +51,7 @@ impl Args {
         }
         let a = Self { command, options };
         let allowed = match a.command.as_str() {
+            c if c.starts_with("automatic-") => automatic_cli::allowed(c)?,
             c if c.starts_with("cluster-") || c == "resource-info" => cluster_cli::allowed(c)?,
             "init" => vec![
                 "--root",
@@ -194,6 +196,9 @@ impl Args {
 }
 async fn execute(a: Args) -> Result<Value> {
     let auxiliary = a.has("--auxiliary");
+    if a.command.starts_with("automatic-") {
+        return automatic_cli::execute(&a).await;
+    }
     if a.command.starts_with("cluster-") || a.command == "resource-info" {
         return cluster_cli::execute(&a).await;
     }

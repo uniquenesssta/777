@@ -284,9 +284,16 @@ impl Outputs {
         self.listing_page(a, 0)
     }
     pub fn listing_page(&self, a: &Actor, offset: u32) -> Result<Value> {
+        self.listing_page_scoped(a, offset, a.role == "admin")
+    }
+    pub fn listing_page_scoped(&self, a: &Actor, offset: u32, finance: bool) -> Result<Value> {
         let c = self.connection()?;
         let scope = if a.role == "admin" {
-            "1=1"
+            if finance {
+                "1=1"
+            } else {
+                "kind NOT IN ('excel_admin','excel_period')"
+            }
         } else {
             "actor_id=?1 AND kind NOT IN ('excel_admin','excel_period')"
         };
