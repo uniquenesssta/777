@@ -1,0 +1,74 @@
+{
+  "task": "P08-02",
+  "change": "SDK-free standalone host package",
+  "baseline_commit": "d890c5ed3f8500c396a2c162a862e95b6fceaae6",
+  "branch": "stage/p08-cutover",
+  "recorded_at": "2026-10-18T02:39:23.753002+00:00",
+  "user_context": {
+    "both_target_hosts": "Windows confirmed by user",
+    "received_inventory": "operator workstation only, not either service host",
+    "private_identifiers_published": false
+  },
+  "workflow": {
+    "developer_command": "npm run package:host",
+    "output": "reports/host-packages/<timestamp-commit>/Quote777Host.zip",
+    "server_inventory": "unzip and double-click collect.cmd",
+    "server_maintenance": "Windows PowerShell 5.1 host.ps1",
+    "server_requires_developer_application": false,
+    "server_requires_git_node_python_rust_sdk": false,
+    "host_data_initialized_on_target_machine": true,
+    "credentials_transported_from_development": false,
+    "replication_or_failover_implemented": false,
+    "standby_initialization": "refused"
+  },
+  "scope": {
+    "manager_sales_installer_preparation": "cancelled, not rerun",
+    "remote_test_packages_downloaded": false,
+    "actual_host_deployment": "not executed",
+    "task_or_firewall_registration": "not executed",
+    "UI_changes": false
+  },
+  "checks": {
+    "auxiliary_units": {
+      "total": 8,
+      "passed": 6,
+      "Windows_only_skipped": 2,
+      "log": "test_host_only_archive_has_exact_resources_and_matching_hashes_without_development_data (test_p08_bundle.HostBundleTests.test_host_only_archive_has_exact_resources_and_matching_hashes_without_development_data) ... ok\ntest_unknown_existing_output_and_non_windows_resources_are_never_overwritten (test_p08_bundle.HostBundleTests.test_unknown_existing_output_and_non_windows_resources_are_never_overwritten) ... ok\ntest_inventory_works_with_no_developer_commands_and_tampering_or_wrong_host_cannot_initialize (test_p08_bundle.PortableWindowsTests.test_inventory_works_with_no_developer_commands_and_tampering_or_wrong_host_cannot_initialize) ... skipped 'Windows PowerShell 5.1 execution requires Windows'\ntest_native_child_keeps_password_only_on_utf8_stdin_and_quotes_arguments (test_p08_bundle.PortableWindowsTests.test_native_child_keeps_password_only_on_utf8_stdin_and_quotes_arguments) ... skipped 'Windows PowerShell 5.1 execution requires Windows'\ntest_host_root_and_evidence_are_not_overwritten (test_p08_deployment.DeploymentPolicyTests.test_host_root_and_evidence_are_not_overwritten) ... ok\ntest_standby_or_wrong_machine_cannot_become_an_independent_writer (test_p08_deployment.DeploymentPolicyTests.test_standby_or_wrong_machine_cannot_become_an_independent_writer) ... ok\ntest_failure_leaves_host_stopped_and_authenticated_configure_resumes_without_reinitializing (test_p08_deployment.PreparationTests.test_failure_leaves_host_stopped_and_authenticated_configure_resumes_without_reinitializing) ... ok\ntest_ineligible_standby_and_overlapping_backup_fail_before_build_or_init (test_p08_deployment.PreparationTests.test_ineligible_standby_and_overlapping_backup_fail_before_build_or_init) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 0.015s\n\nOK (skipped=2)\n"
+    },
+    "python_compile": "passed",
+    "diff_whitespace": "passed",
+    "Windows_5_1_portable_units": "pending new functional CI",
+    "real_native_portable_prepare_retry": "pending new functional CI; synthetic addresses only; no network bind or live hosts"
+  },
+  "previous_Windows_functional_CI": {
+    "run_id": 39043638535,
+    "source_commit": "ae313a159475c4ac4f1956bc6376a8257221d9a4",
+    "desktop_contracts": "success",
+    "installers": "skipped",
+    "covers_new_bundle": false
+  },
+  "new_Windows_functional_CI": {
+    "status": "pending_push",
+    "installers": "skipped by default"
+  },
+  "source_sha256": {
+    ".github/workflows/p07-windows.yml": "07f64fa947d10d87981f9c1654627685b0257e6685271d80ca31dc436d417be8",
+    "deployment/bundle/README.txt": "4a485e5c924a5c1f5ef113de2c652ecc7822ab6a6eea3edceba27f4ccfcbf614",
+    "deployment/bundle/__init__.py": "eec8309e10251d39e9390085cf5b19fa44fcc7f98b54d41dc1c8d42165225689",
+    "deployment/bundle/__main__.py": "79ee6f134c5c5193377cf9b189cbdcc3e2095e49ba9cec310114441c15a917c4",
+    "deployment/bundle/archive.py": "884a5229a9c45435dcefe204f363dc54ddc078fe49db8a5811177ec61b6cfd63",
+    "deployment/bundle/cli.py": "939bfd13deb93eac20b12b4c9bd77821aa8adc5021919bc1a42fa88899405eed",
+    "deployment/package.mjs": "15c07b47204a3f058738804da0c8a6a9f0cea10a34e589871be21daa4ecb793a",
+    "deployment/windows/portable/collect.cmd": "9941e963a22ddcb79eb77385620be2018a81fe0722ac0cec53b74f7b5efd7614",
+    "deployment/windows/portable/host-log.ps1": "f9f00963de002038268d21449498c586c52b75e1619f868b9a0299a80f6522f6",
+    "deployment/windows/portable/host-native.ps1": "489a2e12d16961fca9d366968ca2ae5bc2b3216a4bff0f1962a5717d78c97137",
+    "deployment/windows/portable/host-package.ps1": "009a5f2222ce59633e714ccf6326bd4e5e9494e7de883c538fad331ae53393ca",
+    "deployment/windows/portable/host-paths.ps1": "b55cbc8126d272051b2199357c8bc4b5434600b65a33f27d30c5cca8a3cbecdc",
+    "deployment/windows/portable/host-prepare.ps1": "18ad7b57c3693d7bc836d6fc396eef1fb34eb6b02a3fa76e328bc45266a19c28",
+    "deployment/windows/portable/host-site.ps1": "6505c163eff347f3b510333022941464ca5e5130631142f89dc80c8c4a6bfa37",
+    "deployment/windows/portable/host.ps1": "8911e0fed3cabaf9868fe1013a7c4faeef519be80023694c11b3f24057d2c98e",
+    "package.json": "be84b6100cb17a8dbdebf8b27908ca76e4b04120942a3375a94c4fe8af4bdb85",
+    "tests/test_p08_bundle.py": "90e27da5cfdd347b71280258a67819e10e36cfb7755a6fa92822ec7e347c79ab",
+    "tools/p08_bundle_check.py": "5a9da0217d365a340d509d4dbf658c7e0b0767fdbbc4c16f20b298b3539e69f6"
+  }
+}

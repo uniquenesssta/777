@@ -48,7 +48,7 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_p08_*.py' -v
           if ($LASTEXITCODE -ne 0) { throw 'P08 deployment policy failed' }
-          Get-ChildItem deployment/windows/*.ps1 | ForEach-Object {
+          Get-ChildItem deployment/windows -Filter *.ps1 -Recurse | ForEach-Object {
             $tokens = $null; $parseErrors = $null
             [Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$parseErrors) | Out-Null
             if ($parseErrors.Count) { throw ($parseErrors | Out-String) }
@@ -68,6 +68,8 @@ jobs:
         run: |
           python tools/p08_host_check.py --output reports/p08-02-host
           if ($LASTEXITCODE -ne 0) { throw 'P08 native supervisor check failed' }
+          python tools/p08_bundle_check.py --output reports/p08-02-bundle
+          if ($LASTEXITCODE -ne 0) { throw 'P08 SDK-free host bundle check failed' }
       - name: Runtime diagnostics retain actual Windows IO errors
         shell: pwsh
         run: |
@@ -103,6 +105,7 @@ jobs:
             reports/p07-06-paths
             reports/p07-07-ci
             reports/p08-02-host
+            reports/p08-02-bundle
             desktop/test-results
           if-no-files-found: warn
   installers:

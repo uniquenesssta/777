@@ -154,7 +154,7 @@
     "layout_scope": "display aliases in existing settings layout"
   },
   "windows_ci": {
-    "status": "in_progress",
+    "status": "completed_success",
     "workflow": ".github/workflows/p07-windows.yml",
     "installers": "skipped by default; cancelled preparation validation not rerun",
     "previous": {
@@ -172,8 +172,8 @@
     "observed_at": "2026-10-17T15:08:49.472153+00:00",
     "desktop_contracts_job": {
       "id": 117427925945,
-      "status": "in_progress",
-      "conclusion": null
+      "status": "completed",
+      "conclusion": "success"
     },
     "installers_job": {
       "id": 117427926826,
@@ -201,9 +201,8 @@
       "P07 runner regression",
       "P08 deployment units and PowerShell syntax"
     ],
-    "pending_steps": [
-      "Windows Rust/browser/WebView2 and later functional stages"
-    ]
+    "pending_steps": [],
+    "completed_functional_result": "All desktop-contracts steps succeeded for ae313a1; portable host bundle is a later change with separate evidence"
   },
   "site": {
     "live_hosts_contacted": false,
@@ -213,7 +212,8 @@
     "historical_orders_migrated": 0,
     "development_data_migrated": false,
     "remote_test_packages_downloaded": false,
-    "host_os_accounts_roots_device_mappings": "not supplied; inventory command available"
+    "host_os_accounts_roots_device_mappings": "not supplied; inventory command available",
+    "host_os": "Windows on both hosts, user confirmed; specific versions/identities uncollected"
   },
   "ha": {
     "planned_order": [
@@ -251,5 +251,6 @@
     "tests/test_p08_deployment.py": "28f37ef020c115076eeb23c6afbb1e60d132746e0694652f8b56733cbb9f8111",
     "tools/p08_host_check.py": "abba4bd380fcbb8bd48078b21ed65c07348d46c45f8c5db01ab443ffa8eeefeb",
     ".github/workflows/p07-windows.yml": "fc861fc19a5c4474caea3b1997f3c71851df3a313656a9838b220040ec3f8a95"
-  }
+  },
+  "portable_followup": "docs/verification/P08-02-portable-checks.json"
 }

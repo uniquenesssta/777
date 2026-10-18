@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "node desktop/tools/develop.mjs dev",
-    "deploy:host": "node deployment/launch.mjs"
+    "deploy:host": "node deployment/launch.mjs",
+    "package:host": "node deployment/package.mjs"
   }
 }

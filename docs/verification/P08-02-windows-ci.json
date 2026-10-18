@@ -30,10 +30,11 @@
     "source_commit": "ae313a159475c4ac4f1956bc6376a8257221d9a4",
     "run_id": 39043638535,
     "url": "https://github.com/uniquenesssta/777/actions/runs/39043638535",
-    "status": "in_progress",
+    "status": "completed",
     "deployment_units": "4 passed",
     "PowerShell_parser": "passed",
-    "remaining_functional_steps": "in_progress_or_pending",
-    "installers": "skipped"
+    "remaining_functional_steps": "all completed successfully",
+    "installers": "skipped",
+    "conclusion": "success"
   }
 }

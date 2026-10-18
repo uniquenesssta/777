@@ -49,7 +49,7 @@
     "sales_count": null,
     "ordinary_backup_candidate": "\\\\192.168.4.23\\共享\\backup",
     "candidate_basis": "prior user backup feedback; not read or verified in this task",
-    "host_os": null,
+    "host_os": "Windows on both planned hosts (user confirmed 2026-10-18); exact versions uncollected",
     "service_account": null,
     "maintenance_owner": null,
     "service_root": null,
@@ -66,7 +66,8 @@
     ],
     "manager_settings_hidden_hosts": [
       "192.168.4.23"
-    ]
+    ],
+    "inventory_receipt": "Received successful inventory from the operator workstation only; target host identities remain uncollected; private machine/account/SID not published"
   },
   "protocols": {
     "rule_version": "business-v1",

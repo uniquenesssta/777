@@ -26,42 +26,47 @@
 - 设置和导出记录已拆为 `features/settings/SettingsPage.tsx`、`features/TasksPage.tsx`，地址展示规则在独立模块；不继续把两个页面职责堆在一个文件。
 - 隐藏范围为普通设置界面；不承诺开发工具、系统目录选择器或网络诊断无法查到实际网络地址。角色权限继续由服务端决定。
 
-## 在实际Windows服务电脑执行
+## 服务电脑使用独立后台包（2026-10-18修正）
 
-先只采集当前机器的系统、Windows账户/SID和本机IP，并写入本次运行日志：
+用户确认4.23和4.38均为Windows电脑。10:24收到的日志来自操作电脑4.17，只证明本机采集成功；不把该电脑的账户、SID或地址登记为目标主机身份，也不将这些私人信息提交Git。
 
-```powershell
-npm run deploy:host
-```
+服务电脑不需要安装开发者版、母版/子版、Git、Node、Python或Rust SDK。此前要求在每台服务电脑运行 `npm run deploy:host` 的步骤会额外要求开发环境，已改为下列独立流程；该npm入口保留给开发者维护。
 
-当前未取得两台电脑的采集结果，不能将它们登记为已经能运行Windows后台。下面是后续操作格式，路径为示例，由部署人员选定；执行前保留原程序和已有目录。`--root` 必须是父目录已存在、目标尚不存在的本地目录，备份位置必须为绝对路径。
+在开发用Windows电脑的项目根目录，只构建后台包（按锁文件、最多12个构建任务）：
 
 ```powershell
-npm run deploy:host -- prepare --root 'D:\Quote777Host' --backup '\\192.168.4.23\共享\backup' --hidden 'D:\Quote777Hidden' --admin manager
+npm run package:host
 ```
 
-准备会要求输入新的业务管理员密码（12～128字符），成功后服务仍停止。若在备份配置中失败，使用同一目录、原管理员密码和明确选定的路径运行 `configure`，不要删除目录或重新初始化。
+命令输出实际ZIP路径，默认 `reports/host-packages/<时间-提交>/Quote777Host.zip`。把这个ZIP复制到服务电脑并完整解压；无需把仓库、开发账号或开发数据库搬过去。后台包有独立文件白名单、源码提交和逐文件SHA256，包含两个Windows后台exe、PowerShell脚本和使用说明。当前版本不会生成真实服务器账号、证书或账本后再跨电脑搬迁；这些始终在目标机以实际运行身份初始化。
+
+在4.23、4.38各自解压的文件夹中双击 `collect.cmd` 即可采集信息；每次日志在本包 `logs/<启动文件夹>/runtime.jsonl`。等价的PowerShell命令为：
 
 ```powershell
-npm run deploy:host -- configure --root 'D:\Quote777Host' --backup '\\192.168.4.23\共享\backup' --hidden 'D:\Quote777Hidden' --admin manager
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1
 ```
 
-准备主机的同一Windows用户在提权PowerShell中注册任务；系统会要求该Windows账户的实际密码。任务/防火墙操作需要Windows权限，不能通过换成另一用户绕过SID一致性核对。
+随后先在4.23上准备独立的新服务根，路径以下仅作示例。服务根的父目录必须存在，目标根必须尚不存在，位于本机固定磁盘且不经重解析点；备份位置可选本机或UNC的独立目录，原生程序继续核对映射/链接身份及访问能力：
 
 ```powershell
-npm run deploy:host -- install --root 'D:\Quote777Host'
-npm run deploy:host -- start --root 'D:\Quote777Host'
-npm run deploy:host -- status --root 'D:\Quote777Host'
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation prepare -Root D:\Quote777Host -Backup '\\192.168.4.23\共享\backup' -Hidden D:\Quote777Hidden
 ```
 
-维护前正常停止并检查任务已经结束；不要在Running时移除任务、替换程序或尝试第二个写端：
+准备会要求输入新的业务管理员密码（12～128字符），成功后服务仍停止。若中途配置失败，保留现有目录、用原管理员密码，将上述 `prepare` 改为 `configure` 补配；不会重新初始化或删除账本。密码只通过UTF-8标准输入传给原生程序，不在参数、环境、日志或报告保存。
+
+准备主机的同一Windows用户在提权PowerShell中注册任务。此时凭证框要求该Windows账户的实际密码，与业务密码不同：
 
 ```powershell
-npm run deploy:host -- stop --root 'D:\Quote777Host'
-npm run deploy:host -- status --root 'D:\Quote777Host'
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation install -Root D:\Quote777Host
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation start -Root D:\Quote777Host
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation status -Root D:\Quote777Host
 ```
 
-真正启用前仍需：主机重启后的HTTPS/设备入口、当前身份对备份目录的访问、每日双格式备份和独立恢复，以及首批1台母版和实际子版的人员/设备映射。最终本地封包沿用[P07流程](P07-04-packaging-contract.md)，连接输入改用本次生成的 `connection.json`；不下载远端测试包，不重跑已取消的母子构建准备验证。
+只有明确的install会注册开机任务/相应防火墙规则，不会默认启动服务。后台运行时无需保持开发者版、母版或子版打开。维护前使用 `-Operation stop` 请求正常退出，确认任务停止且LastTaskResult=0；remove只移除本账本已停止的任务/规则，保留业务数据。任务Running不单独证明HTTPS、实际业务和每日备份已验收。
+
+当前4.38可采集，不允许prepare独立备用写账本；主备复制/接管仍未实现。真正启用前仍需实机身份/目录、重启后业务入口、双位置双格式备份的独立恢复，以及首批设备映射。最终母子封包继续在开发电脑本地进行，使用目标机生成的公开 `connection.json`；已取消的母子构建准备验证不重跑，不下载远端测试包。
+
+新增脚本按采集、路径、包校验、受限日志、原生调用、准备和入口分工。见[后台包检查记录](P08-02-portable-checks.json)。
 
 ## 验证与既有失败
 
@@ -76,3 +81,5 @@ npm run deploy:host -- status --root 'D:\Quote777Host'
 该轮随后失败于新增部署单元检查：Windows路径短名/完整名称不一致时，服务根未规范化而备份目录已规范化，导致重叠目录没有在构建前被拒绝。现已将经本地磁盘/重解析检查的服务根也规范化；原拒绝断言保留，本地4项重跑通过，Windows复查待新提交触发。原生和浏览器步骤本轮尚未执行，见[首轮Windows失败记录](P08-02-windows-ci.json)。
 
 修复提交 `ae313a1` 的[第二轮Windows功能CI39043638535](https://github.com/uniquenesssta/777/actions/runs/39043638535)中，4项部署检查及PowerShell语法解析已通过；记录时正在执行Windows Rust/浏览器/WebView2步骤，后续后台/备份检查尚未执行，installers仍跳过。计划任务注册和真实重启仍未在服务主机验证。
+
+2026-10-18复查：第二轮CI39043638535的desktop-contracts最终success，installers为skipped；原有30项浏览器及后续原生功能步骤均已完成。本次独立后台包为后续新增实现，须另行检查，不能沿用旧CI冒充新包已验证。
