@@ -29,7 +29,7 @@ $candidate=Join-Path $Base 'bin\quote-host.exe'
 $site=[pscustomobject]@{machine=$env:COMPUTERNAME;sid=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value;account=[Security.Principal.WindowsIdentity]::GetCurrent().Name;addresses=@('192.0.2.58')}
 $script:fixtureSite=$site; $script:fixtureRoot=$root
 function Get-LocalHostInventory { return $script:fixtureSite }
-$manifest=[pscustomobject]@{schema='777-site-deployment-v1';root=$root;owner_sid=$site.sid;owner_account=$site.account;machine=$site.machine;source_commit=('a'*40);active_address='192.0.2.58';port=8477;ledger_id='00000000-0000-0000-0000-000000000001';certificate_sha256=('b'*64);deployment_mode='standalone';replication='not_implemented';host_sha256=(Get-FileDigest (Join-Path $private 'rust-service-host.exe'));runner_sha256=(Get-FileDigest (Join-Path $private 'host-run.ps1'));identity_sha256=(Get-FileDigest (Join-Path $private 'host-identity.ps1'))}
+$manifest=[pscustomobject]@{schema='777-site-deployment-v1';root=$root;owner_sid=$site.sid;owner_account=$site.account;machine=$site.machine;source_commit=('a'*40);active_address='192.0.2.58';port=8477;ledger_id='00000000-0000-0000-0000-000000000001';certificate_sha256=('b'*64);replication='not_implemented';host_sha256=(Get-FileDigest (Join-Path $private 'rust-service-host.exe'));runner_sha256=(Get-FileDigest (Join-Path $private 'host-run.ps1'));identity_sha256=(Get-FileDigest (Join-Path $private 'host-identity.ps1'))}
 Write-HostJsonNew (Join-Path $private 'deployment.json') $manifest
 Write-HostJsonNew (Join-Path $root 'client-template.json') @{url='https://192.0.2.58:8477';certificate_sha256=('b'*64)}
 [IO.File]::WriteAllText((Join-Path $root 'service-cert.pem'),'synthetic-public-certificate')
@@ -61,8 +61,9 @@ if ($script:starts) { throw 'INTERRUPTED_UPGRADE_STARTED_SERVICE' }
 try { $null=Get-HostDeployment $root; throw 'OLD_HASH_ACCEPTED_NEW_BINARY' }
 catch { if ($_.Exception.Message -ne 'HOST_DEPLOYMENT_RESOURCE_CHANGED') { throw } }
 Enable-HostCluster $Base $bundle $settings
+# The original deployed manifest intentionally lacks deployment_mode.
 $saved=Get-HostDeployment $root
-if ($script:stops -ne 1 -or $script:starts -ne 1 -or $script:selections -ne 2 -or $saved.ledger_id -ne $manifest.ledger_id -or $saved.certificate_sha256 -ne $manifest.certificate_sha256 -or $saved.replication -ne 'primary_async_snapshot_v1') { throw 'UPGRADE_RETRY_CHANGED_IDENTITY_OR_RESTARTED_TWICE' }
+if ($script:stops -ne 1 -or $script:starts -ne 1 -or $script:selections -ne 2 -or $saved.ledger_id -ne $manifest.ledger_id -or $saved.certificate_sha256 -ne $manifest.certificate_sha256 -or $saved.replication -ne 'primary_async_snapshot_v1' -or $saved.deployment_mode -ne 'cluster') { throw 'UPGRADE_RETRY_CHANGED_IDENTITY_OR_RESTARTED_TWICE' }
 [IO.File]::AppendAllText($candidate,'tampered-after-console-loaded')
 try { Enable-HostCluster $Base $bundle $settings; throw 'CHANGED_PACKAGE_EXECUTED' }
 catch { if ($_.Exception.Message -ne 'HOST_PACKAGE_RESOURCE_CHANGED') { throw } }

@@ -13,7 +13,7 @@ foreach ($name in @('host-identity.ps1','host-log.ps1','host-package.ps1','host-
 function Show-ConsoleFailure($Failure) {
     $code = $Failure.Exception.Message
     if ($code -notmatch '^[A-Z][A-Z0-9_]{4,100}$') { $code='WINDOWS_HOST_DEPLOYMENT_FAILED' }
-    Write-HostEvent 'host.console.failed' @{operation=$script:SelectedAction;error=$code;hresult=$Failure.Exception.HResult}
+    Write-HostEvent 'host.console.failed' @{operation=$script:SelectedAction;error=$code;hresult=$Failure.Exception.HResult;exception_type=$Failure.Exception.GetType().FullName;script_file=[IO.Path]::GetFileName($Failure.InvocationInfo.ScriptName);script_line=$Failure.InvocationInfo.ScriptLineNumber}
     Write-Host ('操作未完成：' + $code) -ForegroundColor Red
     Write-Host '已有数据已保留。请打开日志，将本次 runtime.jsonl 提供给维护人员。'
 }

@@ -38,7 +38,10 @@ function Complete-HostClusterDeployment([string] $Directory,$Bundle,$Settings,$S
         }
         $deployment=[pscustomobject]@{schema='777-site-deployment-v1';root=$root;owner_sid=$Site.sid;owner_account=$Site.account;machine=$Site.machine;source_commit=$Bundle.source_commit;host_order=@($Settings.address);active_address=$Settings.address;port=$Settings.port;ledger_id=$checked.inventory.ledger_id;certificate_sha256=$checked.certificate_sha256;autostart='not_registered';deployment_mode='cluster';replication='primary_async_snapshot_v1';host_sha256=(Get-FileDigest $native);identity_sha256=(Get-FileDigest (Join-Path $root 'private\host-identity.ps1'));runner_sha256=(Get-FileDigest (Join-Path $root 'private\host-run.ps1'))}
     }
-    $deployment.deployment_mode='cluster'; $deployment.replication='primary_async_snapshot_v1'
+    # Early standalone manifests predate deployment_mode. Preserve their owned
+    # identity/resources and add only the authenticated cluster metadata.
+    $deployment | Add-Member -MemberType NoteProperty -Name deployment_mode -Value 'cluster' -Force
+    $deployment | Add-Member -MemberType NoteProperty -Name replication -Value 'primary_async_snapshot_v1' -Force
     Write-HostJsonReplace $path $deployment
     return $cluster
 }
