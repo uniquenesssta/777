@@ -96,6 +96,11 @@ def main():
         assert follower.config['certificate_sha256'] != primary.config['certificate_sha256']
         assert (follower.host_root / 'private/tls-key.pem').read_bytes() != (primary.host_root / 'private/tls-key.pem').read_bytes()
         assert command('cluster-join', **joining)['node_id'] == joined['cluster']['node_id']
+        from p08_sync_bundle import check as check_bundle
+        bundle_invitation = primary.root / 'bundle.777join'
+        bundle_invitation.write_text(json.dumps(command('cluster-invite', root=primary.host_root, admin='manager', secret=primary.password)), encoding='utf-8')
+        check_bundle(primary, primary.root, bundle_invitation, follower.port, ROOT)
+        checks.append('Windows_PowerShell_5_1_portable_join_without_SDKs_creates_owned_deployment_and_public_connection')
         follower.start()
         remote = follower.client('manager')
         assert remote.request('GET', '/v1/capabilities')['protocol'] == '777-service-v1'
@@ -150,13 +155,32 @@ def main():
         until(lambda: inventory(follower.host_root)['counts']['orders'] == 2)
         checks.append('primary_outage_never_writes_replica_and_reconnect_preserves_session_and_request_identity')
         follower.stop()
+        # A TLS-authenticated damaged file cannot replace the last good generation.
+        old_pointer = json.loads((follower.host_root / 'private/cluster/current.json').read_bytes())
+        admin = primary.client('manager')
+        admin.request('POST', '/v1/orders', dict(payload, request_id=str(uuid.uuid4()), details=dict(customer='坏块隔离', order_ref='000004', wechat='')))
+        until(lambda: inventory(primary.host_root)['counts']['orders'] == 3)
+        primary.stop()
+        from p08_sync_fault import DamagedTransfer
+        with DamagedTransfer(primary) as damaged:
+            follower.start()
+            until(lambda: command('cluster-status', root=follower.host_root)['state'].get('error') == 'CLUSTER_FILE_HASH_INVALID')
+            assert json.loads((follower.host_root / 'private/cluster/current.json').read_bytes()) == old_pointer
+            follower.stop()
+            damaged.seed_partial(follower)
+            follower.start()
+            until(lambda: inventory(follower.host_root)['counts']['orders'] == 3)
+            assert ('ledger.sqlite3', 4096) in damaged.offsets
+            follower.stop()
+        primary.start()
+        checks.append('damaged_TLS_chunk_rejected_last_generation_retained_and_restart_resumes_verified_partial_offset')
         # An interrupted staging directory is removed without changing the last complete generation.
         orphan = follower.host_root / 'private/cluster' / ('stage-' + str(uuid.uuid4()))
         orphan.mkdir(); (orphan / 'unfinished').write_bytes(b'incomplete')
         admin = primary.client('manager')
         admin.request('POST', '/v1/orders', dict(payload, request_id=str(uuid.uuid4()), details=dict(customer='继续同步', order_ref='000003', wechat='')))
         follower.start()
-        until(lambda: inventory(follower.host_root)['counts']['orders'] == 3)
+        until(lambda: inventory(follower.host_root)['counts']['orders'] == 4)
         assert not orphan.exists()
         checks.append('restart_catches_up_and_cleans_interrupted_stage_without_partial_publication')
         node = joined['cluster']['node_id']

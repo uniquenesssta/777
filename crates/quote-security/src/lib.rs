@@ -16,7 +16,10 @@ pub struct Error {
 }
 impl Error {
     pub fn new(status: u16, code: &str) -> Self {
-        Self { status, code: code.into() }
+        Self {
+            status,
+            code: code.into(),
+        }
     }
 }
 pub type Result<T> = std::result::Result<T, Error>;

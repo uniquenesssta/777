@@ -35,14 +35,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Rust setup failed' }
           python -m pip install -r requirements-baseline.txt -r requirements-service.txt
           if ($LASTEXITCODE -ne 0) { throw 'Host verification dependencies failed' }
-      - name: Normalize and report host Rust formatting
+      - name: Check host Rust formatting
         shell: pwsh
         run: |
-          cargo fmt --all
+          cargo fmt --all -- --check
           if ($LASTEXITCODE -ne 0) { throw 'Formatting failed' }
-          Write-Output 'P08_FORMAT_PATCH_BEGIN'
-          git diff --no-color
-          Write-Output 'P08_FORMAT_PATCH_END'
       - name: Native cluster protocol and strict analysis
         shell: pwsh
         run: |

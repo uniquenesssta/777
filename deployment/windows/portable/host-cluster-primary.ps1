@@ -17,9 +17,10 @@ function Enable-HostCluster([string] $Directory,$Bundle,$Settings) {
     $root=$Settings.root
     if (-not (Test-Path -LiteralPath (Join-Path $root 'private\deployment.json'))) { throw 'PREPARE_EXISTING_PRIMARY_FIRST' }
     $candidate=Join-Path $Directory 'bin\quote-host.exe'
+    $candidateHash=$Bundle.files.'bin/quote-host.exe'
+    if ((Get-FileDigest $candidate) -ne $candidateHash) { throw 'HOST_PACKAGE_RESOURCE_CHANGED' }
     $capability=Invoke-HostNative $candidate @('resource-info')
     if ($capability.cluster_protocol -ne '777-cluster-v1') { throw 'REBUILD_HOST_PACKAGE_FOR_CLUSTER' }
-    $candidateHash=Get-FileDigest $candidate
     # The candidate exception only permits this exact, package-verified host hash.
     # This allows an authenticated retry if power failed after native selection.
     $deployment=Get-HostDeployment $root $candidateHash

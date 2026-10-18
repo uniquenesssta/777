@@ -91,9 +91,9 @@ impl Service {
         let auth = Auth::open(data.join("auth.sqlite3"))?;
         let devices = match config.get("device_auth") {
             None => None,
-            Some(v) if v == crate::devices::FORMAT => Some(crate::devices::Devices::open(
-                data.join("devices.sqlite3"),
-            )?),
+            Some(v) if v == crate::devices::FORMAT => {
+                Some(crate::devices::Devices::open(data.join("devices.sqlite3"))?)
+            }
             _ => return fail(409, "DEVICE_PROTOCOL_CONFLICT"),
         };
         if let Some(d) = &devices {
@@ -119,7 +119,9 @@ impl Service {
             None
         };
         // v1 upgrade is atomic and occurs only after validating this service and resources.
-        drop(store::open(&ledger, true)?);
+        if data == private {
+            drop(store::open(&ledger, true)?);
+        }
         Ok(Self {
             root: root.into(),
             config,
@@ -204,7 +206,11 @@ impl Service {
         Ok(v)
     }
     pub fn prepare_output(&self) -> Result<Option<Work>> {
-        if crate::cluster::config::read(&self.root)?.is_some_and(|c| c.role == crate::cluster::config::Role::Replica) { return Ok(None); }
+        if crate::cluster::config::read(&self.root)?
+            .is_some_and(|c| c.role == crate::cluster::config::Role::Replica)
+        {
+            return Ok(None);
+        }
         match &self.outputs {
             Some(o) => o.prepare(&self.auth, self.font.clone()),
             None => Ok(None),
@@ -233,7 +239,9 @@ impl Service {
         query: &str,
         peer: &str,
     ) -> Result<Value> {
-        if crate::cluster::config::read(&self.root)?.is_some_and(|c| c.role == crate::cluster::config::Role::Replica) {
+        if crate::cluster::config::read(&self.root)?
+            .is_some_and(|c| c.role == crate::cluster::config::Role::Replica)
+        {
             return fail(409, "CLUSTER_REPLICA_CANNOT_WRITE");
         }
         if path.starts_with("/v1/cluster/") {

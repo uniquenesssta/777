@@ -187,9 +187,16 @@ impl Args {
 }
 async fn execute(a: Args) -> Result<Value> {
     let auxiliary = a.has("--auxiliary");
-    if a.command.starts_with("cluster-") || a.command == "resource-info" { return cluster_cli::execute(&a).await; }
+    if a.command.starts_with("cluster-") || a.command == "resource-info" {
+        return cluster_cli::execute(&a).await;
+    }
     let root = a.path("--root")?;
-    if !["inspect", "run"].contains(&a.command.as_str()) && quote_host::cluster::config::read(&root)?.is_some_and(|c| c.role == quote_host::cluster::config::Role::Replica) { return fail(409,"CLUSTER_REPLICA_CANNOT_WRITE"); }
+    if !["inspect", "run"].contains(&a.command.as_str())
+        && quote_host::cluster::config::read(&root)?
+            .is_some_and(|c| c.role == quote_host::cluster::config::Role::Replica)
+    {
+        return fail(409, "CLUSTER_REPLICA_CANNOT_WRITE");
+    }
     match a.command.as_str(){
   "init"=>{let config=host::initialize(Init{root,backups:a.path("--backup-dir")?,hosts:a.options.get("--host").cloned().unwrap_or_default(),bind:a.default("--bind","127.0.0.1").into(),port:a.default("--port","8477").parse().map_err(|_|Error::new(422,"HOST_CONFIG_INVALID"))?,user:a.default("--admin","manager").into(),secret:a.secret(true)?,worker:a.path("--worker")?,notices:a.path("--notices")?,auxiliary})?;Ok(json!({"status":"initialized_not_started","ledger_id":config["ledger_id"],"certificate_sha256":config["certificate_sha256"],"host_backend":"rust"}))},
   "run"=>{let mut service=Service::load(&root,auxiliary,false)?;if (a.has("--test-fault-file")||a.has("--test-shutdown-stdin"))&&!a.has("--isolated-test"){return fail(422,"ISOLATED_TEST_FLAG_REQUIRED")}
