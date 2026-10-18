@@ -99,6 +99,9 @@ def main():
                     assert result['totals']['income_cents'] == order['income_cents']
                 finally:c.logout()
             report['checks'].append('A_B_A_real_prices_orders_and_exact_totals_isolated')
+            from p08_offline_check import check as offline_check
+            offline_check(controller, ipc, b, a, base / '离线工作副本', id_b, order_b['order_id'], args.readonly_destination)
+            report['checks'].append('offline_copy_through_native_IPC_preserves_source_hashes_hidden_attributes_and_refuses_busy_or_wrong_password')
             # Exercise published Excel/image destinations through the same native IPC as the UI.
             exports = base / '共享 输出'; exports.mkdir()
             for directory in [exports, devdir]:
