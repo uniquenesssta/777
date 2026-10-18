@@ -1,0 +1,98 @@
+{
+  "task": "P08-02",
+  "component": "same_ledger_join_and_asynchronous_replication",
+  "status": "isolated_windows_passed_site_activation_pending",
+  "recorded_at": "2026-10-18T05:10:13.397455+00:00",
+  "branch": "stage/p08-cutover",
+  "runtime_commit": "f25391b2080d1ff24f601e54e509c857c24911f0",
+  "verified_commit": "3787796c576479a17733aa760a7d490f597e1bb6",
+  "production_inputs_unchanged_between_runtime_and_verification": {
+    "crates": "e68dbb10d2c73450cd4e5a8d9d4b57f401ca1626",
+    "desktop": "6661cb6b827233dec6853597489714a5245096f6",
+    "deployment": "6a616271263ae8651b1ba99634f868f252f68493",
+    "Cargo.toml": "56297f079082723d12783ec5c16ab31f43be24cc",
+    "Cargo.lock": "530bd4b490cabce82d484daafa6f54f11b075447",
+    "docs/verification/P08-02-cluster-schema.sql": "dfa394250d919aeed76175735c061c230ac90dd8"
+  },
+  "windows_checks": {
+    "deployment_powershell_5_1": {
+      "run_id": 39097402849,
+      "job_id": 117586584009,
+      "step": 7,
+      "passed": 14,
+      "skipped": 0,
+      "status": "passed"
+    },
+    "rust_host_security": {
+      "run_id": 39097402849,
+      "job_id": 117586584269,
+      "strict_clippy": "passed",
+      "tests_passed": 43,
+      "status": "passed_before_old_fixture_failure",
+      "step_name": "Native cluster protocol and strict analysis"
+    },
+    "two_real_nodes": {
+      "run_id": 39099017438,
+      "job_id": 117591272659,
+      "status": "passed",
+      "native_release_rebuilt_from_source": true,
+      "report": {
+        "task": "P08-02",
+        "scope": "two_owned_Windows_Rust_TLS_hosts",
+        "status": "passed",
+        "live_hosts_contacted": false,
+        "installers_built": false,
+        "automatic_failover": false,
+        "checks": [
+          "Windows_PowerShell_5_1_portable_join_without_SDKs_creates_owned_deployment_and_public_connection",
+          "fresh_join_same_ledger_accounts_prices_independent_TLS_and_repeatable_join",
+          "replica_forwards_order_create_retry_and_edit_once_with_frozen_revision_history",
+          "completed_output_metadata_and_exact_readable_Excel_blob_replicated",
+          "single_use_join_ticket_replay_rejected",
+          "stable_device_identity_and_revocation_replicated_and_enforced_by_primary",
+          "primary_outage_never_writes_replica_and_reconnect_preserves_session_and_request_identity",
+          "damaged_TLS_chunk_rejected_last_generation_retained_and_restart_resumes_verified_partial_offset",
+          "restart_catches_up_and_cleans_interrupted_stage_without_partial_publication",
+          "node_revocation_immediately_blocks_business_forwarding_and_sync",
+          "all_published_file_hashes_match_and_logs_are_bounded_without_tickets_passwords_or_payloads"
+        ]
+      }
+    },
+    "full_desktop_regression": {
+      "run_id": 39097402849,
+      "job_id": 117586584009,
+      "status": "success",
+      "scope": [
+        "strict_workspace_checks",
+        "real_Rust_HTTPS_and_native_Tauri_WebView2",
+        "editable_customer_orders_and_monthly_reports",
+        "production_stdin_shutdown",
+        "Windows_IO_diagnostics",
+        "developer_switching_daily_dual_format_backup_and_recovery",
+        "actual_SMB_mapped_hidden_junction_paths",
+        "device_identity_role_presentation_and_quote_images"
+      ]
+    }
+  },
+  "scope": {
+    "actual_windows": true,
+    "real_native_TLS_processes": true,
+    "SDK_commands_absent_during_portable_join": true,
+    "windows_task_registration_in_join_harness": "stubbed_only",
+    "live_hosts_contacted": false,
+    "installers_built": false,
+    "remote_test_packages_downloaded": false
+  },
+  "not_implemented": [
+    "automatic_primary_promotion",
+    "automatic_failover_and_fencing",
+    "ordered_multi_address_client_switching",
+    "synchronous_commit_to_both_nodes"
+  ],
+  "site": {
+    "192.168.4.23": "previous_service_running_reboot_port_confirmed_by_user_this_cluster_upgrade_not_executed",
+    "192.168.4.38": "cluster_join_not_executed"
+  },
+  "CI_interpretation": "39097402849 overall is red only because its earlier sync fixture failed; its desktop job and Rust protocol step passed. Corrected test-only harness 3787796 passed in 39099017438. Production paths above are identical; no overall success is claimed for the red run.",
+  "focused_CI": "[host-checks] requires a validated test/doc-only diff; it rebuilds native hosts and runs the full two-node behavior check. Existing full desktop regression is not cancelled or repeated for fixture-only changes. Installers remain opt-in and were skipped."
+}
