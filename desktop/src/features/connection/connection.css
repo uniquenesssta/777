@@ -1,0 +1,33 @@
+.dialog-content.connection-dialog {
+  width: min(600px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 24px;
+  overflow-y: auto;
+}
+.connection-dialog .dialog-description {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.connection-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  min-width: 0;
+}
+.connection-form > *, .connection-form .field { min-width: 0; }
+.connection-form .input, .connection-form textarea { width: 100%; max-width: 100%; }
+.connection-form .form-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.connection-form summary { cursor: pointer; color: var(--color-muted); }
+.connection-form details[open] summary { margin-bottom: 12px; }
+.connection-form details .field + .field { margin-top: 12px; }
+.connection-form .connection-help { font-size: 12px; line-height: 20px; overflow-wrap: anywhere; }
+.connection-form .inline-error { overflow-wrap: anywhere; }
+.connection-form .dialog-actions { flex-wrap: wrap; }
+@media (max-width: 480px) {
+  .dialog-content.connection-dialog { padding: 20px; }
+  .connection-form .form-pair { grid-template-columns: minmax(0, 1fr); }
+}

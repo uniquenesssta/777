@@ -143,7 +143,7 @@ export default function App() {
           {!formalPackage && app.delivery === "development" && app.route === "developer" && app.session.role === "admin" && <DeveloperPage app={app} />}
         </main>
       )}
-    {!formalPackage && app.delivery==="development" && <Modal open={app.connectionDialog} onOpenChange={v=>!v&&app.closeConnectionDialog()} title="导入 Host 连接" compact><ConnectionForm saved={app.connection} busy={app.busy} onSubmit={app.connect}/></Modal>}
+    {!formalPackage && app.delivery==="development" && <Modal open={app.connectionDialog} onOpenChange={v=>!v&&app.closeConnectionDialog()} title="连接后台服务" description="选择开发版要读取的在线后台。" className="connection-dialog"><ConnectionForm saved={app.connection} busy={app.busy} onCancel={app.closeConnectionDialog} onSubmit={app.connect}/></Modal>}
     <Modal open={!!app.draftChange} onOpenChange={(v)=>!v&&app.cancelDraftChange()} title="尚有未保存的修改" description="继续当前编辑，或放弃草稿并切换。" compact>
         <div className="dialog-actions"><Button variant="outline" onClick={app.resumeDraft}>继续编辑</Button><Button onClick={app.confirmDraftChange}>放弃修改</Button></div>
       </Modal>

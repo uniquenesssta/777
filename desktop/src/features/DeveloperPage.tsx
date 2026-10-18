@@ -88,7 +88,7 @@ export function DeveloperPage({app}:{app:Workbench}) {
     <div className="developer-grid">
       <section className="card developer-card">
         <div className="developer-heading"><h2>当前读取的数据</h2><small className={available?"developer-connected":"muted"}>{available?"本机服务":"连接不可用"}</small></div>
-        <div className="developer-source"><p className="developer-job-path">在线连接：{app.connection?.url??"—"}</p><small>账本：{app.session?.ledger_id??"身份待核对"}</small><Button variant="outline" disabled={disabled||building||app.pending} onClick={()=>void app.editConnection()}>导入或更换 Host 连接</Button></div>
+        <div className="developer-source"><p className="developer-job-path">在线连接：{app.connection?.url??"—"}</p><small>账本：{app.session?.ledger_id??"身份待核对"}</small><Button variant="outline" disabled={disabled||building||app.pending} onClick={()=>void app.editConnection()}>选择或更换后台连接</Button></div>
         <h3>本机开发工作副本</h3>
         <div className="developer-path"><Field label="存储位置" compact><Input value={root} onChange={e=>setRoot(e.target.value)} title={root} disabled={disabled||building}/></Field><Button variant="outline" disabled={disabled||building} onClick={()=>void pick("developer_root",setRoot)}>选择目录</Button></div>
         <div className="developer-actions"><Button disabled={disabled||building||app.pending||!root} onClick={()=>{if(root===state?.root)void select(false);else setDialog("directory");}}>读取此位置</Button><Button variant="outline" disabled={disabled||building||app.pending} onClick={()=>setDialog("create")}>新建空账本</Button><Button variant="outline" disabled={disabled||building||app.pending} onClick={()=>{setError("");setDialog("restore");}}>导入备份</Button></div>

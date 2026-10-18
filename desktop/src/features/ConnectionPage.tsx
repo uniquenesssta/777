@@ -15,7 +15,7 @@ export function ConnectionPage({
     <main className="connection-page">
       <section className="card connection-card">
         <h1>连接记账器</h1>
-        <p className="muted">导入 Host 的公开连接文件，再验证账号。</p>
+        <p className="muted">选择后台连接文件，再验证账号。</p>
         {error && (
           <p className="inline-error" role="alert">
             {error}

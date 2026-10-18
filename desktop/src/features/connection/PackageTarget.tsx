@@ -45,7 +45,7 @@ export function PackageTarget({
       <small className="muted">
         {state.target
           ? `账本 ${state.target.ledger_id} · ${state.verified ? "已核对" : "本次启动需重新核对"}`
-          : "导入 Host 公开连接文件，核对后再封包。"}
+          : "选择后台连接文件，或使用当前已连接的 Host。"}
       </small>
       <p className="muted">独立保存；切换当前读取的数据不会改变此目标。</p>
       <Button variant="outline" disabled={disabled} onClick={async()=>{
@@ -64,11 +64,12 @@ export function PackageTarget({
           {error}
         </p>
       )}
-      <Modal open={open} onOpenChange={setOpen} title="核对封包目标" compact>
+      <Modal open={open} onOpenChange={setOpen} title="选择封包连接的后台" description="设置母版、子版连接的后台；不改变开发版当前数据。" className="connection-dialog">
         <ConnectionForm
           saved={state.target?.connection ?? null}
           busy={disabled}
           submitLabel="核对并保存目标"
+          onCancel={() => setOpen(false)}
           onSubmit={async (connection, username, password) => {
             const r = await request<TargetState>("verify_package_target", {
               connection,

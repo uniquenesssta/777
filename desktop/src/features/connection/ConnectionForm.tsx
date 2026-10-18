@@ -2,15 +2,18 @@ import { useState } from "react";
 import type { Connection } from "../../contracts";
 import { request, errorMessage } from "../../bridge";
 import { Button, Field, Input } from "../../ui/components";
+import "./connection.css";
 export function ConnectionForm({
   saved,
   busy,
   submitLabel = "验证并连接",
   onSubmit,
+  onCancel,
 }: {
   saved: Connection | null;
   busy: boolean;
   submitLabel?: string;
+  onCancel?: () => void;
   onSubmit: (
     c: Connection,
     username: string,
@@ -75,8 +78,9 @@ export function ConnectionForm({
         disabled={disabled}
         onClick={() => void importFile()}
       >
-        导入 Host 连接文件
+        选择后台连接文件
       </Button>
+      <p className="muted connection-help">选择 Host 部署目录 Quote777Service 中的 connection.json，自动读取地址与证书，不导入业务数据。</p>
       {imported && (
         <p className="muted">文件已读取；输入管理员账号后核对服务身份。</p>
       )}
@@ -90,8 +94,8 @@ export function ConnectionForm({
           onChange={(e) => change("url", e.target.value)}
         />
       </Field>
-      <details open={!imported && !saved}>
-        <summary>证书与指纹</summary>
+      <details onInvalidCapture={(event) => { event.currentTarget.open = true; }}>
+        <summary>证书与指纹（高级）</summary>
         <Field label="服务证书（PEM）">
           <textarea
             required
@@ -134,14 +138,18 @@ export function ConnectionForm({
           />
         </Field>
       </div>
+      <p className="muted connection-help">使用后台管理员账号；不是 Windows 登录密码。</p>
       {error && (
         <p className="inline-error" role="alert">
           {error}
         </p>
       )}
-      <Button type="submit" disabled={disabled}>
-        {working ? "正在核对…" : submitLabel}
-      </Button>
+      <div className="dialog-actions">
+        {onCancel && <Button variant="outline" disabled={disabled} onClick={onCancel}>取消</Button>}
+        <Button type="submit" disabled={disabled}>
+          {working ? "正在核对…" : submitLabel}
+        </Button>
+      </div>
     </form>
   );
 }

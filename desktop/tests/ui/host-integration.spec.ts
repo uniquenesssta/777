@@ -177,7 +177,7 @@ test("wrong connection-file type preserves the filled connection", async ({
 }) => {
   await setup(page, "development");
   await page
-    .getByRole("button", { name: "导入 Host 连接文件", exact: true })
+    .getByRole("button", { name: "选择后台连接文件", exact: true })
     .click();
   await expect(page.getByRole("alert")).toContainText("文件用途不匹配");
   await expect(page.getByLabel("服务地址", { exact: true })).toHaveValue(
