@@ -97,6 +97,7 @@ impl Desktop {
         connection: Connection,
         username: String,
         password: String,
+        mode: &str,
     ) -> Result<Value> {
         development()?;
         if self.has_pending()? {
@@ -118,9 +119,8 @@ impl Desktop {
             caps["ledger_id"].as_str().map(str::to_owned)
         };
         // Only a verified login replaces the persisted connection and active session.
-        self.store.replace("connection.bin", &connection)?;
+        self.remember_source(mode, connection)?;
         let value = json!({"subject":session.subject,"role":session.role,"username":username,"pending":self.has_pending()?,"pricing_mode_version":caps["pricing_mode_version"],"catalog":catalog,"settings":settings,"ledger_id":ledger_id});
-        self.store.replace("data-source-mode.bin", &"host")?;
         self.session = Some(session);
         self.calculation = None;
         Ok(value)

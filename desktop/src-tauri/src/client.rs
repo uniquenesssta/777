@@ -1,4 +1,5 @@
 mod connections;
+mod data_source;
 mod enrollment;
 mod preferences;
 mod transport;
@@ -216,12 +217,7 @@ impl Desktop {
         use crate::startup::{self, Bootstrap};
         let kind = startup::delivery();
         if !startup::formal() {
-            if self
-                .store
-                .read::<String>("data-source-mode.bin")?
-                .as_deref()
-                == Some("host")
-            {
+            if self.host_selected()? {
                 return Ok(json!({"delivery":kind,"session":null,"automatic":false}));
             }
             #[cfg(all(
@@ -230,32 +226,33 @@ impl Desktop {
             ))]
             if crate::developer::available() {
                 let config = crate::developer::bootstrap().await?;
-                let session = Box::pin(
-                    self.execute_inner(Action::Connect {
-                        connection: serde_json::from_value(config["connection"].clone())
+                let session = self
+                    .connect(
+                        serde_json::from_value(config["connection"].clone())
                             .map_err(|_| DesktopError::new(502, "DEVELOPER_CONFIG_INVALID"))?,
-                        username: config["username"]
+                        config["username"]
                             .as_str()
                             .ok_or_else(|| DesktopError::new(502, "DEVELOPER_CONFIG_INVALID"))?
                             .into(),
-                        password: config["password"]
+                        config["password"]
                             .as_str()
                             .ok_or_else(|| DesktopError::new(502, "DEVELOPER_CONFIG_INVALID"))?
                             .into(),
-                    }),
-                )
-                .await?;
-                self.store.replace("data-source-mode.bin", &"local")?;
+                        "local",
+                    )
+                    .await?;
                 return Ok(json!({"delivery":kind,"session":session,"automatic":true}));
             }
             if let Some(config) = self.store.bootstrap::<Bootstrap>()? {
                 config.validate(kind)?;
-                let session = Box::pin(self.execute_inner(Action::Connect {
-                    connection: config.connection,
-                    username: config.username.unwrap(),
-                    password: config.password.unwrap(),
-                }))
-                .await?;
+                let session = self
+                    .connect(
+                        config.connection,
+                        config.username.unwrap(),
+                        config.password.unwrap(),
+                        "local",
+                    )
+                    .await?;
                 return Ok(json!({"delivery":kind,"session":session,"automatic":true}));
             }
             return Ok(json!({"delivery":kind,"session":null,"automatic":false}));
@@ -293,7 +290,7 @@ impl Desktop {
                 }
                 let result = crate::developer::call(data).await?;
                 if switches {
-                    self.store.replace("data-source-mode.bin", &"local")?;
+                    self.remember_source("local", serde_json::from_value(result["connection"].clone()).map_err(|_|DesktopError::new(502,"DEVELOPER_CONFIG_INVALID"))?)?;
                     self.session = None;
                     self.calculation = None;
                     self.auto_expires = 0;
@@ -302,7 +299,7 @@ impl Desktop {
             }
             Action::Bootstrap {} => self.bootstrap().await,
             Action::Connection {} => Ok(
-                json!({"delivery":crate::startup::delivery(),"automatic":crate::startup::formal() || self.store.bootstrap::<crate::startup::Bootstrap>()?.is_some(),"connection":if crate::startup::formal(){None}else{self.store.read::<Connection>("connection.bin")?},"pending":self.has_pending()?}),
+                json!({"delivery":crate::startup::delivery(),"automatic":crate::startup::formal() || self.store.bootstrap::<crate::startup::Bootstrap>()?.is_some(),"connection":if crate::startup::formal(){None}else{self.saved_connection()?},"pending":self.has_pending()?}),
             ),
             Action::ImportConnection { path } => {
                 connections::development()?;
@@ -313,7 +310,7 @@ impl Desktop {
             Action::SaveBusinessDirectory { directory } => self.business_directory(Some(directory)).await,
             Action::PackageTarget {} => self.package_target(),
             Action::VerifyPackageTarget { connection, username, password } => self.verify_package_target(connection, username, password).await,
-            Action::Connect { connection, username, password } => self.connect(connection, username, password).await,
+            Action::Connect { connection, username, password } => self.connect(connection, username, password, "host").await,
             Action::Disconnect {} => {
                 let result = self.request("POST", "/v1/logout", Some(&json!({}))).await;
                 self.session = None;

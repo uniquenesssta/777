@@ -246,6 +246,11 @@ export function useWorkbench() {
         setConnectionDialog(false);
         setConnection(c);
         setSession(s);
+        setSelected(null);
+        setListing(null);
+        setAnalysis(null);
+        acceptJobs(null);
+        setBackup(null);
         setPending(s.pending);
         setCatalog(p);
         setPreferences(dirs);
