@@ -28,12 +28,9 @@ export async function inspectPresentation(page, output, delivery) {
       samples.push({scale,emulation:true,...result,screenshot:file});
     }
   } finally {await session.send('Emulation.clearDeviceMetricsOverride');await session.detach();}
-  const trigger=page.getByRole('button',{name:'账户菜单',exact:true});
-  await trigger.focus();await trigger.press('Enter');
-  await expect(page.getByRole('button',{name:'退出登录',exact:true})).toBeFocused();
-  await page.keyboard.press('Escape');await expect(trigger).toBeFocused();
+  await expect(page.getByRole('button',{name:'账户菜单',exact:true})).toHaveCount(0);
   await expect(page.getByRole('button',{name:'退出登录',exact:true})).toHaveCount(0);
-  const report={status:'passed',delivery,initial,samples,account_keyboard_focus_and_escape:true,
+  const report={status:'passed',delivery,initial,samples,formal_account_controls_absent:true,
     scope:'Actual rendered DOM/fonts/assets and CDP scale emulation. Four emulations are not four actual OS DPI settings or multiple physical monitors.'};
   fs.writeFileSync(output+'/presentation.json',JSON.stringify(report,null,2));
   return report;

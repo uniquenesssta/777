@@ -1,5 +1,6 @@
 // Windows-only release orchestration using the pinned Tauri/NSIS toolchain.
 import fs from 'node:fs/promises';
+import { packagePermissions } from './package-permissions.mjs';
 import { requireNetworkTarget } from './package-target.mjs';
 import path from 'node:path';
 import { spawn, execFileSync } from 'node:child_process';
@@ -73,9 +74,10 @@ export async function ignoreGeneratedOutput(output, repository = root) {
 }
 
 export async function build(args) {
-  const a = options(args, ['--delivery', '--connection', '--output', '--version', '--webview']);
+  const a = options(args, ['--delivery', '--connection', '--output', '--version', '--webview', '--permissions']);
   const delivery = a['--delivery'], identity = requireDelivery(delivery);
   if (!a['--connection'] || !a['--output']) throw Error('package --delivery manager|sales --connection connection.json --output empty-directory');
+  const permissions = packagePermissions(delivery, a['--permissions'] === undefined ? undefined : JSON.parse(a['--permissions']));
   const config = publicConnection(await readJson(a['--connection']));
   requireNetworkTarget(config.connection);
   if (process.platform !== 'win32') throw Error('WINDOWS_PACKAGING_REQUIRED');
@@ -94,7 +96,7 @@ export async function build(args) {
     const overlay = bundleConfig(delivery, version, hooks, a['--webview']);
     const publicText = json(config);
     const meta = {
-      schema: '777-desktop-package-v1', delivery, identifier: identity.identifier, version,
+      schema: '777-desktop-package-v1', delivery, permissions, identifier: identity.identifier, version,
       source_commit: source, connection_sha256: digest(Buffer.from(publicText)),
       profile_compatibility_epoch: 1, service_protocol: '777-service-v1', device_protocol: '777-device-auth-v1',
     };
@@ -113,7 +115,7 @@ export async function build(args) {
     if (git(['status', '--porcelain'])) throw Error('BUILD_MODIFIED_SOURCE: inspect worktree before publishing');
     const binary = path.join(target, 'release', identity.binary + '.exe');
     const info = JSON.parse(execFileSync(binary, ['--package-info'], { encoding: 'utf8', timeout: 30000 }));
-    for (const key of Object.keys(meta)) if (info[key] !== meta[key]) throw Error('COMPILED_PACKAGE_MISMATCH: ' + key);
+    for (const key of Object.keys(meta)) if (JSON.stringify(info[key]) !== JSON.stringify(meta[key])) throw Error('COMPILED_PACKAGE_MISMATCH: ' + key);
     if (info.verification !== false || info.release !== true || info.custom_protocol !== true) throw Error('PRODUCTION_BINARY_REQUIRED');
     const installerDir = path.join(target, 'release/bundle/nsis');
     const installers = (await fs.readdir(installerDir)).filter(n => n.startsWith(identity.productName + '_' + version + '_') && n.endsWith('-setup.exe'));
@@ -124,6 +126,8 @@ export async function build(args) {
     await fs.writeFile(path.join(output, 'connection.json'), publicText);
     await fs.copyFile(path.join(desktop, 'THIRD_PARTY_NOTICES.md'), path.join(output, 'THIRD_PARTY_NOTICES.md'));
     await fs.copyFile(path.join(desktop, 'tools/enroll.ps1'), path.join(output, 'enroll.ps1'));
+    await fs.copyFile(path.join(desktop, 'tools/install.ps1'), path.join(output, 'install.ps1'));
+    await fs.writeFile(path.join(output, 'install.cmd'), '@echo off\r\npowershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File "%~dp0install.ps1"\r\n');
     const files = [];
     for (const name of await fs.readdir(output)) {
       const bytes = await fs.readFile(path.join(output, name));

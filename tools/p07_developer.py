@@ -245,7 +245,7 @@ class Developer:
         # Keep the original host running until the imported host has passed full validation.
         return self.select(str(target), username=user, password=secret)
 
-    def package(self, delivery, connection):
+    def package(self, delivery, connection, permissions):
         if os.name != 'nt':raise RuntimeError('WINDOWS_PACKAGING_REQUIRED')
         if delivery not in ['manager', 'sales']:raise RuntimeError('DELIVERY_REQUIRED')
         with self.job_lock:
@@ -260,7 +260,7 @@ class Developer:
             replace_json(source, {'schema':'777-public-connection-v1', 'connection':public})
             self.job = dict(id=key, state='running', delivery=delivery, version=self.preferences['version'], output=str(destination), lines=[], error=None, bytes=None)
             self.cancelled.clear()
-            args = [os.environ.get('QUOTE777_NODE') or 'node', str(self.dev.ROOT / 'desktop/tools/package.mjs'), '--delivery', delivery, '--connection', str(source), '--output', str(destination), '--version', self.preferences['version'], '--webview', self.preferences['runtime']]
+            args = [os.environ.get('QUOTE777_NODE') or 'node', str(self.dev.ROOT / 'desktop/tools/package.mjs'), '--delivery', delivery, '--connection', str(source), '--output', str(destination), '--version', self.preferences['version'], '--webview', self.preferences['runtime'], '--permissions', json.dumps(permissions, separators=(',', ':'))]
             self.worker = threading.Thread(target=self.build_package, args=(args, source, destination), daemon=False)
             self.worker.start()
         return self.status()
@@ -340,7 +340,7 @@ class Developer:
                 preferences = {**self.preferences, 'output':str(output), 'version':data['version'], 'runtime':data['runtime']}
                 replace_json(self.preferences_file, preferences); self.preferences = preferences
                 return self.status()
-            if op == 'package':return self.package(data['delivery'], data['connection'])
+            if op == 'package':return self.package(data['delivery'], data['connection'], data['permissions'])
             if op == 'cancel':self.cancel(); return self.status()
             if op == 'open_output':
                 if os.name != 'nt' or not self.job or self.job['state'] != 'succeeded':raise RuntimeError('DEVELOPER_OUTPUT_UNAVAILABLE')

@@ -27,7 +27,7 @@ export function TasksPage({ app }: { app: Workbench }) {
     <section className="card management">
       <div className="section-heading">
         <h2>
-          导出记录 <small>共 {app.jobsTotal} 项</small>
+          导出记录 <small>{app.jobsMore === true ? `已读取 ${app.jobsOffset+app.jobs.length} 项` : `共 ${app.jobsTotal} 项`}</small>
         </h2>
         <Button
           variant="ghost"
@@ -39,10 +39,10 @@ export function TasksPage({ app }: { app: Workbench }) {
       </div>
       <p className="muted export-purpose">
         在订单详情点击“导出报价”“报价图片”
-        {app.session?.role === "admin" ? "或“内部财务报表”" : ""}
+        {app.can("finance") ? "或“内部财务报表”" : ""}
         后，可在这里查看进度和保存结果，失败时重试。
       </p>
-      {app.session?.role==="admin"&&<form className="order-filters" onSubmit={e=>{e.preventDefault();void app.createReport(from,to);}}><strong>内部财务报表</strong><Field label="报表开始日期"><Input type="date" required value={from} max={to} onChange={e=>setFrom(e.target.value)}/></Field><Field label="报表结束日期"><Input type="date" required value={to} min={from} onChange={e=>setTo(e.target.value)}/></Field><Button type="submit" disabled={app.busy||app.pending||!from||!to||from>to}>导出 Excel</Button><small>按月分表、月内按日；大范围自动分文件，单月过大时按完整订单分批。</small></form>}
+      {app.can("finance")&&<form className="order-filters" onSubmit={e=>{e.preventDefault();void app.createReport(from,to);}}><strong>内部财务报表</strong><Field label="报表开始日期"><Input type="date" required value={from} max={to} onChange={e=>setFrom(e.target.value)}/></Field><Field label="报表结束日期"><Input type="date" required value={to} min={from} onChange={e=>setTo(e.target.value)}/></Field><Button type="submit" disabled={app.busy||app.pending||!from||!to||from>to}>导出 Excel</Button><small>按月分表、月内按日；大范围自动分文件，单月过大时按完整订单分批。</small></form>}
       <div className="orders-table-scroll">
         <table className="orders-table">
           <thead>
@@ -89,7 +89,7 @@ export function TasksPage({ app }: { app: Workbench }) {
                   </Badge>
                 </td>
                 <td>
-                  {j.state === "done" ? "文件已生成" : j.error || "—"}
+                  {j.state === "done" ? "文件已生成" : (!app.formal && j.error) || "—"}
                 </td>
                 <td>
                   {j.state === "done" && (
@@ -111,7 +111,7 @@ export function TasksPage({ app }: { app: Workbench }) {
         </table>
         <div className="pagination">
           <Button variant="ghost" disabled={app.busy||app.jobsOffset===0} onClick={()=>void app.loadJobs(Math.max(0,app.jobsOffset-100))}>上一页</Button>
-          <small>第 {Math.floor(app.jobsOffset/100)+1} / {Math.max(1,Math.ceil(app.jobsTotal/100))} 页</small>
+          <small>第 {Math.floor(app.jobsOffset/100)+1}{app.jobsMore === undefined ? ` / ${Math.max(1,Math.ceil(app.jobsTotal/100))}` : ""} 页</small>
           <Button variant="ghost" disabled={app.busy||app.jobsOffset+100>=app.jobsTotal} onClick={()=>void app.loadJobs(app.jobsOffset+100)}>下一页</Button>
         </div>
         {!app.jobs.length && (

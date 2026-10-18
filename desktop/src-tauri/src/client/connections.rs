@@ -131,6 +131,22 @@ impl Desktop {
         let target = self.store.read::<PackageTarget>("package-target.bin")?;
         Ok(json!({"target":target,"verified":self.package_session.is_some()}))
     }
+    pub(super) async fn use_current_package_target(&mut self) -> Result<Value> {
+        development()?;
+        self.admin()?;
+        let session = self.session()?.clone();
+        formal_target(&session.connection)?;
+        let ledger_id = identity(&session).await?;
+        self.store.replace(
+            "package-target.bin",
+            &PackageTarget {
+                connection: session.connection.clone(),
+                ledger_id,
+            },
+        )?;
+        self.package_session = Some(session);
+        self.package_target()
+    }
     pub(super) async fn verify_package_target(
         &mut self,
         connection: Connection,

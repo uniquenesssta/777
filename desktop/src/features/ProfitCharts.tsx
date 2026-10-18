@@ -1,3 +1,4 @@
+import { formalPresentation } from "../state/formalPresentation";
 import { useEffect, useRef, useState } from "react";
 import type { ProfitAnalysis } from "../contracts";
 import { money } from "../state/format";
@@ -54,7 +55,7 @@ function TrendChart({
   }, [chart, data]);
   const candle = chart === "candle";
   if (candle && data.buckets.some((b) => !b.profit_ohlc))
-    return <Empty>当前服务未提供K线数据，请更新服务后刷新。</Empty>;
+    return formalPresentation() ? null : <Empty>当前服务未提供K线数据，请更新服务后刷新。</Empty>;
   const domain = candle ? candleDomain(data) : chartDomain(data);
   const top = 20,
     height = 230,

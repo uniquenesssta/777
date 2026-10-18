@@ -6,7 +6,6 @@ import { ProfitPage } from "./features/ProfitPage";
 import { OrdersPage } from "./features/OrdersPage";
 import { DetailPage } from "./features/DetailPage";
 import { ConnectionForm } from "./features/connection/ConnectionForm";
-import { EnrollmentPage } from "./features/connection/EnrollmentPage";
 import { ConnectionPage } from "./features/ConnectionPage";
 import { DeveloperPage } from "./features/DeveloperPage";
 import { SettingsPage } from "./features/settings/SettingsPage";
@@ -57,16 +56,16 @@ export default function App() {
               >
                 报价工作台
               </Button>
-              <Button
+              {app.can("orders") && <Button
                 variant={
                   ["orders", "detail"].includes(app.route) ? "primary" : "ghost"
                 }
                 onClick={() => nav("orders")}
               >
                 {app.session.role === "admin" ? "订单记录" : "我的订单"}
-              </Button>
+              </Button>}
               {extra
-                .filter((i) => !i.admin || app.session?.role === "admin")
+                .filter((i) => (!i.admin || app.session?.role === "admin") && (i.route === "developer" || app.can(({prices:"prices",profit:"finance",tasks:"exports",settings:"settings"} as const)[i.route as "prices"|"profit"|"tasks"|"settings"])))
                 .map((i) => (
                   <Button
                     variant={app.route === i.route ? "primary" : "ghost"}
@@ -77,7 +76,7 @@ export default function App() {
                   </Button>
                 ))}
             </nav>
-            <div className="account" ref={account} onKeyDown={event=>{
+            {!formalPackage && !app.formal && <div className="account" ref={account} onKeyDown={event=>{
               if (event.key === "Escape" && menu) { setMenu(false); accountTrigger.current?.focus(); }
             }} onBlur={event=>{if (!event.currentTarget.contains(event.relatedTarget)) setMenu(false);}}>
               <button
@@ -107,11 +106,11 @@ export default function App() {
                   </Button>
                 </div>
               )}
-            </div>
+            </div>}
           </>
         )}
       </header>
-      {!app.session ? formalPackage || ["manager","sales"].includes(app.delivery) ? <EnrollmentPage app={app}/> : app.delivery === "loading" || app.automatic ? (
+      {!app.session ? formalPackage || ["manager","sales"].includes(app.delivery) ? <main className="formal-idle" aria-label="记账器" /> : app.delivery === "loading" || app.automatic ? (
         <main className="connection-page"><section className="card connection-card" aria-busy={app.busy}>
           <h1>{app.busy || app.delivery === "loading" ? "正在连接…" : "暂时无法进入记账器"}</h1>
           <p className="muted">{app.busy || app.delivery === "loading" ? "请稍候" : "请重试；仍无法连接时请联系管理员。输入草稿会保留。"}</p>
@@ -131,16 +130,16 @@ export default function App() {
             <p className="inline-error" role="alert">{app.feedback}</p>
           )}
           {app.route === "quote" && <QuotePage app={app} />}{" "}
-          {app.route === "orders" && <OrdersPage app={app} />}{" "}
-          {app.route === "detail" && <DetailPage app={app} />}{" "}
-          {app.route === "prices" && app.session.role === "admin" && (
+          {app.route === "orders" && app.can("orders") && <OrdersPage app={app} />}{" "}
+          {app.route === "detail" && app.can("orders") && <DetailPage app={app} />}{" "}
+          {app.route === "prices" && app.can("prices") && (
             <PricesPage app={app} />
           )}{" "}
-          {app.route === "profit" && app.session.role === "admin" && (
+          {app.route === "profit" && app.can("finance") && (
             <ProfitPage app={app} />
           )}{" "}
-          {app.route === "tasks" && <TasksPage app={app} />}{" "}
-          {app.route === "settings" && <SettingsPage app={app} />}
+          {app.route === "tasks" && app.can("exports") && <TasksPage app={app} />}{" "}
+          {app.route === "settings" && app.can("settings") && <SettingsPage app={app} />}
           {!formalPackage && app.delivery === "development" && app.route === "developer" && app.session.role === "admin" && <DeveloperPage app={app} />}
         </main>
       )}

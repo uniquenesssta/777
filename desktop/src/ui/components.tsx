@@ -1,3 +1,4 @@
+import { formalPresentation } from "../state/formalPresentation";
 import type {
   ComponentPropsWithRef,
   ReactNode,
@@ -75,7 +76,7 @@ export function Icon({
     "price-chevron": "price-chevron.svg",
     "price-trash": "price-trash.svg",
   }[name];
-  return failed ? <span className="icon-fallback" role="img" aria-label="图标不可用" title="图标不可用">!</span>
+  return failed ? formalPresentation() ? <span className="icon" aria-hidden="true" /> : <span className="icon-fallback" role="img" aria-label="图标不可用" title="图标不可用">!</span>
     : <img className="icon" alt="" src={`/icons/${file}`} onError={()=>setFailed(true)} />;
 }
 export function Modal({

@@ -1,3 +1,4 @@
+import { showError } from "./state/formalPresentation";
 import { invoke } from "@tauri-apps/api/core";
 export function request<T>(
   action: string,
@@ -78,5 +79,6 @@ export function errorCode(e: unknown): string {
 }
 export function errorMessage(e: unknown): string {
   const code = errorCode(e);
+  if (!showError(code)) return "";
   return errors[code] ?? `操作未完成（${code}）。请核对输入或重新读取。`;
 }

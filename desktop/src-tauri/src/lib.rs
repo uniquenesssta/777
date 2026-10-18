@@ -20,6 +20,7 @@ mod developer;
 mod directory_preference;
 mod journal;
 mod output_folder;
+mod permissions;
 mod startup;
 mod tls;
 mod types;

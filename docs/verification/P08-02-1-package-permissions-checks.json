@@ -1,0 +1,59 @@
+{
+  "task": "P08-02-1",
+  "scope": "选择式封包、正式端权限与静默连接",
+  "date": "2026-10-18",
+  "base_commit": "4f4c9e07061f9d66348f402dc8eedfbba64cf5c5",
+  "checks": [
+    {
+      "name": "TypeScript tsc --noEmit",
+      "result": "passed"
+    },
+    {
+      "name": "Node unit tests",
+      "passed": 42,
+      "failed": 0
+    },
+    {
+      "name": "Rust quote-desktop library tests",
+      "passed": 19,
+      "failed": 0
+    },
+    {
+      "name": "Clippy default and verification all-targets -D warnings",
+      "result": "passed"
+    },
+    {
+      "name": "Python P07 regression",
+      "passed": 44,
+      "skipped": 8,
+      "failed": 0,
+      "skip_reason": "Windows-specific checks"
+    },
+    {
+      "name": "Playwright full suite",
+      "passed": 38,
+      "failed": 0,
+      "duration_seconds": 52.2,
+      "environment": "Linux Chromium 153, pinned project fonts, isolated fixture ledger / mocked bridges"
+    },
+    {
+      "name": "Linux auxiliary native verification bridge build",
+      "result": "passed",
+      "product_installer": false
+    },
+    {
+      "name": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "not_executed": [
+    "Windows mother/sales installer build or build-preparation acceptance",
+    "Windows install.ps1 execution / DPAPI acceptance",
+    "Real hosts 192.168.4.23 and 192.168.4.38 deployment or data access"
+  ],
+  "limitations": [
+    "Compiled native client policy does not replace Host coarse role authorization or Windows ACLs.",
+    "First-device identity is prepared by deployment operator using the existing one-use enrollment protocol.",
+    "Earlier Windows CI success does not validate this changeset."
+  ]
+}

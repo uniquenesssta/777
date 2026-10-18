@@ -159,26 +159,18 @@ test("sales settings do not acquire business-directory or publication controls",
   );
 });
 for (const delivery of ["manager", "sales"])
-  test(`${delivery} imports a device file without credentials entering the webview`, async ({
-    page,
-  }) => {
+  test(`${delivery} unregistered entry remains silent without account or setup controls`, async ({page}) => {
+    await page.clock.install();
     await setup(page, delivery, false);
-    await expect(
-      page.getByRole("heading", { name: "欢迎使用记账器" }),
-    ).toBeVisible();
-    await page.getByRole("button", { name: "选择文件", exact: true }).click();
-    await page.getByRole("button", { name: "登记并进入", exact: true }).click();
-    await expect(
-      page.getByRole("button", { name: "报价工作台", exact: true }),
-    ).toBeVisible();
-    for (const label of ["密码", "服务证书（PEM）", "服务地址"])
-      await expect(page.getByLabel(label, { exact: true })).toHaveCount(0);
-    const requests = await page.evaluate(
-      () => (window as any).__integrationRequests,
-    );
-    expect(requests.find((r: any) => r.action === "import_enrollment")).toEqual(
-      { action: "import_enrollment", path: "D:\\设备登记.json" },
-    );
+    await expect(page.locator(".formal-idle")).toBeVisible();
+    for (const name of ["账户菜单","退出登录","选择文件","登记并进入","重新连接"])
+      await expect(page.getByRole("button",{name,exact:true})).toHaveCount(0);
+    await expect(page.getByRole("alert")).toHaveCount(0);
+    await expect(page.locator("body")).not.toContainText(/DEPLOYMENT|服务|登记|密码|失败|联系管理员/);
+    await page.clock.fastForward(16000);
+    const requests=await page.evaluate(()=>(window as any).__integrationRequests);
+    expect(requests.filter((r:any)=>r.action==='bootstrap').length).toBeGreaterThanOrEqual(2);
+    expect(requests.some((r:any)=>r.action==='import_enrollment')).toBe(false);
   });
 test("wrong connection-file type preserves the filled connection", async ({
   page,

@@ -13,7 +13,7 @@ function useCustomers(app:Workbench,query:string,offset:number,group?:string,ord
   return {data,error,loading};
 }
 function Rows({app,group}:{app:Workbench;group:CustomerGroup}){
-  return <>{group.orders.map(o=><div className="customer-order-row" key={o.order_id}><span>{o.details.order_ref||"未填写订单号"}</span><span>{stamp(o.created_at)}</span><strong>¥{money(o.income_cents)}</strong><span>{o.state==="void"?"已作废":"已保存"}</span><Button variant="ghost" disabled={app.busy||app.pending} onClick={()=>void app.readOrder(o.order_id)}>查看</Button>{o.state==="active"&&<Button variant="ghost" disabled={app.busy||app.pending} onClick={()=>void app.beginEdit(o.order_id)}>继续编辑</Button>}</div>)}</>;
+  return <>{group.orders.map(o=><div className="customer-order-row" key={o.order_id}><span>{o.details.order_ref||"未填写订单号"}</span><span>{stamp(o.created_at)}</span><strong>¥{money(o.income_cents)}</strong><span>{o.state==="void"?"已作废":"已保存"}</span><Button variant="ghost" disabled={app.busy||app.pending} onClick={()=>void app.readOrder(o.order_id)}>查看</Button>{app.can("edit_orders")&&o.state==="active"&&<Button variant="ghost" disabled={app.busy||app.pending} onClick={()=>void app.beginEdit(o.order_id)}>继续编辑</Button>}</div>)}</>;
 }
 export function CustomerMatches({app,query}:{app:Workbench;query:string}){
   const [offset,setOffset]=useState(0);useEffect(()=>setOffset(0),[query]);

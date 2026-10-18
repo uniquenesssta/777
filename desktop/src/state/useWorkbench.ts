@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { allowed, type Permission } from "./permissions";
+import { setDeliveryContext, formalPresentation, showError } from "./formalPresentation";
 import { errorCode, errorMessage, request } from "../bridge";
 import type {
   CustomerGroup,
@@ -38,6 +40,10 @@ async function afterSaved<T>(read: () => Promise<T>): Promise<Refreshed<T>> {
 }
 export function useWorkbench() {
   const [delivery, setDelivery] = useState("loading");
+  const [permissions,setPermissions] = useState<string[]|null>(null);
+  const [connected,setConnected] = useState(false);
+  const formal = ["manager","sales"].includes(delivery) || formalPresentation();
+  const can = (id:Permission) => allowed(permissions,session?.role,id);
   const [connectionDialog,setConnectionDialog] = useState(false);
   const [automatic, setAutomatic] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
@@ -68,8 +74,9 @@ export function useWorkbench() {
   );
   const [selected, setSelected] = useState<Order | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobsMore,setJobsMore]=useState<boolean|undefined>(undefined);
   const [jobsOffset,setJobsOffset]=useState(0),[jobsTotal,setJobsTotal]=useState(0);
-  function acceptJobs(v:JobListing|null) {setJobs(v?.jobs??[]);setJobsOffset(v?.offset??0);setJobsTotal(v?.total??v?.jobs.length??0);}
+  function acceptJobs(v:JobListing|null) {setJobsMore(v?.has_more);setJobs(v?.jobs??[]);setJobsOffset(v?.offset??0);setJobsTotal(v?.total??v?.jobs.length??0);}
   const [preferences, setPreferences] = useState<Preferences | null>(null);
   const [backup, setBackup] = useState<Record<string, unknown> | null>(null);
   const listScrollRef = useRef(0);
@@ -98,7 +105,8 @@ export function useWorkbench() {
         }),
       );
     } catch {
-      setFeedback("当前草稿无法保存到本机，请保持窗口打开。");
+      uiDiagnostic("frontend_error", undefined, new Error("draft storage unavailable"));
+      setFeedback(formalPresentation() ? "" : "当前草稿无法保存到本机，请保持窗口打开。");
       setIsError(true);
     }
   }, [draft.details, draft.lines, draft.editing, draft.customer]);
@@ -122,6 +130,7 @@ export function useWorkbench() {
           setFeedback(errorMessage(e));
           setIsError(true);
           const code = errorCode(e);
+          if (formalPresentation() && !showError(code)) setConnected(false);
           if (
             ["COMMIT_UNKNOWN", "PENDING_REQUEST_REQUIRES_QUERY"].includes(code)
           )
@@ -167,8 +176,11 @@ export function useWorkbench() {
       automatic: boolean;
       connection: Connection | null;
       pending: boolean;
+      permissions: string[]|null;
     }>("connection")
       .then((r) => {
+        setDeliveryContext(r.delivery);
+        setPermissions(r.permissions ?? null);
         setDelivery(r.delivery);
         setAutomatic(r.automatic);
         if (r.automatic) void bootstrap();
@@ -183,7 +195,7 @@ export function useWorkbench() {
       });
   }, []);
   function savedFeedback<T>(r: Refreshed<T>, message: string) {
-    setFeedback(r.error ? `${message}但视图刷新失败，请重新读取。` : message);
+    setFeedback(r.error && !formalPresentation() ? `${message}但视图刷新失败，请重新读取。` : message);
     setIsError(!!r.error);
     if (r.error && errorCode(r.error) === "UNAUTHENTICATED") {
       epoch.current++;
@@ -196,7 +208,8 @@ export function useWorkbench() {
       setBackup(null);
       setPreferences(null);
       dispatch({ type: "invalidate" });
-      setFeedback(`${message}连接已失效，请重新连接后读取。`);
+      setFeedback(formalPresentation() ? message : `${message}连接已失效，请重新连接后读取。`);
+      setConnected(false);
     }
   }
   async function bootstrap() {
@@ -208,19 +221,32 @@ export function useWorkbench() {
           session: Session | null;
         }>("bootstrap");
         const p = b.session ? await request<Catalog>("prices").catch(e => { if (errorCode(e) === "PRICES_NOT_PUBLISHED") return null; throw e; }) : null;
-        const dirs = b.session ? await request<Preferences>("settings") : null;
+        const policy = await request<{permissions:string[]|null}>("connection");
+        const dirs = b.session && allowed(policy.permissions ?? null,b.session.role,"settings") ? await request<Preferences>("settings") : null;
         const c = b.session
           ? await request<{ connection: Connection | null }>("connection")
           : null;
-        return { b, p, dirs, c };
+        // An editing draft from a broader package must not re-enable that UI.
+        // Preserve it separately before showing a new permitted draft.
+        const restrictedDraft = !!draft.editing && !allowed(policy.permissions ?? null,b.session?.role,"edit_orders");
+        if (restrictedDraft) {
+          const raw=localStorage.getItem("777-desktop-draft-v1");
+          if(raw) localStorage.setItem(`777-desktop-restricted-draft-${draft.editing!.order_id}`,raw);
+        }
+        return { b, p, dirs, c, policy, restrictedDraft };
       },
-      ({ b, p, dirs, c }) => {
+      ({ b, p, dirs, c, policy, restrictedDraft }) => {
+        setDeliveryContext(b.delivery);
+        setPermissions(policy.permissions ?? null);
+        setConnected(!!b.session);
         if (b.delivery === "development" && c?.connection) bindDeveloperDraft(c.connection.certificate_sha256);
         if (c) setConnection(c.connection);
         epoch.current++;
         setDelivery(b.delivery);
         setAutomatic(b.automatic);
         setSession(b.session);
+        if (restrictedDraft) dispatch({type:"reset"});
+        dispatch({ type: "invalidate" });
         setCatalog(p);
         setPreferences(dirs);
         setPending(b.session?.pending ?? false);
@@ -241,6 +267,7 @@ export function useWorkbench() {
         return { s, p, dirs };
       },
       ({ s, p, dirs }) => {
+        setConnected(true);
         if(delivery === "development") bindDeveloperDraft(c.certificate_sha256);
         epoch.current++;
         setConnectionDialog(false);
@@ -380,9 +407,9 @@ export function useWorkbench() {
           details,
           draft_revision: draft.revision,
         });
-        return afterSaved(() =>
+        return can("orders") ? afterSaved(() =>
           request<Order>("order", { order_id: receipt.order_id }),
-        );
+        ) : {value:null};
       },
       (r) => {
         setPending(false);
@@ -391,7 +418,7 @@ export function useWorkbench() {
         setSelected(r.value);
         setListing(null);
         setAnalysis(null);
-        setRoute(r.value ? "detail" : "orders");
+        setRoute(can("orders") ? (r.value ? "detail" : "orders") : "quote");
         savedFeedback(r, "订单已保存。");
       },
     );
@@ -525,7 +552,7 @@ export function useWorkbench() {
           setListing(null);
           setAnalysis(null);
         } else
-          setFeedback(
+          setFeedback(formalPresentation() ? "" :
             v.pending
               ? "服务尚无原请求回执，可按原请求重试。"
               : "没有待核查请求。",
@@ -537,7 +564,7 @@ export function useWorkbench() {
       async () => ({
         p: await request<Preferences>("settings"),
         b:
-          session?.role === "admin"
+          can("backup")
             ? await request<Record<string, unknown>>("backup_status")
             : null,
       }),
@@ -598,13 +625,27 @@ export function useWorkbench() {
     guardDraft(()=>setConnectionDialog(true));
   }
   function navigate(next: Route) {
+    const required:Partial<Record<Route,Permission>>={orders:"orders",detail:"orders",prices:"prices",profit:"finance",tasks:"exports",settings:"settings"};
+    if(required[next] && !can(required[next]!)) return;
     setRoute(next);
     if (next === "profit") void loadAnalysis();
     if (next === "orders") void loadOrders({ ...filters, view: "" });
     if (next === "tasks") void loadJobs();
     if (next === "settings") void loadSettings();
   }
+  const retry = useRef<() => void>(()=>{});
+  retry.current = () => {
+    if (busyRef.current) return;
+    if (!connected || !session) void bootstrap();
+    else if (pending) void recover(true);
+  };
+  useEffect(() => {
+    if (!formal) return;
+    const timer = window.setInterval(()=>retry.current(), 15000);
+    return ()=>window.clearInterval(timer);
+  },[formal]);
   return {
+    formal, can, permissions,
     async developerOperation(operation: Record<string, unknown>) {
       return run(async () => {
         const result = await request<{connection:{certificate_sha256:string}}>("developer", {request:operation});
@@ -639,7 +680,7 @@ export function useWorkbench() {
     navigate,
     feedback,
     isError,
-    busy,
+    busy: busy || (formal && !connected),
     pending,
     analysis,
     analysisFilters,
@@ -662,7 +703,7 @@ export function useWorkbench() {
     readOrder,
     publish,
     loadJobs,
-    jobsOffset,jobsTotal,
+    jobsOffset,jobsTotal,jobsMore,
     output,
     retryOutput,
     createReport:(from:string,to:string)=>run(async()=>{await request("create_report",{from,to});return afterSaved(()=>request<JobListing>("outputs"));},r=>{acceptJobs(r.value);savedFeedback(r,"内部财务报表任务已创建。");}),

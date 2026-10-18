@@ -1,0 +1,10 @@
+[
+  {"id":"quote","label":"报价与新建订单","required":true,"admin":false,"needs":[]},
+  {"id":"orders","label":"订单记录与客户匹配","required":false,"admin":false,"needs":[]},
+  {"id":"edit_orders","label":"编辑已有订单与追加备注","required":false,"admin":false,"needs":["orders"]},
+  {"id":"finance","label":"成本、利润与内部财务报表","required":false,"admin":true,"needs":[]},
+  {"id":"prices","label":"价格维护（包含成本）","required":false,"admin":true,"needs":["finance"]},
+  {"id":"exports","label":"导出报价与查看导出记录","required":false,"admin":false,"needs":["orders"]},
+  {"id":"settings","label":"存储设置（子版只读）","required":false,"admin":false,"needs":[]},
+  {"id":"backup","label":"服务备份","required":false,"admin":true,"needs":["settings"]}
+]

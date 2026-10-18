@@ -106,7 +106,7 @@ export interface OrderChanges {
   revision: string; to_revision: string; created_at: string;
   changes: {section:string;field:string;before:string|null;after:string|null;format:"text"|"money"}[];
 }
-export interface JobListing {jobs:Job[];offset:number;total:number;limit:number}
+export interface JobListing {has_more?:boolean;jobs:Job[];offset:number;total:number;limit:number}
 export interface Job {
   batch?:{id:string;part:number;count:number;from:string;to:string;order_count:number}|null;
   range?:{from:string;to:string};

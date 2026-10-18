@@ -87,7 +87,7 @@ export function OrdersPage({
               <th>订单号</th>
               <th>客户 / 淘宝 ID</th>
               <th className="right">应收金额（¥）</th>
-              {app.session?.role === "admin" && (
+              {app.can("finance") && (
                 <th className="right">利润（¥）</th>
               )}
               <th>创建时间</th>
@@ -105,7 +105,7 @@ export function OrdersPage({
                 <td>{o.details.order_ref || "—"}</td>
                 <td>{o.details.customer || "—"}</td>
                 <td className="right numeric">{money(o.income_cents)}</td>
-                {app.session?.role === "admin" && (
+                {app.can("finance") && (
                   <td className="right numeric">{money(o.profit_cents)}</td>
                 )}
                 <td>{stamp(o.created_at)}</td>

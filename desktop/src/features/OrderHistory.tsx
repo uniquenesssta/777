@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Order, OrderChanges } from "../contracts";
+import { formalPresentation } from "../state/formalPresentation";
 import { request, errorMessage } from "../bridge";
 import { money, stamp } from "../state/format";
 import { Button } from "../ui/components";
@@ -16,7 +17,7 @@ function Revision({ orderId, history }: {orderId:string;history:NonNullable<Orde
   return <details className="revision-diff" onToggle={e=>setOpen(e.currentTarget.open)}>
     <summary>版本 {history.revision} → {String(BigInt(history.revision)+1n)} <small>· {stamp(history.created_at)}</small></summary>
     {open&&<>
-      {error?<p role="alert">{error} <Button variant="ghost" onClick={()=>setAttempt(n=>n+1)}>重试读取</Button></p>:!value?<p role="status">正在读取修改记录…</p>:<>
+      {error?<p role="alert">{error} <Button variant="ghost" onClick={()=>setAttempt(n=>n+1)}>重试读取</Button></p>:!value?(formalPresentation()?null:<p role="status">正在读取修改记录…</p>):<>
         <p className="muted">商品按明细位置对照；金额为该次保存前后的值。</p>
         {value.changes.length?<div className="orders-table-scroll"><table className="orders-table diff-table"><thead><tr><th>修改项目</th><th>修改前</th><th>修改后</th></tr></thead><tbody>{value.changes.map((c,i)=><tr key={i}><td>{c.section} · {c.field}</td><td>{rendered(c.before,c.format)}</td><td>{rendered(c.after,c.format)}</td></tr>)}</tbody></table></div>:<p className="muted">本次保存未改变客户信息、商品明细或金额。</p>}
       </>}

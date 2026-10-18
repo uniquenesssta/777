@@ -1043,3 +1043,14 @@ textarea {
 /* P08 Host integration: stack related controls at narrow widths. */
 .connection-form{display:grid;gap:16px}.connection-form details{min-width:0}.connection-form summary{cursor:pointer;color:var(--color-muted);margin-bottom:12px}.connection-form textarea{width:100%;box-sizing:border-box}.business-directory{margin-bottom:24px}.business-directory .field,.connection-card .directory-choice .field{flex:1;min-width:0}.package-target{padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid var(--color-line)}.package-target small{overflow-wrap:anywhere}.connection-card .directory-choice{align-items:end}
 @media(max-width:760px){.developer-grid{grid-template-columns:minmax(0,1fr)}.directory-choice{flex-wrap:wrap}.directory-choice .field{flex-basis:100%}.connection-form .form-pair{grid-template-columns:1fr}.developer-path{flex-wrap:wrap}.developer-path .field{min-width:0;flex-basis:100%}}
+
+/* Choice-driven packaging reuses the existing Figma card and control tokens. */
+.package-choices { gap: 14px; }
+.package-choices h2 { font-size: 20px; font-weight: 700; line-height: 27px; }
+.package-choices fieldset { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; gap: 14px; }
+.package-choices legend { color: var(--color-muted); padding: 0; margin-bottom: 14px; }
+.package-choice-row { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; min-height: 40px; }
+.package-permissions { display: grid; gap: 14px; }
+.package-permissions label, .package-choice-row label { display: flex; align-items: center; gap: 10px; min-height: 32px; }
+.package-choices input[type=checkbox], .package-choices input[type=radio] { accent-color: var(--color-accent); width: 16px; height: 16px; flex: 0 0 16px; }
+.formal-idle { min-height: calc(100vh - 72px); background: var(--color-canvas); }

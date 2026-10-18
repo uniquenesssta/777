@@ -98,8 +98,8 @@ export function BusinessDirectory({ disabled }: { disabled: boolean }) {
         <small className="muted" role="status">
           {saved === null
             ? error
-              ? "配置暂不可用"
-              : "正在读取配置"
+              ? ""
+              : ""
             : value !== saved
               ? "尚未保存"
               : saved

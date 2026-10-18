@@ -116,7 +116,7 @@ export function SettingsPage({ app }: { app: Workbench }) {
       ) : (
         <p className="muted">保存位置由管理员发布，当前账号只读继承。</p>
       )}
-      {admin && (
+      {app.can("backup") && (
         <section className="backup-settings">
           <h3>服务备份</h3>
           <Field label="备份位置">

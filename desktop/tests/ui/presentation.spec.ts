@@ -255,13 +255,16 @@ for (const delivery of ["manager", "sales"]) {
   test(`${delivery} failed automatic entry retries without technical/login controls`, async ({
     page,
   }) => {
+    await page.clock.install();
     await bootstrap(page, delivery, true);
     await expect(
-      page.getByRole("heading", { name: "欢迎使用记账器" }),
+      page.locator(".formal-idle"),
     ).toBeVisible();
     for (const label of ["服务地址", "服务证书（PEM）", "账号", "密码"])
       await expect(page.getByLabel(label, { exact: true })).toHaveCount(0);
-    await page.getByRole("button", { name: "重新连接", exact: true }).click();
+    await expect(page.getByRole("button", {name:"重新连接",exact:true})).toHaveCount(0);
+    await expect(page.getByRole("alert")).toHaveCount(0);
+    await page.clock.fastForward(16000);
     await expect(
       page.getByRole("button", { name: "添加商品", exact: false }),
     ).toBeEnabled();
@@ -272,12 +275,12 @@ test("keyboard dialog returns focus and fonts fall back without a banner", async
   page,
 }) => {
   await page.route("**/fonts/*", (route) => route.abort());
-  await page.route("**/icons/a09ba.svg", (route) => route.abort());
+  await page.route("**/icons/74181.svg", (route) => route.abort());
   await bootstrap(page);
   await expect(
     page.getByText("字体资源加载失败，当前使用系统字体。", { exact: true }),
   ).toHaveCount(0);
-  await expect(page.getByRole("img", { name: "图标不可用" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "图标不可用" })).toHaveCount(0);
   const add = page.getByRole("button", { name: "添加商品", exact: false });
   await add.focus();
   await add.press("Enter");
@@ -290,7 +293,7 @@ test("manager directory selection is a draft until published and cancellation pr
   page,
 }) => {
   await bootstrap(page);
-  await page.getByRole("button", { name: "价格版本", exact: false }).click();
+  await page.getByRole("button", { name: "刷新价格", exact: true }).click();
   await expect(
     page.getByText("价格已刷新，请重新计算并核对。", { exact: true }),
   ).toHaveCount(0);
@@ -558,7 +561,7 @@ test("old service never fabricates candlesticks from aggregate totals", async ({
     page.getByText("当前服务未提供K线数据，请更新服务后刷新。", {
       exact: true,
     }),
-  ).toBeVisible();
+  ).toHaveCount(0);
   await expect(page.getByRole("region", { name: "累计利润K线图" })).toHaveCount(
     0,
   );

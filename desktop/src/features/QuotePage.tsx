@@ -134,7 +134,7 @@ export function QuotePage({ app }: { app: Workbench }) {
     <>
       <div
         className="workbench-grid"
-        data-node-id={app.session?.role === "admin" ? "21:3" : "40:1604"}
+        data-node-id={app.can("finance") ? "21:3" : "40:1604"}
       >
         <section className="card quote-card">
           <div className="customer-row">
@@ -158,7 +158,7 @@ export function QuotePage({ app }: { app: Workbench }) {
             ))}
           </div>
           {draft.editing ? <div className="customer-match editing-context"><strong>编辑订单 {draft.details.order_ref || "未填写订单号"}</strong><span>已保存版本 {draft.editing.revision}</span><Button variant="ghost" onClick={()=>void app.readOrder(draft.editing!.order_id)}>查看修改记录</Button></div> : null}
-          <CustomerMatches app={app} query={matchQuery} />
+          {app.can("orders") && <CustomerMatches app={app} query={matchQuery} />}
           <div className="section-heading">
             <h2>
               商品明细{" "}
@@ -174,7 +174,7 @@ export function QuotePage({ app }: { app: Workbench }) {
               disabled={app.busy}
             >
               <Icon name="check" />
-              价格版本 {catalog?.price_version_id.slice(0, 16) ?? "未连接"}
+              {app.formal ? "刷新价格" : `价格版本 ${catalog?.price_version_id.slice(0, 16) ?? "未连接"}`}
             </Button>
           </div>
           <div className="line-scroll" tabIndex={0} role="region" aria-label="商品明细滚动区">
@@ -324,7 +324,7 @@ export function QuotePage({ app }: { app: Workbench }) {
         <Summary
           amounts={result?.totals ?? null}
           lines={result?.lines ?? []}
-          admin={app.session?.role === "admin"}
+          admin={app.can("finance")}
         >
           <Button
             disabled={
@@ -340,7 +340,7 @@ export function QuotePage({ app }: { app: Workbench }) {
             {app.busy ? "处理中…" : valid ? (draft.editing?"保存修改":"核对并提交订单") : "计算报价"}
           </Button>
           {draft.editing && <Button variant="ghost" disabled={app.busy||app.pending} onClick={app.cancelEdit}>取消编辑</Button>}
-          {app.pending && (
+          {app.pending && !app.formal && (
             <section className="pending-actions" aria-label="原请求处理">
               <p>{!app.isError && app.feedback ? app.feedback : "原请求结果待核查。"}</p>
               <Button variant="outline" disabled={app.busy} onClick={() => void app.recover(false)}>

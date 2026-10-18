@@ -65,6 +65,7 @@ pub enum Action {
         directory: String,
     },
     PackageTarget {},
+    UseCurrentPackageTarget {},
     VerifyPackageTarget {
         connection: Connection,
         username: String,
@@ -226,6 +227,7 @@ impl Action {
             Self::BusinessDirectory { .. } => "BusinessDirectory",
             Self::SaveBusinessDirectory { .. } => "SaveBusinessDirectory",
             Self::PackageTarget { .. } => "PackageTarget",
+            Self::UseCurrentPackageTarget { .. } => "UseCurrentPackageTarget",
             Self::VerifyPackageTarget { .. } => "VerifyPackageTarget",
             Self::Prices { .. } => "Prices",
             Self::PricePreview { .. } => "PricePreview",

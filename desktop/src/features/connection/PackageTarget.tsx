@@ -48,6 +48,10 @@ export function PackageTarget({
           : "导入 Host 公开连接文件，核对后再封包。"}
       </small>
       <p className="muted">独立保存；切换当前读取的数据不会改变此目标。</p>
+      <Button variant="outline" disabled={disabled} onClick={async()=>{
+        try {const r=await request<TargetState>("use_current_package_target");setState(r);onChange(r);setError("");}
+        catch(e){setError(errorMessage(e));}
+      }}>使用当前已连接的 Host</Button>
       <Button
         variant="outline"
         disabled={disabled}

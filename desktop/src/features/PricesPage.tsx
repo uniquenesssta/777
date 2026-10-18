@@ -144,7 +144,7 @@ export function PricesPage({ app }: { app: Workbench }) {
           </Button>
         </div>
       </div>
-      {!supported && (
+      {!supported && !app.formal && (
         <p className="inline-error">
           当前服务不支持新的定价方式，请更新服务后重新读取。
         </p>

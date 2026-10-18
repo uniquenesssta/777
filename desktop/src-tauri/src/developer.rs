@@ -40,6 +40,7 @@ pub enum DeveloperAction {
     },
     Package {
         delivery: String,
+        permissions: Vec<String>,
     },
     Cancel {},
     OpenOutput {},

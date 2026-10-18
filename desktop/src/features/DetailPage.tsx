@@ -105,14 +105,14 @@ export function DetailPage({ app }: { app: Workbench }) {
         <Summary
           amounts={order}
           lines={order.lines}
-          admin={app.session?.role === "admin"}
+          admin={app.can("finance")}
           submitted
         >
           <Button disabled={app.busy} onClick={() => app.navigate("orders")}>
             返回订单记录
           </Button>
-          {order.state==="active" && <Button disabled={app.busy||app.pending} onClick={()=>void app.beginEdit(order.order_id)}>继续编辑</Button>}
-          <div className="button-pair">
+          {app.can("edit_orders") && order.state==="active" && <Button disabled={app.busy||app.pending} onClick={()=>void app.beginEdit(order.order_id)}>继续编辑</Button>}
+          {app.can("edit_orders") && <div className="button-pair">
             <Button
               variant="outline"
               disabled={app.busy || app.pending}
@@ -135,8 +135,8 @@ export function DetailPage({ app }: { app: Workbench }) {
                 {order.state === "active" ? "作废订单" : "恢复订单"}
               </Button>
             )}
-          </div>
-          <div className="button-pair">
+          </div>}
+          {app.can("exports") && <div className="button-pair">
             <Button
               variant="ghost"
               disabled={app.busy || app.pending}
@@ -151,8 +151,8 @@ export function DetailPage({ app }: { app: Workbench }) {
             >
               报价图片
             </Button>
-          </div>
-          {app.session?.role === "admin" && (
+          </div>}
+          {app.can("finance") && app.can("exports") && (
             <Button
               variant="ghost"
               disabled={app.busy || app.pending}

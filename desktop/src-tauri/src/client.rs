@@ -2,11 +2,12 @@ mod connections;
 mod data_source;
 mod enrollment;
 mod preferences;
+mod restricted_outputs;
 mod transport;
 
 use crate::{
     journal::Store,
-    tls,
+    permissions, tls,
     types::{identifier, new_id, revision},
     Action, Connection, DesktopError, Result,
 };
@@ -23,6 +24,7 @@ struct Pending {
     url: String,
     pin: String,
 }
+#[derive(Clone)]
 struct Session {
     http: reqwest::Client,
     connection: Connection,
@@ -56,6 +58,12 @@ impl Desktop {
         Ok(self.store.read::<Pending>("pending.bin")?.is_some())
     }
     pub async fn directory_context(&mut self, target: &str) -> Result<String> {
+        permissions::authorize(
+            &permissions::selected()?,
+            &Action::PickDirectory {
+                target: target.into(),
+            },
+        )?;
         if target == "public_connection" && !crate::startup::formal() {
             return Ok(String::new());
         }
@@ -148,6 +156,14 @@ impl Desktop {
         self.send_pending(&p).await
     }
     async fn send_pending(&mut self, p: &Pending) -> Result<Value> {
+        permissions::pending(&permissions::selected()?, &p.path, &p.body)?;
+        if let Some(id) = p
+            .path
+            .strip_prefix("/v1/outputs/")
+            .and_then(|v| v.strip_suffix("/retry"))
+        {
+            self.authorize_output(id).await?;
+        }
         let s = self.session()?;
         if p.subject != s.subject
             || p.url != s.connection.url
@@ -196,6 +212,8 @@ impl Desktop {
         result
     }
     async fn execute_logged(&mut self, action: Action) -> Result<Value> {
+        let policy = permissions::selected()?;
+        permissions::authorize(&policy, &action)?;
         if crate::startup::formal()
             && !matches!(
                 action,
@@ -211,6 +229,9 @@ impl Desktop {
         }
         let mut v = self.execute_inner(action).await?;
         display(&mut v);
+        if !permissions::has(&policy, "finance") {
+            permissions::redact_financial(&mut v);
+        }
         Ok(v)
     }
     async fn bootstrap(&mut self) -> Result<Value> {
@@ -284,7 +305,8 @@ impl Desktop {
                 let switches = request.switches_data();
                 let mut data = serde_json::to_value(&request)
                     .map_err(|_| DesktopError::new(422, "INVALID_BODY"))?;
-                if matches!(request, crate::developer::DeveloperAction::Package { .. }) {
+                if let crate::developer::DeveloperAction::Package { ref delivery, ref permissions } = request {
+                    crate::permissions::validate(delivery, permissions)?;
                     data["connection"] = serde_json::to_value(self.verified_package_connection().await?)
                         .map_err(|_| DesktopError::new(422, "INVALID_BODY"))?;
                 }
@@ -299,7 +321,7 @@ impl Desktop {
             }
             Action::Bootstrap {} => self.bootstrap().await,
             Action::Connection {} => Ok(
-                json!({"delivery":crate::startup::delivery(),"automatic":crate::startup::formal() || self.store.bootstrap::<crate::startup::Bootstrap>()?.is_some(),"connection":if crate::startup::formal(){None}else{self.saved_connection()?},"pending":self.has_pending()?}),
+                json!({"delivery":crate::startup::delivery(),"automatic":crate::startup::formal() || self.store.bootstrap::<crate::startup::Bootstrap>()?.is_some(),"connection":if crate::startup::formal(){None}else{self.saved_connection()?},"pending":self.has_pending()?,"permissions":permissions::selected()?}),
             ),
             Action::ImportConnection { path } => {
                 connections::development()?;
@@ -309,6 +331,7 @@ impl Desktop {
             Action::BusinessDirectory {} => self.business_directory(None).await,
             Action::SaveBusinessDirectory { directory } => self.business_directory(Some(directory)).await,
             Action::PackageTarget {} => self.package_target(),
+            Action::UseCurrentPackageTarget {} => self.use_current_package_target().await,
             Action::VerifyPackageTarget { connection, username, password } => self.verify_package_target(connection, username, password).await,
             Action::Connect { connection, username, password } => self.connect(connection, username, password, "host").await,
             Action::Disconnect {} => {
@@ -507,8 +530,9 @@ impl Desktop {
                 self.admin()?;
                 self.request("POST","/v1/settings",Some(&json!({"revision":revision(&rev)?,"export_dir":export_dir,"image_dir":image_dir}))).await
             }
-            Action::Outputs { offset } => self.request("GET", &format!("/v1/outputs?offset={offset}"), None).await,
+            Action::Outputs { offset } => self.visible_outputs(offset).await,
             Action::OpenOutputFolder { job_id } => {
+                self.authorize_output(&job_id).await?;
                 let location = self
                     .request(
                         "GET",
@@ -545,6 +569,7 @@ impl Desktop {
                 self.mutate("/v1/outputs",json!({"order_id":order_id,"expected_revision":revision(&expected_revision)?,"kind":kind})).await
             }
             Action::RetryOutput { job_id } => {
+                self.authorize_output(&job_id).await?;
                 self.mutate(
                     &format!("/v1/outputs/{}/retry", identifier(&job_id)?),
                     json!({}),
