@@ -61,6 +61,42 @@ class HostBundleTests(unittest.TestCase):
 
 @unittest.skipUnless(os.name == 'nt', 'Windows PowerShell 5.1 execution requires Windows')
 class PortableWindowsTests(unittest.TestCase):
+    def test_generated_bundle_passes_startup_integrity_and_rejects_mutation(self):
+        shell = str(Path(os.environ['SystemRoot']) / 'System32/WindowsPowerShell/v1.0/powershell.exe')
+        with tempfile.TemporaryDirectory() as folder:
+            base = Path(folder); source, host, worker = fixture(base)
+            assemble(source, base / 'bundle', host, worker, 'a' * 40)
+            stage = base / 'bundle/Quote777Host'
+            harness = base / 'integrity.ps1'
+            harness.write_text(r'''param([string] $Bundle)
+Set-StrictMode -Version Latest
+$ErrorActionPreference='Stop'
+. (Join-Path $Bundle 'scripts/host-identity.ps1')
+. (Join-Path $Bundle 'scripts/host-package.ps1')
+$null=Get-HostBundle $Bundle
+$path=Join-Path $Bundle 'host-package.json'
+$original=[IO.File]::ReadAllText($path)
+try {
+    $value=$original | ConvertFrom-Json
+    $value.files | Add-Member -NotePropertyName 'unexpected.txt' -NotePropertyValue ('a'*64)
+    [IO.File]::WriteAllText($path,($value | ConvertTo-Json -Depth 10))
+    try { $null=Get-HostBundle $Bundle; throw 'EXTRA_RESOURCE_ACCEPTED' }
+    catch { if ($_.Exception.Message -ne 'HOST_PACKAGE_FILE_SET_INVALID') { throw } }
+    $value=$original | ConvertFrom-Json
+    $value.files.PSObject.Properties.Remove('scripts/host-visibility.ps1')
+    [IO.File]::WriteAllText($path,($value | ConvertTo-Json -Depth 10))
+    try { $null=Get-HostBundle $Bundle; throw 'MISSING_VISIBILITY_RESOURCE_ACCEPTED' }
+    catch { if ($_.Exception.Message -ne 'HOST_PACKAGE_FILE_SET_INVALID') { throw } }
+} finally { [IO.File]::WriteAllText($path,$original) }
+[IO.File]::AppendAllText((Join-Path $Bundle 'scripts/host-visibility.ps1'),'changed')
+try { $null=Get-HostBundle $Bundle; throw 'CHANGED_RESOURCE_ACCEPTED' }
+catch { if ($_.Exception.Message -ne 'HOST_PACKAGE_RESOURCE_CHANGED') { throw } }
+Write-Output 'passed'
+''', encoding='utf-8-sig')
+            result = subprocess.run([shell, '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', str(harness), '-Bundle', str(stage)], capture_output=True, text=True, encoding='utf-8', timeout=45)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout.strip(), 'passed')
+
     def test_native_child_keeps_password_only_on_utf8_stdin_and_quotes_arguments(self):
         shell = str(Path(os.environ['SystemRoot']) / 'System32/WindowsPowerShell/v1.0/powershell.exe')
         with tempfile.TemporaryDirectory() as folder:
