@@ -1,6 +1,7 @@
 """Two real Windows Rust TLS hosts: one ledger, async snapshots and outage safety."""
 import argparse
 import base64
+from contextlib import closing
 import hashlib
 import json
 import os
@@ -39,7 +40,7 @@ def publication(root):
 
 
 def inventory(root):
-    with sqlite3.connect(publication(root) / 'ledger.sqlite3') as database:
+    with closing(sqlite3.connect(publication(root) / 'ledger.sqlite3')) as database:
         database.row_factory = sqlite3.Row
         from quote_ledger.store import inventory as read
         return read(database)
@@ -129,8 +130,17 @@ def main():
         assert admin.request('GET', '/v1/orders/' + order['order_id'])['income_cents'] == '3000'
         until(lambda: inventory(follower.host_root)['counts']['orders'] == 1 and inventory(follower.host_root)['active_income_cents'] == '3000')
         checks.append('replica_forwards_order_create_retry_and_edit_once_with_frozen_revision_history')
+        destination = primary.root / 'exports'
+        destination.mkdir()
+        settings = remote.request('GET', '/v1/settings')
+        remote.request('POST', '/v1/settings', dict(revision=settings['revision'], export_dir=str(destination), image_dir=str(destination)))
         job = remote.request('POST', '/v1/outputs', dict(request_id=str(uuid.uuid4()), order_id=order['order_id'], expected_revision=2, kind='excel_quote'))
-        records = until(lambda: next((j for j in admin.request('GET', '/v1/outputs')['jobs'] if j['job_id'] == job['job_id'] and j['state'] == 'done'), None))
+        def completed_output():
+            found = next((j for j in admin.request('GET', '/v1/outputs')['jobs'] if j['job_id'] == job['job_id']), None)
+            if found and found['state'] == 'failed':
+                raise AssertionError('EXPECTED_EXCEL_OUTPUT_FAILED: ' + str(found.get('error', 'UNKNOWN')))
+            return found if found and found['state'] == 'done' else None
+        until(completed_output)
         blob = base64.b64decode(remote.request('GET', '/v1/outputs/' + job['job_id'] + '/content')['data_base64'])
         digest = hashlib.sha256(blob).hexdigest()
         until(lambda: any(hashlib.sha256(p.read_bytes()).hexdigest() == digest for p in (publication(follower.host_root) / 'output-blobs').glob('*.xlsx')))
@@ -145,8 +155,8 @@ def main():
         grant = admin.request('POST', '/v1/device-grants', dict(subject=account['id'], delivery='sales', ttl_seconds=60))
         device_id, device_secret = str(uuid.uuid4()), 'C' * 43
         remote.request('POST', '/v1/device/enroll', dict(ticket=grant['ticket'], device_id=device_id, device_secret=device_secret, delivery='sales'))
-        session = remote.request('POST', '/v1/device/session', dict(device_id=device_id, device_secret=device_secret, delivery='sales'))
-        devices = until(lambda: _device_state(follower.host_root, device_id, 1))
+        remote.request('POST', '/v1/device/session', dict(device_id=device_id, device_secret=device_secret, delivery='sales'))
+        until(lambda: _device_state(follower.host_root, device_id, 1))
         admin.request('POST', '/v1/devices/' + device_id, {})
         until(lambda: _device_state(follower.host_root, device_id, 0))
         refused(lambda: remote.request('POST', '/v1/device/session', dict(device_id=device_id, device_secret=device_secret, delivery='sales')), 'DEVICE_NOT_AUTHORIZED')
@@ -213,16 +223,25 @@ def main():
         report['error_type'] = type(exc).__name__
         raise
     finally:
-        try:
-            if follower is not None: follower.close()
-            if primary is not None: primary.close()
-        finally:
-            (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
+        failure_pending = sys.exc_info()[0] is not None
+        cleanup_errors = []
+        for host in (follower, primary):
+            if host is None:
+                continue
+            try:
+                host.close()
+            except Exception as error:
+                cleanup_errors.append(type(error).__name__)
+        if cleanup_errors:
+            report.update(status='failed', cleanup_errors=cleanup_errors)
+        (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
+        if cleanup_errors and not failure_pending:
+            raise AssertionError('OWNED_FIXTURE_CLEANUP_FAILED')
     print(json.dumps(report))
 
 
 def _device_state(root, device_id, enabled):
-    with sqlite3.connect(publication(root) / 'devices.sqlite3') as db:
+    with closing(sqlite3.connect(publication(root) / 'devices.sqlite3')) as db:
         return db.execute('SELECT count(*) FROM devices WHERE id=? AND enabled=?', (device_id, enabled)).fetchone()[0] == 1
 
 
