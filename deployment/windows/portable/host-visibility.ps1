@@ -32,7 +32,10 @@ function Set-HostDeploymentVisibility([string] $Directory,$Settings) {
         }
         $attributes=[IO.File]::GetAttributes($path)
         if ($attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'HOST_VISIBILITY_REPARSE_POINT' }
+        $required=[IO.FileAttributes]::Directory -bor [IO.FileAttributes]::Hidden -bor [IO.FileAttributes]::System
         [IO.File]::SetAttributes($path,($attributes -bor [IO.FileAttributes]::Hidden -bor [IO.FileAttributes]::System))
+        if (([IO.File]::GetAttributes($path) -band $required) -ne $required) { throw 'HOST_DIRECTORY_ATTRIBUTES_NOT_APPLIED' }
+        Write-HostEvent 'host.visibility.directory' @{path=$path;hidden=$true;system=$true;directory=$true}
     }
     Write-HostEvent 'host.visibility.finish' @{directories=$targets.Count;hidden=$true;system=$true}
 }

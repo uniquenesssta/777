@@ -1,25 +1,14 @@
-﻿# Console prompts and standard Windows folder pickers, kept separate from setup logic.
-function Read-HostDirectoryChoice([string] $Label, [string] $Current, [bool] $ServiceRoot=$false) {
-    Write-Host ($Label + '：' + $Current)
-    $choice=Read-Host '回车使用此位置；输入1选择文件夹；也可以粘贴完整路径'
-    if (-not $choice) { return $Current }
-    if ($choice -ne '1') { return $choice.Trim().Trim('"') }
-    Add-Type -AssemblyName System.Windows.Forms
-    $dialog=[Windows.Forms.FolderBrowserDialog]::new()
-    $dialog.Description=if ($ServiceRoot) { '选择数据上级文件夹，将创建 Quote777Service；也可选已有后台根目录' } else { $Label }
-    $dialog.ShowNewFolderButton=$true
-    try {
-        if ($dialog.ShowDialog() -ne [Windows.Forms.DialogResult]::OK) { throw 'HOST_DIRECTORY_SELECTION_CANCELLED' }
-        $selected=$dialog.SelectedPath
-        if ($ServiceRoot -and -not (Test-Path -LiteralPath (Join-Path $selected 'private\service.json'))) { $selected=Join-Path $selected 'Quote777Service' }
-        return $selected
-    } finally { $dialog.Dispose() }
+﻿# Display fixed locations; only multiple local interfaces require a choice.
+function Show-HostSetupPaths($Settings) {
+    Write-Host ('业务数据目录：'+$Settings.root)
+    Write-Host ('普通备份目录：'+$Settings.backup)
+    Write-Host ('固定隐藏备份：'+$Settings.hidden)
 }
 function Select-HostSetupSettings($Settings,[bool] $Joining=$false) {
     $value=$Settings | ConvertTo-Json -Depth 10 | ConvertFrom-Json
-    if ($Joining) { Write-Host '将当前电脑加入现有业务数据，请选择新的本地数据目录。已有独立账本不能合并。' }
+    if ($Joining) { Write-Host '将当前电脑加入现有业务数据，目录自动放在程序包旁边。' }
     else { Write-Host '部署会在当前电脑创建独立后台；如要使用同一份数据，请选择菜单10“加入现有数据”。' }
-    $value.root=Read-HostDirectoryChoice '业务数据根目录' $value.root $true
+    Show-HostSetupPaths $value
     if (Test-Path -LiteralPath (Join-Path $value.root 'private\service.json')) {
         Write-Host '已找到现有后台，将沿用它的地址、目录和账本。'
         return Get-PreparedHostSettings $value.root $value
@@ -39,11 +28,8 @@ function Select-HostSetupSettings($Settings,[bool] $Joining=$false) {
     }
     $value.address=$candidates[$index]
     Write-Host ('本机服务地址：'+$value.address)
-    $value.backup=Read-HostDirectoryChoice '普通备份目录' $value.backup
-    $value.hidden=Read-HostDirectoryChoice '隐藏备份目录' $value.hidden
     $value.root=Get-LocalHostRoot $value.root $true
     Assert-HostBackupLocation $value.backup $value.root
-    Assert-HostBackupLocation $value.hidden $value.root
     $value.configured=$true
     return $value
 }

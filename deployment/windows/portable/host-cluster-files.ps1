@@ -45,3 +45,11 @@ function Complete-HostClusterDeployment([string] $Directory,$Bundle,$Settings,$S
     Write-HostJsonReplace $path $deployment
     return $cluster
 }
+
+# Only look inside this package; never scan or log join-ticket contents.
+function Get-HostAutoInvitation([string] $Directory) {
+    $files=@(Get-ChildItem -LiteralPath $Directory -Filter '*.777join' -File -Force)
+    if ($files.Count -eq 1) { return $files[0].FullName }
+    Write-Host '请选择主机导出的加入文件。也可以将唯一的一份加入文件放在程序包中，再双击 deploy.cmd。'
+    return Select-HostClusterFile $false
+}

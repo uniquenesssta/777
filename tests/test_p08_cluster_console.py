@@ -79,8 +79,10 @@ try {
     $null=Get-HostDeployment $root
     Set-HostDeploymentVisibility $Base $settings
     # Swapping backup roles must not change directory visibility policy.
+    [IO.File]::SetAttributes($settings.hidden,[IO.FileAttributes]::Directory)
     $swapped=@{root=$root;backup=$settings.hidden;hidden=$settings.backup}
     Set-HostDeploymentVisibility $Base $swapped
+    if (-not ([IO.File]::GetAttributes($settings.hidden) -band [IO.FileAttributes]::Hidden) -or -not ([IO.File]::GetAttributes($settings.hidden) -band [IO.FileAttributes]::System)) { throw 'TOP_LEVEL_QUOTE777HIDDEN_NOT_HIDDEN' }
     if ([IO.File]::GetAttributes($settings.backup) -band ([IO.FileAttributes]::Hidden -bor [IO.FileAttributes]::System)) { throw 'BACKUP_ROLE_CHANGED_ATTRIBUTES' }
     $remote=@{root=$root;backup=$settings.hidden;hidden='\\192.0.2.1\share\Quote777Hidden'}
     Set-HostDeploymentVisibility $Base $remote

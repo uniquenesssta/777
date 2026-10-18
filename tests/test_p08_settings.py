@@ -24,20 +24,34 @@ class HostSettingsTests(unittest.TestCase):
 param([string] $Modules,[string] $Base)
 $ErrorActionPreference='Stop'; Set-StrictMode -Version Latest
 foreach ($name in @('host-log.ps1','host-site.ps1','host-paths.ps1','host-settings.ps1','host-options.ps1')) { . (Join-Path $Modules $name) }
+$Base=Get-HostLongPath $Base
 $script:site=@{machine='synthetic-first-PC';sid='synthetic-first-owner';addresses=@('127.0.0.1','10.20.30.40','192.168.4.38')}
 function Get-LocalHostInventory { return $script:site }
-function Read-Host($Prompt) { return '' }
+function Read-Host($Prompt) { if ($Prompt -notlike '*地址编号*') { throw 'UNEXPECTED_DIRECTORY_PROMPT' }; return '' }
 # Construct a clean package configuration, with no live service roots or dialogs touched.
-Copy-Item -LiteralPath (Join-Path $Modules 'host-defaults.json') -Destination (Join-Path $Base 'host-defaults.json')
-$initial=Get-HostSetupSettings $Base $Base (Join-Path $Base 'legacy-fixture')
+$package=Join-Path $Base 'Quote777Host'
+[IO.Directory]::CreateDirectory($package) | Out-Null
+Copy-Item -LiteralPath (Join-Path $Modules 'host-defaults.json') -Destination (Join-Path $package 'host-defaults.json')
+$initial=Get-HostSetupSettings $package
 if ($initial.root -ne (Join-Path $Base 'Quote777Service') -or $initial.address -ne '10.20.30.40' -or $initial.configured) { throw 'MACHINE_DEFAULTS_NOT_GENERIC' }
+if ($initial.backup -ne (Join-Path $Base 'Quote777Hidden') -or $initial.hidden -ne '\\192.168.4.23\共享\backup') { throw 'FIXED_BACKUP_LAYOUT_INVALID' }
 $selected=Select-HostSetupSettings $initial
-Save-HostSetupSettings $Base $selected
-$saved=Get-HostSetupSettings $Base $Base (Join-Path $Base 'legacy-fixture')
+Save-HostSetupSettings $package $selected
+$saved=Get-HostSetupSettings $package
 if (-not $saved.configured -or $saved.address -ne '10.20.30.40') { throw 'LOCAL_SETTINGS_NOT_REUSED' }
 $script:site=@{machine='synthetic-second-PC';sid='synthetic-second-owner';addresses=@('192.168.4.38')}
-$other=Get-HostSetupSettings $Base (Join-Path $Base 'other-PC') (Join-Path $Base 'legacy-fixture')
+$otherPackage=Join-Path $Base 'other-PC\Quote777Host'
+[IO.Directory]::CreateDirectory($otherPackage) | Out-Null
+foreach ($file in @('host-defaults.json','host-local.json')) { Copy-Item -LiteralPath (Join-Path $package $file) -Destination (Join-Path $otherPackage $file) }
+$other=Get-HostSetupSettings $otherPackage
 if ($other.configured -or $other.address -ne '192.168.4.38' -or $other.root -eq $saved.root) { throw 'COPIED_SETTINGS_BOUND_OTHER_COMPUTER' }
+if ($other.root -ne (Join-Path $Base 'other-PC\Quote777Service') -or $other.backup -ne (Join-Path $Base 'other-PC\Quote777Hidden') -or $other.hidden -ne $initial.hidden) { throw 'MOVED_PACKAGE_LAYOUT_INVALID' }
+$null=Select-HostSetupSettings $other $true
+# Same-machine stale saved directory choices must also not override automatic layout.
+$other.root=Join-Path $Base 'unused-old-choice'; $other.backup=Join-Path $Base 'unused-old-backup'; $other.hidden='unused-old-hidden'
+Save-HostSetupSettings $otherPackage $other
+$other=Get-HostSetupSettings $otherPackage
+if ($other.root -ne (Join-Path $Base 'other-PC\Quote777Service') -or $other.hidden -ne $initial.hidden) { throw 'STALE_SETTINGS_OVERRULED_FIXED_LAYOUT' }
 @{status='passed';address=$other.address;configured=$other.configured} | ConvertTo-Json -Compress
 '''
         with tempfile.TemporaryDirectory() as folder:

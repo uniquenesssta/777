@@ -1,6 +1,7 @@
 {
-  "schema": "777-host-setup-v2",
+  "schema": "777-host-setup-v3",
   "admin": "manager",
   "port": 8477,
-  "hour": 23
+  "hour": 23,
+  "hidden_backup": "\\\\192.168.4.23\\共享\\backup"
 }

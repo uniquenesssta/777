@@ -1,5 +1,5 @@
 ﻿# A replica uses a fresh local root; existing standalone business data is rejected.
-function Join-HostCluster([string] $Directory,$Bundle,$Settings) {
+function Join-HostCluster([string] $Directory,$Bundle,$Settings,[switch] $AutoInvitation) {
     $site=Assert-HostSetupMachine $Settings
     $root=$Settings.root
     $resume=Test-Path -LiteralPath (Join-Path $root 'private\cluster\config.json')
@@ -10,7 +10,7 @@ function Join-HostCluster([string] $Directory,$Bundle,$Settings) {
     if ((Get-FileDigest $native) -ne $Bundle.files.'bin/quote-host.exe') { throw 'HOST_PACKAGE_RESOURCE_CHANGED' }
     $capability=Invoke-HostNative $native @('resource-info')
     if ($capability.cluster_protocol -ne '777-cluster-v1') { throw 'REBUILD_HOST_PACKAGE_FOR_CLUSTER' }
-    $invitation=Select-HostClusterFile $false
+    $invitation=if ($AutoInvitation) { Get-HostAutoInvitation $Directory } else { Select-HostClusterFile $false }
     Write-Host '正在登记并下载初始数据，核对完成后才会启动。较大数据需要等待；中断后使用同一目录再次加入可继续。'
     $null=Invoke-HostNative $native @('cluster-join','--root',$root,'--invitation',$invitation,'--backup-dir',$Settings.backup,'--host',$Settings.address,'--host','127.0.0.1','--host','localhost','--bind',$Settings.address,'--port',[string]$Settings.port,'--worker',(Join-Path $Directory 'bin\quote-ledger.exe'),'--notices',(Join-Path $Directory 'THIRD_PARTY_NOTICES.md'))
     $cluster=Complete-HostClusterDeployment $Directory $Bundle $Settings $site 'replica'
