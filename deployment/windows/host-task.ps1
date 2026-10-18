@@ -27,7 +27,7 @@ if ($Operation -eq 'status') {
     $state = if ($null -eq $task) { 'not_registered' } else { [string] $task.State }
     $info = if ($null -eq $task) { $null } else { Get-ScheduledTaskInfo -TaskName $taskName }
     $lastResult = if ($null -eq $info) { $null } else { $info.LastTaskResult }
-    [ordered]@{task=$taskName;state=$state;last_task_result=$lastResult;account=$deployment.owner_account;host=$deployment.active_address;replication='not_implemented'} | ConvertTo-Json -Compress
+    [ordered]@{task=$taskName;state=$state;last_task_result=$lastResult;account=$deployment.owner_account;host=$deployment.active_address;replication=$deployment.replication} | ConvertTo-Json -Compress
     exit 0
 }
 if ($Operation -eq 'stop') {

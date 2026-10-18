@@ -2754,6 +2754,7 @@ dependencies = [
  "getrandom 0.2.16",
  "quote-core",
  "quote-diagnostics",
+ "quote-security",
  "rcgen",
  "reqwest",
  "rustls",
@@ -2810,7 +2811,9 @@ dependencies = [
  "quote-diagnostics",
  "quote-excel",
  "quote-ledger",
+ "quote-security",
  "rcgen",
+ "reqwest",
  "rpassword",
  "rusqlite",
  "rustls",
@@ -2838,6 +2841,19 @@ dependencies = [
  "serde_json",
  "sha2",
  "time",
+]
+
+[[package]]
+name = "quote-security"
+version = "0.1.0"
+dependencies = [
+ "base64 0.22.1",
+ "rcgen",
+ "reqwest",
+ "rustls",
+ "serde",
+ "sha2",
+ "x509-parser",
 ]
 
 [[package]]

@@ -207,7 +207,7 @@ impl Devices {
         )
     }
     pub fn authenticate(&self, auth: &Auth, token: &str) -> Result<Actor> {
-        secret(&json!(token))?;
+        secret(&json!(token)).map_err(|_| Error::new(401, "UNAUTHENTICATED"))?;
         let row:Option<(String,String,i64)>=self.connection()?.query_row("SELECT d.subject,d.delivery,d.epoch FROM devices d JOIN device_sessions s ON d.id=s.device_id WHERE s.digest=? AND s.expires>? AND d.enabled=1",params![hash(token),auth::now()],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?))).optional()?;
         let (subject, kind, epoch) = row.ok_or_else(|| Error::new(401, "UNAUTHENTICATED"))?;
         let (_, r, current) = Self::user(auth, &subject)?;

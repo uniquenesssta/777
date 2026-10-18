@@ -1,5 +1,5 @@
 ﻿param(
-    [ValidateSet('menu','setup','check','start','stop','logs','inventory','settings')][string] $Action='menu',
+    [ValidateSet('menu','setup','check','start','stop','logs','inventory','settings','cluster-primary','cluster-invite','cluster-join','cluster-status','cluster-revoke')][string] $Action='menu',
     [string] $ExpectedSid, [string] $LogSession,
     [switch] $NoPause
 )
@@ -8,7 +8,7 @@ $ErrorActionPreference='Stop'
 [Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)
 [Console]::InputEncoding=[Text.UTF8Encoding]::new($false)
 if ($env:OS -ne 'Windows_NT') { throw 'WINDOWS_DEPLOYMENT_REQUIRED' }
-foreach ($name in @('host-identity.ps1','host-log.ps1','host-package.ps1','host-site.ps1','host-paths.ps1','host-native.ps1','host-prepare.ps1','host-access.ps1','host-settings.ps1','host-options.ps1','host-setup.ps1','host-check.ps1')) { . (Join-Path $PSScriptRoot ('scripts\' + $name)) }
+foreach ($name in @('host-identity.ps1','host-log.ps1','host-package.ps1','host-site.ps1','host-paths.ps1','host-native.ps1','host-prepare.ps1','host-access.ps1','host-settings.ps1','host-options.ps1','host-setup.ps1','host-check.ps1','host-cluster-files.ps1','host-cluster-primary.ps1','host-cluster-join.ps1')) { . (Join-Path $PSScriptRoot ('scripts\' + $name)) }
 
 function Show-ConsoleFailure($Failure) {
     $code = $Failure.Exception.Message
@@ -31,11 +31,19 @@ function Show-ConnectionCheck($Check) {
 function Invoke-ConsoleAction([string] $Selected) {
     $script:SelectedAction=$Selected
     Write-HostEvent 'host.console.action' @{operation=$Selected}
+    if ($Selected -eq 'cluster-join' -and -not (Test-Path -LiteralPath (Join-Path $script:Settings.root 'private\cluster\config.json'))) {
+        if (Test-Path -LiteralPath (Join-Path $script:Settings.root 'private\service.json')) {
+            $script:Settings.root=Join-Path ([IO.Path]::GetDirectoryName($script:Settings.root)) 'Quote777Replica'
+            $script:Settings.configured=$false
+        }
+        if (-not $script:Settings.configured) { $script:Settings=Select-HostSetupSettings $script:Settings $true }
+        Save-HostSetupSettings $PSScriptRoot $script:Settings
+    }
     if ($Selected -eq 'setup') {
         if (-not $script:Settings.configured) { $script:Settings=Select-HostSetupSettings $script:Settings }
         Save-HostSetupSettings $PSScriptRoot $script:Settings
     }
-    if ($Selected -in @('setup','start','stop')) {
+    if ($Selected -in @('setup','start','stop','cluster-primary','cluster-join')) {
         $null=Assert-HostSetupMachine $script:Settings
         if (-not (Test-HostElevated)) {
             Write-Host '即将请求管理员权限，请使用当前 Windows 账户。'
@@ -44,6 +52,11 @@ function Invoke-ConsoleAction([string] $Selected) {
         }
     }
     switch ($Selected) {
+        'cluster-primary' { Enable-HostCluster $PSScriptRoot $script:Bundle $script:Settings }
+        'cluster-invite' { Export-HostClusterInvitation $PSScriptRoot $script:Settings }
+        'cluster-join' { Join-HostCluster $PSScriptRoot $script:Bundle $script:Settings }
+        'cluster-status' { Show-HostClusterStatus $script:Settings }
+        'cluster-revoke' { Revoke-HostClusterPeer $script:Settings }
         'setup' {
             Write-Host ('服务根目录：' + $script:Settings.root)
             Write-Host ('普通备份：' + $script:Settings.backup)
@@ -97,12 +110,14 @@ try {
     Write-Host '777 后台管理'
     Write-Host ('本次日志：' + $script:HostLogDirectory)
     if ($Action -eq 'menu') {
-        $choices=@{'1'='setup';'2'='check';'3'='start';'4'='stop';'5'='logs';'6'='inventory';'7'='settings'}
+        $choices=@{'1'='setup';'2'='check';'3'='start';'4'='stop';'5'='logs';'6'='inventory';'7'='settings';'8'='cluster-primary';'9'='cluster-invite';'10'='cluster-join';'11'='cluster-status';'12'='cluster-revoke'}
         while ($true) {
             Write-Host ''
             Write-Host '1 一键部署并启动    2 查看状态与连接    3 启动后台'
             Write-Host '4 正常停止后台      5 打开日志文件夹    6 采集主机信息'
-            Write-Host '7 选择部署位置      0 退出'
+            Write-Host '7 选择部署位置      8 将现有后台设为同步主机'
+            Write-Host '9 导出加入文件      10 加入现有数据      11 查看同步状态'
+            Write-Host '12 撤销同步节点     0 退出'
             $choice=Read-Host '输入数字后按回车'
             if ($choice -eq '0') { break }
             if ($choices.ContainsKey($choice)) {

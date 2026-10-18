@@ -15,9 +15,10 @@ function Read-HostDirectoryChoice([string] $Label, [string] $Current, [bool] $Se
         return $selected
     } finally { $dialog.Dispose() }
 }
-function Select-HostSetupSettings($Settings) {
+function Select-HostSetupSettings($Settings,[bool] $Joining=$false) {
     $value=$Settings | ConvertTo-Json -Depth 10 | ConvertFrom-Json
-    Write-Host '部署会把后台安装在当前这台电脑；新目录创建独立账本，其他电脑的数据不会自动复制过来。'
+    if ($Joining) { Write-Host '将当前电脑加入现有业务数据，请选择新的本地数据目录。已有独立账本不能合并。' }
+    else { Write-Host '部署会在当前电脑创建独立后台；如要使用同一份数据，请选择菜单10“加入现有数据”。' }
     $value.root=Read-HostDirectoryChoice '业务数据根目录' $value.root $true
     if (Test-Path -LiteralPath (Join-Path $value.root 'private\service.json')) {
         Write-Host '已找到现有后台，将沿用它的地址、目录和账本。'

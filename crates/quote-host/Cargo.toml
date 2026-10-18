@@ -6,6 +6,8 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
+quote-security = { path = "../quote-security" }
+reqwest = { version = "=0.13.5", default-features = false, features = ["rustls-no-provider", "json"] }
 quote-diagnostics = { path = "../quote-diagnostics" }
 quote-core = { path = "../quote-core" }
 quote-ledger = { path = "../quote-ledger" }

@@ -23,7 +23,8 @@ function Invoke-HostProcess([string] $Executable, [string[]] $Arguments, $Passwo
             [Array]::Clear($bytes,0,$bytes.Length)
         }
         $child.StandardInput.Close()
-        if (-not $child.WaitForExit(180000)) { throw 'HOST_CHILD_TIMED_OUT_RESULT_REQUIRES_REVIEW' }
+        $timeout=if ($Arguments[0] -eq 'cluster-join') { 1800000 } else { 180000 }
+        if (-not $child.WaitForExit($timeout)) { throw 'HOST_CHILD_TIMED_OUT_RESULT_REQUIRES_REVIEW' }
         $out = $stdout.GetAwaiter().GetResult(); $err = $stderr.GetAwaiter().GetResult()
         if ($child.ExitCode -ne 0) {
             $code = 'HOST_CHILD_OPERATION_FAILED'

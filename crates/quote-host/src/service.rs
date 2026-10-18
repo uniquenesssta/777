@@ -74,7 +74,8 @@ impl Service {
         if config["maintenance"] == true && !maintenance {
             return fail(503, "RECOVERY_MAINTENANCE_REQUIRED");
         }
-        let ledger = private.join("ledger.sqlite3");
+        let data = crate::cluster::replica::data_directory(root)?;
+        let ledger = data.join("ledger.sqlite3");
         let c = store::open(&ledger, false)?;
         let inventory = integrity::inventory(&c)?;
         if inventory["ledger_id"] != config["ledger_id"] {
@@ -87,20 +88,20 @@ impl Service {
             return fail(503, "CERTIFICATE_IDENTITY_CONFLICT");
         }
         files::local(&private.join("tls-key.pem"), true)?;
-        let auth = Auth::open(private.join("auth.sqlite3"))?;
+        let auth = Auth::open(data.join("auth.sqlite3"))?;
         let devices = match config.get("device_auth") {
             None => None,
             Some(v) if v == crate::devices::FORMAT => Some(crate::devices::Devices::open(
-                private.join("devices.sqlite3"),
+                data.join("devices.sqlite3"),
             )?),
             _ => return fail(409, "DEVICE_PROTOCOL_CONFLICT"),
         };
         if let Some(d) = &devices {
             d.validate_accounts(&auth)?;
         }
-        let outputs = if private.join("outputs.sqlite3").exists() {
+        let outputs = if data.join("outputs.sqlite3").exists() {
             Some(Outputs::open(
-                private.join("outputs.sqlite3"),
+                data.join("outputs.sqlite3"),
                 config["ledger_id"]
                     .as_str()
                     .ok_or_else(|| Error::new(422, "HOST_CONFIG_INVALID"))?,
@@ -203,6 +204,7 @@ impl Service {
         Ok(v)
     }
     pub fn prepare_output(&self) -> Result<Option<Work>> {
+        if crate::cluster::config::read(&self.root)?.is_some_and(|c| c.role == crate::cluster::config::Role::Replica) { return Ok(None); }
         match &self.outputs {
             Some(o) => o.prepare(&self.auth, self.font.clone()),
             None => Ok(None),
@@ -231,6 +233,12 @@ impl Service {
         query: &str,
         peer: &str,
     ) -> Result<Value> {
+        if crate::cluster::config::read(&self.root)?.is_some_and(|c| c.role == crate::cluster::config::Role::Replica) {
+            return fail(409, "CLUSTER_REPLICA_CANNOT_WRITE");
+        }
+        if path.starts_with("/v1/cluster/") {
+            return crate::cluster::api::handle(self, method, path, token, data, peer);
+        }
         if method == "POST" && path == "/v1/login" {
             fields(data, &["username", "password"], &[])?;
             return self.auth.login(&data["username"], &data["password"], peer);

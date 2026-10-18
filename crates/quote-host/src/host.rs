@@ -352,6 +352,8 @@ pub fn select(options: Selection<'_>) -> Result<Value> {
 struct State {
     service: Arc<Mutex<Service>>,
     capacity: Arc<tokio::sync::Semaphore>,
+    peer: Option<Arc<crate::cluster::transport::Peer>>,
+    dirty: Arc<AtomicBool>,
 }
 async fn handler(
     axum::extract::State(state): axum::extract::State<State>,
@@ -371,7 +373,7 @@ async fn handler(
     let route = req.uri().path().split('/').nth(2).unwrap_or("");
     let route_log = match route {
         "auth" | "devices" | "prices" | "orders" | "backups" | "settings" | "outputs"
-        | "calculate" | "health" | "order-preview" | "order-save" | "customer-orders" => {
+        | "calculate" | "health" | "order-preview" | "order-save" | "customer-orders" | "cluster" => {
             route.to_owned()
         }
         _ => "other".into(),
@@ -431,11 +433,11 @@ async fn handler(
                 let data = if method == "POST" {
                     match tokio::time::timeout(
                         Duration::from_secs(10),
-                        to_bytes(req.into_body(), protocol::BODY_LIMIT),
+                        to_bytes(req.into_body(), if path.starts_with("/v1/cluster/") { 2 * protocol::BODY_LIMIT } else { protocol::BODY_LIMIT }),
                     )
                     .await
                     {
-                        Ok(Ok(raw)) => protocol::decode(&raw, protocol::BODY_LIMIT),
+                        Ok(Ok(raw)) => protocol::decode(&raw, if path.starts_with("/v1/cluster/") { 2 * protocol::BODY_LIMIT } else { protocol::BODY_LIMIT }),
                         Ok(Err(_)) => fail(413, "BODY_TOO_LARGE"),
                         Err(_) => fail(408, "BODY_TIMEOUT"),
                     }
@@ -444,23 +446,32 @@ async fn handler(
                 };
                 match data {
                     Err(e) => Err(e),
-                    Ok(data) => tokio::task::spawn_blocking(move || {
+                    Ok(data) if state.peer.is_some() => {
+                        let _permit = permit;
+                        if path.starts_with("/v1/cluster/") {
+                            fail(409, "CLUSTER_REPLICA_CANNOT_WRITE")
+                        } else {
+                            state.peer.as_ref().unwrap().forward(&method, &path, &query, &token, &data).await
+                        }
+                    }
+                    Ok(data) => {
+                        let dirty = state.dirty.clone();
+                        tokio::task::spawn_blocking(move || {
                         let _permit = permit;
                         let mut service = state
                             .service
                             .lock()
                             .map_err(|_| Error::new(503, "SERVICE_UNAVAILABLE"))?;
-                        service.handle(
-                            &method,
-                            &path,
-                            &token,
-                            &data,
-                            &query,
-                            &peer.ip().to_string(),
-                        )
+                        let changes = method == "POST" && (!path.starts_with("/v1/cluster/") || (path == "/v1/cluster/forward" && data["method"] == "POST"));
+                        let result = service.handle(
+                            &method, &path, &token, &data, &query, &peer.ip().to_string(),
+                        );
+                        if changes { dirty.store(true, Ordering::SeqCst); }
+                        result
                     })
                     .await
-                    .unwrap_or_else(|_| fail(500, "SERVICE_FAILED")),
+                    .unwrap_or_else(|_| fail(500, "SERVICE_FAILED"))
+                    },
                 }
             }
         },
@@ -474,10 +485,10 @@ async fn handler(
     } else {
         quote_diagnostics::event
     };
-    record(
+    if route_log != "cluster" { record(
         "http.finish",
         json!({"method":method_log,"route":route_log,"status":status,"error":value.get("error")}),
-    );
+    ); }
     if started.elapsed() >= Duration::from_secs(5) {
         quote_diagnostics::event(
             "http.slow",
@@ -508,9 +519,19 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
     if loaded.config != service.config {
         return fail(409, "HOST_CONFIGURATION_CHANGED");
     }
-    if let Some(o) = &loaded.outputs {
-        o.recover()?
+    let cluster = crate::cluster::config::read(&loaded.root)?;
+    let replica = cluster.as_ref().is_some_and(|c| c.role == crate::cluster::config::Role::Replica);
+    if !replica {
+        if let Some(o) = &loaded.outputs { o.recover()?; }
+    } else {
+        let publication = crate::cluster::snapshot::current(&loaded.root)?.ok_or_else(|| Error::new(503, "CLUSTER_INITIAL_SYNC_REQUIRED"))?;
+        let manifest = crate::cluster::snapshot::read(&loaded.root, &publication)?;
+        crate::cluster::snapshot::validate_data(&crate::cluster::snapshot::folder(&loaded.root, &publication)?, &manifest)?;
     }
+    let upstream = if let Some(c) = cluster.as_ref().filter(|_| replica) {
+        Some(Arc::new(crate::cluster::transport::Peer::new(c, crate::cluster::config::secret(&loaded.root, loaded.auxiliary)?)?))
+    } else { None };
+    let root = loaded.root.clone();
     let private = loaded.root.join("private");
     rustls::crypto::ring::default_provider()
         .install_default()
@@ -535,9 +556,12 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
     listener.set_nonblocking(true)?;
     let bound = listener.local_addr()?;
     let service = Arc::new(Mutex::new(loaded));
+    let dirty = Arc::new(AtomicBool::new(true));
     let state = State {
         service: service.clone(),
         capacity: Arc::new(tokio::sync::Semaphore::new(8)),
+        peer: upstream.clone(),
+        dirty: dirty.clone(),
     };
     let app = axum::Router::new().fallback(handler).with_state(state);
     let handle = axum_server::Handle::new();
@@ -562,18 +586,22 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
     });
     let output_service = service.clone();
     let output_stop = stop.clone();
+    let output_dirty = dirty.clone();
     let worker = tokio::task::spawn_blocking(move || {
         while !output_stop.load(Ordering::SeqCst) {
+            if replica { std::thread::sleep(Duration::from_millis(100)); continue; }
             let work = output_service
                 .lock()
                 .ok()
                 .and_then(|s| s.prepare_output().ok())
                 .flatten();
             if let Some(work) = work {
+                output_dirty.store(true, Ordering::SeqCst);
                 let outcome = work.execute();
                 if let Ok(s) = output_service.lock() {
                     if let Some(o) = &s.outputs {
                         let _ = o.finish(&work, outcome);
+                        output_dirty.store(true, Ordering::SeqCst);
                     }
                 }
             } else {
@@ -583,6 +611,7 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
     });
     let schedule_service = service.clone();
     let schedule_stop = stop.clone();
+    let schedule_dirty = dirty.clone();
     let schedule = tokio::task::spawn_blocking(move || {
         let mut ticks = 0;
         while !schedule_stop.load(Ordering::SeqCst) {
@@ -590,6 +619,8 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
             ticks += 1;
             if ticks == 150 {
                 ticks = 0;
+                if replica { continue; }
+                schedule_dirty.store(true, Ordering::SeqCst);
                 if let Ok(s) = schedule_service.lock() {
                     if let Err(e) = backup::due(&s) {
                         quote_diagnostics::event("backup.schedule.error", json!({"error":e.code}));
@@ -601,6 +632,30 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
             }
         }
     });
+    let synchronization = if let Some(upstream) = upstream {
+        let stopped = stop.clone();
+        Some(tokio::spawn(crate::cluster::replica::run(upstream, root, stopped)))
+    } else if let Some(cluster) = cluster {
+        let stopped = stop.clone();
+        let source = service.clone();
+        Some(tokio::task::spawn_blocking(move || {
+            let mut last_error: Option<String> = None;
+            while !stopped.load(Ordering::SeqCst) {
+                if dirty.swap(false, Ordering::SeqCst) {
+                    let outcome = source.lock().map_err(|_| Error::new(503, "SERVICE_UNAVAILABLE"))
+                        .and_then(|s| crate::cluster::snapshot::capture(&s, &cluster));
+                    if let Err(error) = outcome {
+                        dirty.store(true, Ordering::SeqCst);
+                        if last_error.as_deref() != Some(error.code.as_str()) {
+                            quote_diagnostics::event("cluster.snapshot.failed", json!({"error":error.code}));
+                            last_error = Some(error.code);
+                        }
+                    } else { last_error = None; }
+                }
+                for _ in 0..20 { if stopped.load(Ordering::SeqCst) { break; } std::thread::sleep(Duration::from_millis(100)); }
+            }
+        }))
+    } else { None };
     let server = axum_server::from_tcp_rustls(listener, tls)?
         .http1_only()
         .handle(handle);
@@ -630,6 +685,9 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
     schedule
         .await
         .map_err(|_| Error::new(503, "BACKUP_WORKER_FAILED"))?;
+    if let Some(synchronization) = synchronization {
+        synchronization.await.map_err(|_| Error::new(503, "CLUSTER_WORKER_FAILED"))?;
+    }
     result?;
     Ok(())
 }

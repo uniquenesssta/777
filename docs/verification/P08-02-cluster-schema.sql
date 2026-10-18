@@ -1,0 +1,2 @@
+CREATE TABLE grants(id TEXT PRIMARY KEY, digest TEXT UNIQUE NOT NULL, expires INTEGER NOT NULL, node_id TEXT, credential TEXT) STRICT;
+CREATE TABLE peers(id TEXT PRIMARY KEY, credential TEXT NOT NULL, enabled INTEGER NOT NULL CHECK(enabled IN(0,1)), generation INTEGER NOT NULL DEFAULT 0, manifest TEXT, seen INTEGER NOT NULL DEFAULT 0, fetch_generation INTEGER, fetch_manifest TEXT, fetch_until INTEGER) STRICT;

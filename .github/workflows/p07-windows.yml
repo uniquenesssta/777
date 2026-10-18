@@ -17,6 +17,53 @@ concurrency:
   group: p07-windows-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  host-sync:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    env:
+      PYTHONUTF8: '1'
+      CARGO_BUILD_JOBS: '2'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12.10'
+      - name: Native host prerequisites
+        shell: pwsh
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rustfmt,clippy
+          if ($LASTEXITCODE -ne 0) { throw 'Rust setup failed' }
+          python -m pip install -r requirements-baseline.txt -r requirements-service.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Host verification dependencies failed' }
+      - name: Normalize and report host Rust formatting
+        shell: pwsh
+        run: |
+          cargo fmt --all
+          if ($LASTEXITCODE -ne 0) { throw 'Formatting failed' }
+          Write-Output 'P08_FORMAT_PATCH_BEGIN'
+          git diff --no-color
+          Write-Output 'P08_FORMAT_PATCH_END'
+      - name: Native cluster protocol and strict analysis
+        shell: pwsh
+        run: |
+          cargo clippy --locked -j 2 -p quote-host -p quote-security --all-targets -- -D warnings
+          if ($LASTEXITCODE -ne 0) { throw 'Host Clippy failed' }
+          cargo test --locked -j 2 -p quote-host -p quote-security
+          if ($LASTEXITCODE -ne 0) { throw 'Cluster protocol tests failed' }
+          cargo build --locked --release -j 2 -p quote-host -p quote-ledger
+          if ($LASTEXITCODE -ne 0) { throw 'Native hosts failed to build' }
+      - name: Two real TLS nodes and interrupted replication
+        shell: pwsh
+        run: |
+          python tools/p08_sync_check.py --output reports/p08-02-sync
+          if ($LASTEXITCODE -ne 0) { throw 'Two-node replication failed' }
+      - name: Upload cluster evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: p08-02-sync-evidence
+          path: reports/p08-02-sync
+          if-no-files-found: warn
   desktop-contracts:
     runs-on: windows-latest
     timeout-minutes: 45

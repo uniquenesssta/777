@@ -42,7 +42,7 @@ class HostBundleTests(unittest.TestCase):
                     self.assertEqual(hashlib.sha256(zipped.read('Quote777Host/' + name)).hexdigest(), expected)
                 self.assertFalse(any(name.endswith(('.py', '.mjs', '.sqlite3')) or '/private/' in name for name in names))
                 self.assertNotIn(b'DO-NOT-PACK', b''.join(zipped.read(name) for name in names))
-                self.assertEqual(manifest['replication'], 'not_implemented')
+                self.assertEqual(manifest['replication'], 'primary_async_snapshot_v1')
                 self.assertEqual(manifest['deployment_mode'], 'standalone')
                 self.assertNotIn('host_order', manifest)
 

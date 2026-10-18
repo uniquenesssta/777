@@ -24,6 +24,9 @@ def main(argv=None):
     try:
         diagnostics.event('host.bundle.start')
         host, worker = native.resources(args.skip_build)
+        capability = native.call(host, ['resource-info'])
+        if capability.get('cluster_protocol') != '777-cluster-v1':
+            raise ValueError('REBUILD_HOST_PACKAGE_FOR_CLUSTER')
         commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=native.ROOT, text=True).strip()
         output = args.output or native.ROOT / 'reports/host-packages' / (datetime.now().strftime('%Y%m%d-%H%M%S') + '-' + commit[:8])
         result = assemble(native.ROOT, output, host, worker, commit)

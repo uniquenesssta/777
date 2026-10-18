@@ -6,7 +6,7 @@ function Get-FileDigest([string] $File) {
     finally { $hash.Dispose(); $stream.Dispose() }
 }
 
-function Get-HostDeployment([string] $Directory) {
+function Get-HostDeployment([string] $Directory,[string] $CandidateHostSha256) {
     $full = [IO.Path]::GetFullPath($Directory).TrimEnd('\')
     if ($full.StartsWith('\\') -or $full.Contains('"') -or $full.Contains("`r") -or $full.Contains("`n")) {
         throw 'LOCAL_HOST_ROOT_REQUIRED'
@@ -31,7 +31,8 @@ function Get-HostDeployment([string] $Directory) {
     foreach ($entry in @(@('rust-service-host.exe', 'host_sha256'), @('host-run.ps1', 'runner_sha256'), @('host-identity.ps1', 'identity_sha256'))) {
         $resource = Join-Path $full ('private\' + $entry[0])
         if ((Get-Item -LiteralPath $resource).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'HOST_RESOURCE_REPARSE_POINT' }
-        if ((Get-FileDigest $resource) -ne $value.($entry[1])) { throw 'HOST_DEPLOYMENT_RESOURCE_CHANGED' }
+        $digest=Get-FileDigest $resource
+        if ($digest -ne $value.($entry[1]) -and -not ($entry[0] -eq 'rust-service-host.exe' -and $CandidateHostSha256 -match '^[a-f0-9]{64}$' -and $digest -eq $CandidateHostSha256)) { throw 'HOST_DEPLOYMENT_RESOURCE_CHANGED' }
     }
     return $value
 }
