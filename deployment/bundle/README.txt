@@ -1,24 +1,38 @@
 777 独立后台包（服务电脑无需开发者版）
 
-开发电脑运行 npm run package:host 构建此包。只复制本包到服务电脑，不复制开发数据库或开发账号。
-服务电脑无需 Git、Node、Python、Rust SDK、Tauri 或开发者版。使用 Windows 自带 PowerShell 5.1 即可。
+开发电脑：拉取最新代码，执行 npm run package:host。
+已有上次构建的原生后台程序时，本次只改脚本，可用 npm run package:host -- --skip-build 重新出包。
+只复制此包到服务电脑，不复制开发数据库、开发账号或 private 文件夹。
+服务电脑无需 Git、Node、Python、Rust SDK、Tauri 或开发者版，只使用 Windows 自带 PowerShell 5.1。
 
-解压后直接双击 collect.cmd 采集主机信息；也可在该文件夹打开 PowerShell：
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1
-默认只采集本机信息，日志在本包 logs\本次启动文件夹\runtime.jsonl。
+解压到 D:\Quote777Host（后台程序包），直接双击：
+  setup.cmd   一键准备、注册开机任务、启动后台并检查 HTTPS。
+  manage.cmd  中文菜单：部署、状态与连接、启动、正常停止、打开日志、采集主机。
+  check.cmd   查看本机任务状态及网络、HTTPS连接；也可在其他电脑检查局域网端口。
+  collect.cmd 只读采集主机资料，兼容旧入口。
+不再需要手工输入 PowerShell 长命令。UAC 会请求管理员权限，必须保持准备后台时的同一 Windows 账户。
 
-先完成主机身份与目录登记，再在4.23电脑准备新后台（以下目录仅为示例）：
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation prepare -Root D:\Quote777Host -Backup \\192.168.4.23\共享\backup -Hidden D:\Quote777Hidden
-将提示输入新业务管理员密码。初始化后仍停止；不创建开机任务。
-失败时保留目录，使用相同参数将 prepare 改为 configure，并输入原业务管理员密码。
+本现场默认位置：
+  服务根目录 D:\Quote777Service（业务数据；与程序包目录分开）
+  普通备份 \\192.168.4.23\共享\backup
+  隐藏备份 D:\Quote777Hidden
+  主机 192.168.4.23，端口8477，每日备份23点（北京时间）
 
-准备主机的同一Windows账户，在提权PowerShell中注册开机任务：
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation install -Root D:\Quote777Host
-系统凭证框要求的是该Windows账户密码，不是业务管理员密码。
-之后将install改为start启动、status查看、stop正常停止、remove移除已停止的开机任务。
-只有明确执行install才注册开机任务和对应防火墙规则；移除任务不删除业务目录。
+已有后台：自动沿用现有账本和已注册任务，不再次初始化、不重置业务密码、不停止运行中的后台。
+新后台：首次准备才通过隐藏输入设置业务管理员密码（12～128字符），不会将密码写入包或日志。
+首次安装自启：系统凭证框的用户名自动填写，输入 Windows 登录密码；不是业务密码或 PIN。
+重复部署：已注册且正常运行的任务跳过注册和启动，不再次询问 Windows 密码。
+中途准备失败：保留已有目录；再次运行会尝试用原业务密码补完，不删除已有数据。
 
-服务根的connection.json只含公开连接和证书，用于开发电脑最终本地封包母版/子版。
-服务主机后台运行期间不需要打开母版、子版或开发者版。
-4.38仅可采集信息，当前不允许准备独立备用账本。主备复制与安全接管尚未实现。
-任务Running不等于业务或备份已验收；维护前应确认正常退出及LastTaskResult=0。
+状态检查：端口可达不等于业务已验收；HTTPS检查校验证书指纹并确认服务返回未登录应答。
+在其他电脑只做端口检查时不需要密码。需要校验 HTTPS，可把服务根目录中的公开 connection.json
+复制到本包目录，再双击 check.cmd。该文件不包含私钥或业务密码。
+服务根的 connection.json 也用于开发电脑最终本地封包母版/子版。
+
+每次打开使用独立 logs\本次启动文件夹\runtime.jsonl；同一次操作共用一个会话，有限轮转，不逐次刷检查日志。
+后台运行日志在 D:\Quote777Service\logs；菜单“打开日志”打开程序包的操作日志。
+正常停止会暂停开机启动，菜单“启动后台”恢复自启。维护前确认后台正常退出；菜单退出不停止后台。
+新版包可以解压到另一个独立程序包目录，继续使用已有 D:\Quote777Service，不要删除服务根。
+
+4.38仅可采集或检查，当前不允许初始化独立备用账本；主备复制与安全接管尚未实现。
+host.ps1 的原有命令入口仍保留给维护人员；移除开机任务不删除业务数据。

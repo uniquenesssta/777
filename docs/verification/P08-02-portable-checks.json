@@ -38,7 +38,7 @@
     "python_compile": "passed",
     "diff_whitespace": "passed",
     "Windows_5_1_portable_units": "passed: restricted-PATH inventory, wrong host/tamper refusal, UTF-8 stdin-only passwords, argument round trip",
-    "real_native_portable_prepare_retry": "pending later CI stage"
+    "real_native_portable_prepare_retry": "passed in Windows CI39090902645"
   },
   "previous_Windows_functional_CI": {
     "run_id": 39043638535,
@@ -48,7 +48,7 @@
     "covers_new_bundle": false
   },
   "new_Windows_functional_CI": {
-    "status": "in_progress",
+    "status": "success",
     "installers": "skipped",
     "source_commit": "ddc537fc47d1fc7559d855cf747bc640f05be7cd",
     "run_id": 39090902645,
@@ -60,7 +60,7 @@
       "Windows_PowerShell_5_1_runtime_tests": 2
     },
     "PowerShell_parser": "passed",
-    "native_portable_prepare_retry": "pending after Rust/browser steps"
+    "native_portable_prepare_retry": "passed"
   },
   "source_sha256": {
     ".github/workflows/p07-windows.yml": "07f64fa947d10d87981f9c1654627685b0257e6685271d80ca31dc436d417be8",
@@ -81,5 +81,6 @@
     "package.json": "be84b6100cb17a8dbdebf8b27908ca76e4b04120942a3375a94c4fe8af4bdb85",
     "tests/test_p08_bundle.py": "90e27da5cfdd347b71280258a67819e10e36cfb7755a6fa92822ec7e347c79ab",
     "tools/p08_bundle_check.py": "5a9da0217d365a340d509d4dbf658c7e0b0767fdbbc4c16f20b298b3539e69f6"
-  }
+  },
+  "current_followup": "Double-click console entry points; see P08-02-console-checks.json"
 }

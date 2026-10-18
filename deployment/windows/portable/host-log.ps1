@@ -1,6 +1,8 @@
 # One bounded log folder per invocation, shared with native child diagnostics.
-function Start-HostLog([string] $Directory) {
-    $session = [DateTimeOffset]::Now.ToString('yyyy-MM-dd_HHmmss') + '_' + [Guid]::NewGuid().ToString('N').Substring(0,12)
+function Start-HostLog([string] $Directory, [string] $Session = '') {
+    if ($Session -and $Session -notmatch '^\d{4}-\d{2}-\d{2}_\d{6}_[a-f0-9]{12}$') { throw 'HOST_LOG_SESSION_INVALID' }
+    $session = $Session
+    if (-not $session) { $session = [DateTimeOffset]::Now.ToString('yyyy-MM-dd_HHmmss') + '_' + [Guid]::NewGuid().ToString('N').Substring(0,12) }
     $script:HostLogDirectory = Join-Path $Directory ('logs\' + $session)
     [IO.Directory]::CreateDirectory($script:HostLogDirectory) | Out-Null
     $env:QUOTE777_LOG_ROOT = $Directory

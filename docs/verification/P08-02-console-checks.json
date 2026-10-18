@@ -1,0 +1,52 @@
+{
+  "task": "P08-02",
+  "change": "double-click host setup and Chinese console",
+  "branch": "stage/p08-cutover",
+  "baseline_commit": "a102aa5d400d916c26c4dbb0bc4faa5f879d4345",
+  "recorded_at": "2026-10-18T03:22:32.642372+00:00",
+  "local_checks": {
+    "auxiliary_passed": 6,
+    "Windows_only_skipped": 5,
+    "python_compile": "passed",
+    "diff_whitespace": "passed",
+    "scope": "auxiliary logic only; not Windows product acceptance"
+  },
+  "Windows_runtime_checks": {
+    "status": "pending new CI",
+    "new_cases": [
+      "interrupted prepare resumes without reinitializing; repeated running setup skips password/task mutation",
+      "elevation cannot change original SID",
+      "HTTPS accepts correct pin and known 401 response; rejects wrong pin and unrelated 200"
+    ]
+  },
+  "site_evidence": {
+    "source": "user supplied output and confirmation, no remote admin session",
+    "primary": "192.168.4.23",
+    "prepared_root": "D:\\Quote777Service",
+    "package_root": "D:\\Quote777Host",
+    "startup_task": "registered and Running",
+    "local_pinned_curl": "HTTPS response 422 INVALID_TEXT for missing credentials",
+    "LAN_port_8477_from_workstation": "True",
+    "LAN_port_after_primary_reboot": "True",
+    "authenticated_business_access": "pending",
+    "independent_backup_restore": "pending",
+    "private_identifiers_or_password_published": false
+  },
+  "previous_bundle_Windows_CI": {
+    "run_id": 39090902645,
+    "source_commit": "ddc537fc47d1fc7559d855cf747bc640f05be7cd",
+    "desktop_contracts": "success",
+    "native_prepare_retry": "passed",
+    "installers": "skipped",
+    "covers_new_console": false
+  },
+  "constraints": {
+    "new_branch": false,
+    "Rust_resources_changed": false,
+    "installer_preparation_rerun": false,
+    "remote_test_package_downloads": false,
+    "replication_and_failover": "not_implemented",
+    "new_ledger_on_standby": "refused",
+    "production_business_password_embedded": false
+  }
+}

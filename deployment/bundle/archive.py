@@ -7,7 +7,9 @@ import shutil
 import zipfile
 
 SCHEMA = '777-host-bundle-v1'
-PORTABLE = ('host.ps1', 'collect.cmd', 'host-log.ps1', 'host-package.ps1', 'host-site.ps1', 'host-paths.ps1', 'host-native.ps1', 'host-prepare.ps1')
+ENTRY_POINTS = ('host.ps1', 'host-console.ps1', 'host-defaults.json', 'collect.cmd', 'manage.cmd', 'setup.cmd', 'check.cmd')
+PORTABLE = ENTRY_POINTS + ('host-log.ps1', 'host-package.ps1', 'host-site.ps1', 'host-paths.ps1', 'host-native.ps1',
+                           'host-prepare.ps1', 'host-access.ps1', 'host-setup.ps1', 'host-check.ps1', 'HostProbe.cs')
 LIFECYCLE = ('host-identity.ps1', 'host-run.ps1', 'host-task.ps1')
 
 
@@ -25,7 +27,7 @@ def assemble(source: Path, output: Path, host: Path, worker: Path, commit: str):
              'THIRD_PARTY_NOTICES.md': source / 'THIRD_PARTY_NOTICES.md',
              'README.txt': source / 'deployment/bundle/README.txt'}
     for name in PORTABLE:
-        files[name if name in ('host.ps1', 'collect.cmd') else 'scripts/' + name] = source / 'deployment/windows/portable' / name
+        files[name if name in ENTRY_POINTS else 'scripts/' + name] = source / 'deployment/windows/portable' / name
     for name in LIFECYCLE:
         files['scripts/' + name] = source / 'deployment/windows' / name
     for relative, origin in files.items():
