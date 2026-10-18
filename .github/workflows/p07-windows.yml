@@ -14,7 +14,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: p07-windows-${{ github.ref }}
+  group: p07-windows-${{ github.ref }}${{ contains(github.event.head_commit.message, '[host-checks]') && '-host-checks' || '' }}
   cancel-in-progress: true
 jobs:
   host-sync:
@@ -25,6 +25,16 @@ jobs:
       CARGO_BUILD_JOBS: '2'
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 2
+      - name: Validate focused host-check scope
+        if: ${{ contains(github.event.head_commit.message, '[host-checks]') }}
+        shell: pwsh
+        run: |
+          $changed = @(git diff --name-only HEAD^ HEAD)
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot determine focused check scope' }
+          $allowed = '^(tools/p08_sync[^/]*\.py|tests/test_p08_[^/]*\.py|docs/now/[^/]*\.md|docs/verification/P08-02-[^/]*\.(md|json|log)|\.gitignore|\.github/workflows/p07-windows\.yml)$'
+          if (@($changed | Where-Object { $_ -notmatch $allowed }).Count) { throw 'HOST_CHECK_MARKER_REQUIRES_TEST_OR_DOC_ONLY_DIFF' }
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.12.10'
@@ -62,6 +72,7 @@ jobs:
           path: reports/p08-02-sync
           if-no-files-found: warn
   desktop-contracts:
+    if: ${{ !contains(github.event.head_commit.message, '[host-checks]') }}
     runs-on: windows-latest
     timeout-minutes: 45
     env:

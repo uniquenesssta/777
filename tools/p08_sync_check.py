@@ -123,7 +123,7 @@ def main():
         order = admin.request('GET', '/v1/orders/' + receipt['order_id'])
         shot['lines'][0]['q'] = '3'
         edit = dict(request_id=str(uuid.uuid4()), order_id=order['order_id'], expected_revision=int(order['revision']), snapshot=shot,
-                    sources=[order['lines'][0]['line_id']], details=order['details'], customer=dict(customer_id=order['customer_id']))
+                    sources=[order['lines'][0]['line_id']], details=order['details'], customer={})
         edited = remote.request('POST', '/v1/order-save', edit)
         assert str(edited['revision']) == '2'
         assert admin.request('GET', '/v1/orders/' + order['order_id'])['income_cents'] == '3000'
