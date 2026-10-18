@@ -1,5 +1,7 @@
 # P08-02 独立后台部署入口与正式母版设置
 
+当前部署入口已通用化：任意Windows主机本地部署，地址与目录按本机选择；原4.23限制已取消。旧流程作为历史记录保留，最新行为见本文末“通用部署范围修正”。
+
 用户于2026-10-17 22:30:19（Asia/Shanghai）明确“开始推进02”。沿用 `stage/p08-cutover`，启动基线 `91c86b42cd6ece05540d6166033c02297e16274d`，工作区原本干净。01的现场资料和主备实现缺口转接，不补记01已验收，不启动03正式启用。
 
 ## 已实现与未完成范围
@@ -120,3 +122,5 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation st
 已有服务根直接读取原地址、普通和隐藏备份设置；兼容发现4.23旧现场D:\Quote777Service。现有账本、证书、密码、源提交与已固定运行脚本不替换。既有资源SHA校验仍执行，其他账户/机器或被修改的运行资源仍拒绝。新的独立部署清单使用deployment_mode=standalone、host_order=[实际地址]、replication=not_implemented。
 
 本修正替代旧文和旧检查的4.23白名单与4.38独立初始化禁令；多个独立账本不构成同步或主备，4.23→4.38有序复制和安全接管需求仍未实现，不自动更换现有母子版连接。新增[检查记录](P08-02-generic-host-checks.json)分别记录辅助检查与实际Windows检查，不沿用上一轮入口检查作为本轮验收。
+
+通用化代码`461bd9f`、非本机地址检查修正`098980e`的[Windows CI39094368141](https://github.com/uniquenesssta/777/actions/runs/39094368141)部署与PowerShell语法步骤已success，13项部署检查中含7项实际Windows运行检查；其余完整功能阶段记录时仍在运行，真实原生通用地址/旧脚本补配夹具待后续步骤，installers跳过。

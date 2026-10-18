@@ -18,8 +18,8 @@
     "auxiliary_units_passed": 6,
     "Windows_runtime_cases_skipped_locally": 7,
     "auxiliary_scope": "not Windows product acceptance",
-    "Windows_units_and_parser": "pending CI",
-    "real_native_generic_address_and_legacy_script_retry": "pending CI",
+    "Windows_units_and_parser": "passed: step 7 of Windows CI39094368141, 13 deployment cases including 7 Windows-only runtime cases",
+    "real_native_generic_address_and_legacy_script_retry": "pending later CI stage",
     "python_compile": "passed",
     "exact_archive_whitelist": "passed: 26 resources plus manifest",
     "diff_whitespace": "passed"
@@ -67,5 +67,21 @@
     "deployment_step": "success",
     "final_status": "cancelled when generic-host code superseded it",
     "covers_generic_host_change": false
+  },
+  "code_commit": "461bd9fc8a268a91a238cbfef741be5ca79b92f6",
+  "test_commit": "098980ee38cf85a898ac75923852b04844051b37",
+  "new_Windows_CI": {
+    "run_id": 39094368141,
+    "source_commit": "098980ee38cf85a898ac75923852b04844051b37",
+    "url": "https://github.com/uniquenesssta/777/actions/runs/39094368141",
+    "observed_at": "2026-10-18T03:41:19.132568+00:00",
+    "deployment_and_parser": "success",
+    "full_functional_status": "in_progress",
+    "installers": "skipped"
+  },
+  "superseded_generic_run": {
+    "run_id": 39094262894,
+    "source_commit": "461bd9fc8a268a91a238cbfef741be5ca79b92f6",
+    "status": "cancelled when test selection was corrected"
   }
 }
