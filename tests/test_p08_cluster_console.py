@@ -17,7 +17,7 @@ param([string] $Modules,[string] $Base)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 [Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)
-foreach ($name in @('host-log.ps1','host-paths.ps1','host-site.ps1','host-native.ps1','host-prepare.ps1','host-access.ps1','host-settings.ps1','host-cluster-files.ps1','host-cluster-primary.ps1')) { . (Join-Path $Modules $name) }
+foreach ($name in @('host-log.ps1','host-paths.ps1','host-site.ps1','host-native.ps1','host-prepare.ps1','host-access.ps1','host-settings.ps1','host-cluster-files.ps1','host-cluster-primary.ps1','host-visibility.ps1')) { . (Join-Path $Modules $name) }
 . (Join-Path (Split-Path $Modules -Parent) 'host-identity.ps1')
 Start-HostLog $Base
 $root=Join-Path $Base 'service'; $private=Join-Path $root 'private'
@@ -34,7 +34,7 @@ Write-HostJsonNew (Join-Path $private 'deployment.json') $manifest
 Write-HostJsonNew (Join-Path $root 'client-template.json') @{url='https://192.0.2.58:8477';certificate_sha256=('b'*64)}
 [IO.File]::WriteAllText((Join-Path $root 'service-cert.pem'),'synthetic-public-certificate')
 $bundle=[pscustomobject]@{source_commit=('c'*40);files=@{'bin/quote-host.exe'=(Get-FileDigest $candidate)}}
-$settings=@{root=$root;address='192.0.2.58';admin='manager';port=8477}
+$settings=@{hidden=(Join-Path $Base 'hidden');backup=(Join-Path $Base 'backup');root=$root;address='192.0.2.58';admin='manager';port=8477}
 $script:stops=0; $script:starts=0; $script:selections=0; $script:interrupt=$true
 function Stop-HostForClusterUpgrade($Directory,$Root) { $script:stops++ }
 function Read-HostBusinessPassword($Confirm) { return 'synthetic-only-password' }
@@ -64,6 +64,25 @@ Enable-HostCluster $Base $bundle $settings
 # The original deployed manifest intentionally lacks deployment_mode.
 $saved=Get-HostDeployment $root
 if ($script:stops -ne 1 -or $script:starts -ne 1 -or $script:selections -ne 2 -or $saved.ledger_id -ne $manifest.ledger_id -or $saved.certificate_sha256 -ne $manifest.certificate_sha256 -or $saved.replication -ne 'primary_async_snapshot_v1' -or $saved.deployment_mode -ne 'cluster') { throw 'UPGRADE_RETRY_CHANGED_IDENTITY_OR_RESTARTED_TWICE' }
+# Exercise real Windows attributes and the migrated pinned identity reader.
+[IO.Directory]::CreateDirectory((Join-Path $Base 'scripts')) | Out-Null
+[IO.File]::Copy((Join-Path (Split-Path $Modules -Parent) 'host-identity.ps1'),(Join-Path $Base 'scripts\host-identity.ps1'))
+[IO.Directory]::CreateDirectory($settings.backup) | Out-Null
+try {
+    Set-HostDeploymentVisibility $Base $settings
+    foreach ($path in @($Base,$root,$settings.hidden)) {
+        $flags=[IO.File]::GetAttributes($path)
+        if (-not ($flags -band [IO.FileAttributes]::Hidden) -or -not ($flags -band [IO.FileAttributes]::System) -or -not ($flags -band [IO.FileAttributes]::Directory)) { throw 'DEPLOYMENT_ATTRIBUTES_MISSING' }
+    }
+    if ([IO.File]::GetAttributes($settings.backup) -band ([IO.FileAttributes]::Hidden -bor [IO.FileAttributes]::System)) { throw 'ORDINARY_BACKUP_ATTRIBUTES_CHANGED' }
+    . (Join-Path $private 'host-identity.ps1')
+    $null=Get-HostDeployment $root
+    Set-HostDeploymentVisibility $Base $settings
+} finally {
+    foreach ($path in @($Base,$root,$settings.hidden)) {
+        if ([IO.Directory]::Exists($path)) { [IO.File]::SetAttributes($path,([IO.File]::GetAttributes($path) -band (-bnot ([IO.FileAttributes]::Hidden -bor [IO.FileAttributes]::System)))) }
+    }
+}
 [IO.File]::AppendAllText($candidate,'tampered-after-console-loaded')
 try { Enable-HostCluster $Base $bundle $settings; throw 'CHANGED_PACKAGE_EXECUTED' }
 catch { if ($_.Exception.Message -ne 'HOST_PACKAGE_RESOURCE_CHANGED') { throw } }

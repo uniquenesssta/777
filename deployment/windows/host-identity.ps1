@@ -11,7 +11,7 @@ function Get-HostDeployment([string] $Directory,[string] $CandidateHostSha256) {
     if ($full.StartsWith('\\') -or $full.Contains('"') -or $full.Contains("`r") -or $full.Contains("`n")) {
         throw 'LOCAL_HOST_ROOT_REQUIRED'
     }
-    $item = Get-Item -LiteralPath $full -ErrorAction Stop
+    $item = Get-Item -LiteralPath $full -Force -ErrorAction Stop
     while ($null -ne $item) {
         if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'HOST_ROOT_REPARSE_POINT' }
         $item = $item.Parent

@@ -35,6 +35,7 @@ function Invoke-HostSetup([string] $Directory, $Bundle, $Settings) {
         if ([DateTime]::UtcNow -ge $deadline) { throw 'HOST_HTTPS_NOT_READY_CHECK_LOGS' }
         Start-Sleep -Milliseconds 1000
     } while ($true)
+    Set-HostDeploymentVisibility $Directory $Settings
     Write-HostEvent 'host.setup.finish' @{tcp=$check.tcp;https=$check.https;http_status=$check.http_status}
     return $check
 }

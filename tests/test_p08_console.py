@@ -33,6 +33,7 @@ param([string] $Modules,[string] $Base)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 foreach ($name in @('host-log.ps1','host-paths.ps1','host-site.ps1','host-access.ps1','host-setup.ps1')) { . (Join-Path $Modules $name) }
+function Set-HostDeploymentVisibility($Directory,$Settings) {}
 Start-HostLog $Base
 Start-HostLog $Base $env:QUOTE777_LOG_SESSION
 function Get-LocalHostInventory { return @{addresses=@('10.20.30.40','192.168.4.38')} }
