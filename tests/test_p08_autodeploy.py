@@ -17,6 +17,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 [Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)
 . (Join-Path $Modules 'host-autodeploy.ps1')
+. (Join-Path $Modules 'host-paths.ps1')
 . (Join-Path $Modules 'host-cluster-files.ps1')
 $settings=@{root=(Join-Path $Base 'Quote777Service')}
 $invitation=Join-Path $Base 'source invite.777join'
@@ -29,7 +30,8 @@ function Enable-HostCluster($Directory,$Bundle,$Settings) { $script:ops.Add('pri
 function Join-HostCluster($Directory,$Bundle,$Settings,[switch] $AutoInvitation) {
     if (-not $AutoInvitation) { throw 'AUTOMATIC_INVITATION_NOT_REQUESTED' }
     $chosen=Get-HostAutoInvitation $Directory
-    if ($chosen -ne $invitation) { throw 'WRONG_INVITATION_SELECTED' }
+    # Windows TEMP may use an 8.3 alias while enumeration returns its long name.
+    if ((Get-HostLongPath $chosen) -ne (Get-HostLongPath $invitation)) { throw 'WRONG_INVITATION_SELECTED' }
     $script:ops.Add('join')
 }
 function Get-HostConnectionCheck($Directory,$Settings) { return @{https='verified_response'} }
