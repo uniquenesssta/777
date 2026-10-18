@@ -1,6 +1,6 @@
 # P08-02-2 A：固定站点与发行授权契约
 
-状态：**A 协议设计已完成；B 已接入授权接口、数据库迁移和主机升级源码，见[B 实现](../../verification/P08-02-2-B-implementation.md)。E 的 [Figma 设计与映射](../../design/P08-02-2-automatic-packaging-figma.md)已完成，C/D 的运行界面与自动安装集成待实施，现场未升级。**
+状态：**A 协议设计已完成；B 已接入授权接口、数据库迁移和主机升级源码，见[B 实现](../../verification/P08-02-2-B-implementation.md)。E 的 [Figma 设计与映射](../../design/P08-02-2-automatic-packaging-figma.md)已完成，C/D 的运行界面与自动安装源码已接入，见[C/D 实现及隔离检查](../../verification/P08-02-2-CD-implementation.md)；Windows 安装和现场未执行。**
 
 基线：`bdadc80f029f2ca3ff35fe1bf90f4cce613d4f30`；日期：2026-10-19（Asia/Shanghai）。对应[任务书 A](../../now/P08-02-2-automatic-installation.md)。A 交付仅文档，B 追加交付见上；不升级 4.23 / 4.38，不构建、下载或验证 Windows 安装包。
 
@@ -37,4 +37,4 @@
 | 桌面身份 | 每个安装身份独立设备凭据、独立主体；保留凭据的重复安装复用身份 |
 | 后台身份 | 母版另行登记节点；与桌面身份、销售主体和业务会话分离 |
 | 写入与同步 | 只向 4.23 写入；从机异步同步，不自动接管，不要求共享部署目录 |
-| A 的完成界限 | 契约与源码差距已明确；B 的源码及隔离检查已有独立交付；Figma、安装集成和现场结果仍待后续任务 |
+| A 的完成界限 | 契约与源码差距已明确；B 的源码及隔离检查已有独立交付；Figma 和安装集成源码见 C/D，F/G 及真实现场结果仍待后续 |

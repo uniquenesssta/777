@@ -4,6 +4,8 @@ use serde_json::Value;
 pub struct DesktopError {
     pub code: String,
     pub status: u16,
+    #[serde(skip)]
+    pub retry_after: Option<u64>,
 }
 pub type Result<T> = std::result::Result<T, DesktopError>;
 impl DesktopError {
@@ -15,6 +17,7 @@ impl DesktopError {
         Self {
             status,
             code: code.into(),
+            retry_after: None,
         }
     }
 }

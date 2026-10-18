@@ -80,6 +80,23 @@ pub fn delivery() -> &'static str {
 pub fn formal() -> bool {
     delivery() != "development"
 }
+/// Launcher tools have their own loopback authorization, independent of a business login.
+pub fn developer_tools() -> bool {
+    #[cfg(all(
+        debug_assertions,
+        not(any(feature = "manager", feature = "sales", feature = "verification"))
+    ))]
+    {
+        crate::developer::available()
+    }
+    #[cfg(not(all(
+        debug_assertions,
+        not(any(feature = "manager", feature = "sales", feature = "verification"))
+    )))]
+    {
+        false
+    }
+}
 /// Keep native identities at their existing location when installer IDs become role-specific.
 pub fn formal_profile_root(local_app_data: &std::path::Path) -> Option<std::path::PathBuf> {
     formal().then(|| {

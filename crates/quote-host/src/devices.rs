@@ -43,6 +43,37 @@ fn role(kind: &str) -> &str {
     }
 }
 impl Devices {
+    pub fn retire_for_adoption(&self, device: &str) -> Result<()> {
+        let c = self.connection()?;
+        let tx = c.unchecked_transaction()?;
+        tx.execute("UPDATE devices SET enabled=0 WHERE id=?", [device])?;
+        tx.execute("DELETE FROM device_sessions WHERE device_id=?", [device])?;
+        tx.commit()?;
+        Ok(())
+    }
+    /// Owner proof for scoped identity migration; never accepts a business session.
+    pub fn prove(&self, auth: &Auth, device: &str, raw: &str, kind: &str) -> Result<Actor> {
+        id(device)?;
+        secret(&json!(raw))?;
+        let row: Option<(String, String, i64, String)> = self
+            .connection()?
+            .query_row(
+                "SELECT subject,delivery,epoch,credential FROM devices WHERE id=? AND enabled=1",
+                [device],
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)),
+            )
+            .optional()?;
+        let (subject, delivery, epoch, expected) =
+            row.ok_or_else(|| Error::new(401, "DEVICE_NOT_AUTHORIZED"))?;
+        let (_, r, current) = Self::user(auth, &subject)?;
+        if delivery != kind
+            || epoch != current
+            || expected.as_bytes().ct_eq(hash(raw).as_bytes()).unwrap_u8() != 1
+        {
+            return fail(401, "DEVICE_NOT_AUTHORIZED");
+        }
+        Ok(Actor { subject, role: r })
+    }
     pub fn create(path: &Path) -> Result<Self> {
         files::new_file(path, &[])?;
         let c = Connection::open(path)?;

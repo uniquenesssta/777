@@ -15,6 +15,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from quote_service.journal import dpapi
 import p07_diagnostics as diagnostics
 import p08_developer_sources as sources
+from p08_automatic.packaging import PackagingMixin
+from p08_automatic.issuer import Issuer
 
 
 def local(path, *, directory=False):
@@ -53,7 +55,7 @@ def package_preferences(value):
     return local(value['output'])
 
 
-class Developer:
+class Developer(PackagingMixin):
     def __init__(self, dev, initial, process):
         self.dev, self.root, self.process = dev, local(initial, directory=True), process
         self.lock = threading.RLock()
@@ -81,6 +83,12 @@ class Developer:
             self.preferences = value
             local(value['root'])
             package_preferences(value)
+        self.issuer=Issuer(self)
+        saved=dev.DEV/'automatic-job.json'
+        if saved.exists():
+            previous=json.loads(saved.read_text(encoding='utf-8'))
+            if previous.get('state') in ['running','cancelling']:previous.update(state='failed',error='PACKAGE_INTERRUPTED')
+            self.job=previous
         self.server = None
 
     def config(self, root=None):
@@ -107,7 +115,7 @@ class Developer:
         health_file=self.root / 'private/daily-backups.json'
         health=json.loads(local(health_file).read_text(encoding="utf-8")) if health_file.exists() else dict(entries={})
         latest=max(health['entries'], default=None)
-        return dict(source=sources.source_status(self), daily=daily, daily_result=health['entries'].get(latest), root=str(self.root), backup_dir=cfg['backup_dir'], ledger_id=cfg['ledger_id'], last_backup=backups.get('last_success'), connection=self.connection(), preferences=self.preferences, job=job)
+        return dict(source=sources.source_status(self), daily=daily, daily_result=health['entries'].get(latest), root=str(self.root), backup_dir=cfg['backup_dir'], ledger_id=cfg['ledger_id'], last_backup=backups.get('last_success'), connection=self.connection(), preferences=self.preferences, job=job, issuer=self.issuer.status())
 
     def remember(self, root, user, password):
         root = local(root, directory=True)
@@ -245,77 +253,11 @@ class Developer:
         # Keep the original host running until the imported host has passed full validation.
         return self.select(str(target), username=user, password=secret)
 
-    def package(self, delivery, connection, permissions):
-        if os.name != 'nt':raise RuntimeError('WINDOWS_PACKAGING_REQUIRED')
-        if delivery not in ['manager', 'sales']:raise RuntimeError('DELIVERY_REQUIRED')
-        with self.job_lock:
-            if self.job and self.job['state'] in ['running', 'cancelling']:raise RuntimeError('DEVELOPER_BUILD_BUSY')
-            output = package_preferences(self.preferences)
-            output.mkdir(parents=True, exist_ok=True)
-            local(output, directory=True)
-            key = uuid.uuid4().hex
-            destination = output / f'{delivery}-{self.preferences["version"]}-{key[:8]}'
-            public = {k:connection[k] for k in ['url','certificate_pem','certificate_sha256']}
-            source = self.dev.DEV / ('package-connection-' + key + '.json')
-            replace_json(source, {'schema':'777-public-connection-v1', 'connection':public})
-            self.job = dict(id=key, state='running', delivery=delivery, version=self.preferences['version'], output=str(destination), lines=[], error=None, bytes=None)
-            self.cancelled.clear()
-            args = [os.environ.get('QUOTE777_NODE') or 'node', str(self.dev.ROOT / 'desktop/tools/package.mjs'), '--delivery', delivery, '--connection', str(source), '--output', str(destination), '--version', self.preferences['version'], '--webview', self.preferences['runtime'], '--permissions', json.dumps(permissions, separators=(',', ':'))]
-            self.worker = threading.Thread(target=self.build_package, args=(args, source, destination), daemon=False)
-            self.worker.start()
-        return self.status()
-
-    def build_package(self, args, source, destination):
-        try:
-            from p07_owned_job import OwnedJob
-            with self.job_lock:
-                if self.cancelled.is_set():
-                    self.job.update(state='cancelled', error=None)
-                    return
-                self.build_owner = OwnedJob()
-                self.build = subprocess.Popen(args, cwd=self.dev.ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
-                                              env=dict(os.environ, QUOTE777_PACKAGE_CONTROL_STDIN='1'))
-                process = self.build
-                # Node waits on this private pipe until the job owns all future descendants.
-                self.build_owner.assign(process)
-                process.stdin.write(b'start\n'); process.stdin.flush(); process.stdin.close()
-            for line in iter(process.stdout.readline, b''):
-                with self.job_lock:
-                    self.job['lines'] = (self.job['lines'] + [line.decode('utf-8', 'replace').rstrip()[-2000:]])[-80:]
-            code = process.wait()
-            if self.cancelled.is_set():state, error = 'cancelled', None
-            elif code:state, error = 'failed', 'TAURI_BUILD_FAILED'
-            else:
-                manifest = json.loads((destination / 'release.json').read_text(encoding='utf-8'))
-                if manifest['delivery'] != self.job['delivery']:raise RuntimeError('COMPILED_PACKAGE_MISMATCH')
-                state, error = 'succeeded', None
-                with self.job_lock:
-                    self.job['bytes'] = sum(p.stat().st_size for p in destination.iterdir() if p.is_file())
-                    self.job['source_commit'] = manifest['source_commit']
-            diagnostics.event('package.finish', state=state, error=error, returncode=code)
-            with self.job_lock:self.job.update(state=state, error=error)
-        except Exception as error:
-            diagnostics.failure("package", error)
-            with self.job_lock:self.job.update(state='cancelled' if self.cancelled.is_set() else 'failed', error='DEVELOPER_BUILD_FAILED')
-        finally:
-            with self.job_lock:
-                if self.build_owner:self.build_owner.close(); self.build_owner = None
-                process = self.build
-                self.build = None
-            if process and process.poll() is None:process.kill(); process.wait(timeout=15)
-            source.unlink(missing_ok=True)
-
-    def cancel(self):
-        with self.job_lock:
-            if not self.job or self.job['state'] not in ['running', 'cancelling']:return
-            self.cancelled.set(); self.job['state'] = 'cancelling'
-            if self.build_owner:self.build_owner.close(); self.build_owner = None
-
     def handle(self, data):
         op = data.get('op')
-        allowed = {'status','bootstrap','select','backup_directory','daily_backup','restore_data','import_directory','save_package','package','cancel','open_output'}
+        allowed = {'status','bootstrap','select','backup_directory','daily_backup','restore_data','import_directory','save_package','package','cancel','open_output','retry_package','issuer_status','issuer_prepare','issuer_connect','issuer_open','open_logs','package_status'}
         operation = op if isinstance(op, str) and op in allowed else 'invalid'
-        quiet = operation in {'status', 'bootstrap'}
+        quiet = operation in {'status', 'package_status', 'bootstrap'}
         if not quiet:diagnostics.event('control.start', operation=operation)
         try:
             value = self._handle(data)
@@ -329,6 +271,7 @@ class Developer:
         with self.lock:
             op = data.get('op')
             if op == 'status':return self.status()
+            if op == 'package_status':return self.package_status()
             if op == 'bootstrap':return dict(connection=self.connection(), username=self.user, password=self.password)
             if op == 'select':return self.select(data['root'], initialize=data['initialize'], backup_dir=data['backup_dir'], username=data.get('username'), password=data.get('password'))
             if op == 'backup_directory':return self.configure_backup(data['directory'])
@@ -339,13 +282,21 @@ class Developer:
                 output = package_preferences(data)
                 preferences = {**self.preferences, 'output':str(output), 'version':data['version'], 'runtime':data['runtime']}
                 replace_json(self.preferences_file, preferences); self.preferences = preferences
-                return self.status()
-            if op == 'package':return self.package(data['delivery'], data['connection'], data['permissions'])
-            if op == 'cancel':self.cancel(); return self.status()
+                return self.package_status()
+            if op == 'package':return self.package(data['delivery'], data['permissions'])
+            if op == 'retry_package':return self.package(self.job['delivery'],self.job['permissions'],retry=True)
+            if op == 'issuer_status':return self.issuer.status(refresh=True)
+            if op == 'issuer_prepare':return self.issuer.prepare(data.get('peer'),data.get('restart',False))
+            if op == 'issuer_connect':return self.issuer.connect()
+            if op == 'issuer_open':return self.issuer.open_kit()
+            if op == 'open_logs':
+                if os.name=='nt':os.startfile(str(self.dev.ROOT/'logs'/os.environ['QUOTE777_LOG_SESSION']))
+                return self.package_status()
+            if op == 'cancel':self.cancel(); return self.package_status()
             if op == 'open_output':
                 if os.name != 'nt' or not self.job or self.job['state'] != 'succeeded':raise RuntimeError('DEVELOPER_OUTPUT_UNAVAILABLE')
                 os.startfile(str(local(self.job['output'], directory=True)))
-                return self.status()
+                return self.package_status()
             raise RuntimeError('DEVELOPER_OPERATION_INVALID')
 
     def serve(self):

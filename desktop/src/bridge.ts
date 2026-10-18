@@ -7,6 +7,10 @@ export function request<T>(
   return invoke<T>("desktop_action", { request: { action, ...data } });
 }
 const errors: Record<string, string> = {
+  ISSUER_NOT_READY:"发行准备尚未完成，请在发行维护中准备主机升级包。",
+  ISSUER_INTERFACE_SELECTION_REQUIRED:"请选择用于连接主机的本机网络接口。",
+  PACKAGE_RESUME_CONFLICT:"本次任务的封包内容已经变化，请按当前选择重新封包。",
+  UPGRADE_BINDING_CONFLICT:"主机升级与本机发行准备不匹配，请在发行维护中重新核对。",
   CONNECTION_FILE_INVALID: "文件内容不完整或格式不正确，请重新选择部署生成的文件。",
   CONNECTION_FILE_WRONG_KIND: "文件用途不匹配。Host 加入文件、公开连接文件和桌面登记文件不能混用。",
   CONNECTION_FILE_UNAVAILABLE: "无法读取所选文件，请检查位置和访问权限。",

@@ -169,28 +169,6 @@ impl Desktop {
         self.package_session = Some(session);
         self.package_target()
     }
-    #[cfg(all(
-        debug_assertions,
-        not(any(feature = "manager", feature = "sales", feature = "verification"))
-    ))]
-    pub(super) async fn verified_package_connection(&self) -> Result<Connection> {
-        let target = self
-            .store
-            .read::<PackageTarget>("package-target.bin")?
-            .ok_or_else(|| DesktopError::new(409, "PACKAGE_TARGET_REQUIRED"))?;
-        formal_target(&target.connection)?;
-        let session = self
-            .package_session
-            .as_ref()
-            .ok_or_else(|| DesktopError::new(409, "PACKAGE_TARGET_REVERIFY"))?;
-        if session.connection.url != target.connection.url
-            || session.connection.certificate_sha256 != target.connection.certificate_sha256
-            || identity(session).await? != target.ledger_id
-        {
-            return Err(DesktopError::new(409, "PACKAGE_TARGET_IDENTITY_MISMATCH"));
-        }
-        Ok(target.connection)
-    }
 }
 #[cfg(test)]
 mod tests {

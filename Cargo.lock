@@ -2852,6 +2852,7 @@ dependencies = [
  "reqwest",
  "rustls",
  "serde",
+ "serde_json",
  "sha2",
  "x509-parser",
 ]

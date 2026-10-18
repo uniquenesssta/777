@@ -1,8 +1,10 @@
+mod automatic;
 mod connections;
 mod data_source;
 mod enrollment;
 mod preferences;
 mod restricted_outputs;
+mod retry;
 mod transport;
 
 use crate::{
@@ -43,6 +45,8 @@ pub struct Desktop {
     calculation: Option<Calculation>,
     auto_expires: u64,
     package_session: Option<Session>,
+    automatic_package: Option<quote_security::automatic::Package>,
+    automatic_retry: retry::AutomaticRetry,
 }
 impl Desktop {
     pub fn new(root: PathBuf, auxiliary: bool) -> Result<Self> {
@@ -52,6 +56,8 @@ impl Desktop {
             calculation: None,
             auto_expires: 0,
             package_session: None,
+            automatic_package: None,
+            automatic_retry: retry::AutomaticRetry::default(),
         })
     }
     pub fn has_pending(&self) -> Result<bool> {
@@ -88,8 +94,11 @@ impl Desktop {
         ]
         .contains(&target)
         {
-            self.admin()?;
-            let state = crate::developer::call(json!({"op":"status"})).await?;
+            connections::development()?;
+            let state = crate::developer::call(
+                json!({"op":if target == "developer_output" {"package_status"} else {"status"}}),
+            )
+            .await?;
             return Ok(match target {
                 "developer_root" => state["root"].as_str(),
                 "developer_backup" | "developer_recovery_file" => state["backup_dir"].as_str(),
@@ -298,17 +307,15 @@ impl Desktop {
                 not(any(feature = "manager", feature = "sales", feature = "verification"))
             ))]
             Action::Developer { request } => {
-                self.admin()?;
+                connections::development()?;
                 if request.protects_close() && self.has_pending()? {
                     return Err(DesktopError::new(409, "PENDING_REQUEST_REQUIRES_QUERY"));
                 }
                 let switches = request.switches_data();
-                let mut data = serde_json::to_value(&request)
+                let data = serde_json::to_value(&request)
                     .map_err(|_| DesktopError::new(422, "INVALID_BODY"))?;
                 if let crate::developer::DeveloperAction::Package { ref delivery, ref permissions } = request {
                     crate::permissions::validate(delivery, permissions)?;
-                    data["connection"] = serde_json::to_value(self.verified_package_connection().await?)
-                        .map_err(|_| DesktopError::new(422, "INVALID_BODY"))?;
                 }
                 let result = crate::developer::call(data).await?;
                 if switches {
@@ -321,7 +328,7 @@ impl Desktop {
             }
             Action::Bootstrap {} => self.bootstrap().await,
             Action::Connection {} => Ok(
-                json!({"delivery":crate::startup::delivery(),"automatic":crate::startup::formal() || self.store.bootstrap::<crate::startup::Bootstrap>()?.is_some(),"connection":if crate::startup::formal(){None}else{self.saved_connection()?},"pending":self.has_pending()?,"permissions":permissions::selected()?}),
+                json!({"delivery":crate::startup::delivery(),"developer_tools":crate::startup::developer_tools(),"automatic":crate::startup::formal() || self.store.bootstrap::<crate::startup::Bootstrap>()?.is_some(),"connection":if crate::startup::formal(){None}else{self.saved_connection()?},"pending":self.has_pending()?,"permissions":permissions::selected()?}),
             ),
             Action::ImportConnection { path } => {
                 connections::development()?;

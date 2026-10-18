@@ -15,6 +15,15 @@ impl Client {
         })
     }
     pub async fn request(&self, path: &str, token: &str, data: &Value) -> Result<Value> {
+        self.request_with_package(path, token, data, None).await
+    }
+    pub async fn request_with_package(
+        &self,
+        path: &str,
+        token: &str,
+        data: &Value,
+        package: Option<&str>,
+    ) -> Result<Value> {
         if !path.starts_with("/v1/") || path.contains('?') || path.contains('#') {
             return fail(422, "CLUSTER_PATH_INVALID");
         }
@@ -34,11 +43,20 @@ impl Client {
         if !token.is_empty() {
             request = request.bearer_auth(token);
         }
+        if let Some(secret) = package {
+            request = request.header("X-777-Package-Authorization", format!("Bearer {secret}"));
+        }
         let mut response = request
             .send()
             .await
             .map_err(|_| Error::new(503, "CLUSTER_PRIMARY_UNREACHABLE_OR_CERTIFICATE_REJECTED"))?;
         let status = response.status().as_u16();
+        let retry_after = response
+            .headers()
+            .get("Retry-After")
+            .and_then(|h| h.to_str().ok())
+            .and_then(|s| s.parse::<u64>().ok())
+            .map(|s| s.min(86400));
         let mut bytes = Vec::new();
         while let Some(chunk) = response
             .chunk()
@@ -61,7 +79,9 @@ impl Client {
                             .all(|b| b.is_ascii_uppercase() || b.is_ascii_digit() || b == b'_')
                 })
                 .unwrap_or("CLUSTER_REQUEST_FAILED");
-            return fail(status, code);
+            let mut error = Error::new(status, code);
+            error.retry_after = retry_after;
+            return Err(error);
         }
         Ok(value)
     }

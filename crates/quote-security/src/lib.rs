@@ -1,5 +1,7 @@
 //! Shared exact certificate identity and Windows account-bound secret protection.
+pub mod automatic;
 pub mod protect;
+pub mod retry;
 pub mod tls;
 use serde::{Deserialize, Serialize};
 #[derive(Clone, Serialize, Deserialize)]

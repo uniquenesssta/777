@@ -45,6 +45,7 @@ export function useWorkbench() {
   const formal = ["manager","sales"].includes(delivery) || formalPresentation();
   const can = (id:Permission) => allowed(permissions,session?.role,id);
   const [connectionDialog,setConnectionDialog] = useState(false);
+  const [developerTools, setDeveloperTools] = useState(false);
   const [automatic, setAutomatic] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [connection, setConnection] = useState<Connection | null>(null);
@@ -139,6 +140,8 @@ export function useWorkbench() {
             [
               "UNAUTHENTICATED",
               "DEVICE_NOT_AUTHORIZED",
+              "AUTOMATIC_AUTHORIZATION_DENIED",
+              "AUTOMATIC_IDENTITY_CONFLICT",
               "DELIVERY_ROLE_MISMATCH",
             ].includes(code)
           ) {
@@ -173,6 +176,7 @@ export function useWorkbench() {
   useEffect(() => {
     request<{
       delivery: string;
+      developer_tools?: boolean;
       automatic: boolean;
       connection: Connection | null;
       pending: boolean;
@@ -183,6 +187,9 @@ export function useWorkbench() {
         setPermissions(r.permissions ?? null);
         setDelivery(r.delivery);
         setAutomatic(r.automatic);
+        const tools = r.delivery === "development" && !!r.developer_tools;
+        setDeveloperTools(tools);
+        if (tools) setRoute("developer");
         if (r.automatic) void bootstrap();
         setConnection(r.connection);
         setPending(r.pending);
@@ -221,14 +228,14 @@ export function useWorkbench() {
           session: Session | null;
         }>("bootstrap");
         const p = b.session ? await request<Catalog>("prices").catch(e => { if (errorCode(e) === "PRICES_NOT_PUBLISHED") return null; throw e; }) : null;
-        const policy = await request<{permissions:string[]|null}>("connection");
+        const policy = await request<{permissions:string[]|null;developer_tools?:boolean}>("connection");
         const dirs = b.session && allowed(policy.permissions ?? null,b.session.role,"settings") ? await request<Preferences>("settings") : null;
         const c = b.session
           ? await request<{ connection: Connection | null }>("connection")
           : null;
         // An editing draft from a broader package must not re-enable that UI.
         // Preserve it separately before showing a new permitted draft.
-        const restrictedDraft = !!draft.editing && !allowed(policy.permissions ?? null,b.session?.role,"edit_orders");
+        const restrictedDraft = !!b.session && !!draft.editing && !allowed(policy.permissions ?? null,b.session?.role,"edit_orders");
         if (restrictedDraft) {
           const raw=localStorage.getItem("777-desktop-draft-v1");
           if(raw) localStorage.setItem(`777-desktop-restricted-draft-${draft.editing!.order_id}`,raw);
@@ -238,6 +245,7 @@ export function useWorkbench() {
       ({ b, p, dirs, c, policy, restrictedDraft }) => {
         setDeliveryContext(b.delivery);
         setPermissions(policy.permissions ?? null);
+        setDeveloperTools(b.delivery === "development" && !!policy.developer_tools);
         setConnected(!!b.session);
         if (b.delivery === "development" && c?.connection) bindDeveloperDraft(c.connection.certificate_sha256);
         if (c) setConnection(c.connection);
@@ -251,7 +259,7 @@ export function useWorkbench() {
         setPreferences(dirs);
         setPending(b.session?.pending ?? false);
         if (p) dispatch({ type: "prices", version: p.price_version_id });
-        setRoute("quote");
+        setRoute(!b.session && policy.developer_tools ? "developer" : "quote");
       },
     );
   }
@@ -641,11 +649,11 @@ export function useWorkbench() {
   };
   useEffect(() => {
     if (!formal) return;
-    const timer = window.setInterval(()=>retry.current(), 15000);
+    const timer = window.setInterval(()=>retry.current(), 2000);
     return ()=>window.clearInterval(timer);
   },[formal]);
   return {
-    formal, can, permissions,
+    formal, can, permissions, developerTools,
     async developerOperation(operation: Record<string, unknown>) {
       return run(async () => {
         const result = await request<{connection:{certificate_sha256:string}}>("developer", {request:operation});

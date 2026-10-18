@@ -1,0 +1,83 @@
+{
+  "task": "P08-02-2 C/D and E runtime integration",
+  "generated_at_utc": "2026-10-18T20:19:52.552746+00:00",
+  "baseline": "ab597c88d68c4d2c4df425f85d5bf0682d15d8bb",
+  "branch": "stage/p08-cutover",
+  "total_distinct_tests": 78,
+  "checks": [
+    {
+      "name": "host_protocol_and_regressions",
+      "count": 33,
+      "status": "passed",
+      "command": "cargo test -p quote-host --test automatic_installation --test device_auth --test cluster_protocol --test customer_orders --offline"
+    },
+    {
+      "name": "host_staging",
+      "count": 2,
+      "status": "passed",
+      "command": "cargo test -p quote-host --lib automatic::installation::staging::tests --offline"
+    },
+    {
+      "name": "desktop_and_security",
+      "count": 26,
+      "status": "passed",
+      "command": "cargo test -p quote-security -p quote-desktop --lib --offline"
+    },
+    {
+      "name": "node_policy_and_payload",
+      "count": 8,
+      "status": "passed",
+      "command": "node --import tsx --test tests/permissions.test.ts tests/package-output.test.ts tests/package-target.test.ts tests/automatic-payload.test.ts"
+    },
+    {
+      "name": "python_controller",
+      "count": 2,
+      "status": "passed",
+      "command": "python -m unittest discover -s tools/tests -p test_p08_automatic_packaging.py"
+    },
+    {
+      "name": "ui_mock_bridge",
+      "count": 7,
+      "status": "passed",
+      "command": "P07_BROWSER_PATH=<existing Chromium> playwright test tests/ui/package-permissions.spec.ts tests/ui/connection-dialog.spec.ts --workers=1"
+    },
+    {
+      "name": "rust_clippy",
+      "count": null,
+      "status": "passed",
+      "command": "cargo clippy -p quote-host -p quote-desktop --all-targets --offline -- -D warnings"
+    }
+  ],
+  "figma": {
+    "file": "2ek9bkIz5ldyhjZnnvIuNu",
+    "additional_retry_frame": "118:2296",
+    "descendants": 24,
+    "editable_text_nodes": 13,
+    "font_families": [
+      "Noto Sans SC"
+    ],
+    "auto_layout_overflow": [],
+    "screenshot_reviewed": true
+  },
+  "visual_review": [
+    "wide packaging",
+    "720px",
+    "390px long path and check icon",
+    "issuer ready",
+    "Figma issuer retry"
+  ],
+  "excluded": [
+    "Windows installer build and validation",
+    "PowerShell parser or Windows script execution",
+    "UAC / Windows DPAPI / SYSTEM task actual execution",
+    "23/38 upgrade or actual synchronization",
+    "remote test package downloads",
+    "Linux/macOS product acceptance"
+  ],
+  "remaining": [
+    "F backup wording and behavior explanation",
+    "G cross-process logs, UAC failure capture, repeated event and size management",
+    "G offline package-close compensation",
+    "field evidence remains unexecuted"
+  ]
+}

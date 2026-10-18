@@ -1,7 +1,8 @@
 // Windows-only release orchestration using the pinned Tauri/NSIS toolchain.
 import fs from 'node:fs/promises';
 import { packagePermissions } from './package-permissions.mjs';
-import { requireNetworkTarget } from './package-target.mjs';
+import { issuerConnection, payloadInventory, resourceInventory, issuePackage, managerResources } from './automatic-release.mjs';
+import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { spawn, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -24,6 +25,7 @@ export function installerHooks(delivery) {
 !macroend
 !macro NSIS_HOOK_POSTINSTALL
   WriteINIStr "$INSTDIR\\quote777-install.ini" "release" "delivery" "${delivery}"
+  ${delivery === 'manager' ? 'nsExec::ExecToStack \'"$SYSDIR\\WindowsPowerShell\\v1.0\\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\\host\\install.ps1" -Resources "$INSTDIR"\'\n  Pop $0\n  Pop $1' : ''}
 !macroend
 !macro NSIS_HOOK_POSTUNINSTALL
   Delete "$INSTDIR\\quote777-install.ini"
@@ -74,23 +76,31 @@ export async function ignoreGeneratedOutput(output, repository = root) {
 }
 
 export async function build(args) {
-  const a = options(args, ['--delivery', '--connection', '--output', '--version', '--webview', '--permissions']);
+  const a = options(args, ['--delivery', '--issuer-state', '--candidate', '--package-id', '--output', '--version', '--webview', '--permissions']);
   const delivery = a['--delivery'], identity = requireDelivery(delivery);
-  if (!a['--connection'] || !a['--output']) throw Error('package --delivery manager|sales --connection connection.json --output empty-directory');
+  if (!a['--issuer-state'] || !a['--candidate'] || !a['--output']) throw Error('ISSUER_NOT_READY');
+  const issuerState=path.resolve(a['--issuer-state']),candidate=path.resolve(a['--candidate']);
+  const packageId=a['--package-id']??randomUUID();
+  const hostExecutable=path.join(root,'target/release/quote-host.exe');
   const permissions = packagePermissions(delivery, a['--permissions'] === undefined ? undefined : JSON.parse(a['--permissions']));
-  const config = publicConnection(await readJson(a['--connection']));
-  requireNetworkTarget(config.connection);
+  const config = issuerConnection(hostExecutable,issuerState);
   if (process.platform !== 'win32') throw Error('WINDOWS_PACKAGING_REQUIRED');
   if (git(['status', '--porcelain'])) throw Error('CLEAN_SOURCE_REQUIRED');
   const source = git(['rev-parse', 'HEAD']);
   const base = await readJson(path.join(desktop, 'src-tauri/tauri.conf.json'));
   const version = a['--version'] ?? base.version;
   const output = path.resolve(a['--output']);
-  // Exclusive creation makes stale installers impossible to mistake for this build.
-  await fs.mkdir(output, { recursive: false });
-  await ignoreGeneratedOutput(output);
-  await fs.mkdir(path.join(root, 'target'), { recursive: true });
-  const temporary = await fs.mkdtemp(path.join(root, 'target', 'package-input-'));
+  const temporary=candidate+'.stage';
+  const controlFile=path.join(temporary,'build-state.json');
+  let cached=await readJson(controlFile).catch(e=>{if(e.code!=='ENOENT')throw e;return null;});
+  if (cached) {
+    if(cached.package_id!==packageId||cached.output!==output||cached.source!==source||cached.delivery!==delivery||JSON.stringify(cached.permissions)!==JSON.stringify(permissions)||cached.version!==version||cached.runtime!==(a['--webview']??'offlineInstaller')) throw Error('PACKAGE_RESUME_CONFLICT');
+  } else {
+    await fs.mkdir(output,{recursive:false}).catch(async e=>{if(e.code!=='EEXIST'||(await fs.readdir(output)).length)throw e;});await ignoreGeneratedOutput(output);
+    await fs.mkdir(temporary,{recursive:false});
+    cached={package_id:packageId,output,source,delivery,permissions,version,runtime:a['--webview']??'offlineInstaller',built:false};
+    await fs.writeFile(controlFile,json(cached));
+  }
   try {
     const hooks = path.join(temporary, 'installer-hooks.nsh');
     const overlay = bundleConfig(delivery, version, hooks, a['--webview']);
@@ -98,9 +108,13 @@ export async function build(args) {
     const meta = {
       schema: '777-desktop-package-v1', delivery, permissions, identifier: identity.identifier, version,
       source_commit: source, connection_sha256: digest(Buffer.from(publicText)),
-      profile_compatibility_epoch: 1, service_protocol: '777-service-v1', device_protocol: '777-device-auth-v1',
+      package_id: packageId, profile_compatibility_epoch: 1, service_protocol: '777-service-v1', device_protocol: '777-auto-enrollment-v1',
     };
     await fs.writeFile(hooks, installerHooks(delivery));
+    if (delivery==='manager') Object.assign(overlay.bundle.resources,await managerResources(root,temporary));
+    // A placeholder is never distributable. Registration is added only after the immutable binary is built.
+    if(!cached.built) await fs.writeFile(path.join(temporary,'package.json'),'{}');
+    overlay.bundle.resources[path.join(temporary,'package.json')]='automatic/package.json';
     await fs.writeFile(path.join(temporary, 'tauri.json'), json(overlay));
     await fs.writeFile(path.join(temporary, 'connection.json'), publicText);
     await fs.writeFile(path.join(temporary, 'metadata.json'), json(meta));
@@ -109,11 +123,22 @@ export async function build(args) {
       QUOTE777_PACKAGE_DELIVERY: delivery, VITE_QUOTE777_DELIVERY: delivery, QUOTE777_PACKAGE_CONNECTION: path.join(temporary, 'connection.json'),
       QUOTE777_PACKAGE_METADATA: path.join(temporary, 'metadata.json') };
     delete env.TAURI_CONFIG;
-    await run([path.join(desktop, 'node_modules/@tauri-apps/cli/tauri.js'), 'build', '--ci', '--features', delivery,
-      '--bundles', 'nsis', '--config', path.join(temporary, 'tauri.json'), '--', '--locked'], env);
-    await verifyProductionFrontend(path.join(desktop, 'dist'));
-    if (git(['status', '--porcelain'])) throw Error('BUILD_MODIFIED_SOURCE: inspect worktree before publishing');
     const binary = path.join(target, 'release', identity.binary + '.exe');
+    if(!cached.built) {
+      await run([path.join(desktop, 'node_modules/@tauri-apps/cli/tauri.js'), 'build', '--ci', '--features', delivery,
+      '--no-bundle', '--no-binary-patching', '--config', path.join(temporary, 'tauri.json'), '--', '--locked'], env);
+      await verifyProductionFrontend(path.join(desktop, 'dist'));
+      await fs.copyFile(binary,path.join(temporary,'built-program.exe'));
+      cached.built=true;await fs.writeFile(controlFile,json(cached));
+    } else {
+      await fs.copyFile(path.join(temporary,'built-program.exe'),binary);
+    }
+    if (git(['status', '--porcelain'])) throw Error('BUILD_MODIFIED_SOURCE: inspect worktree before publishing');
+    const payloadFiles = {[identity.binary+'.exe']:binary,...await resourceInventory(overlay.bundle.resources,desktop)};
+    const payload=await payloadInventory(payloadFiles);
+    await issuePackage({executable:hostExecutable,state:issuerState,candidate,temporary,packageId,delivery,permissions,version,payload});
+    await run([path.join(desktop,'node_modules/@tauri-apps/cli/tauri.js'),'bundle','--ci','--features',delivery,'--bundles','nsis','--no-binary-patching','--config',path.join(temporary,'tauri.json')],env);
+    if (JSON.stringify(await payloadInventory(payloadFiles))!==JSON.stringify(payload)) throw Error('ISSUED_PAYLOAD_CHANGED');
     const info = JSON.parse(execFileSync(binary, ['--package-info'], { encoding: 'utf8', timeout: 30000 }));
     for (const key of Object.keys(meta)) if (JSON.stringify(info[key]) !== JSON.stringify(meta[key])) throw Error('COMPILED_PACKAGE_MISMATCH: ' + key);
     if (info.verification !== false || info.release !== true || info.custom_protocol !== true) throw Error('PRODUCTION_BINARY_REQUIRED');
@@ -125,11 +150,13 @@ export async function build(args) {
     await fs.copyFile(path.join(installerDir, installer), path.join(output, installer));
     await fs.writeFile(path.join(output, 'connection.json'), publicText);
     await fs.copyFile(path.join(desktop, 'THIRD_PARTY_NOTICES.md'), path.join(output, 'THIRD_PARTY_NOTICES.md'));
-    await fs.copyFile(path.join(desktop, 'tools/enroll.ps1'), path.join(output, 'enroll.ps1'));
+    await fs.mkdir(path.join(output,'automatic'),{recursive:true});
+    await fs.copyFile(path.join(temporary,'package.json'),path.join(output,'automatic/package.json'));
+    await fs.writeFile(path.join(output,'payload.json'),json(payload));
     await fs.copyFile(path.join(desktop, 'tools/install.ps1'), path.join(output, 'install.ps1'));
     await fs.writeFile(path.join(output, 'install.cmd'), '@echo off\r\npowershell.exe -NoProfile -ExecutionPolicy Bypass -STA -File "%~dp0install.ps1"\r\n');
     const files = [];
-    for (const name of await fs.readdir(output)) {
+    for (const name of ['automatic/package.json',...(await fs.readdir(output)).filter(n=>!['automatic','release.json'].includes(n))]) {
       const bytes = await fs.readFile(path.join(output, name));
       files.push({ name, bytes: bytes.length, sha256: digest(bytes) });
     }
@@ -145,8 +172,13 @@ export async function build(args) {
     };
     await fs.writeFile(path.join(output, 'release.json'), json(manifest));
     await verifyRelease(output);
+    await fs.rm(temporary,{recursive:true,force:true}).catch(()=>{});
     console.log(json({ delivery, version, output, installer, source_commit: source }));
-  } finally { await fs.rm(temporary, { recursive: true, force: true }); }
+  } catch(error) {
+    // Leave protected issuance candidates for recovery if offline. Never publish partial release.json.
+    await fs.rm(path.join(output,'release.json'),{force:true});
+    throw error;
+  }
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   if (process.env.QUOTE777_PACKAGE_CONTROL_STDIN === '1') {

@@ -85,7 +85,7 @@ pub async fn connect(path: &Path, auxiliary: bool) -> Result<Value> {
         json!({"status":"issuer_ready","site_id":state["profile"]["site_id"],"ledger_id":state["profile"]["ledger_id"]}),
     )
 }
-fn connection(profile: &Value) -> Result<quote_security::Connection> {
+pub fn connection(profile: &Value) -> Result<quote_security::Connection> {
     Ok(quote_security::Connection {
         url: profile["primary_url"].as_str().ok_or_else(denied)?.into(),
         certificate_pem: profile["tls"]["certificate_pem"]

@@ -22,6 +22,7 @@ use serde_json::Value;
 #[derive(Debug)]
 pub struct Error {
     pub status: u16,
+    pub retry_after: Option<u64>,
     pub code: String,
 }
 impl Error {
@@ -29,6 +30,7 @@ impl Error {
         Self {
             status,
             code: code.into(),
+            retry_after: None,
         }
     }
 }

@@ -60,10 +60,10 @@ export async function writeNew(file, value) {
 export async function verifyRelease(directory) {
   const manifest = await readJson(path.join(directory, 'release.json'));
   const identity = requireDelivery(manifest.delivery);
-  if (manifest.schema !== '777-desktop-release-v1' || manifest.identifier !== identity.identifier || manifest.profile_compatibility_epoch !== 1 || manifest.verification !== false || manifest.release !== true || !/^\d+\.\d+\.\d+$/.test(manifest.version) || manifest.service_protocol !== '777-service-v1' || manifest.device_protocol !== '777-device-auth-v1' || !Array.isArray(manifest.files) || manifest.files.length < 3) throw Error('RELEASE_MANIFEST_INVALID');
+  if (manifest.schema !== '777-desktop-release-v1' || manifest.identifier !== identity.identifier || manifest.profile_compatibility_epoch !== 1 || manifest.verification !== false || manifest.release !== true || !/^\d+\.\d+\.\d+$/.test(manifest.version) || manifest.service_protocol !== '777-service-v1' || !['777-device-auth-v1','777-auto-enrollment-v1'].includes(manifest.device_protocol) || !Array.isArray(manifest.files) || manifest.files.length < 3) throw Error('RELEASE_MANIFEST_INVALID');
   const names = new Set();
   for (const file of manifest.files) {
-    if (!file.name || path.basename(file.name) !== file.name || /[\\/]/.test(file.name) || names.has(file.name) || !/^[a-f0-9]{64}$/.test(file.sha256)) throw Error('RELEASE_FILE_INVALID');
+    if (!file.name || (file.name!=='automatic/package.json' && (path.basename(file.name) !== file.name || /[\\/]/.test(file.name))) || names.has(file.name) || !/^[a-f0-9]{64}$/.test(file.sha256)) throw Error('RELEASE_FILE_INVALID');
     names.add(file.name);
     const bytes = await fs.readFile(path.join(directory, file.name));
     if (bytes.length !== file.bytes || digest(bytes) !== file.sha256) throw Error('RELEASE_HASH_MISMATCH');
@@ -71,6 +71,11 @@ export async function verifyRelease(directory) {
   if (!names.has('connection.json') || !names.has(identity.binary + '.exe') || !names.has(manifest.installer) || !manifest.installer.endsWith('-setup.exe')) throw Error('RELEASE_FILES_MISSING');
   const config = publicConnection(await readJson(path.join(directory, 'connection.json')));
   if (digest(Buffer.from(json(config))) !== manifest.connection_sha256) throw Error('RELEASE_CONNECTION_MISMATCH');
+  if(manifest.device_protocol==='777-auto-enrollment-v1') {
+    if(!names.has('automatic/package.json')||names.has('enroll.ps1')) throw Error('RELEASE_AUTOMATIC_PACKAGE_MISSING');
+    const p=await readJson(path.join(directory,'automatic/package.json'),131072);
+    if(p.manifest.package_id!==manifest.package_id||p.manifest.delivery!==manifest.delivery||p.manifest.release_version!==manifest.version||p.profile.primary_url!==config.connection.url||p.profile.tls.certificate_sha256!==config.connection.certificate_sha256)throw Error('RELEASE_AUTOMATIC_PACKAGE_CONFLICT');
+  }
   return { manifest, config };
 }
 export function compatibleRollback(current, previous) {

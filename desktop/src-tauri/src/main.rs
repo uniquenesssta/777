@@ -152,6 +152,17 @@ mod shell {
                 let user_data = root.join("webview2");
                 let client =
                     Desktop::new(root, false).map_err(|e| std::io::Error::other(e.code))?;
+                #[cfg(quote777_packaged)]
+                let client={
+                  let mut client=client;
+                  if quote_desktop::package_info()["device_protocol"]=="777-auto-enrollment-v1" {
+                    // A failure is retried silently at bootstrap; no login/file dialog fallback.
+                    if let Err(e)=client.load_automatic_package(&app.path().resource_dir()?.join("automatic/package.json")) {
+                        quote_diagnostics::event("automatic.package.unavailable",serde_json::json!({"error":e.code}));
+                    }
+                  }
+                  client
+                };
                 app.manage(Arc::new(ClientState { desktop: tokio::sync::Mutex::new(client), writes: AtomicUsize::new(0) }));
                 #[cfg(any(feature = "verification", debug_assertions))]
                 let isolated_created = if let Some(profile) = isolated {

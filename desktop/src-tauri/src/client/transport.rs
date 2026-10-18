@@ -5,6 +5,15 @@ pub(super) async fn request(
     path: &str,
     body: Option<&Value>,
 ) -> Result<Value> {
+    request_with_package(s, method, path, body, None).await
+}
+pub(super) async fn request_with_package(
+    s: &Session,
+    method: &str,
+    path: &str,
+    body: Option<&Value>,
+    package: Option<&str>,
+) -> Result<Value> {
     let bytes = body
         .map(serde_json::to_vec)
         .transpose()
@@ -23,6 +32,9 @@ pub(super) async fn request(
     if !s.token.is_empty() {
         req = req.bearer_auth(&s.token);
     }
+    if let Some(secret) = package {
+        req = req.header("X-777-Package-Authorization", format!("Bearer {secret}"));
+    }
     if let Some(bytes) = bytes {
         req = req.header("Content-Type", "application/json").body(bytes);
     }
@@ -33,6 +45,12 @@ pub(super) async fn request(
         DesktopError::new(0, "SERVICE_UNREACHABLE_OR_CERTIFICATE_REJECTED")
     })?;
     let status = response.status().as_u16();
+    let retry_after = response
+        .headers()
+        .get("Retry-After")
+        .and_then(|h| h.to_str().ok())
+        .and_then(|s| s.parse::<u64>().ok())
+        .map(|s| s.min(86400));
     let mut bytes = Vec::new();
     while let Some(chunk) = response
         .chunk()
@@ -47,12 +65,14 @@ pub(super) async fn request(
     let value: Value = serde_json::from_slice(&bytes)
         .map_err(|_| DesktopError::new(502, "SERVICE_RESPONSE_INVALID"))?;
     if status != 200 {
-        return Err(DesktopError::new(
+        let mut error = DesktopError::new(
             status,
             value["error"]
                 .as_str()
                 .unwrap_or("SERVICE_RESPONSE_INVALID"),
-        ));
+        );
+        error.retry_after = retry_after;
+        return Err(error);
     }
     Ok(value)
 }

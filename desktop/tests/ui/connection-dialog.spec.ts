@@ -1,10 +1,11 @@
 import {test, expect} from '@playwright/test';
 import {setup} from './fixtures/package-bridge';
 
-for (const target of [false, true]) {
+for (const target of [false]) {
   test(`${target ? 'package target' : 'developer connection'} dialog contains controls at desktop and narrow sizes`, async ({page}, info) => {
     await setup(page, 'development');
     await page.getByRole('button', {name:'开发部署', exact:true}).click();
+    await page.getByRole('button', {name:'开发数据', exact:true}).click();
     await page.getByRole('button', {name:target?'核对或更换目标':'选择或更换后台连接', exact:true}).click();
     const dialog=page.getByRole('dialog');
     await expect(dialog).toHaveAccessibleName(target?'选择封包连接的后台':'连接后台服务');

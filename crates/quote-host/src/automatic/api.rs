@@ -54,6 +54,9 @@ pub fn handle(
     }
     if method == "POST" {
         match path {
+            "/v1/automatic/devices/adopt" => {
+                return legacy_device::adopt(s, &c, data, token, package_token)
+            }
             "/v1/automatic/issuer/session" => return sessions::issuer_session(&c, data, token),
             "/v1/automatic/devices/enroll" => return devices::enroll(&c, data, token),
             "/v1/automatic/devices/session" => return devices::session(&c, data, token),

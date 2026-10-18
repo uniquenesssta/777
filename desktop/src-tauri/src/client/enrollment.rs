@@ -51,6 +51,16 @@ impl Desktop {
         Ok(json!({"registered":true}))
     }
     pub(super) async fn bootstrap_formal(&mut self) -> Result<Value> {
+        if self.automatic_package.is_some() {
+            self.automatic_retry.ready()?;
+            let result = self.bootstrap_automatic().await;
+            self.automatic_retry.record(&result);
+            return result;
+        }
+        #[cfg(quote777_packaged)]
+        if crate::startup::package_info()["device_protocol"] == "777-auto-enrollment-v1" {
+            return Err(DesktopError::new(409, "AUTOMATIC_PACKAGE_UNAVAILABLE"));
+        }
         let kind = startup::delivery();
         if self
             .store

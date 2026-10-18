@@ -4,7 +4,7 @@
 
 新接口严格解析 JSON；未知字段、重复字段、格式或类型不符均拒绝。UUID 使用规范小写形式；时间为 UTC Unix 秒；秘密为 32 随机字节的无填充 base64url。请求头承载鉴权秘密，不放 URL；日志仅记录路径模板、请求 ID、主体/包 ID、结果码与阶段。新接口体默认上限 64 KiB，超过即拒绝。限速按来源及凭据摘要分别执行，并限制候选登记数量，不能让匿名请求占满账本资源。
 
-所有请求共用 `protocol` 和 `request_id`；写请求另有站点/账本绑定。协议名由对应接口确定，不能用用户提供的角色替代鉴权。下表是 B/C/D 的接口契约；B 已接入路由，C/D 的安装及桌面调用待实施。
+所有请求共用 `protocol` 和 `request_id`；写请求另有站点/账本绑定。协议名由对应接口确定，不能用用户提供的角色替代鉴权。下表是 B/C/D 的接口契约；B 已接入路由，C/D 的安装及桌面调用已接入源码，Windows/现场未执行。
 
 | 方法与 `/v1/automatic` 后缀 | 请求者/主要字段 | 成功结果与限制 |
 | --- | --- | --- |
@@ -14,6 +14,7 @@
 | GET `/packages/{id}` | 所属 issuer 会话 | 清单、状态、用量；无设备秘密、订单正文 |
 | POST `/packages/{id}/close` 或 `/revoke` | 所属 issuer 会话；请求 ID | 关闭新增或撤销全部关联授权，幂等 |
 | POST `/devices/enroll` | 包登记秘密；package_id、site_id、ledger_id、device_id、device_secret_hash | device_id、subject、delivery、capabilities、epoch、绑定回执；不发明文设备秘密 |
+| POST `/devices/adopt` | 原 v1 设备秘密 + 新同角色包秘密；原 device_id、site_id、ledger_id、package_id | 保留原 subject；停用旧设备及旧会话，不停用维护账号；拒绝不同旧设备暗中合并同一主体 |
 | POST `/devices/session` | 设备秘密；device_id | scoped device 会话及当前有效权限 |
 | POST `/devices/upgrade` | 设备会话和新包登记秘密（独立鉴权头）；新 package_id | 同角色原子改绑并废止旧会话；跨角色返回内部不兼容码 |
 | POST `/nodes/permit` | 母版包登记秘密；package_id、site_id、ledger_id、node_id、node_secret_hash | 绑定该候选节点的短期加入许可；不暴露通用旧邀请 |
@@ -56,3 +57,11 @@
 6. 主机离线保留进度、重试；业务仍连 4.23，绝不自动升主。旧 peer/副本重复安装需凭原节点秘密及部署归属复用，缺凭据的旧节点需明确兼容迁移，不能只凭目录存在或相同主机名冒认。
 
 固定目录及隐藏备份语义沿用任务书，不在登记协议中开放任意路径。无需网络共享 Host/Service/Hidden。副本包含业务数据和授权摘要，能管理同步电脑操作系统的人可能读取本地数据；不能把 UI 权限包装成对本机管理员的加密隔离承诺。
+
+## C/D 接入补充
+
+共享 `777-automatic-package-v1` 封套持有原站点档案、不可变 manifest 和受限登记秘密；不含发行者秘密或维护密码。原生安装内部入口为 `automatic-node-join`；发行内部入口为 `automatic-issuer-status`、`automatic-issue`、`automatic-close`。它们只服务界面/安装编排，普通使用者无需输入命令或定位状态文件。未修改既有协议版本。
+
+旧桌面采用的 Authorization 为原设备秘密，`X-777-Package-Authorization` 为新包秘密；同时核对设备启用、原主体 epoch、delivery 与站点。成功后旧设备会话失效，重复采用凭原秘密只允许取同绑定回执。原维护账号密码保留。旧多设备共用一个主体的历史不能自动合并成独立新身份，冲突进入维护范围。
+
+新节点身份由 SYSTEM 后台任务本身产生；原节点继续原账户。桌面原生重试门控制网络请求速率，UI 轮询不绕过退避；后台 runner 每次失败按状态退避，同一候选/身份不变。服务端 Retry-After 采用 delta-seconds，客户端接受不超过 86400 秒；当前接口未发 HTTP-date 格式。拒绝/冲突慢速复核，不自动生成替代身份。

@@ -141,6 +141,7 @@ strong {
   justify-content: flex-start;
 }
 .topbar nav .button {
+  flex-shrink: 0;
   min-width: 0;
   white-space: nowrap;
 }

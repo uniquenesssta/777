@@ -34,7 +34,7 @@ export default function App() {
     { route: "profit", label: "利润分析", admin: true },
     { route: "tasks", label: "导出记录" },
     { route: "settings", label: "存储与备份" },
-    ...(!formalPackage && app.delivery === "development" ? [{ route: "developer" as Route, label: "开发部署", admin: true }] : []),
+    ...(!formalPackage && app.developerTools ? [{ route: "developer" as Route, label: "开发部署" }] : []),
   ];
   const nav = (route: Route) => {
     setMenu(false);
@@ -109,8 +109,9 @@ export default function App() {
             </div>}
           </>
         )}
+        {!formalPackage && app.developerTools && !app.session && <nav aria-label="主导航"><Button variant="primary" onClick={()=>nav("developer")}>开发部署</Button></nav>}
       </header>
-      {!app.session ? formalPackage || ["manager","sales"].includes(app.delivery) ? <main className="formal-idle" aria-label="记账器" /> : app.delivery === "loading" || app.automatic ? (
+      {!formalPackage && app.developerTools && app.route === "developer" ? <main className="workspace" aria-busy={app.busy} tabIndex={-1}><DeveloperPage app={app}/></main> : !app.session ? formalPackage || ["manager","sales"].includes(app.delivery) ? <main className="formal-idle" aria-label="记账器" /> : app.delivery === "loading" || app.automatic ? (
         <main className="connection-page"><section className="card connection-card" aria-busy={app.busy}>
           <h1>{app.busy || app.delivery === "loading" ? "正在连接…" : "暂时无法进入记账器"}</h1>
           <p className="muted">{app.busy || app.delivery === "loading" ? "请稍候" : "请重试；仍无法连接时请联系管理员。输入草稿会保留。"}</p>
@@ -140,7 +141,6 @@ export default function App() {
           )}{" "}
           {app.route === "tasks" && app.can("exports") && <TasksPage app={app} />}{" "}
           {app.route === "settings" && app.can("settings") && <SettingsPage app={app} />}
-          {!formalPackage && app.delivery === "development" && app.route === "developer" && app.session.role === "admin" && <DeveloperPage app={app} />}
         </main>
       )}
     {!formalPackage && app.delivery==="development" && <Modal open={app.connectionDialog} onOpenChange={v=>!v&&app.closeConnectionDialog()} title="连接后台服务" description="选择开发版要读取的在线后台。" className="connection-dialog"><ConnectionForm saved={app.connection} busy={app.busy} onCancel={app.closeConnectionDialog} onSubmit={app.connect}/></Modal>}

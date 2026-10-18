@@ -6,6 +6,18 @@ pub fn allowed(command: &str) -> Result<Vec<&'static str>> {
     let mut keys = match command {
         "automatic-prepare" => vec!["--output", "--state", "--peer", "--notices"],
         "automatic-connect" => vec!["--state"],
+        "automatic-issuer-status" => vec!["--state"],
+        "automatic-issue" => vec!["--state", "--input", "--candidate", "--output"],
+        "automatic-close" => vec!["--state", "--candidate"],
+        "automatic-node-join" => vec![
+            "--shutdown-stdin",
+            "--state",
+            "--root",
+            "--package",
+            "--backup-dir",
+            "--worker",
+            "--notices",
+        ],
         "automatic-upgrade" => vec!["--root", "--kit", "--notices"],
         "automatic-revoke" => vec!["--root", "--kind", "--id"],
         _ => return fail(422, "UNKNOWN_COMMAND"),
@@ -24,6 +36,54 @@ pub async fn execute(args: &Args) -> Result<Value> {
             auxiliary,
         ),
         "automatic-connect" => a::issuer_state::connect(&args.path("--state")?, auxiliary).await,
+        "automatic-issuer-status" => a::issuance::status(&args.path("--state")?, auxiliary),
+        "automatic-issue" => {
+            a::issuance::issue(
+                &args.path("--state")?,
+                &args.path("--input")?,
+                &args.path("--candidate")?,
+                &args.path("--output")?,
+                auxiliary,
+            )
+            .await
+        }
+        "automatic-close" => {
+            a::issuance::close(
+                &args.path("--state")?,
+                &args.path("--candidate")?,
+                auxiliary,
+            )
+            .await
+        }
+        "automatic-node-join" => {
+            let stop = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+            if args.has("--shutdown-stdin") {
+                let stopped = stop.clone();
+                std::thread::spawn(move || {
+                    let mut byte = [0];
+                    let _ = std::io::Read::read(&mut std::io::stdin(), &mut byte);
+                    stopped.store(true, std::sync::atomic::Ordering::SeqCst);
+                });
+            }
+            a::installation::join_with_stop(
+                quote_host::host::Init {
+                    root: args.path("--root")?,
+                    backups: args.path("--backup-dir")?,
+                    hosts: vec!["127.0.0.1".into(), "localhost".into()],
+                    bind: "127.0.0.1".into(),
+                    port: 8477,
+                    user: "replica-local".into(),
+                    secret: String::new(),
+                    worker: args.path("--worker")?,
+                    notices: args.path("--notices")?,
+                    auxiliary,
+                },
+                &args.path("--state")?,
+                &args.path("--package")?,
+                &stop,
+            )
+            .await
+        }
         "automatic-upgrade" => a::upgrade::apply(
             &args.path("--root")?,
             &args.path("--kit")?,

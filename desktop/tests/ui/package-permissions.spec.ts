@@ -1,28 +1,60 @@
 // UI wiring only. No installer or remote host is invoked by this fixture.
 import {test,expect} from '@playwright/test';
 import {setup} from './fixtures/package-bridge';
+async function top(page:import('@playwright/test').Page){await page.evaluate(()=>scrollTo(0,0));await expect.poll(()=>page.evaluate(()=>scrollY)).toBe(0);}
 test('package choices send the reviewed policy and do not require typed paths or version',async({page},info)=>{
   await setup(page,'development');
   await page.getByRole('button',{name:'开发部署',exact:true}).click();
-  const card=page.locator('.package-choices');
+  const card=page.locator('.packaging-workspace');
   await expect(card.locator('input[type=text]')).toHaveCount(0);
   await card.getByLabel('成本、利润与内部财务报表',{exact:true}).uncheck();
   await expect(card.getByLabel('价格维护（包含成本）',{exact:true})).not.toBeChecked();
-  await card.getByRole('button',{name:'使用当前已连接的 Host',exact:true}).click();
   await card.getByRole('button',{name:'选择文件夹',exact:true}).click();
-  await card.getByRole('button',{name:'按所选权限封包母版',exact:true}).click();
-  await expect(page.getByRole('dialog')).not.toContainText('成本、利润与内部财务报表');
-  await page.getByRole('button',{name:'开始封包',exact:true}).click();
+  await card.getByRole('button',{name:'封包母版',exact:true}).click();
   const requests=await page.evaluate(()=>(window as any).__requests);
   const build=requests.find((r:any)=>r.action==='developer'&&r.request.op==='package');
   expect(build.request.delivery).toBe('manager');
   expect(build.request.permissions).toEqual(['quote','orders','edit_orders','exports','settings','backup']);
   expect(requests.some((r:any)=>r.action==='developer'&&r.request.op==='save_package'&&r.request.output==='D:\\Selected')).toBe(true);
-  await card.getByLabel('子版',{exact:true}).check();
-  await expect(card.getByLabel('成本、利润与内部财务报表 · 仅母版',{exact:true})).toBeDisabled();
+  expect(requests.some((r:any)=>['package_target','use_current_package_target','verify_package_target'].includes(r.action))).toBe(false);
+  await top(page);
+  await page.screenshot({path:info.outputPath('package-manager.png'),fullPage:true});
+  await card.getByRole('button',{name:'子版',exact:true}).click();
+  await expect(card.getByLabel('成本、利润与内部财务报表',{exact:true})).toHaveCount(0);
   await page.setViewportSize({width:720,height:1100});
   await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  await top(page);
   await page.screenshot({path:info.outputPath('package-choices-720.png'),fullPage:true});
+});
+test('choices survive maintenance navigation; failed jobs retry without a new package request',async({page},info)=>{
+  await setup(page,'development');await page.getByRole('button',{name:'开发部署',exact:true}).click();
+  const card=page.locator('.packaging-workspace');
+  await card.getByLabel('成本、利润与内部财务报表',{exact:true}).uncheck();
+  await page.getByRole('button',{name:'发行维护',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'发行准备完成',exact:true})).toBeVisible();
+  await top(page);
+  await page.screenshot({path:info.outputPath('issuer-ready.png'),fullPage:true});
+  await page.getByRole('button',{name:'返回应用封包',exact:true}).click();
+  await expect(card.getByLabel('价格维护（包含成本）',{exact:true})).not.toBeChecked();
+  await page.evaluate(()=>{(window as any).__packageJob={id:'original-job',state:'failed',delivery:'manager',version:'0.1.0',output:'D:\\Packages',permissions:['quote'],lines:['ISSUER_NOT_READY'],error:'ISSUER_NOT_READY',bytes:null};});
+  await expect(page.getByRole('heading',{name:'封包未完成',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'重试本次封包',exact:true}).click();
+  const calls=await page.evaluate(()=>(window as any).__requests.filter((r:any)=>r.action==='developer').map((r:any)=>r.request.op));
+  expect(calls).toContain('retry_package');expect(calls).not.toContain('package');
+});
+test('390px long paths wrap and the original check asset renders at 12px',async({page},info)=>{
+  await setup(page,'development');await page.setViewportSize({width:390,height:600});
+  await page.getByRole('button',{name:'开发部署',exact:true}).click();
+  await page.evaluate(()=>{(window as any).__packageOutput='D:\\'+('报价系统交付目录'.repeat(50));});
+  await expect.poll(()=>page.locator('.package-path').first().textContent()).toContain('报价系统交付目录');
+  await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  const nav=await page.locator('.topbar nav .button').evaluateAll(nodes=>nodes.map(n=>({x:n.getBoundingClientRect().x,width:n.getBoundingClientRect().width})));
+  expect(nav.every((n,i)=>n.width>60&&(i===0||n.x>=nav[i-1].x+nav[i-1].width))).toBe(true);
+  const mark=page.locator('.package-checkbox img').first();
+  await expect.poll(()=>mark.evaluate((n:HTMLImageElement)=>n.complete&&n.naturalWidth>0)).toBe(true);
+  expect(await mark.evaluate(n=>({width:n.getBoundingClientRect().width,height:n.getBoundingClientRect().height}))).toEqual({width:12,height:12});
+  await top(page);
+  await page.screenshot({path:info.outputPath('package-390-long-path.png'),fullPage:true});
 });
 for(const delivery of ['manager','sales'])test(`${delivery} quote-only policy has no hidden-feature navigation or account menu`,async({page})=>{
   await setup(page,delivery,['quote']);
@@ -37,4 +69,15 @@ for(const delivery of ['manager','sales'])test(`${delivery} quote-only policy ha
   await expect(page.getByRole('alert')).toHaveCount(0);
   await expect(page.locator('body')).not.toContainText(/SERVICE_|连接失败|请联系管理员|证书/);
   expect(JSON.parse(await page.evaluate(()=>localStorage.getItem('777-desktop-draft-v1'))||'{}').lines).toHaveLength(1);
+});
+
+test('developer packaging remains available without a business session',async({page})=>{
+  await setup(page,'development',null,false);
+  await expect(page.getByRole('heading',{name:'应用封包',exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'封包母版',exact:true})).toBeEnabled();
+  await expect(page.getByRole('button',{name:'账户菜单',exact:true})).toHaveCount(0);
+  await page.getByRole('button',{name:'封包母版',exact:true}).click();
+  await expect.poll(()=>page.evaluate(()=>(window as any).__requests.some((r:any)=>r.action==='developer'&&r.request.op==='package'))).toBe(true);
+  const calls=await page.evaluate(()=>(window as any).__requests.map((r:any)=>r.action));
+  expect(calls).not.toContain('prices');expect(calls).not.toContain('settings');expect(calls).not.toContain('connect');
 });

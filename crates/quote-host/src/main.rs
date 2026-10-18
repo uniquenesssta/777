@@ -249,7 +249,10 @@ async fn main() {
     match result {
         Ok(v) => println!("{}", v),
         Err(e) => {
-            eprintln!("{}", json!({"status":"failed","error":e.code}));
+            eprintln!(
+                "{}",
+                json!({"status":"failed","error":e.code,"http_status":e.status,"retry_after":e.retry_after})
+            );
             std::process::exit(1);
         }
     }

@@ -8,6 +8,7 @@ use std::time::Duration;
 #[serde(tag = "op", rename_all = "snake_case", deny_unknown_fields)]
 pub enum DeveloperAction {
     Status {},
+    PackageStatus {},
     Select {
         root: String,
         initialize: bool,
@@ -42,6 +43,16 @@ pub enum DeveloperAction {
         delivery: String,
         permissions: Vec<String>,
     },
+    RetryPackage {},
+    IssuerStatus {},
+    IssuerPrepare {
+        peer: Option<String>,
+        #[serde(default)]
+        restart: bool,
+    },
+    IssuerConnect {},
+    IssuerOpen {},
+    OpenLogs {},
     Cancel {},
     OpenOutput {},
 }
