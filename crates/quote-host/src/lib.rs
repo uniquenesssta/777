@@ -8,6 +8,7 @@ pub mod daily_backup;
 pub mod devices;
 pub mod files;
 pub mod host;
+pub mod offline;
 pub mod operator;
 mod order_changes;
 pub mod outputs;

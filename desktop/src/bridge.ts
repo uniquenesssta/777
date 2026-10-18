@@ -6,6 +6,16 @@ export function request<T>(
   return invoke<T>("desktop_action", { request: { action, ...data } });
 }
 const errors: Record<string, string> = {
+  CONNECTION_FILE_INVALID: "文件内容不完整或格式不正确，请重新选择部署生成的文件。",
+  CONNECTION_FILE_WRONG_KIND: "文件用途不匹配。Host 加入文件、公开连接文件和桌面登记文件不能混用。",
+  CONNECTION_FILE_UNAVAILABLE: "无法读取所选文件，请检查位置和访问权限。",
+  HOST_IDENTITY_UNAVAILABLE: "此服务未提供可核对的账本身份，请检查 Host 同步配置或服务版本。",
+  INVALID_DIRECTORY_PREFERENCE: "位置中包含不支持的字符，或路径过长。",
+  PACKAGE_TARGET_REQUIRED: "请先选择并核对正式封包目标。",
+  PACKAGE_TARGET_REVERIFY: "请重新验证封包目标的管理员身份。目标已保留。",
+  PACKAGE_TARGET_IDENTITY_MISMATCH: "目标账本身份发生变化，已阻止封包，请重新核对。",
+  PACKAGE_LOOPBACK_FORBIDDEN: "正式封包不能使用 localhost 或本机回环地址，请导入正式 Host 连接。",
+  PACKAGE_CONNECTION_MISMATCH: "登记文件与本安装包的服务目标不一致，请管理员核对后重新提供。",
   OUTPUT_SINGLE_ORDER_TOO_LARGE: "单笔订单已超过单个报表容量，无法继续按完整订单拆分。请检查该订单的明细或过长备注；本次未创建部分报表。",
   OUTPUT_SNAPSHOT_TOO_LARGE: "所选报表数据量过大，请缩小日期范围后分批导出。",
   OUTPUT_TOO_LARGE: "生成文件过大，请缩小日期范围后分批导出。",
@@ -31,7 +41,7 @@ const errors: Record<string, string> = {
   ANALYTICS_NOT_SUPPORTED: "当前服务尚未提供利润汇总，请联系管理员更新服务。",
 
   OUTPUT_CJK_FONT_UNAVAILABLE: "报价图片所需中文字体不可用，请联系管理员。订单已保留。",
-  DEPLOYMENT_NOT_CONFIGURED:"尚未配置，请联系管理员。",
+  DEPLOYMENT_NOT_CONFIGURED:"请选择管理员提供的设备登记文件。",
   DEVICE_NOT_AUTHORIZED:"此设备授权已失效，请联系管理员。",
   DEVICE_PROFILE_MISMATCH:"此设备配置不匹配，请联系管理员。",
   DELIVERY_ROLE_MISMATCH:"此版本与设备授权不匹配，请联系管理员。",

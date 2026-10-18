@@ -38,6 +38,7 @@ async function afterSaved<T>(read: () => Promise<T>): Promise<Refreshed<T>> {
 }
 export function useWorkbench() {
   const [delivery, setDelivery] = useState("loading");
+  const [connectionDialog,setConnectionDialog] = useState(false);
   const [automatic, setAutomatic] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [connection, setConnection] = useState<Connection | null>(null);
@@ -231,18 +232,18 @@ export function useWorkbench() {
   async function connect(c: Connection, username: string, password: string) {
     await run(
       async () => {
-        const s = await request<Session>("connect", {
+        const s = await request<Session & {catalog:Catalog|null;settings:Preferences}>("connect", {
           connection: c,
           username,
           password,
         });
-        const p = await request<Catalog>("prices").catch(e => { if(errorCode(e) === "PRICES_NOT_PUBLISHED") return null; throw e; });
-        const dirs = await request<Preferences>("settings");
+        const p=s.catalog, dirs=s.settings;
         return { s, p, dirs };
       },
       ({ s, p, dirs }) => {
         if(delivery === "development") bindDeveloperDraft(c.certificate_sha256);
         epoch.current++;
+        setConnectionDialog(false);
         setConnection(c);
         setSession(s);
         setPending(s.pending);
@@ -251,6 +252,7 @@ export function useWorkbench() {
         if(p) dispatch({ type: "prices", version: p.price_version_id });
         setRoute("quote");
       },
+      true,
     );
   }
   const loadOrders = useCallback(
@@ -588,8 +590,7 @@ export function useWorkbench() {
       () => {},
     );
   async function editConnection() {
-    await logout();
-    setAutomatic(false);
+    guardDraft(()=>setConnectionDialog(true));
   }
   function navigate(next: Route) {
     setRoute(next);
@@ -602,7 +603,7 @@ export function useWorkbench() {
     async developerOperation(operation: Record<string, unknown>) {
       return run(async () => {
         const result = await request<{connection:{certificate_sha256:string}}>("developer", {request:operation});
-        if (operation.op === "select" || operation.op === "restore_data") {
+        if (["select","restore_data","import_directory"].includes(String(operation.op))) {
           bindDeveloperDraft(result.connection.certificate_sha256);
           window.location.reload();
         }
@@ -622,6 +623,8 @@ export function useWorkbench() {
     automatic,
     bootstrap,
     editConnection,
+    connectionDialog,
+    closeConnectionDialog:()=>setConnectionDialog(false),
     session,
     connection,
     catalog,

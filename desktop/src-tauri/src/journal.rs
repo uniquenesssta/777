@@ -77,6 +77,22 @@ impl Store {
         }
         Ok(())
     }
+    /// Replace a local preference/credential atomically; pending requests still use write-once.
+    pub fn replace<T: Serialize>(&self, name: &str, value: &T) -> Result<()> {
+        let temporary = format!("{}.{}.tmp", name, crate::types::new_id()?);
+        self.write(&temporary, value)?;
+        let target = self.root.join(name);
+        let result = (|| {
+            if target.try_exists().map_err(|_| error())? {
+                check(&target)?;
+            }
+            fs::rename(self.root.join(&temporary), &target).map_err(|_| error())
+        })();
+        if result.is_err() {
+            let _ = self.clear(&temporary);
+        }
+        result
+    }
     pub fn clear(&self, name: &str) -> Result<()> {
         check(&self.root)?;
         let p = self.root.join(name);

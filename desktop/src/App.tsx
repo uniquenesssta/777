@@ -5,6 +5,8 @@ import { PricesPage } from "./features/PricesPage";
 import { ProfitPage } from "./features/ProfitPage";
 import { OrdersPage } from "./features/OrdersPage";
 import { DetailPage } from "./features/DetailPage";
+import { ConnectionForm } from "./features/connection/ConnectionForm";
+import { EnrollmentPage } from "./features/connection/EnrollmentPage";
 import { ConnectionPage } from "./features/ConnectionPage";
 import { DeveloperPage } from "./features/DeveloperPage";
 import { SettingsPage } from "./features/settings/SettingsPage";
@@ -109,7 +111,7 @@ export default function App() {
           </>
         )}
       </header>
-      {!app.session ? formalPackage || app.delivery === "loading" || app.automatic ? (
+      {!app.session ? formalPackage || ["manager","sales"].includes(app.delivery) ? <EnrollmentPage app={app}/> : app.delivery === "loading" || app.automatic ? (
         <main className="connection-page"><section className="card connection-card" aria-busy={app.busy}>
           <h1>{app.busy || app.delivery === "loading" ? "正在连接…" : "暂时无法进入记账器"}</h1>
           <p className="muted">{app.busy || app.delivery === "loading" ? "请稍候" : "请重试；仍无法连接时请联系管理员。输入草稿会保留。"}</p>
@@ -142,6 +144,7 @@ export default function App() {
           {!formalPackage && app.delivery === "development" && app.route === "developer" && app.session.role === "admin" && <DeveloperPage app={app} />}
         </main>
       )}
+    {!formalPackage && app.delivery==="development" && <Modal open={app.connectionDialog} onOpenChange={v=>!v&&app.closeConnectionDialog()} title="导入 Host 连接" compact><ConnectionForm saved={app.connection} busy={app.busy} onSubmit={app.connect}/></Modal>}
     <Modal open={!!app.draftChange} onOpenChange={(v)=>!v&&app.cancelDraftChange()} title="尚有未保存的修改" description="继续当前编辑，或放弃草稿并切换。" compact>
         <div className="dialog-actions"><Button variant="outline" onClick={app.resumeDraft}>继续编辑</Button><Button onClick={app.confirmDraftChange}>放弃修改</Button></div>
       </Modal>

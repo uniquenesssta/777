@@ -10,8 +10,8 @@ use windows::{
         },
         UI::Shell::{
             FileOpenDialog, IFileOpenDialog, IShellItem, SHCreateItemFromParsingName,
-            FOS_FILEMUSTEXIST, FOS_FORCEFILESYSTEM, FOS_NOCHANGEDIR, FOS_PATHMUSTEXIST,
-            FOS_PICKFOLDERS, SIGDN_FILESYSPATH,
+            FOS_FILEMUSTEXIST, FOS_FORCEFILESYSTEM, FOS_FORCESHOWHIDDEN, FOS_NOCHANGEDIR,
+            FOS_PATHMUSTEXIST, FOS_PICKFOLDERS, SIGDN_FILESYSPATH,
         },
     },
 };
@@ -25,7 +25,13 @@ fn allowed_path(path: &str, _local: bool) -> bool {
         && matches!(path.components().next(), Some(Component::Prefix(p)) if matches!(p.kind(),
         Prefix::Disk(_) | Prefix::UNC(_, _) | Prefix::VerbatimDisk(_) | Prefix::VerbatimUNC(_, _)))
 }
-pub fn pick(owner: isize, initial: &str, local: bool, file: bool) -> Result<Option<String>> {
+pub fn pick(
+    owner: isize,
+    initial: &str,
+    local: bool,
+    file: bool,
+    title: &str,
+) -> Result<Option<String>> {
     unsafe {
         CoInitializeEx(None, COINIT_APARTMENTTHREADED)
             .ok()
@@ -42,17 +48,14 @@ pub fn pick(owner: isize, initial: &str, local: bool, file: bool) -> Result<Opti
                         } else {
                             FOS_PICKFOLDERS
                         }
+                        | FOS_FORCESHOWHIDDEN
                         | FOS_FORCEFILESYSTEM
                         | FOS_PATHMUSTEXIST
                         | FOS_NOCHANGEDIR,
                 )
                 .map_err(unavailable)?;
             dialog
-                .SetTitle(&HSTRING::from(if file {
-                    "选择 .qbackup 恢复文件"
-                } else {
-                    "选择保存文件夹"
-                }))
+                .SetTitle(&HSTRING::from(title))
                 .map_err(unavailable)?;
             if !initial.is_empty() {
                 if let Ok(item) =

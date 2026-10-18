@@ -64,6 +64,7 @@ async function bootstrap(
                     pending: false,
                   },
                 };
+              case "business_directory": return {directory:"",ledger_id:"00000000-0000-4000-8000-000000000001",applied:false};
               case "prices":
                 return {
                   price_version_id: "presentation-v1",
@@ -256,7 +257,7 @@ for (const delivery of ["manager", "sales"]) {
   }) => {
     await bootstrap(page, delivery, true);
     await expect(
-      page.getByRole("heading", { name: "暂时无法进入记账器" }),
+      page.getByRole("heading", { name: "欢迎使用记账器" }),
     ).toBeVisible();
     for (const label of ["服务地址", "服务证书（PEM）", "账号", "密码"])
       await expect(page.getByLabel(label, { exact: true })).toHaveCount(0);

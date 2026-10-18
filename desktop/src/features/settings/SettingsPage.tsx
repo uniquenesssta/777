@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Workbench } from "../../state/useWorkbench";
 import { stamp } from "../../state/format";
 import { Button, Field, Input } from "../../ui/components";
+import { BusinessDirectory } from "./BusinessDirectory";
 import { managedLocation } from "./managedLocations";
 
 export function SettingsPage({ app }: { app: Workbench }) {
@@ -47,6 +48,7 @@ export function SettingsPage({ app }: { app: Workbench }) {
           </Button>
         </>
       )}
+      {admin && app.delivery === "manager" && <BusinessDirectory disabled={app.busy}/> }
       <div className="field">
         <label htmlFor="quote-export-directory">报价表保存位置</label>
         <div className="directory-choice">

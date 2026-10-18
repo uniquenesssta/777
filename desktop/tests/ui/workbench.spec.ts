@@ -361,7 +361,7 @@ test("development keeps an explicit connection editor without exposing it as for
   await page.getByRole("button", { name: "开发连接设置", exact: true }).click();
   await expect(page.getByLabel("服务地址", { exact: true })).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "登录", exact: true }),
+    page.getByRole("button", { name: "验证并连接", exact: true }),
   ).toBeVisible();
 });
 

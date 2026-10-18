@@ -250,13 +250,13 @@ def main():
                 assert controller.root==a and not (base/'refused').exists()
             restored=base/'恢复 账本'
             state=ipc('developer',request=dict(op='restore_data',package=str(pair/'data.qbackup'),target=str(restored)))
-            ipc('bootstrap');assert state['ledger_id']==id_a and state['daily']['hidden_dir']==str(hidden)
+            ipc('bootstrap');assert state['ledger_id']==id_a and state['daily']['hidden_dir']==''  # working copies never inherit live hidden backups
             c=client()
             try:
                 result=c.request('GET','/v1/orders');assert result['total']==1 and result['orders'][0]['order_id']==order_a['order_id']
                 assert result['totals']['income_cents']==order_a['income_cents']
-                assert c.request('POST','/v1/backup',dict(kind='daily'))['backup_id']==entry['backup_id']
-                assert controller.status()['daily_result']['hidden']['ok']
+                assert c.request('POST','/v1/backup',dict(kind='maintenance'))['backup_id']
+                assert controller.status()['daily']['hidden_dir']==''
             finally:c.logout()
             try:ipc('developer',request=dict(op='restore_data',package=str(pair/'data.qbackup'),target=str(restored)))
             except RuntimeError:pass

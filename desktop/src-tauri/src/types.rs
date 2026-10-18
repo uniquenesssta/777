@@ -54,6 +54,22 @@ pub enum Action {
         password: String,
     },
     Disconnect {},
+    ImportConnection {
+        path: String,
+    },
+    ImportEnrollment {
+        path: String,
+    },
+    BusinessDirectory {},
+    SaveBusinessDirectory {
+        directory: String,
+    },
+    PackageTarget {},
+    VerifyPackageTarget {
+        connection: Connection,
+        username: String,
+        password: String,
+    },
     Prices {},
     PricePreview {
         cost: String,
@@ -205,6 +221,12 @@ impl Action {
             Self::Connection { .. } => "Connection",
             Self::Connect { .. } => "Connect",
             Self::Disconnect { .. } => "Disconnect",
+            Self::ImportConnection { .. } => "ImportConnection",
+            Self::ImportEnrollment { .. } => "ImportEnrollment",
+            Self::BusinessDirectory { .. } => "BusinessDirectory",
+            Self::SaveBusinessDirectory { .. } => "SaveBusinessDirectory",
+            Self::PackageTarget { .. } => "PackageTarget",
+            Self::VerifyPackageTarget { .. } => "VerifyPackageTarget",
             Self::Prices { .. } => "Prices",
             Self::PricePreview { .. } => "PricePreview",
             Self::Calculate { .. } => "Calculate",
@@ -244,7 +266,8 @@ impl Action {
         }
         matches!(
             self,
-            Self::Submit { .. }
+            Self::ImportEnrollment { .. }
+                | Self::Submit { .. }
                 | Self::Note { .. }
                 | Self::SetState { .. }
                 | Self::PublishPrices { .. }

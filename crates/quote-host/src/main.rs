@@ -74,6 +74,13 @@ impl Args {
                 "--test-font-file",
             ],
             "inspect" => vec!["--root", "--auxiliary"],
+            "export-offline" => vec![
+                "--root",
+                "--package",
+                "--admin",
+                "--auxiliary",
+                "--secret-stdin",
+            ],
             "authorize" => vec!["--root", "--admin", "--auxiliary", "--secret-stdin"],
             "configure-daily" => vec![
                 "--root",
@@ -191,7 +198,7 @@ async fn execute(a: Args) -> Result<Value> {
         return cluster_cli::execute(&a).await;
     }
     let root = a.path("--root")?;
-    if !["inspect", "run"].contains(&a.command.as_str())
+    if !["inspect", "run", "export-offline"].contains(&a.command.as_str())
         && quote_host::cluster::config::read(&root)?
             .is_some_and(|c| c.role == quote_host::cluster::config::Role::Replica)
     {
@@ -205,6 +212,7 @@ async fn execute(a: Args) -> Result<Value> {
    if a.has("--auxiliary-font"){if cfg!(windows)||!auxiliary||!a.has("--isolated-test"){return fail(422,"AUXILIARY_FONT_FORBIDDEN")};service.font=Some(a.path("--auxiliary-font")?);}host::serve(service,a.has("--shutdown-stdin")||a.has("--test-shutdown-stdin")).await?;Ok(json!({"status":"stopped","ownership_released":true}))},
   "enable-devices"=>{let _owner=files::Owner::acquire(&root)?;let mut s=Service::load(&root,auxiliary,true)?;let login=s.auth.login(&json!(a.get("--admin")?),&json!(a.secret(false)?),"enable-devices")?;let token=login["token"].as_str().unwrap();let result=(||{auth::Auth::admin(&s.auth.authenticate(token)?)?;if s.devices.is_some(){return Ok(json!({"status":"already_enabled"}))};quote_host::devices::Devices::create(&root.join("private/devices.sqlite3"))?;s.config["device_auth"]=json!(quote_host::devices::FORMAT);files::replace_json(&root.join("private/service.json"),&s.config)?;Ok(json!({"status":"device_auth_enabled_restart_required"}))})();let _=s.auth.logout(token);result},
   "inspect"=>{let s=Service::load(&root,auxiliary,true)?;Ok(json!({"inventory":integrity::inventory(&store::open(&s.ledger,false)?)?,"maintenance":s.config["maintenance"],"host_backend":s.config.get("service_backend").unwrap_or(&json!("python")),"private_security":s.config["private_security"],"certificate_sha256":s.config["certificate_sha256"],"shutdown_control":"stdin-v1"}))},
+  "export-offline"=>quote_host::offline::export(&root,&a.path("--package")?,a.get("--admin")?,&a.secret(false)?,auxiliary),
   "authorize"=>quote_host::operator::authorize(&root,a.get("--admin")?,&a.secret(false)?,auxiliary),
   "configure-daily"=>quote_host::operator::configure_daily(&root,&a.path("--backup-dir")?,&a.path("--hidden-dir")?,a.default("--daily-hour","23").parse().map_err(|_|Error::new(422,"DAILY_BACKUP_CONFIG_INVALID"))?,a.get("--admin")?,&a.secret(false)?,auxiliary),
   "restore-data"=>quote_host::recovery::restore(&a.path("--package")?,Init{root,backups:a.path("--backup-dir")?,hosts:a.options.get("--host").cloned().unwrap_or_default(),bind:a.default("--bind","127.0.0.1").into(),port:a.default("--port","8477").parse().map_err(|_|Error::new(422,"HOST_CONFIG_INVALID"))?,user:a.get("--admin")?.into(),secret:a.secret(true)?,worker:a.path("--worker")?,notices:a.path("--notices")?,auxiliary}),

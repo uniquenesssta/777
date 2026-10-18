@@ -15,6 +15,12 @@ pub enum DeveloperAction {
         username: Option<String>,
         password: Option<String>,
     },
+    ImportDirectory {
+        root: String,
+        target: String,
+        username: String,
+        password: String,
+    },
     BackupDirectory {
         directory: String,
     },
@@ -40,12 +46,16 @@ pub enum DeveloperAction {
 }
 impl DeveloperAction {
     pub fn switches_data(&self) -> bool {
-        matches!(self, Self::Select { .. } | Self::RestoreData { .. })
+        matches!(
+            self,
+            Self::Select { .. } | Self::RestoreData { .. } | Self::ImportDirectory { .. }
+        )
     }
     pub fn protects_close(&self) -> bool {
         matches!(
             self,
             Self::Select { .. }
+                | Self::ImportDirectory { .. }
                 | Self::BackupDirectory { .. }
                 | Self::DailyBackup { .. }
                 | Self::RestoreData { .. }

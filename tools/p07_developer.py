@@ -14,6 +14,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from quote_service.journal import dpapi
 import p07_diagnostics as diagnostics
+import p08_developer_sources as sources
 
 
 def local(path, *, directory=False):
@@ -106,7 +107,7 @@ class Developer:
         health_file=self.root / 'private/daily-backups.json'
         health=json.loads(local(health_file).read_text(encoding="utf-8")) if health_file.exists() else dict(entries={})
         latest=max(health['entries'], default=None)
-        return dict(daily=daily, daily_result=health['entries'].get(latest), root=str(self.root), backup_dir=cfg['backup_dir'], ledger_id=cfg['ledger_id'], last_backup=backups.get('last_success'), connection=self.connection(), preferences=self.preferences, job=job)
+        return dict(source=sources.source_status(self), daily=daily, daily_result=health['entries'].get(latest), root=str(self.root), backup_dir=cfg['backup_dir'], ledger_id=cfg['ledger_id'], last_backup=backups.get('last_success'), connection=self.connection(), preferences=self.preferences, job=job)
 
     def remember(self, root, user, password):
         root = local(root, directory=True)
@@ -232,7 +233,6 @@ class Developer:
         package, target = local(package), local(target)
         if package.suffix != '.qbackup' or not package.is_file():
             raise RuntimeError('DATA_BACKUP_INVALID')
-        daily = self.status()['daily']
         if target.exists() and (not target.is_dir() or any(target.iterdir())):
             raise RuntimeError('RESTORE_REQUIRES_NEW_DIRECTORY')
         backup = target.with_name(target.name + '-backups')
@@ -241,8 +241,6 @@ class Developer:
         if target.exists():target.rmdir()  # Explicitly selected empty recovery target.
         user, secret = 'recovery-' + uuid.uuid4().hex[:12], secrets.token_urlsafe(32)
         self.dev.command(['restore-data', '--package', str(package), '--root', str(target), '--backup-dir', str(backup), '--host', '127.0.0.1', '--host', 'localhost', '--bind', '127.0.0.1', '--port', str(self.dev.PORT), '--admin', user, '--worker', str(self.dev.ROOT / 'target/release' / ('quote-ledger.exe' if os.name == 'nt' else 'quote-ledger')), '--notices', str(self.dev.ROOT / 'THIRD_PARTY_NOTICES.md')], secret)
-        if daily['hidden_dir']:
-            self.dev.command(['configure-daily', '--root', str(target), '--backup-dir', str(backup), '--hidden-dir', daily['hidden_dir'], '--daily-hour', str(daily['daily_hour']), '--admin', user], secret)
         self.remember(target, user, secret)
         # Keep the original host running until the imported host has passed full validation.
         return self.select(str(target), username=user, password=secret)
@@ -315,7 +313,7 @@ class Developer:
 
     def handle(self, data):
         op = data.get('op')
-        allowed = {'status','bootstrap','select','backup_directory','daily_backup','restore_data','save_package','package','cancel','open_output'}
+        allowed = {'status','bootstrap','select','backup_directory','daily_backup','restore_data','import_directory','save_package','package','cancel','open_output'}
         operation = op if isinstance(op, str) and op in allowed else 'invalid'
         quiet = operation in {'status', 'bootstrap'}
         if not quiet:diagnostics.event('control.start', operation=operation)
@@ -335,6 +333,7 @@ class Developer:
             if op == 'select':return self.select(data['root'], initialize=data['initialize'], backup_dir=data['backup_dir'], username=data.get('username'), password=data.get('password'))
             if op == 'backup_directory':return self.configure_backup(data['directory'])
             if op == 'daily_backup':return self.configure_daily(data['directory'], data['hidden'], data['hour'])
+            if op == 'import_directory':return sources.import_directory(self, data['root'], data['target'], data['username'], data['password'])
             if op == 'restore_data':return self.restore_data(data['package'], data['target'])
             if op == 'save_package':
                 output = package_preferences(data)

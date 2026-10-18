@@ -1,5 +1,6 @@
 // Windows-only release orchestration using the pinned Tauri/NSIS toolchain.
 import fs from 'node:fs/promises';
+import { requireNetworkTarget } from './package-target.mjs';
 import path from 'node:path';
 import { spawn, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -76,6 +77,7 @@ export async function build(args) {
   const delivery = a['--delivery'], identity = requireDelivery(delivery);
   if (!a['--connection'] || !a['--output']) throw Error('package --delivery manager|sales --connection connection.json --output empty-directory');
   const config = publicConnection(await readJson(a['--connection']));
+  requireNetworkTarget(config.connection);
   if (process.platform !== 'win32') throw Error('WINDOWS_PACKAGING_REQUIRED');
   if (git(['status', '--porcelain'])) throw Error('CLEAN_SOURCE_REQUIRED');
   const source = git(['rev-parse', 'HEAD']);

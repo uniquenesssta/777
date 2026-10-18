@@ -1,5 +1,6 @@
 export type Role = "admin" | "sales";
 export interface Session {
+  ledger_id?: string | null;
   pricing_mode_version?: string | null;
   subject: string;
   role: Role;

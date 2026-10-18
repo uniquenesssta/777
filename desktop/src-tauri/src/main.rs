@@ -89,9 +89,20 @@ mod shell {
                 .hwnd()
                 .map_err(|_| DesktopError::new(503, "DIRECTORY_DIALOG_UNAVAILABLE"))?
                 .0 as isize;
-            let file = target == "developer_recovery_file";
+            let file = [
+                "developer_recovery_file",
+                "public_connection",
+                "device_enrollment",
+            ]
+            .contains(&target.as_str());
+            let title = match target.as_str() {
+                "public_connection" => "选择 Host 公开连接文件",
+                "device_enrollment" => "选择桌面设备登记文件",
+                "developer_recovery_file" => "选择 .qbackup 恢复文件",
+                _ => "选择保存文件夹",
+            };
             let selected = tokio::task::spawn_blocking(move || {
-                crate::directory_dialog::pick(owner, &initial, local, file)
+                crate::directory_dialog::pick(owner, &initial, local, file, title)
             })
             .await
             .map_err(|_| DesktopError::new(503, "DIRECTORY_DIALOG_UNAVAILABLE"))??;

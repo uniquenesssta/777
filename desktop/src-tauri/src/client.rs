@@ -1,3 +1,8 @@
+mod connections;
+mod enrollment;
+mod preferences;
+mod transport;
+
 use crate::{
     journal::Store,
     tls,
@@ -34,6 +39,7 @@ pub struct Desktop {
     session: Option<Session>,
     calculation: Option<Calculation>,
     auto_expires: u64,
+    package_session: Option<Session>,
 }
 impl Desktop {
     pub fn new(root: PathBuf, auxiliary: bool) -> Result<Self> {
@@ -42,12 +48,23 @@ impl Desktop {
             session: None,
             calculation: None,
             auto_expires: 0,
+            package_session: None,
         })
     }
     pub fn has_pending(&self) -> Result<bool> {
         Ok(self.store.read::<Pending>("pending.bin")?.is_some())
     }
     pub async fn directory_context(&mut self, target: &str) -> Result<String> {
+        if target == "public_connection" && !crate::startup::formal() {
+            return Ok(String::new());
+        }
+        if target == "device_enrollment" && crate::startup::formal() {
+            return Ok(String::new());
+        }
+        if target == "business_directory" {
+            let value = self.execute(Action::BusinessDirectory {}).await?;
+            return Ok(value["directory"].as_str().unwrap_or("").into());
+        }
         #[cfg(all(
             debug_assertions,
             not(any(feature = "manager", feature = "sales", feature = "verification"))
@@ -94,62 +111,14 @@ impl Desktop {
     }
     async fn request(&mut self, method: &str, path: &str, body: Option<&Value>) -> Result<Value> {
         let s = self.session()?;
-        let bytes = body
-            .map(serde_json::to_vec)
-            .transpose()
-            .map_err(|_| DesktopError::new(422, "INVALID_BODY"))?;
-        if bytes.as_ref().is_some_and(|b| b.len() > REQUEST_LIMIT) {
-            return Err(DesktopError::new(413, "BODY_TOO_LARGE"));
-        }
-        let mut req = s
-            .http
-            .request(
-                reqwest::Method::from_bytes(method.as_bytes())
-                    .map_err(|_| DesktopError::new(422, "INVALID_METHOD"))?,
-                format!("{}{}", s.connection.url.trim_end_matches('/'), path),
-            )
-            .header("Accept", "application/json");
-        if !s.token.is_empty() {
-            req = req.bearer_auth(&s.token);
-        }
-        if let Some(bytes) = bytes {
-            req = req.header("Content-Type", "application/json").body(bytes);
-        }
-        let mut response = req.send().await.map_err(|e| {
-            #[cfg(feature = "verification")]
-            eprintln!("verification TLS failure: {e:?}");
-            let _ = e;
-            DesktopError::new(0, "SERVICE_UNREACHABLE_OR_CERTIFICATE_REJECTED")
-        })?;
-        let status = response.status().as_u16();
-        let mut bytes = Vec::new();
-        while let Some(chunk) = response
-            .chunk()
-            .await
-            .map_err(|_| DesktopError::new(0, "SERVICE_RESPONSE_INCOMPLETE"))?
-        {
-            if bytes.len() + chunk.len() > 8 * REQUEST_LIMIT {
-                return Err(DesktopError::new(413, "SERVICE_RESPONSE_TOO_LARGE"));
+        let result = transport::request(s, method, path, body).await;
+        if result.as_ref().is_err_and(|e| e.status == 401) {
+            if let Some(s) = &mut self.session {
+                s.token.clear();
             }
-            bytes.extend_from_slice(&chunk);
+            self.calculation = None;
         }
-        let value: Value = serde_json::from_slice(&bytes)
-            .map_err(|_| DesktopError::new(502, "SERVICE_RESPONSE_INVALID"))?;
-        if status != 200 {
-            if status == 401 {
-                if let Some(s) = &mut self.session {
-                    s.token.clear();
-                }
-                self.calculation = None;
-            }
-            return Err(DesktopError::new(
-                status,
-                value["error"]
-                    .as_str()
-                    .unwrap_or("SERVICE_RESPONSE_INVALID"),
-            ));
-        }
-        Ok(value)
+        result
     }
     async fn mutate(&mut self, path: &str, mut body: Value) -> Result<Value> {
         if self.store.read::<Pending>("pending.bin")?.is_some() {
@@ -233,6 +202,7 @@ impl Desktop {
                     | Action::Connection {}
                     | Action::Connect { .. }
                     | Action::Disconnect {}
+                    | Action::ImportEnrollment { .. }
             )
             && self.auto_expires <= clock() + 30
         {
@@ -243,9 +213,17 @@ impl Desktop {
         Ok(v)
     }
     async fn bootstrap(&mut self) -> Result<Value> {
-        use crate::startup::{self, Bootstrap, Credential};
+        use crate::startup::{self, Bootstrap};
         let kind = startup::delivery();
         if !startup::formal() {
+            if self
+                .store
+                .read::<String>("data-source-mode.bin")?
+                .as_deref()
+                == Some("host")
+            {
+                return Ok(json!({"delivery":kind,"session":null,"automatic":false}));
+            }
             #[cfg(all(
                 debug_assertions,
                 not(any(feature = "manager", feature = "sales", feature = "verification"))
@@ -267,6 +245,7 @@ impl Desktop {
                     }),
                 )
                 .await?;
+                self.store.replace("data-source-mode.bin", &"local")?;
                 return Ok(json!({"delivery":kind,"session":session,"automatic":true}));
             }
             if let Some(config) = self.store.bootstrap::<Bootstrap>()? {
@@ -281,91 +260,7 @@ impl Desktop {
             }
             return Ok(json!({"delivery":kind,"session":null,"automatic":false}));
         }
-        let mut saved = self.store.read::<Credential>("device.bin")?;
-        // A newly delivered operator grant replaces only the device credential.
-        // Pending financial requests are retained and must still match the original actor/service.
-        if let (Some(old), Some(next)) = (&saved, self.store.bootstrap::<Bootstrap>()?) {
-            next.validate(kind)?;
-            if serde_json::to_value(&old.config).ok() != serde_json::to_value(&next).ok() {
-                self.store.clear("device.bin")?;
-                saved = None;
-                self.session = None;
-                self.auto_expires = 0;
-            }
-        }
-        let credential = match saved {
-            Some(c) => c,
-            None => {
-                let config = self
-                    .store
-                    .bootstrap::<Bootstrap>()?
-                    .ok_or_else(|| DesktopError::new(409, "DEPLOYMENT_NOT_CONFIGURED"))?;
-                config.validate(kind)?;
-                use base64::Engine;
-                let mut b = [0u8; 32];
-                getrandom::getrandom(&mut b)
-                    .map_err(|_| DesktopError::new(503, "RANDOM_UNAVAILABLE"))?;
-                let c = Credential {
-                    config,
-                    device_id: new_id()?,
-                    secret: base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(b),
-                    profile: self.store.profile(),
-                };
-                self.store.write("device.bin", &c)?;
-                c
-            }
-        };
-        credential.config.validate(kind)?;
-        if credential.profile != self.store.profile() {
-            return Err(DesktopError::new(403, "DEVICE_PROFILE_MISMATCH"));
-        }
-        self.calculation = None;
-        self.session = Some(Session {
-            http: tls::build(&credential.config.connection)?,
-            connection: credential.config.connection.clone(),
-            token: String::new(),
-            subject: String::new(),
-            role: String::new(),
-        });
-        let enrolled=self.request("POST","/v1/device/enroll",Some(&json!({"ticket":credential.config.ticket,"device_id":credential.device_id,"device_secret":credential.secret,"delivery":kind}))).await?;
-        if enrolled["protocol"] != "777-device-auth-v1" {
-            self.session = None;
-            return Err(DesktopError::new(409, "DEVICE_PROTOCOL_CONFLICT"));
-        }
-        let v=self.request("POST","/v1/device/session",Some(&json!({"device_id":credential.device_id,"device_secret":credential.secret,"delivery":kind}))).await?;
-        let expected = if kind == "manager" { "admin" } else { "sales" };
-        if v["protocol"] != "777-device-auth-v1"
-            || v["role"] != expected
-            || v["subject"] != enrolled["subject"]
-        {
-            self.session = None;
-            return Err(DesktopError::new(403, "DELIVERY_ROLE_MISMATCH"));
-        }
-        let token = v["token"]
-            .as_str()
-            .filter(|s| s.len() == 43)
-            .ok_or_else(|| DesktopError::new(502, "SERVICE_RESPONSE_INVALID"))?
-            .to_owned();
-        let s = self.session.as_mut().unwrap();
-        s.token = token;
-        s.subject = v["subject"]
-            .as_str()
-            .ok_or_else(|| DesktopError::new(502, "SERVICE_RESPONSE_INVALID"))?
-            .to_owned();
-        s.role = expected.into();
-        self.auto_expires = v["expires"]
-            .as_u64()
-            .ok_or_else(|| DesktopError::new(502, "SERVICE_RESPONSE_INVALID"))?;
-        let caps = self.request("GET", "/v1/capabilities", None).await?;
-        if caps["device_auth"] != "777-device-auth-v1" || caps["cents_encoding"] != "decimal-string"
-        {
-            self.session = None;
-            return Err(DesktopError::new(409, "DEVICE_PROTOCOL_CONFLICT"));
-        }
-        self.store.clear("bootstrap.json")?;
-        Ok(
-            json!({"delivery":kind,"automatic":true,"session":{"subject":v["subject"],"role":expected,"username":v["username"],"pending":self.has_pending()?,"pricing_mode_version":caps["pricing_mode_version"]}}),
-        )
+        self.bootstrap_formal().await
     }
     async fn execute_inner(&mut self, action: Action) -> Result<Value> {
         match action {
@@ -393,12 +288,12 @@ impl Desktop {
                 let mut data = serde_json::to_value(&request)
                     .map_err(|_| DesktopError::new(422, "INVALID_BODY"))?;
                 if matches!(request, crate::developer::DeveloperAction::Package { .. }) {
-                    // The connection comes from the authenticated native session, not an arbitrary frontend URL.
-                    data["connection"] = serde_json::to_value(&self.session()?.connection)
+                    data["connection"] = serde_json::to_value(self.verified_package_connection().await?)
                         .map_err(|_| DesktopError::new(422, "INVALID_BODY"))?;
                 }
                 let result = crate::developer::call(data).await?;
                 if switches {
+                    self.store.replace("data-source-mode.bin", &"local")?;
                     self.session = None;
                     self.calculation = None;
                     self.auto_expires = 0;
@@ -409,64 +304,16 @@ impl Desktop {
             Action::Connection {} => Ok(
                 json!({"delivery":crate::startup::delivery(),"automatic":crate::startup::formal() || self.store.bootstrap::<crate::startup::Bootstrap>()?.is_some(),"connection":if crate::startup::formal(){None}else{self.store.read::<Connection>("connection.bin")?},"pending":self.has_pending()?}),
             ),
-            Action::Connect {
-                connection,
-                username,
-                password,
-            } => {
-                if crate::startup::formal() {
-                    return Err(DesktopError::new(403, "MANUAL_LOGIN_DISABLED"));
-                }
-                if username.is_empty() || username.chars().count() > 64 || password.len() > 4096 {
-                    return Err(DesktopError::new(422, "INVALID_LOGIN"));
-                }
-                let http = tls::build(&connection)?;
-                self.session = None;
-                self.calculation = None;
-                self.session = Some(Session {
-                    http,
-                    connection: connection.clone(),
-                    token: String::new(),
-                    subject: String::new(),
-                    role: String::new(),
-                });
-                let v = self
-                    .request(
-                        "POST",
-                        "/v1/login",
-                        Some(&json!({"username":username,"password":password})),
-                    )
-                    .await?;
-                let token = v["token"]
-                    .as_str()
-                    .filter(|s| !s.is_empty())
-                    .ok_or_else(|| DesktopError::new(502, "SERVICE_RESPONSE_INVALID"))?
-                    .to_string();
-                let subject = v["subject"]
-                    .as_str()
-                    .ok_or_else(|| DesktopError::new(502, "SERVICE_RESPONSE_INVALID"))?
-                    .to_string();
-                let role = v["role"]
-                    .as_str()
-                    .filter(|s| ["admin", "sales"].contains(s))
-                    .ok_or_else(|| DesktopError::new(502, "SERVICE_RESPONSE_INVALID"))?
-                    .to_string();
-                self.session.as_mut().unwrap().token = token;
-                self.session.as_mut().unwrap().subject = subject.clone();
-                self.session.as_mut().unwrap().role = role.clone();
-                let capabilities = self.request("GET", "/v1/capabilities", None).await?;
-                if capabilities["protocol"] != "777-service-v1"
-                    || capabilities["cents_encoding"] != "decimal-string"
-                {
-                    self.session = None;
-                    return Err(DesktopError::new(409, "PROTOCOL_VERSION_CONFLICT"));
-                }
-                self.store.clear("connection.bin")?;
-                self.store.write("connection.bin", &connection)?;
-                Ok(
-                    json!({"subject":subject,"role":role,"username":username,"pending":self.has_pending()?,"pricing_mode_version":capabilities["pricing_mode_version"]}),
-                )
+            Action::ImportConnection { path } => {
+                connections::development()?;
+                Ok(json!({"connection": crate::connection_file::public(&path)?}))
             }
+            Action::ImportEnrollment { path } => self.import_enrollment(&path).await,
+            Action::BusinessDirectory {} => self.business_directory(None).await,
+            Action::SaveBusinessDirectory { directory } => self.business_directory(Some(directory)).await,
+            Action::PackageTarget {} => self.package_target(),
+            Action::VerifyPackageTarget { connection, username, password } => self.verify_package_target(connection, username, password).await,
+            Action::Connect { connection, username, password } => self.connect(connection, username, password).await,
             Action::Disconnect {} => {
                 let result = self.request("POST", "/v1/logout", Some(&json!({}))).await;
                 self.session = None;
@@ -830,6 +677,7 @@ mod tests {
             json!({"op":"backup_directory","directory":"ignored"}),
             json!({"op":"daily_backup","directory":"ignored","hidden":"ignored","hour":23}),
             json!({"op":"restore_data","package":"ignored","target":"ignored"}),
+            json!({"op":"import_directory","root":"ignored","target":"ignored","username":"admin","password":"unused"}),
         ] {
             let action =
                 serde_json::from_value(json!({"action":"developer","request":request})).unwrap();

@@ -304,7 +304,7 @@ impl Service {
         }
         if method == "GET" && path == "/v1/capabilities" {
             return Ok(
-                json!({"device_auth":self.devices.as_ref().map(|_|crate::devices::FORMAT),"protocol":"777-service-v1","output_format":"777-output-v1","query_format":"777-query-v1","rule_version":RULE_VERSION,"numeric_profile":NUMERIC_PROFILE,"cents_encoding":"decimal-string","pricing_mode_version":"final-unit-v1"}),
+                json!({"ledger_id":self.config["ledger_id"],"device_auth":self.devices.as_ref().map(|_|crate::devices::FORMAT),"protocol":"777-service-v1","output_format":"777-output-v1","query_format":"777-query-v1","rule_version":RULE_VERSION,"numeric_profile":NUMERIC_PROFILE,"cents_encoding":"decimal-string","pricing_mode_version":"final-unit-v1"}),
             );
         }
         if path == "/v1/outputs" || path.starts_with("/v1/outputs/") {
