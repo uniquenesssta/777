@@ -1,6 +1,6 @@
 # 记账器 / 报价利润计算器
 
-- [P08-02-1 Host 接入、开发者数据读取与正式端设置](docs/now/P08-02-1-desktop-host-integration.md)：[Figma 设计](docs/design/P08-02-1-host-desktop-figma.md)及核心源码已接入，[填写说明](docs/verification/P08-02-1-operator-guide.md)已补齐；Windows 功能检查、旧节点身份兼容缺口与现场验收待完成；覆盖连接导入、任意位置兼容数据读取、独立封包目标、正式端目录保存但不应用、设备登记及现场业务闭环。
+- [P08-02-1 Host 接入、开发者数据读取与正式端设置](docs/now/P08-02-1-desktop-host-integration.md)：[Figma 设计](docs/design/P08-02-1-host-desktop-figma.md)及核心源码已接入，[填写说明](docs/verification/P08-02-1-operator-guide.md)已补齐；[Windows 功能检查已通过](docs/verification/P08-02-1-windows-checks.json)，旧节点身份兼容缺口、用户视觉签收与现场验收待完成；覆盖连接导入、任意位置兼容数据读取、独立封包目标、正式端目录保存但不应用、设备登记及现场业务闭环。
 
 2026-10-17已按用户“开始推进02”进入P08-02，前序已启动[P08](docs/now/P08-cutover.md)，唯一执行分支 `stage/p08-cutover`，基线 `aca4ce3`。用户确认无历史订单，历史迁移范围为0；服务连接优先级按用户最新指令规划为192.168.4.23→192.168.4.38，封包母版设置隐藏4.23地址（已接入并通过Windows功能回归，自动主备切换待实现），首批母版1台。协议/身份/备份格式已按源码登记，实际主机运行账户、自启动、目录和设备映射待落实。P07按接续指令转接归档，未补造05/06单独签收或07增补Windows结果；已取消的母子构建准备验证不重新安排。
 

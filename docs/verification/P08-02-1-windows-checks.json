@@ -1,0 +1,342 @@
+{
+  "task": "P08-02-1",
+  "recorded_date": "2026-10-19",
+  "timezone": "Asia/Shanghai",
+  "source_commit": "372ce36c8ff2947e733abb821f5fc47bd73bf941",
+  "run_url": "https://github.com/uniquenesssta/777/actions/runs/39143133622",
+  "workflow_conclusion": "success",
+  "jobs": [
+    {
+      "id": 117721585152,
+      "name": "desktop-contracts",
+      "conclusion": "success",
+      "completed_at": "2026-10-18T16:40:11Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+          "conclusion": "success"
+        },
+        {
+          "name": "Pinned MSVC Rust and isolated verification dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Runner and owned native window lifecycle regression",
+          "conclusion": "success"
+        },
+        {
+          "name": "P08 deployment policy and PowerShell syntax",
+          "conclusion": "success"
+        },
+        {
+          "name": "Windows build, real Rust HTTPS, browser and actual Tauri WebView2 lifecycle",
+          "conclusion": "success"
+        },
+        {
+          "name": "Customer orders, editable revisions and monthly financial reports",
+          "conclusion": "success"
+        },
+        {
+          "name": "P08 production supervisor shutdown channel",
+          "conclusion": "success"
+        },
+        {
+          "name": "Runtime diagnostics retain actual Windows IO errors",
+          "conclusion": "success"
+        },
+        {
+          "name": "Developer source switching, daily dual-format backup and recovery",
+          "conclusion": "success"
+        },
+        {
+          "name": "Actual SMB mapped drive, hidden folders and selected junction paths",
+          "conclusion": "success"
+        },
+        {
+          "name": "Device identity, manager/sales presentation and complete quote images",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload isolated evidence",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 117721585281,
+      "name": "host-sync",
+      "conclusion": "success",
+      "completed_at": "2026-10-18T16:13:53Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate focused host-check scope",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "conclusion": "success"
+        },
+        {
+          "name": "Native host prerequisites",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check host Rust formatting",
+          "conclusion": "success"
+        },
+        {
+          "name": "Native cluster protocol and strict analysis",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build native host resources from source",
+          "conclusion": "success"
+        },
+        {
+          "name": "Two real TLS nodes and interrupted replication",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload cluster evidence",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 117721585709,
+      "name": "installers",
+      "conclusion": "skipped",
+      "completed_at": "2026-10-18T16:02:18Z",
+      "steps": []
+    }
+  ],
+  "browser": {
+    "startTime": "2026-10-18T16:26:08.362Z",
+    "duration": 122712.667,
+    "expected": 35,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "desktop_protocol": {
+    "status": "passed",
+    "checks": [
+      "certificate_pin_rejected_before_request",
+      "real_Rust_HTTPS_login_no_token_crosses_IPC",
+      "exact_cents_revision_and_frozen_draft_submission",
+      "append_only_note_void_restore_original_amount_and_revision",
+      "full_20_row_pagination_and_view_binding",
+      "authoritative_calendar_analytics_over_all_pages_through_native_HTTPS",
+      "exact_rolling_24_hours_reaches_service_and_future_interval_is_empty",
+      "authoritative_profit_OHLC_survives_native_IPC_and_HTTPS_with_empty_bucket_continuity",
+      "native_output_task_does_not_rebook_financial_order",
+      "sales_DTO_other_actor_and_management_commands_restricted",
+      "sales_native_analytics_and_directory_dialog_denied",
+      "service_independently_denies_sales_analytics_over_real_HTTPS",
+      "native_host_and_desktop_restart_original_receipt_identity_and_no_duplicate",
+      "money_above_JavaScript_integer_limit_remains_exact_string",
+      "server_price_change_refuses_stale_confirmation_without_booking",
+      "manual_cost_plus_final_prices_exact_preview_canonical_backup_restore_restart_frozen_orders_and_sales_redaction"
+    ],
+    "actual_transport": "Rust desktop IPC dispatcher -> Rustls pinned HTTPS -> standalone Rust host",
+    "production_paths_accessed": false,
+    "Windows_DPAPI": true,
+    "scope": "owned temporary profile, synthetic accounts/prices/orders, no installed service or real data",
+    "sandbox_cleaned": true
+  },
+  "customer_orders": {
+    "status": "passed",
+    "checks": [
+      "native_preview_save_same_order_with_revision_and_history",
+      "native_repeated_edits_use_latest_revision_line_sources_and_exact_history",
+      "native_historical_before_after_values_are_frozen_per_edit",
+      "native_separate_order_number_same_customer_exact_aggregate",
+      "native_period_report_completed_and_actual_folder_action",
+      "native_restart_keeps_edited_order"
+    ]
+  },
+  "device_protocol": {
+    "status": "passed",
+    "checks": [
+      "manager_native_bootstrap_without_secret_IPC",
+      "formal_manual_login_direct_invoke_rejected",
+      "two_devices_same_stable_sales_actor_and_filtered_prices",
+      "restart_uses_same_DPAPI_device_and_actor",
+      "sales_cannot_read_other_actor_or_backups",
+      "same_actor_devices_share_own_orders_only",
+      "expired_session_recovers_without_password_or_identity_change",
+      "unknown_commit_restart_queries_original_receipt_without_duplicate",
+      "copied_credential_rejected_in_other_profile",
+      "one_device_revocation_rejects_live_session_without_affecting_peer",
+      "operator_new_grant_reauthorizes_revoked_device_without_deleting_pending",
+      "v1_data_restore_preserves_ledger_without_old_devices_sessions_grants"
+    ],
+    "Windows_DPAPI": true,
+    "production_paths_accessed": false
+  },
+  "formal_native_windows": [
+    {
+      "delivery": "manager",
+      "status": "passed",
+      "presentation_checked": true,
+      "two_quote_image_tasks_completed": true,
+      "automatic_business_entry": true,
+      "secrets_not_in_frontend_storage": true,
+      "sandbox_cleaned": true
+    },
+    {
+      "delivery": "sales",
+      "status": "passed",
+      "presentation_checked": true,
+      "two_quote_image_tasks_completed": true,
+      "automatic_business_entry": true,
+      "secrets_not_in_frontend_storage": true,
+      "sandbox_cleaned": true
+    }
+  ],
+  "developer_sources": [
+    {
+      "location": "local",
+      "status": "passed",
+      "credential_storage": "Windows DPAPI",
+      "checks": [
+        "A_B_A_real_prices_orders_and_exact_totals_isolated",
+        "offline_copy_through_native_IPC_preserves_source_hashes_hidden_attributes_and_refuses_busy_or_wrong_password",
+        "native_selected_directories_actual_Excel_and_Windows_PNG_outputs",
+        "nonempty_initialization_keeps_original_files_and_active_source",
+        "populated_destinations_preserve_existing_files_and_hidden_system_attributes",
+        "dual_formats_identical_in_both_destinations_independent_failures_retry_same_snapshot_no_legacy_deletion",
+        "public_API_cannot_change_daily_policy_or_observe_hidden_destination",
+        "missing_current_index_resaved_by_both_setters_preserves_identity_files_snapshot_and_hidden_configuration",
+        "corrupt_or_foreign_current_index_rejected_without_overwrite_or_configuration_loss",
+        "real_native_import_restores_business_view_preserves_original_rejects_corruption_future_version_and_overwrite",
+        "saved_config_and_credentials_restart_with_same_actual_ledger"
+      ],
+      "production_paths_accessed": false
+    },
+    {
+      "location": "mapped_and_UNC_with_readonly_source",
+      "status": "passed",
+      "credential_storage": "Windows DPAPI",
+      "checks": [
+        "actual_UNC_ledger_uses_rollback_journal",
+        "A_B_A_real_prices_orders_and_exact_totals_isolated",
+        "offline_copy_through_native_IPC_preserves_source_hashes_hidden_attributes_and_refuses_busy_or_wrong_password",
+        "native_selected_directories_actual_Excel_and_Windows_PNG_outputs",
+        "nonempty_initialization_keeps_original_files_and_active_source",
+        "populated_destinations_preserve_existing_files_and_hidden_system_attributes",
+        "raw_selected_alias_accepted_by_Rust_CLI_and_same_backup_identity_reused",
+        "read_only_share_reports_permission_denied_and_preserves_configuration",
+        "dual_formats_identical_in_both_destinations_independent_failures_retry_same_snapshot_no_legacy_deletion",
+        "public_API_cannot_change_daily_policy_or_observe_hidden_destination",
+        "missing_current_index_resaved_by_both_setters_preserves_identity_files_snapshot_and_hidden_configuration",
+        "corrupt_or_foreign_current_index_rejected_without_overwrite_or_configuration_loss",
+        "real_native_import_restores_business_view_preserves_original_rejects_corruption_future_version_and_overwrite",
+        "saved_config_and_credentials_restart_with_same_actual_ledger"
+      ],
+      "production_paths_accessed": false
+    },
+    {
+      "location": "directory_junction",
+      "status": "passed",
+      "credential_storage": "Windows DPAPI",
+      "checks": [
+        "A_B_A_real_prices_orders_and_exact_totals_isolated",
+        "offline_copy_through_native_IPC_preserves_source_hashes_hidden_attributes_and_refuses_busy_or_wrong_password",
+        "native_selected_directories_actual_Excel_and_Windows_PNG_outputs",
+        "nonempty_initialization_keeps_original_files_and_active_source",
+        "populated_destinations_preserve_existing_files_and_hidden_system_attributes",
+        "raw_selected_alias_accepted_by_Rust_CLI_and_same_backup_identity_reused",
+        "dual_formats_identical_in_both_destinations_independent_failures_retry_same_snapshot_no_legacy_deletion",
+        "public_API_cannot_change_daily_policy_or_observe_hidden_destination",
+        "missing_current_index_resaved_by_both_setters_preserves_identity_files_snapshot_and_hidden_configuration",
+        "corrupt_or_foreign_current_index_rejected_without_overwrite_or_configuration_loss",
+        "real_native_import_restores_business_view_preserves_original_rejects_corruption_future_version_and_overwrite",
+        "saved_config_and_credentials_restart_with_same_actual_ledger"
+      ],
+      "production_paths_accessed": false
+    }
+  ],
+  "shared_paths": {
+    "task": "P07-06 selectable folders",
+    "status": "passed",
+    "production_paths_accessed": false,
+    "source_commit": "372ce36c8ff2947e733abb821f5fc47bd73bf941",
+    "mapping": {
+      "drive": "Z:",
+      "share": "\\\\localhost\\777-check-b6759e753aee"
+    },
+    "owned_share_cleanup": true
+  },
+  "host_sync": {
+    "task": "P08-02",
+    "scope": "two_owned_Windows_Rust_TLS_hosts",
+    "status": "passed",
+    "live_hosts_contacted": false,
+    "installers_built": false,
+    "automatic_failover": false,
+    "checks": [
+      "Windows_PowerShell_5_1_portable_join_without_SDKs_creates_owned_deployment_and_public_connection",
+      "fresh_join_same_ledger_accounts_prices_independent_TLS_and_repeatable_join",
+      "replica_forwards_order_create_retry_and_edit_once_with_frozen_revision_history",
+      "completed_output_metadata_and_exact_readable_Excel_blob_replicated",
+      "single_use_join_ticket_replay_rejected",
+      "stable_device_identity_and_revocation_replicated_and_enforced_by_primary",
+      "primary_outage_never_writes_replica_and_reconnect_preserves_session_and_request_identity",
+      "damaged_TLS_chunk_rejected_last_generation_retained_and_restart_resumes_verified_partial_offset",
+      "restart_catches_up_and_cleans_interrupted_stage_without_partial_publication",
+      "node_revocation_immediately_blocks_business_forwarding_and_sync",
+      "all_published_file_hashes_match_and_logs_are_bounded_without_tickets_passwords_or_payloads"
+    ]
+  },
+  "boundaries": {
+    "live_hosts_contacted": false,
+    "installers_built": false,
+    "installer_validation": "skipped",
+    "user_visual_acceptance": "pending",
+    "real_23_38_business_loop": "pending",
+    "old_replica_ledger_identity": "unsupported_without_protocol_update",
+    "sales_independent_ledger_uuid_comparison": "protocol_gap",
+    "automatic_failover": false
+  }
+}

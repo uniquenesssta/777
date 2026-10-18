@@ -27,7 +27,18 @@
 - Figma：补齐 720px 开发/母版布局、子版只读设置及首次登记，修正子版导航权限和窄窗口状态文案边界，截图已查看；节点见设计映射。
 - 当前容器辅助检查：TypeScript 检查通过；39 项 Node 单元测试通过；开发控制器 Python 15 项（14 通过、1 Windows 专属跳过）；Rust desktop 15 项与 host 15 项通过；Rust 全目标 Clippy 无警告通过。离线新增测试覆盖锁占用、错误密码、成功后源文件逐项哈希保持、工作副本内容校验、临时文件清理及缺少 owner 拒绝。
 - 新增 UI 模拟检查覆盖目录保存/重读、隐藏地址、子版权限、两种发行版登记文件入口和错误文件不覆盖输入；这是 UI 模拟，不是真实主机/DPAPI 验收。当前容器 Chromium 下载失败，未记本地浏览器通过，交由 Windows 功能 CI 执行。
-- Windows 原生协议、文件对话框、DPAPI、共享目录与 UI 的实际结果在提交后的 CI 中登记；此处不预写通过。安装包验证继续关闭。
+- Windows 原生协议、DPAPI、共享目录与 UI 功能检查已通过，结果见下节及机器可读记录。原生文件选择器的现场操作、用户视觉签收及实际移动盘仍待验收。安装包验证继续关闭。
 - 现场 23/38 同账本、完整数据代、订单—修改—导出—备份—恢复—同步闭环仍未取得本轮证据。
 
 源码按职责拆分至 `client/connections.rs`、`client/data_source.rs`、`client/enrollment.rs`、`client/preferences.rs`、`connection_file.rs`、`directory_preference.rs`、`offline.rs`、`p08_developer_sources.py` 及连接/登记/封包/目录独立 UI 组件。
+
+## Windows 功能检查跟踪（2026-10-19）
+
+源码提交 `372ce36c8ff2947e733abb821f5fc47bd73bf941`；[运行 39143133622](https://github.com/uniquenesssta/777/actions/runs/39143133622)。
+
+- `host-sync` 已通过：Windows Rust 格式、Clippy、Host/security 单元及集成测试；双节点 TLS 检查的 11 项均通过，包含订单/编辑转发、可阅读 Excel 文件复制、中断恢复、节点撤销和完整文件哈希核对。
+- `desktop-contracts` 已通过：35 项浏览器交互全部通过（0 失败、0 跳过、0 重试不稳定）；16 项真实 Rust IPC/HTTPS 协议检查、12 项设备身份协议检查通过；母/子实际 WebView2 窗口、自动接入、权限界面与报价图片检查通过。
+- 本机、实际 SMB 映射盘/UNC、目录联接上的开发者读取和备份恢复均通过；新增离线读取覆盖 Hidden/System 来源、只读共享来源、错误密码、运行占用，以及成功后源文件逐项哈希和目录属性不变。测试共享已清理。
+- 整轮结论 `success`，源码未因本轮检查而修改；完整项目清单见 [P08-02-1-windows-checks.json](P08-02-1-windows-checks.json)。
+- `installers` 已跳过，没有运行母/子安装包验证。
+- 使用隔离的 Windows 临时测试账本；未接触现场 23/38，未改变现场同步验收状态。
