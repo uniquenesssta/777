@@ -34,7 +34,7 @@ Write-HostJsonNew (Join-Path $private 'deployment.json') $manifest
 Write-HostJsonNew (Join-Path $root 'client-template.json') @{url='https://192.0.2.58:8477';certificate_sha256=('b'*64)}
 [IO.File]::WriteAllText((Join-Path $root 'service-cert.pem'),'synthetic-public-certificate')
 $bundle=[pscustomobject]@{source_commit=('c'*40);files=@{'bin/quote-host.exe'=(Get-FileDigest $candidate)}}
-$settings=@{hidden=(Join-Path $Base 'hidden');backup=(Join-Path $Base 'backup');root=$root;address='192.0.2.58';admin='manager';port=8477}
+$settings=@{hidden=(Join-Path $Base 'Quote777Hidden');backup=(Join-Path $Base 'backup');root=$root;address='192.0.2.58';admin='manager';port=8477}
 $script:stops=0; $script:starts=0; $script:selections=0; $script:interrupt=$true
 function Stop-HostForClusterUpgrade($Directory,$Root) { $script:stops++ }
 function Read-HostBusinessPassword($Confirm) { return 'synthetic-only-password' }
@@ -78,6 +78,14 @@ try {
     . (Join-Path $private 'host-identity.ps1')
     $null=Get-HostDeployment $root
     Set-HostDeploymentVisibility $Base $settings
+    # Swapping backup roles must not change directory visibility policy.
+    $swapped=@{root=$root;backup=$settings.hidden;hidden=$settings.backup}
+    Set-HostDeploymentVisibility $Base $swapped
+    if ([IO.File]::GetAttributes($settings.backup) -band ([IO.FileAttributes]::Hidden -bor [IO.FileAttributes]::System)) { throw 'BACKUP_ROLE_CHANGED_ATTRIBUTES' }
+    $remote=@{root=$root;backup=$settings.hidden;hidden='\\192.0.2.1\share\Quote777Hidden'}
+    Set-HostDeploymentVisibility $Base $remote
+    $targets=@(Get-HostVisibilityDirectories $Base $remote)
+    if ($targets.Count -ne 3 -or $targets -contains $remote.hidden) { throw 'NETWORK_BACKUP_SELECTED_FOR_HIDING' }
 } finally {
     foreach ($path in @($Base,$root,$settings.hidden)) {
         if ([IO.Directory]::Exists($path)) { [IO.File]::SetAttributes($path,([IO.File]::GetAttributes($path) -band (-bnot ([IO.FileAttributes]::Hidden -bor [IO.FileAttributes]::System)))) }
