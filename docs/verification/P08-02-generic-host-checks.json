@@ -55,10 +55,17 @@
     "deployment/windows/portable/host.ps1": "ee3c4b61d0e58246988a5546d8fff53e59422fa9b4bf32685dda40c7a344bf14",
     "deployment/windows/portable/manage.cmd": "c8b98729044beaa63c0fb58d924e0a12b8dcb41bd78e8e5cae85c03efb07907c",
     "deployment/windows/portable/setup.cmd": "0acca609c59133f4fca6e320d7cf662063dff440740c769e630bd11a20b4b321",
-    "tests/test_p08_bundle.py": "35bc16e9a846f1a70d39e6880925a1b13ac17a2c1a5c4641e32d3905c7935ff1",
+    "tests/test_p08_bundle.py": "09c80a6032b3820765e0ba9414c553993ab88254bfdec63ab5daf84faa4d31c5",
     "tests/test_p08_console.py": "3c0ffe07c717c61baf0bb09dc0ce0a93c1645103f75fde1325068d162630146d",
     "tests/test_p08_deployment.py": "5b38ac5a01e6bae35d1c936573e80fd9fad14d097f4c95ff8de7d9130a5e3d06",
     "tests/test_p08_settings.py": "30c68d27d6e976bccb7589f2633259a37c1996ccf2f5f730e341739bc483d341",
     "tools/p08_bundle_check.py": "9de3710f7e03d0e7ca5f9a5ffcaf90cf489b2140d3181154704ea3b7959096ab"
+  },
+  "previous_console_CI": {
+    "run_id": 39093485763,
+    "source_commit": "b76a7444fef9aeda7b6c8fdb99e4625a2ff89f22",
+    "deployment_step": "success",
+    "final_status": "cancelled when generic-host code superseded it",
+    "covers_generic_host_change": false
   }
 }

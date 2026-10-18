@@ -104,9 +104,12 @@ Invoke-HostProcess $Shell @('-NoProfile','-ExecutionPolicy','Bypass','-File',$Ch
             env = {**os.environ, 'PATH': str(Path(os.environ['SystemRoot']) / 'System32')}
             result = subprocess.run([shell, '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', str(bundle / 'host.ps1')], capture_output=True, text=True, encoding='utf-8', env=env, timeout=45)
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertEqual(json.loads(result.stdout)['schema'], '777-site-inventory-v1')
+            site = json.loads(result.stdout)
+            self.assertEqual(site['schema'], '777-site-inventory-v1')
             self.assertEqual(len(list((bundle / 'logs').glob('*/runtime.jsonl'))), 1)
-            for address in ('192.168.4.38', '192.0.2.199'):
+            for address in ('192.0.2.199', '198.51.100.199', '203.0.113.199'):
+                if address in site['addresses']:
+                    continue
                 wrong = subprocess.run([shell, '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', str(bundle / 'host.ps1'), '-Operation', 'prepare', '-Address', address, '-Root', str(base / 'must-not-exist')], capture_output=True, text=True, encoding='utf-8', env=env, timeout=45)
                 self.assertNotEqual(wrong.returncode, 0)
                 self.assertRegex(wrong.stderr, 'DEPLOYMENT_MUST_RUN_ON_SELECTED_HOST')
