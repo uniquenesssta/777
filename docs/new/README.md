@@ -1,5 +1,3 @@
-# 待执行计划
+# 待启动任务
 
-[P08-02-2 固定主服务器、选择式封包与安装自动接入](P08-02-2-automatic-installation.md)已按用户要求创建，状态为待启动。它是现有 P08-02 的追加任务，启动后移入 now，继续 `stage/p08-cutover`，不新开分支。
-
-[P08 阶段任务书](../now/P08-cutover.md)仍在 now；这里仅保存待启动追加任务，不复制已执行任务书。
+P08-02-2 已由用户启动 A，任务书已移至 [docs/now](../now/P08-02-2-automatic-installation.md)，继续 `stage/p08-cutover`。A 协议设计已完成，后续实施仍待启动；本目录不保留重复任务书。
