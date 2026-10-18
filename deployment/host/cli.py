@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 import subprocess
 from .inventory import collect
-from .policy import HOST_ORDER, manifest
+from .policy import manifest
 from .prepare import prepare
 from .native import ROOT
 
@@ -18,7 +18,7 @@ def main(argv=None):
     parser.add_argument('--root', type=Path)
     parser.add_argument('--backup', type=Path)
     parser.add_argument('--hidden', type=Path)
-    parser.add_argument('--address', choices=HOST_ORDER, default=HOST_ORDER[0])
+    parser.add_argument('--address', help='Local IPv4 address; required when multiple LAN interfaces exist')
     parser.add_argument('--port', type=int, default=8477)
     parser.add_argument('--hour', type=int, default=23)
     parser.add_argument('--admin', default='manager')

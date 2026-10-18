@@ -9,7 +9,7 @@ import zipfile
 SCHEMA = '777-host-bundle-v1'
 ENTRY_POINTS = ('host.ps1', 'host-console.ps1', 'host-defaults.json', 'collect.cmd', 'manage.cmd', 'setup.cmd', 'check.cmd')
 PORTABLE = ENTRY_POINTS + ('host-log.ps1', 'host-package.ps1', 'host-site.ps1', 'host-paths.ps1', 'host-native.ps1',
-                           'host-prepare.ps1', 'host-access.ps1', 'host-setup.ps1', 'host-check.ps1', 'HostProbe.cs')
+                           'host-prepare.ps1', 'host-access.ps1', 'host-settings.ps1', 'host-options.ps1', 'host-setup.ps1', 'host-check.ps1', 'HostProbe.cs')
 LIFECYCLE = ('host-identity.ps1', 'host-run.ps1', 'host-task.ps1')
 
 
@@ -35,8 +35,8 @@ def assemble(source: Path, output: Path, host: Path, worker: Path, commit: str):
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(origin, destination)
     manifest = {'schema': SCHEMA, 'source_commit': commit, 'created_at': datetime.now(timezone.utc).isoformat(),
-                'platform': 'windows-x86_64', 'host_order': ['192.168.4.23', '192.168.4.38'],
-                'replication': 'not_implemented_standby_must_not_write',
+                'platform': 'windows-x86_64', 'deployment_mode': 'standalone',
+                'replication': 'not_implemented',
                 'files': {name: hashlib.sha256((stage / name).read_bytes()).hexdigest() for name in sorted(files)}}
     (stage / 'host-package.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     archive = output / 'Quote777Host.zip'

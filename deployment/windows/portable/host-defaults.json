@@ -1,10 +1,6 @@
 {
-  "schema": "777-host-setup-v1",
-  "root": "D:\\Quote777Service",
-  "backup": "\\\\192.168.4.23\\\u5171\u4eab\\backup",
-  "hidden": "D:\\Quote777Hidden",
+  "schema": "777-host-setup-v2",
   "admin": "manager",
-  "address": "192.168.4.23",
   "port": 8477,
   "hour": 23
 }

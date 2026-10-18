@@ -38,7 +38,7 @@
 
 ## Change Log
 
-- P08-02部署修正：服务电脑只用独立后台包，无需开发者版或Git/Node/Python/Rust SDK。开发电脑执行 `npm run package:host`，服务电脑解压后双击 `setup.cmd` 一键部署，`manage.cmd` 中文管理，`check.cmd` 检查连接，`collect.cmd` 保留采集；不搬开发数据库/账号。用户确认4.23、4.38均为Windows，运行身份仍需在目标机采集；主备复制与接管待完成。[操作说明](docs/verification/P08-02-deployment.md)。
+- P08-02部署修正：服务电脑只用独立后台包，无需开发者版或Git/Node/Python/Rust SDK。开发电脑执行 `npm run package:host`，任意Windows服务电脑解压后双击 `setup.cmd` 选择本机地址和目录并部署，`manage.cmd` 中文管理，`check.cmd` 检查连接，`collect.cmd` 保留采集；不搬开发数据库/账号。用户确认4.23、4.38均为Windows，运行身份仍需在目标机采集；主备复制与接管待完成。[操作说明](docs/verification/P08-02-deployment.md)。
 
 - 推进P08-02：新增独立Windows后台采集/准备、失败补配、开机任务和正常启停入口 `npm run deploy:host`；正式母版设置对4.23路径显示业务名称，选择/保存保留真实路径，设置与导出页按职责拆分。修复上轮浏览器测试的多按钮定位及Windows路径别名下的部署目录重叠校验。主备复制/自动接管和真实部署未完成，母子构建准备验证不重跑；见[部署说明](docs/verification/P08-02-deployment.md)。
 

@@ -23,11 +23,20 @@ Start-HostLog $Directory
 $secret=([Console]::In.ReadToEnd() | ConvertFrom-Json).password
 $site=Get-LocalHostInventory
 # Synthetic local fixture: no binding, task registration or LAN access is performed.
-$site.addresses=@('192.168.4.23')
+$site.addresses=@('192.0.2.58')
 $bundle=Get-HostBundle $Directory
 if (@(Get-Command git,node,python,cargo -ErrorAction SilentlyContinue).Count) { throw 'SDK_COMMANDS_PRESENT_IN_RESTRICTED_TEST_PATH' }
-$first=Invoke-HostPreparation $site $bundle $Directory $Root $Backup $Hidden 'manager' $secret '192.168.4.23' 8477 23 $false
-$again=Invoke-HostPreparation $site $bundle $Directory $Root $Backup $Hidden 'manager' $secret '192.168.4.23' 8477 23 $true
+$first=Invoke-HostPreparation $site $bundle $Directory $Root $Backup $Hidden 'manager' $secret '192.0.2.58' 8477 23 $false
+# Simulate previously pinned scripts from an older package; configure must retain them.
+$identity=Join-Path $Root 'private\host-identity.ps1'
+[IO.File]::AppendAllText($identity,"`n# owned legacy fixture`n")
+$manifest=Join-Path $Root 'private\deployment.json'
+$saved=Get-Content -LiteralPath $manifest -Raw -Encoding UTF8 | ConvertFrom-Json
+$saved.identity_sha256=Get-FileDigest $identity
+[IO.File]::WriteAllText($manifest,($saved | ConvertTo-Json -Depth 20),[Text.UTF8Encoding]::new($false))
+$before=Get-FileDigest $identity
+$again=Invoke-HostPreparation $site $bundle $Directory $Root $Backup $Hidden 'manager' $secret '192.0.2.58' 8477 23 $true
+if ((Get-FileDigest $identity) -ne $before) { throw 'LEGACY_RESOURCE_WAS_REPLACED' }
 if ($first.ledger_id -ne $again.ledger_id) { throw 'RETRY_CHANGED_LEDGER' }
 $check=Invoke-HostNative (Join-Path $again.root 'private\rust-service-host.exe') @('inspect','--root',$again.root)
 if ($check.shutdown_control -ne 'stdin-v1') { throw 'NATIVE_SHUTDOWN_CAPABILITY_MISSING' }
@@ -66,12 +75,15 @@ def main():
             public = json.loads((root / 'connection.json').read_text(encoding='utf-8'))
             assert deployment['source_commit'] == commit
             assert deployment['ledger_id'] == checked['ledger_id']
+            assert deployment['active_address'] == '192.0.2.58'
+            assert deployment['host_order'] == ['192.0.2.58']
+            assert deployment['deployment_mode'] == 'standalone'
             assert public['schema'] == '777-public-connection-v1'
             assert set(public['connection']) == {'url', 'certificate_pem', 'certificate_sha256'}
             for path in [root / 'private/deployment.json', root / 'connection.json', *bundle.glob('logs/*/*.jsonl')]:
                 assert password not in path.read_text(encoding='utf-8')
             assert not (root / 'private/stop.request').exists()
-            report.update(status='passed', checks=['host_only_archive_manifest', 'PowerShell_5_1_with_developer_commands_absent', 'real_native_initialization_devices_daily_backup_and_inspect', 'authenticated_retry_preserves_ledger_and_provenance', 'public_connection_and_logs_exclude_password'])
+            report.update(status='passed', checks=['host_only_archive_manifest', 'PowerShell_5_1_with_developer_commands_absent', 'real_native_initialization_devices_daily_backup_and_inspect', 'arbitrary_local_IPv4_and_standalone_manifest', 'authenticated_retry_preserves_ledger_provenance_and_legacy_scripts', 'public_connection_and_logs_exclude_password'])
     except Exception as exc:
         report['error_type'] = type(exc).__name__
         raise

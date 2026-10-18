@@ -6,13 +6,32 @@ HOST_ORDER = ('192.168.4.23', '192.168.4.38')
 FORMAT = '777-site-deployment-v1'
 
 
-def require_primary(address, local_addresses):
-    if address not in HOST_ORDER:
-        raise ValueError('DEPLOYMENT_HOST_NOT_IN_PLAN')
+def require_local_host(address, local_addresses):
+    import ipaddress
+    try:
+        value = ipaddress.IPv4Address(address)
+    except (ipaddress.AddressValueError, TypeError):
+        raise ValueError('LOCAL_HOST_IPV4_REQUIRED') from None
+    if value.is_unspecified or value.is_loopback or value.is_multicast or value.is_link_local or int(value) >= 0xE0000000:
+        raise ValueError('LOCAL_HOST_IPV4_REQUIRED')
     if address not in local_addresses:
         raise ValueError('DEPLOYMENT_MUST_RUN_ON_SELECTED_HOST')
-    if address != HOST_ORDER[0]:
-        raise ValueError('STANDBY_REPLICATION_NOT_IMPLEMENTED: 4.38 cannot be initialized as an independent writer')
+
+
+def choose_local_address(address, local_addresses):
+    if address:
+        require_local_host(address, local_addresses)
+        return address
+    eligible = []
+    for candidate in sorted(set(local_addresses)):
+        try:
+            require_local_host(candidate, local_addresses)
+            eligible.append(candidate)
+        except ValueError:
+            pass
+    if len(eligible) != 1:
+        raise ValueError('LOCAL_HOST_ADDRESS_SELECTION_REQUIRED')
+    return eligible[0]
 
 
 def local_root(value, *, new=False):

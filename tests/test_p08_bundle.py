@@ -42,7 +42,9 @@ class HostBundleTests(unittest.TestCase):
                     self.assertEqual(hashlib.sha256(zipped.read('Quote777Host/' + name)).hexdigest(), expected)
                 self.assertFalse(any(name.endswith(('.py', '.mjs', '.sqlite3')) or '/private/' in name for name in names))
                 self.assertNotIn(b'DO-NOT-PACK', b''.join(zipped.read(name) for name in names))
-                self.assertEqual(manifest['replication'], 'not_implemented_standby_must_not_write')
+                self.assertEqual(manifest['replication'], 'not_implemented')
+                self.assertEqual(manifest['deployment_mode'], 'standalone')
+                self.assertNotIn('host_order', manifest)
 
     def test_unknown_existing_output_and_non_windows_resources_are_never_overwritten(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -107,7 +109,7 @@ Invoke-HostProcess $Shell @('-NoProfile','-ExecutionPolicy','Bypass','-File',$Ch
             for address in ('192.168.4.38', '192.0.2.199'):
                 wrong = subprocess.run([shell, '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', str(bundle / 'host.ps1'), '-Operation', 'prepare', '-Address', address, '-Root', str(base / 'must-not-exist')], capture_output=True, text=True, encoding='utf-8', env=env, timeout=45)
                 self.assertNotEqual(wrong.returncode, 0)
-                self.assertRegex(wrong.stderr, 'DEPLOYMENT_MUST_RUN_ON_SELECTED_HOST|STANDBY_REPLICATION_NOT_IMPLEMENTED')
+                self.assertRegex(wrong.stderr, 'DEPLOYMENT_MUST_RUN_ON_SELECTED_HOST')
                 self.assertFalse((base / 'must-not-exist').exists())
             with (bundle / 'bin/quote-host.exe').open('ab') as stream: stream.write(b'changed')
             changed = subprocess.run([shell, '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', str(bundle / 'host.ps1')], capture_output=True, text=True, encoding='utf-8', env=env, timeout=45)

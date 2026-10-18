@@ -109,3 +109,14 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation st
 独立后台包上一轮Windows功能CI39090902645已最终success，installers跳过，真实原生准备/补配夹具也通过。本轮菜单新增Windows检查另见[双击入口记录](P08-02-console-checks.json)，不混用旧CI为新入口作验收。母子版构建准备保持取消，4.38复制与安全接管仍未实现。
 
 双击入口代码提交`b76a744`，新增[Windows CI39093485763](https://github.com/uniquenesssta/777/actions/runs/39093485763)的部署检查与PowerShell解析步骤已success，涵盖11项部署检查（其中5项需实际Windows运行），包括新的重复部署/补配、账户不变和HTTPS指纹检查。记录时其余完整功能阶段仍在运行，installers保持skipped，不补记整轮成功。
+
+
+## 通用部署范围修正（2026-10-18，当前行为）
+
+用户明确“这不是部署用的么 什么电脑都行”。后台包现可在任意作为服务主机的Windows电脑使用，不限定4.23、4.38或D盘。在运行部署入口的本机安装，非远程推送；只读连接检查可以在其他电脑运行。
+
+首次部署自动列出本机IPv4，多网卡时由用户选定。业务根、普通备份和隐藏备份可用系统文件夹选择器或粘贴路径设置，默认值由本机ProgramData生成。host-defaults.json仅保留通用端口、每日小时和管理员用户名；host-local.json保存本机公开选择，绑定本机标识和Windows SID，复制到其他机器时忽略旧选择。密码不进入这些文件。程序包目录不固定，与所选数据根分离。
+
+已有服务根直接读取原地址、普通和隐藏备份设置；兼容发现4.23旧现场D:\Quote777Service。现有账本、证书、密码、源提交与已固定运行脚本不替换。既有资源SHA校验仍执行，其他账户/机器或被修改的运行资源仍拒绝。新的独立部署清单使用deployment_mode=standalone、host_order=[实际地址]、replication=not_implemented。
+
+本修正替代旧文和旧检查的4.23白名单与4.38独立初始化禁令；多个独立账本不构成同步或主备，4.23→4.38有序复制和安全接管需求仍未实现，不自动更换现有母子版连接。新增[检查记录](P08-02-generic-host-checks.json)分别记录辅助检查与实际Windows检查，不沿用上一轮入口检查作为本轮验收。

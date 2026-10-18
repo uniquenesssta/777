@@ -32,12 +32,12 @@ class HostConsoleTests(unittest.TestCase):
 param([string] $Modules,[string] $Base)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
-foreach ($name in @('host-log.ps1','host-paths.ps1','host-access.ps1','host-setup.ps1')) { . (Join-Path $Modules $name) }
+foreach ($name in @('host-log.ps1','host-paths.ps1','host-site.ps1','host-access.ps1','host-setup.ps1')) { . (Join-Path $Modules $name) }
 Start-HostLog $Base
 Start-HostLog $Base $env:QUOTE777_LOG_SESSION
-function Get-LocalHostInventory { return @{addresses=@('192.168.4.23')} }
+function Get-LocalHostInventory { return @{addresses=@('10.20.30.40','192.168.4.38')} }
 function Test-HostElevated { return $true }
-function Get-HostDeployment($Root) { return @{ledger_id='synthetic-stable-ledger';active_address='192.168.4.23';port=8477} }
+function Get-HostDeployment($Root) { return @{ledger_id='synthetic-stable-ledger';active_address='10.20.30.40';port=8477} }
 function Get-HostConnectionCheck($Directory,$Settings) { return @{tcp=$true;https='verified_response';http_status=401} }
 $script:passwords=0; $script:initializations=0; $script:resumes=0
 $script:installs=0; $script:starts=0; $script:state='not_registered'; $script:failFirst=$true
@@ -60,7 +60,7 @@ function Invoke-HostTaskOperation($Directory,$Root,$Operation) {
         default { throw 'UNEXPECTED_TASK_MUTATION' }
     }
 }
-$settings=@{root=(Join-Path $Base 'new-host');backup=(Join-Path $Base 'backup');hidden=(Join-Path $Base 'hidden');admin='manager';address='192.168.4.23';port=8477;hour=23}
+$settings=@{root=(Join-Path $Base 'new-host');backup=(Join-Path $Base 'backup');hidden=(Join-Path $Base 'hidden');admin='manager';address='10.20.30.40';port=8477;hour=23}
 try { $null=Invoke-HostSetup $Base @{} $settings; throw 'EXPECTED_INTERRUPTION' }
 catch { if ($_.Exception.Message -ne 'SYNTHETIC_INTERRUPTED_PREPARATION') { throw } }
 if ($script:installs -or $script:starts) { throw 'FAILED_PREPARATION_STARTED_HOST' }
@@ -68,9 +68,10 @@ $null=Invoke-HostSetup $Base @{} $settings
 $null=Invoke-HostSetup $Base @{} $settings
 $null=Invoke-HostSetup $Base @{} $settings
 if ($script:initializations -ne 1 -or $script:resumes -ne 1 -or $script:passwords -ne 2 -or $script:installs -ne 1 -or $script:starts -ne 1) { throw 'SETUP_NOT_REPEATABLE' }
-$settings.address='192.168.4.38'
-try { $null=Invoke-HostSetup $Base @{} $settings; throw 'STANDBY_WAS_ALLOWED' }
-catch { if ($_.Exception.Message -ne 'STANDBY_REPLICATION_NOT_IMPLEMENTED') { throw } }
+$null=Assert-HostSetupMachine @{address='192.168.4.38'}
+$settings.address='192.0.2.199'
+try { $null=Invoke-HostSetup $Base @{} $settings; throw 'REMOTE_ADDRESS_WAS_ALLOWED' }
+catch { if ($_.Exception.Message -ne 'DEPLOYMENT_MUST_RUN_ON_SELECTED_HOST') { throw } }
 @{status='passed';initializations=$script:initializations;resumes=$script:resumes;installs=$script:installs;starts=$script:starts} | ConvertTo-Json -Compress
 '''
         with tempfile.TemporaryDirectory() as folder:

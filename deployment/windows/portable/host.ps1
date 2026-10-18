@@ -2,7 +2,7 @@
 param(
     [ValidateSet('inventory','prepare','configure','install','status','start','stop','remove')][string] $Operation='inventory',
     [string] $Root, [string] $Backup, [string] $Hidden,
-    [string] $Admin='manager', [string] $Address='192.168.4.23',
+    [string] $Admin='manager', [string] $Address,
     [int] $Port=8477, [int] $Hour=23
 )
 Set-StrictMode -Version Latest
@@ -21,8 +21,16 @@ try {
     } elseif ($Operation -in @('prepare','configure')) {
         # Validate this machine before asking for any business password.
         $site = Get-LocalHostInventory
-        if ($Address -notin $site.addresses) { throw 'DEPLOYMENT_MUST_RUN_ON_SELECTED_HOST' }
-        if ($Address -ne '192.168.4.23') { throw 'STANDBY_REPLICATION_NOT_IMPLEMENTED' }
+        if (-not $Address) {
+            if ($Operation -eq 'configure' -and (Test-Path -LiteralPath (Join-Path $Root 'private\service.json'))) {
+                $Address=(Get-Content -LiteralPath (Join-Path $Root 'private\service.json') -Raw -Encoding UTF8 | ConvertFrom-Json).bind
+            } else {
+                $candidates=@(Get-HostCandidateAddresses $site.addresses)
+                if ($candidates.Count -ne 1) { throw 'LOCAL_HOST_ADDRESS_SELECTION_REQUIRED' }
+                $Address=$candidates[0]
+            }
+        }
+        Assert-HostLocalAddress $Address $site.addresses
         $validatedRoot = Get-LocalHostRoot $Root ($Operation -eq 'prepare')
         Assert-HostBackupLocation $Backup $validatedRoot
         Assert-HostBackupLocation $Hidden $validatedRoot

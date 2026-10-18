@@ -1,10 +1,4 @@
 # Repeatable setup: existing ledgers and running tasks are reused, never reset.
-function Get-HostSetupSettings([string] $Directory) {
-    $value = Get-Content -LiteralPath (Join-Path $Directory 'host-defaults.json') -Raw -Encoding UTF8 | ConvertFrom-Json
-    if ($value.schema -ne '777-host-setup-v1' -or $value.address -ne '192.168.4.23' -or
-        $value.port -lt 1 -or $value.port -gt 65535 -or $value.hour -lt 0 -or $value.hour -gt 23) { throw 'HOST_SETUP_SETTINGS_INVALID' }
-    return $value
-}
 function Invoke-HostSetup([string] $Directory, $Bundle, $Settings) {
     $site = Assert-HostSetupMachine $Settings
     if (-not (Test-HostElevated)) { throw 'ELEVATED_WINDOWS_DEPLOYMENT_SHELL_REQUIRED' }

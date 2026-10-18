@@ -11,9 +11,7 @@ function Write-HostJsonNew([string] $Path, $Value) {
     try { $stream.Write($bytes,0,$bytes.Length); $stream.Flush($true) } finally { $stream.Dispose() }
 }
 function Invoke-HostPreparation($Site, $Bundle, [string] $Directory, [string] $Root, [string] $Backup, [string] $Hidden, [string] $Admin, $Password, [string] $Address, [int] $Port, [int] $Hour, [bool] $Resume) {
-    if ($Address -notin @('192.168.4.23','192.168.4.38')) { throw 'DEPLOYMENT_HOST_NOT_IN_PLAN' }
-    if ($Address -notin $Site.addresses) { throw 'DEPLOYMENT_MUST_RUN_ON_SELECTED_HOST' }
-    if ($Address -ne '192.168.4.23') { throw 'STANDBY_REPLICATION_NOT_IMPLEMENTED' }
+    Assert-HostLocalAddress $Address $Site.addresses
     $Root = Get-LocalHostRoot $Root (-not $Resume)
     if ($Port -lt 1 -or $Port -gt 65535 -or $Hour -lt 0 -or $Hour -gt 23) { throw 'DEPLOYMENT_PORT_OR_HOUR_INVALID' }
     Assert-HostBackupLocation $Backup $Root
@@ -42,12 +40,16 @@ function Invoke-HostPreparation($Site, $Bundle, [string] $Directory, [string] $R
         $origin = Join-Path $Directory ('scripts\' + $name)
         $destination = Join-Path $Root ('private\' + $name)
         if (Test-Path -LiteralPath $destination) {
-            if ((Get-FileDigest $destination) -ne (Get-FileDigest $origin)) { throw 'EXISTING_HOST_RUNNER_CHANGED_REVIEW_REQUIRED' }
+            # A saved deployment already authenticated its pinned local resources.
+            if ($null -eq $saved -and (Get-FileDigest $destination) -ne (Get-FileDigest $origin)) { throw 'EXISTING_HOST_RUNNER_CHANGED_REVIEW_REQUIRED' }
         } else { [IO.File]::Copy($origin,$destination,$false) }
     }
     $source = $null
     if ($null -ne $saved) { $source = $saved.source_commit } elseif (-not $Resume) { $source = $Bundle.source_commit }
-    $deployment = [ordered]@{schema='777-site-deployment-v1';root=$Root;owner_sid=$Site.sid;owner_account=$Site.account;machine=$Site.machine;source_commit=$source;host_order=@('192.168.4.23','192.168.4.38');active_address=$Address;port=$Port;ledger_id=$checked.inventory.ledger_id;certificate_sha256=$checked.certificate_sha256;autostart='not_registered';replication='not_implemented_standby_must_not_write';host_sha256=(Get-FileDigest $native);identity_sha256=(Get-FileDigest (Join-Path $Root 'private\host-identity.ps1'));runner_sha256=(Get-FileDigest (Join-Path $Root 'private\host-run.ps1'))}
+    $deployment = $saved
+    if ($null -eq $deployment) {
+        $deployment = [ordered]@{schema='777-site-deployment-v1';root=$Root;owner_sid=$Site.sid;owner_account=$Site.account;machine=$Site.machine;source_commit=$source;host_order=@($Address);active_address=$Address;port=$Port;ledger_id=$checked.inventory.ledger_id;certificate_sha256=$checked.certificate_sha256;autostart='not_registered';deployment_mode='standalone';replication='not_implemented';host_sha256=(Get-FileDigest $native);identity_sha256=(Get-FileDigest (Join-Path $Root 'private\host-identity.ps1'));runner_sha256=(Get-FileDigest (Join-Path $Root 'private\host-run.ps1'))}
+    }
     Write-HostJsonNew (Join-Path $Root 'private\deployment.json') $deployment
     return [ordered]@{status='prepared_stopped';root=$Root;ledger_id=$deployment.ledger_id;source_commit=$source;public_connection=(Join-Path $Root 'connection.json');replication=$deployment.replication}
 }

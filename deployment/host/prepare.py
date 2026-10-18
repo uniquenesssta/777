@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from . import native
 from .inventory import collect
-from .policy import FORMAT, HOST_ORDER, local_root, require_primary
+from .policy import FORMAT, local_root, choose_local_address
 
 
 def write_new(path, value):
@@ -21,9 +21,11 @@ def write_new(path, value):
         os.fsync(stream.fileno())
 
 
-def prepare(root, backup, hidden, user, secret, *, address=HOST_ORDER[0], port=8477, hour=23, skip_build=False, resume=False):
+def prepare(root, backup, hidden, user, secret, *, address=None, port=8477, hour=23, skip_build=False, resume=False):
     site = collect()
-    require_primary(address, site['addresses'])
+    if not address and resume:
+        address = json.loads((Path(root) / 'private/service.json').read_text(encoding='utf-8'))['bind']
+    address = choose_local_address(address, site['addresses'])
     root = local_root(root, new=not resume)
     if not 1 <= port <= 65535 or not 0 <= hour <= 23:
         raise ValueError('DEPLOYMENT_PORT_OR_HOUR_INVALID')
@@ -35,7 +37,7 @@ def prepare(root, backup, hidden, user, secret, *, address=HOST_ORDER[0], port=8
     if previous.exists():
         from .policy import manifest
         _, saved = manifest(root)
-        if saved['owner_sid'] != site['sid']:
+        if saved['owner_sid'] != site['sid'] or saved['machine'] != site['machine']:
             raise ValueError('DEPLOYMENT_OWNER_CONFLICT')
         for name, field in [('rust-service-host.exe', 'host_sha256'), ('host-run.ps1', 'runner_sha256'), ('host-identity.ps1', 'identity_sha256')]:
             if hashlib.sha256((root / 'private' / name).read_bytes()).hexdigest() != saved[field]:
@@ -79,7 +81,7 @@ def prepare(root, backup, hidden, user, secret, *, address=HOST_ORDER[0], port=8
     identity = root / 'private/host-identity.ps1'
     for target in (runner, identity):
         original = native.ROOT / 'deployment/windows' / target.name
-        if target.exists() and target.read_bytes() != original.read_bytes():
+        if saved is None and target.exists() and target.read_bytes() != original.read_bytes():
             raise ValueError('EXISTING_HOST_RUNNER_CHANGED_REVIEW_REQUIRED')
         if not target.exists():
             shutil.copyfile(original, target)
@@ -88,11 +90,11 @@ def prepare(root, backup, hidden, user, secret, *, address=HOST_ORDER[0], port=8
     else:
         # A resumed external native host has verified resources but unknown build provenance.
         source = None if resume else subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=native.ROOT, text=True).strip()
-    deployment = {'schema': FORMAT, 'root': str(root), 'owner_sid': site['sid'], 'owner_account': site['account'],
-        'machine': site['machine'], 'source_commit': source, 'host_order': list(HOST_ORDER),
+    deployment = saved or {'schema': FORMAT, 'root': str(root), 'owner_sid': site['sid'], 'owner_account': site['account'],
+        'machine': site['machine'], 'source_commit': source, 'host_order': [address],
         'active_address': address, 'port': port, 'ledger_id': checked['inventory']['ledger_id'],
         'certificate_sha256': checked['certificate_sha256'], 'autostart': 'not_registered',
-        'replication': 'not_implemented_standby_must_not_write',
+        'deployment_mode': 'standalone', 'replication': 'not_implemented',
         'host_sha256': hashlib.sha256(host.read_bytes()).hexdigest(),
         'identity_sha256': hashlib.sha256(identity.read_bytes()).hexdigest(),
         'runner_sha256': hashlib.sha256(runner.read_bytes()).hexdigest()}
