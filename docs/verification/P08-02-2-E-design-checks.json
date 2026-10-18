@@ -1,0 +1,245 @@
+{
+  "date": "2026-10-19",
+  "scope": "Figma design only; no runtime integration or Windows/field acceptance",
+  "file": "2ek9bkIz5ldyhjZnnvIuNu",
+  "page": "21:2",
+  "screens": [
+    {
+      "id": "113:2205",
+      "name": "P08-02-2 E · 母版选择式封包",
+      "counts": {
+        "FRAME": 29,
+        "TEXT": 37,
+        "INSTANCE": 18,
+        "VECTOR": 8
+      },
+      "total": 92,
+      "images": [],
+      "fonts": [
+        "Noto Sans SC"
+      ],
+      "overflow": [],
+      "bounds": {
+        "w": 1440,
+        "h": 1184
+      },
+      "prototype_links": 4,
+      "technical_texts": []
+    },
+    {
+      "id": "113:2206",
+      "name": "P08-02-2 E · 子版选择式封包",
+      "counts": {
+        "FRAME": 22,
+        "TEXT": 34,
+        "INSTANCE": 15,
+        "VECTOR": 4
+      },
+      "total": 75,
+      "images": [],
+      "fonts": [
+        "Noto Sans SC"
+      ],
+      "overflow": [],
+      "bounds": {
+        "w": 1440,
+        "h": 1058
+      },
+      "prototype_links": 4,
+      "technical_texts": []
+    },
+    {
+      "id": "113:2207",
+      "name": "P08-02-2 E · 窄窗口与长路径",
+      "counts": {
+        "FRAME": 29,
+        "TEXT": 37,
+        "INSTANCE": 18,
+        "VECTOR": 8
+      },
+      "total": 92,
+      "images": [],
+      "fonts": [
+        "Noto Sans SC"
+      ],
+      "overflow": [],
+      "bounds": {
+        "w": 720,
+        "h": 1466
+      },
+      "prototype_links": 5,
+      "technical_texts": []
+    },
+    {
+      "id": "113:2208",
+      "name": "P08-02-2 E · 极窄窗口",
+      "counts": {
+        "FRAME": 22,
+        "TEXT": 34,
+        "INSTANCE": 15,
+        "VECTOR": 4
+      },
+      "total": 75,
+      "images": [],
+      "fonts": [
+        "Noto Sans SC"
+      ],
+      "overflow": [],
+      "bounds": {
+        "w": 390,
+        "h": 1458
+      },
+      "prototype_links": 5,
+      "technical_texts": []
+    },
+    {
+      "id": "113:2209",
+      "name": "P08-02-2 E · 封包状态",
+      "counts": {
+        "TEXT": 26,
+        "FRAME": 15,
+        "INSTANCE": 12
+      },
+      "total": 53,
+      "images": [],
+      "fonts": [
+        "Noto Sans SC"
+      ],
+      "overflow": [],
+      "bounds": {
+        "w": 1280,
+        "h": 730
+      },
+      "prototype_links": 0,
+      "technical_texts": [
+        {
+          "id": "115:2257",
+          "text": "首次使用需要完成一次发行准备。日常封包无需填写后台连接、账号或密码。"
+        }
+      ]
+    },
+    {
+      "id": "113:2210",
+      "name": "P08-02-2 E · 开发维护",
+      "counts": {
+        "FRAME": 6,
+        "TEXT": 15,
+        "INSTANCE": 7
+      },
+      "total": 28,
+      "images": [],
+      "fonts": [
+        "Noto Sans SC"
+      ],
+      "overflow": [],
+      "bounds": {
+        "w": 1440,
+        "h": 592
+      },
+      "prototype_links": 2,
+      "technical_texts": []
+    },
+    {
+      "id": "113:2211",
+      "name": "P08-02-2 E · 正式端静默状态",
+      "counts": {
+        "TEXT": 14,
+        "FRAME": 8,
+        "INSTANCE": 2
+      },
+      "total": 24,
+      "images": [],
+      "fonts": [
+        "Noto Sans SC"
+      ],
+      "overflow": [],
+      "bounds": {
+        "w": 1440,
+        "h": 666
+      },
+      "prototype_links": 0,
+      "technical_texts": []
+    },
+    {
+      "id": "116:2252",
+      "name": "P08-02-2 E · 发行维护独立页",
+      "counts": {
+        "FRAME": 6,
+        "TEXT": 13,
+        "INSTANCE": 5
+      },
+      "total": 24,
+      "images": [],
+      "fonts": [
+        "Noto Sans SC"
+      ],
+      "overflow": [],
+      "bounds": {
+        "w": 1440,
+        "h": 580
+      },
+      "prototype_links": 2,
+      "technical_texts": [
+        {
+          "id": "116:2276",
+          "text": "正式站点 · 192.168.4.23:8477"
+        }
+      ]
+    },
+    {
+      "id": "116:2401",
+      "name": "P08-02-2 E · 母版关闭财务联动",
+      "counts": {
+        "FRAME": 27,
+        "TEXT": 37,
+        "INSTANCE": 18,
+        "VECTOR": 6
+      },
+      "total": 88,
+      "images": [],
+      "fonts": [
+        "Noto Sans SC"
+      ],
+      "overflow": [],
+      "bounds": {
+        "w": 1440,
+        "h": 1184
+      },
+      "prototype_links": 5,
+      "technical_texts": []
+    },
+    {
+      "id": "116:2526",
+      "name": "P08-02-2 E · 发行维护已准备",
+      "counts": {
+        "FRAME": 5,
+        "TEXT": 11,
+        "INSTANCE": 5
+      },
+      "total": 21,
+      "images": [],
+      "fonts": [
+        "Noto Sans SC"
+      ],
+      "overflow": [],
+      "bounds": {
+        "w": 1440,
+        "h": 462
+      },
+      "prototype_links": 3,
+      "technical_texts": []
+    }
+  ],
+  "totals": {
+    "FRAME": 169,
+    "TEXT": 258,
+    "INSTANCE": 115,
+    "VECTOR": 30
+  },
+  "descendants": 572,
+  "visual_review": "All 10 compositions inspected; narrow header overflow fixed; no full-UI raster layers.",
+  "prototype": "30 current cross-screen reactions; edition/tab and one finance dependency example only; no build/network simulation",
+  "source_baseline": "eea85933d92aa73623dc48fd246fbfed3cbbda9f",
+  "windows_build": false,
+  "field_upgrade": false
+}

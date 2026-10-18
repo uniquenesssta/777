@@ -1,6 +1,6 @@
 # P08-02-2 A：固定站点与发行授权契约
 
-状态：**A 协议设计已完成；B 已接入授权接口、数据库迁移和主机升级源码，见[B 实现](../../verification/P08-02-2-B-implementation.md)。E/C/D 的界面与自动安装集成待实施，现场未升级。**
+状态：**A 协议设计已完成；B 已接入授权接口、数据库迁移和主机升级源码，见[B 实现](../../verification/P08-02-2-B-implementation.md)。E 的 [Figma 设计与映射](../../design/P08-02-2-automatic-packaging-figma.md)已完成，C/D 的运行界面与自动安装集成待实施，现场未升级。**
 
 基线：`bdadc80f029f2ca3ff35fe1bf90f4cce613d4f30`；日期：2026-10-19（Asia/Shanghai）。对应[任务书 A](../../now/P08-02-2-automatic-installation.md)。A 交付仅文档，B 追加交付见上；不升级 4.23 / 4.38，不构建、下载或验证 Windows 安装包。
 

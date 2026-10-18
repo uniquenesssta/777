@@ -1,5 +1,7 @@
 # P08-02-1 Host 与桌面接入：Figma 设计映射
 
+后续设计覆盖：[P08-02-2 E](P08-02-2-automatic-packaging-figma.md) 已将日常封包改为选择式、将开发数据与发行维护分开。本文旧目标连接/文件登记设计保留历史；新运行界面待 C/D 接入。
+
 2026-10-18 用户在确认需要 Figma 的五处界面后明确“那就开始吧”。首轮完成设计，用户继续后补齐窄窗口与子版并接入源码；现场部署保持不动。实现与检查见 [P08-02-1 记录](../verification/P08-02-1-implementation.md)。
 
 沿用原文件 `2ek9bkIz5ldyhjZnnvIuNu`、当前页 `21:2`，在既有画板右侧增加本轮设计，原画板保留。入口：[P08-02-1 设计区域](https://www.figma.com/design/2ek9bkIz5ldyhjZnnvIuNu?node-id=94-1580)。
