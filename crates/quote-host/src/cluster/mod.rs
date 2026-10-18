@@ -4,6 +4,6 @@ pub mod config;
 pub mod control;
 pub mod membership;
 pub mod replica;
+pub mod runtime;
 pub mod snapshot;
 pub mod transport;
-pub mod runtime;

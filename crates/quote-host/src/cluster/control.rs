@@ -34,6 +34,9 @@ fn directory(path: &Path) -> Result<()> {
 }
 pub fn primary(root: &Path, user: &str, password: &str, auxiliary: bool) -> Result<Value> {
     let _owner = files::Owner::acquire(root)?;
+    if config::read(root)?.is_some_and(|c| c.role == Role::Replica) {
+        return fail(409, "CLUSTER_REPLICA_CANNOT_WRITE");
+    }
     let mut service = Service::load(root, auxiliary, true)?;
     if files::sha(&std::env::current_exe()?)? != service.config["rust_host_sha256"] {
         return fail(409, "CLUSTER_HOST_RESOURCE_UPGRADE_REQUIRED");

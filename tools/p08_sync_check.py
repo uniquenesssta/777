@@ -96,6 +96,14 @@ def main():
         assert follower.config['certificate_sha256'] != primary.config['certificate_sha256']
         assert (follower.host_root / 'private/tls-key.pem').read_bytes() != (primary.host_root / 'private/tls-key.pem').read_bytes()
         assert command('cluster-join', **joining)['node_id'] == joined['cluster']['node_id']
+        before_auth = hashlib.sha256((publication(follower.host_root) / 'auth.sqlite3').read_bytes()).hexdigest()
+        try:
+            command('cluster-primary', root=follower.host_root, admin='manager', secret=primary.password)
+        except RuntimeError as error:
+            assert 'CLUSTER_REPLICA_CANNOT_WRITE' in str(error)
+        else:
+            raise AssertionError('REPLICA_PROMOTION_WAS_ALLOWED')
+        assert hashlib.sha256((publication(follower.host_root) / 'auth.sqlite3').read_bytes()).hexdigest() == before_auth
         from p08_sync_bundle import check as check_bundle
         bundle_invitation = primary.root / 'bundle.777join'
         bundle_invitation.write_text(json.dumps(command('cluster-invite', root=primary.host_root, admin='manager', secret=primary.password)), encoding='utf-8')

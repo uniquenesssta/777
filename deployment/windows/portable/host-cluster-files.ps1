@@ -15,7 +15,7 @@ function Write-HostJsonReplace([string] $Path,$Value) {
     $temporary=$Path+'.'+[Guid]::NewGuid().ToString('N')+'.partial'
     try {
         [IO.File]::WriteAllText($temporary,($Value | ConvertTo-Json -Depth 30 -Compress),[Text.UTF8Encoding]::new($false))
-        if (Test-Path -LiteralPath $Path) { [IO.File]::Replace($temporary,$Path,$null) }
+        if (Test-Path -LiteralPath $Path) { [IO.File]::Replace($temporary,$Path,[System.Management.Automation.Language.NullString]::Value) }
         else { [IO.File]::Move($temporary,$Path) }
     } finally { if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary } }
 }

@@ -66,13 +66,10 @@ impl Fixture {
             quote_host::auth::DDL,
         )
         .unwrap();
-        quote_host::outputs::Outputs::open(
-            private.join("outputs.sqlite3"),
-            &self.config.ledger_id,
-        )
-        .unwrap()
-        .backup(&stage)
-        .unwrap();
+        quote_host::outputs::Outputs::open(private.join("outputs.sqlite3"), &self.config.ledger_id)
+            .unwrap()
+            .backup(&stage)
+            .unwrap();
         let mut entries = BTreeMap::new();
         for name in ["ledger.sqlite3", "auth.sqlite3", "outputs.sqlite3"] {
             let path = stage.join(name);
@@ -164,7 +161,9 @@ fn manifest_paths_identity_hashes_and_monotonic_publication_are_enforced() {
     let (damaged, newer) = f.snapshot(3);
     fs::write(damaged.join("ledger.sqlite3"), b"corrupt chunk").unwrap();
     assert_eq!(
-        snapshot::publish(&f.root, &damaged, &newer).unwrap_err().code,
+        snapshot::publish(&f.root, &damaged, &newer)
+            .unwrap_err()
+            .code,
         "CLUSTER_FILE_HASH_INVALID"
     );
     assert_eq!(
@@ -215,5 +214,10 @@ fn live_transfer_lease_retains_generation_until_acknowledged() {
     let (stage, manifest) = f.snapshot(5);
     snapshot::publish(&f.root, &stage, &manifest).unwrap();
     assert!(snapshot::read(&f.root, &publication).is_err());
-    assert_eq!(fs::read_dir(snapshot::generations(&f.root)).unwrap().count(), 2);
+    assert_eq!(
+        fs::read_dir(snapshot::generations(&f.root))
+            .unwrap()
+            .count(),
+        2
+    );
 }
