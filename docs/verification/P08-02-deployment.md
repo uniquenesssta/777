@@ -83,3 +83,5 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\host.ps1 -Operation st
 修复提交 `ae313a1` 的[第二轮Windows功能CI39043638535](https://github.com/uniquenesssta/777/actions/runs/39043638535)中，4项部署检查及PowerShell语法解析已通过；记录时正在执行Windows Rust/浏览器/WebView2步骤，后续后台/备份检查尚未执行，installers仍跳过。计划任务注册和真实重启仍未在服务主机验证。
 
 2026-10-18复查：第二轮CI39043638535的desktop-contracts最终success，installers为skipped；原有30项浏览器及后续原生功能步骤均已完成。本次独立后台包为后续新增实现，须另行检查，不能沿用旧CI冒充新包已验证。
+
+独立后台包代码提交 `ddc537f`，新增[Windows功能CI39090902645](https://github.com/uniquenesssta/777/actions/runs/39090902645)中8项部署/包检查及PowerShell语法解析已通过，包括Windows PowerShell 5.1在无开发工具PATH下采集、拒绝错误主机/被修改的包、以及密码仅走UTF-8标准输入的检查。记录时Rust/浏览器阶段仍在运行，真实原生初始化/补配夹具尚待后续步骤，installers跳过；未据此登记实际4.23/4.38部署成功。
