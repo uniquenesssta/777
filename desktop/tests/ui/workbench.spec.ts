@@ -77,6 +77,7 @@ async function login(
   await page
     .getByLabel("服务地址", { exact: true })
     .fill(fixture.connection.url);
+  await page.getByText("证书与指纹（高级）", { exact: true }).click();
   await page
     .getByLabel("服务证书（PEM）", { exact: true })
     .fill(fixture.connection.certificate_pem);

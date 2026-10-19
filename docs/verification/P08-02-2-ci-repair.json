@@ -61,5 +61,50 @@
   ],
   "additional_fix": "presentation.spec.ts successful backup fixture now sets delivery_complete=true; success assertion retained, incomplete/failed/unconfirmed silence assertions retained.",
   "ci_followup_policy": "User requested on 2026-10-19: trigger normal CI on submission, do not poll or wait. No further CI status query; outcome remains unverified.",
-  "followup_submission": "Additional fixture repair and offline-orders task documentation in the commit containing this record; normal CI enabled, result not checked."
+  "followup_submission": "Additional fixture repair and offline-orders task documentation in the commit containing this record; normal CI enabled, result not checked.",
+  "followup_run72": {
+    "id": 39193288945,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/39193288945",
+    "head": "ca15420dbab839c3ffead585e443e02e32898c89",
+    "read_trigger": "User reported CI failure; no polling after submission.",
+    "jobs": [
+      {
+        "id": 117870549170,
+        "name": "host-sync",
+        "conclusion": "success"
+      },
+      {
+        "id": 117870549334,
+        "name": "desktop-contracts",
+        "conclusion": "failure",
+        "failed_stage": "Full browser interaction timed out at 600 seconds; workbench tests each stalled before business operations."
+      },
+      {
+        "id": 117870550031,
+        "name": "installers",
+        "conclusion": "skipped"
+      }
+    ],
+    "root_cause": "The shared workbench login helper filled certificate fields inside the collapsed advanced details element without opening it; Playwright could not interact with hidden fields. The initial 33 browser cases passed; workbench cases then timed out.",
+    "fix": "Open the existing certificate/fingerprint advanced details before filling its inputs. One test line changed; no product UI, permission, timeout, test skip or workflow change.",
+    "local_checks": [
+      {
+        "command": "cargo build --release --locked --offline -j 12 -p quote-host -p quote-ledger -p quote-desktop --features quote-desktop/verification",
+        "result": "passed",
+        "note": "Initial attempt found a stale corrupt h2 build-cache entry; rebuilt that package with cargo clean --release -p h2. No dependency or lockfile changes."
+      },
+      {
+        "command": "Playwright tests/ui/workbench.spec.ts --max-failures=1 with real Rust Host and desktop bridge",
+        "result": "passed",
+        "tests": 15,
+        "elapsed_seconds": 41.5,
+        "scope": "Local auxiliary Linux/browser regression with hash-pinned fixture font; not Windows product/installer or 23/38 field acceptance."
+      },
+      {
+        "command": "git diff --check",
+        "result": "passed"
+      }
+    ],
+    "submission_result": "Normal CI triggered by the commit containing this record; not polled or awaited. New Windows result unverified."
+  }
 }
