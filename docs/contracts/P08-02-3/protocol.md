@@ -1,6 +1,6 @@
 # A：上传、回执与裁定协议
 
-本文是 `777-offline-order-v1` 的分阶段契约。B 只提供显式启用的 receive_only 接收基础；应用、拉取和终端离线模式仍待 C/D。现有 `/v1/capabilities` 不宣告此能力时，客户端继续原在线模式，不猜测支持、不得把 404 当成已接收。
+本文是 `777-offline-order-v1` 的分阶段契约。B 提供显式启用的 receive_only 接收基础；C 已实现显式 apply、业务拉取及独立授权裁定，实际边界见文末。终端离线模式仍待 D；客户端继续原在线模式，不猜测支持、不得把 404 当成已接收。
 
 ## 身份与授权
 
@@ -67,3 +67,25 @@ payload 的类型边界：create 为 `snapshot + details + customer`，snapshot.
 拉取返回 Host 依据当前主体/包权限生成的业务投影；不得直接下载整个主数据库给子版。游标绑定主体、能力 epoch 和账本恢复 epoch；越权变化或恢复后游标失效，执行有权限的重建。单笔投影超过响应限制时用专门有界订单明细分页/分块，不无限增大响应或截断订单。下发写入确认区，再叠加本机未上传操作，不能覆盖唯一的本机候选。
 
 Excel 历次金额红色、最终确认值黑色；中央汇总只取已应用的当前有效版本。界面沿用现有逐版本修改记录，不投影收件、拒绝或冲突技术信息。输出副作用用独立稳定任务 ID，不随上传重试再导出。
+
+## C 已实现的接口与裁定边界（2026-10-20）
+
+以下均为 POST，`protocol` 仍为 `777-offline-order-v1`，输入拒绝未知字段。没有新增正式端入口；完整离线能力仍不对外宣告。
+
+| 路径 | 请求及返回边界 |
+| --- | --- |
+| `/v1/offline/changes` | 设备会话及 orders 能力；`protocol,cursor`，首次 cursor 为 null。最多 100 条确认变更标记，返回 event_revision、当前 order_revision、state、签名 cursor 和 has_more；不返回原始候选或成本 |
+| `/v1/offline/order-chunk` | `protocol,epoch,order_id,revision,section,offset`；section 为 lines/notes，offset 为十进制字符串。每页最多 64 项、900000 字节；固定恢复 epoch 和订单版本，版本已变返回冲突要求重读；按当前归属和成本/利润能力裁剪 |
+| `/v1/offline/review` | 独立授权的密码维护会话；`protocol,after`（首次 null）。最多 32 项、900000 字节的未裁定 conflict/rejected 原件、原因和基础/当前版本引用；next_after 为下一页 UUID 或 null |
+| `/v1/offline/review-chunk` | 同独立授权；`protocol,operation_id,section,offset`，section 为 base/current。读取保存的不可变版本引用，每次最多 65536 原始字节的 base64，含整份 SHA256、total_bytes、next_offset；不截断完整历史 |
+| `/v1/offline/resolve` | 同独立授权；必填 `protocol,request_id,operation_id,expected_revision,decision,reason`；可选强类型 payload、target_order_id、allow_duplicate。request_id 为新的稳定 UUID；同 ID 同正文返回原结果，异正文或竞争裁定拒绝 |
+
+裁定 decision：keep_current 保留当前有效结果；apply_candidate 可携带更正后的原类型业务输入，按明确的当前版本应用；merge_into 仅将新建候选的稳定商品行追加到指定的同归属有效订单，并保留目标订单身份。含折扣的归并要求明确商品编辑，不能猜测折扣覆盖范围。同订单号疑似重复需更正/明确归并，或经授权者明确 allow_duplicate 后保留独立单。
+
+设备/发行/节点会话及未获单独授权的管理员都不能读取或裁定。裁定授权仅在停服、owner 排他锁下用真实维护管理员密码授予既有 legacy_password 管理员，绑定账本、恢复 epoch 及用户授权 epoch；不随正式母版身份或包能力取得，不进入备份。恢复或授权 epoch 改变后必须重新授予。
+
+C 为裁定追加透明的 `777-offline-resolution-v1` 服务端操作：origin 固定 server_resolution，记录真实裁定主体、原候选 ID、决定正文和独立 request_id；使用专门的 server-resolution stream 命名空间，不伪造设备或租约。原 conflict/rejected 状态及原始摘要不改写，设备回执通过 resolution 字段返回裁定处置和经权限裁剪的 result。
+
+三方合并以可验证的历史订单版本及稳定 line_id 为基础。无共同基础、同一行不同修改、同一字段不同值、状态与编辑竞争、涉及折扣的并发商品变化均保全待裁定。独立普通行和不同详情字段可兼容合并，金额由主机按各行保留的价格版本重算。关联客户仅复用唯一且身份兼容的候选；不同外部订单号保留多单，外部订单号按非空去首尾空白的精确值检查疑似重复。
+
+原候选的后继不会因人工归并而悄悄换订单或换基础；冲突/拒绝的后继保留为待审原件，后续需要逐项核对。创建时间格式、租约签发时间（允许 300 秒时钟偏差）和未来时间也重验；D 的本机可信时间高水位尚未实现。

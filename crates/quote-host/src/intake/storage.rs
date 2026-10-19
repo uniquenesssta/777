@@ -3,14 +3,35 @@ use crate::automatic::permissions;
 use rusqlite::{params, Connection, OptionalExtension};
 use serde_json::json;
 pub(super) fn retained(c: &Connection) -> Result<i64> {
-    Ok(c.query_row("SELECT (SELECT coalesce(sum(length(CAST(operation_json AS BLOB))),0) FROM offline_operations)+(SELECT coalesce(sum(length(CAST(operation_json AS BLOB))),0) FROM offline_collisions)+(SELECT coalesce(sum(length(CAST(lease_json AS BLOB))),0) FROM offline_leases)",[],|r|r.get(0))?)
+    Ok(c.query_row("SELECT (SELECT coalesce(sum(length(CAST(operation_json AS BLOB))),0) FROM offline_operations)+(SELECT coalesce(sum(length(CAST(operation_json AS BLOB))),0) FROM offline_collisions)+(SELECT coalesce(sum(length(CAST(lease_json AS BLOB))),0) FROM offline_leases)+(SELECT coalesce(sum(length(CAST(base_json AS BLOB))+length(CAST(current_json AS BLOB))+length(CAST(candidate_json AS BLOB))),0) FROM offline_conflicts)+(SELECT coalesce(sum(length(CAST(decision_json AS BLOB))),0) FROM offline_resolutions)",[],|r|r.get(0))?)
 }
 pub(super) fn receipt(c: &Connection, ctx: &Context, id: &str) -> Result<Value> {
     let row:Option<(String,String,i64)>=c.query_row("SELECT o.content_sha256,s.state,o.received_at FROM offline_operations o JOIN offline_states s USING(operation_id) JOIN offline_streams d USING(stream_id) WHERE o.operation_id=? AND d.device_id=? AND d.subject_id=?",params![id,ctx.device,ctx.actor.subject],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?))).optional()?;
     match row {
-        Some((digest, state, at)) => Ok(
-            json!({"operation_id":id,"content_sha256":digest,"state":state,"received_at":at.to_string(),"applied":state=="applied"}),
-        ),
+        Some((digest, state, at)) => {
+            let mut receipt = json!({"operation_id":id,"content_sha256":digest,"state":state,"received_at":at.to_string(),"applied":state=="applied"});
+            let resolved:Option<(String,String)>=c.query_row("SELECT d.decision_json,r.result_json FROM offline_resolutions d JOIN requests r ON r.request_id=d.resolution_operation_id WHERE d.operation_id=?",[id],|r|Ok((r.get(0)?,r.get(1)?))).optional()?;
+            let result = if let Some((decision, raw)) = resolved {
+                let decision: Value = serde_json::from_str(&decision)?;
+                receipt["resolution"] = decision["disposition"].clone();
+                Some(raw)
+            } else {
+                c.query_row("SELECT r.result_json FROM offline_states s JOIN requests r ON r.request_id=s.applied_request_id WHERE s.operation_id=?",[id],|r|r.get::<_,String>(0)).optional()?
+            };
+            if let Some(raw) = result {
+                let mut result: Value = serde_json::from_str(&raw)?;
+                if !ctx.capabilities.iter().any(|c| c == "finance") {
+                    permissions::redact(&mut result)
+                }
+                for key in ["revision", "ledger_revision"] {
+                    if let Some(n) = result[key].as_i64() {
+                        result[key] = json!(n.to_string());
+                    }
+                }
+                receipt["result"] = result;
+            }
+            Ok(receipt)
+        }
         None => Ok(json!({"operation_id":id,"state":"not_found"})),
     }
 }

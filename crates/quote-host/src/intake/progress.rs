@@ -1,4 +1,4 @@
-//! Durable dependency and authorization review; does not apply business orders in stage B.
+//! Durable dependency review; explicit application mode also commits ready business changes.
 use super::{context::Context, *};
 use rusqlite::{params, Connection, OptionalExtension};
 pub(super) fn refresh(i: &Intake, c: &Connection, ctx: &Context, v: &Value) -> Result<bool> {
@@ -74,15 +74,36 @@ pub(super) fn refresh(i: &Intake, c: &Connection, ctx: &Context, v: &Value) -> R
         params![id, state, crate::auth::now()],
     )?;
     c.execute("UPDATE offline_meta SET revision=revision+1 WHERE id=1", [])?;
+    if application::enabled(i) && state == "rejected" {
+        application::wake(c, id)?;
+    }
     Ok(true)
 }
 pub(super) fn scan(i: &Intake, cursor: &mut String) -> Result<bool> {
     let mut c = store::open(&i.ledger, true)?;
+    let applying = application::enabled(i);
+    let ready: bool = applying
+        && c.query_row(
+            "SELECT EXISTS(SELECT 1 FROM offline_states WHERE state='received')",
+            [],
+            |r| r.get(0),
+        )?;
     let rows = {
-        let mut st=c.prepare("SELECT o.operation_json,d.device_id FROM offline_operations o JOIN offline_states s USING(operation_id) JOIN offline_streams d USING(stream_id) WHERE o.operation_id>? AND s.state IN ('received','waiting_dependency') ORDER BY o.operation_id LIMIT 16")?;
+        let sql = if ready {
+            "SELECT o.operation_json,d.device_id,s.state FROM offline_states s JOIN offline_operations o USING(operation_id) JOIN offline_streams d USING(stream_id) WHERE s.state='received' AND o.operation_id>? ORDER BY o.operation_id LIMIT 4"
+        } else if applying {
+            "SELECT o.operation_json,d.device_id,s.state FROM offline_states s JOIN offline_operations o USING(operation_id) JOIN offline_streams d USING(stream_id) WHERE s.state='waiting_dependency' AND o.operation_id>? ORDER BY o.operation_id LIMIT 16"
+        } else {
+            "SELECT o.operation_json,d.device_id,s.state FROM offline_operations o JOIN offline_states s USING(operation_id) JOIN offline_streams d USING(stream_id) WHERE o.operation_id>? AND s.state IN ('received','waiting_dependency') ORDER BY o.operation_id LIMIT 16"
+        };
+        let mut st = c.prepare(sql)?;
         let rows = st
-            .query_map([cursor.as_str()], |r| {
-                Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?))
+            .query_map([if ready { "" } else { cursor.as_str() }], |r| {
+                Ok((
+                    r.get::<_, String>(0)?,
+                    r.get::<_, String>(1)?,
+                    r.get::<_, String>(2)?,
+                ))
             })?
             .collect::<std::result::Result<Vec<_>, _>>()?;
         rows
@@ -91,26 +112,36 @@ pub(super) fn scan(i: &Intake, cursor: &mut String) -> Result<bool> {
         cursor.clear();
         return Ok(false);
     }
-    let tx = c.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
     let mut changed = false;
-    for (raw, device) in rows {
+    for (raw, device, initial_state) in rows {
         let v: Value = serde_json::from_str(&raw)?;
-        *cursor = v["operation_id"].as_str().unwrap().into();
-        match context::device(i, &device) {
-            Ok(ctx) => changed |= refresh(i, &tx, &ctx, &v)?,
+        if !applying || initial_state == "waiting_dependency" {
+            *cursor = v["operation_id"].as_str().unwrap().into();
+        }
+        let ctx = context::device(i, &device);
+        let tx = c.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
+        match ctx {
+            Ok(ctx) => {
+                changed |= refresh(i, &tx, &ctx, &v)?;
+                if super::application::enabled(i) {
+                    changed |= super::application::apply(i, &tx, &ctx, &v)?;
+                }
+            }
             Err(error) if error.status == 401 || error.status == 403 => {
-                let id = v["operation_id"].as_str().unwrap();
-                tx.execute("UPDATE offline_states SET state='rejected',reason='AUTHORIZATION_REQUIRES_REVIEW' WHERE operation_id=?",[id])?;
-                tx.execute(
-                    "INSERT INTO offline_events(operation_id,state,at) VALUES(?,'rejected',?)",
-                    params![id, crate::auth::now()],
+                super::application::engine_state(
+                    &tx,
+                    v["operation_id"].as_str().unwrap(),
+                    "rejected",
+                    Some("AUTHORIZATION_REQUIRES_REVIEW"),
+                    None,
                 )?;
-                tx.execute("UPDATE offline_meta SET revision=revision+1 WHERE id=1", [])?;
                 changed = true;
             }
             Err(error) => return Err(error),
         }
+        super::fault(i, "application_before_commit");
+        tx.commit()?;
+        super::fault(i, "application_after_commit");
     }
-    tx.commit()?;
     Ok(changed)
 }

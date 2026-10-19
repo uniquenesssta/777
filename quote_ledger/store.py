@@ -289,7 +289,7 @@ def inventory(c):
                 current=c.execute('SELECT * FROM orders WHERE order_id=?',(version['order_id'],)).fetchone()
                 if not current or order['revision']!=version['revision'] or not 0<order['revision']<current['revision']:raise ValueError('revision')
                 if any(order[k]!=current[k] for k in ('order_id','owner_id','created_at','request_id')):raise ValueError('identity')
-                if not c.execute("SELECT 1 FROM audit_events WHERE order_id=? AND operation='save_order' AND before_json=?",(version['order_id'],version['snapshot_json'])).fetchone():raise ValueError('audit')
+                if not c.execute("SELECT 1 FROM audit_events WHERE order_id=? AND operation IN ('save_order','append_note','set_state') AND before_json=?",(version['order_id'],version['snapshot_json'])).fetchone():raise ValueError('audit')
                 raw=json.loads(order['input_json']); inputs=[]; frozen=[]
                 for item,saved in zip(raw['lines'],rows):
                     item=dict(item);kind=item.pop('line_kind');line=DiscountLine(**item) if kind=='discount' else NormalLine(**item)

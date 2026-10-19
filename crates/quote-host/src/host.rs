@@ -755,10 +755,14 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
     let intake_progress = tokio::task::spawn_blocking(move || {
         let mut cursor = String::new();
         while !intake_stop.load(Ordering::SeqCst) {
+            let mut progressed = false;
             if let Some(i) = &intake_worker {
                 if let Ok(_gate) = intake_authorization.lock() {
                     match i.advance(&mut cursor) {
-                        Ok(true) => intake_dirty.store(true, Ordering::SeqCst),
+                        Ok(true) => {
+                            intake_dirty.store(true, Ordering::SeqCst);
+                            progressed = true;
+                        }
                         Ok(false) => (),
                         Err(e) => quote_diagnostics::event(
                             "offline.intake.review_failed",
@@ -767,7 +771,7 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
                     }
                 }
             }
-            std::thread::sleep(Duration::from_millis(100));
+            std::thread::sleep(Duration::from_millis(if progressed { 1 } else { 100 }));
         }
     });
     if test_stdin {

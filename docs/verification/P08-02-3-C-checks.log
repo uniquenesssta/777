@@ -1,0 +1,53 @@
+P08-02-3 C local auxiliary evidence; Windows/site pending
+Baseline: c3fc6733d27e11c07e8cd81e72c12de4eb36bd60
+No final installers/build preparation; no live4.23/4.38 contact; no formal UI/log changes.
+Counts overlap; broad regression precedes final scheduler/fixture changes.
+
+cargo fmt --all -- --check
+passed
+
+cargo clippy --locked -j6 -p quote-host -p quote-ledger -p quote-security --all-targets -- -D warnings
+passed
+
+cargo test --locked -j6 -p quote-host -p quote-ledger -p quote-security
+passed
+  Running unittests src/lib.rs: 20 passed / 0 failed
+  Running unittests src/main.rs: 0 passed / 0 failed
+  Running tests/analytics.rs: 2 passed / 0 failed
+  Running tests/automatic_installation.rs: 19 passed / 0 failed
+  Running tests/boundary.rs: 12 passed / 0 failed
+  Running tests/cluster_protocol.rs: 3 passed / 0 failed
+  Running tests/customer_orders.rs: 4 passed / 0 failed
+  Running tests/daily_delivery.rs: 2 passed / 0 failed
+  Running tests/device_auth.rs: 8 passed / 0 failed
+  Running tests/offline_application.rs: 18 passed / 0 failed
+  Running tests/offline_intake.rs: 16 passed / 0 failed
+  Running tests/readable_backup.rs: 1 passed / 0 failed
+  Running unittests src/lib.rs: 4 passed / 0 failed
+  Running unittests src/main.rs: 0 passed / 0 failed
+  Running unittests src/lib.rs: 3 passed / 0 failed
+  Doc-tests quote_host: 0 passed / 0 failed
+  Doc-tests quote_ledger: 0 passed / 0 failed
+  Doc-tests quote_security: 0 passed / 0 failed
+
+cargo test --locked -j6 -p quote-host --lib --test offline_application --test offline_intake
+passed
+  Running unittests src/lib.rs: 21 passed / 0 failed
+  Running tests/offline_application.rs: 22 passed / 0 failed
+  Running tests/offline_intake.rs: 16 passed / 0 failed
+
+cargo build --locked --release -j6 -p quote-host -p quote-ledger
+passed
+
+python -m unittest discover -s tests -p 'test_native_host.py' -v
+passed
+
+python tools/p08_application_check.py --auxiliary --output reports/p08-02-3-C-final-tls
+passed_auxiliary
+  TLSv1.3; active income4000 cents; two orders; original conflict retained; one resolution; restart verified.
+
+workflow_and_documentation
+passed
+
+Initial failures and corrections are recorded in checks.json; no assertions were skipped.
+CI: normal push, result not read or polled.

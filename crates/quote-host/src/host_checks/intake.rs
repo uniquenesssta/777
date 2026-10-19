@@ -10,6 +10,13 @@ use axum::{
 mod fixture;
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn accepted_receipt_is_durable_and_intake_progresses_with_business_mutex_held() {
+    http_flow(false).await
+}
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn application_commits_with_business_mutex_held_and_still_returns_202() {
+    http_flow(true).await
+}
+async fn http_flow(apply: bool) {
     let mut f = fixture::Fixture::new();
     f.service.handle("POST","/v1/prices",&f.legacy_token,&json!({"request_id":uid().unwrap(),"expected_price_version_id":null,"prices":{"price_version_id":"http-intake","items":[{"product_id":"item","sale":"10","cost":"4","k":"1","single":true}]}}),"","fixture").unwrap();
     let (package, key, _) = f.package("sales", &["quote", "orders", "edit_orders"], 2);
@@ -17,6 +24,12 @@ async fn accepted_receipt_is_durable_and_intake_progresses_with_business_mutex_h
     let session = f.activate(&enrollment, &key, &secret);
     let token = session["token"].as_str().unwrap();
     crate::intake::setup::provision(&f.service).unwrap();
+    if apply {
+        let path = f.root.join("private/offline-intake.json");
+        let mut cfg = files::read_json(&path).unwrap();
+        cfg["mode"] = json!("apply");
+        files::replace_json(&path, &cfg).unwrap();
+    }
     let intake = Arc::new(crate::intake::Intake::open(&f.service).unwrap().unwrap());
     let lease = intake
         .handle(
@@ -37,6 +50,8 @@ async fn accepted_receipt_is_durable_and_intake_progresses_with_business_mutex_h
     }
     operation["owner_id"] = b["subject"].clone();
     operation["payload"]["snapshot"]["price_version_id"] = json!("http-intake");
+    operation["payload"]["snapshot"]["lines"][0]["raw"]["product_id"] = json!("item");
+    operation["created_at"] = json!(store::now().replace("+00:00", "Z"));
     operation["content_sha256"] = json!(crate::intake::envelope::digest(&operation).unwrap());
     let service = Service {
         root: f.root.clone(),
@@ -81,8 +96,6 @@ async fn accepted_receipt_is_durable_and_intake_progresses_with_business_mutex_h
     )
     .await
     .unwrap();
-    release_tx.send(()).unwrap();
-    holder.join().unwrap();
     assert_eq!(response.status(), 202);
     let receipt: Value =
         serde_json::from_slice(&to_bytes(response.into_body(), 1048576).await.unwrap()).unwrap();
@@ -94,5 +107,27 @@ async fn accepted_receipt_is_durable_and_intake_progresses_with_business_mutex_h
             .unwrap(),
         1
     );
+    if apply {
+        let _gate = state.authorization.lock().unwrap();
+        let mut cursor = String::new();
+        state.intake.as_ref().unwrap().advance(&mut cursor).unwrap();
+        let fresh = store::open(&f.service.ledger, false).unwrap();
+        assert_eq!(
+            fresh
+                .query_row(
+                    "SELECT count(*) FROM offline_states WHERE state='applied'",
+                    [],
+                    |r| r.get::<_, i64>(0)
+                )
+                .unwrap(),
+            1
+        );
+        assert_eq!(
+            quote_ledger::integrity::inventory(&fresh).unwrap()["counts"]["orders"],
+            1
+        );
+    }
+    release_tx.send(()).unwrap();
+    holder.join().unwrap();
     assert!(state.dirty.load(Ordering::SeqCst));
 }

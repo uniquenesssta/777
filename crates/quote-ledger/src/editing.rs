@@ -316,9 +316,24 @@ pub fn validate_archive(c: &Connection, oid: &str, revision: i64, raw: &str) -> 
             }
         }
     }
-    let linked:bool=c.query_row("SELECT EXISTS(SELECT 1 FROM audit_events WHERE order_id=? AND operation='save_order' AND before_json=?)",params![oid,raw],|r|r.get(0))?;
+    let linked:bool=c.query_row("SELECT EXISTS(SELECT 1 FROM audit_events WHERE order_id=? AND operation IN ('save_order','append_note','set_state') AND before_json=?)",params![oid,raw],|r|r.get(0))?;
     if !linked {
         return Err(invalid());
     }
     Ok(s)
+}
+
+/// Retain the complete basis of every future change for three-way comparison.
+pub fn archive(c: &Connection, actor: &Actor, before: &Value) -> Result<()> {
+    c.execute(
+        "INSERT INTO order_versions VALUES(?,?,?,?,?)",
+        params![
+            before["order"]["order_id"].as_str(),
+            before["order"]["revision"].as_i64(),
+            encoded(before),
+            actor.subject,
+            now()
+        ],
+    )?;
+    Ok(())
 }

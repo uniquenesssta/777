@@ -1,5 +1,6 @@
 //! Receive-only foundation; business application and client offline mode follow separately.
 pub mod api;
+pub mod application;
 mod capacity;
 mod context;
 pub mod envelope;
@@ -36,7 +37,7 @@ impl Intake {
         setup::require_local(&s.ledger)?;
         let config = files::read_json(&path)?;
         if config["format"] != FORMAT
-            || config["mode"] != "receive_only"
+            || !matches!(config["mode"].as_str(), Some("receive_only" | "apply"))
             || config["ledger_id"] != s.config["ledger_id"]
             || store::verify(&store::open(&s.ledger, false)?)?["schema_version"] != 3
         {
@@ -88,7 +89,7 @@ fn fault(i: &Intake, phase: &str) {
         .and_then(|p| std::fs::read_to_string(p).ok())
         .is_some_and(|s| s == phase)
     {
-        std::process::exit(if phase == "intake_after_commit" {
+        std::process::exit(if phase.ends_with("after_commit") {
             18
         } else {
             17

@@ -562,10 +562,6 @@ pub fn mutate(c: &mut Connection, m: Mutation, crash: Option<&str>) -> Result<Va
         return Ok(serde_json::from_str(&raw)?);
     }
     let meta = verify(&tx)?;
-    let revision = meta["revision"]
-        .as_i64()
-        .and_then(|v| v.checked_add(1))
-        .ok_or_else(|| Error::new("REVISION_CAPACITY"))?;
     let (result, order_id, before) = match &m {
         Mutation::PublishPrices {
             prices,
@@ -699,6 +695,12 @@ pub fn mutate(c: &mut Connection, m: Mutation, crash: Option<&str>) -> Result<Va
                     "UPDATE lines SET price_version_id=? WHERE order_id=? AND sequence=?",
                     params![pid, oid, (i + 1) as i64],
                 )?;
+                if let Some(source) = &sources[i] {
+                    tx.execute(
+                        "UPDATE lines SET line_id=? WHERE order_id=? AND sequence=?",
+                        params![source, oid, (i + 1) as i64],
+                    )?;
+                }
             }
             (
                 json!({"order_id":oid,"customer_id":cid,"revision":next,"income_cents":amount.income().to_string(),"cost_cents":amount.cost().to_string(),"profit_cents":amount.profit().to_string()}),
@@ -719,6 +721,8 @@ pub fn mutate(c: &mut Connection, m: Mutation, crash: Option<&str>) -> Result<Va
             let next = revision
                 .checked_add(1)
                 .ok_or_else(|| Error::new("REVISION_CAPACITY"))?;
+            let before = crate::editing::snapshot(&tx, order_id)?;
+            crate::editing::archive(&tx, actor, &before)?;
             let nid = uid()?;
             tx.execute(
                 "INSERT INTO notes VALUES(?,?,?,?,?,?)",
@@ -731,7 +735,7 @@ pub fn mutate(c: &mut Connection, m: Mutation, crash: Option<&str>) -> Result<Va
             (
                 json!({"order_id":order_id,"note_id":nid,"revision":next}),
                 Some(order_id.clone()),
-                json!({"revision":revision}),
+                before,
             )
         }
         Mutation::SetState {
@@ -748,6 +752,8 @@ pub fn mutate(c: &mut Connection, m: Mutation, crash: Option<&str>) -> Result<Va
             let next = revision
                 .checked_add(1)
                 .ok_or_else(|| Error::new("REVISION_CAPACITY"))?;
+            let before = crate::editing::snapshot(&tx, order_id)?;
+            crate::editing::archive(&tx, actor, &before)?;
             tx.execute(
                 "UPDATE orders SET state=?,revision=? WHERE order_id=?",
                 params![state, next, order_id],
@@ -755,45 +761,21 @@ pub fn mutate(c: &mut Connection, m: Mutation, crash: Option<&str>) -> Result<Va
             (
                 json!({"order_id":order_id,"state":state,"reason":reason,"revision":next}),
                 Some(order_id.clone()),
-                json!({"state":old,"revision":revision}),
+                before,
             )
         }
     };
-    let mut result = result;
-    result["request_id"] = json!(rid);
-    result["ledger_revision"] = json!(revision);
-    tx.execute(
-        "INSERT INTO requests VALUES(?,?,?,?,?,?,?)",
-        params![
-            rid,
-            actor.subject,
-            fingerprint,
+    let result = crate::journal::record(
+        &tx,
+        crate::journal::Change {
+            request_id: rid,
+            actor,
             operation,
-            encoded(&result),
-            revision,
-            now()
-        ],
-    )?;
-    tx.execute(
-        "INSERT INTO audit_events VALUES(?,?,?,?,?,?,?,?)",
-        params![
-            uid()?,
-            rid,
-            actor.subject,
-            operation,
-            order_id,
-            if before.is_null() {
-                None
-            } else {
-                Some(encoded(&before))
-            },
-            encoded(&result),
-            now()
-        ],
-    )?;
-    tx.execute(
-        "UPDATE ledger_meta SET revision=? WHERE singleton=1",
-        [revision],
+            fingerprint: &fingerprint,
+            result,
+            order_id: order_id.as_deref(),
+            before: &before,
+        },
     )?;
     fault("before_commit", crash);
     tx.commit().map_err(|_| Error::new("COMMIT_UNKNOWN"))?;

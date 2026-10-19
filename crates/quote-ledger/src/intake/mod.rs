@@ -3,7 +3,9 @@ use crate::{store, Error, Result};
 use rusqlite::Connection;
 use serde_json::{json, Value};
 pub const DDL: &str = include_str!("schema.sql");
+mod application_validation;
 pub mod canonical;
+mod references;
 mod validation;
 pub const HASH: &str = "721dc11b48d5c45b2b4f5fcc512b730e2e6f36f266a86409a7a56439ed6c6bab";
 pub const TABLES: [&str; 10] = [
@@ -43,6 +45,8 @@ pub fn upgrade(c: &mut Connection) -> Result<()> {
 }
 pub fn inventory(c: &Connection) -> Result<Value> {
     validation::originals(c)?;
+    application_validation::verify(c)?;
+    references::verify(c)?;
     let (epoch, revision, keys): (String, i64, String) = c.query_row(
         "SELECT epoch,revision,public_keys_json FROM offline_meta WHERE id=1",
         [],

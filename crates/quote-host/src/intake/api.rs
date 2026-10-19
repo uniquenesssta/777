@@ -8,12 +8,24 @@ pub(super) fn handle(
     token: &str,
     data: &Value,
 ) -> Result<Value> {
+    if [
+        "/v1/offline/review",
+        "/v1/offline/resolve",
+        "/v1/offline/review-chunk",
+    ]
+    .contains(&path)
+    {
+        return application::api(i, method, path, token, data);
+    }
     let ctx = context::load(i, token)?;
     let _guard = capacity::begin(&i.capacity, &ctx.device)?;
     if method != "POST" {
         return Err(Error::new(405, "METHOD_NOT_ALLOWED"));
     }
     match path {
+        "/v1/offline/changes" | "/v1/offline/order-chunk" => {
+            application::changes(i, &ctx, path, data)
+        }
         "/v1/offline/lease" => leases::issue(i, &ctx, data),
         "/v1/offline/operations" => {
             fields(data, &["protocol", "batch_id", "operations"], &[])?;

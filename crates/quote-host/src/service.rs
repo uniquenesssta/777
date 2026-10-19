@@ -140,7 +140,7 @@ impl Service {
         c.execute_batch("BEGIN")?;
         Self::order_on(&c, a, key, true)
     }
-    fn order_on(
+    pub(crate) fn order_on(
         c: &rusqlite::Connection,
         a: &Actor,
         key: &str,
@@ -176,7 +176,7 @@ impl Service {
             )?
             .map_or(Value::Null, Value::String);
         if include_history {
-            let history=quote_ledger::editing::object_rows(c,"SELECT revision,snapshot_json,created_at,actor_id FROM order_versions WHERE order_id=? ORDER BY revision DESC",key)?;
+            let history=quote_ledger::editing::object_rows(c,"SELECT v.revision,v.snapshot_json,v.created_at,v.actor_id FROM order_versions v WHERE v.order_id=? AND EXISTS(SELECT 1 FROM audit_events a WHERE a.order_id=v.order_id AND a.operation='save_order' AND a.before_json=v.snapshot_json) ORDER BY v.revision DESC",key)?;
             let mut versions = vec![];
             for h in history {
                 let rev = h["revision"]

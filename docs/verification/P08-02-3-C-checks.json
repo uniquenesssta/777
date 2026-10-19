@@ -1,0 +1,331 @@
+{
+  "task": "P08-02-3-C",
+  "status": "passed_auxiliary_Windows_pending",
+  "baseline_commit": "c3fc6733d27e11c07e8cd81e72c12de4eb36bd60",
+  "branch": "stage/p08-cutover",
+  "verified_at_utc": "2026-10-19T18:25:13.472541+00:00",
+  "environment": "Linux auxiliary checks; not Windows or live-site acceptance",
+  "rust_toolchain": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "mode": "explicit_apply_only",
+  "formal_offline_orders_available": false,
+  "live_hosts_contacted": false,
+  "site_upgrade_performed": false,
+  "installers_or_build_preparation_verified": false,
+  "formal_ui_changed": false,
+  "figma_changed": false,
+  "formal_problem_log_policy_changed": false,
+  "schema3_hash": "721dc11b48d5c45b2b4f5fcc512b730e2e6f36f266a86409a7a56439ed6c6bab",
+  "counts_overlap": true,
+  "verification_order": "Broad regression first, then rebuild and final affected targets after scheduler/fixture changes; counts overlap and must not be added.",
+  "checks": [
+    {
+      "name": "format",
+      "command": "cargo fmt --all -- --check",
+      "status": "passed",
+      "exit_code": 0
+    },
+    {
+      "name": "strict_analysis",
+      "command": "cargo clippy --locked -j6 -p quote-host -p quote-ledger -p quote-security --all-targets -- -D warnings",
+      "status": "passed",
+      "exit_code": 0,
+      "log_sha256": "a9c0c295484df266a952591da0183064ace1974e9043a3e34204168454982656"
+    },
+    {
+      "name": "host_ledger_security_regression",
+      "command": "cargo test --locked -j6 -p quote-host -p quote-ledger -p quote-security",
+      "status": "passed",
+      "exit_code": 0,
+      "tests_passed": 112,
+      "failed": 0,
+      "targets": [
+        {
+          "target": "Running unittests src/lib.rs",
+          "status": "ok",
+          "passed": 20,
+          "failed": 0
+        },
+        {
+          "target": "Running unittests src/main.rs",
+          "status": "ok",
+          "passed": 0,
+          "failed": 0
+        },
+        {
+          "target": "Running tests/analytics.rs",
+          "status": "ok",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "target": "Running tests/automatic_installation.rs",
+          "status": "ok",
+          "passed": 19,
+          "failed": 0
+        },
+        {
+          "target": "Running tests/boundary.rs",
+          "status": "ok",
+          "passed": 12,
+          "failed": 0
+        },
+        {
+          "target": "Running tests/cluster_protocol.rs",
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "target": "Running tests/customer_orders.rs",
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "target": "Running tests/daily_delivery.rs",
+          "status": "ok",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "target": "Running tests/device_auth.rs",
+          "status": "ok",
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "target": "Running tests/offline_application.rs",
+          "status": "ok",
+          "passed": 18,
+          "failed": 0
+        },
+        {
+          "target": "Running tests/offline_intake.rs",
+          "status": "ok",
+          "passed": 16,
+          "failed": 0
+        },
+        {
+          "target": "Running tests/readable_backup.rs",
+          "status": "ok",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "target": "Running unittests src/lib.rs",
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "target": "Running unittests src/main.rs",
+          "status": "ok",
+          "passed": 0,
+          "failed": 0
+        },
+        {
+          "target": "Running unittests src/lib.rs",
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "target": "Doc-tests quote_host",
+          "status": "ok",
+          "passed": 0,
+          "failed": 0
+        },
+        {
+          "target": "Doc-tests quote_ledger",
+          "status": "ok",
+          "passed": 0,
+          "failed": 0
+        },
+        {
+          "target": "Doc-tests quote_security",
+          "status": "ok",
+          "passed": 0,
+          "failed": 0
+        }
+      ],
+      "scope": "Before final scheduling change and four added application tests plus HTTP application assertion; affected targets rebuilt and rerun below."
+    },
+    {
+      "name": "final_affected_targets",
+      "command": "cargo test --locked -j6 -p quote-host --lib --test offline_application --test offline_intake",
+      "status": "passed",
+      "exit_code": 0,
+      "targets": [
+        {
+          "target": "Running unittests src/lib.rs",
+          "status": "ok",
+          "passed": 21,
+          "failed": 0
+        },
+        {
+          "target": "Running tests/offline_application.rs",
+          "status": "ok",
+          "passed": 22,
+          "failed": 0
+        },
+        {
+          "target": "Running tests/offline_intake.rs",
+          "status": "ok",
+          "passed": 16,
+          "failed": 0
+        }
+      ],
+      "tests_passed": 59,
+      "failed": 0
+    },
+    {
+      "name": "release_runtime_build",
+      "command": "cargo build --locked --release -j6 -p quote-host -p quote-ledger",
+      "status": "passed",
+      "exit_code": 0,
+      "scope": "Host runtime and Ledger worker, no installer or installer build-preparation verification"
+    },
+    {
+      "name": "independent_python_native_host_regression",
+      "command": "python -m unittest discover -s tests -p 'test_native_host.py' -v",
+      "status": "passed",
+      "exit_code": 0,
+      "tests_passed": 31,
+      "scope": "Independent Python ledger/history and native Host checks; before scheduling-only change, final TLS and Rust targets cover updated scheduler."
+    },
+    {
+      "name": "final_real_TLS_process",
+      "command": "python tools/p08_application_check.py --auxiliary --output reports/p08-02-3-C-final-tls",
+      "status": "passed_auxiliary",
+      "exit_code": 0,
+      "report_sha256": "860a01f5323faa27ab2cd593dde3e4b4cf29d6fb76606b9bdbab89fad01388e2",
+      "runtime": {
+        "tls_version": "TLSv1.3",
+        "final_inventory": {
+          "active_cost_cents": "1600",
+          "active_income_cents": "4000",
+          "active_profit_cents": "2400",
+          "counts": {
+            "audit_events": 5,
+            "customers": 2,
+            "import_batches": 0,
+            "lines": 2,
+            "notes": 0,
+            "order_versions": 2,
+            "orders": 2,
+            "price_versions": 1,
+            "requests": 5
+          },
+          "ledger_id": "d3fc27a3-63cd-4cea-80a3-5a91b9e9ae04",
+          "offline_intake": {
+            "counts": {
+              "offline_collisions": 0,
+              "offline_conflicts": 1,
+              "offline_events": 9,
+              "offline_leases": 1,
+              "offline_meta": 1,
+              "offline_operations": 5,
+              "offline_resolutions": 1,
+              "offline_states": 5,
+              "offline_streams": 2,
+              "order_changes_feed": 4
+            },
+            "epoch": "64336218-821a-4c4a-b576-7ed82a72f865",
+            "revision": 12
+          },
+          "revision": 5,
+          "schema_hash": "721dc11b48d5c45b2b4f5fcc512b730e2e6f36f266a86409a7a56439ed6c6bab",
+          "schema_version": 3
+        },
+        "checks": [
+          "stopped_host_application_and_reviewer_CLI_with_real_password_verification",
+          "real_issuer_package_enrollment_and_device_session_without_fabricated_sessions",
+          "HTTPS_202_followed_by_atomic_application_and_stable_line_identity",
+          "conflicting_edit_retained_while_another_order_applies",
+          "formal_device_and_ungranted_password_admin_denied_review",
+          "explicit_grant_resolution_and_same_ID_replay_without_double_booking",
+          "bounded_capability_filtered_feed_and_order_section",
+          "process_restart_retains_original_conflict_and_decision_receipt"
+        ]
+      }
+    },
+    {
+      "name": "workflow_and_documentation",
+      "status": "passed",
+      "checks": [
+        "YAML unique mapping keys",
+        "preserved four job names and host timeout25",
+        "installer verification default false",
+        "modified Markdown local links exist",
+        "Python6 source parse/compileall",
+        "git diff --check"
+      ]
+    }
+  ],
+  "initial_findings_fixed": [
+    "429 occurred before intended cross-owner404 assertion; fixture now honors bounded retry while preserving404 assertion.",
+    "HTTP fixture initially referenced an unregistered synthetic product; corrected to actually published fixture item, retaining applied==1 assertion.",
+    "Clippy redundant branch and allocation comparison corrected; strict final run exit0.",
+    "Received operations now bypass dormant waiting cursor; terminal parents wake bounded direct children in the same transaction."
+  ],
+  "ci": {
+    "workflow": "https://github.com/uniquenesssta/777/actions/workflows/p07-windows.yml",
+    "trigger": "normal push; no skip markers",
+    "new_result": "not_read_by_user_request"
+  },
+  "remaining": [
+    "D durable local orders/outbox and silent restart-safe synchronization",
+    "E developer-only interaction design if needed",
+    "F Excel red historical amounts and black final amounts; bounded recovery volumes and local-unuploaded-data protection",
+    "F schema3 legacy import/feed rebuild compatibility and old-backup retransmission safeguards",
+    "G actual Windows and live4.23 hardware/load acceptance"
+  ],
+  "implementation_and_tests_sha256_LF": {
+    ".github/workflows/p07-windows.yml": "e7c7e8b9788ba2859a6be482381bb4f83e9f76aa575863825b7697e42331a310",
+    "crates/quote-host/src/host.rs": "25717b92dd05985e17f9080ee9778d588558c8c151098e8714e48b0638801420",
+    "crates/quote-host/src/host_checks/intake.rs": "684597a6fcc95fe9cd5913600101ab77426432dce956b06bf564fe1b0dafbad1",
+    "crates/quote-host/src/intake/api.rs": "a67691fabc9867d1a1f64941b80a394f1ed602648baf759d8aa497a102a5605d",
+    "crates/quote-host/src/intake/application/authorization.rs": "15f1061bc3f64418e4476f73312a8b0ad84864bc7fbf5fe320ef688300ae2774",
+    "crates/quote-host/src/intake/application/changes.rs": "2a5ec9f66631068c2d6f6c9b0ed0b580fdf4d0fd25dd0eea95c21e2ce6c9b1b4",
+    "crates/quote-host/src/intake/application/cursor.rs": "4becc6ea473988ca4776fc214c1c91b11f42f2497e9babca10e3d46ac447d1b3",
+    "crates/quote-host/src/intake/application/engine.rs": "df70df66839687ade87bbc2dc350b94cc26b7163647e2490f855a67c49e2bfec",
+    "crates/quote-host/src/intake/application/merge.rs": "fbe63064e8ce8b4a512feec1d56ecfbab1f5575e7c5bdc8307f51069d14844c6",
+    "crates/quote-host/src/intake/application/mod.rs": "6143cf850280ff1d2251340b1ecbab13c9dfa12492cb0675c7e89cae901617ee",
+    "crates/quote-host/src/intake/application/plan.rs": "60430250279c6fd78700276784708ce28c0c0a6782e917ef6d8c7126f088863e",
+    "crates/quote-host/src/intake/application/projection.rs": "37454499f78dc9e38cd6cb3c705b41cbb8889c7152d332bb6129512ece225465",
+    "crates/quote-host/src/intake/application/provision.rs": "9a1636586c7d08295ed876a9c8404dc3ccc2c6c0c2bd76ce70f367bd8fb2192d",
+    "crates/quote-host/src/intake/application/resolution.rs": "40857c52899a3d48d0f854d17aaad194962d52c5e086b6e5ec3ada7a58c012f0",
+    "crates/quote-host/src/intake/application/review.rs": "2522a83c4dbd79fb87323ca953a8a92fc42fd1abb83f9a0bf04be8e2f3c2ce8b",
+    "crates/quote-host/src/intake/application/review_read.rs": "f73f69cd1cbd1bca4a5631fb2a9498b55bac488de9c97a4414e5f5966f3d1040",
+    "crates/quote-host/src/intake/mod.rs": "cc46da52556897fcd8f8cd0f6a61a79d15b282b25aa2f137f0438ab1c5ec1cc7",
+    "crates/quote-host/src/intake/progress.rs": "42a5ea175663aa33c023b0b2251fd3ca515dd25484a72753c26120e7ce03f072",
+    "crates/quote-host/src/intake/resources.rs": "53241b08ed94f0197e7223adcde686c0d8d1557a1a9d17ada0a8fd60b3944457",
+    "crates/quote-host/src/intake/storage.rs": "3ced8e1c38ef7c489758314a5bbcd56e0c2af947c3050a1beea8b8e628f4faf4",
+    "crates/quote-host/src/main.rs": "eaf9446f5ae0b9763ac8dd68cbde659c819358e191ef7d329bb476a964910a9a",
+    "crates/quote-host/src/service.rs": "9be1ddfd5a23e5f68ed9ff626b5a1c7ec0933cc9b7627b14c8952d5524da2279",
+    "crates/quote-host/tests/application_checks/business.rs": "7f868fcccd429e9de5f63ef4b040f3ea7909f3da339a98c954441de7db38e98b",
+    "crates/quote-host/tests/application_checks/crashes.rs": "dbb385f6333ff8455c082eef419bef3a9bcafe116cd1080555a1f418c55a4d94",
+    "crates/quote-host/tests/application_checks/decisions.rs": "7d29c7bf5cd6630602da7a854c7b7583b5aff2b5dce556881bedd77697b75848",
+    "crates/quote-host/tests/application_checks/projections.rs": "a97ce9e377964f1f0f8e6df8bbc14c7387cc0b1613f22c900834e88a5f8a3320",
+    "crates/quote-host/tests/application_checks/recovery.rs": "fffb4989bd6603203ac580145d5ee9b5e0caf5dea82964fced3d719560769dd1",
+    "crates/quote-host/tests/application_checks/support.rs": "a6b096e32313575d7e9cb6ba29644900f07e4b4b1dc1dbed6af99d23fa09d3a2",
+    "crates/quote-host/tests/offline_application.rs": "0bea38f854a158d3e4aa756fa8337ca53b407a686d2844e94a6b1a7c267095f6",
+    "crates/quote-ledger/src/application/mod.rs": "322de2de7a9f4a84a95e054f5b6ccf10db9fcb7e18d198ab319055fda0eae5cd",
+    "crates/quote-ledger/src/application/model.rs": "709876c1e390ee094af8ea5f7bd9cf7df28b6bbe6c09c593636856de8e74e14f",
+    "crates/quote-ledger/src/application/write.rs": "52371ae4d3937894c41ac07bb8761c9c5eadc347c1ccd7896fee4276ca90c451",
+    "crates/quote-ledger/src/editing.rs": "10530d3ab8cc4061010460f3a2462efcca237f477bc13f717513bc7447ecb14b",
+    "crates/quote-ledger/src/intake/application_validation.rs": "888a0e20ba4d995648371273700fb31ceaf0e2b0ee25e708ac323ea8b0092169",
+    "crates/quote-ledger/src/intake/mod.rs": "1fd8e8e5111843c9df51c991e2d29ae51f448ce03381514e90f6f53caec88db8",
+    "crates/quote-ledger/src/intake/references.rs": "da38fab6eea27763d13986ab86705d5ea4736723f05eac4111e1f9df6129da8f",
+    "crates/quote-ledger/src/journal.rs": "49ad0760d7fbe3384b4902f2fad1299a790cbdde4e146830c99f4f435c662fee",
+    "crates/quote-ledger/src/lib.rs": "097f6915320e11b05d9a8da1e94c2dfe273303bd2fa7b8f2ad4feae198c3ac3a",
+    "crates/quote-ledger/src/store.rs": "a37a3c0189f8b95488f156563ab162da3889e8c91aa822812f01cbc510142a91",
+    "quote_ledger/store.py": "d307285f929141f8afeb19c765b1173769b2a09fd10ae0568dbcc5d27a756675",
+    "tools/p08_application/__init__.py": "ff2c0f8dc0e5e8cbb9690836b45e6c6b326eebbfd8d9e3e2029768d9f697515e",
+    "tools/p08_application/client.py": "bc52965595a8d988f4a87a2837b7212eb3553180b74724842fb68f4bae00882d",
+    "tools/p08_application/fixture.py": "f4de519ed014ca05922d608096d007020e9419ac1d70e2c131d8ffc9c097a0d6",
+    "tools/p08_application/owner.py": "d3e8d412f0cc452136b2b27e6843a8ac4c912be3048931b72c12b73c3c9083b8",
+    "tools/p08_application/wire.py": "b34bedaa36b721b96f5c6837112851223b9acefd861e86785cc85a311337510f",
+    "tools/p08_application_check.py": "6a5eddef8170ac9b2bc0e6f2baeb5bebe4a5bf01d583c6f47bb6fc65d38f43ef"
+  }
+}
