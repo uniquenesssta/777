@@ -1,0 +1,24 @@
+{
+  "task": "P08-02-3-B",
+  "status": "ci_passed_user_confirmed",
+  "branch": "stage/p08-cutover",
+  "applies_to_last_delivered_commit": "3908f2137d7ec77494663255eac5139dd74b7713",
+  "confirmation": {
+    "source": "user_message",
+    "message": "ci通过",
+    "received_at": "2026-10-20T01:37:30+08:00",
+    "independently_read_jobs_or_artifacts_this_turn": false,
+    "run_id_provided": false,
+    "poll_or_wait": false
+  },
+  "result": {
+    "ci_blocker_cleared": true,
+    "next_stage": "C: primary business apply, duplicate detection, safe merge and developer-authorized resolution",
+    "next_stage_started": false,
+    "formal_offline_orders_available": false,
+    "site_upgrade_performed": false,
+    "live_host_performance_accepted": false,
+    "final_installer_verification_remains_out_of_scope": true
+  },
+  "evidence_boundary": "Overall CI success is confirmed by the user. No individual job results, counts or Windows artifacts were newly retrieved; earlier failed runs and auxiliary test evidence remain historical records."
+}
