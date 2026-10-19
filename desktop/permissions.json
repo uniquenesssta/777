@@ -6,5 +6,5 @@
   {"id":"prices","label":"价格维护（包含成本）","required":false,"admin":true,"needs":["finance"]},
   {"id":"exports","label":"导出报价与查看导出记录","required":false,"admin":false,"needs":["orders"]},
   {"id":"settings","label":"存储设置（子版只读）","required":false,"admin":false,"needs":[]},
-  {"id":"backup","label":"服务备份","required":false,"admin":true,"needs":["settings"]}
+  {"id":"backup","label":"业务数据备份","required":false,"admin":true,"needs":["settings"]}
 ]

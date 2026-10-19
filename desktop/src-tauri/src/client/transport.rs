@@ -29,6 +29,9 @@ pub(super) async fn request_with_package(
             format!("{}{}", s.connection.url.trim_end_matches('/'), path),
         )
         .header("Accept", "application/json");
+    if quote_diagnostics::enabled() {
+        req = req.header("X-777-Execution-Id", quote_diagnostics::execution_id());
+    }
     if !s.token.is_empty() {
         req = req.bearer_auth(&s.token);
     }

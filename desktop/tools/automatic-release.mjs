@@ -54,6 +54,7 @@ export async function managerResources(root,temporary) {
   for (const name of ['install.ps1','install-paths.ps1','install-owner.ps1','node-run.ps1']) resources[path.join(deployment,'automatic',name)]=`host/${name}`;
   resources[path.join(deployment,'host-identity.ps1')]='host/host-identity.ps1';
   resources[path.join(deployment,'portable/host-log.ps1')]='host/host-log.ps1';
+  resources[path.join(deployment,'portable/host-elevation.ps1')]='host/host-elevation.ps1';
   for(const name of ['quote-host','quote-ledger']) resources[path.join(root,'target/release',name+'.exe')]=`host/${name}.exe`;
   // PS 5.1 must see UTF-8 BOM for Chinese text. Build-owned copies only.
   for(const [source,destination] of Object.entries({...resources})) if(source.endsWith('.ps1')) {

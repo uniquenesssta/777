@@ -84,10 +84,14 @@ class Developer(PackagingMixin):
             local(value['root'])
             package_preferences(value)
         self.issuer=Issuer(self)
+        from p08_automatic.close_queue import CloseQueue
+        self.close_queue=CloseQueue(self.issuer,dev.DEV/'issuance')
         saved=dev.DEV/'automatic-job.json'
         if saved.exists():
             previous=json.loads(saved.read_text(encoding='utf-8'))
-            if previous.get('state') in ['running','cancelling']:previous.update(state='failed',error='PACKAGE_INTERRUPTED')
+            if previous.get('state')=='cancelling':
+                self.close_queue.enqueue(previous['id']);previous.update(state='cancelled',error=None)
+            elif previous.get('state')=='running':previous.update(state='failed',error='PACKAGE_INTERRUPTED')
             self.job=previous
         self.server = None
 
@@ -300,6 +304,7 @@ class Developer(PackagingMixin):
             raise RuntimeError('DEVELOPER_OPERATION_INVALID')
 
     def serve(self):
+        self.close_queue.start()
         owner = self
         class Handler(BaseHTTPRequestHandler):
             def log_message(self, *_):pass
@@ -332,4 +337,5 @@ class Developer(PackagingMixin):
         self.cancel()
         if self.worker:self.worker.join(timeout=25)
         if self.worker and self.worker.is_alive():raise RuntimeError('DEVELOPER_BUILD_CLEANUP_FAILED')
+        self.close_queue.close()
         if self.process:self.dev.stop_host(self.process)

@@ -1,64 +1,33 @@
 //! Bounded local operational logs. Callers pass metadata, never request/response bodies.
-use fs2::FileExt;
+mod metadata;
+mod session;
+mod storage;
 use serde_json::{json, Value};
+pub use session::{adopt_context, execution_id, valid_id};
 use std::{
     collections::HashMap,
-    fs::{self, OpenOptions},
-    io::{self, Write},
-    path::{Path, PathBuf},
+    io,
+    path::Path,
     sync::{Mutex, OnceLock},
-    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
+    time::{Duration, Instant},
 };
-const LIMIT: u64 = 4 * 1024 * 1024;
-const COPIES: usize = 4;
-struct Logger {
-    directory: PathBuf,
-    component: String,
-    recent: HashMap<String, (Instant, u64)>,
-}
+use storage::Logger;
 static LOGGER: OnceLock<Mutex<Logger>> = OnceLock::new();
 
+pub fn enabled() -> bool {
+    LOGGER.get().is_some()
+}
 pub fn init(component: &str) {
+    if std::env::var("QUOTE777_LOG_DISABLED").as_deref() == Ok("1") {
+        return;
+    }
     if LOGGER.get().is_some() {
         return;
     }
-    let root = std::env::var_os("QUOTE777_LOG_ROOT")
-        .map(PathBuf::from)
-        .or_else(|| {
-            std::env::current_exe()
-                .ok()
-                .and_then(|p| p.parent().map(Path::to_path_buf))
-        })
-        .unwrap_or_else(|| PathBuf::from("."))
-        .join("logs");
-    let session = std::env::var("QUOTE777_LOG_SESSION")
-        .ok()
-        .filter(|s| {
-            !s.is_empty()
-                && s.len() <= 96
-                && s.bytes()
-                    .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_')
-        })
-        .unwrap_or_else(|| {
-            let now = time::OffsetDateTime::now_utc()
-                .to_offset(time::UtcOffset::from_hms(8, 0, 0).unwrap());
-            format!(
-                "{:04}-{:02}-{:02}_{:02}{:02}{:02}_{}_{}",
-                now.year(),
-                now.month() as u8,
-                now.day(),
-                now.hour(),
-                now.minute(),
-                now.second(),
-                std::process::id(),
-                now.nanosecond()
-            )
-        });
-    // Called once at executable startup, before worker threads/children exist.
-    std::env::set_var("QUOTE777_LOG_SESSION", &session);
-    let directory = root.join(session);
+    let (directory, execution_id) = session::prepare();
     let _ = LOGGER.set(Mutex::new(Logger {
         directory,
+        execution_id,
         component: component.into(),
         recent: HashMap::new(),
     }));
@@ -90,6 +59,7 @@ fn record(name: &str, fields: Value, deduplicate: bool) {
     let Ok(mut logger) = logger.lock() else {
         return;
     };
+    let fields = metadata::safe(fields);
     let key = format!("{name}:{fields}");
     let now = Instant::now();
     if deduplicate {
@@ -127,56 +97,6 @@ fn record(name: &str, fields: Value, deduplicate: bool) {
         }
     }
 }
-impl Logger {
-    fn write(&self, name: &str, fields: Value) -> io::Result<()> {
-        fs::create_dir_all(&self.directory)?;
-        let lock = OpenOptions::new()
-            .create(true)
-            .truncate(false)
-            .write(true)
-            .open(self.directory.join("runtime.lock"))?;
-        // The same lock covers append and rotation in Rust and Python.
-        let deadline = Instant::now() + Duration::from_millis(100);
-        loop {
-            match lock.try_lock_exclusive() {
-                Ok(()) => break,
-                Err(e) if e.kind() == io::ErrorKind::WouldBlock && Instant::now() < deadline => {
-                    std::thread::sleep(Duration::from_millis(2))
-                }
-                Err(e) => return Err(e),
-            }
-        }
-        let path = self.directory.join("runtime.jsonl");
-        let line = serde_json::to_vec(
-            &json!({"time_unix_ms":SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_millis(),"pid":std::process::id(),"component":self.component,"session":self.directory.file_name().map(|s|s.to_string_lossy()),"event":name,"fields":fields}),
-        )?;
-        if line.len() > 16384 {
-            return Ok(());
-        }
-        if path.metadata().map(|m| m.len()).unwrap_or(0) + line.len() as u64 + 1 > LIMIT {
-            let old = self.directory.join(format!("runtime.{COPIES}.jsonl"));
-            if old.exists() {
-                fs::remove_file(old)?;
-            }
-            for i in (1..COPIES).rev() {
-                let from = self.directory.join(format!("runtime.{i}.jsonl"));
-                if from.exists() {
-                    fs::rename(
-                        from,
-                        self.directory.join(format!("runtime.{}.jsonl", i + 1)),
-                    )?;
-                }
-            }
-            if path.exists() {
-                fs::rename(&path, self.directory.join("runtime.1.jsonl"))?;
-            }
-        }
-        let mut file = OpenOptions::new().create(true).append(true).open(path)?;
-        file.write_all(&line)?;
-        file.write_all(b"\n")?;
-        Ok(())
-    }
-}
 pub fn io_error(operation: &str, path: Option<&Path>, error: &io::Error) {
     event(
         "filesystem.error",
@@ -188,55 +108,4 @@ pub fn io_result<T>(operation: &str, path: &Path, result: io::Result<T>) -> io::
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn repeated_events_are_counted_without_flooding() {
-        let directory = std::env::temp_dir().join(format!("777-log-flood-{}", std::process::id()));
-        let _ = LOGGER.set(Mutex::new(Logger {
-            directory: directory.clone(),
-            component: "test".into(),
-            recent: HashMap::new(),
-        }));
-        for _ in 0..10000 {
-            event("failure", json!({"code":"PATH_UNAVAILABLE"}));
-        }
-        event_each("save", json!({"status":"ok"}));
-        event_each("save", json!({"status":"ok"}));
-        event("runtime.stop", json!({}));
-        let raw = fs::read_to_string(directory.join("runtime.jsonl")).unwrap();
-        let rows: Vec<Value> = raw
-            .lines()
-            .map(|v| serde_json::from_str(v).unwrap())
-            .collect();
-        assert_eq!(rows.len(), 5);
-        assert_eq!(rows[1]["event"], "save");
-        assert_eq!(rows[2]["event"], "save");
-        assert_eq!(rows[3]["fields"]["suppressed"], 9999);
-        fs::remove_dir_all(directory).unwrap();
-    }
-    #[test]
-    fn rotates_only_owned_logs_and_preserves_json() {
-        let directory = std::env::temp_dir().join(format!("777-log-test-{}", std::process::id()));
-        fs::create_dir_all(&directory).unwrap();
-        fs::write(directory.join("unrelated.txt"), b"keep").unwrap();
-        let logger = Logger {
-            directory: directory.clone(),
-            component: "test".into(),
-            recent: HashMap::new(),
-        };
-        for _ in 0..6 {
-            fs::write(directory.join("runtime.jsonl"), vec![b' '; LIMIT as usize]).unwrap();
-            logger
-                .write("test.error", json!({"path":"\\\\server\\共享","os_code":5}))
-                .unwrap();
-        }
-        assert!(directory.join("runtime.4.jsonl").exists());
-        assert!(!directory.join("runtime.5.jsonl").exists());
-        assert_eq!(fs::read(directory.join("unrelated.txt")).unwrap(), b"keep");
-        let record: Value =
-            serde_json::from_slice(&fs::read(directory.join("runtime.jsonl")).unwrap()).unwrap();
-        assert_eq!(record["fields"]["os_code"], 5);
-        fs::remove_dir_all(directory).unwrap();
-    }
-}
+mod tests;

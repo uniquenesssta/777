@@ -16,6 +16,9 @@ export async function setup(page:Page,delivery:string,permissions:string[]|null=
           case 'bootstrap':return{delivery,automatic:true,session:businessSession?{role:delivery==='sales'?'sales':'admin',username:'fixture',subject:'fixture',pending:false}:null};
           case 'prices':return{price_version_id:'fixture',items:[{product_id:'商品',sale:'10',unit_sale:'10',k:'1',single:true}]};
           case 'settings':return{revision:'1',export_dir:'D:\\Excel',image_dir:'D:\\Images'};
+          case 'backup_status':return (window as any).__backupState??{target:'',last_success:null};
+          case 'backup':return{backup_id:'fixture',delivery_complete:false};
+          case 'business_directory':return{directory:'',applied:false,ledger_id:'fixture'};
           case 'developer':if(r.request.op.startsWith('issuer_'))return state.issuer;return {...state,preferences:{...state.preferences,output:(window as any).__packageOutput??state.preferences.output},job:(window as any).__packageJob??null};
           case 'package_target':case 'use_current_package_target':return target;
           case 'import_connection':return{connection};

@@ -10,6 +10,5 @@ try {
     $p=Start-Process $installer -Wait -PassThru
     exit $p.ExitCode
 } catch {
-    [Console]::Error.WriteLine('INSTALLATION_INCOMPLETE')
     exit 1
 }

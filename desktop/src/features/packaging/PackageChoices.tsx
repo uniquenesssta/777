@@ -14,7 +14,7 @@ export function PackageChoices({onMaintenance}:{onMaintenance:()=>void}){
   const selected=policies[delivery],disabled=busy||building;
   const change=(value:Partial<typeof prefs>)=>setDraft({...prefs,...value});
   const title=delivery==='manager'?'母版':'子版';
-  const label=(item:typeof permissionCatalog[number])=>item.id==='backup'?'业务数据备份':item.id==='settings'?(delivery==='sales'?'存储设置（只读）':'存储设置'):item.label;
+  const label=(item:typeof permissionCatalog[number])=>item.id==='settings'?(delivery==='sales'?'存储设置（只读）':'存储设置'):item.label;
   async function pack(){await run(async()=>{await developer('save_package',prefs);setState(await developer<PackageConfiguration>('package',{delivery,permissions:selected}));});}
   return <div className="packaging-workspace" data-node-id={delivery==='manager'?'113:2205':'113:2206'}>
     <div className="package-columns">

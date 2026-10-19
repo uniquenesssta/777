@@ -231,6 +231,16 @@ async fn execute(a: Args) -> Result<Value> {
 }
 #[tokio::main(flavor = "multi_thread", worker_threads = 4)]
 async fn main() {
+    let args: Vec<_> = std::env::args().collect();
+    if args.get(1).is_some_and(|v| v == "run") {
+        if let Some(index) = args.iter().position(|s| s == "--root") {
+            if let Some(root) = args.get(index + 1) {
+                quote_diagnostics::adopt_context(
+                    &Path::new(root).join("private/operation-context.json"),
+                );
+            }
+        }
+    }
     quote_diagnostics::init("host");
     let result = match Args::parse() {
         Ok(a) => {

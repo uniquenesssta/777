@@ -60,4 +60,4 @@
 | D 桌面接入 | 两设备不同主体；丢响应/重装保持身份；跨角色不混草稿；撤销不自动创建新身份；正式 UI 无技术提示 |
 | E / F / G | Figma 先行、选择式封包、备份命名、限量脱敏日志；不把 UI 隐藏当作 Host 鉴权证据 |
 
-以上为实施检查矩阵；B 对应项的源码与隔离结果见[B 实现说明](../../verification/P08-02-2-B-implementation.md)，C/D 和 E 的源码/隔离结果见[C/D 说明](../../verification/P08-02-2-CD-implementation.md)，F/G 及真实现场项仍待执行。A 当时只做文档差异、链接及约束一致性检查，不运行产品测试，不重启现场服务，不恢复已取消的 Windows 构建准备/封包验收。
+以上为实施检查矩阵；B 对应项的源码与隔离结果见[B 实现说明](../../verification/P08-02-2-B-implementation.md)，C/D 和 E 的源码/隔离结果见[C/D 说明](../../verification/P08-02-2-CD-implementation.md)，F/G 源码与针对性结果见[F/G 说明](../../verification/P08-02-2-FG-implementation.md)；真实现场项仍未执行。A 当时只做文档差异、链接及约束一致性检查，不运行产品测试，不重启现场服务，不恢复已取消的 Windows 构建准备/封包验收。

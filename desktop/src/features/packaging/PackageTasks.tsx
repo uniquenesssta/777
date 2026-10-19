@@ -10,7 +10,7 @@ export function PackageTasks({job,disabled,onAction}:{job:PackageJob|null;disabl
       <p>{job.delivery==='manager'?'母版':'子版'} · {job.version}</p>
       {job.state==='failed'&&<p>所选功能已保留，尚未生成可分发安装包。</p>}
       {job.state==='cancelled'&&<p>本次未交付安装包，可重新开始。</p>}
-      {job.state==='succeeded'&&<><p>已包含：{permissionCatalog.filter(p=>job.permissions?.includes(p.id)).map(p=>p.id==='backup'?'业务数据备份':p.label).join('、')}。</p><p className="package-path">{job.output}</p></>}
+      {job.state==='succeeded'&&<><p>已包含：{permissionCatalog.filter(p=>job.permissions?.includes(p.id)).map(p=>p.label).join('、')}。</p><p className="package-path">{job.output}</p></>}
       {building&&<p className="muted">正在准备程序与发行，完成前不会提供可分发安装包。</p>}
       <div className="package-actions">
         {building&&<Button variant="outline" disabled={disabled||job.state==='cancelling'} onClick={()=>onAction('cancel')}>取消封包</Button>}

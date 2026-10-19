@@ -127,3 +127,25 @@ async fn automatic_install_never_replaces_an_existing_unrelated_directory() {
     assert_eq!(std::fs::read(root.join("keep")).unwrap(), b"original");
     assert!(!f.root.join("new-state").exists());
 }
+#[tokio::test]
+async fn closing_a_candidate_for_another_issuer_is_rejected_before_network_and_keeps_journals() {
+    let f = Fixture::new();
+    let state = f.root.join("close-issuer.bin");
+    let candidate = f.root.join("close-candidate.bin");
+    a::issuer_state::save(&state,&json!({"issuer_id":f.issuer,"profile":{"site_id":store::uid().unwrap(),"ledger_id":store::uid().unwrap()}}),!cfg!(windows)).unwrap();
+    a::issuer_state::save(
+        &candidate,
+        &json!({"issuer_id":store::uid().unwrap(),"manifest":{"package_id":store::uid().unwrap()}}),
+        !cfg!(windows),
+    )
+    .unwrap();
+    let before = std::fs::read(&candidate).unwrap();
+    assert_eq!(
+        a::issuance::close(&state, &candidate, !cfg!(windows))
+            .await
+            .unwrap_err()
+            .code,
+        "PACKAGE_CLOSE_BINDING_CONFLICT"
+    );
+    assert_eq!(std::fs::read(candidate).unwrap(), before);
+}

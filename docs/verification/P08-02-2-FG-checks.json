@@ -1,0 +1,141 @@
+{
+  "task": "P08-02-2 F/G",
+  "baseline": "ee1fed5a54cb2c6aa3d1d5bb17bb1f917af4f639",
+  "branch": "stage/p08-cutover",
+  "generated_at_utc": "2026-10-19T01:55:24.467480+00:00",
+  "distinct_tests": 77,
+  "checks": [
+    {
+      "name": "automatic_protocol",
+      "distinct_tests": 18,
+      "status": "passed",
+      "command": "cargo test -p quote-host --test automatic_installation --offline"
+    },
+    {
+      "name": "close_binding",
+      "distinct_tests": 1,
+      "status": "passed",
+      "command": "cargo test -p quote-host --test automatic_installation closing_a_candidate --offline"
+    },
+    {
+      "name": "daily_delivery",
+      "distinct_tests": 2,
+      "status": "passed",
+      "command": "cargo test -p quote-host --test daily_delivery --offline"
+    },
+    {
+      "name": "daily_clock",
+      "distinct_tests": 1,
+      "status": "passed",
+      "command": "cargo test -p quote-host --lib daily_backup::tests --offline"
+    },
+    {
+      "name": "readable_monthly",
+      "distinct_tests": 1,
+      "status": "passed",
+      "command": "cargo test -p quote-host --test readable_backup --offline"
+    },
+    {
+      "name": "desktop_native",
+      "distinct_tests": 23,
+      "status": "passed",
+      "command": "cargo test -p quote-desktop --lib --offline"
+    },
+    {
+      "name": "diagnostics",
+      "distinct_tests": 6,
+      "status": "passed",
+      "command": "cargo test -p quote-diagnostics --offline"
+    },
+    {
+      "name": "node",
+      "distinct_tests": 9,
+      "status": "passed",
+      "command": "node --import tsx --test tests/backup-presentation.test.ts tests/permissions.test.ts tests/managed-locations.test.ts tests/automatic-payload.test.ts"
+    },
+    {
+      "name": "python_controller",
+      "distinct_tests": 4,
+      "status": "passed",
+      "command": "python -m unittest discover -s tools/tests"
+    },
+    {
+      "name": "python_logs",
+      "distinct_tests": 3,
+      "status": "passed",
+      "command": "python -m unittest discover -s tests -p test_p07_diagnostics.py"
+    },
+    {
+      "name": "ui_bridge",
+      "distinct_tests": 9,
+      "status": "passed",
+      "command": "P07_BROWSER_PATH=<existing Chromium> playwright test tests/ui/backup-presentation.spec.ts tests/ui/package-permissions.spec.ts --workers=1"
+    },
+    {
+      "name": "ui_final_style_rerun",
+      "distinct_tests": 0,
+      "status": "passed",
+      "command": "playwright test tests/ui/backup-presentation.spec.ts --workers=1 (3 already counted above)"
+    },
+    {
+      "name": "clippy",
+      "distinct_tests": 0,
+      "status": "passed",
+      "command": "cargo clippy -p quote-host -p quote-desktop -p quote-diagnostics --all-targets --offline -- -D warnings"
+    }
+  ],
+  "formal_logging": {
+    "desktop": "disabled at executable startup",
+    "installation": "disabled",
+    "bundled_node": "disabled with inherited native policy",
+    "ui_log_controls": false,
+    "root_log_files": false,
+    "validation": "source review and real auxiliary disabled-process test; Windows deliveries not executed"
+  },
+  "maintenance_logging": {
+    "enabled_for": [
+      "development",
+      "independent Host maintenance"
+    ],
+    "max_file_bytes": 4194304,
+    "rotated_copies": 2,
+    "execution_correlation": true,
+    "duplicate_window_seconds": 60
+  },
+  "figma": {
+    "file_key": "2ek9bkIz5ldyhjZnnvIuNu",
+    "nodes": [
+      "120:2301",
+      "120:2314"
+    ],
+    "final_dimensions": [
+      [
+        1360,
+        254
+      ],
+      [
+        672,
+        254
+      ]
+    ],
+    "screenshots_reviewed": true,
+    "implementation_screenshots_reviewed": [
+      "backup-1440",
+      "backup-720"
+    ],
+    "new_static_assets": 0
+  },
+  "limitations": [
+    "PowerShell syntax/runtime and UAC not run",
+    "Windows DPAPI/scheduled tasks/installer hooks not run",
+    "No final installer build or download",
+    "No 23/38 upgrade or actual share access",
+    "No Linux/macOS product acceptance"
+  ],
+  "offline_dependency": {
+    "direct_excel_target": "blocked: atoi_simd not in offline cache",
+    "fallback": "same readable.rs assertions passed via Host normal dependency",
+    "downloads": false,
+    "lock_changed": false
+  }
+}

@@ -16,10 +16,10 @@ class Issuer:
         self.checked=0
         self.location=owner.dev.DEV/'issuer-kit.json'
 
-    def native(self,args):
+    def native(self,args,timeout=180):
         if os.name!='nt':raise RuntimeError('WINDOWS_PACKAGING_REQUIRED')
         native=self.owner.dev.ROOT/'target/release/quote-host.exe'
-        p=subprocess.run([str(native),*args],capture_output=True,text=True,encoding='utf-8',timeout=180,creationflags=subprocess.CREATE_NO_WINDOW)
+        p=subprocess.run([str(native),*args],capture_output=True,text=True,encoding='utf-8',timeout=timeout,creationflags=subprocess.CREATE_NO_WINDOW)
         if p.returncode:
             try:code=json.loads(p.stderr)['error']
             except (ValueError,KeyError):code='AUTOMATIC_PREPARATION_FAILED'

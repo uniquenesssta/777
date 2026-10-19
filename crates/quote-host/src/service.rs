@@ -625,6 +625,12 @@ impl Service {
                 v.as_object_mut()
                     .unwrap()
                     .extend(status.as_object().unwrap().clone());
+                v.as_object_mut().unwrap().extend(
+                    crate::daily_backup::public_status(&crate::daily_backup::status(self)?)
+                        .as_object()
+                        .unwrap()
+                        .clone(),
+                );
                 Ok(v)
             }
             ("POST", "/v1/backup") => {

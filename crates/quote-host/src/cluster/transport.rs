@@ -40,6 +40,9 @@ impl Client {
             ))
             .header("Content-Type", "application/json")
             .body(raw);
+        if quote_diagnostics::enabled() {
+            request = request.header("X-777-Execution-Id", quote_diagnostics::execution_id());
+        }
         if !token.is_empty() {
             request = request.bearer_auth(token);
         }

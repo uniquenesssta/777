@@ -1,6 +1,6 @@
 # 记账器 / 报价利润计算器
 
-- [P08-02-2 固定主服务器、选择式封包与安装自动接入任务书](docs/now/P08-02-2-automatic-installation.md)：A 协议、B 后台源码与隔离检查已完成；C/D 源码与 E 运行界面接入完成，针对性隔离检查通过，F/G 待收尾。固定 4.23，母版集成后台部署与同账本加入，子版自动接入，日常免填连接和账号，统一业务数据备份名称。
+- [P08-02-2 固定主服务器、选择式封包与安装自动接入任务书](docs/now/P08-02-2-automatic-installation.md)：A 协议、B 后台源码与隔离检查已完成；A–G 源码/设计及针对性检查已交付，正式端不生成日志，现场未验收。固定 4.23，母版集成后台部署与同账本加入，子版自动接入，日常免填连接和账号，统一业务数据备份名称。
 
 - [P08-02-1 Host 接入、开发者数据读取与正式端设置](docs/now/P08-02-1-desktop-host-integration.md)：[Figma 设计](docs/design/P08-02-1-host-desktop-figma.md)及核心源码已接入，[填写说明](docs/verification/P08-02-1-operator-guide.md)已补齐；[Windows 功能检查已通过](docs/verification/P08-02-1-windows-checks.json)，旧节点身份兼容缺口、用户视觉签收与现场验收待完成；覆盖连接导入、任意位置兼容数据读取、独立封包目标、正式端目录保存但不应用、设备登记及现场业务闭环。
 
@@ -41,6 +41,8 @@
 - [Rust + Tauri 架构与切换方案](docs/RUST_TAURI_DESIGN.md)
 
 ## Change Log
+
+- P08-02-2 F/G：统一业务数据备份、修正部分交付反馈；开发/独立维护日志有限归并并支持离线关闭授权补偿。按用户最新要求，正式母/子版及随附后台不生成日志文件。见[F/G 实现说明](docs/verification/P08-02-2-FG-implementation.md)，Windows/现场未执行。
 
 - P08-02-2 C/D 与 E 运行界面已接入：选择式发行、母版后台自动加入、两版独立设备接入；见[源码与针对性检查](docs/verification/P08-02-2-CD-implementation.md)及[新操作顺序](docs/verification/P08-02-2-automatic-installation-guide.md)。F/G 待收尾，Windows/现场未执行。
 

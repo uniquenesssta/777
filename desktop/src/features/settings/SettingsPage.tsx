@@ -1,7 +1,9 @@
+import "./backup.css";
 import { useEffect, useState } from "react";
 import type { Workbench } from "../../state/useWorkbench";
 import { stamp } from "../../state/format";
 import { Button, Field, Input } from "../../ui/components";
+import { backupState } from "./backupPresentation";
 import { BusinessDirectory } from "./BusinessDirectory";
 import { managedLocation } from "./managedLocations";
 
@@ -20,7 +22,7 @@ export function SettingsPage({ app }: { app: Workbench }) {
     | { created_at?: string }
     | null
     | undefined;
-  const backupError = app.backup?.last_error ?? app.backup?.error;
+
   return (
     <section className="card management settings">
       <div className="section-heading">
@@ -117,18 +119,15 @@ export function SettingsPage({ app }: { app: Workbench }) {
         <p className="muted">保存位置由管理员发布，当前账号只读继承。</p>
       )}
       {app.can("backup") && (
-        <section className="backup-settings">
-          <h3>服务备份</h3>
-          <Field label="备份位置">
+        <section className="backup-settings business-backup">
+          <h3>业务数据备份</h3>
+          <p className="muted">每天一份可恢复数据和可阅读 Excel；Excel 按月分表，表内按日排列。</p>
+          <Field label="备份位置" compact>
             <Input readOnly value={backupLocation.display} />
           </Field>
-          <p>
+          <p className="backup-state">
             状态：
-            {backupError
-              ? "最近备份失败"
-              : lastSuccess
-                ? "备份正常"
-                : "尚无备份"}{" "}
+            {backupState(app.backup)}{" "}
             · 最近成功：
             {lastSuccess?.created_at ? stamp(lastSuccess.created_at) : "—"}
           </p>

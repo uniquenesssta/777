@@ -198,7 +198,9 @@ mod shell {
     }
 }
 fn main() {
-    quote_diagnostics::init("desktop");
+    if quote_desktop::delivery() == "development" {
+        quote_diagnostics::init("desktop");
+    }
     #[cfg(all(windows, quote777_packaged))]
     if std::env::args().any(|a| a == "--package-info") {
         let mut info = quote_desktop::package_info();

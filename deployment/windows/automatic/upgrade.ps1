@@ -1,22 +1,20 @@
-param([string] $Root)
+param([string]$Root,[string]$LogSession='',[string]$ExecutionId='')
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 [Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)
 if ($env:OS -ne 'Windows_NT') { throw 'WINDOWS_DEPLOYMENT_REQUIRED' }
 if ($Root -and ($Root.Contains('"') -or $Root.Contains("`r") -or $Root.Contains("`n"))) { throw 'LOCAL_HOST_ROOT_REQUIRED' }
-$principal=[Security.Principal.WindowsPrincipal]::new([Security.Principal.WindowsIdentity]::GetCurrent())
-if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    $arguments='-NoProfile -ExecutionPolicy Bypass -File "'+$PSCommandPath+'"'
-    if ($Root) { $arguments+=' -Root "'+$Root.TrimEnd('\')+'"' }
-    $p=Start-Process (Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe') -Verb RunAs -ArgumentList $arguments -Wait -PassThru
-    exit $p.ExitCode
-}
 . (Join-Path $PSScriptRoot 'host-identity.ps1')
 . (Join-Path $PSScriptRoot 'host-log.ps1')
-Start-HostLog $PSScriptRoot
+. (Join-Path $PSScriptRoot 'host-elevation.ps1')
+if (-not $ExecutionId) {Import-HostOperation (Join-Path $PSScriptRoot 'execution.json')}
+Start-HostLog $PSScriptRoot $LogSession $ExecutionId
 try {
+    $arguments=if ($Root) {'-Root "'+$Root.TrimEnd('\')+'"'} else {''}
+    $elevated=Invoke-HostElevation $PSCommandPath $arguments
+    if ($null -ne $elevated) {exit [int]$elevated}
     $files=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'files.json') -Raw -Encoding UTF8 | ConvertFrom-Json
-    foreach ($file in @('upgrade.json','quote-host.exe','THIRD_PARTY_NOTICES.md','upgrade.ps1','cleanup.ps1','host-identity.ps1','host-log.ps1','upgrade.cmd')) {
+    foreach ($file in @('upgrade.json','execution.json','host-elevation.ps1','quote-host.exe','THIRD_PARTY_NOTICES.md','upgrade.ps1','cleanup.ps1','host-identity.ps1','host-log.ps1','upgrade.cmd')) {
         if ((Get-FileDigest (Join-Path $PSScriptRoot $file)) -ne $files.$file) { throw 'UPGRADE_RESOURCE_CHANGED' }
     }
     if (-not $Root) {
@@ -36,6 +34,7 @@ try {
     $shell=Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
     $arguments='-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "'+$runner+'" -Root "'+$Root.TrimEnd('\')+'"'
     if ($task.Description -ne $expected -or $task.Actions.Count -ne 1 -or $task.Actions[0].Execute -ne $shell -or $task.Actions[0].Arguments -ne $arguments) { throw 'HOST_TASK_OWNERSHIP_CONFLICT' }
+    [IO.File]::Copy((Join-Path $PSScriptRoot 'execution.json'),(Join-Path $Root 'private\operation-context.json'),$true)
     Write-HostEvent 'upgrade.start' @{ledger_id=$d.ledger_id}
     Disable-ScheduledTask -TaskName $taskName | Out-Null
     if ($task.State -eq 'Running') {
@@ -73,7 +72,9 @@ try {
 } catch {
     $code=$_.Exception.Message
     if ($code -notmatch '^[A-Z][A-Z0-9_]{4,100}$') { $code='HOST_AUTOMATIC_UPGRADE_FAILED' }
-    Write-HostEvent 'upgrade.failed' @{error=$code}
+    Write-HostFailure 'upgrade.failed' 'primary_upgrade' $_
     Write-Host ('升级尚未完成：'+$code+'。已有数据保留，可重新运行本升级包。')
     exit 1
 }
+
+finally { Write-HostEvent 'runtime.stop' @{} }

@@ -14,7 +14,7 @@ class PackagingMixin:
         if os.name != 'nt':raise RuntimeError('WINDOWS_PACKAGING_REQUIRED')
         if delivery not in ['manager', 'sales']:raise RuntimeError('DELIVERY_REQUIRED')
         with self.job_lock:
-            if self.job and self.job['state'] in ['running', 'cancelling']:raise RuntimeError('DEVELOPER_BUILD_BUSY')
+            if (getattr(self,'worker',None) and self.worker.is_alive()) or (self.job and self.job['state'] in ['running', 'cancelling']):raise RuntimeError('DEVELOPER_BUILD_BUSY')
             preferences = ({**self.preferences, **{k:self.job[k] for k in ['version','runtime']}} if retry and self.job else self.preferences)
             output = package_preferences(preferences)
             output.mkdir(parents=True, exist_ok=True)
@@ -23,11 +23,13 @@ class PackagingMixin:
                 if not self.job or self.job['state']!='failed':raise RuntimeError('PACKAGE_RETRY_UNAVAILABLE')
                 if self.job['delivery']!=delivery or self.job.get('permissions')!=permissions:raise RuntimeError('PACKAGE_RESUME_CONFLICT')
                 key=self.job['id']
-            else:key=str(uuid.uuid4())
+            else:
+                key=str(uuid.uuid4())
             destination = output / f'{delivery}-{preferences["version"]}-{key[:8]}'
             if retry:destination=Path(self.job['output'])
             issuer=self.issuer.status()
             if not issuer.get('ready'):raise RuntimeError('ISSUER_NOT_READY')
+            if not retry and self.job and self.job['state']=='failed':self.close_queue.enqueue(self.job['id'])
             candidate=self.dev.DEV/'issuance'/(key+'.bin')
             candidate.parent.mkdir(exist_ok=True)
             self.job = dict(id=key, state='running', delivery=delivery, permissions=permissions, version=preferences['version'], runtime=preferences['runtime'], output=str(destination), lines=[], error=None, bytes=None)
@@ -48,7 +50,7 @@ class PackagingMixin:
                     return
                 self.build_owner = OwnedJob()
                 self.build = subprocess.Popen(args, cwd=self.dev.ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
-                                              env=dict(os.environ, QUOTE777_PACKAGE_CONTROL_STDIN='1'))
+                                              env=dict(os.environ, QUOTE777_PACKAGE_CONTROL_STDIN='1',QUOTE777_PACKAGE_ID=self.job['id']))
                 process = self.build
                 # Node waits on this private pipe until the job owns all future descendants.
                 self.build_owner.assign(process)
@@ -66,7 +68,7 @@ class PackagingMixin:
                 with self.job_lock:
                     self.job['bytes'] = sum(p.stat().st_size for p in destination.iterdir() if p.is_file())
                     self.job['source_commit'] = manifest['source_commit']
-            diagnostics.event('package.finish', state=state, error=error, returncode=code)
+            diagnostics.event('package.finish', package_id=self.job['id'], state=state, error=error, returncode=code)
             with self.job_lock:self.job.update(state=state, error=error)
         except Exception as error:
             diagnostics.failure("package", error)
@@ -78,13 +80,14 @@ class PackagingMixin:
                 self.build = None
             if process and process.poll() is None:process.kill(); process.wait(timeout=15)
             if self.cancelled.is_set() and candidate.exists():
-                try:self.issuer.native(['automatic-close','--state',str(self.issuer.state),'--candidate',str(candidate)])
-                except Exception as e:diagnostics.failure('package.close_pending',e)
+                self.close_queue.enqueue(self.job['id'])
             replace_json(self.dev.DEV/'automatic-job.json',self.job)
 
     def cancel(self):
         with self.job_lock:
             if not self.job or self.job['state'] not in ['running', 'cancelling']:return
             self.cancelled.set(); self.job['state'] = 'cancelling'
+            from p07_developer import replace_json
+            replace_json(self.dev.DEV/'automatic-job.json',self.job)
             if self.build_owner:self.build_owner.close(); self.build_owner = None
 

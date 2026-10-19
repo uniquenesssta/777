@@ -1,5 +1,7 @@
 //! Daily immutable pairs with separately tracked delivery to two configured locations.
+mod presentation;
 use crate::{fail, files, recovery, service::Service, Error, Result};
+pub use presentation::public_status;
 use quote_ledger::store;
 use serde_json::{json, Value};
 use std::{
@@ -41,7 +43,7 @@ pub fn status(s: &Service) -> Result<Value> {
     }
 }
 fn public_entry(e: &Value) -> Value {
-    json!({"backup_id":e["snapshot_id"],"kind":"daily","created_at":e["created_at"],"business_date":e["date"],"verified_restore":true,"verification":"logical-ledger-inventory","format":e.get("data_format").cloned().unwrap_or_else(||json!(recovery::LEGACY_FORMAT))})
+    json!({"backup_id":e["snapshot_id"],"kind":"daily","created_at":e["created_at"],"business_date":e["date"],"verified_restore":true,"verification":"logical-ledger-inventory","delivery_complete":presentation::complete(e),"format":e.get("data_format").cloned().unwrap_or_else(||json!(recovery::LEGACY_FORMAT))})
 }
 fn ensure_destination(_s: &Service, p: &Path) -> Result<()> {
     files::dir(p)

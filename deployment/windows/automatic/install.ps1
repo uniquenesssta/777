@@ -1,27 +1,26 @@
-param([Parameter(Mandatory=$true)][string]$Resources)
+param([Parameter(Mandatory=$true)][string]$Resources,[string]$LogSession='',[string]$ExecutionId='')
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+$env:QUOTE777_LOG_DISABLED='1'
 $shell=Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
-$principal=[Security.Principal.WindowsPrincipal]::new([Security.Principal.WindowsIdentity]::GetCurrent())
-if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    $p=Start-Process $shell -Verb RunAs -WindowStyle Hidden -ArgumentList ('-NoProfile -ExecutionPolicy Bypass -File "'+$PSCommandPath+'" -Resources "'+$Resources+'"') -Wait -PassThru
-    exit $p.ExitCode
-}
 . (Join-Path $PSScriptRoot 'install-paths.ps1')
 . (Join-Path $PSScriptRoot 'install-owner.ps1')
 . (Join-Path $PSScriptRoot 'host-identity.ps1')
 . (Join-Path $PSScriptRoot 'host-log.ps1')
+. (Join-Path $PSScriptRoot 'host-elevation.ps1')
 $directory=Join-Path $env:ProgramData 'Quote777\Quote777Host'
-Start-HostLog $directory
+Start-HostLog $Resources $LogSession $ExecutionId
 try {
+    $elevated=Invoke-HostElevation $PSCommandPath ('-Resources "'+$Resources+'"')
+    if ($null -ne $elevated) {exit [int]$elevated}
     $Resources=Assert-AutomaticLocalPath $Resources
     $package=Get-Content -LiteralPath (Join-Path $Resources 'automatic\package.json') -Raw -Encoding UTF8|ConvertFrom-Json
     if ($package.format -ne '777-automatic-package-v1' -or $package.manifest.delivery -ne 'manager' -or $package.profile.primary_url -ne 'https://192.168.4.23:8477' -or $package.manifest.ledger_id -notmatch '^[a-f0-9-]{36}$') { throw 'AUTOMATIC_PACKAGE_INVALID' }
     $existing=Find-AutomaticDeployment $package
     if ($null -ne $existing) {
         $directory=Join-Path ([IO.Path]::GetDirectoryName($existing.root)) 'Quote777Host'
-        Start-HostLog $directory $env:QUOTE777_LOG_SESSION
     }
+    Start-HostLog $directory $env:QUOTE777_LOG_SESSION $env:QUOTE777_EXECUTION_ID
     if ($null -ne $existing -and $existing.ContainsKey('role') -and $existing.role -eq 'primary') {
         # Never rewrite the primary runner/account/cert/backups during normal installation.
         $native=Join-Path $Resources 'host\quote-host.exe'
@@ -73,6 +72,8 @@ try {
     Start-ScheduledTask -TaskName $taskName
     Write-HostEvent 'installation.background.requested' @{ledger_id=$package.manifest.ledger_id;phase='awaiting_enrollment'}
 } catch {
-    Write-HostEvent 'installation.failed' @{stage='host_setup';type=$_.Exception.GetType().Name;code=if ($_.Exception.Message -match '^[A-Z][A-Z0-9_]{4,100}$') {$_.Exception.Message}else{'HOST_INSTALL_FAILED'}}
+    Write-HostFailure 'installation.failed' 'host_setup' $_
     exit 1
 }
+
+finally { Write-HostEvent 'runtime.stop' @{} }

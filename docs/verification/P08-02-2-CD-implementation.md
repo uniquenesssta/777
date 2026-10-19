@@ -1,6 +1,6 @@
 # P08-02-2 C/D：选择式封包、母版后台和自动设备接入
 
-状态：**C/D 源码与 E 运行界面已接入；针对性隔离检查通过。没有执行 Windows 安装、UAC、DPAPI、SYSTEM 开机任务、NSIS 安装钩子或 4.23 / 4.38 现场升级与同步。F/G 尚未收尾。**
+状态：**C/D 源码与 E 运行界面已接入；针对性隔离检查通过。没有执行 Windows 安装、UAC、DPAPI、SYSTEM 开机任务、NSIS 安装钩子或 4.23 / 4.38 现场升级与同步。本段为 C/D 当时状态；F/G 后续交付及正式端禁日志政策见[F/G 说明](P08-02-2-FG-implementation.md)。**
 
 2026-10-19（Asia/Shanghai）；基线 `ab597c88d68c4d2c4df425f85d5bf0682d15d8bb`，同一分支 `stage/p08-cutover`。用户“开始下一步”，承接 A → B → E → C/D 的既定顺序。依据[任务书](../now/P08-02-2-automatic-installation.md)、[契约](../contracts/P08-02-2/README.md)和[Figma 映射](../design/P08-02-2-automatic-packaging-figma.md)。
 

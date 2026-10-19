@@ -21,17 +21,20 @@ class DiagnosticsTests(unittest.TestCase):
                 for _ in range(10000):
                     diagnostics.event('poll.failed', code='PATH_UNAVAILABLE')
                 diagnostics.failure('configure', PermissionError(13, 'Access denied', r'\\server\共享\backup'))
+                diagnostics.event('accidental.metadata', nested={'device_secret':'NEVER_NESTED','body':{'orders':['NEVER_ORDER']}})
                 diagnostics.failure('package', RuntimeError('password=VERY_SECRET token=SECRET'))
                 diagnostics.event('runtime.stop')
                 handler.flush()
                 rows=[json.loads(s) for s in (Path(tmp)/'runtime.jsonl').read_text(encoding='utf-8').splitlines()]
-                self.assertLessEqual(len(rows), 5)
+                self.assertLessEqual(len(rows), 6)
                 self.assertTrue(any(r['fields'].get('suppressed') == 9999 for r in rows))
                 raw=(Path(tmp)/'runtime.jsonl').read_text(encoding='utf-8')
                 self.assertNotIn('VERY_SECRET', raw)
+                self.assertNotIn('NEVER_NESTED',raw)
+                self.assertNotIn('NEVER_ORDER',raw)
                 self.assertIn('Access denied', raw)
                 for i in range(300): diagnostics.event('different', sequence=i)
-                self.assertEqual(len(list(Path(tmp).glob('runtime*.jsonl'))), 5)
+                self.assertEqual(len(list(Path(tmp).glob('runtime*.jsonl'))), 3)
                 self.assertTrue(all(p.stat().st_size <= 4096 for p in Path(tmp).iterdir()))
             handler.close()
 

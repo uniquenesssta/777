@@ -623,7 +623,7 @@ impl Desktop {
             }
             Action::Backup {} => {
                 self.admin()?;
-                self.request("POST", "/v1/backup", Some(&json!({"kind":"maintenance"})))
+                self.request("POST", "/v1/backup", Some(&json!({"kind":"daily"})))
                     .await
             }
         }

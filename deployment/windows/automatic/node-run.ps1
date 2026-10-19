@@ -1,6 +1,7 @@
 param([Parameter(Mandatory=$true)][string]$Root)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+$env:QUOTE777_LOG_DISABLED='1'
 $directory=Join-Path ([IO.Path]::GetDirectoryName($Root)) 'Quote777Host'
 . (Join-Path $directory 'install-paths.ps1')
 . (Join-Path $directory 'host-log.ps1')
@@ -84,5 +85,5 @@ try {
         $delay=[Math]::Max($retryAfter,[Math]::Min(300,$base+(Get-Random -Minimum 0 -Maximum ([int][Math]::Max(1,$base/4)))))
         for($i=0;$i -lt $delay;$i++) {if (@($stops|Where-Object {[IO.File]::Exists($_)}).Count) {break};Start-Sleep -Seconds 1}
     }
-} catch { Write-HostEvent 'installation.runner.failed' @{type=$_.Exception.GetType().Name};exit 1 }
-finally { if ($null -ne $lock) {$lock.Dispose()} }
+} catch { Write-HostFailure 'installation.runner.failed' 'node_runner' $_;exit 1 }
+finally { Write-HostEvent 'runtime.stop' @{};if ($null -ne $lock) {$lock.Dispose()} }

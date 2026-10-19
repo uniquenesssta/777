@@ -23,6 +23,10 @@ impl Desktop {
             crate::startup::delivery(),
             self.has_pending()?,
         )?;
+        quote_diagnostics::event(
+            "automatic.device.candidate",
+            json!({"device_id":device.id,"package_id":package,"site_id":site,"ledger_id":ledger,"legacy":device.legacy}),
+        );
         let connection = Connection {
             url: connection.url,
             certificate_pem: connection.certificate_pem,
@@ -123,6 +127,10 @@ impl Desktop {
             return Err(invalid());
         }
         self.auto_expires = auth["expires"].as_u64().ok_or_else(invalid)?;
+        quote_diagnostics::event(
+            "automatic.device.active",
+            json!({"device_id":device.id,"package_id":package,"ledger_id":ledger,"subject":s.subject,"delivery":crate::startup::delivery()}),
+        );
         self.session = Some(s);
         self.calculation = None;
         Ok(

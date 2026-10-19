@@ -91,6 +91,12 @@ pub async fn close(state: &Path, candidate: &Path, auxiliary: bool) -> Result<Va
     let s = issuer_state::load(state, auxiliary)?;
     let record = issuer_state::load(candidate, auxiliary)?;
     let id = id(&record["manifest"], "package_id")?;
+    if record["issuer_id"] != s["issuer_id"]
+        || record["manifest"]["site_id"] != s["profile"]["site_id"]
+        || record["manifest"]["ledger_id"] != s["profile"]["ledger_id"]
+    {
+        return fail(409, "PACKAGE_CLOSE_BINDING_CONFLICT");
+    }
     let (c, token) = session(&s).await?;
     c.request(
         &format!("/v1/automatic/packages/{id}/close"),

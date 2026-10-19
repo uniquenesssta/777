@@ -8,61 +8,13 @@ import os
 from pathlib import Path
 import threading
 import time
+from operational_logs.storage import SessionFileHandler
+from operational_logs.metadata import safe, valid_id
 
 _LOCK = threading.RLock()
 _LOGGER = None
 _RECENT = {}
 _ROOT = Path(__file__).resolve().parents[1]
-
-class SessionFileHandler(logging.Handler):
-    """One cross-process lock and rotation convention shared with Rust fs2."""
-    def __init__(self, directory, limit=4*1024*1024):
-        super().__init__()
-        self.directory = directory
-        self.limit = limit
-        self.warned = False
-
-    def emit(self, record):
-        try:
-            raw = (self.format(record) + '\n').encode('utf-8')
-            if len(raw) > 16384:
-                return
-            with open(self.directory / 'runtime.lock', 'a+b') as lock:
-                deadline = time.monotonic() + .1
-                while True:
-                    try:
-                        if os.name == 'nt':
-                            import msvcrt
-                            lock.seek(0)
-                            msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
-                        else:
-                            import fcntl
-                            fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-                        break
-                    except OSError:
-                        if time.monotonic() >= deadline: raise
-                        time.sleep(.002)
-                try:
-                    path = self.directory / 'runtime.jsonl'
-                    if (path.stat().st_size if path.exists() else 0) + len(raw) > self.limit:
-                        (self.directory / 'runtime.4.jsonl').unlink(missing_ok=True)
-                        for i in range(3, 0, -1):
-                            previous = self.directory / f'runtime.{i}.jsonl'
-                            if previous.exists(): previous.replace(self.directory / f'runtime.{i+1}.jsonl')
-                        if path.exists(): path.replace(self.directory / 'runtime.1.jsonl')
-                    with path.open('ab') as stream:
-                        stream.write(raw)
-                        stream.flush()
-                finally:
-                    if os.name == 'nt':
-                        lock.seek(0)
-                        msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
-                    else:
-                        fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
-        except OSError:
-            if not self.warned:
-                self.warned = True
-                print('LOG_WRITE_FAILED: ' + str(self.directory))
 
 def initialize(root=None):
     global _LOGGER
@@ -76,6 +28,8 @@ def initialize(root=None):
             directory = root / 'logs' / session
             directory.mkdir(parents=True, exist_ok=False)
             os.environ['QUOTE777_LOG_SESSION'] = session
+            execution=os.environ.get('QUOTE777_EXECUTION_ID','')
+            os.environ['QUOTE777_EXECUTION_ID']=execution if valid_id(execution) else session
             logger = logging.getLogger('quote777.development')
             logger.propagate = False
             logger.setLevel(logging.INFO)
@@ -90,7 +44,7 @@ def initialize(root=None):
     atexit.register(lambda: event('runtime.stop'))
 
 def _write(name, fields):
-    _LOGGER.info(json.dumps(dict(time_unix_ms=int(time.time()*1000), pid=os.getpid(), component='development', session=os.environ.get('QUOTE777_LOG_SESSION'), event=name, fields=fields), ensure_ascii=False))
+    _LOGGER.info(json.dumps(dict(time_unix_ms=int(time.time()*1000), pid=os.getpid(), component='development', session=os.environ.get('QUOTE777_LOG_SESSION'), execution_id=os.environ.get('QUOTE777_EXECUTION_ID'), event=name, fields=fields), ensure_ascii=False))
 
 def event(name, **fields):
     if _LOGGER is None:
@@ -98,6 +52,7 @@ def event(name, **fields):
     if not _LOGGER:
         return
     with _LOCK:
+        fields = safe(fields)
         now = time.monotonic()
         key = json.dumps([name, fields], sort_keys=True, ensure_ascii=False)
         if len(key) > 12000:

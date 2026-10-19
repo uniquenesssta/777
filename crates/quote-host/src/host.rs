@@ -365,6 +365,12 @@ async fn handler(
         http::{Response, StatusCode},
     };
     let started = std::time::Instant::now();
+    let peer_execution_id = req
+        .headers()
+        .get("x-777-execution-id")
+        .and_then(|v| v.to_str().ok())
+        .filter(|v| quote_diagnostics::valid_id(v))
+        .map(str::to_owned);
     let method_log = if req.method() == "POST" {
         "POST"
     } else {
@@ -384,6 +390,7 @@ async fn handler(
             "content-type",
             "content-length",
             "x-777-package-authorization",
+            "x-777-execution-id",
         ] {
             if headers.get_all(name).iter().count() > 1 {
                 return fail(400, "DUPLICATE_HEADERS");
@@ -555,7 +562,7 @@ async fn handler(
     if route_log != "cluster" {
         record(
             "http.finish",
-            json!({"method":method_log,"route":route_log,"status":status,"error":value.get("error")}),
+            json!({"method":method_log,"route":route_log,"peer_execution_id":peer_execution_id,"status":status,"error":value.get("error")}),
         );
     }
     if started.elapsed() >= Duration::from_secs(5) {

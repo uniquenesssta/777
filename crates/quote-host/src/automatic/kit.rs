@@ -75,10 +75,16 @@ pub fn prepare(
     issuer_state::save(state, &pending, auxiliary)?;
     files::new_dir(out)?;
     files::protect(out, auxiliary)?;
+    files::new_file(
+        &out.join("execution.json"),
+        &serde_json::to_vec(
+            &json!({"format":"777-operation-context-v1","execution_id":quote_diagnostics::execution_id()}),
+        )?,
+    )?;
     files::new_file(&out.join("upgrade.json"), &serde_json::to_vec(&kit)?)?;
     files::copy(&std::env::current_exe()?, &out.join("quote-host.exe"))?;
     files::copy(notices, &out.join("THIRD_PARTY_NOTICES.md"))?;
-    for(name,content)in [("upgrade.ps1",include_str!("../../../../deployment/windows/automatic/upgrade.ps1")),("cleanup.ps1",include_str!("../../../../deployment/windows/automatic/cleanup.ps1")),("host-identity.ps1",include_str!("../../../../deployment/windows/host-identity.ps1")),("host-log.ps1",include_str!("../../../../deployment/windows/portable/host-log.ps1")),("upgrade.cmd","@echo off\r\ncd /d \"%~dp0\"\r\npowershell.exe -NoProfile -ExecutionPolicy Bypass -File \"%~dp0upgrade.ps1\"\r\npause\r\n") ] {
+    for(name,content)in [("upgrade.ps1",include_str!("../../../../deployment/windows/automatic/upgrade.ps1")),("cleanup.ps1",include_str!("../../../../deployment/windows/automatic/cleanup.ps1")),("host-identity.ps1",include_str!("../../../../deployment/windows/host-identity.ps1")),("host-elevation.ps1",include_str!("../../../../deployment/windows/portable/host-elevation.ps1")),("host-log.ps1",include_str!("../../../../deployment/windows/portable/host-log.ps1")),("upgrade.cmd","@echo off\r\ncd /d \"%~dp0\"\r\npowershell.exe -NoProfile -ExecutionPolicy Bypass -File \"%~dp0upgrade.ps1\"\r\npause\r\n") ] {
         let mut raw=Vec::new();
         if name.ends_with(".ps1"){raw.extend_from_slice(&[0xef,0xbb,0xbf]);}
         raw.extend_from_slice(content.as_bytes());files::new_file(&out.join(name),&raw)?;
@@ -86,12 +92,14 @@ pub fn prepare(
     let mut manifest = serde_json::Map::new();
     for name in [
         "upgrade.json",
+        "execution.json",
         "quote-host.exe",
         "THIRD_PARTY_NOTICES.md",
         "upgrade.ps1",
         "cleanup.ps1",
         "host-identity.ps1",
         "host-log.ps1",
+        "host-elevation.ps1",
         "upgrade.cmd",
     ] {
         manifest.insert(name.into(), json!(files::sha(&out.join(name))?));

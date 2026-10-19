@@ -17,6 +17,7 @@ import type {
   AnalysisFilters,
   Session,
 } from "../contracts";
+import { backupReceipt } from "../features/settings/backupPresentation";
 import { selectDraftSource } from "./developerDraft";
 import { profitRange, type ProfitPreset } from "./profit";
 import { draftReducer, restorableDraft, snapshot, draftContext } from "./draft";
@@ -598,14 +599,13 @@ export function useWorkbench() {
   const makeBackup = (rethrow = false) =>
     run(
       async () => {
-        await request("backup");
-        return afterSaved(() =>
-          request<Record<string, unknown>>("backup_status"),
-        );
+        const receipt = await request<Record<string, unknown>>("backup");
+        const refreshed = await afterSaved(() => request<Record<string, unknown>>("backup_status"));
+        return {receipt, refreshed};
       },
-      (r) => {
-        setBackup(r.value);
-        savedFeedback(r, "维护备份已完成并核对。");
+      ({receipt,refreshed}) => {
+        setBackup(refreshed.value ?? {...backup,last_success:receipt,delivery_complete:receipt.delivery_complete});
+        savedFeedback(refreshed, backupReceipt(receipt));
       },
       rethrow,
     );

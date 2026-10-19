@@ -1,0 +1,6 @@
+/* The existing settings card supplies the enclosing surface. */
+.business-backup h3{font-size:16px;line-height:24px;}
+.business-backup>.muted,.business-backup>.backup-state{font-size:12px;line-height:18px;color:var(--color-muted);}
+.business-backup .compact-field{flex:none;width:100%;min-width:0;flex-direction:row;align-items:center;gap:12px;}
+.business-backup .compact-field>span{width:73px;flex:0 0 73px;}
+.business-backup .compact-field .input{width:100%;min-width:0;}

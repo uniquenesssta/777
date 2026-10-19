@@ -62,6 +62,10 @@ pub async fn join_with_stop(
         return crate::fail(503, "CLUSTER_SYNC_STOPPED");
     }
     let id = node["node_id"].as_str().ok_or_else(denied)?;
+    quote_diagnostics::event(
+        "installation.node.bound",
+        json!({"node_id":id,"package_id":p.manifest["package_id"],"ledger_id":p.profile["ledger_id"],"phase":"awaiting_snapshot"}),
+    );
     if !root.exists() {
         // The live path is published only after it is permanently marked replica.
         let stage = super::staging::initialize(&init, state, id)?;
@@ -141,6 +145,10 @@ pub async fn join_with_stop(
     }
     files::replace_json(&private.join("service.json"), &service)?;
     Service::load(&root, auxiliary, false)?;
+    quote_diagnostics::event(
+        "installation.node.ready",
+        json!({"node_id":id,"package_id":p.manifest["package_id"],"ledger_id":c.ledger_id,"generation":publication.generation}),
+    );
     Ok(
         json!({"status":"replica_ready","node_id":c.node_id,"generation":publication.generation,"ledger_id":c.ledger_id}),
     )
