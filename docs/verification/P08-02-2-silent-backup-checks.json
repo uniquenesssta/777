@@ -44,12 +44,6 @@
     }
   ],
   "initial_ui_failure": "Initial run: 4 failures caused by ambiguous .backup-settings selector (also matched business-directory) and expecting an informational success toast that the existing shell does not render. Narrowed selector and asserted actual success state. Final 6 tests pass; initial output retained below. No product change was made solely to satisfy the fixture.",
-  "excluded": [
-    "Windows runtime/UAC/SMB acceptance",
-    "mother/sales build preparation and final installers",
-    "23/38 live access",
-    "multi-primary/offline order merging"
-  ],
   "visuals": {
     "figma": {
       "file": "2ek9bkIz5ldyhjZnnvIuNu",
@@ -65,5 +59,22 @@
       1440,
       720
     ]
-  }
+  },
+  "cancelled_by_user": [
+    "mother/sales installer and installer build-preparation verification only"
+  ],
+  "pending_verification": [
+    {
+      "scope": "Windows Host runtime, UAC/DPAPI, tasks, SMB, restart, sync and recovery",
+      "reason": "Not executed in the local environment; remains required where applicable, not cancelled by user. Existing Windows functional CI is being resumed."
+    },
+    {
+      "scope": "23/38 live deployment and business use",
+      "reason": "No access to user LAN in the local/CI environment; isolated runner results do not replace field evidence."
+    }
+  ],
+  "out_of_implementation_scope": [
+    "multi-primary/offline order merging"
+  ],
+  "scope_clarification": "2026-10-19 user clarified: only mother/sales package verification is cancelled; other functional verification continues."
 }

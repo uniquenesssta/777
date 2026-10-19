@@ -21,4 +21,4 @@
 
 **11 项不同测试通过**：后台交付 2、跨日调度 1、结果文案 2、模拟桥接 UI 6；TypeScript、严格 clippy、fmt 和 diff 检查通过。初次 UI 断言失败原样留档，修正定位及既有壳层行为预期后通过。
 
-见[检查记录](P08-02-2-silent-backup-checks.json)和[命令输出](P08-02-2-silent-backup-checks.log)。使用合成目录模拟断开/恢复，未对用户 23/38 或真实共享位置操作。未执行 Windows 安装、UAC、母/子版构建准备或最终封包验证。
+见[检查记录](P08-02-2-silent-backup-checks.json)和[命令输出](P08-02-2-silent-backup-checks.log)。使用合成目录模拟断开/恢复，未对用户 23/38 或真实共享位置操作。本地没有 Windows 运行环境，Windows Host/UAC/SMB/任务等尚无本轮实际结果，仍属待验证；仅母/子安装包及其构建准备专项验证按用户要求跳过。2026-10-19 澄清后恢复既有 Windows 功能 CI，不能因跳过安装包而省略 Host、同步、备份恢复或界面等验证。
