@@ -1,6 +1,5 @@
 use crate::automatic_support::Fixture;
 use quote_host::{auth::Auth, automatic as a};
-use quote_ledger::store;
 #[cfg(not(windows))]
 use serde_json::json;
 #[test]
@@ -34,7 +33,7 @@ fn schema_upgrade_is_idempotent_and_rejects_unknown_schema() {
 #[cfg(not(windows))]
 fn upgrade_and_interrupted_publication_preserve_ledger_tls_backups_and_task_identity() {
     use quote_host::files;
-    use quote_ledger::integrity;
+    use quote_ledger::{integrity, store};
     let f = Fixture::new();
     let private = f.root.join("private");
     let old = files::sha(&private.join("rust-service-host.exe")).unwrap();
