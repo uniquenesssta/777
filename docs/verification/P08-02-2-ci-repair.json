@@ -295,5 +295,51 @@
       }
     ],
     "submission_result": "Normal functional CI enabled; new Windows result unverified. No polling or waiting after submission."
+  },
+  "followup_run76": {
+    "id": 39232659205,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/39232659205",
+    "head": "03da785536936866120158bb481cdd6f32cdd77d",
+    "read_trigger": "User reported failure; no polling after submission.",
+    "jobs": [
+      {
+        "id": 117994100005,
+        "name": "host-sync",
+        "conclusion": "success"
+      },
+      {
+        "id": 117994100428,
+        "name": "desktop-contracts",
+        "conclusion": "failure"
+      },
+      {
+        "id": 117994101610,
+        "name": "installers",
+        "conclusion": "skipped"
+      }
+    ],
+    "windows_evidence": {
+      "device_protocol": "12 checks passed with Windows DPAPI",
+      "manager_native": "passed: submit, two 40-line PNGs, four scales, natural close, silent blocked connection and close",
+      "sales_native": "submitted order, failed at icon count; subsequent PNG and natural close not verified",
+      "earlier_stages": "desktop, backup recovery, SMB mapped drives, hidden folders and junctions passed"
+    },
+    "root_cause": "native-presentation.mjs:20 always required at least one icon. After submit, sales DetailPage correctly has no finance lock or account icon; quote-page coverage did not exercise that state.",
+    "reproduction": "Actual DetailPage markup with application CSS/assets reproduced Expected > 0, Received 0 before repair.",
+    "fix": "Separate presentation-icons.mjs; pass detail view from native runner. Assert exact detail icon and finance presence by fixture role, preserve required quote-page icons, reject missing/broken/placeholder/stretched assets. Share actual DetailPage fixture with lifecycle checks. Product and workflow unchanged.",
+    "local_checks": [
+      {
+        "command": "playwright test tests/ui/detail-presentation.spec.ts tests/ui/native-autostart.spec.ts tests/ui/presentation.spec.ts --max-failures=1",
+        "result": "passed",
+        "tests": 22,
+        "elapsed_seconds": 16.7,
+        "scope": "Local auxiliary Chromium rendering of actual components and mocked UI, not Windows native or PNG acceptance"
+      },
+      {
+        "command": "node --check presentation-icons.mjs, native-presentation.mjs and windows-autostart.mjs; git diff --check",
+        "result": "passed"
+      }
+    ],
+    "submission_result": "Normal functional CI enabled; new Windows result unverified. No polling or waiting after submission."
   }
 }

@@ -1,23 +1,8 @@
 // Actual DetailPage markup and browser locators; this is not native IPC acceptance.
 import { test, expect } from "@playwright/test";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import fs from "node:fs";
-import { allowed, type Permission } from "../../src/state/permissions";
-import { DetailPage } from "../../src/features/DetailPage";
-import type { Workbench } from "../../src/state/useWorkbench";
+import { detailMarkup as detail } from "./fixtures/detail-page";
 import { recordAutomaticEntry } from "../windows-autostart.mjs";
-
-function detail(busy: boolean, role = "admin") {
-  const app = {
-    busy, pending: false, session: { role }, can:(id:Permission)=>allowed(null,role,id),
-    selected: { details: { customer: "isolated", order_ref: "native-idle", wechat: "" },
-      state: "active", created_at: "2026-10-14T00:00:00Z", lines: [], notes: [],
-      income_cents: "1000", cost_cents: "400", profit_cents: "600" },
-  } as unknown as Workbench;
-  return renderToStaticMarkup(createElement("main", { className: "workspace", "aria-busy": busy },
-    createElement(DetailPage, { app })));
-}
 
 for (const delivery of ["manager", "sales"]) {
   test(`${delivery} native completion uses submitted DetailPage controls and records success last`, async ({ page }, testInfo) => {

@@ -300,3 +300,11 @@ Original sales backup assertion reproduced. Initial added Host assertion correct
 }
 host-integration + native-autostart browser suites: 10 passed (7.6s), including two pending formal connection cases.
 MJS syntax, Python syntax, git diff --check: passed.
+
+CI #76 Windows evidence: run 39232659205, desktop job 117994100428.
+Device protocol: 12 passed with DPAPI; manager native submit, two 40-line PNGs, scaling, natural close and blocked connection close passed. Sales failed before PNG/close checks.
+native-presentation.mjs:20: Expected > 0, Received 0 (sales detail icon count).
+Locally reproduced with actual DetailPage HTML/CSS/assets before repair: same assertion.
+After repair: detail-presentation, native-autostart, presentation browser suites: 22 passed (16.7s).
+Includes required icon removed/broken/placeholder/stretched rejection and sales finance leak rejection; local auxiliary only.
+MJS syntax and git diff --check passed. New CI not polled or awaited.

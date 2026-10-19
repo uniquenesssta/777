@@ -64,7 +64,7 @@ try {
   if(delivery==='sales' && JSON.stringify(result.prices).includes('cost'))throw Error('SALES_COST_LEAK');
   if(/device_secret|certificate_pem|ticket|token/.test(result.storage))throw Error('SECRET_IN_FRONTEND_STORAGE');
   if(presentation==='presentation') {
-    await inspectPresentation(page,output,delivery);
+    await inspectPresentation(page,output,delivery,'detail');
     for(let n=0;n<2;n++) {
       await page.getByRole('button',{name:'报价图片',exact:true}).click();
       await expect(page.getByText('已完成',{exact:true})).toHaveCount(n+1,{timeout:30000});
