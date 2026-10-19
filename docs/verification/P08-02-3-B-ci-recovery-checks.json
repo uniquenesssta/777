@@ -1,0 +1,208 @@
+{
+  "task": "P08-02-3-B-ci-daily-snapshot-recovery",
+  "status": "passed_auxiliary_windows_result_pending",
+  "branch": "stage/p08-cutover",
+  "baseline_commit": "76026f7084cd79c655152d56c1b2d2af90142fe5",
+  "observed_ci": {
+    "run_id": 39278777011,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/39278777011",
+    "conclusion": "failure",
+    "jobs": {
+      "desktop-contracts": "success",
+      "host-sync": "success",
+      "device-presentation": "failure",
+      "installers": "skipped"
+    },
+    "failed_job_id": 118149115066,
+    "stage": "真实 Rust HTTPS 设备认证、角色隔离和 v5 独立恢复",
+    "failure": "AssertionError: ",
+    "traceback": [
+      "Traceback (most recent call last):",
+      "  File \"D:\\a\\777\\777\\tools\\p07_device_check.py\", line 191, in main",
+      "    report['protocol']=protocol(binaries);progress.save()",
+      "                       ^^^^^^^^^^^^^^^^^^",
+      "  File \"D:\\a\\777\\777\\tools\\p07_device_check.py\", line 97, in protocol",
+      "    assert command('inspect',root=restored)['inventory']==before;checks.append('v1_data_restore_preserves_ledger_without_old_devices_sessions_grants')",
+      "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+      "AssertionError"
+    ],
+    "all_build_commands_passed": true,
+    "native_presentation_window_tests_executed": false,
+    "artifact_id": 12200138560,
+    "artifact_sha256": "91c38c6efd6a569734192c8acedd9e6f1fa0a944df6ec365803b873994ac9d9e",
+    "original_inventory_values_available": false,
+    "root_cause_scope": "The old assertion compares an immutable daily snapshot to the latest live ledger. The controlled native test reproduced that inequality after two later orders and verified exact restoration of all ten ledger tables. Original CI did not record its mismatching inventory values."
+  },
+  "change": {
+    "product_behavior_changed": false,
+    "daily_snapshot_replaced_or_scheduler_disabled": false,
+    "formal_ui_or_problem_logs_changed": false,
+    "recovery_inventory_check_retained": true,
+    "exact_ledger_columns_and_rows_added": true,
+    "old_credentials_and_sessions_denial_retained": true,
+    "source_ledger_and_snapshot_immutability_checks_added": true,
+    "new_native_regression_wired_after_host_build": true,
+    "new_regression_and_fixture_in_fingerprints": true,
+    "final_installers_or_their_build_preparation_verified": false
+  },
+  "local_environment": {
+    "os": "Linux",
+    "python": "3.12.14",
+    "scope": "auxiliary; not Windows acceptance"
+  },
+  "checks": {
+    "python_compile": {
+      "status": "passed",
+      "exit_code": 0
+    },
+    "p07_tools": {
+      "status": "passed_auxiliary",
+      "tests_run": 52,
+      "passed": 44,
+      "skipped": 8,
+      "failed": 0,
+      "skip_reason": "Windows-only prerequisites",
+      "log_sha256": "0dc60a217c0cf5e61693258406148f499279652df5a3771e3f1774ab0381d6b5"
+    },
+    "native_build_first_attempt": {
+      "status": "failed",
+      "exit_code": 101,
+      "reason": "quote-excel archive encountered a zero-length object file; disk and memory were available",
+      "action": "clean only quote-excel release artifacts, then rebuild from unchanged Rust source at j4"
+    },
+    "native_build_retry": {
+      "status": "passed_auxiliary",
+      "command": "cargo build --locked --release -j 4 -p quote-host -p quote-ledger",
+      "exit_code": 0,
+      "log_sha256": "b4afe859e9ce8620f9da210eb176d5671be8d250d510718528cdc2c476086691"
+    },
+    "native_recovery_regression": {
+      "status": "passed_auxiliary",
+      "tests_run": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0,
+      "duration_seconds": 11.695,
+      "cases": [
+        "test_earlier_daily_snapshot_restores_exactly_after_later_orders",
+        "test_daily_data_restore_preserves_every_ledger_field_and_output_without_old_sessions",
+        "test_corrupt_or_future_data_refused_without_target_creation"
+      ],
+      "log_sha256": "ad12b20467e43d65d0dee3b31457f5190ab26e944bb88c7bb2ab68422ba1498d",
+      "controlled_case": {
+        "regression": "test_earlier_daily_snapshot_restores_exactly_after_later_orders",
+        "restoration": {
+          "snapshot_id": "8edac4b5-a83e-426e-b1e6-ce24e65bd6e3",
+          "business_date": "2026-10-20",
+          "package_sha256": "ee1d756b768dd8763dbca7069477b8e9186e146f115268619fafbbfdf0b77e89",
+          "source_inventory": {
+            "active_cost_cents": "0",
+            "active_income_cents": "0",
+            "active_profit_cents": "0",
+            "counts": {
+              "audit_events": 1,
+              "customers": 0,
+              "import_batches": 0,
+              "lines": 0,
+              "notes": 0,
+              "order_versions": 0,
+              "orders": 0,
+              "price_versions": 1,
+              "requests": 1
+            },
+            "ledger_id": "9dddb510-e319-4a38-8294-c83dfdf68c48",
+            "revision": 1,
+            "schema_hash": "1e36e82360f009d6301e0a1f0aec55a43eb43b67050be5084c940eb0c7d7ee71",
+            "schema_version": 2
+          },
+          "restored_inventory": {
+            "active_cost_cents": "0",
+            "active_income_cents": "0",
+            "active_profit_cents": "0",
+            "counts": {
+              "audit_events": 1,
+              "customers": 0,
+              "import_batches": 0,
+              "lines": 0,
+              "notes": 0,
+              "order_versions": 0,
+              "orders": 0,
+              "price_versions": 1,
+              "requests": 1
+            },
+            "ledger_id": "9dddb510-e319-4a38-8294-c83dfdf68c48",
+            "revision": 1,
+            "schema_hash": "1e36e82360f009d6301e0a1f0aec55a43eb43b67050be5084c940eb0c7d7ee71",
+            "schema_version": 2
+          },
+          "live_inventory": {
+            "active_cost_cents": "1600",
+            "active_income_cents": "4000",
+            "active_profit_cents": "2400",
+            "counts": {
+              "audit_events": 3,
+              "customers": 0,
+              "import_batches": 0,
+              "lines": 2,
+              "notes": 0,
+              "order_versions": 0,
+              "orders": 2,
+              "price_versions": 1,
+              "requests": 3
+            },
+            "ledger_id": "9dddb510-e319-4a38-8294-c83dfdf68c48",
+            "revision": 3,
+            "schema_hash": "1e36e82360f009d6301e0a1f0aec55a43eb43b67050be5084c940eb0c7d7ee71",
+            "schema_version": 2
+          },
+          "snapshot_differs_from_live": true,
+          "exact_ledger_tables_checked": [
+            "audit_events",
+            "customers",
+            "import_batches",
+            "ledger_meta",
+            "lines",
+            "notes",
+            "order_versions",
+            "orders",
+            "price_versions",
+            "requests"
+          ]
+        }
+      },
+      "old_live_inventory_equality_reproduced_as_false": true
+    },
+    "modified_markdown_links": {
+      "status": "passed",
+      "checked": 18,
+      "missing": 0
+    },
+    "diff_whitespace": {
+      "status": "passed",
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  },
+  "next_ci": {
+    "trigger": "normal push; no skip markers",
+    "result": "not_read",
+    "poll_or_wait": false
+  },
+  "live_hosts_contacted": false,
+  "site_upgrade_performed": false,
+  "full_offline_orders_available": false,
+  "recorded_at_utc": "2026-10-19T16:59:30.879787+00:00",
+  "implementation_sha256_LF": {
+    "tools/p07_device_check.py": "c0c5a9cf8541eea41594c05f66cacc9765f6ea88e222754507cb57a793b9108d",
+    "tools/p07_device_recovery_check.py": "e6ac003f84951db85c3e1425fdee73c86f36e20c6cf0eaac690b3cf08ab6a8b8",
+    "tests/test_native_host.py": "cd8717abbf927d72ed8fffbd20e2d65f50a854b4aa12231629683a0093571b87",
+    "tests/test_native_device_recovery.py": "a66f2e7d91523c80998e41267fe1b10f9e523bcd9bfc5048e37e2397c8a7d7b2"
+  },
+  "unverified": [
+    "new Windows CI completion",
+    "actual Windows DPAPI and native presentation/quote-image execution after this repair",
+    "live 4.23/4.38 deployment and performance",
+    "C-G offline business implementation"
+  ]
+}

@@ -8,6 +8,7 @@ from native_host_fixture import Hosted,command
 from p01_validation import new_output
 from p07_check_runner import Progress,preflight,stop_tree
 from p07_device_permissions_check import check_sales_backup_denied
+from p07_device_recovery_check import check_daily_device_restore
 EXT='.exe' if os.name=='nt' else ''
 
 class Bridge:
@@ -87,15 +88,9 @@ def protocol(binaries):
         assert target.ok('recover',retry=False)['result']['income_cents']=='2000'
         assert manager.ok('orders',q='',state='',offset=0,view='')['total']==4
         checks.append('operator_new_grant_reauthorizes_revoked_device_without_deleting_pending')
-        from native_host_fixture import restore_data_backup
-        before=h.service.ledger.inventory();backup=admin.request('POST','/v1/backup',{'kind':'daily'})
-        restored=h.root/'restored';restore_data_backup(h,backup,restored)
-        assert not (restored/'private/devices.sqlite3').exists()
-        with closing(sqlite3.connect(restored/'private/auth.sqlite3')) as c:
-            assert c.execute('SELECT count(*) FROM sessions').fetchone()[0]==0
-            assert c.execute('SELECT username FROM users WHERE enabled=1').fetchall()==[('recovered-manager',)]
-        assert command('inspect',root=restored)['inventory']==before;checks.append('v1_data_restore_preserves_ledger_without_old_devices_sessions_grants')
-        return {'status':'passed','checks':checks,'Windows_DPAPI':os.name=='nt','production_paths_accessed':False}
+        restoration=check_daily_device_restore(h,admin)
+        checks.append('data_restore_matches_selected_daily_snapshot_without_old_devices_sessions_grants')
+        return {'status':'passed','checks':checks,'restoration':restoration,'Windows_DPAPI':os.name=='nt','production_paths_accessed':False}
     finally:
         for b in bridges:b.close()
         h.close()
@@ -182,12 +177,14 @@ def main(argv=None):
         if not (ROOT/'desktop/node_modules').is_dir():run([paths['npm'],'ci','--prefix','desktop','--ignore-scripts','--no-audit','--no-fund'])
         run([paths['npm'],'--prefix','desktop','run','build'])
         run([paths['cargo'],'+1.97.1','build','--locked','--release','-j',str(a.jobs),'-p','quote-host','-p','quote-ledger'])
+        progress.stage('既有每日快照与后续入账的真实 Host 恢复回归')
+        run([sys.executable,'-m','unittest','discover','-s','tests','-p','test_native_device_recovery.py','-v'])
         binaries={}
         for kind in ['manager','sales']:
             progress.stage('构建隔离验证用 '+kind+' 桌面端')
             run([paths['cargo'],'+1.97.1','build','--locked','--release','-j',str(a.jobs),'-p','quote-desktop','--features','verification,custom-protocol,'+kind])
             binaries[kind]=out/(kind+EXT);shutil.copyfile(ROOT/'target/release'/('quote-desktop'+EXT),binaries[kind]);os.chmod(binaries[kind],0o700)
-        progress.stage('真实 Rust HTTPS 设备认证、角色隔离和 v5 独立恢复')
+        progress.stage('真实 Rust HTTPS 设备认证、角色隔离和业务数据恢复')
         report['protocol']=protocol(binaries);progress.save()
         if a.windows_smoke:
             report['native']=[]
@@ -203,7 +200,7 @@ def main(argv=None):
         if a.presentation:
             assets=json.loads((ROOT/'desktop/resources/fonts.json').read_text(encoding='utf-8'))['assets']
             report['font_assets']=[{'file':x['file'],'expected_sha256':x['sha256'],'sha256':hashlib.sha256((ROOT/'desktop/public/fonts'/x['file']).read_bytes()).hexdigest() if (ROOT/'desktop/public/fonts'/x['file']).is_file() else None,'bytes':(ROOT/'desktop/public/fonts'/x['file']).stat().st_size if (ROOT/'desktop/public/fonts'/x['file']).is_file() else None,'source':x['url']} for x in assets]
-        files += [ROOT/n for n in ['Cargo.toml','Cargo.lock','rust-toolchain.toml','docs/verification/P07-02-device-schema.sql','.github/workflows/p07-windows.yml']]
+        files += [ROOT/n for n in ['Cargo.toml','Cargo.lock','rust-toolchain.toml','tests/native_host_fixture.py','tests/test_native_device_recovery.py','docs/verification/P07-02-device-schema.sql','.github/workflows/p07-windows.yml']]
         report['implementation_sha256_LF']={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes().replace(b'\r\n',b'\n')).hexdigest() for p in sorted(files)}
         progress.save()
     print(json.dumps({k:v for k,v in report.items() if k not in ['commands','implementation_sha256_LF']},ensure_ascii=False,indent=2));return 0 if 'passed' in report['status'] else 1

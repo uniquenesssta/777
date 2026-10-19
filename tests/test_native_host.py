@@ -138,7 +138,8 @@ class NativeHostTests(unittest.TestCase):
         entry=self.manager.request('POST','/v1/backup',{'kind':'daily'});folder=backup_pair(self.host,entry)
         data=json.loads((folder/'data.qbackup').read_bytes())['data'];before=self.host.service.ledger.inventory()
         target=self.host.root/'native-restored';native=restore_data_backup(self.host,entry,target)
-        self.assertEqual(native['inventory'],before);self.assertEqual(command('inspect',root=target)['inventory'],before)
+        self.assertEqual(native['source_inventory'],data['inventory']);self.assertEqual(native['inventory'],data['inventory'])
+        self.assertEqual(command('inspect',root=target)['inventory'],data['inventory']);self.assertEqual(self.host.service.ledger.inventory(),before)
         with closing(sqlite3.connect(target/'private/ledger.sqlite3')) as c:
             for name,table in data['ledger'].items():self.assertEqual([list(r) for r in c.execute('SELECT * FROM '+name+' ORDER BY rowid')],table['rows'])
         with closing(sqlite3.connect(target/'private/auth.sqlite3')) as c:
