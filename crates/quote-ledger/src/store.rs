@@ -115,6 +115,7 @@ pub fn verify(c: &Connection) -> Result<Value> {
     let expected = match version {
         1 => LEGACY_SCHEMA_HASH,
         2 => SCHEMA_HASH,
+        3 => crate::intake::HASH,
         _ => return Err(Error::new("INVALID_DATABASE")),
     };
     if app != 0x3737374c || schema_hash(c)? != expected {
@@ -128,12 +129,18 @@ pub fn verify(c: &Connection) -> Result<Value> {
 }
 /// Upgrade only a verified v1 ledger, atomically; unknown schemas are never rewritten.
 pub fn migrate(c: &Connection) -> Result<()> {
-    if verify(c)?["schema_version"] == 2 {
+    if verify(c)?["schema_version"]
+        .as_i64()
+        .is_some_and(|v| v >= 2)
+    {
         return Ok(());
     }
     c.execute_batch("BEGIN IMMEDIATE")?;
     let result = (|| -> Result<()> {
-        if verify(c)?["schema_version"] == 2 {
+        if verify(c)?["schema_version"]
+            .as_i64()
+            .is_some_and(|v| v >= 2)
+        {
             c.execute_batch("COMMIT")?;
             return Ok(());
         }

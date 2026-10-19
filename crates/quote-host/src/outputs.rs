@@ -472,6 +472,9 @@ impl Outputs {
     pub fn validate_ledger(&self, path: &Path) -> Result<Vec<String>> {
         let c = self.connection()?;
         let l = store::open(path, false)?;
+        self.validate_snapshot(&c, &l)
+    }
+    pub(crate) fn validate_snapshot(&self, c: &Connection, l: &Connection) -> Result<Vec<String>> {
         let mut st = c.prepare("SELECT * FROM jobs")?;
         let jobs = st
             .query_map([], job)?
@@ -494,13 +497,13 @@ impl Outputs {
                     .as_array()
                     .ok_or_else(|| Error::new(503, "OUTPUT_LEDGER_BINDING_INVALID"))?
                 {
-                    validate_order_binding(&l, o, admin)?;
+                    validate_order_binding(l, o, admin)?;
                 }
             } else {
                 if j.payload["order"]["order_id"] != j.order {
                     return fail(503, "OUTPUT_LEDGER_BINDING_INVALID");
                 }
-                validate_order_binding(&l, &j.payload["order"], admin)?;
+                validate_order_binding(l, &j.payload["order"], admin)?;
             }
             if j.blob_hash.is_some() {
                 self.blob(&j)?;
@@ -707,7 +710,10 @@ fn validate_order_binding(c: &Connection, o: &Value, admin: bool) -> Result<()> 
     let oid = o["order_id"].as_str().ok_or_else(bad)?;
     let revision = o["revision"].as_i64().filter(|r| *r > 0).ok_or_else(bad)?;
     let mut old = quote_ledger::editing::snapshot(c, oid)?["order"].clone();
-    if store::verify(c)?["schema_version"] == 2 {
+    if store::verify(c)?["schema_version"]
+        .as_i64()
+        .is_some_and(|v| v >= 2)
+    {
         let archive:Option<(i64,String)>=c.query_row("SELECT revision,snapshot_json FROM order_versions WHERE order_id=? AND revision>=? ORDER BY revision LIMIT 1",params![oid,revision],|r|Ok((r.get(0)?,r.get(1)?))).optional()?;
         if let Some((rev, raw)) = archive {
             old = quote_ledger::editing::validate_archive(c, oid, rev, &raw)?["order"].clone();

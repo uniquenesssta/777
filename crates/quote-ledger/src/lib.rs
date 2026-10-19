@@ -1,5 +1,6 @@
 //! Native ledger-v1 storage. Authentication stays at the trusted service boundary.
 pub mod editing;
+pub mod intake;
 pub mod integrity;
 pub mod paths;
 pub mod store;

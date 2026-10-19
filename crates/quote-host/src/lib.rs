@@ -1,4 +1,6 @@
 //! Windows Rust HTTPS host, preserving 777-service-v1 and versioned ledgers.
+#[cfg(test)]
+extern crate self as quote_host;
 pub mod analytics;
 pub mod auth;
 pub mod automatic;
@@ -103,5 +105,6 @@ pub fn casefold(s: &str) -> String {
         .collect()
 }
 pub mod image;
+pub mod intake;
 
 pub mod transport;

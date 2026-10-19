@@ -14,6 +14,7 @@ use std::{
 };
 pub const FORMAT: &str = "777-cluster-snapshot-v1";
 pub const FORMAT_V2: &str = "777-cluster-snapshot-v2";
+pub const FORMAT_V3: &str = "777-cluster-snapshot-v3";
 pub const CHUNK: usize = 256 * 1024;
 pub const MANIFEST_LIMIT: usize = 8 * 1024 * 1024;
 const FILE_LIMIT: u64 = 256 * 1024 * 1024;
@@ -96,7 +97,7 @@ pub fn read(root: &Path, p: &Publication) -> Result<Manifest> {
     Ok(m)
 }
 pub fn validate_manifest(m: &Manifest, c: &Config) -> Result<()> {
-    if ![FORMAT, FORMAT_V2].contains(&m.format.as_str())
+    if ![FORMAT, FORMAT_V2, FORMAT_V3].contains(&m.format.as_str())
         || m.cluster_id != c.cluster_id
         || m.ledger_id != c.ledger_id
         || m.inventory["ledger_id"] != c.ledger_id
@@ -138,7 +139,9 @@ pub fn validate_data(folder: &Path, m: &Manifest) -> Result<()> {
     }
     let auth = Auth::open(folder.join("auth.sqlite3"))?;
     let v2 = crate::automatic::schema::enabled(&auth.connection()?)?;
-    if v2 != (m.format == FORMAT_V2) {
+    if v2 != [FORMAT_V2, FORMAT_V3].contains(&m.format.as_str())
+        || (m.inventory["schema_version"] == 3) != (m.format == FORMAT_V3)
+    {
         return fail(409, "CLUSTER_AUTH_PROTOCOL_CONFLICT");
     }
     backup::accounts(&ledger, &auth)?;
@@ -245,7 +248,9 @@ pub fn capture(s: &Service, c: &Config) -> Result<Option<Publication>> {
             );
         }
         let m = Manifest {
-            format: if crate::automatic::schema::enabled(&s.auth.connection()?)? {
+            format: if inventory["schema_version"] == 3 {
+                FORMAT_V3
+            } else if crate::automatic::schema::enabled(&s.auth.connection()?)? {
                 FORMAT_V2
             } else {
                 FORMAT

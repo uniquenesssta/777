@@ -4,19 +4,19 @@
 
 新增接收原文、状态、去重、冲突、变更游标均放在 **同一个有效业务 ledger.sqlite3**，与订单事务共同提交；不新建一个无法与订单原子提交的旁路 inbox.sqlite3。认证仍在既有 auth/devices 存储，凭据不写进业务原文。主机密钥、可撤销授权与业务数据保持既有分离，恢复文件不携带认证秘密。
 
-设计采用 ledger schema 3。下面是表职责，**不是已生效 DDL**；B 必须在单独迁移文件实现，并同步结构哈希、完整性、恢复和复制校验：
+采用 ledger schema 3。下面保留完整职责设计；B 已在 `crates/quote-ledger/src/intake/schema.sql` 实现接收所需 DDL、结构哈希、完整性、恢复和复制校验，C 的业务应用/裁定尚未实现。普通创建/启动不自动升级，显式维护启用后才迁移：
 
 | 表/结构 | 必须保存的内容与约束 |
 | --- | --- |
 | offline_streams | stream_id、原设备、主体、登记 epoch、创建/停用信息；stream 是受认证登记的设备实例，不允许客户端随意冒用 |
 | offline_operations | operation_id 主键、stream/sequence 唯一、目标订单/所有者、租约与身份 epoch、kind、规范原文和摘要、主机收到时间；原件只追加 |
 | offline_states | operation_id 外键；received/waiting_dependency/applied/conflict/rejected、版本/原因、最终 request_id/回执引用、下一次可执行时间 |
-| offline_dependencies | 当前与前项 ID、同订单/设备/stream 约束、缺失依赖；接收可先保存前项尚未到达的 ID，处理前强校验并检测环 |
+| 前项依赖 | B 存在 offline_operations.previous_operation_id 及索引中，不重复建依赖表；同订单/设备/stream 约束、缺失依赖；接收可先保存前项尚未到达的 ID，处理前强校验并检测环 |
 | offline_conflicts | 原候选、共同基础、主机当前版本、业务字段差异；所有成本利润字段按读取权限裁剪，原始快照不可变 |
 | offline_resolutions | 获授权裁定人、稳定裁定操作 ID、基础版本、选择及生效回执；同候选只允许一个匹配基础的有效裁定，竞争裁定需重新核对 |
 | offline_events | 状态变化及来源，仅供受授权维护/业务追溯；与状态事务共存，不生成问题日志目录 |
 | order_changes_feed | 单调 change_id、订单/确认版本/归属、需撤销投影的变更；只读投影按权限分页，不能直接把表数据发给子版 |
-| 元数据/行映射 | 协议版本、恢复 epoch；现有稳定 line_id 与离线行 ID 的明确映射；不能仅按显示位置合并行 |
+| 元数据/行映射 | B 的 offline_meta 保存恢复 epoch、公钥、收件 revision，offline_leases 保存不可变签名租约，offline_collisions 限额保留 ID 碰撞证据；C 仍需明确现有稳定 line_id 与离线行 ID 的映射，不能仅按显示位置合并行 |
 
 接收事务：校验已认证绑定及摘要 → 查原 ID/stream 序号与在线 requests 冲突 → 容量核算 → 追加原件、依赖和初始状态 → COMMIT → 返回 202。未 COMMIT、磁盘满、busy 或连接中断结果不明时不能宣称已接收；按原 ID 核查。相同原件已存在时不重复占容量或插入业务。
 
@@ -42,6 +42,8 @@
 - 离线租约签名公钥和历史 key_id 可随恢复数据保留供核对；私钥不进业务备份。换机恢复通过维护重绑并签发新租约，保留旧原件而不伪造旧身份。
 
 **启用前必须先完成新格式的写出、读回、故障恢复和新复制端校验；任何一项未就绪都不向终端发布离线能力。** B 可以先交付未启用的接收基础，但不能带未受保护的新队列投入正式使用。
+
+B 的恢复 envelope 仍受既有 256 MiB 限额约束，收件原文的 2 GiB 容量上限不表示最大积压已能单包恢复。F 必须完成有界分卷及恢复验证，再结合 C/D 开放完整离线能力。恢复只重建数据，不带回签名私钥或接收启用配置；重新准备时生成新的恢复 epoch，旧候选进入保全核对。
 
 ## 终端本机库（D）
 

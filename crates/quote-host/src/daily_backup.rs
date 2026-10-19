@@ -104,7 +104,7 @@ fn create_date(s: &Service, date: &str, current: &str, pending_only: bool) -> Re
         files::new_dir(&tmp)?;
         quote_diagnostics::event("backup.snapshot.start", json!({"date":date}));
         let generated: Result<()> = (|| {
-            let data = recovery::capture(s, date)?;
+            let data = recovery::capture_live(s, date)?;
             let raw = recovery::encode(&data)?;
             let decoded = recovery::decode(&raw)?;
             recovery::restore_ledger(&decoded, &tmp.join("verify.sqlite3"))?;

@@ -22,6 +22,9 @@ use std::{
     },
     time::Duration,
 };
+#[cfg(test)]
+#[path = "host_checks/intake.rs"]
+mod intake_http_checks;
 pub fn certificate_sha(path: &Path) -> Result<String> {
     let raw = files::read(path, 65536)?;
     let s =
@@ -352,6 +355,11 @@ pub fn select(options: Selection<'_>) -> Result<Value> {
 struct State {
     service: Arc<Mutex<Service>>,
     capacity: Arc<tokio::sync::Semaphore>,
+    intake_capacity: Arc<tokio::sync::Semaphore>,
+    backup_capacity: Arc<tokio::sync::Semaphore>,
+    intake: Option<Arc<crate::intake::Intake>>,
+    backup: Option<Arc<Mutex<Service>>>,
+    authorization: Arc<Mutex<()>>,
     peer: Option<Arc<crate::cluster::transport::Peer>>,
     dirty: Arc<AtomicBool>,
 }
@@ -365,6 +373,7 @@ async fn handler(
         http::{Response, StatusCode},
     };
     let started = std::time::Instant::now();
+    let intake_accept = req.method() == "POST" && req.uri().path() == "/v1/offline/operations";
     let peer_execution_id = req
         .headers()
         .get("x-777-execution-id")
@@ -429,7 +438,10 @@ async fn handler(
         {
             return fail(415, "JSON_REQUIRED");
         }
-        if req.uri().path().starts_with("/v1/automatic/") && req.uri().query().is_some() {
+        if (req.uri().path().starts_with("/v1/automatic/")
+            || req.uri().path().starts_with("/v1/offline/"))
+            && req.uri().query().is_some()
+        {
             return fail(422, "INVALID_QUERY");
         }
         let package_token = headers
@@ -454,105 +466,163 @@ async fn handler(
             package_token,
         ))
     })();
-    let result = match result {
-        Err(e) => Err(e),
-        Ok((method, path, query, token, package_token)) => {
-            match state.capacity.clone().try_acquire_owned() {
-                Err(_) => fail(429, "SERVICE_CAPACITY"),
-                Ok(permit) => {
-                    let data = if method == "POST" {
-                        match tokio::time::timeout(
-                            Duration::from_secs(10),
-                            to_bytes(
-                                req.into_body(),
-                                if path.starts_with("/v1/automatic/") {
-                                    65536
-                                } else if path.starts_with("/v1/cluster/") {
-                                    2 * protocol::BODY_LIMIT
-                                } else {
-                                    protocol::BODY_LIMIT
-                                },
-                            ),
-                        )
-                        .await
-                        {
-                            Ok(Ok(raw)) => protocol::decode(
-                                &raw,
-                                if path.starts_with("/v1/automatic/") {
-                                    65536
-                                } else if path.starts_with("/v1/cluster/") {
-                                    2 * protocol::BODY_LIMIT
-                                } else {
-                                    protocol::BODY_LIMIT
-                                },
-                            ),
-                            Ok(Err(_)) => fail(413, "BODY_TOO_LARGE"),
-                            Err(_) => fail(408, "BODY_TIMEOUT"),
-                        }
-                    } else {
-                        Ok(Value::Null)
-                    };
-                    match data {
-                        Err(e) => Err(e),
-                        Ok(data) if state.peer.is_some() => {
-                            let _permit = permit;
-                            if path.starts_with("/v1/cluster/") {
-                                fail(409, "CLUSTER_REPLICA_CANNOT_WRITE")
-                            } else {
-                                state
-                                    .peer
-                                    .as_ref()
-                                    .unwrap()
-                                    .forward(&method, &path, &query, &token, &data)
-                                    .await
-                            }
-                        }
-                        Ok(data) => {
-                            let dirty = state.dirty.clone();
-                            tokio::task::spawn_blocking(move || {
-                                let _permit = permit;
-                                let mut service = state
-                                    .service
-                                    .lock()
-                                    .map_err(|_| Error::new(503, "SERVICE_UNAVAILABLE"))?;
-                                let changes =
-                                    crate::cluster::runtime::changes(&method, &path, &data);
-                                let result = if path.starts_with("/v1/automatic/") {
-                                    crate::automatic::api::handle(
-                                        &service,
-                                        &method,
-                                        &path,
-                                        &token,
-                                        &package_token,
-                                        &data,
-                                        &peer.ip().to_string(),
-                                    )
-                                } else {
-                                    service.handle(
-                                        &method,
-                                        &path,
-                                        &token,
-                                        &data,
-                                        &query,
-                                        &peer.ip().to_string(),
-                                    )
-                                };
-                                if changes {
-                                    dirty.store(true, Ordering::SeqCst);
-                                }
-                                result
-                            })
+    let result =
+        match result {
+            Err(e) => Err(e),
+            Ok((method, path, query, token, package_token)) => {
+                let capacity = if path.starts_with("/v1/offline/") {
+                    state.intake_capacity.clone()
+                } else if path == "/v1/backup" {
+                    state.backup_capacity.clone()
+                } else {
+                    state.capacity.clone()
+                };
+                match capacity.try_acquire_owned() {
+                    Err(_) => fail(429, "SERVICE_CAPACITY"),
+                    Ok(permit) => {
+                        let data = if method == "POST" {
+                            match tokio::time::timeout(
+                                Duration::from_secs(10),
+                                to_bytes(
+                                    req.into_body(),
+                                    if path.starts_with("/v1/automatic/") {
+                                        65536
+                                    } else if path.starts_with("/v1/cluster/") {
+                                        2 * protocol::BODY_LIMIT
+                                    } else {
+                                        protocol::BODY_LIMIT
+                                    },
+                                ),
+                            )
                             .await
-                            .unwrap_or_else(|_| fail(500, "SERVICE_FAILED"))
+                            {
+                                Ok(Ok(raw)) => protocol::decode(
+                                    &raw,
+                                    if path.starts_with("/v1/automatic/") {
+                                        65536
+                                    } else if path.starts_with("/v1/cluster/") {
+                                        2 * protocol::BODY_LIMIT
+                                    } else {
+                                        protocol::BODY_LIMIT
+                                    },
+                                ),
+                                Ok(Err(_)) => fail(413, "BODY_TOO_LARGE"),
+                                Err(_) => fail(408, "BODY_TIMEOUT"),
+                            }
+                        } else {
+                            Ok(Value::Null)
+                        };
+                        match data {
+                            Err(e) => Err(e),
+                            Ok(data) if state.peer.is_some() => {
+                                let _permit = permit;
+                                if path.starts_with("/v1/cluster/")
+                                    || path.starts_with("/v1/offline/")
+                                {
+                                    fail(409, "CLUSTER_REPLICA_CANNOT_WRITE")
+                                } else {
+                                    state
+                                        .peer
+                                        .as_ref()
+                                        .unwrap()
+                                        .forward(&method, &path, &query, &token, &data)
+                                        .await
+                                }
+                            }
+                            Ok(data) => {
+                                let dirty = state.dirty.clone();
+                                tokio::task::spawn_blocking(move || {
+                                    let _permit = permit;
+                                    if path.starts_with("/v1/offline/") {
+                                        let intake = state.intake.as_ref().ok_or_else(|| {
+                                            Error::new(426, "OFFLINE_INTAKE_NOT_ENABLED")
+                                        })?;
+                                        let _authorized = state
+                                            .authorization
+                                            .lock()
+                                            .map_err(|_| Error::new(503, "SERVICE_UNAVAILABLE"))?;
+                                        let result = intake.handle(&method, &path, &token, &data);
+                                        if path != "/v1/offline/receipts" {
+                                            dirty.store(true, Ordering::SeqCst);
+                                        }
+                                        return result;
+                                    }
+                                    if path == "/v1/backup" {
+                                        let backup = state.backup.as_ref().ok_or_else(|| {
+                                            Error::new(503, "SERVICE_UNAVAILABLE")
+                                        })?;
+                                        let result = backup
+                                            .lock()
+                                            .map_err(|_| Error::new(503, "SERVICE_UNAVAILABLE"))?
+                                            .handle(
+                                                &method,
+                                                &path,
+                                                &token,
+                                                &data,
+                                                &query,
+                                                &peer.ip().to_string(),
+                                            );
+                                        if method == "POST" {
+                                            dirty.store(true, Ordering::SeqCst);
+                                        }
+                                        return result;
+                                    }
+                                    let mut service = state
+                                        .service
+                                        .lock()
+                                        .map_err(|_| Error::new(503, "SERVICE_UNAVAILABLE"))?;
+                                    let ordered_write = method == "POST"
+                                        && (data.get("request_id").is_some()
+                                            || path.starts_with("/v1/automatic/")
+                                            || path.starts_with("/v1/devices/")
+                                            || path == "/v1/accounts"
+                                            || path == "/v1/cluster/forward");
+                                    let _authorized =
+                                        if ordered_write {
+                                            Some(state.authorization.lock().map_err(|_| {
+                                                Error::new(503, "SERVICE_UNAVAILABLE")
+                                            })?)
+                                        } else {
+                                            None
+                                        };
+                                    let changes =
+                                        crate::cluster::runtime::changes(&method, &path, &data);
+                                    let result = if path.starts_with("/v1/automatic/") {
+                                        crate::automatic::api::handle(
+                                            &service,
+                                            &method,
+                                            &path,
+                                            &token,
+                                            &package_token,
+                                            &data,
+                                            &peer.ip().to_string(),
+                                        )
+                                    } else {
+                                        service.handle(
+                                            &method,
+                                            &path,
+                                            &token,
+                                            &data,
+                                            &query,
+                                            &peer.ip().to_string(),
+                                        )
+                                    };
+                                    if changes {
+                                        dirty.store(true, Ordering::SeqCst);
+                                    }
+                                    result
+                                })
+                                .await
+                                .unwrap_or_else(|_| fail(500, "SERVICE_FAILED"))
+                            }
                         }
                     }
                 }
             }
-        }
-    };
-    let (status, value) = match result {
-        Ok(v) => (200, v),
-        Err(e) => (e.status, json!({"error":e.code})),
+        };
+    let (status, value, retry_after) = match result {
+        Ok(v) => (if intake_accept { 202 } else { 200 }, v, None),
+        Err(e) => (e.status, json!({"error":e.code}), e.retry_after),
     };
     let record = if ["order-preview", "order-save"].contains(&route_log.as_str()) {
         quote_diagnostics::event_each
@@ -572,13 +642,15 @@ async fn handler(
         );
     }
     let body = store::encoded(&value);
-    Response::builder()
+    let mut response = Response::builder()
         .status(StatusCode::from_u16(status).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR))
         .header("content-type", "application/json; charset=utf-8")
         .header("cache-control", "no-store")
-        .header("content-length", body.len())
-        .body(Body::from(body))
-        .unwrap()
+        .header("content-length", body.len());
+    if let Some(seconds) = retry_after.or_else(|| (status == 429 || status == 503).then_some(1)) {
+        response = response.header("retry-after", seconds.to_string());
+    }
+    response.body(Body::from(body)).unwrap()
 }
 pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
     if service.config["service_backend"] != "rust" || service.config["ledger_backend"] != "rust" {
@@ -644,17 +716,60 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
     let listener = std::net::TcpListener::bind(address)?;
     listener.set_nonblocking(true)?;
     let bound = listener.local_addr()?;
+    let intake = if replica {
+        None
+    } else {
+        crate::intake::Intake::open(&loaded)?.map(Arc::new)
+    };
+    // An independent, validated service view keeps backup SMB IO outside the business mutex.
+    let schedule_service = if replica {
+        None
+    } else {
+        Some(Arc::new(Mutex::new(Service::load(
+            &loaded.root,
+            loaded.auxiliary,
+            false,
+        )?)))
+    };
     let service = Arc::new(Mutex::new(loaded));
     let dirty = Arc::new(AtomicBool::new(true));
+    let intake_worker = intake.clone();
+    let authorization = Arc::new(Mutex::new(()));
+    let intake_authorization = authorization.clone();
     let state = State {
         service: service.clone(),
         capacity: Arc::new(tokio::sync::Semaphore::new(8)),
+        intake_capacity: Arc::new(tokio::sync::Semaphore::new(4)),
+        backup_capacity: Arc::new(tokio::sync::Semaphore::new(1)),
+        intake,
+        backup: schedule_service.clone(),
+        authorization,
         peer: upstream.clone(),
         dirty: dirty.clone(),
     };
     let app = axum::Router::new().fallback(handler).with_state(state);
     let handle = axum_server::Handle::new();
     let stop = Arc::new(AtomicBool::new(false));
+    let intake_stop = stop.clone();
+    let intake_dirty = dirty.clone();
+    let intake_progress = tokio::task::spawn_blocking(move || {
+        let mut cursor = String::new();
+        while !intake_stop.load(Ordering::SeqCst) {
+            if let Some(i) = &intake_worker {
+                if let Ok(_gate) = intake_authorization.lock() {
+                    match i.advance(&mut cursor) {
+                        Ok(true) => intake_dirty.store(true, Ordering::SeqCst),
+                        Ok(false) => (),
+                        Err(e) => quote_diagnostics::event(
+                            "offline.intake.review_failed",
+                            json!({"error":e.code}),
+                        ),
+                    }
+                }
+            }
+            std::thread::sleep(Duration::from_millis(100));
+        }
+    });
     if test_stdin {
         let h = handle.clone();
         let stop = stop.clone();
@@ -711,7 +826,6 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
             }
         }
     });
-    let schedule_service = service.clone();
     let schedule_stop = stop.clone();
     let schedule_dirty = dirty.clone();
     let schedule = tokio::task::spawn_blocking(move || {
@@ -723,14 +837,17 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
                 if replica {
                     continue;
                 }
-                let check = schedule_service
-                    .lock()
-                    .ok()
-                    .map(|s| crate::daily_backup::check(&s));
-                if check.is_some_and(|check| check.is_ok_and(|check| !check.ready())) {
+                let Some(backup) = schedule_service.as_ref() else {
+                    continue;
+                };
+                let Ok(s) = backup.lock() else {
+                    continue;
+                };
+                let check = crate::daily_backup::check(&s);
+                if check.is_ok_and(|check| !check.ready()) {
                     continue;
                 }
-                if let Ok(s) = schedule_service.lock() {
+                {
                     let outcome = backup::due(&s);
                     if !matches!(outcome, Ok(None)) {
                         schedule_dirty.store(true, Ordering::SeqCst);
@@ -782,6 +899,9 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
         .serve(app.into_make_service_with_connect_info::<std::net::SocketAddr>())
         .await;
     stop.store(true, Ordering::SeqCst);
+    intake_progress
+        .await
+        .map_err(|_| Error::new(503, "OFFLINE_INTAKE_WORKER_FAILED"))?;
     worker
         .await
         .map_err(|_| Error::new(503, "OUTPUT_WORKER_FAILED"))?;

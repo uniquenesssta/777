@@ -321,6 +321,16 @@ impl Service {
         if method == "POST" && data.get("request_id").is_some() {
             let key = text(&data["request_id"], 36, true)?;
             store::id(key)?;
+            let c = store::open(&self.ledger, false)?;
+            if store::verify(&c)?["schema_version"] == 3
+                && c.query_row(
+                    "SELECT EXISTS(SELECT 1 FROM offline_operations WHERE operation_id=?)",
+                    [key],
+                    |r| r.get::<_, bool>(0),
+                )?
+            {
+                return fail(409, "REVISION_OR_PRICE_CONFLICT");
+            }
             let output = path == "/v1/outputs" || path.starts_with("/v1/outputs/");
             if output {
                 if store::open(&self.ledger, false)?.query_row(

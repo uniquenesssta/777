@@ -84,6 +84,7 @@ impl Args {
                 "--secret-stdin",
             ],
             "authorize" => vec!["--root", "--admin", "--auxiliary", "--secret-stdin"],
+            "prepare-offline-intake" => vec!["--root", "--admin", "--auxiliary", "--secret-stdin"],
             "configure-daily" => vec![
                 "--root",
                 "--backup-dir",
@@ -217,6 +218,7 @@ async fn execute(a: Args) -> Result<Value> {
    if a.has("--auxiliary-font"){if cfg!(windows)||!auxiliary||!a.has("--isolated-test"){return fail(422,"AUXILIARY_FONT_FORBIDDEN")};service.font=Some(a.path("--auxiliary-font")?);}host::serve(service,a.has("--shutdown-stdin")||a.has("--test-shutdown-stdin")).await?;Ok(json!({"status":"stopped","ownership_released":true}))},
   "enable-devices"=>{let _owner=files::Owner::acquire(&root)?;let mut s=Service::load(&root,auxiliary,true)?;let login=s.auth.login(&json!(a.get("--admin")?),&json!(a.secret(false)?),"enable-devices")?;let token=login["token"].as_str().unwrap();let result=(||{auth::Auth::admin(&s.auth.authenticate(token)?)?;if s.devices.is_some(){return Ok(json!({"status":"already_enabled"}))};quote_host::devices::Devices::create(&root.join("private/devices.sqlite3"))?;s.config["device_auth"]=json!(quote_host::devices::FORMAT);files::replace_json(&root.join("private/service.json"),&s.config)?;Ok(json!({"status":"device_auth_enabled_restart_required"}))})();let _=s.auth.logout(token);result},
   "inspect"=>{let s=Service::load(&root,auxiliary,true)?;Ok(json!({"inventory":integrity::inventory(&store::open(&s.ledger,false)?)?,"maintenance":s.config["maintenance"],"host_backend":s.config.get("service_backend").unwrap_or(&json!("python")),"private_security":s.config["private_security"],"certificate_sha256":s.config["certificate_sha256"],"shutdown_control":"stdin-v1"}))},
+  "prepare-offline-intake"=>quote_host::intake::setup::enable(&root,a.get("--admin")?,&a.secret(false)?,auxiliary),
   "export-offline"=>quote_host::offline::export(&root,&a.path("--package")?,a.get("--admin")?,&a.secret(false)?,auxiliary),
   "authorize"=>quote_host::operator::authorize(&root,a.get("--admin")?,&a.secret(false)?,auxiliary),
   "configure-daily"=>quote_host::operator::configure_daily(&root,&a.path("--backup-dir")?,&a.path("--hidden-dir")?,a.default("--daily-hour","23").parse().map_err(|_|Error::new(422,"DAILY_BACKUP_CONFIG_INVALID"))?,a.get("--admin")?,&a.secret(false)?,auxiliary),

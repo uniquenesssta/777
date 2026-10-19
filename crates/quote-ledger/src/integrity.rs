@@ -205,9 +205,11 @@ pub fn inventory(c: &Connection) -> Result<Value> {
             return Err(Error::new("INVALID_DATABASE"));
         }
     }
-    Ok(
-        json!({"ledger_id":meta["ledger_id"],"schema_version":meta["schema_version"],"schema_hash":meta["schema_hash"],"revision":meta["revision"],"counts":counts,"active_income_cents":sums[0].to_string(),"active_cost_cents":sums[1].to_string(),"active_profit_cents":sums[2].to_string()}),
-    )
+    let mut result = json!({"ledger_id":meta["ledger_id"],"schema_version":meta["schema_version"],"schema_hash":meta["schema_hash"],"revision":meta["revision"],"counts":counts,"active_income_cents":sums[0].to_string(),"active_cost_cents":sums[1].to_string(),"active_profit_cents":sums[2].to_string()});
+    if meta["schema_version"] == 3 {
+        result["offline_intake"] = crate::intake::inventory(c)?;
+    }
+    Ok(result)
 }
 pub fn backup(source: &Path, target: &Path) -> Result<Value> {
     paths::local(target, false)?;

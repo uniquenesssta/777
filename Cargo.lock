@@ -2814,6 +2814,7 @@ dependencies = [
  "quote-security",
  "rcgen",
  "reqwest",
+ "ring",
  "rpassword",
  "rusqlite",
  "rustls",

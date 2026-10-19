@@ -7,6 +7,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::{collections::BTreeMap, fs, path::Path};
 pub const FORMAT: &str = "777-data-backup-v2";
+pub const FORMAT_V3: &str = "777-data-backup-v3";
+mod intake;
 pub const LEGACY_FORMAT: &str = "777-data-backup-v1";
 pub const LIMIT: usize = 256 * 1024 * 1024;
 const LEGACY_LEDGER: [&str; 8] = [
@@ -85,12 +87,33 @@ fn table(c: &Connection, sql: &str) -> Result<Table> {
     Ok(Table { columns, rows })
 }
 pub fn capture(s: &Service, date: &str) -> Result<Data> {
+    capture_inner(s, date, false)
+}
+/// Only local snapshot reads hold the writer reservation; Excel/SMB run after return.
+pub fn capture_live(s: &Service, date: &str) -> Result<Data> {
+    capture_inner(s, date, true)
+}
+fn capture_inner(s: &Service, date: &str, live: bool) -> Result<Data> {
     crate::backup::accounts(&s.ledger, &s.auth)?;
-    let c = store::open(&s.ledger, false)?;
-    let _tx = c.unchecked_transaction()?;
+    let c = store::open(&s.ledger, live)?;
+    let _tx = rusqlite::Transaction::new_unchecked(
+        &c,
+        if live {
+            rusqlite::TransactionBehavior::Immediate
+        } else {
+            rusqlite::TransactionBehavior::Deferred
+        },
+    )?;
     let inventory = integrity::inventory(&c)?;
     let legacy = inventory["schema_version"] == 1;
-    let tables: &[&str] = if legacy { &LEGACY_LEDGER } else { &LEDGER };
+    let format = if legacy {
+        LEGACY_FORMAT
+    } else if inventory["schema_version"] == 3 {
+        FORMAT_V3
+    } else {
+        FORMAT
+    };
+    let tables = intake::tables(format);
     let ledger = tables
         .iter()
         .copied()
@@ -108,13 +131,14 @@ pub fn capture(s: &Service, date: &str) -> Result<Data> {
     let mut outputs = BTreeMap::new();
     let mut blobs = BTreeMap::new();
     if let Some(o) = &s.outputs {
-        for name in o.validate_ledger(&s.ledger)? {
+        let oc = o.connection()?;
+        let _outputs_snapshot = oc.unchecked_transaction()?;
+        for name in o.validate_snapshot(&oc, &c)? {
             blobs.insert(
                 name.clone(),
                 STANDARD.encode(files::read(&s.root.join("private").join(&name), LIMIT)?),
             );
         }
-        let oc = o.connection()?;
         for name in OUTPUT {
             outputs.insert(
                 name.into(),
@@ -123,7 +147,7 @@ pub fn capture(s: &Service, date: &str) -> Result<Data> {
         }
     }
     Ok(Data {
-        format: if legacy { LEGACY_FORMAT } else { FORMAT }.into(),
+        format: format.into(),
         snapshot_id: store::uid()?,
         created_at: store::now(),
         business_date: date.into(),
@@ -152,7 +176,8 @@ pub fn decode(raw: &[u8]) -> Result<Data> {
         return fail(413, "DATA_BACKUP_TOO_LARGE");
     }
     let e: Envelope = serde_json::from_slice(raw).map_err(|_| invalid())?;
-    if ![FORMAT, LEGACY_FORMAT].contains(&e.format.as_str()) || e.data.format != e.format {
+    if ![FORMAT, LEGACY_FORMAT, FORMAT_V3].contains(&e.format.as_str()) || e.data.format != e.format
+    {
         return fail(422, "DATA_BACKUP_VERSION_UNSUPPORTED");
     }
     if store::hash(serde_json::to_vec(&e.data)?) != e.sha256 {
@@ -160,11 +185,17 @@ pub fn decode(raw: &[u8]) -> Result<Data> {
     }
     store::id(&e.data.snapshot_id)?;
     store::id(e.data.inventory["ledger_id"].as_str().ok_or_else(invalid)?)?;
-    let tables: &[&str] = if e.format == LEGACY_FORMAT {
-        &LEGACY_LEDGER
+    let tables = intake::tables(&e.format);
+    let version = if e.format == LEGACY_FORMAT {
+        1
+    } else if e.format == FORMAT_V3 {
+        3
     } else {
-        &LEDGER
+        2
     };
+    if e.data.inventory["schema_version"] != version {
+        return Err(invalid());
+    }
     if e.data.ledger.len() != tables.len()
         || tables.iter().any(|n| !e.data.ledger.contains_key(*n))
         || (!e.data.outputs.is_empty()
@@ -208,6 +239,7 @@ pub fn restore_ledger(data: &Data, path: &Path) -> Result<()> {
 }
 fn fill_ledger(data: &Data, path: &Path) -> Result<()> {
     let mut c = Connection::open(path)?;
+    intake::prepare(&mut c, data)?;
     let meta = store::verify(&c)?;
     if meta["revision"] != 0 {
         return fail(409, "RESTORE_REQUIRES_NEW_DIRECTORY");
@@ -229,9 +261,12 @@ fn fill_ledger(data: &Data, path: &Path) -> Result<()> {
         ))?;
     }
     tx.execute_batch("PRAGMA defer_foreign_keys=ON;DELETE FROM ledger_meta;")?;
-    let tables: &[&str] = if legacy { &LEGACY_LEDGER } else { &LEDGER };
+    if data.format == FORMAT_V3 {
+        tx.execute("DELETE FROM offline_meta", [])?;
+    }
+    let tables = intake::tables(&data.format);
     for name in tables {
-        insert(&tx, name, &data.ledger[*name])?;
+        insert(&tx, name, &data.ledger[name])?;
     }
     if integrity::inventory(&tx)? != data.inventory {
         return fail(422, "DATA_BACKUP_INVENTORY_MISMATCH");

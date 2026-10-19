@@ -1,0 +1,167 @@
+{
+  "task": "P08-02-3-B",
+  "status": "passed_auxiliary",
+  "baseline_commit": "a25d5e4ead385d56eb8201b04cf78cf9acdc5d3a",
+  "branch": "stage/p08-cutover",
+  "environment": "Linux Rust auxiliary checks; not Windows acceptance",
+  "rust_toolchain": "1.97.1",
+  "mode": "explicit_receive_only",
+  "formal_offline_orders_available": false,
+  "live_hosts_contacted": false,
+  "site_upgrade_performed": false,
+  "installers_or_build_preparation_verified": false,
+  "formal_ui_changed": false,
+  "figma_changed": false,
+  "formal_problem_log_policy_changed": false,
+  "checks": [
+    {
+      "name": "format",
+      "command": "cargo fmt --all -- --check",
+      "status": "passed"
+    },
+    {
+      "name": "strict_analysis",
+      "command": "cargo clippy --locked -j 6 -p quote-host -p quote-ledger -p quote-security --all-targets -- -D warnings",
+      "status": "passed"
+    },
+    {
+      "name": "final_host_library",
+      "command": "cargo test --locked -p quote-host --lib --test offline_intake -j 6",
+      "status": "passed",
+      "library_tests_passed": 20,
+      "intake_tests_passed": 16,
+      "failed": 0,
+      "exit_code": 0
+    },
+    {
+      "name": "host_ledger_security_regression",
+      "command": "cargo test --locked -p quote-host -p quote-ledger -p quote-security -j 6",
+      "status": "passed",
+      "tests_passed": 92,
+      "failed": 0,
+      "exit_code": 0
+    },
+    {
+      "name": "schema_hash",
+      "status": "passed",
+      "sha256": "721dc11b48d5c45b2b4f5fcc512b730e2e6f36f266a86409a7a56439ed6c6bab"
+    },
+    {
+      "name": "modified_markdown_links",
+      "status": "passed",
+      "links_checked": 261,
+      "missing": 0
+    },
+    {
+      "name": "diff_whitespace",
+      "status": "passed"
+    }
+  ],
+  "initial_findings_fixed": [
+    "Lease stream test referenced enrollment rather than signed lease; corrected fixture assertion.",
+    "Rate test assumed three authenticated IO requests finish before token refill; replaced with explicit-clock bucket and held-guard tests.",
+    "Offline intake needed existing output-request identity checks and runtime write ordering; implemented and covered by a cross-entry test.",
+    "Concurrent backup capture needed the ledger reservation and one output read snapshot; isolated local capture from Excel and SMB delivery."
+  ],
+  "ci": {
+    "workflow": "https://github.com/uniquenesssta/777/actions/workflows/p07-windows.yml",
+    "trigger": "normal push; no skip markers",
+    "new_result": "not_read_by_user_request"
+  },
+  "remaining": [
+    "C business apply/dedup/merge/resolution",
+    "D local durable orders/outbox/silent sync",
+    "F large retained queues need bounded backup volumes; current envelope limit remains 256 MiB",
+    "Windows/live host/performance acceptance not executed"
+  ],
+  "verified_at_utc": "2026-10-19T14:36:02.234867+00:00",
+  "counts_overlap": true,
+  "verification_order": "Normal Host/Ledger/Security regression and a final rebuild/rerun of Host library + offline intake; do not add their overlapping counts.",
+  "regression_targets": [
+    {
+      "target": "Running unittests src/lib.rs",
+      "passed": 18,
+      "failed": 0
+    },
+    {
+      "target": "Running unittests src/main.rs",
+      "passed": 0,
+      "failed": 0
+    },
+    {
+      "target": "Running tests/analytics.rs",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "target": "Running tests/automatic_installation.rs",
+      "passed": 19,
+      "failed": 0
+    },
+    {
+      "target": "Running tests/boundary.rs",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "target": "Running tests/cluster_protocol.rs",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "target": "Running tests/customer_orders.rs",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "target": "Running tests/daily_delivery.rs",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "target": "Running tests/device_auth.rs",
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "target": "Running tests/offline_intake.rs",
+      "passed": 16,
+      "failed": 0
+    },
+    {
+      "target": "Running tests/readable_backup.rs",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "target": "Running unittests src/lib.rs",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "target": "Running unittests src/main.rs",
+      "passed": 0,
+      "failed": 0
+    },
+    {
+      "target": "Running unittests src/lib.rs",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "target": "Doc-tests quote_host",
+      "passed": 0,
+      "failed": 0
+    },
+    {
+      "target": "Doc-tests quote_ledger",
+      "passed": 0,
+      "failed": 0
+    },
+    {
+      "target": "Doc-tests quote_security",
+      "passed": 0,
+      "failed": 0
+    }
+  ]
+}
