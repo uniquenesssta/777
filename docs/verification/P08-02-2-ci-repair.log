@@ -265,3 +265,38 @@ CI #74 Windows failure excerpt (run 39222916181, desktop-contracts 117962212591)
 2026-10-19T08:52:22.3680840Z   File "D:\a\777\777\tools\p07_developer_check.py", line 184, in main
 2026-10-19T08:52:22.3683575Z     assert c.request('POST','/v1/backup',dict(kind='daily'))==entry
 2026-10-19T08:52:22.3684652Z AssertionError
+
+CI #75 Windows failure trace from artifact 12178300645:
+Traceback (most recent call last):
+  File "D:\a\777\777\tools\p07_device_check.py", line 187, in main
+    report['protocol']=protocol(binaries);progress.save()
+                       ^^^^^^^^^^^^^^^^^^
+  File "D:\a\777\777\tools\p07_device_check.py", line 57, in protocol
+    manager.ok('calculate',snapshot=snap,draft_revision='1');receipt=manager.ok('submit',snapshot=snap,details=details,draft_revision='1');assert sales.call('order',order_id=receipt['order_id'])['error']['code']=='NOT_FOUND';assert sales.call('backup')['error']['code']=='ADMIN_REQUIRED';checks.append('sales_cannot_read_other_actor_or_backups')
+                                                                                                                                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+
+CI #75 local auxiliary validation (not Windows acceptance):
+manager/sales verification debug bridge builds: passed, 4.50s / 4.12s. No installers built.
+Original sales backup assertion reproduced. Initial added Host assertion corrected from ADMIN_REQUIRED to FORBIDDEN after reading Auth::admin. Final full protocol:
+{
+  "status": "passed",
+  "checks": [
+    "manager_native_bootstrap_without_secret_IPC",
+    "formal_manual_login_direct_invoke_rejected",
+    "two_devices_same_stable_sales_actor_and_filtered_prices",
+    "restart_uses_same_DPAPI_device_and_actor",
+    "sales_other_actor_isolation_package_backup_denial_and_independent_Host_admin_boundary",
+    "same_actor_devices_share_own_orders_only",
+    "expired_session_recovers_without_password_or_identity_change",
+    "unknown_commit_restart_queries_original_receipt_without_duplicate",
+    "copied_credential_rejected_in_other_profile",
+    "one_device_revocation_rejects_live_session_without_affecting_peer",
+    "operator_new_grant_reauthorizes_revoked_device_without_deleting_pending",
+    "v1_data_restore_preserves_ledger_without_old_devices_sessions_grants"
+  ],
+  "Windows_DPAPI": false,
+  "production_paths_accessed": false
+}
+host-integration + native-autostart browser suites: 10 passed (7.6s), including two pending formal connection cases.
+MJS syntax, Python syntax, git diff --check: passed.

@@ -1,6 +1,7 @@
 // UI-only bridge stand-in. Native storage/ownership/authentication have separate Rust checks.
 import { test, expect, type Page } from "@playwright/test";
-async function setup(page: Page, delivery = "manager", registered = true) {
+import { expectSilentFormalEntry } from "../formal-idle.mjs";
+async function setup(page: Page, delivery = "manager", registered: boolean | "pending" = true) {
   await page.addInitScript(
     ({ delivery, registered }) => {
       let ready = registered;
@@ -51,6 +52,7 @@ async function setup(page: Page, delivery = "manager", registered = true) {
                   pending: false,
                 };
               case "bootstrap":
+                if (ready === "pending") return new Promise(() => {});
                 if (!ready) throw { code: "DEPLOYMENT_NOT_CONFIGURED" };
                 return { delivery, automatic: true, session };
               case "connect":
@@ -162,7 +164,7 @@ for (const delivery of ["manager", "sales"])
   test(`${delivery} unregistered entry remains silent without account or setup controls`, async ({page}) => {
     await page.clock.install();
     await setup(page, delivery, false);
-    await expect(page.locator(".formal-idle")).toBeVisible();
+    await expectSilentFormalEntry(page);
     for (const name of ["账户菜单","退出登录","选择文件","登记并进入","重新连接"])
       await expect(page.getByRole("button",{name,exact:true})).toHaveCount(0);
     await expect(page.getByRole("alert")).toHaveCount(0);
@@ -171,6 +173,14 @@ for (const delivery of ["manager", "sales"])
     const requests=await page.evaluate(()=>(window as any).__integrationRequests);
     expect(requests.filter((r:any)=>r.action==='bootstrap').length).toBeGreaterThanOrEqual(2);
     expect(requests.some((r:any)=>r.action==='import_enrollment')).toBe(false);
+  });
+for (const delivery of ["manager", "sales"])
+  test(`${delivery} pending connection uses the native silent-entry contract`, async ({page}) => {
+    await setup(page, delivery, "pending");
+    await expectSilentFormalEntry(page);
+    const requests = await page.evaluate(() => (window as any).__integrationRequests);
+    expect(requests.some((r: any) => r.action === "bootstrap")).toBe(true);
+    expect(requests.some((r: any) => ["connect", "import_enrollment"].includes(r.action))).toBe(false);
   });
 test("wrong connection-file type preserves the filled connection", async ({
   page,

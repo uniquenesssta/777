@@ -5,6 +5,7 @@ import { chromium, expect } from '@playwright/test';
 import { connectNativeBrowser } from './native-cdp.mjs';
 import { productionOrigin } from './native-origin.mjs';
 import { inspectPresentation } from './native-presentation.mjs';
+import { expectSilentFormalEntry } from './formal-idle.mjs';
 
 // Submission leaves both deliveries on DetailPage, whose return button is
 // disabled until useWorkbench finishes the original submission/refresh.
@@ -31,10 +32,8 @@ try {
   if(!page)throw Error('ACTUAL_TAURI_PAGE_NOT_FOUND');
   const origin=productionOrigin(page.url());
   if(presentation==='connecting') {
-    await expect(page.getByRole('heading',{name:'正在连接…',exact:true})).toBeVisible({timeout:20000});
-    await expect(page.locator('.connection-card')).toHaveAttribute('aria-busy','true');
-    for(const label of ['服务地址','服务证书（PEM）','账号','密码'])await expect(page.getByLabel(label,{exact:true})).toHaveCount(0);
-    fs.writeFileSync(output+'/native-connecting.json',JSON.stringify({status:'passed',connection_pending:true,production_origin:origin},null,2));
+    await expectSilentFormalEntry(page);
+    fs.writeFileSync(output+'/native-connecting.json',JSON.stringify({status:'passed',connection_pending:true,silent_formal_entry:true,production_origin:origin},null,2));
     return;
   }
   await expect(page.getByRole('button',{name:'添加商品',exact:false})).toBeVisible({timeout:20000});

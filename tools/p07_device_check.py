@@ -7,6 +7,7 @@ ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT),str(ROOT/'tools
 from native_host_fixture import Hosted,command
 from p01_validation import new_output
 from p07_check_runner import Progress,preflight,stop_tree
+from p07_device_permissions_check import check_sales_backup_denied
 EXT='.exe' if os.name=='nt' else ''
 
 class Bridge:
@@ -54,7 +55,10 @@ def protocol(binaries):
         if os.name=='nt':assert b'ticket' not in (sp/'device.bin').read_bytes()
         sales.close();bridges.remove(sales);sales=start('sales',sp);assert sales.ok('bootstrap')['session']['subject']==s['session']['subject'];checks.append('restart_uses_same_DPAPI_device_and_actor')
         snap={'price_version_id':'fixture-v1','lines':[{'line_kind':'normal','product_id':'单件','q':'2','h':'','w':'','name':''}]};details={'customer':'isolated','order_ref':'device-manager','wechat':''}
-        manager.ok('calculate',snapshot=snap,draft_revision='1');receipt=manager.ok('submit',snapshot=snap,details=details,draft_revision='1');assert sales.call('order',order_id=receipt['order_id'])['error']['code']=='NOT_FOUND';assert sales.call('backup')['error']['code']=='ADMIN_REQUIRED';checks.append('sales_cannot_read_other_actor_or_backups')
+        manager.ok('calculate',snapshot=snap,draft_revision='1');receipt=manager.ok('submit',snapshot=snap,details=details,draft_revision='1')
+        assert sales.call('order',order_id=receipt['order_id'])['error']['code']=='NOT_FOUND'
+        check_sales_backup_denied(sales,h)
+        checks.append('sales_other_actor_isolation_package_backup_denial_and_independent_Host_admin_boundary')
         sales.ok('calculate',snapshot=snap,draft_revision='1');own=sales.ok('submit',snapshot=snap,details={**details,'order_ref':'device-sales'},draft_revision='1');assert sales2.ok('order',order_id=own['order_id'])['order_id']==own['order_id'];checks.append('same_actor_devices_share_own_orders_only')
         with closing(sqlite3.connect(h.host_root/'private/devices.sqlite3')) as c, c:c.execute('UPDATE device_sessions SET expires=0')
         assert sales.call('prices')['error']['status']==401;assert sales.ok('bootstrap')['session']['subject']==s['session']['subject'];checks.append('expired_session_recovers_without_password_or_identity_change')

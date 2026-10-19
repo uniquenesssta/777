@@ -232,5 +232,68 @@
       }
     ],
     "submission_result": "Normal CI enabled; new Windows result unverified. No polling or waiting after submission."
+  },
+  "followup_run75": {
+    "id": 39226707953,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/39226707953",
+    "head": "fb9eaeb505806868b2dd5257705adb70069f9e57",
+    "read_trigger": "User reported failure; no polling after submission.",
+    "jobs": [
+      {
+        "id": 117974645383,
+        "name": "desktop-contracts",
+        "conclusion": "failure"
+      },
+      {
+        "id": 117974645788,
+        "name": "host-sync",
+        "conclusion": "success"
+      },
+      {
+        "id": 117974647102,
+        "name": "installers",
+        "conclusion": "skipped"
+      }
+    ],
+    "evidence_artifact": 12178300645,
+    "passed_stages": [
+      "49 browser checks and development native WebView2 lifecycle",
+      "customer orders and monthly reports",
+      "Host supervisor and portable bundle",
+      "Windows diagnostics",
+      "developer source backup recovery",
+      "actual SMB mapped drive, hidden folders and junctions"
+    ],
+    "failed_stage": "Device identity, manager/sales presentation and complete quote images: protocol phase",
+    "root_cause": "p07_device_check.py:57 expected ADMIN_REQUIRED for sales backup IPC; package permissions now reject earlier with 403 PACKAGE_PERMISSION_DENIED. Reproduced locally.",
+    "fix": "Separate exact package denial checks for backup and backup_status from direct sales HTTPS checks requiring Host 403 FORBIDDEN. Preserve full remaining device protocol checks.",
+    "related_stale_check": "Native formal connecting case still expected the old connection card. Share silent formal idle assertions with browser checks; retain native network accept and normal-close evidence gates.",
+    "local_checks": [
+      {
+        "command": "cargo build --locked -p quote-desktop --features verification,manager --bin quote-desktop -j 2; corresponding sales build",
+        "result": "passed",
+        "scope": "Local auxiliary debug bridge binaries; no installer build"
+      },
+      {
+        "command": "p07_device_check.protocol with both debug bridges and real Rust HTTPS Host",
+        "result": "passed",
+        "tests": 12,
+        "Windows_DPAPI": false,
+        "production_paths_accessed": false,
+        "initial_new_check_correction": "Direct Host role error is FORBIDDEN, not the desktop client ADMIN_REQUIRED; corrected after reading Auth::admin and reran the full protocol."
+      },
+      {
+        "command": "playwright test tests/ui/host-integration.spec.ts tests/ui/native-autostart.spec.ts --max-failures=1",
+        "result": "passed",
+        "tests": 10,
+        "elapsed_seconds": 7.6,
+        "scope": "Browser UI with mock bridge, including shared native silent-entry assertions; no actual Windows acceptance"
+      },
+      {
+        "command": "MJS syntax, Python syntax, git diff --check",
+        "result": "passed"
+      }
+    ],
+    "submission_result": "Normal functional CI enabled; new Windows result unverified. No polling or waiting after submission."
   }
 }
