@@ -87,6 +87,7 @@ async function bootstrap(
                 };
               case "backup_status":
                 return {
+                  delivery_complete: true,
                   target: chartCase === "managed-locations" ? "\\\\192.168.4.23\\共享\\backup" : "synthetic",
                   last_success: { created_at: "2026-10-15T12:34:56Z" },
                   last_error: null,

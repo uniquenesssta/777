@@ -1,0 +1,65 @@
+{
+  "task": "P08-02-2 CI repair",
+  "date": "2026-10-19",
+  "baseline": "ae7bb90c6cd658786a1ed8453cd4e5ae43903304",
+  "source_fix": "16348f9e317c387c83929f05fb00e0fcbc2ddbef",
+  "failed_run": {
+    "id": 39189439198,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/39189439198",
+    "conclusion": "failure",
+    "jobs": [
+      {
+        "id": 117858782158,
+        "name": "desktop-contracts",
+        "failed_step": "Windows build, real Rust HTTPS, browser and actual Tauri WebView2 lifecycle"
+      },
+      {
+        "id": 117858782274,
+        "name": "host-sync",
+        "failed_step": "Native cluster protocol and strict analysis"
+      }
+    ],
+    "root_cause": "quote_ledger::store was imported at module scope but used only inside a cfg(not(windows)) upgrade fixture; strict Windows clippy rejected unused-imports. Both jobs stopped before downstream functional checks."
+  },
+  "fix": "Move the import into the only test function that uses it; retain cfg(not(windows)), strict -D warnings and all functional gates. No product or workflow behavior changed.",
+  "local_checks": [
+    {
+      "command": "cargo fmt --all -- --check",
+      "result": "passed"
+    },
+    {
+      "command": "cargo clippy -p quote-host -p quote-security --all-targets --offline -- -D warnings",
+      "result": "passed"
+    },
+    {
+      "command": "cargo test -p quote-host --test automatic_installation upgrade --offline",
+      "result": "passed",
+      "tests": 3
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    },
+    {
+      "command": "Playwright connection-dialog, host-integration, native-autostart, presentation, backup-presentation with local Chromium",
+      "result": "passed",
+      "tests": 27,
+      "scope": "Mock browser UI; not Windows product or installer acceptance",
+      "initial_result": "20 passed / 1 failed before adding delivery_complete to the success fixture; final rerun included 6 existing backup cases."
+    }
+  ],
+  "rerun": {
+    "id": 39190050854,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/39190050854",
+    "status": "last_observed_in_progress_final_not_checked",
+    "conclusion": null,
+    "installers": "skipped"
+  },
+  "limitations": [
+    "Windows runner checks do not replace live 23/38 acceptance or actual interactive UAC/reboot evidence.",
+    "Mother/sales installer-specific verification remains skipped."
+  ],
+  "additional_fix": "presentation.spec.ts successful backup fixture now sets delivery_complete=true; success assertion retained, incomplete/failed/unconfirmed silence assertions retained.",
+  "ci_followup_policy": "User requested on 2026-10-19: trigger normal CI on submission, do not poll or wait. No further CI status query; outcome remains unverified.",
+  "followup_submission": "Additional fixture repair and offline-orders task documentation in the commit containing this record; normal CI enabled, result not checked."
+}

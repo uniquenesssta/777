@@ -1,0 +1,107 @@
+P08-02-2 CI #69 failure excerpts (original messages)
+
+job 117858782158
+2026-10-19T02:24:40.6673877Z     Checking calamine v0.36.1
+2026-10-19T02:24:44.3143545Z error: unused import: `quote_ledger::store`
+2026-10-19T02:24:44.3144266Z  --> crates\quote-host\tests\automatic_checks\upgrade.rs:3:5
+2026-10-19T02:24:44.3144772Z   |
+2026-10-19T02:24:44.3145081Z 3 | use quote_ledger::store;
+2026-10-19T02:24:44.3145441Z   |     ^^^^^^^^^^^^^^^^^^^
+2026-10-19T02:24:44.3145773Z   |
+2026-10-19T02:24:44.3146178Z   = note: `-D unused-imports` implied by `-D warnings`
+2026-10-19T02:24:44.3146836Z   = help: to override `-D warnings` add `#[allow(unused_imports)]`
+2026-10-19T02:24:44.3147250Z 
+2026-10-19T02:24:44.7348275Z error: could not compile `quote-host` (test "automatic_installation") due to 1 previous error
+2026-10-19T02:24:44.7348916Z warning: build failed, waiting for other jobs to finish...
+2026-10-19T02:24:45.1050886Z <<< Rust 严格 Clippy: failed (175.9s)
+2026-10-19T02:24:45.1079320Z 
+2026-10-19T02:24:45.1079972Z 报告：D:\a\777\777\reports\p07-01-ci\report.json
+2026-10-19T02:24:45.1087046Z {
+2026-10-19T02:24:45.1087323Z   "task": "P07-01",
+2026-10-19T02:24:45.1087692Z   "status": "failed",
+2026-10-19T02:24:45.1088211Z   "environment": {
+2026-10-19T02:24:45.1088449Z     "os": "Windows",
+
+job 117858782274
+2026-10-19T02:21:49.3200964Z     Checking quote-host v0.1.0 (D:\a\777\777\crates\quote-host)
+2026-10-19T02:21:53.8473727Z error: unused import: `quote_ledger::store`
+2026-10-19T02:21:53.8474932Z  --> crates\quote-host\tests\automatic_checks\upgrade.rs:3:5
+2026-10-19T02:21:53.8475488Z   |
+2026-10-19T02:21:53.8476057Z 3 | use quote_ledger::store;
+2026-10-19T02:21:53.8476501Z   |     ^^^^^^^^^^^^^^^^^^^
+2026-10-19T02:21:53.8476808Z   |
+2026-10-19T02:21:53.8477168Z   = note: `-D unused-imports` implied by `-D warnings`
+2026-10-19T02:21:53.8478190Z   = help: to override `-D warnings` add `#[allow(unused_imports)]`
+2026-10-19T02:21:53.8478622Z 
+2026-10-19T02:21:54.1766312Z error: could not compile `quote-host` (test "automatic_installation") due to 1 previous error
+2026-10-19T02:21:54.1767407Z warning: build failed, waiting for other jobs to finish...
+2026-10-19T02:21:54.6809225Z [31;1mException: [0mD:\a\_temp\58b45bc4-b103-4dd9-b09b-a707adebe0e0.ps1:3[0m
+2026-10-19T02:21:54.6810189Z [31;1m[0m[36;1mLine |[0m
+2026-10-19T02:21:54.6811120Z [31;1m[0m[36;1m[36;1m   3 | [0m if ($LASTEXITCODE -ne 0) { [36;1mthrow 'Host Clippy failed'[0m }[0m
+2026-10-19T02:21:54.6812568Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m                            ~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+2026-10-19T02:21:54.6813828Z [31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mHost Clippy failed[0m
+2026-10-19T02:21:54.7022537Z ##[error]Process completed with exit code 1.
+2026-10-19T02:21:54.7229267Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-19T02:21:54.7229724Z with:
+
+Local targeted checks (not Windows acceptance)
+    Checking quote-security v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-security)
+    Checking quote-host v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-host)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.46s
+   Compiling quote-host v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-host)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.21s
+     Running tests/automatic_installation.rs (target/debug/deps/automatic_installation-b803fab29b00e70e)
+
+running 3 tests
+test automatic_checks::authorization::same_role_upgrade_changes_scope_without_changing_subject_and_revoked_device_stays_revoked ... ok
+test automatic_checks::upgrade::schema_upgrade_is_idempotent_and_rejects_unknown_schema ... ok
+test automatic_checks::upgrade::upgrade_and_interrupted_publication_preserve_ledger_tls_backups_and_task_identity has been running for over 60 seconds
+test automatic_checks::upgrade::upgrade_and_interrupted_publication_preserve_ledger_tls_backups_and_task_identity ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 63.89s
+
+Supplemental mock browser UI: initial run 20 passed / 1 failed (presentation.spec.ts expected backup normal; success fixture omitted delivery_complete).
+Added delivery_complete=true; retained assertion. Final suite includes backup-presentation negative cases.
+[WebServer] (node:18) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:31) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:44) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 27 tests using 1 worker
+
+(node:72) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/backup-presentation.spec.ts:4:51 › mother silently waits for partial backup (658ms)
+  ✓   2 tests/ui/backup-presentation.spec.ts:4:51 › mother silently waits for failed backup (455ms)
+  ✓   3 tests/ui/backup-presentation.spec.ts:4:51 › mother silently waits for unknown backup (457ms)
+  ✓   4 tests/ui/backup-presentation.spec.ts:21:1 › complete backup retains truthful business success (433ms)
+  ✓   5 tests/ui/backup-presentation.spec.ts:30:42 › manager without backup permission has no backup entry (402ms)
+  ✓   6 tests/ui/backup-presentation.spec.ts:30:42 › sales without backup permission has no backup entry (412ms)
+  ✓   7 tests/ui/connection-dialog.spec.ts:5:3 › developer connection dialog contains controls at desktop and narrow sizes (864ms)
+  ✓   8 tests/ui/host-integration.spec.ts:103:1 › manager directory saves locally, survives reload, masks address and keeps output settings separate (615ms)
+  ✓   9 tests/ui/host-integration.spec.ts:147:1 › sales settings do not acquire business-directory or publication controls (413ms)
+  ✓  10 tests/ui/host-integration.spec.ts:162:3 › manager unregistered entry remains silent without account or setup controls (361ms)
+  ✓  11 tests/ui/host-integration.spec.ts:162:3 › sales unregistered entry remains silent without account or setup controls (359ms)
+  ✓  12 tests/ui/host-integration.spec.ts:175:1 › wrong connection-file type preserves the filled connection (379ms)
+  ✓  13 tests/ui/native-autostart.spec.ts:23:3 › manager native completion uses submitted DetailPage controls and records success last (146ms)
+  ✓  14 tests/ui/native-autostart.spec.ts:23:3 › sales native completion uses submitted DetailPage controls and records success last (142ms)
+  ✓  15 tests/ui/native-autostart.spec.ts:35:1 › busy or disabled submitted workspace cannot publish a passing checkpoint (501ms)
+  ✓  16 tests/ui/presentation.spec.ts:229:3 › manager local fonts, original icons and compact layout at four emulated scales (995ms)
+  ✓  17 tests/ui/presentation.spec.ts:256:3 › manager failed automatic entry retries without technical/login controls (410ms)
+  ✓  18 tests/ui/presentation.spec.ts:229:3 › sales local fonts, original icons and compact layout at four emulated scales (902ms)
+  ✓  19 tests/ui/presentation.spec.ts:256:3 › sales failed automatic entry retries without technical/login controls (393ms)
+  ✓  20 tests/ui/presentation.spec.ts:275:1 › keyboard dialog returns focus and fonts fall back without a banner (384ms)
+  ✓  21 tests/ui/presentation.spec.ts:293:1 › manager directory selection is a draft until published and cancellation preserves the path (639ms)
+  ✓  22 tests/ui/presentation.spec.ts:341:1 › sales inherits readonly directories and sees only its export explanation (475ms)
+  ✓  23 tests/ui/presentation.spec.ts:360:1 › profit shows aggregate bars rather than orders and switches calendar periods (986ms)
+  ✓  24 tests/ui/presentation.spec.ts:471:1 › four chart types share one snapshot and remain readable at wide and narrow widths (1.8s)
+  ✓  25 tests/ui/presentation.spec.ts:555:1 › old service never fabricates candlesticks from aggregate totals (533ms)
+  ✓  26 tests/ui/presentation.spec.ts:575:1 › zero-profit orders keep empty pie and flat candles finite (553ms)
+  ✓  27 tests/ui/presentation.spec.ts:603:1 › formal settings conceal managed addresses while preserving the actual saved directory (576ms)
+
+  27 passed (17.4s)
+
+CI follow-up stopped per user instruction; no final Windows result queried or claimed.
