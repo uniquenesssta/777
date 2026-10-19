@@ -164,5 +164,73 @@
       }
     ],
     "submission_result": "Normal CI enabled; new Windows result unverified. No polling or waiting after submission."
+  },
+  "followup_run74": {
+    "id": 39222916181,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/39222916181",
+    "head": "68e8e0aa3e300a5c7246257e38f2cda3521023f4",
+    "read_trigger": "User reported failure; no polling after submission.",
+    "jobs": [
+      {
+        "id": 117962212419,
+        "name": "host-sync",
+        "conclusion": "success"
+      },
+      {
+        "id": 117962212591,
+        "name": "desktop-contracts",
+        "conclusion": "failure"
+      },
+      {
+        "id": 117962213551,
+        "name": "installers",
+        "conclusion": "skipped"
+      }
+    ],
+    "browser_results": {
+      "passed": 49,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "native_result": {
+      "status": "passed",
+      "actual_Tauri_WebView2": true,
+      "normal_close_exit_code": 0,
+      "forced_termination": false
+    },
+    "other_passed_stages": [
+      "customer orders and monthly reports",
+      "production supervisor shutdown",
+      "portable host bundle",
+      "Windows runtime diagnostics"
+    ],
+    "failed_stage": "Developer source switching, daily dual-format backup and recovery",
+    "root_cause": "p07_developer_check.py:184 required a hidden-target failure receipt to equal the preceding complete receipt. The current API correctly changes delivery_complete to false while keeping snapshot identity.",
+    "fix": "Separate delivery checks into p07_backup_delivery_check.py. Assert exact incomplete receipt, private and public destination truth, no hidden path leak, exact ordinary failure code, automatic recovery through GET-only observation before repeat POST, stable snapshot and both copies hashes. No product, workflow, installer or test-skip change.",
+    "local_checks": [
+      {
+        "command": "cargo build --locked -p quote-desktop --example developer-bridge -j 2",
+        "result": "passed"
+      },
+      {
+        "command": "python tools/p07_developer_check.py --output /tmp/p08022-ci74-developer-final",
+        "result": "passed",
+        "checks": 12,
+        "scope": "Local auxiliary real Rust HTTPS and desktop bridge; no Windows DPAPI, PNG, attributes, SMB or actual window acceptance."
+      },
+      {
+        "command": "playwright test tests/ui/backup-presentation.spec.ts --max-failures=1",
+        "result": "passed",
+        "tests": 6,
+        "elapsed_seconds": 5.0,
+        "scope": "Mocked UI backup presentation only"
+      },
+      {
+        "command": "python -m py_compile tools/p07_backup_delivery_check.py tools/p07_developer_check.py; git diff --check",
+        "result": "passed"
+      }
+    ],
+    "submission_result": "Normal CI enabled; new Windows result unverified. No polling or waiting after submission."
   }
 }

@@ -213,3 +213,55 @@ Running 16 tests using 1 worker
   16 passed (52.8s)
 
 MJS syntax checks passed. Actual Windows WebView2 rerun outcome is unverified; no polling after submission.
+
+
+CI #74 local auxiliary validation (not Windows acceptance):
+cargo build --locked -p quote-desktop --example developer-bridge -j 2: passed, 47.55s
+{
+  "task": "P07-06",
+  "platform": "posix",
+  "scope": "real debug native IPC, private controller and Rust HTTPS; no UI substitute",
+  "credential_storage": "isolated auxiliary plaintext",
+  "checks": [
+    "A_B_A_real_prices_orders_and_exact_totals_isolated",
+    "offline_copy_through_native_IPC_preserves_source_hashes_hidden_attributes_and_refuses_busy_or_wrong_password",
+    "native_selected_directories_actual_Excel_and_Windows_PNG_outputs",
+    "nonempty_initialization_keeps_original_files_and_active_source",
+    "populated_destinations_preserve_existing_files_and_hidden_system_attributes",
+    "dual_formats_identical_in_both_destinations_independent_failures_retry_same_snapshot_no_legacy_deletion",
+    "incomplete_delivery_not_successful_and_each_destination_recovers_automatically_without_manual_trigger",
+    "public_API_cannot_change_daily_policy_or_observe_hidden_destination",
+    "missing_current_index_resaved_by_both_setters_preserves_identity_files_snapshot_and_hidden_configuration",
+    "corrupt_or_foreign_current_index_rejected_without_overwrite_or_configuration_loss",
+    "real_native_import_restores_business_view_preserves_original_rejects_corruption_future_version_and_overwrite",
+    "saved_config_and_credentials_restart_with_same_actual_ledger"
+  ],
+  "status": "passed",
+  "production_paths_accessed": false,
+  "workspace": "/tmp/777-developer-check-lkdob2pf",
+  "backup": {
+    "ledger_id": "1f07213d-e278-4c4a-8201-2bcae6a25512",
+    "snapshot_id": "40aff727-ebdf-47ae-b68d-0ac2d1725633",
+    "hashes": {
+      "data.qbackup": "cc6658d4ff1f6006b49e07768a36a6b66db437ea380fd034f9e7bb9e70cacedc",
+      "data.xlsx": "f4584f821ca7d09bf0168ea882845c4e04d59036803ab256fc59b820f32282ef"
+    },
+    "bytes": {
+      "data.qbackup": 39056,
+      "data.xlsx": 29963
+    }
+  }
+}
+Backup presentation browser checks: partial, failed, unknown silent; complete success; manager/sales without backup permission hidden. 6 passed (5.0s).
+Python syntax and git diff --check: passed.
+CI #74 Windows failure excerpt (run 39222916181, desktop-contracts 117962212591):
+2026-10-19T08:50:40.9767512Z     "UI_idle_before_native_close": true,
+2026-10-19T08:50:40.9769994Z       "forced_termination": false,
+2026-10-19T08:50:40.9819127Z     "expected": 49,
+2026-10-19T08:50:40.9820326Z   "native_window_interactions": {
+2026-10-19T08:50:40.9823043Z     "UI_idle_before_native_close": true
+2026-10-19T08:50:40.9825051Z     "forced_termination": false,
+2026-10-19T08:52:22.3671043Z   File "D:\a\777\777\tools\p07_developer_check.py", line 295, in <module>
+2026-10-19T08:52:22.3680840Z   File "D:\a\777\777\tools\p07_developer_check.py", line 184, in main
+2026-10-19T08:52:22.3683575Z     assert c.request('POST','/v1/backup',dict(kind='daily'))==entry
+2026-10-19T08:52:22.3684652Z AssertionError

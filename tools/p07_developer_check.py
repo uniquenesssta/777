@@ -21,6 +21,7 @@ from p07_dev_host import command, stop_host
 from quote_service.client import Client
 from quote_service.journal import MemoryJournal
 from quote_core import QuoteSnapshot, NormalLine, DraftDetails
+from p07_backup_delivery_check import check_delivery_recovery
 
 
 def main():
@@ -179,28 +180,14 @@ def main():
                 assert {p.name for p in pair.iterdir()}=={'data.qbackup','data.xlsx'}
                 hashes={name:hashlib.sha256((pair/name).read_bytes()).hexdigest() for name in ['data.qbackup','data.xlsx']}
                 assert all((pair/n).read_bytes()==(hidden/folder/n).read_bytes() for n in hashes)
-                parked=hidden.with_name('hidden temporarily offline');hidden.rename(parked);hidden.write_text('unavailable')
-                try:
-                    assert c.request('POST','/v1/backup',dict(kind='daily'))==entry
-                    health=controller.status()['daily_result']
-                    assert health['normal']['ok'] and not health['hidden']['ok']
-                finally:hidden.unlink();parked.rename(hidden)
-                c.request('POST','/v1/backup',dict(kind='daily'))
-                assert controller.status()['daily_result']['hidden']['ok']
-                parked=target.with_name('normal temporarily offline');target.rename(parked);target.write_text('unavailable')
-                try:
-                    try:c.request('POST','/v1/backup',dict(kind='daily'))
-                    except APIError:pass
-                    else:raise AssertionError('FAILED_NORMAL_BACKUP_REPORTED_SUCCESS')
-                    health=controller.status()['daily_result']
-                    assert not health['normal']['ok'] and health['hidden']['ok']
-                finally:target.unlink();parked.rename(target)
-                assert c.request('POST','/v1/backup',dict(kind='daily'))==entry
+                check_delivery_recovery(c, controller, target, hidden, entry)
             finally:c.logout()
             assert hashes=={n:hashlib.sha256((pair/n).read_bytes()).hexdigest() for n in hashes}
+            assert hashes=={n:hashlib.sha256((hidden/folder/n).read_bytes()).hexdigest() for n in hashes}
             assert old_files == {str(p.relative_to(old_backup)):hashlib.sha256(p.read_bytes()).hexdigest() for p in old_backup.rglob('*') if p.is_file()}
             report['backup']=dict(ledger_id=id_a,snapshot_id=entry['backup_id'],hashes=hashes,bytes={n:(pair/n).stat().st_size for n in hashes})
             report['checks'].append('dual_formats_identical_in_both_destinations_independent_failures_retry_same_snapshot_no_legacy_deletion')
+            report['checks'].append('incomplete_delivery_not_successful_and_each_destination_recovers_automatically_without_manual_trigger')
             report['checks'].append('public_API_cannot_change_daily_policy_or_observe_hidden_destination')
             # User regression: current ordinary directory exists but its index is missing.
             # Both public developer setters must repair it before reading status.
