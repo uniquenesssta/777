@@ -1,0 +1,340 @@
+{
+  "task": "P08-02-3-B-ci-timeout-repair",
+  "status": "workflow_repartitioned_auxiliary_checks_passed_windows_result_pending",
+  "branch": "stage/p08-cutover",
+  "baseline_commit": "f37c25e91aec617bd4a8cefd8d9e50d96d42ab5d",
+  "observed_run": {
+    "id": 39270584660,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/39270584660",
+    "status": "completed",
+    "conclusion": "cancelled",
+    "read_reason": "User explicitly asked whether CI permits next stage and requested continuing the repair; this is the already completed B run.",
+    "jobs": [
+      {
+        "id": 118121486279,
+        "name": "host-sync",
+        "conclusion": "success"
+      },
+      {
+        "id": 118121485348,
+        "name": "desktop-contracts",
+        "conclusion": "cancelled",
+        "started_at": "2026-10-19T14:37:12Z",
+        "completed_at": "2026-10-19T15:22:25Z",
+        "timeout_minutes": 45,
+        "last_check_started_at": "2026-10-19T15:13:07Z",
+        "sales_executable_build_started_at": "2026-10-19T15:21:22Z",
+        "cancelled_during": "sales verification executable compilation; identity protocol and native presentation tests had not started"
+      },
+      {
+        "id": 118121487985,
+        "name": "installers",
+        "conclusion": "skipped"
+      }
+    ],
+    "root_cause_assessment": "Cumulative compilation in one sequential desktop job exhausted its 45-minute budget; not evidence of a presentation runtime hang or business assertion failure.",
+    "artifact": {
+      "id": 12197194468,
+      "name": "p07-01-windows-evidence",
+      "sha256": "fb1bee46a153c0883894c69ad87fb4de8c11168c092c646cc0e784f7174dfa05"
+    },
+    "report_summaries": {
+      "reports/p07-01-ci/report.json": {
+        "status": "Windows_CI_build_protocol_browser_and_native_window_passed_visual_acceptance_pending",
+        "source_commit": "f37c25e91aec617bd4a8cefd8d9e50d96d42ab5d",
+        "commands": [
+          {
+            "label": "检查 Node.js",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 0.016000000000019554,
+            "log": "command-01.log"
+          },
+          {
+            "label": "检查 npm",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 0.2810000000000059,
+            "log": "command-02.log"
+          },
+          {
+            "label": "检查已安装 Rust 工具链",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 0.03099999999997749,
+            "log": "command-03.log"
+          },
+          {
+            "label": "检查 Rust 编译目标",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 0.046999999999997044,
+            "log": "command-04.log"
+          },
+          {
+            "label": "检查 rustfmt / Clippy",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 0.03100000000000591,
+            "log": "command-05.log"
+          },
+          {
+            "label": "安装锁定前端依赖",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 6.234000000000009,
+            "log": "command-06.log"
+          },
+          {
+            "label": "下载锁定 Rust 依赖（已有缓存会复用）",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 22.796999999999997,
+            "log": "command-07.log"
+          },
+          {
+            "label": "构建前端页面",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 6.687000000000012,
+            "log": "command-08.log"
+          },
+          {
+            "label": "前端状态测试",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 6.625,
+            "log": "command-09.log"
+          },
+          {
+            "label": "Rust 格式检查",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 1.25,
+            "log": "command-10.log"
+          },
+          {
+            "label": "Rust 严格 Clippy",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 185.688,
+            "log": "command-11.log"
+          },
+          {
+            "label": "Rust 工作区测试",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 720.6400000000001,
+            "log": "command-12.log"
+          },
+          {
+            "label": "编译所需 release 程序（首次可能较久）",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 707.5,
+            "log": "command-13.log"
+          },
+          {
+            "label": "核对 release exe 的实际生产协议和内嵌页面",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 0.047000000000025466,
+            "log": "command-14.log"
+          },
+          {
+            "label": "完整浏览器交互验证",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 176.40600000000018,
+            "log": "command-15.log"
+          },
+          {
+            "label": "node.EXE",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 4.983999999999924,
+            "log": "command-16.log"
+          }
+        ]
+      },
+      "reports/p07-03-ci/report.json": {
+        "status": "interrupted",
+        "source_commit": "f37c25e91aec617bd4a8cefd8d9e50d96d42ab5d",
+        "commands": [
+          {
+            "label": "检查 Node.js",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 0.07799999999997453,
+            "log": "command-01.log"
+          },
+          {
+            "label": "检查 npm",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 0.32799999999997453,
+            "log": "command-02.log"
+          },
+          {
+            "label": "检查已安装 Rust 工具链",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 1.1880000000001019,
+            "log": "command-03.log"
+          },
+          {
+            "label": "检查 Rust 编译目标",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 2.030999999999949,
+            "log": "command-04.log"
+          },
+          {
+            "label": "npm.CMD",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 5.188000000000102,
+            "log": "command-05.log"
+          },
+          {
+            "label": "cargo.EXE",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 214.82799999999997,
+            "log": "command-06.log"
+          },
+          {
+            "label": "cargo.EXE",
+            "status": "passed",
+            "exit_code": 0,
+            "elapsed_seconds": 267.078,
+            "log": "command-07.log"
+          },
+          {
+            "label": "cargo.EXE",
+            "status": "interrupted",
+            "exit_code": 1,
+            "elapsed_seconds": 54.858999999999924,
+            "log": "command-08.log"
+          }
+        ]
+      }
+    },
+    "presentation_failure": "KeyboardInterrupt: ",
+    "presentation_protocol": null,
+    "presentation_native": null
+  },
+  "change": {
+    "path": ".github/workflows/p07-windows.yml",
+    "new_independent_job": "device-presentation",
+    "moved_check_command": "python tools/p07_presentation_check.py --windows-smoke --jobs 2 --output reports/p07-03-ci",
+    "timeout_minutes": 45,
+    "all_existing_functional_checks_retained": true,
+    "host_sync_job_unchanged": true,
+    "installer_job_unchanged": true,
+    "failure_handling_unchanged": true,
+    "new_artifact_name": "p07-03-windows-evidence"
+  },
+  "local_checks": {
+    "workflow_structure": {
+      "status": "passed_auxiliary",
+      "scope": "YAML structure and unchanged functional check coverage; not Windows runtime acceptance",
+      "baseline_commit": "f37c25e91aec617bd4a8cefd8d9e50d96d42ab5d",
+      "checked_at_utc": "2026-10-19T15:30:14.844619+00:00",
+      "checks": [
+        {
+          "name": "triggers_permissions_concurrency_unchanged",
+          "status": "passed"
+        },
+        {
+          "name": "only_one_independent_job_added",
+          "status": "passed"
+        },
+        {
+          "name": "host-sync_unchanged",
+          "status": "passed"
+        },
+        {
+          "name": "installers_unchanged",
+          "status": "passed"
+        },
+        {
+          "name": "desktop_job_identical_except_relocated_step_and_evidence",
+          "status": "passed"
+        },
+        {
+          "name": "presentation_command_and_failure_handling_identical",
+          "status": "passed"
+        },
+        {
+          "name": "pinned_setup_identical",
+          "status": "passed"
+        },
+        {
+          "name": "same_windows_guard_environment_and_45_minute_limit",
+          "status": "passed"
+        },
+        {
+          "name": "presentation_has_independent_budget",
+          "status": "passed"
+        },
+        {
+          "name": "no_continue_on_error_added",
+          "status": "passed"
+        },
+        {
+          "name": "all_original_desktop_check_commands_retained",
+          "status": "passed"
+        },
+        {
+          "name": "presentation_evidence_uploaded_even_on_failure",
+          "status": "passed"
+        }
+      ]
+    },
+    "p07_tool_regression": {
+      "command": "python -m unittest discover -s tests -p 'test_p07_*.py' -v",
+      "status": "passed_auxiliary",
+      "tests_run": 52,
+      "passed": 44,
+      "skipped": 8,
+      "failed": 0,
+      "exit_code": 0,
+      "skipped_reason": "requires actual Windows",
+      "output_sha256": "23c3df063a164d33f4c5b62ef447fdfbcf0f3cf7104c627faf9b416b1315c8af"
+    },
+    "p08_deployment_regression": {
+      "command": "python -m unittest discover -s tests -p 'test_p08_*.py' -v",
+      "status": "passed_auxiliary",
+      "tests_run": 17,
+      "passed": 7,
+      "skipped": 10,
+      "failed": 0,
+      "exit_code": 0,
+      "skipped_reason": "requires actual Windows",
+      "output_sha256": "19dc184e105a42541c794a4fd4463932868df678308137ad7366bd1da3ec718c"
+    },
+    "modified_markdown_links": {
+      "status": "passed",
+      "links_checked": 14,
+      "missing": 0
+    },
+    "diff_whitespace": {
+      "status": "passed",
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  },
+  "live_hosts_contacted": false,
+  "product_behavior_changed": false,
+  "formal_ui_changed": false,
+  "installers_or_build_preparation_verified": false,
+  "next_ci": {
+    "trigger": "normal push; no skip markers",
+    "workflow": "https://github.com/uniquenesssta/777/actions/workflows/p07-windows.yml",
+    "result": "not_read",
+    "poll_or_wait": false
+  },
+  "acceptance": "New Windows completion pending. C-G not started; full offline orders remain unavailable.",
+  "recorded_at_utc": "2026-10-19T15:31:37.166011+00:00"
+}
