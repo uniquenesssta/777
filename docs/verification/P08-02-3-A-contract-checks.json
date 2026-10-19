@@ -1,0 +1,31 @@
+{
+  "task": "P08-02-3-A",
+  "status": "passed",
+  "scope": "Contract fixtures, source evidence, links and documentation-only boundary; no runtime or Windows acceptance",
+  "baseline": "2ca5cee69b08b41d9cf288dce69520121dc81de9",
+  "checks": [
+    "fixed_operation_fields_and_protocol",
+    "synthetic_ids_are_lowercase_uuid_v4",
+    "wire_sequences_are_positive_decimal_strings",
+    "stream_sequence_and_operation_ids_unique",
+    "all_operation_digests_recomputed",
+    "canonical_reordered_keys_same_digest",
+    "unicode_control_character_canonical_vector",
+    "canonical_rejects_numbers_non_ascii_keys_and_surrogates",
+    "same_id_changed_content_has_distinct_valid_digest",
+    "dependency_fixture_acyclic_and_same_order_device_stream",
+    "examples_within_operation_and_batch_bounds",
+    "bounded_writer_retry_and_no_formal_entries",
+    "baseline_source_anchors_still_present",
+    "contract_task_and_index_links_resolve",
+    "delivery_changes_only_repository_documents"
+  ],
+  "count": 15,
+  "new_endpoints_implemented": false,
+  "live_hosts_contacted": false,
+  "source_sha256": {
+    "crates/quote-host/src/host.rs": "25375e240bbca49051a0dff48eddcb403ddd03f46675ebff4f06c71fd8abf24a",
+    "crates/quote-host/src/recovery.rs": "23ed0e4d53531e27f338030c764cbaa3f6dbb9d4cb170a7ea911038ec8637344",
+    "crates/quote-ledger/src/store.rs": "16c692853a0b8a20b380423877b3b308e54197963a976bbcb1f708006dabac05"
+  }
+}

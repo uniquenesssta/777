@@ -1,0 +1,216 @@
+{
+  "format": "777-offline-order-examples-v1",
+  "scope": "Synthetic contract vectors only; endpoints not implemented and no credentials included.",
+  "operations": [
+    {
+      "protocol": "777-offline-order-v1",
+      "site_id": "00000001-0000-4000-8000-000000000001",
+      "ledger_id": "00000002-0000-4000-8000-000000000001",
+      "device_id": "00000003-0000-4000-8000-000000000001",
+      "stream_id": "00000004-0000-4000-8000-000000000001",
+      "owner_id": "00000005-0000-4000-8000-000000000001",
+      "lease_id": "00000006-0000-4000-8000-000000000001",
+      "rule_version": "business-v1",
+      "numeric_profile": "numeric-v1",
+      "operation_id": "0000000a-0000-4000-8000-000000000001",
+      "device_sequence": "1",
+      "order_id": "0000006e-0000-4000-8000-000000000001",
+      "kind": "create",
+      "base": {
+        "order_revision": null,
+        "previous_operation_id": null
+      },
+      "created_at": "2026-10-19T10:00:00.000000Z",
+      "payload": {
+        "snapshot": {
+          "price_version_id": "authorized-catalog-v1",
+          "lines": [
+            {
+              "line_id": "000000d2-0000-4000-8000-000000000001",
+              "raw": {
+                "line_kind": "normal",
+                "product_id": "安装服务",
+                "q": "1",
+                "h": "",
+                "w": "",
+                "name": ""
+              }
+            }
+          ]
+        },
+        "details": {
+          "customer": "合成客户",
+          "order_ref": "SYNTHETIC-10",
+          "wechat": "synthetic-only"
+        },
+        "customer": {
+          "new_customer": true
+        }
+      },
+      "content_sha256": "a39e46beebdde0b58d10099dc2eb8bcbce288fd79249d4c78ea3f2d27f19ac48"
+    },
+    {
+      "protocol": "777-offline-order-v1",
+      "site_id": "00000001-0000-4000-8000-000000000001",
+      "ledger_id": "00000002-0000-4000-8000-000000000001",
+      "device_id": "00000003-0000-4000-8000-000000000001",
+      "stream_id": "00000004-0000-4000-8000-000000000001",
+      "owner_id": "00000005-0000-4000-8000-000000000001",
+      "lease_id": "00000006-0000-4000-8000-000000000001",
+      "rule_version": "business-v1",
+      "numeric_profile": "numeric-v1",
+      "operation_id": "0000000b-0000-4000-8000-000000000001",
+      "device_sequence": "2",
+      "order_id": "0000006f-0000-4000-8000-000000000001",
+      "kind": "create",
+      "base": {
+        "order_revision": null,
+        "previous_operation_id": null
+      },
+      "created_at": "2026-10-19T10:00:00.000000Z",
+      "payload": {
+        "snapshot": {
+          "price_version_id": "authorized-catalog-v1",
+          "lines": [
+            {
+              "line_id": "000000d3-0000-4000-8000-000000000001",
+              "raw": {
+                "line_kind": "normal",
+                "product_id": "安装服务",
+                "q": "1",
+                "h": "",
+                "w": "",
+                "name": ""
+              }
+            }
+          ]
+        },
+        "details": {
+          "customer": "合成客户",
+          "order_ref": "SYNTHETIC-11",
+          "wechat": "synthetic-only"
+        },
+        "customer": {
+          "new_customer": true
+        }
+      },
+      "content_sha256": "33bd28975e4d324cb90bd4d1ac874280af8c33200c08798778d00e788fba6b1d"
+    },
+    {
+      "protocol": "777-offline-order-v1",
+      "site_id": "00000001-0000-4000-8000-000000000001",
+      "ledger_id": "00000002-0000-4000-8000-000000000001",
+      "device_id": "00000003-0000-4000-8000-000000000001",
+      "stream_id": "00000004-0000-4000-8000-000000000001",
+      "owner_id": "00000005-0000-4000-8000-000000000001",
+      "lease_id": "00000006-0000-4000-8000-000000000001",
+      "rule_version": "business-v1",
+      "numeric_profile": "numeric-v1",
+      "operation_id": "0000000c-0000-4000-8000-000000000001",
+      "device_sequence": "3",
+      "order_id": "0000006e-0000-4000-8000-000000000001",
+      "kind": "append_note",
+      "base": {
+        "order_revision": null,
+        "previous_operation_id": "0000000a-0000-4000-8000-000000000001"
+      },
+      "created_at": "2026-10-19T10:01:00.000000Z",
+      "payload": {
+        "note_id": "000000d4-0000-4000-8000-000000000001",
+        "body": "合成备注\n保留原始修改"
+      },
+      "content_sha256": "1f7ef65086966b6f66524c2aa8e37255b4ec24167bf07feb03b5d9f412494855"
+    }
+  ],
+  "same_id_changed_content": {
+    "protocol": "777-offline-order-v1",
+    "site_id": "00000001-0000-4000-8000-000000000001",
+    "ledger_id": "00000002-0000-4000-8000-000000000001",
+    "device_id": "00000003-0000-4000-8000-000000000001",
+    "stream_id": "00000004-0000-4000-8000-000000000001",
+    "owner_id": "00000005-0000-4000-8000-000000000001",
+    "lease_id": "00000006-0000-4000-8000-000000000001",
+    "rule_version": "business-v1",
+    "numeric_profile": "numeric-v1",
+    "operation_id": "0000000a-0000-4000-8000-000000000001",
+    "device_sequence": "1",
+    "order_id": "0000006e-0000-4000-8000-000000000001",
+    "kind": "create",
+    "base": {
+      "order_revision": null,
+      "previous_operation_id": null
+    },
+    "created_at": "2026-10-19T10:00:00.000000Z",
+    "payload": {
+      "snapshot": {
+        "price_version_id": "authorized-catalog-v1",
+        "lines": [
+          {
+            "line_id": "000000d2-0000-4000-8000-000000000001",
+            "raw": {
+              "line_kind": "normal",
+              "product_id": "安装服务",
+              "q": "1",
+              "h": "",
+              "w": "",
+              "name": ""
+            }
+          }
+        ]
+      },
+      "details": {
+        "customer": "合成客户",
+        "order_ref": "SYNTHETIC-CHANGED",
+        "wechat": "synthetic-only"
+      },
+      "customer": {
+        "new_customer": true
+      }
+    },
+    "content_sha256": "663fe4872c41717f47177675f2bacbf2cf6f9788f5d91553464a4523f19e03a2"
+  },
+  "digest_vector": {
+    "input": {
+      "d": null,
+      "b": "line\nslash/quote\"",
+      "a": "中文",
+      "c": true
+    },
+    "canonical": "{\"a\":\"中文\",\"b\":\"line\\nslash/quote\\\"\",\"c\":true,\"d\":null}",
+    "sha256": "4b062c07cd7ebf0c23a5eda9a8f53974a5fff2c7a8a5de7be1e174600d08de89"
+  },
+  "cases": [
+    {
+      "name": "same_content_retry",
+      "operation_ids": [
+        "0000000a-0000-4000-8000-000000000001",
+        "0000000a-0000-4000-8000-000000000001"
+      ],
+      "expected": "one persisted original; same receipt identity"
+    },
+    {
+      "name": "same_id_changed_content",
+      "operation_ids": [
+        "0000000a-0000-4000-8000-000000000001"
+      ],
+      "changed_content": "same_id_changed_content",
+      "expected": "409; preserve first original and bounded collision evidence"
+    },
+    {
+      "name": "missing_predecessor_does_not_block_other_order",
+      "operation_ids": [
+        "0000000c-0000-4000-8000-000000000001",
+        "0000000b-0000-4000-8000-000000000001",
+        "0000000a-0000-4000-8000-000000000001"
+      ],
+      "expected": "note waits; unrelated create can proceed; note becomes eligible after predecessor is applied"
+    },
+    {
+      "name": "response_lost_after_accept_commit",
+      "operation_ids": [
+        "0000000a-0000-4000-8000-000000000001"
+      ],
+      "expected": "query or resend original ID; received is not applied; do not generate a new order ID"
+    }
+  ]
+}
