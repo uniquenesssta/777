@@ -4,6 +4,7 @@ import { expect } from "@playwright/test";
 import fs from "node:fs";
 import { productionOrigin } from "./native-origin.mjs";
 import { connectNativeBrowser } from "./native-cdp.mjs";
+import { connectDevelopment } from "./development-connection.mjs";
 const [configPath, port, out] = process.argv.slice(2);
 const fixture = JSON.parse(fs.readFileSync(configPath, "utf8"));
 let browser;
@@ -59,18 +60,7 @@ async function main() {
   const assert = (v, m) => {
     if (!v) throw Error(m);
   };
-  await page
-    .getByLabel("服务地址", { exact: true })
-    .fill(fixture.connection.url);
-  await page
-    .getByLabel("服务证书（PEM）", { exact: true })
-    .fill(fixture.connection.certificate_pem);
-  await page
-    .getByLabel("证书 SHA-256 指纹", { exact: true })
-    .fill(fixture.connection.certificate_sha256);
-  await page.getByLabel("账号", { exact: true }).fill("manager");
-  await page.getByLabel("密码", { exact: true }).fill(fixture.password);
-  await page.getByRole("button", { name: "登录", exact: true }).click();
+  await connectDevelopment(page, fixture);
   await page.getByRole("button", { name: "添加商品", exact: false }).click();
   await page.getByLabel("第1行商品", { exact: true }).selectOption("安装服务");
   await page.getByLabel("订单号", { exact: true }).fill("native-tauri-00003");

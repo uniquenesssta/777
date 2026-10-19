@@ -164,3 +164,52 @@ Running 15 tests using 1 worker
   15 passed (41.5s)
 
 Normal source submission: no CI polling or waiting; new Windows outcome unverified.
+
+CI #73 (read after user reported failure), head 1f62409bbd25ccaa3a0cc198ddfe14b082d6aff2
+run 39197378072; host-sync 117882951463 success; desktop-contracts 117882951657 failure; installers 117882952508 skipped.
+Browser cases passed; actual Tauri/WebView2 check still filled the collapsed certificate at windows-smoke.mjs:67.
+2026-10-19T04:29:24.1656206Z   48 passed (2.5m)
+2026-10-19T04:29:28.5135627Z   C:\hostedtoolcache\windows\node\22.23.3\x64\node.EXE D:\a\777\777\desktop\tests\windows-smoke.mjs D:\a\777\777\reports\p07-01-ci\private-window-fixture.json 52262 D:\a\777\777\reports\p07-01-ci
+2026-10-19T04:30:02.0499082Z       - element is not visible
+2026-10-19T04:30:02.0529232Z       - element is not visible
+2026-10-19T04:30:02.0537868Z        - element is not visible
+2026-10-19T04:30:02.0540007Z     at main (D:\a\777\777\desktop\tests\windows-smoke.mjs:67:6)
+2026-10-19T04:30:02.0540903Z     at async file:///D:/a/777/777/desktop/tests/windows-smoke.mjs:122:3 {
+2026-10-19T04:30:02.0599263Z     '      - element is not visible',
+2026-10-19T04:30:02.0602100Z     '      - element is not visible',
+2026-10-19T04:30:02.0604737Z     '       - element is not visible',
+2026-10-19T04:30:02.0606723Z   name: 'TimeoutError'
+
+Local auxiliary verification after sharing development connection controls:
+[WebServer] (node:19) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:32) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:45) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 16 tests using 1 worker
+
+(node:73) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/workbench.spec.ts:53:1 › profit charts use the full real ledger across order pages (3.1s)
+  ✓   2 tests/ui/workbench.spec.ts:90:1 › native development sign-in sequence retains the connection across logout and isolates the next actor (3.6s)
+  ✓   3 tests/ui/workbench.spec.ts:113:1 › real Rust quote, compact confirmation, append note, void/restore and full pagination (3.1s)
+  ✓   4 tests/ui/workbench.spec.ts:155:1 › input edit invalidates result and late calculation cannot reenable submit (2.6s)
+  ✓   5 tests/ui/workbench.spec.ts:175:1 › sales DTO and pages contain no cost/profit and settings inherit (2.3s)
+  ✓   6 tests/ui/workbench.spec.ts:207:1 › unknown commit requires original receipt check and restart never double books (2.5s)
+  ✓   7 tests/ui/workbench.spec.ts:227:1 › current Figma quote geometry and all original assets load at their exported sizes (2.2s)
+  ✓   8 tests/ui/workbench.spec.ts:288:1 › manager price publication, readonly inherited directories and real output task progress (4.5s)
+  ✓   9 tests/ui/workbench.spec.ts:317:1 › confirmed write with failed detail refresh clears the original draft and never offers a duplicate submit (3.0s)
+  ✓  10 tests/ui/workbench.spec.ts:369:1 › development keeps an explicit connection editor without exposing it as formal authentication (2.2s)
+  ✓  11 tests/ui/workbench.spec.ts:381:1 › price editor keeps final manual sale separate from cost markup and persists automatic mode (4.7s)
+  ✓  12 tests/ui/workbench.spec.ts:512:3 › manager direct add, inline product changes and shared column alignment (2.5s)
+  ✓  13 tests/ui/workbench.spec.ts:512:3 › sales-one direct add, inline product changes and shared column alignment (2.5s)
+  ✓  14 tests/ui/workbench.spec.ts:558:1 › P07-07 customer match edits the chosen order and exports period financial report (6.1s)
+  ✓  15 tests/ui/workbench.spec.ts:606:1 › P07-07 continue existing draft from another order preserves pending edits (2.8s)
+  ✓  16 tests/ui/workbench.spec.ts:635:1 › P07-07 report parts can page, retry one file and locate its folder (2.5s)
+
+  16 passed (52.8s)
+
+MJS syntax checks passed. Actual Windows WebView2 rerun outcome is unverified; no polling after submission.

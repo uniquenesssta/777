@@ -106,5 +106,63 @@
       }
     ],
     "submission_result": "Normal CI triggered by the commit containing this record; not polled or awaited. New Windows result unverified."
+  },
+  "followup_run73": {
+    "id": 39197378072,
+    "url": "https://github.com/uniquenesssta/777/actions/runs/39197378072",
+    "head": "1f62409bbd25ccaa3a0cc198ddfe14b082d6aff2",
+    "read_trigger": "User reported failure; no status polling after submission.",
+    "jobs": [
+      {
+        "id": 117882951463,
+        "name": "host-sync",
+        "conclusion": "success"
+      },
+      {
+        "id": 117882951657,
+        "name": "desktop-contracts",
+        "conclusion": "failure"
+      },
+      {
+        "id": 117882952508,
+        "name": "installers",
+        "conclusion": "skipped"
+      }
+    ],
+    "browser_results": {
+      "passed": 48,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "native_result": {
+      "status": "failed",
+      "CDP": "connected",
+      "production_origin": "http://tauri.localhost/",
+      "failure": "windows-smoke.mjs:67 tried to fill a certificate textarea inside collapsed details; Playwright reported element is not visible.",
+      "lifecycle": "Forced cleanup after interaction failure; not a passing natural-close result."
+    },
+    "root_cause": "The prior correction covered the browser helper only. The standalone real WebView2 script retained its own older login sequence.",
+    "fix": "Extract development-connection.mjs and use it in both browser workbench and Windows smoke checks; expand the existing certificate section before filling. Preserve production-origin checking, real native IPC, actor isolation and lifecycle gates. No product or workflow behavior changed.",
+    "local_checks": [
+      {
+        "command": "node --check desktop/tests/development-connection.mjs; node --check desktop/tests/windows-smoke.mjs",
+        "result": "passed"
+      },
+      {
+        "command": "Playwright tests/ui/workbench.spec.ts --max-failures=1 with real Rust HTTPS Host and native desktop bridge",
+        "result": "passed",
+        "tests": 16,
+        "elapsed_seconds": 52.8,
+        "includes": "New manager-save/logout/sales-login ownership isolation scenario; existing 15 workbench cases.",
+        "initial_fixture_correction": "The new saved-certificate assertions initially used an exact wrapping-label locator, which failed for the initialized textarea. Expand the section before reading and use a textbox name prefix; then close it before sales login, preserving the native sequence.",
+        "scope": "Local auxiliary browser regression, not actual Windows WebView2 or installer/field acceptance."
+      },
+      {
+        "command": "git diff --check",
+        "result": "passed"
+      }
+    ],
+    "submission_result": "Normal CI enabled; new Windows result unverified. No polling or waiting after submission."
   }
 }

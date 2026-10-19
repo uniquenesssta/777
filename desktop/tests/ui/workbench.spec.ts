@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { connectDevelopment } from "../development-connection.mjs";
 const host = "http://127.0.0.1:18777";
 let fixture: {
   connection: Record<string, string>;
@@ -74,19 +75,7 @@ async function login(
   username = "manager",
 ) {
   await page.goto("/");
-  await page
-    .getByLabel("服务地址", { exact: true })
-    .fill(fixture.connection.url);
-  await page.getByText("证书与指纹（高级）", { exact: true }).click();
-  await page
-    .getByLabel("服务证书（PEM）", { exact: true })
-    .fill(fixture.connection.certificate_pem);
-  await page
-    .getByLabel("证书 SHA-256 指纹", { exact: true })
-    .fill(fixture.connection.certificate_sha256);
-  await page.getByLabel("账号", { exact: true }).fill(username);
-  await page.getByLabel("密码", { exact: true }).fill(fixture.password);
-  await page.getByRole("button", { name: "登录", exact: true }).click();
+  await connectDevelopment(page, fixture, username);
   await expect(
     page.getByRole("button", { name: "添加商品", exact: false }),
   ).toBeEnabled();
@@ -98,6 +87,29 @@ async function add(
   await page.getByRole("button", { name: "添加商品", exact: false }).click();
   await page.getByLabel("第1行商品", { exact: true }).selectOption(product);
 }
+test("native development sign-in sequence retains the connection across logout and isolates the next actor", async ({ page }) => {
+  await login(page);
+  await add(page);
+  await page.getByLabel("订单号", { exact: true }).fill("native-actor-switch");
+  await page.getByRole("button", { name: "计算报价", exact: true }).click();
+  await page.getByRole("button", { name: "核对并提交订单" }).click();
+  await page.getByRole("button", { name: "确认提交", exact: true }).click();
+  await expect(page.getByRole("button", { name: "追加备注", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "账户菜单", exact: true }).click();
+  await page.getByRole("button", { name: "退出登录", exact: true }).click();
+  await expect(page.getByLabel("服务地址", { exact: true })).toHaveValue(fixture.connection.url);
+  await page.getByText("证书与指纹（高级）", { exact: true }).click();
+  await expect(page.getByRole("textbox", { name: /^服务证书（PEM）/ })).toHaveValue(fixture.connection.certificate_pem);
+  await expect(page.getByLabel("证书 SHA-256 指纹", { exact: true })).toHaveValue(fixture.connection.certificate_sha256);
+  await page.getByText("证书与指纹（高级）", { exact: true }).click();
+  await page.getByLabel("账号", { exact: true }).fill("sales-one");
+  await page.getByLabel("密码", { exact: true }).fill(fixture.password);
+  await page.getByRole("button", { name: "登录", exact: true }).click();
+  await page.getByRole("button", { name: "我的订单", exact: true }).click();
+  await expect(page.getByRole("button", { name: "查看详情" }).first()).toBeVisible();
+  await expect(page.getByText("native-actor-switch", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "利润分析", exact: true })).toHaveCount(0);
+});
 test("real Rust quote, compact confirmation, append note, void/restore and full pagination", async ({
   page,
 }) => {
