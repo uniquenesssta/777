@@ -42,7 +42,7 @@
 
 ## Change Log
 
-- P08-02-2 F/G：统一业务数据备份、修正部分交付反馈；开发/独立维护日志有限归并并支持离线关闭授权补偿。按用户最新要求，正式母/子版及随附后台不生成日志文件。见[F/G 实现说明](docs/verification/P08-02-2-FG-implementation.md)，Windows/现场未执行。
+- P08-02-2 F/G：统一业务数据备份；未完整/失败结果静默，后台短周期探测恢复并补写原快照；开发/独立维护日志有限归并并支持离线关闭授权补偿。按用户最新要求，正式母/子版及随附后台不生成日志文件。见[F/G 实现说明](docs/verification/P08-02-2-FG-implementation.md)，Windows/现场未执行。
 
 - P08-02-2 C/D 与 E 运行界面已接入：选择式发行、母版后台自动加入、两版独立设备接入；见[源码与针对性检查](docs/verification/P08-02-2-CD-implementation.md)及[新操作顺序](docs/verification/P08-02-2-automatic-installation-guide.md)。F/G 待收尾，Windows/现场未执行。
 

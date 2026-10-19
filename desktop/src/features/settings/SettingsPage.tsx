@@ -14,6 +14,7 @@ export function SettingsPage({ app }: { app: Workbench }) {
   const exportLocation = managedLocation(exportDir, app.delivery, "报价表");
   const imageLocation = managedLocation(imageDir, app.delivery, "报价图片");
   const backupLocation = managedLocation(String(app.backup?.target ?? ""), app.delivery, "每日备份");
+  const backupLabel = backupState(app.backup);
   useEffect(() => {
     setExport(app.preferences?.export_dir ?? "");
     setImage(app.preferences?.image_dir ?? "");
@@ -125,12 +126,12 @@ export function SettingsPage({ app }: { app: Workbench }) {
           <Field label="备份位置" compact>
             <Input readOnly value={backupLocation.display} />
           </Field>
-          <p className="backup-state">
+          {backupLabel && <p className="backup-state">
             状态：
-            {backupState(app.backup)}{" "}
+            {backupLabel}{" "}
             · 最近成功：
             {lastSuccess?.created_at ? stamp(lastSuccess.created_at) : "—"}
-          </p>
+          </p>}
           <Button
             variant="outline"
             disabled={app.busy || app.pending}

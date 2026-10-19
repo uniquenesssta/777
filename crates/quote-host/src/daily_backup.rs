@@ -1,8 +1,10 @@
 //! Daily immutable pairs with separately tracked delivery to two configured locations.
 mod presentation;
+mod schedule;
 use crate::{fail, files, recovery, service::Service, Error, Result};
 pub use presentation::public_status;
 use quote_ledger::store;
+pub use schedule::{check, due, CHECK_INTERVAL};
 use serde_json::{json, Value};
 use std::{
     fs,
@@ -82,9 +84,9 @@ fn deliver(s: &Service, target: &Path, date: &str, snapshot: &str, cache: &Path)
 }
 pub fn create(s: &Service) -> Result<Value> {
     let current = business_day(time::OffsetDateTime::now_utc());
-    create_date(s, &current, &current)
+    create_date(s, &current, &current, false)
 }
-fn create_date(s: &Service, date: &str, current: &str) -> Result<Value> {
+fn create_date(s: &Service, date: &str, current: &str, pending_only: bool) -> Result<Value> {
     let cfg = config(s)?;
     let index = index_path(s);
     let _lock = files::Lock::acquire(&index)?;
@@ -125,10 +127,19 @@ fn create_date(s: &Service, date: &str, current: &str) -> Result<Value> {
     }
     let data = recovery::decode(&files::read(&cache.join("data.qbackup"), recovery::LIMIT)?)?;
     let mut e = json!({"data_format":data.format,"date":date,"snapshot_id":data.snapshot_id,"created_at":data.created_at,"normal":null,"hidden":null});
+    let previous = &state["entries"][date];
+    let mut normal_delivered = false;
     for (label, target) in [
         ("normal", s.config["backup_dir"].as_str().unwrap()),
         ("hidden", cfg["hidden_dir"].as_str().unwrap()),
     ] {
+        if pending_only
+            && previous["snapshot_id"] == e["snapshot_id"]
+            && schedule::delivered(previous, label, &json!(target))
+        {
+            e[label] = previous[label].clone();
+            continue;
+        }
         quote_diagnostics::event(
             "backup.delivery.start",
             json!({"destination":label,"path":target,"date":date}),
@@ -156,6 +167,9 @@ fn create_date(s: &Service, date: &str, current: &str) -> Result<Value> {
             "backup.delivery.finish",
             json!({"destination":label,"path":target,"date":date,"error":result.as_ref().err().map(|e|&e.code)}),
         );
+        if label == "normal" && result.is_ok() {
+            normal_delivered = true;
+        }
         e[label] = match result {
             Ok(()) => json!({"ok":true,"target":target}),
             Err(err) => json!({"ok":false,"target":target,"error":err.code}),
@@ -164,8 +178,9 @@ fn create_date(s: &Service, date: &str, current: &str) -> Result<Value> {
     state["entries"][date] = e.clone();
     files::replace_json(&index, &state)?;
     let entry = public_entry(&e);
-    // Public service status describes only the ordinary backup, never the hidden destination.
-    if e["normal"]["ok"] == true {
+    // Only the destination just written needs its index updated. A previously delivered
+    // ordinary copy may be temporarily offline while the other copy catches up.
+    if normal_delivered {
         let index = Path::new(s.config["backup_dir"].as_str().unwrap()).join("777-backups.json");
         let _lock = files::Lock::acquire(&index)?;
         let mut old = files::read_json(&index)?;
@@ -184,52 +199,14 @@ fn create_date(s: &Service, date: &str, current: &str) -> Result<Value> {
         old["last_success"] = entry.clone();
         old["last_error"] = Value::Null;
         files::replace_json(&index, &old)?;
+    }
+    if e["normal"]["ok"] == true {
         s.auth.record_backup(Some(&entry), None)?;
     } else {
         s.auth.record_backup(None, Some("DAILY_BACKUP_FAILED"))?;
         return fail(503, "DAILY_BACKUP_FAILED");
     }
     Ok(entry)
-}
-pub fn due(s: &Service) -> Result<Option<Value>> {
-    due_at(s, time::OffsetDateTime::now_utc())
-}
-fn due_at(s: &Service, clock: time::OffsetDateTime) -> Result<Option<Value>> {
-    let cfg = config(s)?;
-    let current = business_day(clock);
-    let state = status(s)?;
-    // Retry only snapshots that actually exist. Never fabricate a missed historical day.
-    if let Some(entries) = state["entries"].as_object() {
-        for (date, e) in entries {
-            if date == &current {
-                continue;
-            }
-            let cache = cache_root(s).join(date);
-            let incomplete = e["normal"]["ok"] != true
-                || (e["hidden"]["target"]
-                    .as_str()
-                    .is_some_and(|v| !v.is_empty())
-                    && e["hidden"]["ok"] != true);
-            if incomplete && cache.exists() {
-                let _ = create_date(s, date, &current);
-            } else if !incomplete && cache.exists() {
-                fs::remove_dir_all(cache)?;
-            }
-        }
-    }
-    let now = clock.to_offset(time::UtcOffset::from_hms(8, 0, 0).unwrap());
-    let entry = &state["entries"][&current];
-    if entry.is_null() && u64::from(now.hour()) < cfg["daily_hour"].as_u64().unwrap() {
-        return Ok(None);
-    }
-    if entry["normal"]["ok"] == true
-        && entry["normal"]["target"] == s.config["backup_dir"]
-        && (cfg["hidden_dir"] == ""
-            || (entry["hidden"]["ok"] == true && entry["hidden"]["target"] == cfg["hidden_dir"]))
-    {
-        return Ok(None);
-    }
-    create_date(s, &current, &current).map(Some)
 }
 pub fn configure(s: &Service, hidden: &Path, hour: u8) -> Result<Value> {
     quote_diagnostics::event(
@@ -266,6 +243,7 @@ pub fn configure(s: &Service, hidden: &Path, hour: u8) -> Result<Value> {
 
 #[cfg(test)]
 mod tests {
+    use super::schedule::due_at;
     use super::*;
     use crate::{auth::Auth, query::Queries};
     #[test]

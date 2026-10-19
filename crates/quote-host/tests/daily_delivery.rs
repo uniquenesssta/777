@@ -68,7 +68,7 @@ impl Drop for Fixture {
     }
 }
 #[test]
-fn hidden_failure_is_partial_and_retry_delivers_the_original_readable_recoverable_pair() {
+fn scheduler_silently_probes_and_resumes_the_original_pair_after_restart() {
     let mut f = Fixture::new();
     let offline = f.base.join("offline");
     fs::rename(&f.hidden, &offline).unwrap();
@@ -87,14 +87,27 @@ fn hidden_failure_is_partial_and_retry_delivers_the_original_readable_recoverabl
     let excel = fs::read(folder.join("data.xlsx")).unwrap();
     quote_host::recovery::decode(&backup).unwrap();
     assert!(excel.starts_with(b"PK"));
+    let state_path = f.s.root.join("private/daily-backups.json");
+    let waiting = fs::read(&state_path).unwrap();
+    // Opening auth anew and re-reading the on-disk queue models service restart.
+    f.s.auth = Auth::open(f.s.root.join("private/auth.sqlite3")).unwrap();
+    for _ in 0..3 {
+        assert!(!daily_backup::check(&f.s).unwrap().ready());
+        assert!(daily_backup::due(&f.s).unwrap().is_none());
+        assert_eq!(fs::read(&state_path).unwrap(), waiting);
+    }
+    // The successful ordinary destination need not be online for hidden recovery.
+    fs::rename(&f.normal, f.base.join("ordinary-away")).unwrap();
     fs::rename(offline, &f.hidden).unwrap();
-    let second = daily_backup::create(&f.s).unwrap();
+    assert!(daily_backup::check(&f.s).unwrap().ready());
+    let second = daily_backup::due(&f.s).unwrap().unwrap();
     assert_eq!(first["backup_id"], second["backup_id"]);
     assert_eq!(second["delivery_complete"], true);
     let hidden = f.hidden.join(folder.file_name().unwrap());
     assert_eq!(fs::read(hidden.join("data.qbackup")).unwrap(), backup);
     assert_eq!(fs::read(hidden.join("data.xlsx")).unwrap(), excel);
     assert_eq!(f.status()["delivery_state"], "complete");
+    assert!(daily_backup::due(&f.s).unwrap().is_none());
 }
 #[test]
 fn two_failed_destinations_cannot_publish_a_successful_backup_state() {
@@ -105,4 +118,11 @@ fn two_failed_destinations_cannot_publish_a_successful_backup_state() {
     let state = f.status();
     assert_eq!(state["delivery_state"], "failed");
     assert_eq!(state["delivery_complete"], false);
+    fs::rename(f.base.join("offline-normal"), &f.normal).unwrap();
+    let normal_only = daily_backup::due(&f.s).unwrap().unwrap();
+    assert_eq!(normal_only["delivery_complete"], false);
+    fs::rename(f.base.join("offline-hidden"), &f.hidden).unwrap();
+    let complete = daily_backup::due(&f.s).unwrap().unwrap();
+    assert_eq!(normal_only["backup_id"], complete["backup_id"]);
+    assert_eq!(complete["delivery_complete"], true);
 }

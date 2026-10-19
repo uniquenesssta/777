@@ -203,7 +203,7 @@ export function useWorkbench() {
       });
   }, []);
   function savedFeedback<T>(r: Refreshed<T>, message: string) {
-    setFeedback(r.error && !formalPresentation() ? `${message}但视图刷新失败，请重新读取。` : message);
+    setFeedback(r.error && message && !formalPresentation() ? `${message}但视图刷新失败，请重新读取。` : message);
     setIsError(!!r.error);
     if (r.error && errorCode(r.error) === "UNAUTHENTICATED") {
       epoch.current++;

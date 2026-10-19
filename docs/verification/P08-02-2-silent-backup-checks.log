@@ -1,0 +1,226 @@
+P08-02-2 silent backup correction — auxiliary command output
+
+$ cargo test -p quote-host --test daily_delivery --offline
+   Compiling quote-host v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-host)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.10s
+     Running tests/daily_delivery.rs (target/debug/deps/daily_delivery-0f9eaeea9751c34b)
+
+running 2 tests
+test scheduler_silently_probes_and_resumes_the_original_pair_after_restart ... ok
+test two_failed_destinations_cannot_publish_a_successful_backup_state ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.97s
+
+
+$ cargo test -p quote-host --lib daily_backup::tests --offline
+   Compiling quote-host v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-host)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.38s
+     Running unittests src/lib.rs (target/debug/deps/quote_host-fdfc02fce2013d20)
+
+running 1 test
+test daily_backup::tests::beijing_rollover_restart_dedup_missed_days_and_unchanged_ledger ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 3.97s
+
+
+$ node --import tsx --test tests/backup-presentation.test.ts
+✔ pending, failed and unverified backup results stay silent (0.839951ms)
+✔ only confirmed full delivery has a visible success (0.213145ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 276.182431
+
+$ P07_BROWSER_PATH=/tmp/quote777-ui-browser/chromium playwright test tests/ui/backup-presentation.spec.ts
+[WebServer] (node:37) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:50) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:63) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:91) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/backup-presentation.spec.ts:4:51 › mother silently waits for partial backup (681ms)
+  ✓  2 tests/ui/backup-presentation.spec.ts:4:51 › mother silently waits for failed backup (523ms)
+  ✓  3 tests/ui/backup-presentation.spec.ts:4:51 › mother silently waits for unknown backup (497ms)
+  ✓  4 tests/ui/backup-presentation.spec.ts:21:1 › complete backup retains truthful business success (513ms)
+  ✓  5 tests/ui/backup-presentation.spec.ts:30:42 › manager without backup permission has no backup entry (411ms)
+  ✓  6 tests/ui/backup-presentation.spec.ts:30:42 › sales without backup permission has no backup entry (480ms)
+
+  6 passed (4.8s)
+
+$ tsc --noEmit
+
+$ cargo clippy -p quote-host --all-targets --offline -- -D warnings
+    Checking quote-host v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-host)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.03s
+
+INITIAL UI RUN (retained failed assertions; superseded by final passing run)
+[WebServer] (node:19) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[WebServer] (node:32) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:45) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:73) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/backup-presentation.spec.ts:4:51 › mother silently waits for partial backup (656ms)
+(node:155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/backup-presentation.spec.ts:4:51 › mother silently waits for failed backup (565ms)
+(node:236) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/backup-presentation.spec.ts:4:51 › mother silently waits for unknown backup (719ms)
+(node:316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 tests/ui/backup-presentation.spec.ts:21:1 › complete backup retains truthful business success (5.6s)
+(node:400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 tests/ui/backup-presentation.spec.ts:29:42 › manager without backup permission has no backup entry (515ms)
+  ✓  6 tests/ui/backup-presentation.spec.ts:29:42 › sales without backup permission has no backup entry (499ms)
+
+
+  1) tests/ui/backup-presentation.spec.ts:4:51 › mother silently waits for partial backup ──────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.backup-settings')
+    Expected substring: "Excel 按月分表"
+    Error: strict mode violation: locator('.backup-settings') resolved to 2 elements:
+        1) <section class="backup-settings business-directory">…</section> aka getByText('业务数据保存位置保存位置选择目录保存位置尚未设置仅保存在当前电脑。当前业务数据仍由已连接的后台保存。')
+        2) <section class="backup-settings business-backup">…</section> aka getByText('业务数据备份每天一份可恢复数据和可阅读 Excel；')
+
+    Call log:
+      - Expect "toContainText" locator('.backup-settings') with timeout 5000ms
+      - waiting for locator('.backup-settings')
+
+
+      12 |  const panel=page.locator('.backup-settings');
+      13 |  await expect(panel.locator('.backup-state')).toHaveCount(0);
+    > 14 |  await expect(panel).toContainText('Excel 按月分表');
+         |                      ^
+      15 |  await panel.getByRole('button',{name:'生成今日备份',exact:true}).click();
+      16 |  await expect(page.getByRole('alert')).toHaveCount(0);
+      17 |  await expect(panel.locator('.backup-state')).toHaveCount(0);
+        at /workspace/scratch/45a5dfca7a35/777/desktop/tests/ui/backup-presentation.spec.ts:14:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/backup-presentation-mother-silently-waits-for-partial-backup/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/backup-presentation-mother-silently-waits-for-partial-backup/error-context.md
+
+  2) tests/ui/backup-presentation.spec.ts:4:51 › mother silently waits for failed backup ───────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.backup-settings')
+    Expected substring: "Excel 按月分表"
+    Error: strict mode violation: locator('.backup-settings') resolved to 2 elements:
+        1) <section class="backup-settings business-directory">…</section> aka getByText('业务数据保存位置保存位置选择目录保存位置尚未设置仅保存在当前电脑。当前业务数据仍由已连接的后台保存。')
+        2) <section class="backup-settings business-backup">…</section> aka getByText('业务数据备份每天一份可恢复数据和可阅读 Excel；')
+
+    Call log:
+      - Expect "toContainText" locator('.backup-settings') with timeout 5000ms
+      - waiting for locator('.backup-settings')
+
+
+      12 |  const panel=page.locator('.backup-settings');
+      13 |  await expect(panel.locator('.backup-state')).toHaveCount(0);
+    > 14 |  await expect(panel).toContainText('Excel 按月分表');
+         |                      ^
+      15 |  await panel.getByRole('button',{name:'生成今日备份',exact:true}).click();
+      16 |  await expect(page.getByRole('alert')).toHaveCount(0);
+      17 |  await expect(panel.locator('.backup-state')).toHaveCount(0);
+        at /workspace/scratch/45a5dfca7a35/777/desktop/tests/ui/backup-presentation.spec.ts:14:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/backup-presentation-mother-silently-waits-for-failed-backup/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/backup-presentation-mother-silently-waits-for-failed-backup/error-context.md
+
+  3) tests/ui/backup-presentation.spec.ts:4:51 › mother silently waits for unknown backup ──────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.backup-settings')
+    Expected substring: "Excel 按月分表"
+    Error: strict mode violation: locator('.backup-settings') resolved to 2 elements:
+        1) <section class="backup-settings business-directory">…</section> aka getByText('业务数据保存位置保存位置选择目录保存位置尚未设置仅保存在当前电脑。当前业务数据仍由已连接的后台保存。')
+        2) <section class="backup-settings business-backup">…</section> aka getByText('业务数据备份每天一份可恢复数据和可阅读 Excel；')
+
+    Call log:
+      - Expect "toContainText" locator('.backup-settings') with timeout 5000ms
+      - waiting for locator('.backup-settings')
+
+
+      12 |  const panel=page.locator('.backup-settings');
+      13 |  await expect(panel.locator('.backup-state')).toHaveCount(0);
+    > 14 |  await expect(panel).toContainText('Excel 按月分表');
+         |                      ^
+      15 |  await panel.getByRole('button',{name:'生成今日备份',exact:true}).click();
+      16 |  await expect(page.getByRole('alert')).toHaveCount(0);
+      17 |  await expect(panel.locator('.backup-state')).toHaveCount(0);
+        at /workspace/scratch/45a5dfca7a35/777/desktop/tests/ui/backup-presentation.spec.ts:14:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/backup-presentation-mother-silently-waits-for-unknown-backup/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/backup-presentation-mother-silently-waits-for-unknown-backup/error-context.md
+
+  4) tests/ui/backup-presentation.spec.ts:21:1 › complete backup retains truthful business success ─
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('body')
+    Timeout: 5000ms
+    - Expected substring  - 1
+    + Received string     + 2
+
+    - 业务数据备份已完成。
+    + 记记账器报价工作台存储与备份      存储与备份重新读取业务数据保存位置保存位置选择目录保存位置尚未设置仅保存在当前电脑。当前业务数据仍由已连接的后台保存。报价表保存位置选择文件夹报价图片保存位置选择文件夹请选择保存文件夹，也可填写完整路径；保存后子版自动继承。发布保存位置业务数据备份每天一份可恢复数据和可阅读 Excel；Excel 按月分表，表内按日排列。备份位置状态：备份正常 · 最近成功：2026-10-18 16:30生成今日备份
+    +
+
+    Call log:
+      - Expect "toContainText" locator('body') with timeout 5000ms
+      - waiting for locator('body')
+        14 × locator resolved to <body>…</body>
+           - unexpected value "记记账器报价工作台存储与备份      存储与备份重新读取业务数据保存位置保存位置选择目录保存位置尚未设置仅保存在当前电脑。当前业务数据仍由已连接的后台保存。报价表保存位置选择文件夹报价图片保存位置选择文件夹请选择保存文件夹，也可填写完整路径；保存后子版自动继承。发布保存位置业务数据备份每天一份可恢复数据和可阅读 Excel；Excel 按月分表，表内按日排列。备份位置状态：备份正常 · 最近成功：2026-10-18 16:30生成今日备份
+    "
+
+
+      25 |  await expect(page.locator('.backup-state')).toContainText('备份正常');
+      26 |  await page.getByRole('button',{name:'生成今日备份',exact:true}).click();
+    > 27 |  await expect(page.locator('body')).toContainText('业务数据备份已完成。');
+         |                                     ^
+      28 | });
+      29 | for(const edition of ['manager','sales'])test(`${edition} without backup permission has no backup entry`,async({page})=>{
+      30 |  await setup(page,edition,['quote','settings']);await page.getByRole('button',{name:'存储与备份',exact:true}).click();
+        at /workspace/scratch/45a5dfca7a35/777/desktop/tests/ui/backup-presentation.spec.ts:27:37
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/backup-presentation-comple-790dd-s-truthful-business-success/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/backup-presentation-comple-790dd-s-truthful-business-success/error-context.md
+
+  4 failed
+    tests/ui/backup-presentation.spec.ts:4:51 › mother silently waits for partial backup ───────────
+    tests/ui/backup-presentation.spec.ts:4:51 › mother silently waits for failed backup ────────────
+    tests/ui/backup-presentation.spec.ts:4:51 › mother silently waits for unknown backup ───────────
+    tests/ui/backup-presentation.spec.ts:21:1 › complete backup retains truthful business success ──
+  2 passed (13.3s)

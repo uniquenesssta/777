@@ -1,0 +1,69 @@
+{
+  "baseline": "d015d31b374018f0e2578b086ceae3d3884b6003",
+  "branch": "stage/p08-cutover",
+  "date": "2026-10-19",
+  "timezone": "Asia/Shanghai",
+  "scope": "source and auxiliary synthetic-directory/mock-browser checks only",
+  "distinct_tests_passed": 11,
+  "runs": [
+    {
+      "name": "host_delivery",
+      "command": "cargo test -p quote-host --test daily_delivery --offline",
+      "result": "passed",
+      "tests": 2
+    },
+    {
+      "name": "daily_clock",
+      "command": "cargo test -p quote-host --lib daily_backup::tests --offline",
+      "result": "passed",
+      "tests": 1
+    },
+    {
+      "name": "backup_presentation",
+      "command": "node --import tsx --test tests/backup-presentation.test.ts",
+      "result": "passed",
+      "tests": 2
+    },
+    {
+      "name": "backup_browser",
+      "command": "P07_BROWSER_PATH=/tmp/quote777-ui-browser/chromium playwright test tests/ui/backup-presentation.spec.ts",
+      "result": "passed",
+      "tests": 6
+    },
+    {
+      "name": "typescript",
+      "command": "tsc --noEmit",
+      "result": "passed",
+      "tests": 0
+    },
+    {
+      "name": "clippy",
+      "command": "cargo clippy -p quote-host --all-targets --offline -- -D warnings",
+      "result": "passed",
+      "tests": 0
+    }
+  ],
+  "initial_ui_failure": "Initial run: 4 failures caused by ambiguous .backup-settings selector (also matched business-directory) and expecting an informational success toast that the existing shell does not render. Narrowed selector and asserted actual success state. Final 6 tests pass; initial output retained below. No product change was made solely to satisfy the fixture.",
+  "excluded": [
+    "Windows runtime/UAC/SMB acceptance",
+    "mother/sales build preparation and final installers",
+    "23/38 live access",
+    "multi-primary/offline order merging"
+  ],
+  "visuals": {
+    "figma": {
+      "file": "2ek9bkIz5ldyhjZnnvIuNu",
+      "page": "21:2",
+      "frame": "120:2314",
+      "hidden_state": "120:2320",
+      "dimensions": [
+        672,
+        220
+      ]
+    },
+    "browser_widths": [
+      1440,
+      720
+    ]
+  }
+}

@@ -715,13 +715,19 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
     let schedule_stop = stop.clone();
     let schedule_dirty = dirty.clone();
     let schedule = tokio::task::spawn_blocking(move || {
-        let mut ticks = 0;
+        let mut checked = std::time::Instant::now();
         while !schedule_stop.load(Ordering::SeqCst) {
             std::thread::sleep(Duration::from_millis(100));
-            ticks += 1;
-            if ticks == 150 {
-                ticks = 0;
+            if checked.elapsed() >= crate::daily_backup::CHECK_INTERVAL {
+                checked = std::time::Instant::now();
                 if replica {
+                    continue;
+                }
+                let check = schedule_service
+                    .lock()
+                    .ok()
+                    .map(|s| crate::daily_backup::check(&s));
+                if check.is_some_and(|check| check.is_ok_and(|check| !check.ready())) {
                     continue;
                 }
                 if let Ok(s) = schedule_service.lock() {
