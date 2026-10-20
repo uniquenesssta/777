@@ -32,7 +32,7 @@ class HostConsoleTests(unittest.TestCase):
 param([string] $Modules,[string] $Base)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
-foreach ($name in @('host-log.ps1','host-paths.ps1','host-site.ps1','host-access.ps1','host-registration.ps1','host-setup.ps1')) { . (Join-Path $Modules $name) }
+foreach ($name in @('host-log.ps1','host-paths.ps1','host-site.ps1','host-access.ps1','host-registration-firewall.ps1', 'host-registration.ps1','host-setup.ps1')) { . (Join-Path $Modules $name) }
 function Set-HostDeploymentVisibility($Directory,$Settings) {}
 Start-HostLog $Base
 Start-HostLog $Base $env:QUOTE777_LOG_SESSION

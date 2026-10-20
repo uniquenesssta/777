@@ -8,7 +8,7 @@ $ErrorActionPreference='Stop'
 [Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)
 [Console]::InputEncoding=[Text.UTF8Encoding]::new($false)
 if ($env:OS -ne 'Windows_NT') { throw 'WINDOWS_DEPLOYMENT_REQUIRED' }
-foreach ($name in @('host-identity.ps1','host-log.ps1','host-package.ps1','host-site.ps1','host-paths.ps1','host-native.ps1','host-prepare.ps1','host-access.ps1','host-settings.ps1','host-options.ps1','host-setup.ps1','host-registration.ps1','host-visibility.ps1','host-check.ps1','host-cluster-files.ps1','host-cluster-primary.ps1','host-cluster-join.ps1','host-autodeploy.ps1')) { . (Join-Path $PSScriptRoot ('scripts\' + $name)) }
+foreach ($name in @('host-identity.ps1','host-log.ps1','host-package.ps1','host-site.ps1','host-paths.ps1','host-native.ps1','host-prepare.ps1','host-access.ps1','host-settings.ps1','host-options.ps1','host-setup.ps1','host-registration-firewall.ps1', 'host-registration.ps1','host-visibility.ps1','host-check.ps1','host-cluster-files.ps1','host-cluster-primary.ps1','host-cluster-join.ps1','host-autodeploy.ps1')) { . (Join-Path $PSScriptRoot ('scripts\' + $name)) }
 
 function Show-ConsoleFailure($Failure) {
     $code = $Failure.Exception.Message
