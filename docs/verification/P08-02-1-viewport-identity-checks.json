@@ -148,5 +148,124 @@
     "tools/p07_desktop_check.py": "00528c154cf25fb473244a75b061d480770dad649d2840f8d742a1c7921ff1ce",
     "tools/p07_desktop_fixture.py": "26af5e74fb6dcce8f4c97f941fe4efca53be295404a43cbe4513eda3d9a86553",
     "tools/p07_development_identity_check.py": "54bf69ea90635d1e928166c7fb2f1699b49c8008447922c3b844485269004bb2"
+  },
+  "windows_ci_confirmation": {
+    "date": "2026-10-20",
+    "timezone": "Asia/Shanghai",
+    "source_commit": "c47865e039b3e9bd30669e8239a21f436c9c8d8c",
+    "run": {
+      "id": 39386584484,
+      "run_number": 88,
+      "run_attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/uniquenesssta/777/actions/runs/39386584484",
+      "created_at": "2026-10-20T07:27:03Z",
+      "updated_at": "2026-10-20T08:07:04Z"
+    },
+    "jobs": [
+      {
+        "id": 118507757408,
+        "name": "offline-orders",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 118507757636,
+        "name": "device-presentation",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 118507757706,
+        "name": "desktop-contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "number": 6,
+            "name": "Runner and owned native window lifecycle regression",
+            "conclusion": "success"
+          },
+          {
+            "number": 7,
+            "name": "P08 deployment policy and PowerShell syntax",
+            "conclusion": "success"
+          },
+          {
+            "number": 8,
+            "name": "Windows build, real Rust HTTPS, browser and actual Tauri WebView2 lifecycle",
+            "conclusion": "success"
+          },
+          {
+            "number": 9,
+            "name": "Customer orders, editable revisions and monthly financial reports",
+            "conclusion": "success"
+          },
+          {
+            "number": 10,
+            "name": "P08 production supervisor shutdown channel",
+            "conclusion": "success"
+          },
+          {
+            "number": 11,
+            "name": "Runtime diagnostics retain actual Windows IO errors",
+            "conclusion": "success"
+          },
+          {
+            "number": 12,
+            "name": "Developer source switching, daily dual-format backup and recovery",
+            "conclusion": "success"
+          },
+          {
+            "number": 13,
+            "name": "Actual SMB mapped drive, hidden folders and selected junction paths",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 118507757858,
+        "name": "host-sync",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 118507759392,
+        "name": "installers",
+        "status": "completed",
+        "conclusion": "skipped"
+      }
+    ],
+    "direct_log_review": {
+      "job_id": 118507757706,
+      "windows_release_build": "passed; actual embedded frontend inspected",
+      "browser": {
+        "passed": 63,
+        "failed": 0
+      },
+      "native_TLS_identity_checks": [
+        "default_identity_uses_real_pinned_Host_authentication",
+        "restart_automatically_restores_selected_Host_and_identity",
+        "expired_token_renews_once_without_losing_calculation_or_duplicate_order",
+        "wrong_pin_preserves_verified_connection",
+        "pending_actor_is_immutable_and_original_receipt_recovers_once"
+      ],
+      "actual_Tauri_WebView2": true,
+      "native_window_interactions": "passed",
+      "native_window_close_and_process_exit": true,
+      "private_sandbox_cleanup": "passed",
+      "developer_credentials_storage": "Windows DPAPI",
+      "source_switch_and_backup": "passed; isolated local, actual SMB/mapped drive and junction checks"
+    },
+    "distinctions": {
+      "auxiliary_local_checks_retained": true,
+      "windows_CI_isolated_runtime_verified": true,
+      "installed_site_4_23_4_38_accepted": false,
+      "user_visual_acceptance": false,
+      "final_manager_sales_installers": "skipped by existing agreement",
+      "E_business_conflict_UI_and_authorization": "not implemented"
+    },
+    "follow_up": "E: authorized mother business conflict review and append-only decision history, plus developer maintenance; await explicit start. F/G remain pending. New documentation commit is not polled."
   }
 }

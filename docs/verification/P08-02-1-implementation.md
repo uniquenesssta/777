@@ -60,3 +60,10 @@
 验证：TypeScript/Vite 构建、48 项前端自动测试、37 项开发者原生库测试和 4 项命令行测试、verification 原生测试、四个源码分支严格 Clippy、格式检查、11 项检查器测试通过；63 项完整浏览器回归通过。真实隔离 Rust Host + 原生 IPC 检查默认连接、重开、过期保存、证书拒绝、未决身份及原收据恢复通过，原 16 组协议业务检查也通过。先前图表缩小与固定高度断言失败均已修正。
 
 本地为 Linux 辅助环境，使用实际 debug verification 二进制；release 缓存的元数据/对象损坏导致该次辅助 release 尝试未通过，不宣称 release 已验收。Windows release/DPAPI 和实际 WebView2 等待用户后续 CI 结果；不轮询新提交，不执行已取消的母子安装包或构建准备专项，没有操作现场。详见[检查证据](P08-02-1-viewport-identity-checks.json)。
+
+
+## 2026-10-20 Windows CI #88 核实通过
+
+用户反馈“CI已通过”后，按源码提交 `c47865e039b3e9bd30669e8239a21f436c9c8d8c` 直接读取 [CI #88](https://github.com/uniquenesssta/777/actions/runs/39386584484) 和各任务：整体 success，desktop-contracts、device-presentation、host-sync、offline-orders 四个功能任务均成功，installers 按约定 skipped。进一步读取 desktop-contracts 实际日志，确认 Windows release 构建及内嵌页面核对、63 项完整浏览器交互、五项默认身份/重开/过期保存/证书拒绝/未决主体保护的真实 TLS 检查、实际 Tauri/WebView2 交互、关闭与临时目录清理通过；开发数据源/双格式备份检查明确使用 Windows DPAPI，含实际 SMB、映射盘和目录联接路径。
+
+本次高度与开发连接修复的源码、构建、自动测试和隔离 Windows 运行门槛已通过；此前本地 release 缓存失败及 Linux 辅助记录保留，不拿本次成功改写历史。现场 4.23/4.38、真实用户视觉验收和最终母子安装包不在该通过结论内。最新 E 的母版冲突核对、不可抹去裁定历史及开发者维护尚未实现，F/G 门槛继续保留。完整核实信息追加到[原检查证据](P08-02-1-viewport-identity-checks.json)的 `windows_ci_confirmation`；不轮询后续提交。
