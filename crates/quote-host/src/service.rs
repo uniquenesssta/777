@@ -489,10 +489,9 @@ impl Service {
             ("GET", "/v1/me") => {
                 Ok(json!({"subject":a.subject,"role":a.role,"protocol":"777-service-v1"}))
             }
-            ("GET", "/v1/prices") => protocol::catalog(
-                store::active_prices(&store::open(&self.ledger, false)?)?,
-                &a,
-            ),
+            ("GET", "/v1/prices") => {
+                crate::price_catalog::active(&store::open(&self.ledger, false)?, &a)
+            }
             ("POST", "/v1/prices") => {
                 Auth::admin(&a)?;
                 fields(

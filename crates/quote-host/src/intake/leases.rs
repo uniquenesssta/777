@@ -53,11 +53,10 @@ pub(super) fn issue(i: &Intake, ctx: &Context, data: &Value) -> Result<Value> {
     if price.is_null() {
         return Err(Error::new(409, "PRICES_NOT_PUBLISHED"));
     }
-    let prices = store::load_prices(&tx, price.as_str().unwrap())?;
     // A digest of low-entropy private costs would still permit guessing them.
     // Bind the lease to the same public quotation projection for every role.
-    let public_prices = crate::protocol::catalog(
-        prices,
+    let public_prices = crate::price_catalog::active(
+        &tx,
         &quote_ledger::store::Actor {
             subject: ctx.actor.subject.clone(),
             role: "sales".into(),

@@ -1,0 +1,19 @@
+/* Every chart occupies the same growing viewport. Its legend and K-line details
+   scroll inside it, so changing chart type cannot resize the summary above. */
+.profit-visualization {
+  position: relative;
+  flex: 1 0 212px;
+  min-height: 212px;
+  min-width: 0;
+}
+.profit-visualization-body {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  scrollbar-gutter: stable;
+  display: flex;
+  flex-direction: column;
+}
+.profit-visualization-body > :is(.profit-chart, .profit-pie) {
+  flex: 1 0 auto;
+}

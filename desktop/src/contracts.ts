@@ -23,6 +23,8 @@ export interface Price {
   unit_sale?: string;
 }
 export interface Catalog {
+  published_at?: string;
+  publication_sequence?: string;
   pricing_mode_version?: "final-unit-v1";
   price_version_id: string;
   items: Price[];

@@ -19,6 +19,7 @@ pub mod offline;
 pub mod operator;
 mod order_changes;
 pub mod outputs;
+mod price_catalog;
 pub mod protocol;
 pub mod query;
 pub mod recovery;

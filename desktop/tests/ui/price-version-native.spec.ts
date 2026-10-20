@@ -1,0 +1,30 @@
+import {test,expect} from '@playwright/test';
+import {nativeClient,nativeAction,nativeHost} from './fixtures/native-client';
+
+test.afterEach(async({request})=>{expect((await request.post(nativeHost+'/cleanup',{data:{}})).ok()).toBe(true);});
+test('quote shows the real publication date and sequence with clear immediately to its right',async({page,request},info)=>{
+  await nativeClient(page,request);
+  const catalog=await nativeAction(page,{action:'prices'});
+  expect(catalog.publication_sequence).toBe('2');
+  const date=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(catalog.published_at)).replaceAll('-','').slice(2);
+  const version=page.getByRole('button',{name:`价格版本 ${date}-2`,exact:true});
+  await expect(version).toBeVisible();
+  await version.click();
+  await expect(version).toBeEnabled();
+  await expect(version).toBeVisible();
+  const clear=page.getByRole('button',{name:'一键清除',exact:true});
+  const a=await version.boundingBox(),b=await clear.boundingBox();
+  expect(b!.x).toBeGreaterThanOrEqual(a!.x+a!.width);
+  expect(b!.y).toBe(a!.y);
+  await page.getByRole('button',{name:'价格维护',exact:true}).click();
+  await page.getByLabel('商品1sale',{exact:true}).fill('21');
+  await page.getByRole('button',{name:'发布新版本',exact:true}).click();
+  await page.getByRole('button',{name:'确认发布',exact:true}).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.getByRole('button',{name:'报价工作台',exact:true}).click();
+  await expect(page.getByRole('button',{name:`价格版本 ${date}-3`,exact:true})).toBeVisible();
+  await page.screenshot({path:info.outputPath('quote-price-actions.png')});
+  await page.getByRole('button',{name:'＋ 添加商品',exact:true}).click();
+  await clear.click();
+  await expect(page.getByLabel('第1行商品',{exact:true})).toHaveCount(0);
+});

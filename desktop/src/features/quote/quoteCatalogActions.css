@@ -1,0 +1,4 @@
+.quote-lines-heading { flex-wrap: wrap; }
+.quote-catalog-actions { display: flex; align-items: center; gap: 12px; }
+.quote-catalog-actions > .button { flex: none; min-height: 32px; height: 32px; padding-top: 0; padding-bottom: 0; }
+.quote-catalog-actions > .price-version { max-width: none; white-space: nowrap; overflow: visible; }

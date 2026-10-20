@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./profit/profitViewport.css";
 import type { AnalysisFilters, AnalysisPeriod } from "../contracts";
 import type { Workbench } from "../state/useWorkbench";
 import { money } from "../state/format";
@@ -176,7 +177,9 @@ export function ProfitPage({ app }: { app: Workbench }) {
         <Empty>此期间没有有效订单。</Empty>
       ) : (
         <>
-          <ProfitChartView data={data} chart={chart} />
+          <div className="profit-visualization"><div className="profit-visualization-body">
+            <ProfitChartView data={data} chart={chart} />
+          </div></div>
           <details className="analysis-data">
             <summary>查看汇总数据</summary>
             <div className="orders-table-scroll">

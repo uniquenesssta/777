@@ -1,4 +1,5 @@
 import { SubmitRecovery } from "./SubmitRecovery";
+import { QuoteCatalogActions } from "./quote/QuoteCatalogActions";
 import { CustomerMatches } from "./CustomerMatches";
 import { useEffect, useRef, useState } from "react";
 import type { Line, Money, Order, RawLine } from "../contracts";
@@ -160,7 +161,7 @@ export function QuotePage({ app }: { app: Workbench }) {
           </div>
           {draft.editing ? <div className="customer-match editing-context"><strong>编辑订单 {draft.details.order_ref || "未填写订单号"}</strong><span>已保存版本 {draft.editing.revision}</span><Button variant="ghost" onClick={()=>void app.readOrder(draft.editing!.order_id)}>查看修改记录</Button></div> : null}
           {app.can("orders") && <CustomerMatches app={app} />}
-          <div className="section-heading">
+          <div className="section-heading quote-lines-heading">
             <h2>
               商品明细{" "}
               <small>
@@ -168,17 +169,7 @@ export function QuotePage({ app }: { app: Workbench }) {
                 个项目
               </small>
             </h2>
-            <div className="section-actions">
-            <Button variant="outline" disabled={app.working || app.pending} onClick={app.clearQuote}>一键清除</Button>
-            <Button
-              variant="ghost"
-              className="price-version"
-              onClick={() => void app.refreshPrices()}
-              disabled={app.busy}
-            >
-              <Icon name="check" />
-              {app.formal ? "刷新价格" : `价格版本 ${catalog?.price_version_id.slice(0, 16) ?? "未连接"}`}
-            </Button></div>
+            <QuoteCatalogActions app={app} />
           </div>
           <div className="line-scroll" tabIndex={0} role="region" aria-label="商品明细滚动区">
             <div className="quote-table quote-entry-table">

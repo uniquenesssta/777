@@ -2285,5 +2285,27 @@
     "identity": "Exact same-field Taobao ID or WeChat match; never order_ref; distinct candidates require user selection",
     "visualReview": "Existing editable picker updated and screenshot reviewed at 420x284",
     "implementation": "docs/verification/P08-pending-customer-identity.md"
+  },
+  "quotePricePublication20261020": {
+    "headers": [
+      "22:321",
+      "40:1626"
+    ],
+    "actions": [
+      "160:2310",
+      "160:2311"
+    ],
+    "versionLabels": [
+      "22:331",
+      "40:1632"
+    ],
+    "clearButtons": [
+      "154:2302",
+      "154:2304"
+    ],
+    "order": "publication date + daily sequence, then clear",
+    "example": "261020-1",
+    "visualReview": "Existing fonts/components retained; Figma header and actual application screenshot reviewed",
+    "implementation": "docs/verification/P08-profit-layout-price-version.md"
   }
 }

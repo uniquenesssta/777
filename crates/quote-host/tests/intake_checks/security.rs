@@ -146,7 +146,7 @@ fn batch_boundaries_fail_without_partial_originals() {
 fn lease_signature_retry_renewal_and_stream_rotation_are_stable() {
     use base64::{engine::general_purpose::STANDARD, Engine};
     use ring::signature::{UnparsedPublicKey, ED25519};
-    let t = Test::new();
+    let mut t = Test::new();
     let request = json!({"protocol":intake::FORMAT,"request_id":store::uid().unwrap()});
     let signed = t.call("/v1/offline/lease", &request).unwrap();
     assert_eq!(signed, t.call("/v1/offline/lease", &request).unwrap());
@@ -157,11 +157,30 @@ fn lease_signature_retry_renewal_and_stream_rotation_are_stable() {
         subject: t.body["device_id"].as_str().unwrap().into(),
         role: "sales".into(),
     };
+    let served =
+        t.f.service
+            .handle(
+                "GET",
+                "/v1/prices",
+                &t.token,
+                &serde_json::Value::Null,
+                "",
+                "test",
+            )
+            .unwrap();
+    assert_eq!(served["publication_sequence"], "1");
+    assert!(served["published_at"].is_string());
+    assert_eq!(
+        signed["body"]["price_sha256"],
+        store::hash(intake::envelope::canonical(&served).unwrap())
+    );
     for cost in ["4", "99"] {
         prices["items"][0]["cost"] = json!(cost);
-        let public =
+        let mut public =
             quote_host::protocol::catalog(serde_json::from_value(prices.clone()).unwrap(), &actor)
                 .unwrap();
+        public["published_at"] = served["published_at"].clone();
+        public["publication_sequence"] = served["publication_sequence"].clone();
         assert_eq!(
             signed["body"]["price_sha256"],
             store::hash(intake::envelope::canonical(&public).unwrap())
