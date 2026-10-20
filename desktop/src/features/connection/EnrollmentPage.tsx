@@ -15,7 +15,7 @@ export function EnrollmentPage({ app }: { app: Workbench }) {
         <h1>
           {app.busy || app.delivery === "loading"
             ? "正在连接…"
-            : "欢迎使用记账器"}
+            : "欢迎使用Quote"}
         </h1>
         <p className="muted">
           {app.delivery === "sales" ? "子版" : "母版"} · 设备登记

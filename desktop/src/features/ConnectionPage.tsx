@@ -14,7 +14,7 @@ export function ConnectionPage({
   return (
     <main className="connection-page">
       <section className="card connection-card">
-        <h1>连接记账器</h1>
+        <h1>连接Quote</h1>
         <p className="muted">选择后台连接文件，自动使用默认或已保存的连接身份。</p>
         {error && (
           <p className="inline-error" role="alert">

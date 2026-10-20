@@ -5,8 +5,8 @@ import { createHash, X509Certificate } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 export const identities = Object.freeze({
-  manager: { identifier: 'cn.uniqueness.quote777.manager', productName: '记账器母版', binary: 'quote777-manager' },
-  sales: { identifier: 'cn.uniqueness.quote777.sales', productName: '记账器子版', binary: 'quote777-sales' },
+  manager: { identifier: 'cn.uniqueness.quote777.manager', productName: 'Quote', binary: 'quote777-manager' },
+  sales: { identifier: 'cn.uniqueness.quote777.sales', productName: 'Quotev', binary: 'quote777-sales' },
 });
 export const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 export const json = value => JSON.stringify(value, null, 2) + '\n';
@@ -68,7 +68,7 @@ export async function verifyRelease(directory) {
     const bytes = await fs.readFile(path.join(directory, file.name));
     if (bytes.length !== file.bytes || digest(bytes) !== file.sha256) throw Error('RELEASE_HASH_MISMATCH');
   }
-  if (!names.has('connection.json') || !names.has(identity.binary + '.exe') || !names.has(manifest.installer) || !manifest.installer.endsWith('-setup.exe')) throw Error('RELEASE_FILES_MISSING');
+  if (!names.has('connection.json') || !names.has(identity.binary + '.exe') || !names.has(manifest.installer) || !(manifest.installer === `${identity.productName}-${manifest.version}.exe` || /^[^\\/:]+-setup\.exe$/.test(manifest.installer))) throw Error('RELEASE_FILES_MISSING');
   const config = publicConnection(await readJson(path.join(directory, 'connection.json')));
   if (digest(Buffer.from(json(config))) !== manifest.connection_sha256) throw Error('RELEASE_CONNECTION_MISMATCH');
   if(manifest.device_protocol==='777-auto-enrollment-v1') {

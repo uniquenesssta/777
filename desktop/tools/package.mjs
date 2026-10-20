@@ -46,7 +46,7 @@ export function bundleConfig(delivery, version, hooks, runtime = 'offlineInstall
       resources: { '../THIRD_PARTY_NOTICES.md': 'licenses/desktop-notices.md', '../resources/licenses/': 'licenses/fonts/' },
       windows: { allowDowngrades: false, webviewInstallMode: { type: runtime, silent: true },
         nsis: { installMode: 'currentUser', languages: ['SimpChinese'], displayLanguageSelector: false,
-          startMenuFolder: '记账器', installerHooks: hooks } },
+          startMenuFolder: id.productName, installerHooks: hooks } },
     },
   };
 }
@@ -156,9 +156,9 @@ export async function build(args) {
     const installerDir = path.join(target, 'release/bundle/nsis');
     const installers = (await fs.readdir(installerDir)).filter(n => n.startsWith(identity.productName + '_' + version + '_') && n.endsWith('-setup.exe'));
     if (installers.length !== 1) throw Error('INSTALLER_NOT_UNIQUE');
-    const installer = installers[0];
+    const installer = `${identity.productName}-${version}.exe`;
     await fs.copyFile(binary, path.join(output, identity.binary + '.exe'));
-    await fs.copyFile(path.join(installerDir, installer), path.join(output, installer));
+    await fs.copyFile(path.join(installerDir, installers[0]), path.join(output, installer));
     await fs.writeFile(path.join(output, 'connection.json'), publicText);
     await fs.copyFile(path.join(desktop, 'THIRD_PARTY_NOTICES.md'), path.join(output, 'THIRD_PARTY_NOTICES.md'));
     await fs.mkdir(path.join(output,'automatic'),{recursive:true});

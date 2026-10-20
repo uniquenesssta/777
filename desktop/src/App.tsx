@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { productName } from "./state/productName";
 import { useWorkbench, type Route } from "./state/useWorkbench";
 import { QuotePage } from "./features/QuotePage";
 import { PricesPage } from "./features/PricesPage";
@@ -15,6 +16,7 @@ import { Button, Icon, Modal } from "./ui/components";
 const formalPackage = import.meta.env.VITE_QUOTE777_DELIVERY === "manager" ||
   import.meta.env.VITE_QUOTE777_DELIVERY === "sales";
 export default function App() {
+  useEffect(() => { document.title = productName; }, []);
   const app = useWorkbench();
   const businessApp = {...app, busy:app.businessBusy};
   const [menu, setMenu] = useState(false);
@@ -45,8 +47,8 @@ export default function App() {
     <>
       <header className="topbar">
         <div className="brand">
-          <span>记</span>
-          <strong>记账器</strong>
+          <span>Q</span>
+          <strong>{productName}</strong>
         </div>
         {app.workspaceVisible && (
           <>
@@ -111,9 +113,9 @@ export default function App() {
           </>
         )}
       </header>
-      {!formalPackage && app.developerTools && app.route === "developer" ? <main className="workspace" aria-busy={app.busy} tabIndex={-1}><DeveloperPage app={app}/></main> : !app.workspaceVisible ? formalPackage || ["manager","sales"].includes(app.delivery) ? <main className="formal-idle" aria-label="记账器" /> : app.delivery === "loading" || app.automatic ? (
+      {!formalPackage && app.developerTools && app.route === "developer" ? <main className="workspace" aria-busy={app.busy} tabIndex={-1}><DeveloperPage app={app}/></main> : !app.workspaceVisible ? formalPackage || ["manager","sales"].includes(app.delivery) ? <main className="formal-idle" aria-label={productName} /> : app.delivery === "loading" || app.automatic ? (
         <main className="connection-page"><section className="card connection-card" aria-busy={app.busy}>
-          <h1>{app.busy || app.delivery === "loading" ? "正在连接…" : "暂时无法进入记账器"}</h1>
+          <h1>{app.busy || app.delivery === "loading" ? "正在连接…" : "暂时无法进入 Quote"}</h1>
           <p className="muted">{app.busy || app.delivery === "loading" ? "请稍候" : "请重试；仍无法连接时请联系管理员。输入草稿会保留。"}</p>
           <Button disabled={app.busy || app.delivery === "loading"} onClick={()=>void app.bootstrap()}>重新连接</Button>
         </section></main>
