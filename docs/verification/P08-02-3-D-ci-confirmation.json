@@ -1,0 +1,111 @@
+{
+  "task": "P08-02-3-D",
+  "date": "2026-10-20",
+  "timezone": "Asia/Shanghai",
+  "source_commit": "5e9af9c39231c38d4b77f73457834b31342e86da",
+  "run": {
+    "id": 39377954741,
+    "run_number": 86,
+    "run_attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/uniquenesssta/777/actions/runs/39377954741",
+    "created_at": "2026-10-20T06:00:42Z",
+    "updated_at": "2026-10-20T06:38:44Z"
+  },
+  "jobs": [
+    {
+      "id": 118480246184,
+      "name": "device-presentation",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118480246360,
+      "name": "host-sync",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118480246411,
+      "name": "offline-orders",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "number": 5,
+          "name": "Strict desktop analysis and Windows local transaction, protection and startup tests",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Build real runtime IPC drivers and Host resources",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Real TLS stop, offline saves, process restart and independent silent upload",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 118480246472,
+      "name": "desktop-contracts",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118480247780,
+      "name": "installers",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ],
+  "verification": "Direct read of completed run, latest job summaries and offline-orders full decoded log after user reported success. New submissions are not polled.",
+  "Windows_native_tests": {
+    "passed": 37,
+    "failed": 0,
+    "ignored": 0,
+    "source": "offline-orders job log"
+  },
+  "Windows_native_report_from_log": {
+    "task": "P08-02-3-D",
+    "status": "Windows_native_offline_flow_passed_startup_site_pending",
+    "environment": "Windows",
+    "runtime": {
+      "checks": [
+        "real_native_automatic_enrollment_signed_lease_and_public_catalog",
+        "existing_authorized_Host_order_downloaded_and_read_offline",
+        "server_stopped_formal_order_and_note_committed_locally",
+        "client_process_closed_reopened_and_same_order_edited_offline",
+        "lost_local_UI_reply_recovers_same_command_receipt_without_a_second_order",
+        "durable_central_receipts_confirmed_projection_and_bounded_history_cache",
+        "native_business_history_and_financial_projection",
+        "closed_client_independent_worker_uploads_to_restarted_TLS_Host",
+        "stable_order_and_line_IDs_and_single_central_booking"
+      ],
+      "sales_isolation_executed": true,
+      "order_id": "134421f6-e314-4e6a-94b0-6c43df401ff2",
+      "final_income_cents": "3000",
+      "live_hosts_contacted": false,
+      "final_installers_verified": false
+    },
+    "native_sha256": {
+      "manager": "5d3586d50ac92c8da160345fcf4725fe90174f35d5a05a2e85d3a91c07880241",
+      "sales": "0b5dfab733a99a6023978abd15670fbfa57988d856de4e2d7b89f7d227491070"
+    },
+    "report": "reports\\p08-02-3-D-local\\report.json"
+  },
+  "artifact_contents_read": false,
+  "stage_D_source_and_CI": "passed",
+  "pending": [
+    "Installed application next-user-logon/background lifecycle at site",
+    "E developer-only conflict workflow UI if required; not started",
+    "F Excel full money history/red-black rendering and local/old-backup recovery",
+    "G measured 4.23 capacity, site activation and sustained backlog recovery"
+  ],
+  "live_4_23_or_4_38_verified": false,
+  "final_installers_verified": false,
+  "stage_E_started": false
+}

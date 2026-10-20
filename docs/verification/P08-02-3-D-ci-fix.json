@@ -94,7 +94,7 @@
     "Compile-only Send obligations for real execute, directory_context and sync_tick futures; old source rejected, corrected source accepted.",
     "Drop Desktop before original cleanup assertions in source-reload and developer-pending tests."
   ],
-  "Windows_fix_verification": "CI #85 confirms the prior Send and Rust test cleanup fixes. A later Python inspection-connection cleanup failure is repaired in follow_up_ci85; new Windows result pending.",
+  "Windows_fix_verification": "Completed CI #86 on 5e9af9c confirms all four functional jobs, Windows native tests and complete dual-role TLS flow/cleanup; see final_confirmation.",
   "final_installers_or_build_preparation_verified": false,
   "workflow_checks_removed_or_relaxed": false,
   "formal_UI_or_logging_changed": false,
@@ -355,7 +355,7 @@
     "production_Rust_or_UI_changed": false,
     "workflow_checks_removed_or_relaxed": false,
     "final_installers_or_build_preparation_verified": false,
-    "Windows_new_fix_result": "pending_new_CI",
+    "Windows_new_fix_result": "Verified successful by completed CI #86 on 5e9af9c",
     "local_environment": "Linux",
     "checks": [
       {
@@ -486,5 +486,6 @@
       "tests/test_p08_local_storage.py": "545cfc06dd0f9e8edefe55f7131613753e8e84c5913989fa9b81d1187d048c52"
     },
     "scope": "Linux auxiliary build/tests and real separate native TLS processes passed including cleanup. Prior Rust fixes now verified by Windows CI #85. New Windows file-handle and complete native-flow result remains pending. No final installer/build preparation, site access or stage E."
-  }
+  },
+  "final_confirmation": "P08-02-3-D-ci-confirmation.json"
 }

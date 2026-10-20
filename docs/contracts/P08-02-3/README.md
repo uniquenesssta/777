@@ -1,6 +1,6 @@
 # P08-02-3：离线入账与 4.23 接收契约
 
-状态：**A/B 已交付；C 对应提交 Windows CI #83 已直接核实成功；D 本机正式订单、保存回执和原生静默续传已实现并完成本地辅助验证，Windows CI #85 已验证前轮原生修复；余下联测的 Python 连接清理问题已修正，新结果待核实；见 [修复记录](../../verification/P08-02-3-D-ci-fix.md)。E/F/G 与现场验收继续保留。**
+状态：**A/B 已交付；C 的 Windows CI #83、D 的 Windows CI #86 已直接核实成功。D 四个功能任务及真实原生双角色断网续传通过，见 [核实记录](../../verification/P08-02-3-D-ci-confirmation.json)。E 未启动，F/G 与现场验收继续保留。**
 
 日期：2026-10-19（Asia/Shanghai）；基线 `2ca5cee69b08b41d9cf288dce69520121dc81de9`；唯一分支 `stage/p08-cutover`。对应[任务书](../../now/P08-02-3-offline-orders.md)。用户通知结果后已再次直接核实 C 的对应 SHA、工作流及各任务；新提交按约定不轮询。
 

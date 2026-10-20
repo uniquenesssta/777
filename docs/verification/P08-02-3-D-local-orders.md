@@ -2,7 +2,7 @@
 
 2026-10-20（Asia/Shanghai）；唯一分支 `stage/p08-cutover`，基线 `b70aa10373bd7412bea6e574fc17ec09d158d3e1`。用户要求开始 D，并要求再核实 C 的 CI：已直接读取对应 SHA 的已结束工作流 [#83](https://github.com/uniquenesssta/777/actions/runs/39302481133) 及各任务结果，整体成功；三个功能任务成功，installers 按约定跳过。见 [C 核实记录](P08-02-3-C-ci-confirmation.json)。新 D 提交正常触发 CI，提交后不轮询、不等待。
 
-最新 Windows 结果：[CI #85](https://github.com/uniquenesssta/777/actions/runs/39373611132) 已验证前轮原生异步/测试清理修复，三个既有功能任务及本机 37 项测试成功；余下原生联测因 Python 检查连接未关闭而清理失败，已修正并重跑，修复后的 Windows 新结果仍待核实。见 [修复记录](P08-02-3-D-ci-fix.md)。下文原 D 辅助证据保留，不替代 Windows 验收。
+最新 Windows 结果：已直接核实 `5e9af9c` 对应 [CI #86](https://github.com/uniquenesssta/777/actions/runs/39377954741) 成功，四个功能任务全部通过，包含 37 项 Windows 本机测试及真实双角色 TLS 断网续传/清理；见 [核实记录](P08-02-3-D-ci-confirmation.json)。#84/#85 的失败及修复历史保留。现场安装后登录启动、真实负载及 F/G 恢复门槛仍待完成。
 
 ## 保存与恢复
 

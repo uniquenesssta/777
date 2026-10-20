@@ -2,7 +2,7 @@
 
 2026-10-20（Asia/Shanghai）；分支 `stage/p08-cutover`，修复基线 `057e2914e63856b752e0ec5150be4107e967d1ce`。用户反馈“未通过”后，直接读取该 SHA 的已结束 [CI #84](https://github.com/uniquenesssta/777/actions/runs/39366809561)、任务摘要及三个失败任务的完整日志。实际结果和修复检查见 [证据](P08-02-3-D-ci-fix.json)。
 
-最新进度：CI #85 已验证下述原生异步和测试清理修复；余下原生联测在 Python 检查器清理临时目录时失败，修复及验证见文末。新提交的 Windows 结果仍待核实。
+最新进度：`5e9af9c` 对应 CI #86 已直接核实成功，四个功能任务、Windows 本机测试和完整原生双角色 TLS 联测/清理通过。见 [核实记录](P08-02-3-D-ci-confirmation.json)。下文保留 #84/#85 原始失败及分轮修复证据。
 
 ## CI #84：失败与原因
 
@@ -39,3 +39,8 @@ D 把 SQLite 连接加入 Desktop 后，Desktop 可移动但不能共享。新�
 同时精简检查器控制台输出为状态、结果及报告位置，完整源码指纹仍保存在 report.json，不再把数百项摘要刷入 CI 控制台。失败退出码及完整 failure.txt 保留。
 
 本轮重新构建运行用 Host/Ledger 和 manager/sales 原生驱动，完整隔离 TLS 断网、重开、独立续传和清理流程已通过，实际结果见同一[证据](P08-02-3-D-ci-fix.json)的 follow_up_ci85。该环境是 Linux，不能代替新 Windows 文件解锁和完整原生联测结果；源码、UI、现场、正式日志和最终封包策略保持原范围，不推进 E。
+
+
+## CI #86：修复结果核实
+
+2026-10-20 用户通知通过后，读取对应 SHA 的已结束 run、四个功能任务及原生完整日志，确认成功；installers 按约定跳过。D 源码与 Windows CI 验证通过，未改写原失败记录，也未把此结果当成现场登录启动、真实容量或 F/G 恢复验收。确认见 [D 核实记录](P08-02-3-D-ci-confirmation.json)。
