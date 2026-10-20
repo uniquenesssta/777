@@ -132,11 +132,13 @@ impl Local {
         number(&view["revision"])?;
         public(&mut view, &ctx);
         self.transaction(||{
+            let existing:Option<Vec<u8>>=self.c.query_row("SELECT confirmed FROM local_orders WHERE id=?",[&id],|r|r.get(0)).optional().map_err(sql)?.flatten();
+            if let Some(raw)=existing {let previous=self.decode(&raw)?;if previous["deleted"]==true || number(&previous["revision"])? > number(&view["revision"])? {return Ok(());}}
             self.queue_history(&view)?;
             let pending:bool=self.c.query_row("SELECT EXISTS(SELECT 1 FROM local_operations WHERE order_id=? AND state NOT IN ('applied','settled'))",[&id],|r|r.get(0)).map_err(sql)?;
             let bytes=self.encode(&view)?;let rev=number(&view["revision"])?;
             self.c.execute("INSERT INTO local_orders VALUES(?,?,?,?,NULL) ON CONFLICT(id) DO UPDATE SET confirmed=excluded.confirmed",params![id,bytes,bytes,rev]).map_err(sql)?;
-            if !pending{self.c.execute("UPDATE local_orders SET working=?,revision=?,last_operation=NULL WHERE id=?",params![bytes,rev,id]).map_err(sql)?;}
+            if !pending || view["deleted"] == true {self.c.execute("UPDATE local_orders SET working=?,revision=?,last_operation=NULL WHERE id=?",params![bytes,rev,id]).map_err(sql)?;}
             Ok(())
         })
     }

@@ -19,6 +19,7 @@ pub mod host;
 pub mod offline;
 pub mod operator;
 mod order_changes;
+mod order_deletion;
 pub mod outputs;
 mod price_catalog;
 pub mod protocol;
@@ -50,6 +51,7 @@ impl From<quote_ledger::Error> for Error {
             "PATH_PERMISSION_DENIED" => (403, "PATH_PERMISSION_DENIED"),
             "LINK_OR_TYPE_DISALLOWED" => (422, "PATH_TYPE_CONFLICT"),
             "FORBIDDEN" => (403, "FORBIDDEN"),
+            "ORDER_DELETED" => (409, "ORDER_DELETED"),
             "CONFLICT" => (409, "REVISION_OR_PRICE_CONFLICT"),
             "CUSTOMER_SELECTION_REQUIRED" => (409, "CUSTOMER_SELECTION_REQUIRED"),
             "CUSTOMER_IDENTITY_CONFLICT" => (409, "CUSTOMER_IDENTITY_CONFLICT"),

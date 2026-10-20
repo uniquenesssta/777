@@ -152,6 +152,9 @@ impl Service {
     ) -> Result<Value> {
         let value=c.query_row("SELECT owner_id,revision,state,price_id,created_at,rule_version,numeric_profile,details_json,income_cents,cost_cents,profit_cents FROM orders WHERE order_id=?",[key],|r|Ok((r.get::<_,String>(0)?,json!({"order_id":key,"revision":r.get::<_,i64>(1)?,"state":r.get::<_,String>(2)?,"price_version_id":r.get::<_,String>(3)?,"created_at":r.get::<_,String>(4)?,"rule_version":r.get::<_,String>(5)?,"numeric_profile":r.get::<_,String>(6)?,"details":serde_json::from_str::<Value>(&r.get::<_,String>(7)?).map_err(|_|rusqlite::Error::InvalidQuery)?,"income_cents":r.get::<_,i64>(8)?.to_string(),"cost_cents":r.get::<_,i64>(9)?.to_string(),"profit_cents":r.get::<_,i64>(10)?.to_string()})))).optional()?;
         let (owner, mut v) = value.ok_or_else(|| Error::new(404, "NOT_FOUND"))?;
+        if quote_ledger::deletion::deleted(c, key)? {
+            return fail(404, "NOT_FOUND");
+        }
         if a.role != "admin" && owner != a.subject {
             return fail(404, "NOT_FOUND");
         }
@@ -283,6 +286,9 @@ impl Service {
         }
         if path.starts_with("/v1/cluster/") {
             return crate::cluster::api::handle(self, method, path, token, data, peer);
+        }
+        if path.starts_with("/v1/developer/orders/") {
+            return crate::order_deletion::handle(self, method, path, token, data);
         }
         if path.starts_with("/v1/developer/backup-") {
             return crate::backup_settings::handle(self, method, path, token, data);
@@ -416,7 +422,7 @@ impl Service {
                 }
                 let c = store::open(&self.ledger, false)?;
                 c.execute_batch("BEGIN")?;
-                let mut st=c.prepare("SELECT order_id FROM orders WHERE date(created_at,'+8 hours')>=? AND date(created_at,'+8 hours')<=? ORDER BY created_at,order_id")?;
+                let mut st=c.prepare("SELECT order_id FROM orders WHERE NOT EXISTS(SELECT 1 FROM audit_events d WHERE d.order_id=orders.order_id AND d.operation='delete_order') AND date(created_at,'+8 hours')>=? AND date(created_at,'+8 hours')<=? ORDER BY created_at,order_id")?;
                 let ids = st.query_map([from, to], |r| r.get::<_, String>(0))?;
                 let revision = store::verify(&c)?["revision"].clone();
                 return crate::report_exports::enqueue(

@@ -168,7 +168,7 @@ for (const delivery of ["manager", "sales"])
     for (const name of ["账户菜单","退出登录","选择文件","登记并进入","重新连接"])
       await expect(page.getByRole("button",{name,exact:true})).toHaveCount(0);
     await expect(page.getByRole("alert")).toHaveCount(0);
-    await expect(page.locator("body")).not.toContainText(/DEPLOYMENT|服务|登记|密码|失败|联系管理员/);
+    await expect(page.locator("body")).not.toContainText(/DEPLOYMENT|服务|登记|密码|失败|联系(?:管理员|维护人员)/);
     await page.clock.fastForward(16000);
     const requests=await page.evaluate(()=>(window as any).__integrationRequests);
     expect(requests.filter((r:any)=>r.action==='bootstrap').length).toBeGreaterThanOrEqual(2);

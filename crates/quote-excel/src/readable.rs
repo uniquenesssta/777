@@ -103,6 +103,10 @@ pub fn backup_orders(data: &Value) -> Result<Vec<Value>> {
     }
     if !data["ledger"]["audit_events"].is_null() {
         for a in records(&data["ledger"]["audit_events"])? {
+            if a["operation"] == "delete_order" {
+                orders.retain(|o| o["order_id"] != a["order_id"]);
+                continue;
+            }
             if let Some(o) = orders.iter_mut().find(|o| o["order_id"] == a["order_id"]) {
                 if string(&a["created_at"]) > string(&o["updated_at"]) {
                     o["updated_at"] = a["created_at"].clone();

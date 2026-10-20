@@ -518,6 +518,7 @@ async fn handler(
                                 let _permit = permit;
                                 if path.starts_with("/v1/cluster/")
                                     || path.starts_with("/v1/offline/")
+                                    || path.starts_with("/v1/developer/orders/")
                                     || path.starts_with("/v1/developer/backup-")
                                 {
                                     fail(409, "CLUSTER_REPLICA_CANNOT_WRITE")

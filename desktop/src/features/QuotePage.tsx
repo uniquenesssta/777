@@ -53,7 +53,7 @@ export function Summary({
         <section className="finance">
           <small className="muted">
             <Icon name="lock" />
-            仅管理员可见
+            内部核算
           </small>
           <div className="finance-cost">
             <span>商品成本</span>

@@ -3,6 +3,8 @@ use quote_ledger::{integrity, store};
 use serde_json::{json, Value};
 #[path = "customer_order_checks/host_backup_settings.rs"]
 mod host_backup_settings;
+#[path = "customer_order_checks/order_deletion.rs"]
+mod order_deletion;
 #[path = "customer_order_checks/price_publication.rs"]
 mod price_publication;
 struct Fixture {

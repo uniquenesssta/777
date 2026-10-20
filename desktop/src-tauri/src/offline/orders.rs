@@ -29,6 +29,9 @@ impl Local {
         if ctx["binding"]["role"] != "admin" && v["owner_id"] != ctx["binding"]["subject"] {
             return Err(DesktopError::new(404, "NOT_FOUND"));
         }
+        if v["deleted"] == true {
+            return Err(DesktopError::new(404, "NOT_FOUND"));
+        }
         public(&mut v, &ctx);
         Ok(v)
     }

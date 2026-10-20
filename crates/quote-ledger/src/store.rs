@@ -669,7 +669,7 @@ pub fn mutate(c: &mut Connection, m: Mutation, crash: Option<&str>) -> Result<Va
             let cid = crate::editing::customer(&tx, actor, details, customer, order_id.as_deref())?;
             let order_ref = details["order_ref"].as_str().unwrap().trim();
             if let Some(cid) = &cid {
-                if !order_ref.is_empty() && tx.query_row("SELECT EXISTS(SELECT 1 FROM orders WHERE COALESCE(customer_id,order_id)=? AND trim(json_extract(details_json,'$.order_ref'))=? AND order_id!=?)",params![cid,order_ref,order_id.as_deref().unwrap_or("")],|r|r.get::<_,bool>(0))?{return Err(Error::new("CUSTOMER_ORDER_NUMBER_EXISTS"));}
+                if !order_ref.is_empty() && tx.query_row("SELECT EXISTS(SELECT 1 FROM orders WHERE NOT EXISTS(SELECT 1 FROM audit_events d WHERE d.order_id=orders.order_id AND d.operation='delete_order') AND COALESCE(customer_id,order_id)=? AND trim(json_extract(details_json,'$.order_ref'))=? AND order_id!=?)",params![cid,order_ref,order_id.as_deref().unwrap_or("")],|r|r.get::<_,bool>(0))?{return Err(Error::new("CUSTOMER_ORDER_NUMBER_EXISTS"));}
             }
             let oid = order_id.clone().map(Ok).unwrap_or_else(uid)?;
             let next = if let Some(rev) = expected_revision {
@@ -783,6 +783,7 @@ pub fn mutate(c: &mut Connection, m: Mutation, crash: Option<&str>) -> Result<Va
     Ok(result)
 }
 fn owned(c: &Connection, actor: &Actor, oid: &str) -> Result<(String, i64)> {
+    crate::deletion::available(c, oid)?;
     let row: Option<(String, String, i64)> = c
         .query_row(
             "SELECT owner_id,state,revision FROM orders WHERE order_id=?",

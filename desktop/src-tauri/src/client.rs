@@ -707,6 +707,8 @@ impl Desktop {
                 .await
             }
             Action::Recover { retry } => self.recover_pending(retry).await,
+            Action::DeveloperOrders { query, offset, history } => self.host_settings("/v1/developer/orders/list",Some(json!({"query":query,"offset":offset,"history":history}))).await,
+            Action::DeleteOrder { ledger_id, request_id, order_id, expected_revision, reason } => self.host_settings("/v1/developer/orders/delete",Some(json!({"ledger_id":ledger_id,"request_id":request_id,"order_id":order_id,"expected_revision":revision(&expected_revision)?,"reason":reason}))).await,
             Action::HostBackupSettings {} => self.host_settings("/v1/developer/backup-settings", None).await,
             Action::SaveHostBackupSettings { ledger_id, expected_revision, backup_dir, daily_hour } => self.host_settings("/v1/developer/backup-settings", Some(json!({"ledger_id":ledger_id,"expected_revision":expected_revision,"backup_dir":backup_dir,"daily_hour":daily_hour}))).await,
             Action::HostBackupDirectories { ledger_id, path } => self.host_settings("/v1/developer/backup-directories", Some(json!({"ledger_id":ledger_id,"path":path}))).await,

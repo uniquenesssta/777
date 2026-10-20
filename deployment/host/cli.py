@@ -40,7 +40,7 @@ def main(argv=None):
         elif args.operation in ('prepare', 'configure'):
             if not all([args.root, args.backup, args.hidden]):
                 raise ValueError('prepare需要--root、--backup、--hidden，使用独立的新主机目录')
-            secret = getpass.getpass('后台管理员密码（12～128字符，不显示、不保存到命令或报告）：')
+            secret = getpass.getpass('后台访问密码（12～128字符，不显示、不保存到命令或报告）：')
             if secret != getpass.getpass('再次输入密码：'):
                 raise ValueError('PASSWORD_CONFIRMATION_MISMATCH')
             value = prepare(args.root, args.backup, args.hidden, args.admin, secret,

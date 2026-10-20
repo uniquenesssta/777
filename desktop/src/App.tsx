@@ -116,7 +116,7 @@ export default function App() {
       {!formalPackage && app.developerTools && app.route === "developer" ? <main className="workspace" aria-busy={app.busy} tabIndex={-1}><DeveloperPage app={app}/></main> : !app.workspaceVisible ? formalPackage || ["manager","sales"].includes(app.delivery) ? <main className="formal-idle" aria-label={productName} /> : app.delivery === "loading" || app.automatic ? (
         <main className="connection-page"><section className="card connection-card" aria-busy={app.busy}>
           <h1>{app.busy || app.delivery === "loading" ? "正在连接…" : "暂时无法进入 Quote"}</h1>
-          <p className="muted">{app.busy || app.delivery === "loading" ? "请稍候" : "请重试；仍无法连接时请联系管理员。输入草稿会保留。"}</p>
+          <p className="muted">{app.busy || app.delivery === "loading" ? "请稍候" : "请重试；仍无法连接时请联系维护人员。输入草稿会保留。"}</p>
           <Button disabled={app.busy || app.delivery === "loading"} onClick={()=>void app.bootstrap()}>重新连接</Button>
         </section></main>
       ) : (

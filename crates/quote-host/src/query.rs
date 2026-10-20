@@ -127,7 +127,10 @@ impl Queries {
     fn synchronize(&mut self, c: &Connection, revision: i64) -> Result<()> {
         if self.revision.is_none_or(|r| revision < r) {
             self.rows.clear();
-            let mut st = c.prepare(&format!("SELECT {COLS} FROM orders"))?;
+            let mut st = c.prepare(&format!(
+                "SELECT {COLS} FROM orders WHERE {}",
+                quote_ledger::deletion::VISIBLE
+            ))?;
             let data = st
                 .query_map([], |r| Ok((r.get::<_, String>(0)?, row(r)?)))?
                 .collect::<std::result::Result<Vec<_>, _>>()?;
@@ -144,6 +147,11 @@ impl Queries {
             for id in ids {
                 if let Some(old) = self.rows.get(&id).cloned() {
                     self.change(&old, -1)
+                }
+                if quote_ledger::deletion::deleted(c, &id)? {
+                    self.rows.remove(&id);
+                    self.delta_rows += 1;
+                    continue;
                 }
                 let next = c.query_row(
                     &format!("SELECT {COLS} FROM orders WHERE order_id=?"),
@@ -251,7 +259,7 @@ impl Queries {
         {
             return fail(409, "QUERY_VIEW_CHANGED");
         }
-        let mut clauses = vec![];
+        let mut clauses = vec![quote_ledger::deletion::VISIBLE];
         let mut args: Vec<SqlValue> = vec![];
         if let Some(owner) = &key.0 {
             clauses.push("owner_id=?");

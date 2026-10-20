@@ -151,6 +151,7 @@ pub(crate) fn apply(i: &Intake, c: &Connection, ctx: &Context, v: &Value) -> Res
         if at < issued.saturating_sub(300) || at > crate::auth::now() + 300 {
             return Err(merge::conflict("BUSINESS_DATE_REQUIRES_REVIEW"));
         }
+        quote_ledger::deletion::available(c, v["order_id"].as_str().unwrap())?;
         let (basis, observed, candidate) = prepare(c, v, &lease)?;
         base = basis;
         let kind = v["kind"].as_str().unwrap();

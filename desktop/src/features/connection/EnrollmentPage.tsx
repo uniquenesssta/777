@@ -21,7 +21,7 @@ export function EnrollmentPage({ app }: { app: Workbench }) {
           {app.delivery === "sales" ? "子版" : "母版"} · 设备登记
         </p>
         <p>
-          首次使用时，选择管理员为这台电脑准备的登记文件。完成后日常自动连接。
+          首次使用时，选择为这台电脑准备的登记文件。完成后日常自动连接。
         </p>
         <div className="directory-choice">
           <Field label="登记文件">
@@ -85,7 +85,7 @@ export function EnrollmentPage({ app }: { app: Workbench }) {
           </Button>
         </div>
         <small className="muted">
-          已有设备请先重新连接。登记失效时，请管理员重新签发此版本的设备登记文件。
+          已有设备请先重新连接。登记失效时，请重新签发此版本的设备登记文件。
         </small>
       </section>
     </main>

@@ -14,6 +14,9 @@ impl Local {
         let mut out = Vec::new();
         for raw in rows {
             let mut v = self.decode(&raw)?;
+            if v["deleted"] == true {
+                continue;
+            }
             if let Some(alias) =
                 self.meta(&format!("alias:{}", v["order_id"].as_str().unwrap_or("")))?
             {

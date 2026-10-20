@@ -28,7 +28,7 @@ function Enable-HostCluster([string] $Directory,$Bundle,$Settings) {
     if ((Get-FileDigest $native) -eq $deployment.host_sha256) { Stop-HostForClusterUpgrade $Directory $root }
     $password=$null
     try {
-        Write-Host '请输入现有业务管理员密码。服务正常停止后升级，账本和证书保留。'
+        Write-Host '请输入现有账本访问密码。服务正常停止后升级，账本和证书保留。'
         $password=Read-HostBusinessPassword $false
         $null=Invoke-HostNative $candidate @('select-host','--root',$root,'--admin',$Settings.admin,'--backend','rust','--worker',(Join-Path $Directory 'bin\quote-ledger.exe'),'--notices',(Join-Path $Directory 'THIRD_PARTY_NOTICES.md'),'--upgrade-resources') $password
         $checked=Invoke-HostNative $native @('inspect','--root',$root)

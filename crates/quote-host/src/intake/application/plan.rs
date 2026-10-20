@@ -124,7 +124,7 @@ pub(super) fn duplicate(c: &Connection, order: &Order) -> Result<Option<String>>
     if reference.is_empty() {
         return Ok(None);
     }
-    Ok(c.query_row("SELECT order_id FROM orders WHERE order_id!=? AND trim(json_extract(details_json,'$.order_ref'))=? ORDER BY order_id LIMIT 1",params![order.order_id,reference],|r|r.get(0)).optional()?)
+    Ok(c.query_row("SELECT order_id FROM orders WHERE NOT EXISTS(SELECT 1 FROM audit_events d WHERE d.order_id=orders.order_id AND d.operation='delete_order') AND order_id!=? AND trim(json_extract(details_json,'$.order_ref'))=? ORDER BY order_id LIMIT 1",params![order.order_id,reference],|r|r.get(0)).optional()?)
 }
 pub(super) fn customer(
     c: &Connection,
@@ -137,7 +137,7 @@ pub(super) fn customer(
     }
     let name = next.details["customer"].as_str().unwrap().trim();
     let wechat = next.details["wechat"].as_str().unwrap().trim();
-    let mut st=c.prepare("SELECT customer_id,name,wechat FROM customers c WHERE ((?!='' AND name=?) OR (?!='' AND wechat=?)) AND (?='admin' OR EXISTS(SELECT 1 FROM orders o WHERE o.customer_id=c.customer_id AND o.owner_id=?)) LIMIT 2")?;
+    let mut st=c.prepare("SELECT customer_id,name,wechat FROM customers c WHERE EXISTS(SELECT 1 FROM orders visible WHERE coalesce(visible.customer_id,visible.order_id)=c.customer_id AND NOT EXISTS(SELECT 1 FROM audit_events d WHERE d.order_id=visible.order_id AND d.operation='delete_order')) AND ((?!='' AND name=?) OR (?!='' AND wechat=?)) AND (?='admin' OR EXISTS(SELECT 1 FROM orders o WHERE o.customer_id=c.customer_id AND o.owner_id=?)) LIMIT 2")?;
     let rows = st
         .query_map(
             params![name, name, wechat, wechat, actor.role, actor.subject],

@@ -29,6 +29,7 @@ pub fn apply(c: &Connection, change: Change<'_>) -> Result<Value> {
     actor.check()?;
     id(request)?;
     id(&order.order_id)?;
+    crate::deletion::available(c, &order.order_id)?;
     let old: Option<i64> = c
         .query_row(
             "SELECT revision FROM orders WHERE order_id=?",

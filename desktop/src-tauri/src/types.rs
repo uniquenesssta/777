@@ -188,6 +188,18 @@ pub enum Action {
     Recover {
         retry: bool,
     },
+    DeveloperOrders {
+        query: String,
+        offset: u32,
+        history: bool,
+    },
+    DeleteOrder {
+        ledger_id: String,
+        request_id: String,
+        order_id: String,
+        expected_revision: String,
+        reason: String,
+    },
     HostBackupSettings {},
     SaveHostBackupSettings {
         ledger_id: String,
@@ -282,6 +294,8 @@ impl Action {
             Self::DeleteOutput { .. } => "DeleteOutput",
             Self::RetryOutput { .. } => "RetryOutput",
             Self::Recover { .. } => "Recover",
+            Self::DeveloperOrders { .. } => "DeveloperOrders",
+            Self::DeleteOrder { .. } => "DeleteOrder",
             Self::HostBackupSettings { .. } => "HostBackupSettings",
             Self::SaveHostBackupSettings { .. } => "SaveHostBackupSettings",
             Self::HostBackupDirectories { .. } => "HostBackupDirectories",
@@ -313,6 +327,7 @@ impl Action {
                 | Self::DeleteOutput { .. }
                 | Self::RetryOutput { .. }
                 | Self::Recover { .. }
+                | Self::DeleteOrder { .. }
                 | Self::SaveHostBackupSettings { .. }
                 | Self::Backup {}
         )

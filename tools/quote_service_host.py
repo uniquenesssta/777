@@ -21,7 +21,7 @@ def main(argv=None):
     backend=sub.add_parser('select-backend');backend.add_argument('--root',type=Path,required=True);backend.add_argument('--admin',required=True);backend.add_argument('--backend',choices=['python','rust'],required=True);backend.add_argument('--binary',type=Path);backend.add_argument('--notices',type=Path)
     args=parser.parse_args(argv)
     if args.command=='init':
-        secret=getpass.getpass('首次管理员密码（12～128字；不显示、不写入命令行）：')
+        secret=getpass.getpass('首次账本访问密码（12～128字；不显示、不写入命令行）：')
         if secret!=getpass.getpass('再次输入密码：'):parser.error('两次密码不一致')
         config=initialize(args.root,args.backup_dir,args.admin,secret,hosts=args.host,bind=args.bind,port=args.port)
         print('主机初始化完成；当前未启动服务。')
@@ -32,17 +32,17 @@ def main(argv=None):
         if os.name!='nt':parser.error('Only actual Windows host selection is supported')
         if args.backend=='rust' and (args.binary is None or args.notices is None):parser.error('Rust requires --binary and --notices')
         from quote_service.backend import select_backend
-        select_backend(args.root,args.admin,getpass.getpass('主机管理员密码：'),args.backend,binary=args.binary,notices=args.notices)
+        select_backend(args.root,args.admin,getpass.getpass('主机访问密码：'),args.backend,binary=args.binary,notices=args.notices)
         print('后端选择已保存；维护备份及账本核对通过。当前未启动服务。')
     elif args.command=='enable-outputs':
         import os
         if os.name!='nt':parser.error('Only actual Windows host activation is supported')
         from quote_service.hosting import enable_outputs
-        enable_outputs(args.root,args.admin,getpass.getpass('主机管理员密码：'))
+        enable_outputs(args.root,args.admin,getpass.getpass('主机访问密码：'))
         print('输出任务已启用；原账本schema不变，完整维护备份已验证。未启动服务。')
     elif args.command=='restore':
         from quote_service.recovery import restore
-        secret=getpass.getpass('恢复管理员的新密码：')
+        secret=getpass.getpass('恢复后的账本访问密码：')
         if secret!=getpass.getpass('再次输入新密码：'):parser.error('两次密码不一致')
         restore(args.package,args.root,args.admin,secret)
         print('已恢复到独立维护目录；旧会话/凭证失效，销售账号需重设密码并启用。尚未启动服务。')

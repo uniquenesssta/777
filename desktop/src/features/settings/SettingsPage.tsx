@@ -61,7 +61,7 @@ export function SettingsPage({ app }: { app: Workbench }) {
             title={exportLocation.display}
             readOnly={!admin || exportLocation.concealed}
             onChange={(e) => setExport(e.target.value)}
-            placeholder="由管理员发布的保存位置"
+            placeholder="已发布的保存位置"
           />
           {admin && (
             <Button
@@ -87,7 +87,7 @@ export function SettingsPage({ app }: { app: Workbench }) {
             title={imageLocation.display}
             readOnly={!admin || imageLocation.concealed}
             onChange={(e) => setImage(e.target.value)}
-            placeholder="由管理员发布的保存位置"
+            placeholder="已发布的保存位置"
           />
           {admin && (
             <Button
@@ -117,7 +117,7 @@ export function SettingsPage({ app }: { app: Workbench }) {
           </Button>
         </>
       ) : (
-        <p className="muted">保存位置由管理员发布，当前账号只读继承。</p>
+        <p className="muted">保存位置统一发布，当前版本自动沿用。</p>
       )}
       {app.can("backup") && (
         <section className="backup-settings business-backup">

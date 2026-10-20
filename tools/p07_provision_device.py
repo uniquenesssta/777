@@ -27,7 +27,7 @@ def main():
         parser.error('issuing a grant requires --subject, --delivery and --output')
     with operator_connection(args.connection, args.admin) as config:
         client = Client(config)
-        client.login(args.admin, getpass.getpass('部署管理员密码：'))
+        client.login(args.admin, getpass.getpass('部署访问密码：'))
         try:
             if args.list_devices:
                 print(json.dumps(client.request('GET', '/v1/devices'), ensure_ascii=False, indent=2))

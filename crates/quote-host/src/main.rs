@@ -194,7 +194,7 @@ impl Args {
                 Ok(protocol::text(&data["password"], 128, true)?.into())
             }
         } else {
-            let secret = rpassword::prompt_password("管理员密码（不回显）：")?;
+            let secret = rpassword::prompt_password("后台访问密码（不回显）：")?;
             if confirm {
                 auth::password(&json!(secret))?;
             } else {

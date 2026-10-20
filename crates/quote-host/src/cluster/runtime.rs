@@ -22,7 +22,13 @@ pub fn changes(method: &str, path: &str, body: &Value) -> bool {
         );
     }
     !path.starts_with("/v1/cluster/")
-        && !["/v1/calculate", "/v1/order-preview", "/v1/customer-orders"].contains(&path)
+        && ![
+            "/v1/calculate",
+            "/v1/order-preview",
+            "/v1/customer-orders",
+            "/v1/developer/orders/list",
+        ]
+        .contains(&path)
 }
 pub fn source(
     service: Arc<Mutex<Service>>,

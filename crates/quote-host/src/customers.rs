@@ -38,7 +38,7 @@ pub fn listing(c: &Connection, a: &Actor, data: &Value) -> Result<Value> {
         store::id(group)?;
     }
     let tx = c.unchecked_transaction()?;
-    let filter="(?1='admin' OR owner_id=?2) AND (?3='' OR instr(details_json,?3)>0) AND (?4='' OR coalesce(customer_id,order_id)=?4) AND (?5=0 OR ((?6!='' AND trim(json_extract(details_json,'$.customer'))=?6) OR (?7!='' AND trim(json_extract(details_json,'$.wechat'))=?7)))";
+    let filter="NOT EXISTS(SELECT 1 FROM audit_events deletion WHERE deletion.order_id=orders.order_id AND deletion.operation='delete_order') AND (?1='admin' OR owner_id=?2) AND (?3='' OR instr(details_json,?3)>0) AND (?4='' OR coalesce(customer_id,order_id)=?4) AND (?5=0 OR ((?6!='' AND trim(json_extract(details_json,'$.customer'))=?6) OR (?7!='' AND trim(json_extract(details_json,'$.wechat'))=?7)))";
     let count: i64 = tx.query_row(
         &format!(
             "SELECT count(DISTINCT coalesce(customer_id,order_id)) FROM orders WHERE {filter}"
@@ -64,7 +64,7 @@ pub fn listing(c: &Connection, a: &Actor, data: &Value) -> Result<Value> {
         .collect::<std::result::Result<Vec<_>, _>>()?;
     let mut groups = vec![];
     for id in ids {
-        let filter = "coalesce(customer_id,order_id)=:id AND (:role='admin' OR owner_id=:owner)";
+        let filter = "NOT EXISTS(SELECT 1 FROM audit_events deletion WHERE deletion.order_id=orders.order_id AND deletion.operation='delete_order') AND coalesce(customer_id,order_id)=:id AND (:role='admin' OR owner_id=:owner)";
         let args = named_params! {":id":id,":role":a.role,":owner":a.subject};
         let mut sums = [0i128; 3];
         let mut total = 0;

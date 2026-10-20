@@ -45,7 +45,7 @@ function Invoke-ConsoleAction([string] $Selected) {
     if ($Selected -in @('deploy','setup','start','stop','cluster-primary','cluster-join')) {
         $null=Assert-HostSetupMachine $script:Settings
         if (-not (Test-HostElevated)) {
-            Write-Host '即将请求管理员权限，请使用当前 Windows 账户。'
+            Write-Host '即将请求 Windows 系统授权，请使用当前 Windows 账户。'
             Invoke-HostElevatedConsole $PSScriptRoot $Selected
             return
         }

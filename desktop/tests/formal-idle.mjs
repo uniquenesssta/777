@@ -14,5 +14,5 @@ export async function expectSilentFormalEntry(page, timeout = 20000) {
   for (const name of ['服务地址', '服务证书（PEM）', '证书 SHA-256 指纹', '账号', '密码']) {
     await expect(page.getByLabel(name, {exact: true})).toHaveCount(0);
   }
-  await expect(page.locator('body')).not.toContainText(/正在连接|暂时无法进入|DEPLOYMENT|192\.168\.|联系管理员/);
+  await expect(page.locator('body')).not.toContainText(/正在连接|暂时无法进入|DEPLOYMENT|192\.168\.|联系(?:管理员|维护人员)/);
 }

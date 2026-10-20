@@ -6,6 +6,8 @@ mod business;
 mod crashes;
 #[path = "application_checks/decisions.rs"]
 mod decisions;
+#[path = "application_checks/deletion.rs"]
+mod deletion;
 #[allow(dead_code)]
 #[path = "intake_checks/support.rs"]
 mod intake_support;

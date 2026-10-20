@@ -36,6 +36,7 @@ pub(super) fn chunk(i: &Intake, ctx: &Context, data: &Value) -> Result<Value> {
     {
         return Err(Error::new(409, "REVISION_OR_PRICE_CONFLICT"));
     }
+    header["deleted"] = json!(quote_ledger::deletion::deleted(&c, id)?);
     let section = protocol::text(&data["section"], 16, true)?;
     let rows = match section {
         "lines" => {

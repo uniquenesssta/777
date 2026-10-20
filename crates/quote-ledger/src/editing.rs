@@ -49,6 +49,7 @@ pub fn snapshot(c: &Connection, oid: &str) -> Result<Value> {
     Ok(json!({"order":order,"lines":lines}))
 }
 pub fn owned(c: &Connection, actor: &Actor, oid: &str) -> Result<Value> {
+    crate::deletion::available(c, oid)?;
     let s = snapshot(c, oid)?;
     if actor.role != "admin" && s["order"]["owner_id"] != actor.subject {
         return Err(Error::new("FORBIDDEN"));
@@ -227,7 +228,7 @@ pub fn customer(
         return Ok(Some(cid));
     }
     if choice["new_customer"] != true {
-        let matches:i64=c.query_row("SELECT count(*) FROM customers c WHERE ((?!='' AND c.name=?) OR (?!='' AND c.wechat=?)) AND (?='admin' OR EXISTS(SELECT 1 FROM orders o WHERE COALESCE(o.customer_id,o.order_id)=c.customer_id AND o.owner_id=?))",params![name,name,wechat,wechat,actor.role,actor.subject],|r|r.get(0))?;
+        let matches:i64=c.query_row("SELECT count(*) FROM customers c WHERE EXISTS(SELECT 1 FROM orders visible WHERE coalesce(visible.customer_id,visible.order_id)=c.customer_id AND NOT EXISTS(SELECT 1 FROM audit_events d WHERE d.order_id=visible.order_id AND d.operation='delete_order')) AND ((?!='' AND c.name=?) OR (?!='' AND c.wechat=?)) AND (?='admin' OR EXISTS(SELECT 1 FROM orders o WHERE COALESCE(o.customer_id,o.order_id)=c.customer_id AND o.owner_id=?))",params![name,name,wechat,wechat,actor.role,actor.subject],|r|r.get(0))?;
         if matches > 0 {
             return Err(Error::new("CUSTOMER_SELECTION_REQUIRED"));
         }
@@ -316,7 +317,7 @@ pub fn validate_archive(c: &Connection, oid: &str, revision: i64, raw: &str) -> 
             }
         }
     }
-    let linked:bool=c.query_row("SELECT EXISTS(SELECT 1 FROM audit_events WHERE order_id=? AND operation IN ('save_order','append_note','set_state') AND before_json=?)",params![oid,raw],|r|r.get(0))?;
+    let linked:bool=c.query_row("SELECT EXISTS(SELECT 1 FROM audit_events WHERE order_id=? AND operation IN ('save_order','append_note','set_state','delete_order') AND before_json=?)",params![oid,raw],|r|r.get(0))?;
     if !linked {
         return Err(invalid());
     }

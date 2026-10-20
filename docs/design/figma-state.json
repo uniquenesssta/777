@@ -2314,5 +2314,14 @@
     "directoryPicker": "165:2350",
     "scope": "developer-only",
     "implementation": "desktop/src/features/hostSettings/"
+  },
+  "developerOrderCleanup20261021": {
+    "page": "21:2",
+    "list": "168:2340",
+    "confirmation": "168:2391",
+    "scope": "developer-only; existing manager/sales capabilities unchanged",
+    "copy": "Removed administrator terminology from current UI and matching Figma text",
+    "implementation": "desktop/src/features/orderCleanup/",
+    "visualReview": "Editable components and Noto Sans SC; corrected multi-line text heights; Figma and browser screenshots reviewed"
   }
 }

@@ -69,7 +69,7 @@ def main(argv=None):
                 plan=preview_bytes(raw,kind,legacy_single_names=args.legacy_single,native=native)
                 report={**plan.report(),'mode':'apply','status':'failed'}
                 if plan.review_sha256 != args.review_sha256:raise ValueError('来源/适配结果已改变，请重新预演')
-                login = service.auth.login(args.username, getpass.getpass('管理员密码（不显示、不保存）：'), 'local-import')
+                login = service.auth.login(args.username, getpass.getpass('账本访问密码（不显示、不保存）：'), 'local-import')
                 token = login['token']
                 actor = service.auth.authenticate(token)
                 require_admin(actor)
