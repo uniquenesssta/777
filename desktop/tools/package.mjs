@@ -3,6 +3,8 @@ import fs from 'node:fs/promises';
 import { packagePermissions } from './package-permissions.mjs';
 import { issuerConnection, payloadInventory, resourceInventory, issuePackage, managerResources } from './automatic-release.mjs';
 import { stageResources } from './package-resources.mjs';
+import { installerHooks } from './installer-hooks.mjs';
+export { installerHooks } from './installer-hooks.mjs';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { spawn, execFileSync } from 'node:child_process';
@@ -10,30 +12,6 @@ import { fileURLToPath } from 'node:url';
 import { digest, json, options, publicConnection, readJson, requireDelivery, verifyRelease } from './deployment.mjs';
 const desktop = fileURLToPath(new URL('../', import.meta.url));
 const root = path.dirname(desktop);
-export function installerHooks(delivery) {
-  requireDelivery(delivery);
-  const other = delivery === 'manager' ? 'sales' : 'manager';
-  return `!macro NSIS_HOOK_PREINSTALL
-  IfFileExists "$INSTDIR\\quote777-${other}.exe" 0 +3
-    SetErrorLevel 5
-    Abort "DELIVERY_INSTALL_DIRECTORY_CONFLICT"
-  ReadINIStr $0 "$INSTDIR\\quote777-install.ini" "release" "delivery"
-  StrCmp $0 "" quote777_delivery_check_done
-  StrCmp $0 "${delivery}" quote777_delivery_check_done
-    SetErrorLevel 5
-    Abort "DELIVERY_INSTALL_DIRECTORY_CONFLICT"
-  quote777_delivery_check_done:
-!macroend
-!macro NSIS_HOOK_POSTINSTALL
-  WriteINIStr "$INSTDIR\\quote777-install.ini" "release" "delivery" "${delivery}"
-  ${delivery === 'manager' ? 'nsExec::ExecToStack \'"$SYSDIR\\WindowsPowerShell\\v1.0\\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\\host\\install.ps1" -Resources "$INSTDIR"\'\n  Pop $0\n  Pop $1' : ''}
-!macroend
-!macro NSIS_HOOK_POSTUNINSTALL
-  Delete "$INSTDIR\\quote777-install.ini"
-  RMDir "$INSTDIR"
-!macroend
-`;
-}
 export function bundleConfig(delivery, version, hooks, runtime = 'offlineInstaller') {
   const id = requireDelivery(delivery);
   if (!/^\d+\.\d+\.\d+$/.test(version)) throw Error('RELEASE_VERSION_INVALID');

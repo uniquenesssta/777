@@ -5,11 +5,9 @@ import type { Workbench } from "../../state/useWorkbench";
 import { stamp } from "../../state/format";
 import { Button, Field, Input } from "../../ui/components";
 import { backupState } from "./backupPresentation";
-import { BusinessDirectory } from "./BusinessDirectory";
 import { managedLocation } from "./managedLocations";
 
 export function SettingsPage({ app }: { app: Workbench }) {
-  const admin = app.navigationRole === "admin";
   const backupLocation = managedLocation(String(app.backup?.target ?? ""), app.delivery, "每日备份");
   const backupLabel = backupState(app.backup);
   const lastSuccess = app.backup?.last_success as
@@ -44,7 +42,6 @@ export function SettingsPage({ app }: { app: Workbench }) {
           </Button>
         </>
       )}
-      {admin && app.delivery === "manager" && <BusinessDirectory disabled={app.busy}/> }
       <LocalOutputDirectory disabled={app.busy} finance={app.can("finance")}/>
       {app.can("backup") && (
         <section className="backup-settings business-backup">

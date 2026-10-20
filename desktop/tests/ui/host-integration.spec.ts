@@ -20,7 +20,7 @@ async function setup(page: Page, delivery = "manager", registered: boolean | "pe
       const settings = {
         revision: "1",
         export_dir: "D:\\报价文件\\Excel",
-        image_dir: "D:\\报价文件\\图片",
+        image_dir: "D:\\报价文件\\PIC",
       };
       const session = {
         role: delivery === "sales" ? "sales" : "admin",
@@ -103,49 +103,20 @@ async function setup(page: Page, delivery = "manager", registered: boolean | "pe
   );
   await page.goto("/");
 }
-test("manager directory saves locally, survives reload, masks address and keeps output settings separate", async ({
-  page,
-}, info) => {
+test("manager settings omit business-directory controls and retain local exports after reload", async ({page}) => {
   await setup(page);
-  await page.getByRole("button", { name: "存储与备份", exact: true }).click();
-  const panel = page.locator(".business-directory");
-  const raw = "\\\\192.168.4.23\\共享\\业务数据";
-  await panel.getByLabel("保存位置", { exact: true }).fill(raw);
-  await expect(panel.getByLabel("保存位置", { exact: true })).toHaveValue(
-    "已配置的业务数据位置",
-  );
-  await panel.getByRole("button", { name: "保存位置", exact: true }).click();
-  await expect(panel.getByRole("status")).toHaveText("已保存，暂未应用");
-  const requests = await page.evaluate(
-    () => (window as any).__integrationRequests,
-  );
-  expect(
-    requests.filter((r: any) => r.action === "save_business_directory")[0]
-      .directory,
-  ).toBe(raw);
-  expect(
-    requests.some((r: any) =>
-      ["save_settings", "developer", "backup"].includes(r.action),
-    ),
-  ).toBe(false);
-  await page.reload();
-  await page.getByRole("button", { name: "存储与备份", exact: true }).click();
-  await expect(
-    page.locator(".business-directory").getByRole("status"),
-  ).toHaveText("已保存，暂未应用");
-  await expect(page.getByLabel("导出文件保存位置")).toHaveValue(
-    "D:\\报价文件",
-  );
-  await page.setViewportSize({ width: 720, height: 1000 });
-  await page.screenshot({
-    path: info.outputPath("manager-720.png"),
-    fullPage: true,
-  });
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= window.innerWidth,
-    ),
-  ).toBe(true);
+  for (let visit=0; visit<2; visit++) {
+    await page.getByRole("button", {name:"存储与备份",exact:true}).click();
+    await expect(page.locator(".business-directory")).toHaveCount(0);
+    await expect(page.getByRole("heading",{name:"业务数据保存位置",exact:true})).toHaveCount(0);
+    await expect(page.getByRole("button",{name:"保存位置",exact:true})).toHaveCount(0);
+    await expect(page.getByRole("button",{name:"选择目录",exact:true})).toHaveCount(0);
+    await expect(page.getByLabel("导出文件保存位置")).toHaveValue("D:\\报价文件");
+    await expect(page.locator(".local-output-folders")).toContainText("PIC");
+    const requests = await page.evaluate(() => (window as any).__integrationRequests);
+    expect(requests.some((r:any)=>["business_directory","save_business_directory"].includes(r.action))).toBe(false);
+    if (visit===0) await page.reload();
+  }
 });
 test("sales settings do not acquire business-directory or publication controls", async ({
   page,
