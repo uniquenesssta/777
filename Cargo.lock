@@ -2855,6 +2855,7 @@ dependencies = [
  "base64 0.22.1",
  "rcgen",
  "reqwest",
+ "ring",
  "rustls",
  "serde",
  "serde_json",

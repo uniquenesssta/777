@@ -1,13 +1,11 @@
 //! HTTP dispatcher + real SQLite/auth; no claim of TLS or live SMB acceptance.
 use super::*;
+use crate::automatic_fixture as fixture;
 use axum::{
     body::{to_bytes, Body},
     extract::{ConnectInfo, State as AxumState},
     http::Request,
 };
-#[allow(dead_code)]
-#[path = "../../tests/automatic_support/mod.rs"]
-mod fixture;
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn accepted_receipt_is_durable_and_intake_progresses_with_business_mutex_held() {
     http_flow(false).await

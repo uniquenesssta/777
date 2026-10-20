@@ -78,7 +78,7 @@ export async function ignoreGeneratedOutput(output, repository = root) {
 export async function build(args) {
   const a = options(args, ['--delivery', '--issuer-state', '--candidate', '--package-id', '--output', '--version', '--webview', '--permissions']);
   const delivery = a['--delivery'], identity = requireDelivery(delivery);
-  if (!a['--issuer-state'] || !a['--candidate'] || !a['--output']) throw Error('ISSUER_NOT_READY');
+  if (!a['--issuer-state'] || !a['--candidate'] || !a['--output']) throw Error('LOCAL_SIGNER_UNAVAILABLE');
   const issuerState=path.resolve(a['--issuer-state']),candidate=path.resolve(a['--candidate']);
   const packageId=a['--package-id']??randomUUID();
   const hostExecutable=path.join(root,'target/release/quote-host.exe');

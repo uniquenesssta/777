@@ -7,7 +7,7 @@ class PackagingMixin:
     def package_status(self):
         # Packaging never reads the currently selected business source.
         with self.job_lock:job=json.loads(json.dumps(self.job))
-        return dict(preferences=self.preferences,job=job,issuer=self.issuer.status())
+        return dict(preferences=self.preferences,job=job,issuer=self.signer.status())
 
     def package(self, delivery, permissions, retry=False):
         from p07_developer import local, package_preferences, replace_json
@@ -21,21 +21,22 @@ class PackagingMixin:
             local(output, directory=True)
             if retry:
                 if not self.job or self.job['state']!='failed':raise RuntimeError('PACKAGE_RETRY_UNAVAILABLE')
+                if self.job.get('signing') != 'local':raise RuntimeError('PACKAGE_LEGACY_REBUILD_REQUIRED')
                 if self.job['delivery']!=delivery or self.job.get('permissions')!=permissions:raise RuntimeError('PACKAGE_RESUME_CONFLICT')
                 key=self.job['id']
             else:
                 key=str(uuid.uuid4())
             destination = output / f'{delivery}-{preferences["version"]}-{key[:8]}'
             if retry:destination=Path(self.job['output'])
-            issuer=self.issuer.status()
-            if not issuer.get('ready'):raise RuntimeError('ISSUER_NOT_READY')
-            if not retry and self.job and self.job['state']=='failed':self.close_queue.enqueue(self.job['id'])
-            candidate=self.dev.DEV/'issuance'/(key+'.bin')
+            issuer=self.signer.status()
+            if not issuer.get('ready'):raise RuntimeError('LOCAL_SIGNER_UNAVAILABLE')
+            if not retry and self.job and self.job['state']=='failed' and self.job.get('signing') != 'local':self.close_queue.enqueue(self.job['id'])
+            candidate=self.dev.DEV/'local-issuance'/(key+'.bin')
             candidate.parent.mkdir(exist_ok=True)
-            self.job = dict(id=key, state='running', delivery=delivery, permissions=permissions, version=preferences['version'], runtime=preferences['runtime'], output=str(destination), lines=[], error=None, bytes=None)
+            self.job = dict(id=key, signing='local', state='running', delivery=delivery, permissions=permissions, version=preferences['version'], runtime=preferences['runtime'], output=str(destination), lines=[], error=None, bytes=None)
             replace_json(self.dev.DEV/'automatic-job.json',self.job)
             self.cancelled.clear()
-            args = [os.environ.get('QUOTE777_NODE') or 'node', str(self.dev.ROOT / 'desktop/tools/package.mjs'), '--delivery', delivery, '--issuer-state', str(self.issuer.state), '--candidate', str(candidate), '--package-id', key, '--output', str(destination), '--version', preferences['version'], '--webview', preferences['runtime'], '--permissions', json.dumps(permissions, separators=(',', ':'))]
+            args = [os.environ.get('QUOTE777_NODE') or 'node', str(self.dev.ROOT / 'desktop/tools/package.mjs'), '--delivery', delivery, '--issuer-state', str(self.signer.state), '--candidate', str(candidate), '--package-id', key, '--output', str(destination), '--version', preferences['version'], '--webview', preferences['runtime'], '--permissions', json.dumps(permissions, separators=(',', ':'))]
             self.worker = threading.Thread(target=self.build_package, args=(args, candidate, destination), daemon=False)
             self.worker.start()
         return self.package_status()
@@ -79,7 +80,7 @@ class PackagingMixin:
                 process = self.build
                 self.build = None
             if process and process.poll() is None:process.kill(); process.wait(timeout=15)
-            if self.cancelled.is_set() and candidate.exists():
+            if self.cancelled.is_set() and candidate.exists() and self.job.get('signing') != 'local':
                 self.close_queue.enqueue(self.job['id'])
             replace_json(self.dev.DEV/'automatic-job.json',self.job)
 

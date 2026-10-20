@@ -88,11 +88,14 @@ pub fn create(c: &Connection, issuer: &str, data: &Value) -> Result<Value> {
     if m.issuer_id != issuer {
         return Err(denied());
     }
-    let ceiling: String = c.query_row(
-        "SELECT capabilities_json FROM issuers WHERE id=? AND enabled=1",
-        [issuer],
-        |r| r.get(0),
-    )?;
+    let ceiling: String = c
+        .query_row(
+            "SELECT capabilities_json FROM issuers WHERE id=? AND enabled=1",
+            [issuer],
+            |r| r.get(0),
+        )
+        .optional()?
+        .ok_or_else(denied)?;
     let ceiling: Vec<String> = serde_json::from_str(&ceiling)?;
     if m.capabilities.iter().any(|v| !ceiling.contains(v)) {
         return Err(denied());

@@ -16,3 +16,7 @@ reports/
 
 # One-use host enrollment tickets are never source artifacts.
 *.777join
+
+# Developer signing state and owner-only bootstrap deployment material.
+local-signer.bin
+host-trust.json

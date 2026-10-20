@@ -54,7 +54,49 @@ impl Desktop {
             }
         }
         let _ = connection;
-        self.automatic_package = Some(p);
+        self.automatic_package = Some(self.cached_local_binding(&p)?.unwrap_or(p));
         Ok(())
+    }
+    fn cached_local_binding(&self, p: &Package) -> Result<Option<Package>> {
+        use quote_security::local_package as local;
+        if p.format != local::FORMAT {
+            return Ok(None);
+        }
+        let fingerprint = local::fingerprint(p).map_err(|_| invalid())?;
+        let cached: Option<Value> = self.store.read("automatic-binding.bin")?;
+        if let Some(cached) = cached.filter(|v| v["fingerprint"] == fingerprint) {
+            let bound: Package =
+                serde_json::from_value(cached["package"].clone()).map_err(|_| invalid())?;
+            local::validate_binding(p, &bound, crate::startup::delivery())
+                .map_err(|_| invalid())?;
+            return Ok(Some(bound));
+        }
+        Ok(None)
+    }
+    pub(super) async fn resolve_local_package(&mut self, p: Package) -> Result<Package> {
+        use quote_security::local_package as local;
+        if p.format != local::FORMAT {
+            return Ok(p);
+        }
+        let bound = local::resolve(&p, crate::startup::delivery())
+            .await
+            .map_err(|e| DesktopError::new(e.status, &e.code))?;
+        // Reject ledger/certificate changes before publishing the new binding cache.
+        let connection = bound
+            .validate(crate::startup::delivery())
+            .map_err(|_| invalid())?;
+        identity::stage(
+            &self.store,
+            &bound,
+            &connection,
+            crate::startup::delivery(),
+            self.has_pending()?,
+        )?;
+        self.store.replace(
+            "automatic-binding.bin",
+            &json!({"fingerprint":local::fingerprint(&p).map_err(|_| invalid())?,"package":bound}),
+        )?;
+        self.automatic_package = Some(bound.clone());
+        Ok(bound)
     }
 }

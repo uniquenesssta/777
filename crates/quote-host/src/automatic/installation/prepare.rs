@@ -25,6 +25,7 @@ pub async fn join_with_stop(
     stop: &AtomicBool,
 ) -> Result<Value> {
     let p: Package = serde_json::from_slice(&files::read(package, 131072)?)?;
+    let p = resolve_package(p, state, init.auxiliary).await?;
     let connection = p
         .validate("manager")
         .map_err(|e| crate::Error::new(e.status, &e.code))?;
@@ -150,6 +151,35 @@ pub async fn join_with_stop(
         json!({"node_id":id,"package_id":p.manifest["package_id"],"ledger_id":c.ledger_id,"generation":publication.generation}),
     );
     Ok(
-        json!({"status":"replica_ready","node_id":c.node_id,"generation":publication.generation,"ledger_id":c.ledger_id}),
+        json!({"status":"replica_ready","site_id":p.profile["site_id"],"node_id":c.node_id,"generation":publication.generation,"ledger_id":c.ledger_id}),
     )
+}
+
+async fn resolve_package(p: Package, state: &Path, auxiliary: bool) -> Result<Package> {
+    use quote_security::local_package as local;
+    if p.format != local::FORMAT {
+        return Ok(p);
+    }
+    let convert = |e: quote_security::Error| crate::Error::new(e.status, &e.code);
+    let fingerprint = local::fingerprint(&p).map_err(convert)?;
+    let cache = state.join("binding.bin");
+    if cache.exists() {
+        let saved = issuer_state::load(&cache, auxiliary)?;
+        if saved["fingerprint"] == fingerprint {
+            let bound: Package = serde_json::from_value(saved["package"].clone())?;
+            local::validate_binding(&p, &bound, "manager").map_err(convert)?;
+            return Ok(bound);
+        }
+    }
+    let bound = local::resolve(&p, "manager").await.map_err(convert)?;
+    if !state.exists() {
+        files::new_dir(state)?;
+    }
+    files::dir(state)?;
+    issuer_state::save(
+        &cache,
+        &json!({"fingerprint":fingerprint,"package":bound}),
+        auxiliary,
+    )?;
+    Ok(bound)
 }

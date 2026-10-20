@@ -6,7 +6,7 @@ import {developer,usePackaging} from './usePackaging';
 import {PackageTasks} from './PackageTasks';
 import check from './assets/check.svg';
 import type {PackageConfiguration} from './types';
-export function PackageChoices({onMaintenance}:{onMaintenance:()=>void}){
+export function PackageChoices(){
   const {state,busy,error,building,run,setState}=usePackaging();
   const [delivery,setDelivery]=useState<Delivery>('manager'),[policies,setPolicies]=useState({manager:defaults('manager'),sales:defaults('sales')});
   const [draft,setDraft]=useState<{output:string;version:string;runtime:string}|null>(null);
@@ -41,9 +41,9 @@ export function PackageChoices({onMaintenance}:{onMaintenance:()=>void}){
         <h2>本次封包</h2><h3>{title}</h3>
         <p>{permissionCatalog.filter(p=>selected.includes(p.id)).map(label).join('、')}。</p>
         <small className="muted">{delivery==='manager'?'安装时自动配置后台，接入同一份业务数据。':'安装后自动接入业务数据。'}</small>
-        <small className="muted">功能以本次勾选为准。</small>
+        <small className="muted">在本机完成封包，无需连接服务器。</small>
         <Button disabled={disabled||!state?.issuer?.ready} onClick={()=>void pack()}>封包{title}</Button>
-        {state&&!state.issuer?.ready&&<><p>尚未获得 4.23 的封包授权，完成后即可封包。</p><Button variant="outline" disabled={disabled} onClick={onMaintenance}>完成封包授权</Button></>}
+        {state&&!state.issuer?.ready&&<p className="muted">{state.issuer?.phase==='windows_required'?'请在开发用 Windows 电脑封包。':'本机签发身份暂不可用，请检查开发日志。'}</p>}
         <small className="muted">登录、退出登录和内部连接提示始终隐藏。</small>
       </section>
     </div>

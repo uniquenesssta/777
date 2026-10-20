@@ -4,6 +4,10 @@ extern crate self as quote_host;
 pub mod analytics;
 pub mod auth;
 pub mod automatic;
+#[cfg(test)]
+#[allow(dead_code)]
+#[path = "../tests/automatic_support/mod.rs"]
+mod automatic_fixture;
 pub mod backup;
 pub mod cluster;
 mod customers;

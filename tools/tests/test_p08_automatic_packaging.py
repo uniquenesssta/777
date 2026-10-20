@@ -18,7 +18,7 @@ class PackagingTests(unittest.TestCase):
     def controller(self, root):
         c = Controller()
         c.dev = types.SimpleNamespace(DEV=root, ROOT=root)
-        c.issuer = types.SimpleNamespace(state=root/'issuer.bin', status=lambda:dict(ready=True))
+        c.signer = types.SimpleNamespace(state=root/'local-signer.bin', status=lambda:dict(ready=True))
         c.job_lock = threading.Lock()
         c.cancelled = threading.Event()
         c.preferences = dict(output=str(root/'new-output'), version='9.9.9', runtime='offlineInstaller')
@@ -36,7 +36,7 @@ class PackagingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             c = self.controller(root)
-            c.job = dict(id='original-package', state='failed', delivery='manager', permissions=['quote'],
+            c.job = dict(id='original-package', signing='local', state='failed', delivery='manager', permissions=['quote'],
                          version='1.2.3', runtime='downloadBootstrapper', output=str(root/'original-output'))
             dependencies = types.SimpleNamespace(local=lambda p,**_:Path(p),package_preferences=lambda v:Path(v['output']),replace_json=Mock())
             with patch.dict(sys.modules, {'p07_developer':dependencies}), patch.object(packaging,'os',types.SimpleNamespace(name='nt',environ={})), patch.object(packaging.threading,'Thread') as thread:

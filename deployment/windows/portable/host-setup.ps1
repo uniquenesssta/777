@@ -20,6 +20,7 @@ function Invoke-HostSetup([string] $Directory, $Bundle, $Settings) {
             $null = Invoke-HostPreparation $site $Bundle $Directory $root $Settings.backup $Settings.hidden $Settings.admin $password $Settings.address $Settings.port $Settings.hour $resume
         } finally { $password = $null }
     }
+    Update-HostRegistration $Directory $Bundle $Settings
     $state = Invoke-HostTaskOperation $Directory $Settings.root 'status'
     if ($state.state -eq 'not_registered') {
         Invoke-HostTaskOperation $Directory $Settings.root 'install'

@@ -1,5 +1,6 @@
 //! Fixed-site, scoped installation authorization. Secrets never enter diagnostics.
 pub mod api;
+pub mod bootstrap;
 pub mod business;
 pub mod deployment;
 pub mod devices;
@@ -8,10 +9,12 @@ pub mod issuance;
 pub mod issuer_state;
 pub mod kit;
 pub mod legacy_device;
+pub mod local_issuer;
 pub mod nodes;
 pub mod packages;
 pub mod pairing;
 pub mod permissions;
+pub mod registration;
 pub mod schema;
 pub mod sessions;
 pub mod trust;

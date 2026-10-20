@@ -4,6 +4,11 @@ use quote_host::{automatic as a, fail, files, service::Service, Result};
 use serde_json::{json, Value};
 pub fn allowed(command: &str) -> Result<Vec<&'static str>> {
     let mut keys = match command {
+        "automatic-package-check" => vec!["--package"],
+        "automatic-local-status" => vec!["--state"],
+        "automatic-local-issue" => vec!["--state", "--input", "--candidate", "--output"],
+        "automatic-host-trust" => vec!["--state", "--output"],
+        "automatic-host-update" => vec!["--root", "--provision", "--notices"],
         "automatic-prepare" => vec!["--output", "--state", "--peer", "--notices"],
         "automatic-connect" => vec!["--state"],
         "automatic-issuer-status" => vec!["--state"],
@@ -28,6 +33,32 @@ pub fn allowed(command: &str) -> Result<Vec<&'static str>> {
 pub async fn execute(args: &Args) -> Result<Value> {
     let auxiliary = args.has("--auxiliary");
     match args.command.as_str() {
+        "automatic-package-check" => {
+            let p: quote_security::automatic::Package =
+                serde_json::from_slice(&files::read(&args.path("--package")?, 131072)?)?;
+            p.validate("manager")
+                .map_err(|e| quote_host::Error::new(e.status, &e.code))?;
+            let caps: Vec<String> = serde_json::from_value(p.manifest["capabilities"].clone())?;
+            a::permissions::validate("manager", &caps)?;
+            Ok(json!({"status":"package_validated","delivery":"manager"}))
+        }
+        "automatic-local-status" => a::local_issuer::status(&args.path("--state")?, auxiliary),
+        "automatic-local-issue" => a::local_issuer::issue(
+            &args.path("--state")?,
+            &args.path("--input")?,
+            &args.path("--candidate")?,
+            &args.path("--output")?,
+            auxiliary,
+        ),
+        "automatic-host-trust" => {
+            a::local_issuer::provision(&args.path("--state")?, &args.path("--output")?, auxiliary)
+        }
+        "automatic-host-update" => a::registration::install(
+            &args.path("--root")?,
+            &args.path("--provision")?,
+            &args.path("--notices")?,
+            auxiliary,
+        ),
         "automatic-prepare" => a::kit::prepare(
             &args.path("--output")?,
             &args.path("--state")?,

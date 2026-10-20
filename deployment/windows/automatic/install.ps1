@@ -5,6 +5,7 @@ $env:QUOTE777_LOG_DISABLED='1'
 $shell=Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
 . (Join-Path $PSScriptRoot 'install-paths.ps1')
 . (Join-Path $PSScriptRoot 'install-owner.ps1')
+. (Join-Path $PSScriptRoot 'install-discovery.ps1')
 . (Join-Path $PSScriptRoot 'host-identity.ps1')
 . (Join-Path $PSScriptRoot 'host-log.ps1')
 . (Join-Path $PSScriptRoot 'host-elevation.ps1')
@@ -15,8 +16,20 @@ try {
     if ($null -ne $elevated) {exit [int]$elevated}
     $Resources=Assert-AutomaticLocalPath $Resources
     $package=Get-Content -LiteralPath (Join-Path $Resources 'automatic\package.json') -Raw -Encoding UTF8|ConvertFrom-Json
-    if ($package.format -ne '777-automatic-package-v1' -or $package.manifest.delivery -ne 'manager' -or $package.profile.primary_url -ne 'https://192.168.4.23:8477' -or $package.manifest.ledger_id -notmatch '^[a-f0-9-]{36}$') { throw 'AUTOMATIC_PACKAGE_INVALID' }
-    $existing=Find-AutomaticDeployment $package
+    $localSigned = $package.format -eq '777-local-package-v1'
+    if ($localSigned) {
+        # Native validation checks the signature and immutable role before touching tasks.
+        & (Join-Path $Resources 'host\quote-host.exe') automatic-package-check --package (Join-Path $Resources 'automatic\package.json') | Out-Null
+        if ($LASTEXITCODE -ne 0 -or $package.manifest.delivery -ne 'manager') { throw 'AUTOMATIC_PACKAGE_INVALID' }
+        $existing = Find-LocalSignedDeployment $package
+        $ledger = if ($null -ne $existing) { $existing.ledger_id } else { $null }
+        $siteId = if ($null -ne $existing) { $existing.site_id } else { $null }
+        $taskId = if ($null -ne $existing) { $existing.task_id } else { $package.manifest.issuer_id }
+    } else {
+        if ($package.format -ne '777-automatic-package-v1' -or $package.manifest.delivery -ne 'manager' -or $package.profile.primary_url -ne 'https://192.168.4.23:8477' -or $package.manifest.ledger_id -notmatch '^[a-f0-9-]{36}$') { throw 'AUTOMATIC_PACKAGE_INVALID' }
+        $existing=Find-AutomaticDeployment $package
+        $ledger=$package.manifest.ledger_id; $siteId=$package.manifest.site_id; $taskId=$ledger
+    }
     if ($null -ne $existing) {
         $directory=Join-Path ([IO.Path]::GetDirectoryName($existing.root)) 'Quote777Host'
     }
@@ -24,12 +37,14 @@ try {
     if ($null -ne $existing -and $existing.ContainsKey('role') -and $existing.role -eq 'primary') {
         # Never rewrite the primary runner/account/cert/backups during normal installation.
         $native=Join-Path $Resources 'host\quote-host.exe'
+        if (-not $localSigned) {
         & $native automatic-node-join --root $existing.root --state (Join-Path $directory 'private') --package (Join-Path $Resources 'automatic\package.json') --backup-dir (Join-Path $directory '..\Quote777Hidden') --worker (Join-Path $Resources 'host\quote-ledger.exe') --notices (Join-Path $Resources 'licenses\desktop-notices.md')|Out-Null
         if ($LASTEXITCODE -ne 0) { throw 'PRIMARY_REUSE_NOT_CONFIRMED' }
+        }
         Enable-ScheduledTask -TaskName $existing.task.TaskName|Out-Null
         if ($existing.task.State -ne 'Running') { Start-ScheduledTask -TaskName $existing.task.TaskName }
         Set-AutomaticTopAttributes @($directory,$existing.root,(Join-Path ([IO.Path]::GetDirectoryName($existing.root)) 'Quote777Hidden'))
-        Write-HostEvent 'installation.primary.reused' @{ledger_id=$package.manifest.ledger_id}
+        Write-HostEvent 'installation.primary.reused' @{ledger_id=$ledger}
         exit 0
     }
     # A local primary address without a proven deployment must never become a replica.
@@ -53,9 +68,9 @@ try {
     foreach($name in @('node-run.ps1','install-paths.ps1','host-identity.ps1','host-log.ps1')) { [IO.File]::Copy((Join-Path $PSScriptRoot $name),(Join-Path $directory $name),$true) }
     [IO.File]::Copy((Join-Path $Resources 'automatic\package.json'),(Join-Path $directory 'package.json'),$true)
     [IO.File]::Copy((Join-Path $Resources 'licenses\desktop-notices.md'),(Join-Path $directory 'THIRD_PARTY_NOTICES.md'),$true)
-    Write-AutomaticJson (Join-Path $directory 'install.json') @{format='777-automatic-host-install-v1';root=$root;backup=$backup;site_id=$package.manifest.site_id;ledger_id=$package.manifest.ledger_id;preserve_owner=($null -ne $existing -and -not $existing.automatic)}
+    Write-AutomaticJson (Join-Path $directory 'install.json') @{format='777-automatic-host-install-v1';root=$root;backup=$backup;site_id=$siteId;ledger_id=$ledger;task_id=$taskId;issuer_id=$package.manifest.issuer_id;preserve_owner=($null -ne $existing -and -not $existing.automatic)}
     [IO.Directory]::CreateDirectory($backup)|Out-Null
-    $taskName='Quote777-Host-'+$package.manifest.ledger_id
+    $taskName='Quote777-Host-'+$taskId
     if ($null -ne $existing -and -not $existing.automatic) {
         [IO.File]::Copy((Join-Path $directory 'node-run.ps1'),(Join-Path $root 'private\host-run.ps1'),$true)
         $d=$existing.deployment; $d.runner_sha256=Get-FileDigest (Join-Path $root 'private\host-run.ps1')
@@ -64,13 +79,13 @@ try {
         $action=New-ScheduledTaskAction -Execute $shell -Argument ('-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "'+(Join-Path $directory 'node-run.ps1')+'" -Root "'+$root+'"') -WorkingDirectory $directory
         $trigger=New-ScheduledTaskTrigger -AtStartup
         $settings=New-ScheduledTaskSettingsSet -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit ([TimeSpan]::Zero) -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1) -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
-        Register-ScheduledTask -TaskName $taskName -Description ('777-automatic-host-task-v1:'+ $package.manifest.ledger_id+':S-1-5-18') -Action $action -Trigger $trigger -Settings $settings -User SYSTEM -RunLevel Highest|Out-Null
+        Register-ScheduledTask -TaskName $taskName -Description ('777-automatic-host-task-v1:'+ $taskId+':S-1-5-18') -Action $action -Trigger $trigger -Settings $settings -User SYSTEM -RunLevel Highest|Out-Null
     }
     foreach($stop in @((Join-Path $directory 'stop.request'),(Join-Path $root 'private\stop.request'))) { if ([IO.File]::Exists($stop)) { [IO.File]::Delete($stop) } }
     Set-AutomaticTopAttributes @($directory,$root,$backup)
     Enable-ScheduledTask -TaskName $taskName|Out-Null
     Start-ScheduledTask -TaskName $taskName
-    Write-HostEvent 'installation.background.requested' @{ledger_id=$package.manifest.ledger_id;phase='awaiting_enrollment'}
+    Write-HostEvent 'installation.background.requested' @{ledger_id=$ledger;phase='awaiting_enrollment'}
 } catch {
     Write-HostFailure 'installation.failed' 'host_setup' $_
     exit 1

@@ -1,0 +1,49 @@
+{
+  "task": "P08-02-2 local signing correction",
+  "source_base": "ec78976a8a26390d786f3e571786b2a42f7ad742",
+  "recorded_at": "2026-10-20T11:13:33.156378+00:00",
+  "environment": "Linux auxiliary; Rust 1.97.1; Chromium 153",
+  "checks": {
+    "host_automatic_tests": {
+      "passed": 25
+    },
+    "real_pinned_https_registration": {
+      "passed": 1
+    },
+    "desktop_native_component_tests": {
+      "passed": 37
+    },
+    "security_tests": {
+      "passed": 3
+    },
+    "frontend_unit_tests": {
+      "passed": 48
+    },
+    "ui_tests": {
+      "passed": 13,
+      "screenshot_scroll_recheck": 1
+    },
+    "python_p08": {
+      "passed": 14,
+      "skipped_windows_only": 10
+    },
+    "python_packaging_controller": {
+      "passed": 2
+    },
+    "frontend_build": "passed",
+    "host_security_clippy": "passed",
+    "desktop_component_clippy": "passed",
+    "final_upgrade_recheck": {
+      "passed": 1,
+      "auxiliary_compile_failures": "zero-length object files during archive creation",
+      "recovery": "CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=2 CARGO_PROFILE_DEV_CODEGEN_UNITS=1 CARGO_PROFILE_TEST_CODEGEN_UNITS=1",
+      "repository_or_ci_profile_changed": false
+    }
+  },
+  "final_installers_built": false,
+  "installer_preparation_checks_run": false,
+  "production_hosts_accessed": false,
+  "windows_execution_performed": false,
+  "ci_polled": false,
+  "offline_conflict_review_E_started": false
+}

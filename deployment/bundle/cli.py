@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 from ..host import native
 from .archive import assemble
 
@@ -29,7 +30,12 @@ def main(argv=None):
             raise ValueError('REBUILD_HOST_PACKAGE_FOR_CLUSTER')
         commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=native.ROOT, text=True).strip()
         output = args.output or native.ROOT / 'reports/host-packages' / (datetime.now().strftime('%Y%m%d-%H%M%S') + '-' + commit[:8])
-        result = assemble(native.ROOT, output, host, worker, commit)
+        development = Path(os.environ['LOCALAPPDATA']) / 'Quote777Development'
+        development.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix='host-trust-', dir=development) as temporary:
+            provision = Path(temporary) / 'host-trust.json'
+            native.call(host, ['automatic-host-trust', '--state', str(development / 'local-signer.bin'), '--output', str(provision)])
+            result = assemble(native.ROOT, output, host, worker, commit, provision)
         diagnostics.event('host.bundle.complete', archive=result['archive'], sha256=result['sha256'], source_commit=commit)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0

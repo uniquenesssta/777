@@ -57,6 +57,9 @@ pub fn connection(profile: &Value) -> Result<Connection> {
 }
 impl Package {
     pub fn validate(&self, delivery: &str) -> Result<Connection> {
+        if self.format == crate::local_package::FORMAT {
+            return crate::local_package::validate(self, delivery);
+        }
         let c = connection(&self.profile)?;
         let m = &self.manifest;
         if self.format != "777-automatic-package-v1"

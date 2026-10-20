@@ -42,7 +42,11 @@ try {
         if ($joinExit -eq 0) {
             $attempt=0
             $joined=($result -join "`n")|ConvertFrom-Json
-            if ($joined.status -ne 'replica_ready' -or $joined.ledger_id -ne $m.ledger_id) { throw 'CLUSTER_IDENTITY_CONFLICT' }
+            if ($joined.status -ne 'replica_ready' -or ($m.ledger_id -and $joined.ledger_id -ne $m.ledger_id) -or ($m.site_id -and $joined.site_id -ne $m.site_id)) { throw 'CLUSTER_IDENTITY_CONFLICT' }
+            if (-not $m.ledger_id -or -not $m.site_id) {
+                $m.ledger_id=$joined.ledger_id; $m.site_id=$joined.site_id
+                Write-AutomaticJson (Join-Path $directory 'install.json') $m
+            }
             $private=Join-Path $Root 'private'
             if (-not $m.preserve_owner) {
                 foreach($name in @('host-identity.ps1')) { [IO.File]::Copy((Join-Path $directory $name),(Join-Path $private $name),$true) }

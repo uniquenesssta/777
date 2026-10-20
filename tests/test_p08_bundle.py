@@ -46,6 +46,19 @@ class HostBundleTests(unittest.TestCase):
                 self.assertEqual(manifest['deployment_mode'], 'standalone')
                 self.assertNotIn('host_order', manifest)
 
+    def test_owner_provision_is_hashed_only_in_explicit_host_bundle(self):
+        with tempfile.TemporaryDirectory() as folder:
+            base=Path(folder);source,host,worker=fixture(base)
+            provision=base/'trust.json'
+            provision.write_text('{"format":"synthetic-host-trust","private_key_pem":"HOST-ONLY-SYNTHETIC"}')
+            result=assemble(source,base/'bundle',host,worker,'a'*40,provision)
+            with zipfile.ZipFile(result['archive']) as zipped:
+                manifest=json.loads(zipped.read('Quote777Host/host-package.json'))
+                value=zipped.read('Quote777Host/host-trust.json')
+                self.assertEqual(value,provision.read_bytes())
+                self.assertEqual(manifest['files']['host-trust.json'],hashlib.sha256(value).hexdigest())
+                self.assertIn('scripts/host-registration.ps1',manifest['files'])
+
     def test_unknown_existing_output_and_non_windows_resources_are_never_overwritten(self):
         with tempfile.TemporaryDirectory() as folder:
             base = Path(folder); source, host, worker = fixture(base)

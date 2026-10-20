@@ -1,7 +1,7 @@
 // UI wiring only. No installer or remote host is invoked by this fixture.
 import {test,expect} from '@playwright/test';
 import {setup} from './fixtures/package-bridge';
-async function top(page:import('@playwright/test').Page){await page.evaluate(()=>scrollTo(0,0));await expect.poll(()=>page.evaluate(()=>scrollY)).toBe(0);}
+async function top(page:import('@playwright/test').Page){await page.evaluate(()=>{scrollTo(0,0);document.querySelector('.workspace')?.scrollTo(0,0);});await expect.poll(()=>page.evaluate(()=>Math.max(scrollY,document.querySelector('.workspace')?.scrollTop??0))).toBe(0);}
 test('package choices send the reviewed policy and do not require typed paths or version',async({page},info)=>{
   await setup(page,'development');
   await page.getByRole('button',{name:'开发者工具',exact:true}).click();
@@ -26,17 +26,16 @@ test('package choices send the reviewed policy and do not require typed paths or
   await top(page);
   await page.screenshot({path:info.outputPath('package-choices-720.png'),fullPage:true});
 });
-test('choices survive maintenance navigation; failed jobs retry without a new package request',async({page},info)=>{
+test('choices survive data navigation; failed jobs retry without a new package request',async({page},info)=>{
   await setup(page,'development');await page.getByRole('button',{name:'开发者工具',exact:true}).click();
   const card=page.locator('.packaging-workspace');
   await card.getByLabel('成本、利润与内部财务报表',{exact:true}).uncheck();
-  await page.getByRole('button',{name:'封包授权',exact:true}).click();
-  await expect(page.getByRole('heading',{name:'已获得封包授权',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'开发数据',exact:true}).click();
   await top(page);
-  await page.screenshot({path:info.outputPath('issuer-ready.png'),fullPage:true});
-  await page.getByRole('button',{name:'返回应用封包',exact:true}).click();
+  await page.screenshot({path:info.outputPath('developer-data.png'),fullPage:true});
+  await page.getByRole('button',{name:'应用封包',exact:true}).click();
   await expect(card.getByLabel('价格维护（包含成本）',{exact:true})).not.toBeChecked();
-  await page.evaluate(()=>{(window as any).__packageJob={id:'original-job',state:'failed',delivery:'manager',version:'0.1.0',output:'D:\\Packages',permissions:['quote'],lines:['ISSUER_NOT_READY'],error:'ISSUER_NOT_READY',bytes:null};});
+  await page.evaluate(()=>{(window as any).__packageJob={id:'original-job',state:'failed',delivery:'manager',version:'0.1.0',output:'D:\\Packages',permissions:['quote'],lines:['LOCAL_SIGNER_UNAVAILABLE'],error:'LOCAL_SIGNER_UNAVAILABLE',bytes:null};});
   await expect(page.getByRole('heading',{name:'封包未完成',exact:true})).toBeVisible();
   await page.getByRole('button',{name:'重试本次封包',exact:true}).click();
   const calls=await page.evaluate(()=>(window as any).__requests.filter((r:any)=>r.action==='developer').map((r:any)=>r.request.op));

@@ -7,14 +7,17 @@ export function request<T>(
   return invoke<T>("desktop_action", { request: { action, ...data } });
 }
 const errors: Record<string, string> = {
+  LOCAL_SIGNER_UNAVAILABLE:"本机签发身份暂不可用，请检查开发日志；无需连接服务器授权。",
+  LOCAL_ISSUER_STATE_INVALID:"本机签发身份文件无法读取，现有文件已保留，请检查开发日志。",
+  PACKAGE_LEGACY_REBUILD_REQUIRED:"这是旧封包流程的未完成任务，请按当前版本与功能选择重新封包。",
   ISSUER_NOT_READY:"尚未获得 4.23 的封包授权，请先完成封包授权。",
   ISSUER_PAIR_UNREACHABLE_OR_CERTIFICATE_REJECTED:"尚未连接上 4.23 的临时授权服务（8478），或升级包证书不匹配。请确认 4.23 已运行本机生成的同一份 upgrade.cmd，且仍在等待连接；恢复后重试，无需重新生成。",
   ISSUER_PRIMARY_UNREACHABLE_OR_CERTIFICATE_REJECTED:"已读取主机身份，但未能连接或验证 4.23 的正式服务（8477）。请确认后台正在运行，恢复连接后重试；现有准备记录已保留。",
-  CLUSTER_PRIMARY_UNREACHABLE_OR_CERTIFICATE_REJECTED:"未能连接或验证 4.23。请确认后台正在运行，并在 4.23 运行本机生成的同一份升级包；恢复后重试，先不要重新生成。",
+  CLUSTER_PRIMARY_UNREACHABLE_OR_CERTIFICATE_REJECTED:"未能连接或验证业务后台，请确认网络和服务状态，恢复后重试。",
   ISSUER_NATIVE_UNAVAILABLE:"未找到本机授权工具。请退出开发版后使用 npm run dev 重新启动，完成工具准备。",
   ISSUER_STATUS_UNAVAILABLE:"暂时无法读取本机封包授权状态。请刷新重试，现有准备记录不会被替换。",
   ISSUER_KIT_UNAVAILABLE:"原升级包已移动或丢失。请展开“更换升级包”重新生成，并在 4.23 运行新包。",
-  WINDOWS_PACKAGING_REQUIRED:"请在 Windows 开发版中进行封包和授权准备。",
+  WINDOWS_PACKAGING_REQUIRED:"请在 Windows 开发版中进行封包。",
   ISSUER_INTERFACE_SELECTION_REQUIRED:"请选择用于连接主机的本机网络接口。",
   PACKAGE_RESUME_CONFLICT:"本次任务的封包内容已经变化，请按当前选择重新封包。",
   UPGRADE_BINDING_CONFLICT:"4.23 与本机的升级材料不匹配。请在 4.23 运行本机的同一份升级包；若材料已过期，再展开“更换升级包”。",

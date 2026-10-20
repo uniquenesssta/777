@@ -84,13 +84,16 @@ class Developer(PackagingMixin):
             local(value['root'])
             package_preferences(value)
         self.issuer=Issuer(self)
+        from p08_automatic.local_signer import LocalSigner
+        self.signer=LocalSigner(self)
         from p08_automatic.close_queue import CloseQueue
         self.close_queue=CloseQueue(self.issuer,dev.DEV/'issuance')
         saved=dev.DEV/'automatic-job.json'
         if saved.exists():
             previous=json.loads(saved.read_text(encoding='utf-8'))
             if previous.get('state')=='cancelling':
-                self.close_queue.enqueue(previous['id']);previous.update(state='cancelled',error=None)
+                if previous.get('signing') != 'local': self.close_queue.enqueue(previous['id'])
+                previous.update(state='cancelled',error=None)
             elif previous.get('state')=='running':previous.update(state='failed',error='PACKAGE_INTERRUPTED')
             self.job=previous
         self.server = None

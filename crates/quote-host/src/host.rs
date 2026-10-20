@@ -750,6 +750,8 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
     let app = axum::Router::new().fallback(handler).with_state(state);
     let handle = axum_server::Handle::new();
     let stop = Arc::new(AtomicBool::new(false));
+    let registration =
+        crate::automatic::bootstrap::start(service.clone(), stop.clone(), dirty.clone()).await?;
     let intake_stop = stop.clone();
     let intake_dirty = dirty.clone();
     let intake_progress = tokio::task::spawn_blocking(move || {
@@ -916,6 +918,9 @@ pub async fn serve(mut service: Service, test_stdin: bool) -> Result<()> {
         synchronization
             .await
             .map_err(|_| Error::new(503, "CLUSTER_WORKER_FAILED"))?;
+    }
+    if let Some(registration) = registration {
+        let _ = registration.await;
     }
     if let Some(pairing) = pairing {
         let _ = pairing.await;

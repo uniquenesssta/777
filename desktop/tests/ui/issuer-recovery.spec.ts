@@ -1,48 +1,28 @@
-// UI wiring and layout only; real TLS stage classification is covered by the native test.
+// Real UI wiring; local cryptographic signing and registration are native protocol tests.
 import {test,expect} from '@playwright/test';
 import {setup} from './fixtures/package-bridge';
 
-test('failed authorization retries and opens the same kit; regeneration is a separate explicit choice',async({page},info)=>{
+test('local packaging has no server approval, login or Host import step',async({page})=>{
   await setup(page,'development');
-  await page.evaluate(()=>{
-    (window as any).__issuerState={ready:false,phase:'pending',interfaces:['192.168.4.80','192.168.4.81']};
-    (window as any).__issuerError='ISSUER_PAIR_UNREACHABLE_OR_CERTIFICATE_REJECTED';
-  });
+  await page.evaluate(()=>(window as any).__issuerError='ISSUER_PRIMARY_UNREACHABLE_OR_CERTIFICATE_REJECTED');
   await page.getByRole('button',{name:'开发者工具',exact:true}).click();
-  await expect(page.getByRole('button',{name:'封包母版',exact:true})).toBeDisabled();
-  await page.getByRole('button',{name:'完成封包授权',exact:true}).click();
-  const retry=page.getByRole('button',{name:'连接 4.23 完成授权',exact:true});
-  await retry.click();
-  await expect(page.getByRole('alert')).toContainText('8478');
-  await retry.click();
-  await page.getByRole('button',{name:'打开原升级包',exact:true}).click();
-  const ops=await page.evaluate(()=>(window as any).__requests.filter((r:any)=>r.action==='developer').map((r:any)=>r.request.op));
-  expect(ops.filter((v:string)=>v==='issuer_connect')).toHaveLength(2);
-  expect(ops).toContain('issuer_open');expect(ops).not.toContain('issuer_prepare');
-  await retry.click();
-  expect(await page.locator('.developer-title').evaluate(el=>{
-    const title=el.querySelector('h1')!.getBoundingClientRect();
-    return Math.abs(title.left-el.getBoundingClientRect().left)<2;
-  })).toBe(true);
-  await page.screenshot({path:info.outputPath('issuer-retry.png')});
-  await page.getByText('更换升级包',{exact:true}).click();
-  await page.getByRole('button',{name:'重新生成升级包',exact:true}).click();
-  const confirm=page.getByRole('button',{name:'确认生成新升级包',exact:true});
-  await expect(confirm).toBeDisabled();
-  await page.getByLabel('192.168.4.80',{exact:true}).check();
-  await confirm.click();
-  const call=await page.evaluate(()=>(window as any).__requests.find((r:any)=>r.request?.op==='issuer_prepare'));
-  expect(call.request).toMatchObject({restart:true,peer:'192.168.4.80'});
+  await expect(page.getByText('在本机完成封包，无需连接服务器。',{exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'封包授权',exact:true})).toHaveCount(0);
+  await page.getByRole('button',{name:'封包母版',exact:true}).click();
+  await page.getByRole('button',{name:'子版',exact:true}).click();
+  await page.getByRole('button',{name:'封包子版',exact:true}).click();
+  const requests=await page.evaluate(()=>(window as any).__requests.filter((r:any)=>r.action==='developer'));
+  expect(requests.filter((r:any)=>r.request.op==='package').map((r:any)=>r.request.delivery)).toEqual(['manager','sales']);
+  expect(requests.some((r:any)=>r.request.op.startsWith('issuer_'))).toBe(false);
 });
 
-test('unreadable authorization state cannot be mistaken for a first preparation',async({page})=>{
+test('unreadable local signer blocks signing without offering server authorization or identity reset',async({page})=>{
   await setup(page,'development');
-  await page.evaluate(()=>(window as any).__issuerState={ready:false,phase:'unavailable',interfaces:[],error:'ISSUER_STATUS_UNAVAILABLE'});
+  await page.evaluate(()=>(window as any).__issuerState={ready:false,phase:'unavailable',interfaces:[],error:'LOCAL_SIGNER_UNAVAILABLE'});
   await page.getByRole('button',{name:'开发者工具',exact:true}).click();
-  await page.getByRole('button',{name:'封包授权',exact:true}).click();
-  await expect(page.getByRole('alert')).toContainText('暂时无法读取');
-  await expect(page.getByRole('button',{name:'生成主机升级包',exact:true})).toBeDisabled();
-  await expect(page.getByRole('button',{name:'刷新授权状态',exact:true})).toBeEnabled();
+  await expect(page.getByRole('button',{name:'封包母版',exact:true})).toBeDisabled();
+  await expect(page.getByText('本机签发身份暂不可用，请检查开发日志。',{exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:/授权|升级包/})).toHaveCount(0);
 });
 
 test('empty lists, report actions and compact maintenance remain usable at different sizes',async({page},info)=>{
@@ -66,6 +46,5 @@ test('empty lists, report actions and compact maintenance remain usable at diffe
   expect(await actions.evaluate(el=>el.getBoundingClientRect().width)).toBeLessThan(240);
   await page.screenshot({path:info.outputPath('orders-empty.png')});
   await page.getByRole('button',{name:'开发者工具',exact:true}).click();
-  await page.getByRole('button',{name:'封包授权',exact:true}).click();
-  expect(await page.locator('.issuer-panel').evaluate(el=>el.getBoundingClientRect().height)).toBeLessThan(350);
+  await expect(page.getByRole('button',{name:'封包母版',exact:true})).toBeEnabled();
 });

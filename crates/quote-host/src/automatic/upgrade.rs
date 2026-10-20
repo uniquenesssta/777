@@ -4,9 +4,18 @@ use super::*;
 use crate::service::Service;
 use std::path::Path;
 pub fn apply(root: &Path, kit_path: &Path, notices: &Path, auxiliary: bool) -> Result<Value> {
+    let kit: Kit = serde_json::from_slice(&files::read(kit_path, 256 * 1024)?)?;
+    apply_material(root, &kit, notices, auxiliary, None)
+}
+pub(crate) fn apply_material(
+    root: &Path,
+    kit: &Kit,
+    notices: &Path,
+    auxiliary: bool,
+    provision: Option<&Value>,
+) -> Result<Value> {
     deployment::verify(root, auxiliary)?;
     let _owner = files::Owner::acquire(root)?;
-    let kit: Kit = serde_json::from_slice(&files::read(kit_path, 256 * 1024)?)?;
     kit.validate()?;
     let mut d = deployment::verify(root, auxiliary)?;
     let private = root.join("private");
@@ -114,20 +123,31 @@ pub fn apply(root: &Path, kit_path: &Path, notices: &Path, auxiliary: bool) -> R
         &c,
         config["ledger_id"].as_str().ok_or_else(denied)?,
         &connection,
-        &kit,
+        kit,
     )?;
     ensure_cluster(&mut s, &connection)?;
-    let expires: i64 = c.query_row(
-        "SELECT expires FROM upgrade_bindings WHERE id=?",
-        [&kit.upgrade_id],
-        |r| r.get(0),
-    )?;
-    let pair = private.join("automatic-pair.bin");
-    issuer_state::save(
-        &pair,
-        &json!({"kit":kit,"expires":expires.min(auth::now()+1800)}),
-        auxiliary,
-    )?;
+    d["replication"] = json!("primary_async_snapshot_v2");
+    d["deployment_mode"] = json!("cluster");
+    files::replace_json(&private.join("deployment.json"), &d)?;
+    if let Some(provision) = provision {
+        issuer_state::save(
+            &private.join("automatic-bootstrap.bin"),
+            provision,
+            auxiliary,
+        )?;
+    } else {
+        let expires: i64 = c.query_row(
+            "SELECT expires FROM upgrade_bindings WHERE id=?",
+            [&kit.upgrade_id],
+            |r| r.get(0),
+        )?;
+        let pair = private.join("automatic-pair.bin");
+        issuer_state::save(
+            &pair,
+            &json!({"kit":kit,"expires":expires.min(auth::now()+1800)}),
+            auxiliary,
+        )?;
+    }
     audit(
         &c,
         "local-owner",

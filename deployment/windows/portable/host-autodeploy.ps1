@@ -3,7 +3,9 @@ function Invoke-HostAutoDeployment([string] $Directory,$Bundle,$Settings) {
     $cluster=Join-Path $Settings.root 'private\cluster\config.json'
     $manifest=Join-Path $Settings.root 'private\deployment.json'
     $service=Join-Path $Settings.root 'private\service.json'
-    if ([IO.File]::Exists($cluster)) {
+    if ($Settings.address -eq '192.168.4.23' -and $Bundle.files.PSObject.Properties.Name -contains 'host-trust.json') {
+        $null=Invoke-HostSetup $Directory $Bundle $Settings
+    } elseif ([IO.File]::Exists($cluster)) {
         if ([IO.File]::Exists($manifest)) { $null=Invoke-HostSetup $Directory $Bundle $Settings }
         else { Join-HostCluster $Directory $Bundle $Settings -AutoInvitation }
     } elseif ([IO.File]::Exists($service)) {

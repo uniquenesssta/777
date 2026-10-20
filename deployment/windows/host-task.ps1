@@ -59,6 +59,14 @@ if ($null -ne $rule) {
     if ($program.Program -ne $executable -or $ports.LocalPort -ne [string]$deployment.port) { throw 'HOST_FIREWALL_OWNERSHIP_CONFLICT' }
 }
 if ($Operation -eq 'remove') {
+    $registrationName='Quote777-Registration-'+$deployment.ledger_id
+    $registration=Get-NetFirewallRule -Name $registrationName -ErrorAction SilentlyContinue
+    if ($null -ne $registration) {
+        $application=$registration | Get-NetFirewallApplicationFilter
+        $registrationPort=$registration | Get-NetFirewallPortFilter
+        if ($registration.Description -ne ('777-registration-v1:'+$deployment.ledger_id+':'+$deployment.owner_sid) -or $application.Program -ne $executable -or $registrationPort.LocalPort -ne '8479') { throw 'REGISTRATION_FIREWALL_OWNERSHIP_CONFLICT' }
+        Remove-NetFirewallRule -Name $registrationName
+    }
     if ($null -ne $task) { Unregister-ScheduledTask -TaskName $taskName -Confirm:$false }
     if ($null -ne $rule) { Remove-NetFirewallRule -Name $ruleName }
     Write-Output 'Only the owned startup task and firewall rule were removed; all data and backups remain.'

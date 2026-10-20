@@ -1,4 +1,6 @@
 //! Automatic desktop protocol and request recovery orchestration.
+#[cfg(all(test, any(feature = "manager", feature = "sales")))]
+mod binding_tests;
 mod identity;
 mod package;
 use super::*;
@@ -10,6 +12,7 @@ fn invalid() -> DesktopError {
 impl Desktop {
     pub(super) async fn bootstrap_automatic(&mut self) -> Result<Value> {
         let p = self.automatic_package.as_ref().ok_or_else(invalid)?.clone();
+        let p = self.resolve_local_package(p).await?;
         let connection = p
             .validate(crate::startup::delivery())
             .map_err(|e| DesktopError::new(e.status, &e.code))?;

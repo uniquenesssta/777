@@ -19,7 +19,7 @@ $ErrorActionPreference='Stop'
 . (Join-Path $Modules 'host-autodeploy.ps1')
 . (Join-Path $Modules 'host-paths.ps1')
 . (Join-Path $Modules 'host-cluster-files.ps1')
-$settings=@{root=(Join-Path $Base 'Quote777Service')}
+$settings=@{root=(Join-Path $Base 'Quote777Service');address='192.168.4.38';port=8477}
 $invitation=Join-Path $Base 'source invite.777join'
 [IO.File]::WriteAllText($invitation,'synthetic-ticket-not-logged')
 $script:ops=[Collections.Generic.List[string]]::new()
@@ -67,6 +67,11 @@ catch { if ($_.Exception.Message -ne 'CLUSTER_FILE_SELECTION_CANCELLED') { throw
 try { $null=Get-HostAutoInvitation $Base; throw 'MISSING_INVITATION_IGNORED' }
 catch { if ($_.Exception.Message -ne 'CLUSTER_FILE_SELECTION_CANCELLED') { throw } }
 if ($script:dialogs -ne 2) { throw 'INVITATION_DIALOG_ROUTING_INVALID' }
+# The ordinary trusted primary bundle uses setup directly, with no invitation ceremony.
+$settings.address='192.168.4.23'
+$script:ops.Clear()
+Invoke-HostAutoDeployment $Base ([pscustomobject]@{files=[pscustomobject]@{'host-trust.json'=('a'*64)}}) $settings
+if (($script:ops -join ',') -ne 'setup,check,status') { throw 'PRIMARY_BUNDLE_REQUIRED_INVITATION' }
 Write-Output 'passed'
 '''
         with tempfile.TemporaryDirectory() as folder:

@@ -4,6 +4,7 @@ mod automatic_checks {
     mod business;
     mod integration;
     mod issuer_recovery;
+    mod local_issuance;
     mod nodes;
     mod upgrade;
 }
