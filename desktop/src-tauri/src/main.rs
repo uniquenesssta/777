@@ -36,7 +36,16 @@ mod shell {
         }
     }
     fn context() -> tauri::Context<tauri::Wry> {
-        tauri::generate_context!()
+        let context = tauri::generate_context!();
+        if let Some(font) = context.assets().get(&"fonts/NotoSansSC-VF.ttf".into()) {
+            if let Err(e) = quote_desktop::configure_export_font(font.as_ref()) {
+                quote_diagnostics::event(
+                    "desktop.output.font_unavailable",
+                    serde_json::json!({"error":e.code}),
+                );
+            }
+        }
+        context
     }
     #[cfg(feature = "verification")]
     pub fn build_info() -> serde_json::Value {

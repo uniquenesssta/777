@@ -1,12 +1,16 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import {test,expect} from '@playwright/test';
 import {nativeClient,nativeAction,nativeHost} from './fixtures/native-client';
 
 test.afterEach(async({request})=>{expect((await request.post(nativeHost+'/cleanup',{data:{}})).ok()).toBe(true);});
-test('real Rust IPC deletes a failed Host export and immediately allows quoting again',async({page,request})=>{
-  await nativeClient(page,request);
+test('real Rust IPC deletes a failed local export and immediately allows quoting again',async({page,request})=>{
+  const fixture=await nativeClient(page,request);
+  const root=path.join(fixture.profile,"exports");
+  await nativeAction(page,{action:"save_output_root",root});
+  fs.rmdirSync(path.join(root,"Excel"));fs.writeFileSync(path.join(root,"Excel"),"blocked");
   const orders=await nativeAction(page,{action:'orders',q:'',state:'',offset:0,view:''});
   const order=await nativeAction(page,{action:'order',order_id:orders.orders[0].order_id});
-  expect((await request.post(nativeHost+'/block-output-directory',{data:{}})).ok()).toBe(true);
   const job=await nativeAction(page,{action:'create_output',order_id:order.order_id,expected_revision:String(order.revision),kind:'excel_quote'});
   await expect.poll(async()=>{
     const listing=await nativeAction(page,{action:'outputs',offset:0});

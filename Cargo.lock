@@ -2751,9 +2751,12 @@ name = "quote-desktop"
 version = "0.1.0"
 dependencies = [
  "base64 0.22.1",
+ "fontdue",
  "getrandom 0.2.16",
+ "png 0.18.1",
  "quote-core",
  "quote-diagnostics",
+ "quote-excel",
  "quote-ledger",
  "quote-security",
  "rcgen",

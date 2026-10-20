@@ -59,6 +59,7 @@ async function setup(page: Page, delivery = "manager", registered: boolean | "pe
                 return { ...session, catalog, settings };
               case "prices":
                 return catalog;
+              case "output_settings": return {root:"D:\\报价文件",export_dir:settings.export_dir,image_dir:settings.image_dir,report_dir:"D:\\报价文件\\内部财务报表"};
               case "settings":
                 return settings;
               case "backup_status":
@@ -132,8 +133,8 @@ test("manager directory saves locally, survives reload, masks address and keeps 
   await expect(
     page.locator(".business-directory").getByRole("status"),
   ).toHaveText("已保存，暂未应用");
-  await expect(page.getByLabel("报价表保存位置")).toHaveValue(
-    "D:\\报价文件\\Excel",
+  await expect(page.getByLabel("导出文件保存位置")).toHaveValue(
+    "D:\\报价文件",
   );
   await page.setViewportSize({ width: 720, height: 1000 });
   await page.screenshot({
@@ -155,7 +156,7 @@ test("sales settings do not acquire business-directory or publication controls",
   await expect(
     page.getByRole("button", { name: "发布保存位置", exact: true }),
   ).toHaveCount(0);
-  await expect(page.getByLabel("报价表保存位置")).toHaveAttribute(
+  await expect(page.getByLabel("导出文件保存位置")).toHaveAttribute(
     "readonly",
     "",
   );

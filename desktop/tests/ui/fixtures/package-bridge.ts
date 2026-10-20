@@ -15,6 +15,8 @@ export async function setup(page:Page,delivery:string,permissions:string[]|null=
           case 'connection':return{runtime_id:sessionStorage.getItem('fixture-runtime')??'fixture-runtime-1',delivery,permissions,developer_tools:delivery==='development',automatic:true,pending:false,connection:delivery==='development'?connection:null};
           case 'bootstrap':return{delivery,automatic:true,session:businessSession?{role:delivery==='sales'?'sales':'admin',username:'fixture',subject:'fixture',pending:false}:null};
           case 'prices':return{price_version_id:'fixture',items:[{product_id:'商品',sale:'10',unit_sale:'10',k:'1',single:true}]};
+          case 'output_settings':return{root:'D:\\Exports',image_dir:'D:\\Exports\\PIC',export_dir:'D:\\Exports\\Excel',report_dir:'D:\\Exports\\内部财务报表'};
+          case 'save_output_root':return{root:r.root,image_dir:r.root+'\\PIC',export_dir:r.root+'\\Excel',report_dir:r.root+'\\内部财务报表'};
           case 'settings':return{revision:'1',export_dir:'D:\\Excel',image_dir:'D:\\Images'};
           case 'backup_status':return (window as any).__backupState??{target:'',last_success:null};
           case 'orders':return {orders:[],offset:0,total:0,limit:20,view:''};

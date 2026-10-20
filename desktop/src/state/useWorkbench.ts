@@ -334,10 +334,6 @@ export function useWorkbench() {
       },
     );
   };
-  const pickDirectory = (target: "export_dir" | "image_dir") =>
-    run(() =>
-      request<{ directory: string | null }>("pick_directory", { target }),
-    );
   const readOrder = useCallback(
     (id: string) =>
       run(
@@ -601,20 +597,6 @@ export function useWorkbench() {
         setBackup(v.b);
       },
     );
-  const saveSettings = (export_dir: string, image_dir: string) =>
-    preferences &&
-    run(
-      () =>
-        request<Preferences>("save_settings", {
-          revision: preferences.revision,
-          export_dir,
-          image_dir,
-        }),
-      (v) => {
-        setPreferences(v);
-        setFeedback("位置已发布，销售端自动继承。");
-      },
-    );
   const makeBackup = (rethrow = false) =>
     run(
       async () => {
@@ -730,7 +712,6 @@ export function useWorkbench() {
     analysisFilters,
     analysisPreset,
     loadAnalysis,
-    pickDirectory,
     listing,
     filters,
     selected,
@@ -758,7 +739,6 @@ export function useWorkbench() {
     openOutputFolder: (job_id: string) => run(() => request("open_output_folder", {job_id})),
     recover,
     loadSettings,
-    saveSettings,
     makeBackup,
     logout,
   };

@@ -100,9 +100,12 @@ pub fn authorize(selected: &Option<Vec<String>>, action: &Action) -> Result<()> 
         Note { .. } | SetState { .. } => "edit_orders",
         PricePreview { .. } | PublishPrices { .. } => "prices",
         Analytics { .. } => "finance",
-        Settings {} | SaveSettings { .. } | BusinessDirectory {} | SaveBusinessDirectory { .. } => {
-            "settings"
-        }
+        OutputSettings {}
+        | SaveOutputRoot { .. }
+        | Settings {}
+        | SaveSettings { .. }
+        | BusinessDirectory {}
+        | SaveBusinessDirectory { .. } => "settings",
         DeveloperOrders { .. }
         | DeleteOrder { .. }
         | HostBackupSettings {}
@@ -129,7 +132,13 @@ pub fn authorize(selected: &Option<Vec<String>>, action: &Action) -> Result<()> 
         }
         PickDirectory { target } => {
             if crate::startup::formal()
-                && !["export_dir", "image_dir", "business_directory"].contains(&target.as_str())
+                && ![
+                    "export_dir",
+                    "image_dir",
+                    "business_directory",
+                    "output_root",
+                ]
+                .contains(&target.as_str())
             {
                 return Err(DesktopError::new(403, "PACKAGE_PERMISSION_DENIED"));
             }

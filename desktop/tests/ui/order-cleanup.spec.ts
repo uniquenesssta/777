@@ -19,7 +19,7 @@ test('confirmation identifies the ledger, retries the same request and exposes i
 });
 test('cancelling deletion leaves the order; visible copy does not name an administrator',async({page})=>{
  await screen(page);await page.getByRole('button',{name:'删除订单',exact:true}).click();await page.getByRole('button',{name:'取消',exact:true}).click();expect(await page.evaluate(()=>(window as any).__requests.some((r:any)=>r.action==='delete_order'))).toBe(false);
- await page.getByRole('button',{name:'存储与备份',exact:true}).click();await expect(page.getByPlaceholder('已发布的保存位置')).toHaveCount(2);await expect(page.locator('body')).not.toContainText('管理员');
+ await page.getByRole('button',{name:'存储与备份',exact:true}).click();await expect(page.getByLabel('导出文件保存位置')).toHaveCount(1);await expect(page.locator('body')).not.toContainText('管理员');
 });
 
 test('concurrent edits require a fresh read instead of repeatedly submitting a stale revision',async({page})=>{

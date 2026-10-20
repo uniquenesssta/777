@@ -13,5 +13,6 @@ export async function nativeClient(page:Page,request:APIRequestContext) {
     }};
   });
   await page.goto('/');await connectDevelopment(page,fixture);
+  return fixture;
 }
 export const nativeAction=(page:Page,action:Record<string,unknown>)=>page.evaluate(action=>(window as any).__TAURI_INTERNALS__.invoke('desktop_action',{request:action}),action);

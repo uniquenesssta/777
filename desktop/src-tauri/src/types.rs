@@ -157,6 +157,10 @@ pub enum Action {
     PickDirectory {
         target: String,
     },
+    OutputSettings {},
+    SaveOutputRoot {
+        root: String,
+    },
     Settings {},
     SaveSettings {
         revision: String,
@@ -285,6 +289,8 @@ impl Action {
             Self::PublishPrices { .. } => "PublishPrices",
             Self::Analytics { .. } => "Analytics",
             Self::PickDirectory { .. } => "PickDirectory",
+            Self::OutputSettings { .. } => "OutputSettings",
+            Self::SaveOutputRoot { .. } => "SaveOutputRoot",
             Self::Settings { .. } => "Settings",
             Self::SaveSettings { .. } => "SaveSettings",
             Self::Outputs { .. } => "Outputs",
@@ -321,6 +327,7 @@ impl Action {
                 | Self::SetState { .. }
                 | Self::PublishPrices { .. }
                 | Self::SaveSettings { .. }
+                | Self::SaveOutputRoot { .. }
                 | Self::CreateReport { .. }
                 | Self::CreateOutput { .. }
                 | Self::SaveOrder { .. }

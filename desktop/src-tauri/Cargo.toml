@@ -11,6 +11,9 @@ verification = []
 manager = []
 sales = []
 [dependencies]
+quote-excel = { path = "../../crates/quote-excel" }
+fontdue = "=0.9.3"
+png = "=0.18.1"
 quote-security = { path = "../../crates/quote-security" }
 quote-diagnostics = { path = "../../crates/quote-diagnostics" }
 quote-core = { path = "../../crates/quote-core" }

@@ -6,6 +6,8 @@ mod enrollment;
 #[cfg(test)]
 mod future_contract;
 mod host_settings;
+mod local_exports;
+mod local_reports;
 mod offline;
 mod pending;
 mod preferences;
@@ -123,6 +125,12 @@ impl Desktop {
             .unwrap_or("")
             .to_string());
         }
+        if target == "output_root" {
+            return Ok(crate::local_outputs::settings(&self.store, None)?["root"]
+                .as_str()
+                .unwrap_or("")
+                .to_owned());
+        }
         if !["export_dir", "image_dir"].contains(&target) {
             return Err(DesktopError::new(422, "INVALID_DIRECTORY_TARGET"));
         }
@@ -188,6 +196,13 @@ impl Desktop {
     async fn execute_logged(&mut self, action: Action) -> Result<Value> {
         let policy = permissions::selected()?;
         permissions::authorize(&policy, &action)?;
+        match &action {
+            Action::OutputSettings {} => return crate::local_outputs::settings(&self.store, None),
+            Action::SaveOutputRoot { root } => {
+                return crate::local_outputs::settings(&self.store, Some(root))
+            }
+            _ => {}
+        }
         if crate::startup::formal() && self.local.active()? {
             self.local_context()?;
             if let Some(mut v) = self.local_action(&action)? {
@@ -206,6 +221,10 @@ impl Desktop {
                     | Action::Connect { .. }
                     | Action::Disconnect {}
                     | Action::ImportEnrollment { .. }
+                    | Action::Outputs { .. }
+                    | Action::OpenOutputFolder { .. }
+                    | Action::DeleteOutput { .. }
+                    | Action::RetryOutput { .. }
             )
             && self.auto_expires <= clock() + 30
         {
@@ -633,6 +652,8 @@ impl Desktop {
                 }
                 Ok(result)
             }
+            Action::OutputSettings {} => crate::local_outputs::settings(&self.store,None),
+            Action::SaveOutputRoot { root } => crate::local_outputs::settings(&self.store,Some(&root)),
             Action::Settings {} => self.request("GET", "/v1/settings", None).await,
             Action::SaveSettings {
                 revision: rev,
@@ -646,30 +667,19 @@ impl Desktop {
                 }
                 Ok(result)
             }
-            Action::Outputs { offset } => self.visible_outputs(offset).await,
+            Action::Outputs { offset } => {
+                self.local_output_listing(offset)
+            },
             Action::OpenOutputFolder { job_id } => {
-                self.authorize_output(&job_id).await?;
-                let location = self
-                    .request(
-                        "GET",
-                        &format!("/v1/outputs/{}/location", identifier(&job_id)?),
-                        None,
-                    )
-                    .await?;
-                let path = location["output_path"]
-                    .as_str()
-                    .ok_or_else(|| DesktopError::new(409, "OUTPUT_LOCATION_UNAVAILABLE"))?
-                    .to_owned();
-                let url = self.session()?.connection.url.clone();
-                tokio::task::spawn_blocking(move || crate::output_folder::open(&path, &url))
-                    .await
-                    .map_err(|_| DesktopError::new(503, "OUTPUT_FOLDER_UNAVAILABLE"))??;
+                let job=self.export_job(&job_id)?;
+                let path=job["local_path"].as_str().ok_or_else(||DesktopError::new(409,"OUTPUT_LOCATION_UNAVAILABLE"))?.to_owned();
+                tokio::task::spawn_blocking(move || crate::output_folder::open(&path))
+                    .await.map_err(|_|DesktopError::new(503,"OUTPUT_FOLDER_UNAVAILABLE"))??;
                 Ok(json!({"opened":true}))
             }
             Action::CreateReport { from, to } => {
                 self.admin()?;
-                self.mutate("/v1/outputs/report", json!({"from":from,"to":to}))
-                    .await
+                self.create_local_report(&from,&to).await
             }
             Action::CreateOutput {
                 order_id,
@@ -688,23 +698,19 @@ impl Desktop {
                 } else {
                     expected_revision
                 };
-                self.mutate("/v1/outputs",json!({"order_id":order_id,"expected_revision":revision(&expected)?,"kind":kind})).await
+                crate::local_outputs::root(&self.store)?;
+                self.create_local_export(&order_id,&expected,&kind).await
             }
             Action::DeleteOutput { job_id } => {
-                self.authorize_output(&job_id).await?;
-                self.mutate(
-                    &format!("/v1/outputs/{}/delete", identifier(&job_id)?),
-                    json!({}),
-                )
-                .await
+                let mut job=self.export_job(&job_id)?;
+                if job["state"]!="failed" { return Err(DesktopError::new(409,"OUTPUT_DELETE_FAILED_ONLY")); }
+                job["deleted"]=json!(true);
+                crate::local_outputs::jobs::update(&self.store,&self.export_scope()?,&job)?;
+                Ok(json!({"deleted":true}))
             }
             Action::RetryOutput { job_id } => {
-                self.authorize_output(&job_id).await?;
-                self.mutate(
-                    &format!("/v1/outputs/{}/retry", identifier(&job_id)?),
-                    json!({}),
-                )
-                .await
+                self.export_job(&job_id)?;
+                crate::local_outputs::execute(&self.store,&self.export_scope()?,&job_id)
             }
             Action::Recover { retry } => self.recover_pending(retry).await,
             Action::DeveloperOrders { query, offset, history } => self.host_settings("/v1/developer/orders/list",Some(json!({"query":query,"offset":offset,"history":history}))).await,

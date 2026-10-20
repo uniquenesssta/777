@@ -7,6 +7,10 @@ export function request<T>(
   return invoke<T>("desktop_action", { request: { action, ...data } });
 }
 const errors: Record<string, string> = {
+  LOCAL_OUTPUT_ROOT_REQUIRED:"请先在存储与备份中选择本机导出文件保存位置。",
+  LOCAL_OUTPUT_WRITE_FAILED:"无法写入本机导出文件夹，请检查权限和剩余空间后重试。",
+  LOCAL_OUTPUT_FILE_CHANGED:"同名文件已被修改，原文件已保留。请更换保存位置后重试。",
+  OUTPUT_CONTENT_INVALID:"导出文件校验失败，未保存不完整文件，请重试。",
   DESKTOP_REQUEST_INVALID:"操作请求格式不匹配，请更新并重新启动开发版；错误已记录到本次运行日志。",
   LOCAL_SIGNER_UNAVAILABLE:"本机签发身份暂不可用，请检查开发日志；无需连接服务器授权。",
   LOCAL_ISSUER_STATE_INVALID:"本机签发身份文件无法读取，现有文件已保留，请检查开发日志。",

@@ -5,6 +5,7 @@ let fixture: {
   connection: Record<string, string>;
   username: string;
   password: string;
+  profile: string;
 };
 test.beforeEach(async ({ page, request }) => {
   const r = await request.post(host + "/reset", { data: {} });
@@ -76,6 +77,7 @@ async function login(
 ) {
   await page.goto("/");
   await connectDevelopment(page, fixture, username);
+  await page.evaluate(root=>(window as any).__TAURI_INTERNALS__.invoke("desktop_action",{request:{action:"save_output_root",root}}),fixture.profile+"/exports");
   await expect(
     page.getByRole("button", { name: "添加商品", exact: false }),
   ).toBeEnabled();
@@ -196,7 +198,7 @@ test("sales DTO and pages contain no cost/profit and settings inherit", async ({
     page.getByRole("button", { name: "价格维护", exact: true }),
   ).toHaveCount(0);
   await page.getByRole("button", { name: "存储与备份", exact: true }).click();
-  await expect(page.getByLabel("报价表保存位置")).toHaveAttribute(
+  await expect(page.getByLabel("导出文件保存位置")).toHaveAttribute(
     "readonly",
     "",
   );
@@ -310,7 +312,7 @@ test("manager price publication, readonly inherited directories and real output 
     timeout: 15000,
   });
   await page.getByRole("button", { name: "存储与备份", exact: true }).click();
-  await expect(page.getByLabel("报价表保存位置")).not.toHaveAttribute(
+  await expect(page.getByLabel("导出文件保存位置")).toHaveAttribute(
     "readonly",
     "",
   );

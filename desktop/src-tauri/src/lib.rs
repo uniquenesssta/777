@@ -21,6 +21,7 @@ mod connection_file;
 mod developer;
 mod directory_preference;
 mod journal;
+mod local_outputs;
 mod offline;
 mod output_folder;
 mod permissions;
@@ -38,3 +39,7 @@ pub use startup::package_info;
 pub use types::{Action, Connection, DesktopError, Result, UiErrorKind, UiEvent, UiSource};
 #[cfg(feature = "verification")]
 pub use verification::run as run_verification_bridge;
+
+pub fn configure_export_font(bytes: &[u8]) -> Result<()> {
+    local_outputs::set_font(bytes)
+}

@@ -1,0 +1,5 @@
+.local-output-settings { display:grid; gap:12px; }
+.local-output-folders { display:grid; gap:12px; margin:0; padding:16px; background:var(--color-soft); border-radius:8px; }
+.local-output-folders > div { display:grid; grid-template-columns:112px minmax(0,1fr); gap:12px; font-size:13px; }
+.local-output-folders dt { color:var(--color-muted); }
+.local-output-folders dd { margin:0; overflow-wrap:anywhere; }

@@ -1,56 +1,28 @@
-/* Match the workbench: the page and summary stay in the viewport, while only
-   an overflowing item list scrolls. History and notes have compact entry points. */
-.workspace:has(> .order-detail) { overflow: hidden; }
+/* One arrangement at every height. Continuous sizes avoid breakpoint jumps. */
+.workspace:has(> .order-detail) { overflow:hidden; padding:clamp(12px,calc(12px + (100dvh - 480px)*.04),32px) clamp(16px,2.8vw,40px) clamp(12px,calc(12px + (100dvh - 480px)*.03),24px); }
 .workspace > .order-detail {
-  flex: 1 1 0;
-  min-height: 0;
-  grid-template-rows: minmax(0, 1fr);
+  flex:1 1 0; min-height:0;
+  grid-template-columns:minmax(0,1fr) clamp(240px,25vw,360px);
+  grid-template-rows:minmax(0,1fr); gap:clamp(12px,1.7vw,24px);
+  --detail-gap:clamp(2px,calc(2px + (100dvh - 480px)*.035),24px);
 }
-.order-detail > :is(.quote-card, .settlement) { min-height: 0; }
-.order-detail .line-scroll { flex: 1 1 0; min-height: 0; }
+.order-detail > :is(.quote-card,.settlement) { min-height:0; padding:clamp(6px,calc(6px + (100dvh - 480px)*.035),24px); gap:var(--detail-gap); }
+.order-detail .line-scroll { flex:1 1 0; min-height:0; }
+.order-detail .readonly-customer { min-height:0; padding-bottom:clamp(8px,2dvh,16px); gap:12px; }
+.order-detail .readonly-customer > div { flex:1 1 0; }
+.order-detail .section-heading { flex-wrap:wrap; gap:4px; }
+.order-detail .amount-card { height:clamp(80px,calc(80px + (100dvh - 480px)*.23),170px); padding:clamp(6px,calc(6px + (100dvh - 480px)*.035),24px); gap:0; }
+.order-detail .amount { min-height:0; flex:1; }
+.order-detail .amount strong { font-size:clamp(28px,calc(28px + (100dvh - 480px)*.04),44px); line-height:1.3; }
+.order-detail .breakdown { min-height:0; gap:clamp(4px,calc(4px + (100dvh - 480px)*.03),16px); padding-bottom:clamp(4px,calc(4px + (100dvh - 480px)*.04),20px); }
+.order-detail .breakdown > div,.order-detail .finance-cost { min-height:20px; }
+.order-detail .finance { padding-top:0; gap:clamp(4px,calc(4px + (100dvh - 480px)*.03),16px); }
+.order-detail .profit-pair { padding:clamp(4px,calc(4px + (100dvh - 480px)*.02),12px); gap:12px; }
+.order-detail .profit-pair > div { gap:2px; }
+.order-detail .profit-pair strong { font-size:clamp(16px,calc(16px + (100dvh - 480px)*.012),21px); line-height:1.25; }
+.order-detail .settlement-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); min-height:0; gap:clamp(2px,calc(2px + (100dvh - 480px)*.02),8px); }
+.order-detail .settlement-actions > .button-pair { grid-column:1/-1; gap:8px; }
+.order-detail .settlement-actions > .button:last-child:nth-child(odd) { grid-column:1/-1; }
+.order-detail .settlement-actions .button { min-height:clamp(24px,calc(24px + (100dvh - 480px)*.03),36px); padding:2px 4px; font-size:clamp(11px,1.5dvh,14px); }
 .detail-record-actions { display:flex; flex-wrap:wrap; gap:8px; }
-.order-detail .settlement-actions {
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  min-height:0;
-  gap:8px;
-}
-.order-detail .settlement-actions > .button-pair { grid-column:1 / -1; gap:8px; }
-.order-detail .settlement-actions > .button:last-child:nth-child(odd) { grid-column:1 / -1; }
-.order-detail .settlement-actions .button { min-height:36px; padding:6px 8px; }
-@media (max-height: 900px), (max-width: 1000px) {
-  .order-detail > :is(.quote-card, .settlement) { padding:16px; gap:12px; }
-  .order-detail .amount-card { height:auto; padding:16px; gap:4px; }
-  .order-detail .amount { min-height:44px; }
-  .order-detail .amount strong { font-size:34px; line-height:44px; }
-  .order-detail .breakdown { min-height:0; padding-bottom:12px; gap:8px; }
-  .order-detail .finance { padding-top:0; gap:8px; }
-  .order-detail .profit-pair { padding:8px; gap:12px; }
-  .order-detail .profit-pair strong { font-size:20px; line-height:26px; }
-}
-@media (max-width: 1000px) {
-  .workspace > .order-detail { grid-template-columns:minmax(0,1fr) 260px; gap:12px; }
-  .order-detail .readonly-customer { display:grid; gap:4px; min-height:0; padding-bottom:8px; }
-  .order-detail .readonly-customer > div { min-width:0; }
-  .order-detail .detail-status { flex-wrap:wrap; }
-  .order-detail .section-heading { flex-wrap:wrap; gap:4px; }
-}
-@media (max-height: 600px) {
-  .workspace:has(> .order-detail) { padding:12px 16px; }
-  .order-detail > :is(.quote-card, .settlement) { padding:12px; gap:8px; }
-  .order-detail .amount-card { padding:8px 12px; gap:0; }
-  .order-detail .amount { min-height:32px; }
-  .order-detail .amount strong { font-size:28px; line-height:32px; }
-  .order-detail .breakdown { flex-direction:row; gap:12px; padding-bottom:4px; }
-  .order-detail .breakdown > div { flex:1; gap:4px; flex-wrap:wrap; font-size:11px; }
-  .order-detail .breakdown b { font-size:12px; }
-  .order-detail .finance { display:grid; grid-template-columns:1fr 1fr; gap:4px 8px; align-items:center; }
-  .order-detail .finance-cost { font-size:11px; }
-  .order-detail .profit-pair { grid-column:1 / -1; padding:4px 8px; }
-  .order-detail .profit-pair > div { flex-direction:row; align-items:center; justify-content:space-between; }
-  .order-detail .profit-pair strong { font-size:16px; line-height:24px; }
-  .order-detail .settlement-actions { gap:4px; }
-  .order-detail .settlement-actions .button { min-height:28px; padding:4px; font-size:12px; }
-  .detail-record-actions { gap:4px; }
-  .detail-record-actions .button { min-height:28px; padding:4px 8px; }
-}
+.detail-record-actions .button { min-height:28px; padding:4px 8px; }

@@ -1,5 +1,6 @@
 import "./backup.css";
-import { useEffect, useState } from "react";
+import "./localOutputs.css";
+import {LocalOutputDirectory} from "./LocalOutputDirectory";
 import type { Workbench } from "../../state/useWorkbench";
 import { stamp } from "../../state/format";
 import { Button, Field, Input } from "../../ui/components";
@@ -8,17 +9,9 @@ import { BusinessDirectory } from "./BusinessDirectory";
 import { managedLocation } from "./managedLocations";
 
 export function SettingsPage({ app }: { app: Workbench }) {
-  const [exportDir, setExport] = useState(app.preferences?.export_dir ?? "");
-  const [imageDir, setImage] = useState(app.preferences?.image_dir ?? "");
   const admin = app.navigationRole === "admin";
-  const exportLocation = managedLocation(exportDir, app.delivery, "报价表");
-  const imageLocation = managedLocation(imageDir, app.delivery, "报价图片");
   const backupLocation = managedLocation(String(app.backup?.target ?? ""), app.delivery, "每日备份");
   const backupLabel = backupState(app.backup);
-  useEffect(() => {
-    setExport(app.preferences?.export_dir ?? "");
-    setImage(app.preferences?.image_dir ?? "");
-  }, [app.preferences]);
   const lastSuccess = app.backup?.last_success as
     | { created_at?: string }
     | null
@@ -52,73 +45,7 @@ export function SettingsPage({ app }: { app: Workbench }) {
         </>
       )}
       {admin && app.delivery === "manager" && <BusinessDirectory disabled={app.busy}/> }
-      <div className="field">
-        <label htmlFor="quote-export-directory">报价表保存位置</label>
-        <div className="directory-choice">
-          <Input
-            id="quote-export-directory"
-            value={exportLocation.display}
-            title={exportLocation.display}
-            readOnly={!admin || exportLocation.concealed}
-            onChange={(e) => setExport(e.target.value)}
-            placeholder="已发布的保存位置"
-          />
-          {admin && (
-            <Button
-              variant="outline"
-              aria-label="选择报价表保存文件夹"
-              disabled={app.busy}
-              onClick={async () => {
-                const picked = await app.pickDirectory("export_dir");
-                if (picked?.directory) setExport(picked.directory);
-              }}
-            >
-              选择文件夹
-            </Button>
-          )}
-        </div>
-      </div>
-      <div className="field">
-        <label htmlFor="quote-image-directory">报价图片保存位置</label>
-        <div className="directory-choice">
-          <Input
-            id="quote-image-directory"
-            value={imageLocation.display}
-            title={imageLocation.display}
-            readOnly={!admin || imageLocation.concealed}
-            onChange={(e) => setImage(e.target.value)}
-            placeholder="已发布的保存位置"
-          />
-          {admin && (
-            <Button
-              variant="outline"
-              aria-label="选择报价图片保存文件夹"
-              disabled={app.busy}
-              onClick={async () => {
-                const picked = await app.pickDirectory("image_dir");
-                if (picked?.directory) setImage(picked.directory);
-              }}
-            >
-              选择文件夹
-            </Button>
-          )}
-        </div>
-      </div>
-      {admin ? (
-        <>
-          <p className="muted">
-            请选择保存文件夹，也可填写完整路径；保存后子版自动继承。
-          </p>
-          <Button
-            onClick={() => app.saveSettings(exportDir, imageDir)}
-            disabled={app.busy || !app.preferences}
-          >
-            发布保存位置
-          </Button>
-        </>
-      ) : (
-        <p className="muted">保存位置统一发布，当前版本自动沿用。</p>
-      )}
+      <LocalOutputDirectory disabled={app.busy} finance={app.can("finance")}/>
       {app.can("backup") && (
         <section className="backup-settings business-backup">
           <h3>业务数据备份</h3>

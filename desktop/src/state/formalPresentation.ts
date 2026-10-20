@@ -4,6 +4,7 @@ export function setDeliveryContext(delivery:string) { formal = compiledFormal ||
 export function formalPresentation() { return formal; }
 // Only actionable business validation belongs in the delivered workbench.
 const businessErrors = new Set([
+  'LOCAL_OUTPUT_ROOT_REQUIRED','LOCAL_OUTPUT_WRITE_FAILED','LOCAL_OUTPUT_FILE_CHANGED','OUTPUT_CONTENT_INVALID',
   'CUSTOMER_SELECTION_REQUIRED','CUSTOMER_IDENTITY_CONFLICT','CUSTOMER_ORDER_NUMBER_EXISTS',
   'PRICE_VERSION_CHANGED','PRICE_STALE','ORDER_REVISION_CHANGED','REVISION_OR_PRICE_CONFLICT',
   'QUERY_VIEW_CHANGED','CALCULATION_REQUIRED','CALCULATION_STALE',

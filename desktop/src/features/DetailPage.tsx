@@ -123,7 +123,7 @@ export function DetailPage({ app }: { app: Workbench }) {
               </Button>
             )}
           </div>}
-          {!app.formal && app.can("exports") && <div className="button-pair">
+          {app.delivery !== "sales" && app.can("exports") && <div className="button-pair">
             <Button
               variant="ghost"
               disabled={app.busy || app.pending}
@@ -139,7 +139,7 @@ export function DetailPage({ app }: { app: Workbench }) {
               报价图片
             </Button>
           </div>}
-          {!app.formal && app.can("finance") && app.can("exports") && (
+          {app.delivery !== "sales" && app.can("finance") && app.can("exports") && (
             <Button
               variant="ghost"
               disabled={app.busy || app.pending}

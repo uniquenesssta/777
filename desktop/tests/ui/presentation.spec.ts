@@ -80,6 +80,8 @@ async function bootstrap(
                     },
                   ],
                 };
+              case "output_settings": return {root:"D:\\中文导出",export_dir:"D:\\中文导出\\Excel",image_dir:"D:\\中文导出\\PIC",report_dir:"D:\\中文导出\\内部财务报表"};
+              case "save_output_root": return {root:(request as any).root,export_dir:(request as any).root+"\\Excel",image_dir:(request as any).root+"\\PIC",report_dir:(request as any).root+"\\内部财务报表"};
               case "settings":
                 return {
                   revision: "1",
@@ -94,6 +96,7 @@ async function bootstrap(
                   last_error: null,
                 };
               case "pick_directory":
+                if ((request as any).target === "output_root") return {directory:(window as any).__cancelDirectory?null:"D:\\新的导出"};
                 return {
                   directory:
                     (request as any).target === "export_dir"
@@ -249,9 +252,9 @@ for (const delivery of ["manager", "sales"]) {
       .poll(() => region.evaluate((e) => e.scrollTop))
       .toBeGreaterThan(0);
     await page.getByRole("button", { name: "存储与备份", exact: true }).click();
-    const path = page.getByLabel("报价图片保存位置");
-    await expect(path).toHaveValue(/中文共享/);
-    await expect(path).toHaveAttribute("title", /中文共享/);
+    const path = page.getByLabel("导出文件保存位置");
+    await expect(path).toHaveValue(/中文导出/);
+    await expect(page.locator(".local-output-folders")).toContainText("中文导出");
     if (delivery === "sales")
       await expect(path).toHaveAttribute("readonly", "");
   });
@@ -292,64 +295,31 @@ test("keyboard dialog returns focus and fonts fall back without a banner", async
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 
-test("manager directory selection is a draft until published and cancellation preserves the path", async ({
-  page,
-}) => {
+test("manager chooses one local directory and cancellation preserves it", async ({page})=>{
   await bootstrap(page);
-  await page.getByRole("button", { name: "刷新价格", exact: true }).click();
-  await expect(
-    page.getByText("价格已刷新，请重新计算并核对。", { exact: true }),
-  ).toHaveCount(0);
-  await page.getByRole("button", { name: "存储与备份", exact: true }).click();
-  await page
-    .getByRole("button", { name: "选择报价表保存文件夹", exact: true })
-    .click();
-  await expect(page.getByLabel("报价表保存位置", { exact: true })).toHaveValue(
-    "\\\\localhost\\中文共享\\新报价表",
-  );
-  await page
-    .getByRole("button", { name: "选择报价图片保存文件夹", exact: true })
-    .click();
-  await expect(
-    page.getByLabel("报价图片保存位置", { exact: true }),
-  ).toHaveValue("\\\\localhost\\中文共享\\报价图片");
-  expect(
-    await page.evaluate(
-      () =>
-        (window as any).__businessRequests.filter(
-          (r: any) => r.action === "save_settings",
-        ).length,
-    ),
-  ).toBe(0);
-  await expect(page.getByText("[object Object]", { exact: false })).toHaveCount(
-    0,
-  );
-  await expect(
-    page.getByText("状态：备份正常", { exact: false }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: "发布保存位置", exact: true }).click();
-  await expect
-    .poll(() =>
-      page.evaluate(
-        () =>
-          (window as any).__businessRequests.filter(
-            (r: any) => r.action === "save_settings",
-          ).length,
-      ),
-    )
-    .toBe(1);
+  await page.getByRole("button",{name:"存储与备份",exact:true}).click();
+  await page.locator(".local-output-settings").getByRole("button",{name:"选择文件夹",exact:true}).click();
+  await expect(page.getByLabel("导出文件保存位置")).toHaveValue("D:\\新的导出");
+  await expect(page.locator(".local-output-folders")).toContainText("D:\\新的导出\\PIC");
+  await page.evaluate(()=>(window as any).__cancelDirectory=true);
+  await page.locator(".local-output-settings").getByRole("button",{name:"选择文件夹",exact:true}).click();
+  await expect(page.getByLabel("导出文件保存位置")).toHaveValue("D:\\新的导出");
+  const requests=await page.evaluate(()=>(window as any).__businessRequests);
+  expect(requests.filter((r:any)=>r.action==='save_output_root')).toHaveLength(1);
+  expect(requests.filter((r:any)=>r.action==='save_settings')).toHaveLength(0);
+  await expect(page.getByText("状态：备份正常",{exact:false})).toBeVisible();
 });
 
-test("sales inherits readonly directories and sees only its export explanation", async ({
+test("sales keeps local directories and sees only its export explanation", async ({
   page,
 }) => {
   await bootstrap(page, "sales");
   await page.getByRole("button", { name: "存储与备份", exact: true }).click();
   await expect(
-    page.getByLabel("报价表保存位置", { exact: true }),
+    page.getByLabel("导出文件保存位置", { exact: true }),
   ).toHaveAttribute("readonly", "");
-  await expect(page.getByRole("button", { name: /选择.*文件夹/ })).toHaveCount(
-    0,
+  await expect(page.locator(".local-output-settings").getByRole("button", { name: /选择.*文件夹/ })).toHaveCount(
+    1,
   );
   await expect(
     page.getByRole("button", { name: "利润分析", exact: true }),
@@ -602,26 +572,13 @@ test("zero-profit orders keep empty pie and flat candles finite", async ({
   ).toHaveCount(2);
 });
 
-test("formal settings conceal managed addresses while preserving the actual saved directory", async ({ page }) => {
-  await bootstrap(page, "manager", false, "managed-locations");
-  await page.getByRole("button", { name: "存储与备份", exact: true }).click();
-  const table = page.getByLabel("报价表保存位置", { exact: true });
-  const image = page.getByLabel("报价图片保存位置", { exact: true });
-  await expect(table).toHaveValue("已配置的报价表位置");
-  await expect(image).toHaveValue("已配置的报价图片位置");
-  await expect(table).toHaveAttribute("readonly", "");
-  await expect(page.getByText("当前服务", { exact: true })).toHaveCount(0);
-  await expect(page.locator(".settings")).not.toContainText("192.168.4.23");
-  expect(await page.locator(".settings input").evaluateAll(nodes => nodes.every(n => {
-    const field = n as HTMLInputElement;
-    return ![field.value, field.title, field.getAttribute("aria-label") ?? ""].some(v => v.includes("192.168.4.23"));
-  }))).toBe(true);
-  await page.getByRole("button", { name: "选择报价表保存文件夹", exact: true }).click();
-  await expect(table).toHaveValue("已配置的报价表位置");
-  await page.getByRole("button", { name: "发布保存位置", exact: true }).click();
-  await expect.poll(() => page.evaluate(() => (window as any).__businessRequests.filter((r: any) => r.action === "save_settings").at(-1))).toMatchObject({
-    export_dir: "\\\\192.168.4.23\\共享\\新报价表",
-    image_dir: "\\\\192.168.4.23\\共享\\报价图片",
-  });
-  await expect(table).toHaveValue("已配置的报价表位置");
+test("formal settings show local paths and never reveal Host directories", async ({page})=>{
+ await bootstrap(page,"manager",false,"managed-locations");
+ await page.getByRole("button",{name:"存储与备份",exact:true}).click();
+ await expect(page.getByLabel("导出文件保存位置")).toHaveValue("D:\\中文导出");
+ await expect(page.locator(".settings")).not.toContainText("192.168.4.23");
+ await expect(page.getByText("当前服务",{exact:true})).toHaveCount(0);
+ await page.locator(".local-output-settings").getByRole("button",{name:"选择文件夹",exact:true}).click();
+ await expect.poll(()=>page.evaluate(()=>(window as any).__businessRequests.filter((r:any)=>r.action==='save_output_root').at(-1))).toMatchObject({root:"D:\\新的导出"});
+ expect(await page.evaluate(()=>(window as any).__businessRequests.some((r:any)=>r.action==='save_settings'))).toBe(false);
 });
