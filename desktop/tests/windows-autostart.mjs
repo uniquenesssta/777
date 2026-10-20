@@ -43,7 +43,7 @@ try {
   await page.getByLabel('第1行商品',{exact:true}).selectOption('单件');
   if(presentation==='presentation') {
     // Exercise raw draft restoration and a genuinely long order through native IPC.
-    await page.evaluate(()=>localStorage.setItem('777-desktop-draft-v1',JSON.stringify({schema:'777-desktop-draft-v1',details:{customer:'中文客户'.repeat(20),order_ref:'',wechat:'中文路径验证'},lines:Array.from({length:40},(_,i)=>({id:'native-line-'+i,raw:{line_kind:'normal',product_id:'单件',q:'1',h:'',w:'',name:''}}))})));
+    await page.evaluate(()=>sessionStorage.setItem('777-desktop-draft-v1',JSON.stringify({schema:'777-desktop-draft-v1',details:{customer:'中文客户'.repeat(20),order_ref:'',wechat:'中文路径验证'},lines:Array.from({length:40},(_,i)=>({id:'native-line-'+i,raw:{line_kind:'normal',product_id:'单件',q:'1',h:'',w:'',name:''}}))})));
     await page.reload();
     await expect(page.getByRole('button',{name:'添加商品',exact:false})).toBeEnabled();
     await expect(page.getByLabel('第40行数量',{exact:true})).toHaveCount(1);

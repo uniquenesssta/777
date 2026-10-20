@@ -9,6 +9,8 @@ use std::time::Duration;
 pub enum DeveloperAction {
     Status {},
     PackageStatus {},
+    PackageCleanupPreview {},
+    ClearPackages {},
     Select {
         root: String,
         initialize: bool,
@@ -66,7 +68,8 @@ impl DeveloperAction {
     pub fn protects_close(&self) -> bool {
         matches!(
             self,
-            Self::Select { .. }
+            Self::ClearPackages {}
+                | Self::Select { .. }
                 | Self::ImportDirectory { .. }
                 | Self::BackupDirectory { .. }
                 | Self::DailyBackup { .. }

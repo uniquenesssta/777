@@ -6,7 +6,7 @@ export interface SavedInput {
 }
 export interface LocalSaveReceipt {result:{order_id:string}|null;submitted?:SavedInput|null}
 export function persistDraft(draft:Draft,source:string|null) {
-  localStorage.setItem("777-desktop-draft-v1",JSON.stringify({schema:"777-desktop-draft-v1",save_id:draft.saveId,price_version_id:draft.priceVersion,
+  sessionStorage.setItem("777-desktop-draft-v1",JSON.stringify({schema:"777-desktop-draft-v1",save_id:draft.saveId,price_version_id:draft.priceVersion,
     ...(source?{source_pin:source}:{}),details:draft.details,lines:draft.lines,editing:draft.editing,customer:draft.customer}));
 }
 export async function savedDraft(id:string):Promise<LocalSaveReceipt|null> {

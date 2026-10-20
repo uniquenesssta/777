@@ -1,3 +1,5 @@
+.order-view { display: contents; }
+.order-view[hidden] { display: none; }
 /* Order history only: exports and price tables retain their own presentation. */
 .orders-table.order-records-table { min-width: 960px; }
 .order-records-table thead tr { height: 40px; }

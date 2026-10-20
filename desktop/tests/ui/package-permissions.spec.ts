@@ -67,7 +67,7 @@ for(const delivery of ['manager','sales'])test(`${delivery} quote-only policy ha
   await page.getByRole('button',{name:'计算报价',exact:true}).click();
   await expect(page.getByRole('alert')).toHaveCount(0);
   await expect(page.locator('body')).not.toContainText(/SERVICE_|连接失败|请联系管理员|证书/);
-  expect(JSON.parse(await page.evaluate(()=>localStorage.getItem('777-desktop-draft-v1'))||'{}').lines).toHaveLength(1);
+  expect(JSON.parse(await page.evaluate(()=>sessionStorage.getItem('777-desktop-draft-v1'))||'{}').lines).toHaveLength(1);
 });
 
 test('developer packaging remains available without a business session',async({page})=>{

@@ -1,3 +1,4 @@
+import { startDraftSession, draftKey } from "./draftSession";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { navigationRole as resolveNavigationRole } from "./navigation";
 import { selectCurrentLocalDevelopment } from "./localDevelopment";
@@ -57,7 +58,7 @@ export function useWorkbench() {
   const [connection, setConnection] = useState<Connection | null>(null);
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [draft, dispatch] = useReducer(draftReducer, null, () =>
-    restorableDraft(localStorage.getItem("777-desktop-draft-v1")),
+    restorableDraft(null),
   );
   const [draftChange, setDraftChange] = useState<(() => void) | null>(null);
   const [route, setRoute] = useState<Route>("quote");
@@ -92,16 +93,15 @@ export function useWorkbench() {
   const listScrollRef = useRef(0);
   const epoch = useRef(0);
   const busyRef = useRef(false);
-  const draftSource = useRef<string | null>((() => {
-    try { return JSON.parse(localStorage.getItem("777-desktop-draft-v1") ?? "null")?.source_pin ?? null; }
-    catch { return null; }
-  })());
+  const draftSource = useRef<string | null>(null);
+  const [draftReady, setDraftReady] = useState(false);
   function bindDeveloperDraft(pin: string) {
-    const next = selectDraftSource(localStorage, draftSource.current, pin);
+    const next = selectDraftSource(sessionStorage, draftSource.current, pin);
     draftSource.current = pin;
     dispatch({type:"restore", raw:next});
   }
   useEffect(() => {
+    if (!draftReady) return;
     try {
       persistDraft(draft,draftSource.current);
     } catch {
@@ -109,7 +109,7 @@ export function useWorkbench() {
       setFeedback(formalPresentation() ? "" : "当前草稿无法保存到本机，请保持窗口打开。");
       setIsError(true);
     }
-  }, [draft.details, draft.lines, draft.editing, draft.customer,draft.saveId]);
+  }, [draft.details, draft.lines, draft.editing, draft.customer,draft.saveId,draftReady]);
   useEffect(() => { uiDiagnostic("draft_context", draft); }, [draft.editing?.order_id, draft.editing?.revision]);
   const run = useCallback(
     async <T>(work: () => Promise<T>, done?: (v: T) => void, rethrow = false) => {
@@ -177,12 +177,16 @@ export function useWorkbench() {
     request<{
       delivery: string;
       developer_tools?: boolean;
+      runtime_id?: string;
       automatic: boolean;
       connection: Connection | null;
       pending: boolean;
       permissions: string[]|null;
     }>("connection")
       .then((r) => {
+        const raw = startDraftSession(sessionStorage, localStorage, r.runtime_id ?? sessionStorage.getItem('777-draft-runtime') ?? crypto.randomUUID());
+        try { draftSource.current = JSON.parse(raw ?? 'null')?.source_pin ?? null; } catch { draftSource.current = null; }
+        dispatch({type:'restore',raw}); setDraftReady(true);
         setDeliveryContext(r.delivery);
         setPermissions(r.permissions ?? null);
         setDelivery(r.delivery);
@@ -190,7 +194,7 @@ export function useWorkbench() {
         const tools = r.delivery === "development" && !!r.developer_tools;
         setDeveloperTools(tools);
         if (tools) setRoute("developer");
-        if (r.automatic || tools) void bootstrap();
+        if (r.automatic || tools) void bootstrap(restorableDraft(raw));
         setConnection(r.connection);
         setPending(r.pending);
       })
@@ -219,7 +223,7 @@ export function useWorkbench() {
       setConnected(false);
     }
   }
-  async function bootstrap() {
+  async function bootstrap(inputDraft = draft) {
     await run(
       async () => {
         const b = await request<{
@@ -235,12 +239,12 @@ export function useWorkbench() {
           : null;
         // An editing draft from a broader package must not re-enable that UI.
         // Preserve it separately before showing a new permitted draft.
-        const restrictedDraft = !!b.session && !!draft.editing && !allowed(policy.permissions ?? null,b.session?.role,"edit_orders");
+        const restrictedDraft = !!b.session && !!inputDraft.editing && !allowed(policy.permissions ?? null,b.session?.role,"edit_orders");
         if (restrictedDraft) {
-          const raw=localStorage.getItem("777-desktop-draft-v1");
-          if(raw) localStorage.setItem(`777-desktop-restricted-draft-${draft.editing!.order_id}`,raw);
+          const raw=sessionStorage.getItem(draftKey);
+          if(raw) sessionStorage.setItem(`777-desktop-restricted-draft-${inputDraft.editing!.order_id}`,raw);
         }
-        const localSaved = b.session && ["manager","sales"].includes(b.delivery) ? await savedDraft(draft.saveId) : null;
+        const localSaved = b.session && ["manager","sales"].includes(b.delivery) ? await savedDraft(inputDraft.saveId) : null;
         return { b, p, dirs, c, policy, restrictedDraft, localSaved };
       },
       ({ b, p, dirs, c, policy, restrictedDraft, localSaved }) => {
@@ -558,6 +562,7 @@ export function useWorkbench() {
       (v) => {
         setPending(v.pending);
         if (!v.pending && v.result) {
+          setSaveFailure("");
           setFeedback("原请求已确认保存。");
           if (v.path === "/v1/orders" || v.path === "/v1/order-save") {
             if (v.submitted)
@@ -666,6 +671,11 @@ export function useWorkbench() {
   },[formal]);
   return {
     formal, can, permissions, developerTools, navigationRole, workspaceVisible,
+    clearQuote() {
+      if (busyRef.current || pending) return;
+      dispatch({type:"reset"}); setSaveFailure(""); setMatchRequest(0); setDraftChange(null);
+      setFeedback(""); setIsError(false);
+    },
     businessBusy: busy || !session,
     working: busy,
     async connectLocal() {
@@ -736,6 +746,10 @@ export function useWorkbench() {
     jobsOffset,jobsTotal,jobsMore,
     output,
     retryOutput,
+    deleteOutput:(id:string)=>run(async()=>{
+      await request("delete_output",{job_id:id});
+      return afterSaved(()=>request<JobListing>("outputs",{offset:jobs.length===1&&jobsOffset>0?jobsOffset-100:jobsOffset}));
+    },r=>{acceptJobs(r.value);savedFeedback(r,"失败导出记录已删除。");}),
     createReport:(from:string,to:string)=>run(async()=>{await request("create_report",{from,to});return afterSaved(()=>request<JobListing>("outputs"));},r=>{acceptJobs(r.value);savedFeedback(r,"内部财务报表任务已创建。");}),
     openOutputFolder: (job_id: string) => run(() => request("open_output_folder", {job_id})),
     recover,

@@ -262,7 +262,7 @@ class Developer(PackagingMixin):
 
     def handle(self, data):
         op = data.get('op')
-        allowed = {'status','bootstrap','select','backup_directory','daily_backup','restore_data','import_directory','save_package','package','cancel','open_output','retry_package','issuer_status','issuer_prepare','issuer_connect','issuer_open','open_logs','package_status'}
+        allowed = {'status','bootstrap','select','backup_directory','daily_backup','restore_data','import_directory','save_package','package','cancel','open_output','retry_package','issuer_status','issuer_prepare','issuer_connect','issuer_open','open_logs','package_status','package_cleanup_preview','clear_packages'}
         operation = op if isinstance(op, str) and op in allowed else 'invalid'
         quiet = operation in {'status', 'package_status', 'bootstrap'}
         if not quiet:diagnostics.event('control.start', operation=operation)
@@ -278,6 +278,9 @@ class Developer(PackagingMixin):
         with self.lock:
             op = data.get('op')
             if op == 'status':return self.status()
+            if op in {'package_cleanup_preview', 'clear_packages'}:
+                from p08_automatic.package_cleanup import cleanup
+                return cleanup(self, execute=op == 'clear_packages')
             if op == 'package_status':return self.package_status()
             if op == 'bootstrap':return dict(connection=self.connection(), username=self.user, password=self.password)
             if op == 'select':return self.select(data['root'], initialize=data['initialize'], backup_dir=data['backup_dir'], username=data.get('username'), password=data.get('password'))

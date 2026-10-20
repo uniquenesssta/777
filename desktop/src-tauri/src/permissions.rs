@@ -114,7 +114,9 @@ pub fn authorize(selected: &Option<Vec<String>>, action: &Action) -> Result<()> 
             }
             "exports"
         }
-        Outputs { .. } | RetryOutput { .. } | OpenOutputFolder { .. } => "exports",
+        Outputs { .. } | DeleteOutput { .. } | RetryOutput { .. } | OpenOutputFolder { .. } => {
+            "exports"
+        }
         PickDirectory { target } => {
             if crate::startup::formal()
                 && !["export_dir", "image_dir", "business_directory"].contains(&target.as_str())

@@ -44,6 +44,7 @@ struct Calculation {
     result: Value,
 }
 pub struct Desktop {
+    runtime_id: String,
     store: Store,
     session: Option<Session>,
     calculation: Option<Calculation>,
@@ -59,6 +60,7 @@ impl Desktop {
         let store = Store::new(root, auxiliary)?;
         let (path, auxiliary) = store.local_database()?;
         Ok(Self {
+            runtime_id: new_id()?,
             store,
             session: None,
             calculation: None,
@@ -366,7 +368,7 @@ impl Desktop {
             }
             Action::Bootstrap {} => self.bootstrap().await,
             Action::Connection {} => Ok(
-                json!({"delivery":crate::startup::delivery(),"developer_tools":crate::startup::developer_tools(),"automatic":crate::startup::formal() || self.store.bootstrap::<crate::startup::Bootstrap>()?.is_some(),"connection":if crate::startup::formal(){None}else{self.saved_connection()?},"pending":self.has_pending()?,"permissions":permissions::selected()?}),
+                json!({"runtime_id":self.runtime_id,"delivery":crate::startup::delivery(),"developer_tools":crate::startup::developer_tools(),"automatic":crate::startup::formal() || self.store.bootstrap::<crate::startup::Bootstrap>()?.is_some(),"connection":if crate::startup::formal(){None}else{self.saved_connection()?},"pending":self.has_pending()?,"permissions":permissions::selected()?}),
             ),
             Action::ImportConnection { path } => {
                 connections::development()?;
@@ -625,6 +627,10 @@ impl Desktop {
                 let expected=if self.local.active()?{self.local.output_revision(&order_id,&expected_revision)?}else{expected_revision};
                 self.mutate("/v1/outputs",json!({"order_id":order_id,"expected_revision":revision(&expected)?,"kind":kind})).await
             }
+            Action::DeleteOutput { job_id } => {
+                self.authorize_output(&job_id).await?;
+                self.mutate(&format!("/v1/outputs/{}/delete", identifier(&job_id)?), json!({})).await
+            }
             Action::RetryOutput { job_id } => {
                 self.authorize_output(&job_id).await?;
                 self.mutate(
@@ -716,6 +722,45 @@ fn display(v: &mut Value) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[tokio::test]
+    async fn runtime_identity_changes_on_reopen_but_pending_receipt_survives() {
+        let root = std::env::temp_dir().join(format!("777-runtime-{}", new_id().unwrap()));
+        let mut desktop = Desktop::new(root.clone(), !cfg!(windows)).unwrap();
+        desktop
+            .store
+            .write(
+                "pending.bin",
+                &Pending {
+                    path: "/v1/order-save".into(),
+                    body: json!({"request_id":"preserved"}),
+                    subject: "test".into(),
+                    url: "https://127.0.0.1:8477".into(),
+                    pin: "a".repeat(64),
+                },
+            )
+            .unwrap();
+        let first = desktop.execute(Action::Connection {}).await.unwrap();
+        assert_eq!(
+            desktop.execute(Action::Connection {}).await.unwrap()["runtime_id"],
+            first["runtime_id"]
+        );
+        drop(desktop);
+        let mut reopened = Desktop::new(root.clone(), !cfg!(windows)).unwrap();
+        let next = reopened.execute(Action::Connection {}).await.unwrap();
+        assert_ne!(first["runtime_id"], next["runtime_id"]);
+        assert_eq!(next["pending"], true);
+        assert_eq!(
+            reopened
+                .store
+                .read::<Pending>("pending.bin")
+                .unwrap()
+                .unwrap()
+                .body["request_id"],
+            "preserved"
+        );
+        drop(reopened);
+        std::fs::remove_dir_all(root).unwrap();
+    }
     #[cfg(all(
         debug_assertions,
         not(any(feature = "manager", feature = "sales", feature = "verification"))

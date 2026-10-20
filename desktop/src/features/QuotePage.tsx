@@ -168,6 +168,8 @@ export function QuotePage({ app }: { app: Workbench }) {
                 个项目
               </small>
             </h2>
+            <div className="section-actions">
+            <Button variant="outline" disabled={app.working || app.pending} onClick={app.clearQuote}>一键清除</Button>
             <Button
               variant="ghost"
               className="price-version"
@@ -176,7 +178,7 @@ export function QuotePage({ app }: { app: Workbench }) {
             >
               <Icon name="check" />
               {app.formal ? "刷新价格" : `价格版本 ${catalog?.price_version_id.slice(0, 16) ?? "未连接"}`}
-            </Button>
+            </Button></div>
           </div>
           <div className="line-scroll" tabIndex={0} role="region" aria-label="商品明细滚动区">
             <div className="quote-table quote-entry-table">

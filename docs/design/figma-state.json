@@ -2259,5 +2259,23 @@
     "selection": "No persistent row selection derived from detail state",
     "identity": "customer / Taobao ID plus WeChat; preserve service group identity",
     "visualReview": "Figma full views and rendered UI at 1440x884 and 720x600 reviewed; text/components remain editable"
+  },
+  "sessionAndCleanup20261020": {
+    "quoteClear": [
+      "154:2302",
+      "154:2304"
+    ],
+    "packageCleanup": [
+      "154:2306",
+      "154:2308"
+    ],
+    "failedExportDelete": [
+      "154:2310",
+      "154:2312"
+    ],
+    "packageCleanupDialog": "155:2308",
+    "draftLifetime": "current native runtime only; pending receipts and saved orders retained",
+    "orderViews": "retain both views; immediate committed search; quote typing still debounced 250ms",
+    "visualReview": "existing components reused; confirmation layout corrected and screenshot reviewed"
   }
 }

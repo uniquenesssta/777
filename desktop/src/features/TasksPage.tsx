@@ -1,3 +1,4 @@
+import "./exports/exportRecords.css";
 import { useEffect, useState } from "react";
 import type { Workbench } from "../state/useWorkbench";
 import { stamp } from "../state/format";
@@ -93,7 +94,7 @@ export function TasksPage({ app }: { app: Workbench }) {
                   {j.state === "done" && (
                     <Button variant="ghost" disabled={app.busy} title="打开该次导出文件所在的文件夹" onClick={() => void app.openOutputFolder(j.job_id)}>打开文件夹</Button>
                   )}
-                  {j.state === "failed" && (
+                  {j.state === "failed" && (<div className="export-record-actions">
                     <Button
                       variant="outline"
                       disabled={app.busy || app.pending}
@@ -101,7 +102,8 @@ export function TasksPage({ app }: { app: Workbench }) {
                     >
                       重新导出
                     </Button>
-                  )}
+                    <Button variant="ghost" disabled={app.busy||app.pending} onClick={()=>void app.deleteOutput(j.job_id)}>删除记录</Button>
+                  </div>)}
                 </td>
               </tr>
             ))}

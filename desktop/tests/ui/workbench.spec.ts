@@ -220,6 +220,7 @@ test("unknown commit requires original receipt check and restart never double bo
   await request.post(host + "/restart", { data: {} });
   await page.getByRole("button", { name: "核查原请求" }).click();
   await expect(page.getByRole("button", { name: "核查原请求" })).toHaveCount(0);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.getByRole("button", { name: "订单记录", exact: true }).click();
   await page.getByLabel("搜索订单").fill("unknown-original");
   await page.getByRole("button", { name: "筛选", exact: true }).click();
@@ -239,9 +240,10 @@ test("current Figma quote geometry and all original assets load at their exporte
     id: "sample" + i,
     raw: { line_kind: "normal", name: "", ...p },
   }));
-  await page.addInitScript(
+  await login(page);
+  await page.evaluate(
     (lines) =>
-      localStorage.setItem(
+      sessionStorage.setItem(
         "777-desktop-draft-v1",
         JSON.stringify({
           schema: "777-desktop-draft-v1",
@@ -647,7 +649,7 @@ test("P07-07 report parts can page, retry one file and locate its folder", async
     await route.continue();
   });
   await page.getByRole("button",{name:"导出记录",exact:true}).click();
-  await expect(page.getByText("共 105 项",{exact:true})).toBeVisible();
+  await expect(page.getByRole("heading",{name:"导出记录 共 105 项",exact:true})).toBeVisible();
   await page.getByRole("button",{name:"下一页",exact:true}).click();
   await expect(page.getByText("第 2 / 2 页",{exact:true})).toBeVisible();
   const part=page.getByRole("row").filter({hasText:"第 101 / 105 份"});

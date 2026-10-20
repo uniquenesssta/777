@@ -1,3 +1,4 @@
+mod deletion;
 use crate::{
     auth::Auth,
     fail, files, image, number,
@@ -297,6 +298,9 @@ impl Outputs {
         } else {
             "actor_id=?1 AND kind NOT IN ('excel_admin','excel_period')"
         };
+        let scope = format!(
+            "({scope}) AND job_id NOT IN (SELECT job_id FROM events WHERE operation='delete')"
+        );
         let params: Vec<&dyn rusqlite::ToSql> = if a.role == "admin" {
             vec![]
         } else {
@@ -324,6 +328,13 @@ impl Outputs {
         let c = self.connection()?;
         let tx = c.unchecked_transaction()?;
         let j = self.owned(&tx, a, key)?;
+        if tx.query_row(
+            "SELECT EXISTS(SELECT 1 FROM events WHERE job_id=? AND operation='delete')",
+            [key],
+            |r| r.get::<_, bool>(0),
+        )? {
+            return fail(404, "NOT_FOUND");
+        }
         let state: String =
             tx.query_row("SELECT state FROM jobs WHERE job_id=?", [key], |r| r.get(0))?;
         if state == "running" {

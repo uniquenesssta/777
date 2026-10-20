@@ -46,6 +46,7 @@ async function bootstrap(
             switch (request.action) {
               case "connection":
                 return {
+                  runtime_id: "presentation-runtime",
                   delivery,
                   automatic: true,
                   connection: null,
@@ -197,7 +198,8 @@ async function bootstrap(
           },
         },
       });
-      localStorage.setItem(
+      sessionStorage.setItem("777-draft-runtime", "presentation-runtime");
+      sessionStorage.setItem(
         "777-desktop-draft-v1",
         JSON.stringify({
           schema: "777-desktop-draft-v1",

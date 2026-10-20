@@ -467,6 +467,10 @@ impl Service {
                 ("GET", [id]) => return o.status(&a, id),
                 ("GET", [id, "content"]) => return o.content(&a, id),
                 ("GET", [id, "location"]) => return o.location(&a, id),
+                ("POST", [id, "delete"]) => {
+                    fields(data, &["request_id"], &[])?;
+                    return o.delete_failed(&a, id, text(&data["request_id"], 36, true)?);
+                }
                 ("POST", [id, "retry"]) => {
                     fields(data, &["request_id"], &[])?;
                     return o.retry(&a, id, text(&data["request_id"], 36, true)?);

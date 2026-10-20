@@ -16,16 +16,19 @@
   flex-direction: column;
   gap: 16px;
 }
-.workspace > :is(.workbench-grid, .orders-card, .management, .profit-page, .developer-page, .price-maintenance) {
+.workspace > :is(.workbench-grid, .orders-card, .management, .profit-page, .developer-page, .price-maintenance),
+.workspace > .order-view > .orders-card {
   flex: 1 0 auto;
 }
 .workspace > .inline-error { flex: none; }
 .workbench-grid > :is(.quote-card, .settlement) > *,
-.workspace > :is(.orders-card, .management, .profit-page) > * {
+.workspace > :is(.orders-card, .management, .profit-page) > *,
+.workspace > .order-view > .orders-card > :not(.customer-groups) {
   flex-shrink: 0;
 }
 .workbench-grid .line-scroll,
-.workspace > :is(.orders-card, .management) > .orders-table-scroll {
+.workspace > :is(.orders-card, .management) > .orders-table-scroll,
+.workspace > .order-view > .orders-card > .orders-table-scroll {
   flex: 1 1 0;
 }
 .workspace > .settings { width: 100%; }

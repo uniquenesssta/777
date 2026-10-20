@@ -445,3 +445,6 @@ fn discount_policy_survives_publish_edit_reorder_and_backup() {
         integrity::inventory(&store::open(&f.s.ledger, false).unwrap()).unwrap()
     );
 }
+
+#[path = "customer_order_checks/export_cleanup.rs"]
+mod export_cleanup;

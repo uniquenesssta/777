@@ -177,6 +177,9 @@ pub enum Action {
         expected_revision: String,
         kind: String,
     },
+    DeleteOutput {
+        job_id: String,
+    },
     RetryOutput {
         job_id: String,
     },
@@ -263,6 +266,7 @@ impl Action {
             Self::OpenOutputFolder { .. } => "OpenOutputFolder",
             Self::CreateReport { .. } => "CreateReport",
             Self::CreateOutput { .. } => "CreateOutput",
+            Self::DeleteOutput { .. } => "DeleteOutput",
             Self::RetryOutput { .. } => "RetryOutput",
             Self::Recover { .. } => "Recover",
             Self::BackupStatus { .. } => "BackupStatus",
@@ -290,6 +294,7 @@ impl Action {
                 | Self::CreateReport { .. }
                 | Self::CreateOutput { .. }
                 | Self::SaveOrder { .. }
+                | Self::DeleteOutput { .. }
                 | Self::RetryOutput { .. }
                 | Self::Recover { .. }
                 | Self::Backup {}

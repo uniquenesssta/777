@@ -12,7 +12,7 @@ export async function setup(page:Page,delivery:string,permissions:string[]|null=
         (window as any).__requests.push(r);
         switch(r.action){
           case 'ui_diagnostic':return null;
-          case 'connection':return{delivery,permissions,developer_tools:delivery==='development',automatic:true,pending:false,connection:delivery==='development'?connection:null};
+          case 'connection':return{runtime_id:sessionStorage.getItem('fixture-runtime')??'fixture-runtime-1',delivery,permissions,developer_tools:delivery==='development',automatic:true,pending:false,connection:delivery==='development'?connection:null};
           case 'bootstrap':return{delivery,automatic:true,session:businessSession?{role:delivery==='sales'?'sales':'admin',username:'fixture',subject:'fixture',pending:false}:null};
           case 'prices':return{price_version_id:'fixture',items:[{product_id:'商品',sale:'10',unit_sale:'10',k:'1',single:true}]};
           case 'settings':return{revision:'1',export_dir:'D:\\Excel',image_dir:'D:\\Images'};

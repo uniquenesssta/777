@@ -14,7 +14,7 @@ export function CustomerMatches({app}:{app:Workbench}){
   const queryKey=JSON.stringify(queries);
   useEffect(()=>setOffset(0),[queryKey]);
   useEffect(()=>{if(app.matchRequest)setOpen(true);},[app.matchRequest]);
-  const {data,error,loading}=useCustomers(app,queries,offset,undefined,0,queries.length>0,app.matchRequest);
+  const {data,error,loading}=useCustomers(app,queries,offset,undefined,0,queries.length>0,app.matchRequest,250);
   if(!queries.length)return null;
   const choose=(g:CustomerGroup)=>{app.chooseCustomer(g);setOpen(false);};
   const separate=()=>{app.chooseNewCustomer();setOpen(false);};

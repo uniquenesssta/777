@@ -18,9 +18,10 @@ export function OrdersPage({
   useLayoutEffect(() => {
     if (scroll.current) scroll.current.scrollTop = app.listScrollRef.current;
   }, [app.listing]);
-  if(customerMode)return <CustomerOrders app={app} onAll={()=>setCustomerMode(false)}/>;
-  return (
-    <section className="card orders-card" data-node-id="32:96">
+
+  return (<>
+    <div className="order-view" hidden={!customerMode}><CustomerOrders app={app} onAll={()=>setCustomerMode(false)}/></div>
+    <div className="order-view" hidden={customerMode}><section className="card orders-card" data-node-id="32:96">
       <div className="section-heading">
         <h2>
           {app.navigationRole === "admin" ? "订单记录" : "我的订单"}{" "}
@@ -170,6 +171,6 @@ export function OrdersPage({
           </Button>
         </div>
       </footer>
-    </section>
+    </section></div></>
   );
 }

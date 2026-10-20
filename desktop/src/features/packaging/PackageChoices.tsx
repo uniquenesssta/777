@@ -1,3 +1,4 @@
+import {PackageCleanup} from "./PackageCleanup";
 import {useState} from 'react';
 import {Button} from '../../ui/components';
 import {defaults,permissionCatalog,togglePermission,type Delivery} from '../../state/permissions';
@@ -54,6 +55,7 @@ export function PackageChoices(){
       </section>
     </div>
     {error&&<p className="inline-error" role="alert">{error}</p>}
+    <PackageCleanup disabled={disabled} onCleaned={setState}/>
     <PackageTasks job={state?.job??null} disabled={busy} onAction={op=>void run(async()=>setState(await developer<PackageConfiguration>(op)))}/>
   </div>;
 }

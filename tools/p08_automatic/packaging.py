@@ -34,8 +34,11 @@ class PackagingMixin:
             if not retry and self.job and self.job['state']=='failed' and self.job.get('signing') != 'local':self.close_queue.enqueue(self.job['id'])
             candidate=self.dev.DEV/'local-issuance'/(key+'.bin')
             candidate.parent.mkdir(exist_ok=True)
-            self.job = dict(id=key, signing='local', state='running', delivery=delivery, permissions=permissions, version=preferences['version'], runtime=preferences['runtime'], output=str(destination), lines=[], error=None, bytes=None)
-            replace_json(self.dev.DEV/'automatic-job.json',self.job)
+            job = dict(id=key, signing='local', state='running', delivery=delivery, permissions=permissions, version=preferences['version'], runtime=preferences['runtime'], output=str(destination), lines=[], error=None, bytes=None)
+            from .package_cleanup import remember_output
+            remember_output(self, job)
+            replace_json(self.dev.DEV/'automatic-job.json',job)
+            self.job = job
             self.cancelled.clear()
             args = [os.environ.get('QUOTE777_NODE') or 'node', str(self.dev.ROOT / 'desktop/tools/package.mjs'), '--delivery', delivery, '--issuer-state', str(self.signer.state), '--candidate', str(candidate), '--package-id', key, '--output', str(destination), '--version', preferences['version'], '--webview', preferences['runtime'], '--permissions', json.dumps(permissions, separators=(',', ':'))]
             self.worker = threading.Thread(target=self.build_package, args=(args, candidate, destination), daemon=False)
