@@ -119,6 +119,7 @@ class Developer(PackagingMixin):
             job = json.loads(json.dumps(self.job))
         daily_file=self.root / 'private/daily-backup.json'
         daily=json.loads(local(daily_file).read_text(encoding="utf-8")) if daily_file.exists() else dict(hidden_dir='', daily_hour=23)
+        if 'daily_backup_hour' in cfg:daily['daily_hour']=cfg['daily_backup_hour']
         health_file=self.root / 'private/daily-backups.json'
         health=json.loads(local(health_file).read_text(encoding="utf-8")) if health_file.exists() else dict(entries={})
         latest=max(health['entries'], default=None)

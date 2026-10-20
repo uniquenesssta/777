@@ -2307,5 +2307,12 @@
     "example": "261020-1",
     "visualReview": "Existing fonts/components retained; Figma header and actual application screenshot reviewed",
     "implementation": "docs/verification/P08-profit-layout-price-version.md"
+  },
+  "hostBackupSettings20261021": {
+    "page": "21:2",
+    "settings": "165:2310",
+    "directoryPicker": "165:2350",
+    "scope": "developer-only",
+    "implementation": "desktop/src/features/hostSettings/"
   }
 }

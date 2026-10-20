@@ -472,7 +472,7 @@ async fn handler(
             Ok((method, path, query, token, package_token)) => {
                 let capacity = if path.starts_with("/v1/offline/") {
                     state.intake_capacity.clone()
-                } else if path == "/v1/backup" {
+                } else if path == "/v1/backup" || path.starts_with("/v1/developer/backup-") {
                     state.backup_capacity.clone()
                 } else {
                     state.capacity.clone()
@@ -518,6 +518,7 @@ async fn handler(
                                 let _permit = permit;
                                 if path.starts_with("/v1/cluster/")
                                     || path.starts_with("/v1/offline/")
+                                    || path.starts_with("/v1/developer/backup-")
                                 {
                                     fail(409, "CLUSTER_REPLICA_CANNOT_WRITE")
                                 } else {
@@ -547,7 +548,9 @@ async fn handler(
                                         }
                                         return result;
                                     }
-                                    if path == "/v1/backup" {
+                                    if path == "/v1/backup"
+                                        || path.starts_with("/v1/developer/backup-")
+                                    {
                                         let backup = state.backup.as_ref().ok_or_else(|| {
                                             Error::new(503, "SERVICE_UNAVAILABLE")
                                         })?;

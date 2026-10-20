@@ -110,6 +110,9 @@ pub fn configure_daily(
         crate::daily_backup::configure(&candidate, hidden, hour)?;
         drop(_owner);
         configure_backup(root, target, user, password, auxiliary)?;
+        let mut updated = files::read_json(&root.join("private/service.json"))?;
+        updated["daily_backup_hour"] = json!(hour);
+        files::replace_json(&root.join("private/service.json"), &updated)?;
         Ok(json!({"configured":true}))
     })();
     if result.is_err() {

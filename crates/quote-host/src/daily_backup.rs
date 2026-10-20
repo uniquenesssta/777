@@ -12,11 +12,14 @@ use std::{
 };
 pub fn config(s: &Service) -> Result<Value> {
     let p = s.root.join("private/daily-backup.json");
-    let v = if p.exists() {
+    let mut v = if p.exists() {
         files::read_json(&p)?
     } else {
         json!({"format":"777-daily-config-v1","hidden_dir":"","daily_hour":23})
     };
+    if let Some(hour) = s.config.get("daily_backup_hour") {
+        v["daily_hour"] = hour.clone();
+    }
     if v["format"] != "777-daily-config-v1"
         || !v["hidden_dir"].is_string()
         || !v["daily_hour"].as_u64().is_some_and(|h| h < 24)

@@ -60,9 +60,13 @@ impl Service {
                 "service_backend",
                 "rust_host_sha256",
                 "device_auth",
+                "daily_backup_hour",
             ],
         )?;
-        if config["schema"] != "777-host-v1"
+        if config
+            .get("daily_backup_hour")
+            .is_some_and(|h| !h.as_u64().is_some_and(|h| h < 24))
+            || config["schema"] != "777-host-v1"
             || !config["maintenance"].is_boolean()
             || !(1..=65535).contains(&number(&config["port"])?)
             || config["bind"]
@@ -279,6 +283,9 @@ impl Service {
         }
         if path.starts_with("/v1/cluster/") {
             return crate::cluster::api::handle(self, method, path, token, data, peer);
+        }
+        if path.starts_with("/v1/developer/backup-") {
+            return crate::backup_settings::handle(self, method, path, token, data);
         }
         if method == "POST" && path == "/v1/login" {
             fields(data, &["username", "password"], &[])?;

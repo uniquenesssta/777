@@ -103,6 +103,12 @@ pub fn authorize(selected: &Option<Vec<String>>, action: &Action) -> Result<()> 
         Settings {} | SaveSettings { .. } | BusinessDirectory {} | SaveBusinessDirectory { .. } => {
             "settings"
         }
+        HostBackupSettings {} | SaveHostBackupSettings { .. } | HostBackupDirectories { .. } => {
+            if crate::startup::formal() {
+                return Err(DesktopError::new(403, "PACKAGE_PERMISSION_DENIED"));
+            }
+            return Ok(());
+        }
         BackupStatus {} | Backup {} => "backup",
         CreateReport { .. } => {
             require(selected, "finance")?;

@@ -9,6 +9,7 @@ pub mod automatic;
 #[path = "../tests/automatic_support/mod.rs"]
 mod automatic_fixture;
 pub mod backup;
+pub mod backup_settings;
 pub mod cluster;
 mod customers;
 pub mod daily_backup;

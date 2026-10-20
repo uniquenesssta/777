@@ -188,6 +188,17 @@ pub enum Action {
     Recover {
         retry: bool,
     },
+    HostBackupSettings {},
+    SaveHostBackupSettings {
+        ledger_id: String,
+        expected_revision: String,
+        backup_dir: String,
+        daily_hour: u8,
+    },
+    HostBackupDirectories {
+        ledger_id: String,
+        path: String,
+    },
     BackupStatus {},
     Backup {},
 }
@@ -271,6 +282,9 @@ impl Action {
             Self::DeleteOutput { .. } => "DeleteOutput",
             Self::RetryOutput { .. } => "RetryOutput",
             Self::Recover { .. } => "Recover",
+            Self::HostBackupSettings { .. } => "HostBackupSettings",
+            Self::SaveHostBackupSettings { .. } => "SaveHostBackupSettings",
+            Self::HostBackupDirectories { .. } => "HostBackupDirectories",
             Self::BackupStatus { .. } => "BackupStatus",
             Self::Backup { .. } => "Backup",
         }
@@ -299,6 +313,7 @@ impl Action {
                 | Self::DeleteOutput { .. }
                 | Self::RetryOutput { .. }
                 | Self::Recover { .. }
+                | Self::SaveHostBackupSettings { .. }
                 | Self::Backup {}
         )
     }
