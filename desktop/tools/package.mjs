@@ -42,6 +42,7 @@ export function bundleConfig(delivery, version, hooks, runtime = 'offlineInstall
     productName: id.productName, identifier: id.identifier, mainBinaryName: id.binary, version,
     app: { windows: [{ label: 'main', title: id.productName, width: 1440, height: 884, minWidth: 640, minHeight: 480 }] },
     bundle: {
+      icon: [delivery === 'sales' ? 'icons/quotev.ico' : 'icons/icon.ico'],
       active: true, targets: ['nsis'], useLocalToolsDir: true, category: 'Business', shortDescription: id.productName,
       resources: { '../THIRD_PARTY_NOTICES.md': 'licenses/desktop-notices.md', '../resources/licenses/': 'licenses/fonts/' },
       windows: { allowDowngrades: false, webviewInstallMode: { type: runtime, silent: true },
