@@ -9,11 +9,13 @@ export function ConnectionForm({
   submitLabel = "验证并连接",
   onSubmit,
   onCancel,
+  onLocal,
 }: {
   saved: Connection | null;
   busy: boolean;
   submitLabel?: string;
   onCancel?: () => void;
+  onLocal?: () => Promise<unknown>;
   onSubmit: (
     c: Connection,
   ) => Promise<void>;
@@ -67,6 +69,10 @@ export function ConnectionForm({
         }
       }}
     >
+      {onLocal && <Button variant="outline" disabled={disabled} onClick={async()=>{
+        setWorking(true);setError("");
+        try { await onLocal(); } catch(e) { setError(errorMessage(e)); } finally { setWorking(false); }
+      }}>切回本机开发数据</Button>}
       <Button
         variant="outline"
         disabled={disabled}

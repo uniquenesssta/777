@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { navigationRole as resolveNavigationRole } from "./navigation";
+import { selectCurrentLocalDevelopment } from "./localDevelopment";
 import { allowed, type Permission } from "./permissions";
 import { setDeliveryContext, formalPresentation, showError } from "./formalPresentation";
 import { errorCode, errorMessage, request } from "../bridge";
@@ -45,11 +47,13 @@ export function useWorkbench() {
   const [permissions,setPermissions] = useState<string[]|null>(null);
   const [connected,setConnected] = useState(false);
   const formal = ["manager","sales"].includes(delivery) || formalPresentation();
-  const can = (id:Permission) => allowed(permissions,session?.role,id);
   const [connectionDialog,setConnectionDialog] = useState(false);
   const [developerTools, setDeveloperTools] = useState(false);
   const [automatic, setAutomatic] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
+  const navigationRole = resolveNavigationRole(delivery, developerTools, session?.role);
+  const workspaceVisible = !!session || developerTools || ["manager","sales"].includes(delivery);
+  const can = (id:Permission) => allowed(permissions,navigationRole,id);
   const [connection, setConnection] = useState<Connection | null>(null);
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [draft, dispatch] = useReducer(draftReducer, null, () =>
@@ -186,7 +190,7 @@ export function useWorkbench() {
         const tools = r.delivery === "development" && !!r.developer_tools;
         setDeveloperTools(tools);
         if (tools) setRoute("developer");
-        if (r.automatic) void bootstrap();
+        if (r.automatic || tools) void bootstrap();
         setConnection(r.connection);
         setPending(r.pending);
       })
@@ -257,7 +261,7 @@ export function useWorkbench() {
         setPreferences(dirs);
         setPending(b.session?.pending ?? false);
         if (p) dispatch({ type: "prices", version: p.price_version_id });
-        setRoute(!b.session && policy.developer_tools ? "developer" : "quote");
+        setRoute(current => b.session && current === "developer" ? "quote" : current);
       },
     );
   }
@@ -643,6 +647,7 @@ export function useWorkbench() {
     const required:Partial<Record<Route,Permission>>={orders:"orders",detail:"orders",prices:"prices",profit:"finance",tasks:"exports",settings:"settings"};
     if(required[next] && !can(required[next]!)) return;
     setRoute(next);
+    if (!session) return;
     if (next === "profit") void loadAnalysis();
     if (next === "orders") void loadOrders({ ...filters, view: "" });
     if (next === "tasks") void loadJobs();
@@ -660,7 +665,15 @@ export function useWorkbench() {
     return ()=>window.clearInterval(timer);
   },[formal]);
   return {
-    formal, can, permissions, developerTools,
+    formal, can, permissions, developerTools, navigationRole, workspaceVisible,
+    businessBusy: busy || !session,
+    working: busy,
+    async connectLocal() {
+      return run(selectCurrentLocalDevelopment, result => {
+        bindDeveloperDraft(result.connection.certificate_sha256);
+        window.location.reload();
+      }, true);
+    },
     async developerOperation(operation: Record<string, unknown>) {
       return run(async () => {
         const result = await request<{connection:{certificate_sha256:string}}>("developer", {request:operation});
@@ -697,7 +710,7 @@ export function useWorkbench() {
     feedback,
     saveFailure, matchRequest,
     isError,
-    busy: busy || (formal && !connected),
+    busy,
     pending,
     analysis,
     analysisFilters,

@@ -333,7 +333,7 @@ export function QuotePage({ app }: { app: Workbench }) {
               } else void app.calculate();
             }}
           >
-            {app.busy ? "处理中…" : valid ? (app.saveFailure ? "再次提交" : draft.editing?"保存修改":"核对并提交订单") : app.saveFailure ? "重新核价" : "计算报价"}
+            {app.working ? "处理中…" : valid ? (app.saveFailure ? "再次提交" : draft.editing?"保存修改":"核对并提交订单") : app.saveFailure ? "重新核价" : "计算报价"}
           </Button>
           {valid && app.saveFailure && <Button variant="outline" disabled={app.busy || app.pending} onClick={() => void app.calculate()}>重新核价</Button>}
           {draft.editing && <Button variant="ghost" disabled={app.busy||app.pending} onClick={app.cancelEdit}>取消编辑</Button>}

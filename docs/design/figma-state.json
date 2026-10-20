@@ -2240,5 +2240,12 @@
     ],
     "implementation": "docs/verification/P08-quote-discount-recovery.md",
     "status": "Source and targeted auxiliary checks complete; Windows and site acceptance pending"
+  },
+  "localSourceRecovery20261020": {
+    "dialog": "108:2082",
+    "button": "146:2298",
+    "label": "I146:2298;5:92",
+    "navigation": "persistent according to delivery and selected permissions; independent of session reachability",
+    "visualReview": "existing dialog screenshot reviewed at 600x484; no formal technical UI added"
   }
 }

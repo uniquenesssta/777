@@ -259,7 +259,7 @@ for (const delivery of ["manager", "sales"]) {
     await page.clock.install();
     await bootstrap(page, delivery, true);
     await expect(
-      page.locator(".formal-idle"),
+      page.getByRole("navigation", {name:"主导航"}),
     ).toBeVisible();
     for (const label of ["服务地址", "服务证书（PEM）", "账号", "密码"])
       await expect(page.getByLabel(label, { exact: true })).toHaveCount(0);

@@ -21,7 +21,7 @@ export function OrdersPage({
     <section className="card orders-card" data-node-id="32:96">
       <div className="section-heading">
         <h2>
-          {app.session?.role === "admin" ? "订单记录" : "我的订单"}{" "}
+          {app.navigationRole === "admin" ? "订单记录" : "我的订单"}{" "}
           <small>{page?.total ?? 0} 条</small>
         </h2>
         <div className="section-actions"><Button variant="outline" onClick={()=>setCustomerMode(true)}>按客户查看</Button>
@@ -129,7 +129,7 @@ export function OrdersPage({
           </tbody>
         </table>
         {!page?.orders.length && (
-          <Empty>{app.busy ? "正在读取订单…" : "没有符合条件的订单。"}</Empty>
+          <Empty>{app.working ? "正在读取订单…" : !app.session ? "" : "没有符合条件的订单。"}</Empty>
         )}
       </div>
       <footer className="pagination">

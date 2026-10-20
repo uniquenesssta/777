@@ -171,7 +171,7 @@ export function ProfitPage({ app }: { app: Workbench }) {
         </div>
       </div>
       {!data ? (
-        <Empty>{app.busy ? "正在读取汇总…" : "请选择统计期间。"}</Empty>
+        <Empty>{app.working ? "正在读取汇总…" : !app.session ? "" : "请选择统计期间。"}</Empty>
       ) : !data.totals.order_count ? (
         <Empty>此期间没有有效订单。</Empty>
       ) : (

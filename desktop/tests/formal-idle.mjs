@@ -2,9 +2,9 @@
 import { expect } from '@playwright/test';
 
 export async function expectSilentFormalEntry(page, timeout = 20000) {
-  const idle = page.locator('main.formal-idle');
-  await expect(idle).toBeVisible({timeout});
-  await expect(idle).toHaveText('');
+  await expect(page.getByRole('navigation', {name:'主导航'})).toBeVisible({timeout});
+  await expect(page.getByRole('button', {name:'报价工作台',exact:true})).toBeVisible();
+  await expect(page.locator('main.workspace')).toBeVisible();
   await expect(page.locator('.connection-card')).toHaveCount(0);
   await expect(page.getByRole('alert')).toHaveCount(0);
   await expect(page.getByRole('status')).toHaveCount(0);

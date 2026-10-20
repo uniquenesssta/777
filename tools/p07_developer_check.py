@@ -27,6 +27,7 @@ from p07_backup_delivery_check import check_delivery_recovery
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--source-recovery-only', action='store_true')
     parser.add_argument('--workspace', type=Path, help='Parent for a new owned verification directory')
     parser.add_argument('--readonly-destination', type=Path)
     args = parser.parse_args()
@@ -78,6 +79,12 @@ def main():
                 finally:c.logout()
 
             order_a = seed('root-a', '10')
+            from p08_development_recovery import check_local_recovery
+            check_local_recovery(ipc, controller, order_a['order_id'])
+            report['checks'].append('online_Host_outage_recovers_launcher_ledger_certificate_identity_and_existing_order')
+            if args.source_recovery_only:
+                report['status'] = 'passed'
+                return
             if os.name == 'nt' and str(a).startswith('\\\\'):
                 with closing(sqlite3.connect(a / 'private/ledger.sqlite3')) as connection:
                     assert connection.execute('PRAGMA journal_mode').fetchone()[0] == 'delete'

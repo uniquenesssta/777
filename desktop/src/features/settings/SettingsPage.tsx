@@ -10,7 +10,7 @@ import { managedLocation } from "./managedLocations";
 export function SettingsPage({ app }: { app: Workbench }) {
   const [exportDir, setExport] = useState(app.preferences?.export_dir ?? "");
   const [imageDir, setImage] = useState(app.preferences?.image_dir ?? "");
-  const admin = app.session?.role === "admin";
+  const admin = app.navigationRole === "admin";
   const exportLocation = managedLocation(exportDir, app.delivery, "报价表");
   const imageLocation = managedLocation(imageDir, app.delivery, "报价图片");
   const backupLocation = managedLocation(String(app.backup?.target ?? ""), app.delivery, "每日备份");
