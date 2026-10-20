@@ -18,6 +18,7 @@ export interface Price {
   cost?: string;
   k: string;
   single: boolean;
+  discount_eligible?: boolean;
   pricing_mode?: "manual" | "cost_plus";
   unit_sale?: string;
 }

@@ -96,6 +96,8 @@ pub struct PriceItem {
     #[serde(default = "no")]
     pub single: Value,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub discount_eligible: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub pricing_mode: Option<PricingMode>,
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

@@ -52,6 +52,7 @@ fn calculate_checked(
         }
     }
     let (mut income, mut cost) = (0i64, 0i64);
+    let mut eligible_income = 0i64;
     let mut lines = vec![];
     let mut warnings = vec![];
     for (i, raw) in q.lines.iter().enumerate() {
@@ -63,8 +64,8 @@ fn calculate_checked(
                 let factor = percent
                     .mul(&Decimal::new(1.into(), 2))
                     .sub(&Decimal::integer(1));
-                let sale = Decimal::cents(income).mul(&factor).settle()?;
-                if income == 0 {
+                let sale = Decimal::cents(eligible_income).mul(&factor).settle()?;
+                if eligible_income == 0 {
                     warnings.push(Issue {
                         code: "WARNING".into(),
                         reason: "DISCOUNT_ZERO_SUBTOTAL".into(),
@@ -126,9 +127,22 @@ fn calculate_checked(
                     ("cost".into(), expense.text()),
                     ("k".into(), k.text()),
                 ]);
+                if let Some(eligible) = price.discount_eligible {
+                    normalized.push(("discount_eligible".into(), eligible.to_string()));
+                }
                 (amount, Some(price.clone()), normalized)
             }
         };
+        // Discounts compound only on eligible rows above them. Keep the full
+        // subtotal separately so exempt products retain their original amounts.
+        if price
+            .as_ref()
+            .is_none_or(|p| p.discount_eligible.unwrap_or(true))
+        {
+            eligible_income = eligible_income
+                .checked_add(amounts.income())
+                .ok_or_else(|| Fault::new("MONEY_CAPACITY", "amounts"))?;
+        }
         income = income
             .checked_add(amounts.income())
             .ok_or_else(|| Fault::new("MONEY_CAPACITY", "amounts"))?;

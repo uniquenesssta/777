@@ -351,7 +351,7 @@ pub fn write(book: &mut Workbook, orders: &[Value], admin: bool, description: &s
                 r[16] = row[16].clone();
                 if l["raw"]["line_kind"] == "discount" {
                     r[4] = "顺序折扣".into();
-                    r[5] = "对以上商品小计打折".into();
+                    r[5] = "对上方参与折扣的商品打折".into();
                     r[11] = string(&l["normalized"]["percent"]);
                 } else {
                     r[4] = "商品明细".into();

@@ -14,6 +14,7 @@ const wire = (p: Price): Price => ({
   cost: p.cost,
   k: p.k,
   single: p.single,
+  ...(p.discount_eligible === undefined ? {} : {discount_eligible:p.discount_eligible}),
   ...(p.pricing_mode ? { pricing_mode: p.pricing_mode } : {}),
 });
 export function PricesPage({ app }: { app: Workbench }) {
@@ -215,6 +216,7 @@ export function PricesPage({ app }: { app: Workbench }) {
                         </select>
                         <span className="price-kind-icon"><Icon name="price-chevron" /></span>
                       </div>
+                      <label className="discount-eligible-toggle"><input type="checkbox" aria-label={`商品${i + 1}参与折扣`} checked={p.discount_eligible !== false} disabled={app.busy || !supported} onChange={e => edit(p.id, {discount_eligible:e.target.checked})} />参与折扣</label>
                     </td>
                     <td className="price-cost-cell">
                       <Input

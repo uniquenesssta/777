@@ -171,14 +171,15 @@ pub fn prices(v: &Value) -> Result<Prices> {
         fields(
             i,
             &["product_id", "sale", "cost", "k", "single"],
-            &["pricing_mode"],
+            &["pricing_mode", "discount_eligible"],
         )?;
         if i.get("pricing_mode")
             .is_some_and(|v| !matches!(v.as_str(), Some("manual" | "cost_plus")))
         {
             return fail(422, "INVALID_PRICES");
         }
-        if !i["single"].is_boolean() {
+        if !i["single"].is_boolean() || i.get("discount_eligible").is_some_and(|v| !v.is_boolean())
+        {
             return fail(422, "INVALID_PRICES");
         }
         for k in ["product_id", "sale", "cost", "k"] {
@@ -224,7 +225,17 @@ pub fn normalized(v: &mut Value, a: &Actor) {
     if a.role != "admin" {
         if let Some(o) = v.as_object_mut() {
             o.retain(|k, _| {
-                ["q", "h", "w", "sale", "k", "percent", "single"].contains(&k.as_str())
+                [
+                    "q",
+                    "h",
+                    "w",
+                    "sale",
+                    "k",
+                    "percent",
+                    "single",
+                    "discount_eligible",
+                ]
+                .contains(&k.as_str())
             });
         }
     }

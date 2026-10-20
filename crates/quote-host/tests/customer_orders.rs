@@ -395,3 +395,53 @@ fn differences_are_historical_positioned_and_permission_filtered() {
         .iter()
         .any(|c| c["field"] == "数量" && c["after"] == "3"));
 }
+
+#[test]
+fn discount_policy_survives_publish_edit_reorder_and_backup() {
+    let mut f = Fixture::new();
+    let publish = |version: &str, old: Value, eligible: bool| json!({"request_id":store::uid().unwrap(),"expected_price_version_id":old,"prices":{"price_version_id":version,"items":[{"product_id":"P","sale":"100","cost":"40","k":"1","single":true,"discount_eligible":eligible}]}});
+    f.post("/v1/prices", publish("v1", Value::Null, false));
+    assert_eq!(f.get("/v1/prices")["items"][0]["discount_eligible"], false);
+    let mut input = draft("v1", "policy");
+    let normal = input["snapshot"]["lines"][0].clone();
+    let discount = json!({"line_kind":"discount","percent":"50%","name":""});
+    input["snapshot"]["lines"] = json!([normal, discount]);
+    input["sources"] = json!([null, null]);
+    let receipt = f.post("/v1/order-save", input);
+    assert_eq!(receipt["income_cents"], "10000");
+    let id = receipt["order_id"].as_str().unwrap();
+    let old = f.get(&format!("/v1/orders/{id}"));
+    assert_eq!(old["lines"][0]["normalized"]["discount_eligible"], "false");
+    f.post("/v1/prices", publish("v2", json!("v1"), true));
+    let mut edit = draft("v2", "policy");
+    edit["order_id"] = json!(id);
+    edit["expected_revision"] = json!(1);
+    edit["customer"] = json!({"customer_id":receipt["customer_id"]});
+    edit["snapshot"]["lines"] = json!([normal, normal, discount]);
+    edit["sources"] = json!([old["lines"][0]["line_id"], null, old["lines"][1]["line_id"]]);
+    let saved = f.post("/v1/order-save", edit);
+    assert_eq!(saved["income_cents"], "15000");
+    let current = f.get(&format!("/v1/orders/{id}"));
+    let mut reordered = draft("v2", "policy");
+    reordered["order_id"] = json!(id);
+    reordered["expected_revision"] = json!(2);
+    reordered["customer"] = json!({"customer_id":receipt["customer_id"]});
+    reordered["snapshot"]["lines"] = json!([discount, normal, normal]);
+    reordered["sources"] = json!([
+        current["lines"][2]["line_id"],
+        current["lines"][0]["line_id"],
+        current["lines"][1]["line_id"]
+    ]);
+    assert_eq!(f.post("/v1/order-save", reordered)["income_cents"], "20000");
+    let data = recovery::capture(&f.s, "2026-10-20").unwrap();
+    let restored = f.root.join("discount-restored.sqlite3");
+    recovery::restore_ledger(
+        &recovery::decode(&recovery::encode(&data).unwrap()).unwrap(),
+        &restored,
+    )
+    .unwrap();
+    assert_eq!(
+        integrity::inventory(&store::open(&restored, false).unwrap()).unwrap(),
+        integrity::inventory(&store::open(&f.s.ledger, false).unwrap()).unwrap()
+    );
+}

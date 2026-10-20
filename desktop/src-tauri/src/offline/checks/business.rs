@@ -86,3 +86,39 @@ fn a_confirmed_projection_never_overwrites_a_pending_local_order() {
         Some("1")
     );
 }
+
+#[test]
+fn offline_exempt_policy_survives_save_restart_and_reordering() {
+    let f = Fixture::with_policy(false, Some(false));
+    let mut body = f.body();
+    let normal = body["snapshot"]["lines"][0].clone();
+    let discount = json!({"line_kind":"discount","percent":"50%","name":""});
+    body["snapshot"]["lines"] = json!([normal, discount]);
+    body["sources"] = json!([null, null]);
+    assert_eq!(
+        f.local.calculate(&body).unwrap()["totals"]["income_cents"],
+        "1000"
+    );
+    let receipt = f.local.save("save", &body).unwrap();
+    let id = receipt["order_id"].as_str().unwrap();
+    let reopened = Local::open(f.root.join("offline.sqlite3"), !cfg!(windows)).unwrap();
+    let saved = reopened.order(id).unwrap();
+    assert_eq!(
+        saved["lines"][0]["normalized"]["discount_eligible"],
+        "false"
+    );
+    body["order_id"] = json!(id);
+    body["expected_revision"] = json!("1");
+    body["snapshot"]["lines"] = json!([discount, normal]);
+    body["sources"] = json!([saved["lines"][1]["line_id"], saved["lines"][0]["line_id"]]);
+    assert_eq!(
+        reopened.save("save", &body).unwrap()["income_cents"],
+        "1000"
+    );
+    let changed = reopened.order(id).unwrap();
+    assert_eq!(
+        changed["lines"][1]["normalized"]["discount_eligible"],
+        "false"
+    );
+    assert_eq!(changed["lines"][1]["line_id"], saved["lines"][0]["line_id"]);
+}

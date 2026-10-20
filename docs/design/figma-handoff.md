@@ -1,5 +1,7 @@
 # Figma 设计交接与软件接入
 
+2026-10-20：报价工作台原位隐藏单价/K，补拖动排序；PriceItemRow 增加“参与折扣”；客户选择与提交恢复状态同步。节点与运行验证见 [本次修订记录](../verification/P08-quote-discount-recovery.md)，无需额外正式端界面体系。
+
 ## 当前状态
 
 2026-10-14 设计系统同步：修正“业务页已重做，基础与组件页仍为旧版”的遗漏。[设计基础](https://www.figma.com/design/2ek9bkIz5ldyhjZnnvIuNu?node-id=46-727)与[组件状态](https://www.figma.com/design/2ek9bkIz5ldyhjZnnvIuNu?node-id=47-979)现为当前紫灰版。原位更新 Button、Field、Badge、NavItem、TableCell 主组件，保持业务实例主件 ID 和属性 API；CompactCustomerField 移入组件页。同步 14 枚图标的中性灰，建立当前 9 项文字样式；当前原始色、语义/尺寸及共用尺寸共 57 个变量已导出到 figma-tokens.json。旧文字样式与颜色集合加“历史”前缀，避免与当前规范混用。

@@ -514,6 +514,7 @@ fn parse_checked(
                     "single",
                     "qty_only",
                     "pricing_mode",
+                    "discount_eligible",
                 ]
                 .contains(&k.value.as_str())
                 {
@@ -565,6 +566,16 @@ fn parse_checked(
             } else {
                 None
             };
+            let discount_eligible = match get(&object, "discount_eligible") {
+                None => None,
+                Some(Node::Bool(value)) => Some(*value),
+                Some(_) => {
+                    return Err(Fault::new(
+                        "DISCOUNT_ELIGIBLE_NOT_BOOLEAN",
+                        &format!("{base}.discount_eligible"),
+                    ))
+                }
+            };
             let mut item = PriceItem {
                 product_id: json!(name),
                 sale: if pricing_mode == Some(crate::models::PricingMode::CostPlus) {
@@ -575,6 +586,7 @@ fn parse_checked(
                 cost: json!(price(get(&object, "cost"), &format!("{base}.cost"), false)?),
                 k: json!(price(get(&object, "k"), &format!("{base}.k"), true)?),
                 single: json!(single),
+                discount_eligible,
                 pricing_mode,
             };
             if item.pricing_mode.is_some() {

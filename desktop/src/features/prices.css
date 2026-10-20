@@ -178,3 +178,6 @@
   .price-toolbar { flex-wrap: wrap; }
   .price-toolbar-actions { margin-left: auto; }
 }
+
+.discount-eligible-toggle {display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-muted);margin-top:4px;white-space:nowrap;}
+.discount-eligible-toggle input {accent-color:var(--color-accent);width:14px;height:14px;margin:0;}

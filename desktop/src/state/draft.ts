@@ -40,7 +40,7 @@ export function draftReducer(d: Draft, a: DraftAction): Draft {
   if (a.type === "restore") return restorableDraft(a.raw);
   if (a.type === "reset") return {...emptyDraft(),priceVersion:d.priceVersion};
   if (a.type === "load_order") return {...emptyDraft(), priceVersion:d.priceVersion, revision:(BigInt(d.revision)+1n).toString(), editing:{order_id:a.order.order_id,revision:a.order.revision}, customer:a.order.customer_id?{customer_id:a.order.customer_id}:{}, details:a.order.details, lines:a.order.lines.map(l=>({id:crypto.randomUUID(),raw:l.raw,source:l.line_id,frozen:l.raw.line_kind==="normal"?{product_id:l.raw.product_id,sale:String(l.normalized.sale??""),k:String(l.normalized.k??"1"),single:l.normalized.h===undefined}:undefined}))};
-  if (a.type === "link_customer") return {...d,details:a.details,customer:a.customer,revision:(BigInt(d.revision)+1n).toString(),calculation:null,calculatedRevision:null};
+  if (a.type === "link_customer") return {...d,details:a.details,customer:a.customer};
   if (a.type === "customer") return {...emptyDraft(),priceVersion:d.priceVersion,revision:(BigInt(d.revision)+1n).toString(),details:a.details,customer:a.customer};
   if (a.type === "committed") {
     const matches =

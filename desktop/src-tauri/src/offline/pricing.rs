@@ -2,7 +2,15 @@ use super::*;
 use quote_core::models::{PriceItem, Prices};
 fn price(v: &Value) -> Result<PriceItem> {
     let mut p = serde_json::Map::new();
-    for k in ["product_id", "sale", "cost", "k", "single", "pricing_mode"] {
+    for k in [
+        "product_id",
+        "sale",
+        "cost",
+        "k",
+        "single",
+        "pricing_mode",
+        "discount_eligible",
+    ] {
         if let Some(v) = v.get(k) {
             p.insert(k.into(), v.clone());
         }
@@ -65,7 +73,7 @@ impl Local {
                 None
             };
             frozen.push(match (raw,saved){
-                (quote_core::models::Line::Normal{product_id,..},Some(l)) if l["raw"]["product_id"]==*product_id=>Some(price(&json!({"product_id":product_id,"sale":l["normalized"]["sale"],"cost":l["normalized"].get("cost").cloned().unwrap_or(json!("0")),"k":l["normalized"].get("k").cloned().unwrap_or(json!("1")),"single":l["normalized"].get("h").is_none()}))?),
+                (quote_core::models::Line::Normal{product_id,..},Some(l)) if l["raw"]["product_id"]==*product_id=>Some(price(&json!({"product_id":product_id,"sale":l["normalized"]["sale"],"cost":l["normalized"].get("cost").cloned().unwrap_or(json!("0")),"k":l["normalized"].get("k").cloned().unwrap_or(json!("1")),"single":l["normalized"].get("h").is_none(),"discount_eligible":l["normalized"]["discount_eligible"].as_str().map(|v|v=="true")}))?),
                 _=>None
             });
         }

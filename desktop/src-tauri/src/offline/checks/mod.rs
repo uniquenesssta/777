@@ -17,6 +17,9 @@ impl Fixture {
         Self::with_finance(false)
     }
     fn with_finance(finance: bool) -> Self {
+        Self::with_policy(finance, None)
+    }
+    fn with_policy(finance: bool, eligible: Option<bool>) -> Self {
         let root = std::env::temp_dir().join(format!(
             "777-local-offline-{}",
             crate::types::new_id().unwrap()
@@ -41,6 +44,10 @@ impl Fixture {
         } else {
             catalog
         };
+        let mut catalog = catalog;
+        if let Some(value) = eligible {
+            catalog["items"][0]["discount_eligible"] = json!(value);
+        }
         let mut public_catalog = catalog.clone();
         crate::permissions::redact_financial(&mut public_catalog);
         public_catalog

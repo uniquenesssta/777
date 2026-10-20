@@ -2220,5 +2220,25 @@
     },
     "status": "Rejected first version, frozen visual archive; old prototype reactions and starts removed. Historical instance/action IDs are no longer active.",
     "pageId": "3:58"
+  },
+  "workbenchRefinement20261020": {
+    "fileKey": "2ek9bkIz5ldyhjZnnvIuNu",
+    "pageId": "21:2",
+    "quoteFrames": [
+      "21:3",
+      "40:1604",
+      "84:1348",
+      "85:1428"
+    ],
+    "priceRow": "58:814",
+    "discountToggle": "135:2394",
+    "customerPicker": "85:1772",
+    "submitRecovery": "139:2294",
+    "retryButtons": [
+      "140:2296",
+      "140:2298"
+    ],
+    "implementation": "docs/verification/P08-quote-discount-recovery.md",
+    "status": "Source and targeted auxiliary checks complete; Windows and site acceptance pending"
   }
 }

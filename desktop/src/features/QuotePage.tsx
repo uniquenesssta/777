@@ -1,8 +1,9 @@
+import { SubmitRecovery } from "./SubmitRecovery";
 import { CustomerMatches } from "./CustomerOrders";
 import { useEffect, useRef, useState } from "react";
 import type { Line, Money, Order, RawLine } from "../contracts";
 import type { Workbench } from "../state/useWorkbench";
-import { snapshot } from "../state/draft";
+import { useLineReorder } from "./useLineReorder";
 import { money } from "../state/format";
 import { Button, Field, Icon, Input, Modal } from "../ui/components";
 export function Summary({
@@ -43,7 +44,7 @@ export function Summary({
           <b>{amounts ? money(total(normal)) : "—"}</b>
         </div>
         <div>
-          <span>顺序折扣</span>
+          <span>折扣合计</span>
           <b className="accent">{amounts ? money(total(discounts)) : "—"}</b>
         </div>
       </div>
@@ -74,10 +75,10 @@ export function Summary({
   );
 }
 export function QuotePage({ app }: { app: Workbench }) {
-  const [matchQuery,setMatchQuery] = useState("");
   const [confirm, setConfirm] = useState(false);
   const [confirmRevision, setConfirmRevision] = useState("");
   const { draft, catalog, dispatch } = app;
+  const reorder = useLineReorder(draft.lines, lines => dispatch({type:"edit", lines}), app.busy || app.pending);
   const addedLine = useRef<string | null>(null);
   useEffect(() => {
     const id = addedLine.current;
@@ -147,7 +148,7 @@ export function QuotePage({ app }: { app: Workbench }) {
                 <Input
                   maxLength={256}
                   value={draft.details[k]}
-                  onChange={(e) => { setMatchQuery(e.target.value);
+                  onChange={(e) => {
                     dispatch({
                       type: "edit",
                       details: { ...draft.details, [k]: e.target.value },
@@ -158,7 +159,7 @@ export function QuotePage({ app }: { app: Workbench }) {
             ))}
           </div>
           {draft.editing ? <div className="customer-match editing-context"><strong>编辑订单 {draft.details.order_ref || "未填写订单号"}</strong><span>已保存版本 {draft.editing.revision}</span><Button variant="ghost" onClick={()=>void app.readOrder(draft.editing!.order_id)}>查看修改记录</Button></div> : null}
-          {app.can("orders") && <CustomerMatches app={app} query={matchQuery} />}
+          {app.can("orders") && <CustomerMatches app={app} />}
           <div className="section-heading">
             <h2>
               商品明细{" "}
@@ -178,14 +179,12 @@ export function QuotePage({ app }: { app: Workbench }) {
             </Button>
           </div>
           <div className="line-scroll" tabIndex={0} role="region" aria-label="商品明细滚动区">
-            <div className="quote-table">
+            <div className="quote-table quote-entry-table">
               <div className="quote-row table-head">
                 <span />
                 <span>商品 / 计价方式</span>
                 <span className="head-dimensions">高 × 宽（m）</span>
                 <span className="head-number">数量</span>
-                <span className="head-number">销售单价（¥）</span>
-                <span className="head-k">K</span>
                 <span className="head-amount">金额（¥）</span>
                 <span />
               </div>
@@ -194,9 +193,9 @@ export function QuotePage({ app }: { app: Workbench }) {
                 const calculated = result?.lines[index];
                 if (raw.line_kind === "discount")
                   return (
-                    <div className="discount-row" key={l.id}>
+                    <div className="discount-row" key={l.id} id={`quote-line-${l.id}`} {...reorder.row(l.id,index)}>
+                      {reorder.handle(l.id,index)}
                       <b>折</b>
-                      <span>顺序折扣</span>
                       <Input
                         aria-label={`第${index + 1}行折扣`}
                         className="cell-input discount-input"
@@ -205,7 +204,7 @@ export function QuotePage({ app }: { app: Workbench }) {
                           editLine(l.id, "percent", e.target.value)
                         }
                       />
-                      <small>对以上商品小计打折</small>
+                      <small>对上方参与折扣的商品打折</small>
                       <strong>{money(calculated?.income_cents)}</strong>
                       <Button
                         variant="ghost"
@@ -220,10 +219,8 @@ export function QuotePage({ app }: { app: Workbench }) {
                 const frozen=l.frozen?.product_id===raw.product_id?l.frozen:undefined;
                 const price=frozen?{...current,...frozen,unit_sale:frozen.sale,pricing_mode:undefined}:current;
                 return (
-                  <div className="quote-row" key={l.id} id={`quote-line-${l.id}`}>
-                    <small className="row-number">
-                      {String(index + 1).padStart(2, "0")}
-                    </small>
+                  <div className="quote-row" key={l.id} id={`quote-line-${l.id}`} {...reorder.row(l.id,index)}>
+                    {reorder.handle(l.id,index)}
                     <div className="product-cell">
                       <select className="product-select" aria-label={`第${index + 1}行商品`} value={raw.product_id} onChange={e => editLine(l.id, "product_id", e.target.value)} disabled={!catalog}>
                         {!current && <option value={raw.product_id}>{raw.product_id}（已下架）</option>}
@@ -262,8 +259,6 @@ export function QuotePage({ app }: { app: Workbench }) {
                       value={raw.q}
                       onChange={(e) => editLine(l.id, "q", e.target.value)}
                     />
-                    <span className="cell-value">{price?.unit_sale ?? price?.sale ?? "—"}</span>
-                    <span className="cell-value k-value">{price?.pricing_mode === "manual" ? "—" : price?.k || "1"}</span>
                     <strong className="line-amount">
                       {money(calculated?.income_cents)}
                     </strong>
@@ -317,7 +312,8 @@ export function QuotePage({ app }: { app: Workbench }) {
               </div>
             ))}
           <footer className="entry-hints">
-            <span>金额按行计算，折扣按顺序依次生效。</span>
+            <span>拖动左侧调整顺序，折扣仅影响上方参与折扣的商品。</span>
+            {reorder.announcement && <span className="sr-only" role="status">{reorder.announcement}</span>}
             <small>面积单位 m² · 金额单位 ¥</small>
           </footer>
         </section>
@@ -337,8 +333,9 @@ export function QuotePage({ app }: { app: Workbench }) {
               } else void app.calculate();
             }}
           >
-            {app.busy ? "处理中…" : valid ? (draft.editing?"保存修改":"核对并提交订单") : "计算报价"}
+            {app.busy ? "处理中…" : valid ? (app.saveFailure ? "再次提交" : draft.editing?"保存修改":"核对并提交订单") : app.saveFailure ? "重新核价" : "计算报价"}
           </Button>
+          {valid && app.saveFailure && <Button variant="outline" disabled={app.busy || app.pending} onClick={() => void app.calculate()}>重新核价</Button>}
           {draft.editing && <Button variant="ghost" disabled={app.busy||app.pending} onClick={app.cancelEdit}>取消编辑</Button>}
           {app.pending && !app.formal && (
             <section className="pending-actions" aria-label="原请求处理">
@@ -356,6 +353,7 @@ export function QuotePage({ app }: { app: Workbench }) {
           )}
         </Summary>
       </div>
+      <SubmitRecovery app={app} valid={!!valid} />
       <Modal
         open={confirm}
         onOpenChange={(v) => !app.busy && setConfirm(v)}

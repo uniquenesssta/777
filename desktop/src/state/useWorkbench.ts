@@ -58,6 +58,9 @@ export function useWorkbench() {
   const [draftChange, setDraftChange] = useState<(() => void) | null>(null);
   const [route, setRoute] = useState<Route>("quote");
   const [feedback, setFeedback] = useState("");
+  const [saveFailure, setSaveFailure] = useState("");
+  const [matchRequest, setMatchRequest] = useState(0);
+
   const [isError, setIsError] = useState(false);
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState(false);
@@ -154,6 +157,7 @@ export function useWorkbench() {
               "PRICE_VERSION_CHANGED",
               "PRICE_STALE",
               "CALCULATION_STALE",
+              "CALCULATION_REQUIRED",
             ].includes(code)
           )
             dispatch({ type: "invalidate" });
@@ -346,6 +350,7 @@ export function useWorkbench() {
     return request<Order>("order",{order_id});
   },order => {
     if(order.state!=="active")return;
+    setMatchRequest(0);setSaveFailure("");
     // Reading details/history does not abandon the draft. Resume this same
     // saved version without replacing any in-progress line changes.
     if (draft.editing?.order_id === order.order_id && draft.editing.revision === order.revision) {
@@ -362,7 +367,7 @@ export function useWorkbench() {
     const first=group.orders[0];if(!first)return;
     const details={...group.details,order_ref:reset?"":draft.details.order_ref};
     const customer=first.customer_id?{customer_id:first.customer_id}:{anchor_order_id:first.order_id};
-    const work=()=>{dispatch({type:reset?"customer":"link_customer",details,customer});setRoute("quote");};
+    const work=()=>{dispatch({type:reset?"customer":"link_customer",details,customer});setSaveFailure("");setMatchRequest(0);setFeedback("");setIsError(false);setRoute("quote");};
     if(reset)guardDraft(work);else work();
   }
   const customerOrders = (query:string,offset=0,group_id?:string,order_offset=0) => request<CustomerListing>("customer_orders",{query,offset,group_id:group_id??null,order_offset});
@@ -375,22 +380,24 @@ export function useWorkbench() {
       },
     );
   const calculate = () => {
-    const revision = draft.revision;
+    const stalePrice=["PRICE_VERSION_CHANGED","PRICE_STALE"].includes(saveFailure);
+    const revision = stalePrice ? (BigInt(draft.revision)+1n).toString() : draft.revision;
     return run(
-      () =>
-        request<{ draft_revision: string; result: Calculation }>("order_preview", {
-          snapshot: snapshot(draft),
+      async () => {
+        const prices=stalePrice ? await request<Catalog>("prices") : null;
+        const v=await request<{draft_revision:string;result:Calculation}>("order_preview", {
+          snapshot:{...snapshot(draft),price_version_id:prices?.price_version_id ?? draft.priceVersion},
           sources:draft.lines.map(l=>l.source??null),
           order_id:draft.editing?.order_id??null,
           expected_revision:draft.editing?.revision??null,
-          draft_revision: revision,
-        }),
-      (v) => {
-        dispatch({
-          type: "calculated",
-          revision: v.draft_revision,
-          result: v.result,
+          draft_revision:revision,
         });
+        return {...v,prices};
+      },
+      (v) => {
+        if(v.prices){setCatalog(v.prices);dispatch({type:"prices",version:v.prices.price_version_id});}
+        dispatch({type:"calculated",revision:v.draft_revision,result:v.result});
+        setSaveFailure("");
       },
     );
   };
@@ -400,6 +407,7 @@ export function useWorkbench() {
       details = draft.details;
     return run(
       async () => {
+        setSaveFailure("");
         uiDiagnostic("save_requested", draft);
         persistDraft(draft,draftSource.current);
         let committed:SavedInput={snapshot:submitted,details,...context};
@@ -408,7 +416,12 @@ export function useWorkbench() {
           receipt=await request<{order_id:string}>("save_order",{...committed,draft_revision:draft.revision,operation_id:draft.saveId});
         } catch(e) {
           const saved=await savedDraft(draft.saveId);
-          if(!saved?.result||!saved.submitted)throw e;
+          if(!saved?.result||!saved.submitted) {
+            const code=errorCode(e);
+            setSaveFailure(code);
+            if (["CUSTOMER_SELECTION_REQUIRED", "CUSTOMER_IDENTITY_CONFLICT", "CUSTOMER_ORDER_NUMBER_EXISTS"].includes(code)) setMatchRequest(v=>v+1);
+            throw e;
+          }
           receipt=saved.result;committed=saved.submitted;
         }
         const value=can("orders") ? await afterSaved(()=>request<Order>("order",{order_id:receipt.order_id})) : {value:null};
@@ -665,6 +678,7 @@ export function useWorkbench() {
     cancelEdit:()=>guardDraft(()=>{dispatch({type:"reset"});setRoute("orders");void loadOrders({...filters,view:""});}),
     beginEdit,
     chooseCustomer,
+    chooseNewCustomer:()=>{dispatch({type:"link_customer",details:draft.details,customer:{new_customer:true}});setSaveFailure("");setMatchRequest(0);setFeedback("");setIsError(false);},
     customerOrders,
     listScrollRef,
     delivery,
@@ -681,6 +695,7 @@ export function useWorkbench() {
     route,
     navigate,
     feedback,
+    saveFailure, matchRequest,
     isError,
     busy: busy || (formal && !connected),
     pending,

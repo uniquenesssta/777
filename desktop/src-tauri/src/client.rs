@@ -425,6 +425,7 @@ impl Desktop {
                     cost: json!(cost),
                     k: json!(k),
                     single: json!(true),
+                    discount_eligible: None,
                     pricing_mode: Some(quote_core::models::PricingMode::CostPlus),
                 };
                 let sale = quote_core::pricing::unit_sale(&price)
@@ -466,7 +467,7 @@ impl Desktop {
                 let result = self
                     .mutate("/v1/orders", json!({"snapshot":snapshot,"details":details}))
                     .await;
-                self.calculation = None;
+                if result.is_ok() { self.calculation = None; }
                 result
             }
             Action::CustomerOrders{query,offset,group_id,order_offset} => self.request("POST","/v1/customer-orders",Some(&json!({"query":query,"offset":offset,"group_id":group_id,"order_offset":order_offset.unwrap_or(0)}))).await,
@@ -486,7 +487,7 @@ impl Desktop {
                 if c.snapshot!=context||c.revision!=draft_revision||c.result["status"]!="ok"{return Err(DesktopError::new(409,"CALCULATION_STALE"));}
                 context["details"]=details;context["customer"]=customer;
                 let result=self.mutate("/v1/order-save",context).await;
-                self.calculation=None;result
+                if result.is_ok() { self.calculation=None; } result
             }
             Action::LocalReceipt{operation_id}=>{
                 identifier(&operation_id)?;

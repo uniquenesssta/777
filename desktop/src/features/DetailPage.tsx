@@ -54,7 +54,7 @@ export function DetailPage({ app }: { app: Workbench }) {
                     <b>折</b>
                     <span>顺序折扣</span>
                     <span>{line.raw.percent}</span>
-                    <small>对以上商品小计打折</small>
+                    <small>对上方参与折扣的商品打折</small>
                     <strong>{money(line.income_cents)}</strong>
                   </div>
                 ) : (

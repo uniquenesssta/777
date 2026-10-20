@@ -544,9 +544,7 @@ for (const username of ["manager", "sales-one"]) {
           Math.abs(head(1).getBoundingClientRect().left + 8 - row.querySelector("select")!.getBoundingClientRect().left),
           Math.abs(center(head(2)) - center(row.querySelector(".dimensions")!)),
           Math.abs(right(head(3)) - right(row.querySelector(".quantity")!)),
-          Math.abs(right(head(4)) - right(row.querySelector(".cell-value")!)),
-          Math.abs(center(head(5)) - center(row.querySelector(".k-value")!)),
-          Math.abs(right(head(6)) - right(row.querySelector(".line-amount")!)),
+          Math.abs(right(head(4)) - right(row.querySelector(".line-amount")!)),
         ];
       });
       expect(errors.every(error => error <= 2)).toBe(true);
@@ -660,4 +658,98 @@ test("P07-07 report parts can page, retry one file and locate its folder", async
   expect(retryIds).toEqual([id(101)]);expect(folders).toEqual([id(101)]);
   await expect(page.getByRole("button",{name:"下一页",exact:true})).toBeDisabled();
   await page.screenshot({path:"test-results/p07-07-report-parts.png"});
+});
+
+test('discount participation persists and pointer reordering changes the saved order',async({page},info)=>{
+  await login(page);
+  await page.getByRole('button',{name:'价格维护',exact:true}).click();
+  await page.getByLabel('商品3参与折扣',{exact:true}).uncheck();
+  await page.getByRole('button',{name:'发布新版本',exact:true}).click();
+  await page.getByRole('button',{name:'确认发布',exact:true}).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByLabel('商品3参与折扣',{exact:true})).not.toBeChecked();
+  await page.getByRole('button',{name:'报价工作台',exact:true}).click();
+  await add(page,'户外写真');
+  await page.getByLabel('第1行高',{exact:true}).fill('2');
+  await page.getByLabel('第1行宽',{exact:true}).fill('5');
+  await page.getByRole('button',{name:'添加商品',exact:false}).click();
+  await page.getByLabel('第2行商品',{exact:true}).selectOption('安装服务');
+  await page.getByRole('button',{name:'添加折扣',exact:false}).click();
+  await page.getByLabel('第3行折扣',{exact:true}).fill('50%');
+  await page.getByRole('button',{name:'计算报价',exact:true}).click();
+  await expect(page.locator('.amount strong')).toHaveText('200.00');
+  await expect(page.locator('.quote-table')).not.toContainText('销售单价');
+  await expect(page.locator('.quote-table')).not.toContainText('顺序折扣');
+  await expect(page.locator('.quote-table .k-value')).toHaveCount(0);
+  const from=await page.getByRole('button',{name:'移动第3行',exact:true}).boundingBox();
+  const to=await page.getByRole('button',{name:'移动第1行',exact:true}).boundingBox();
+  await page.mouse.move(from!.x+10,from!.y+15);await page.mouse.down();
+  await page.mouse.move(to!.x+10,to!.y+15,{steps:10});await page.mouse.up();
+  await expect(page.getByLabel('第1行折扣',{exact:true})).toHaveValue('50%');
+  await expect(page.getByRole('button',{name:'核对并提交订单',exact:true})).toHaveCount(0);
+  await page.getByRole('button',{name:'计算报价',exact:true}).click();
+  await expect(page.locator('.amount strong')).toHaveText('300.00');
+  await page.getByRole('button',{name:'移动第1行',exact:true}).focus();await page.keyboard.press('ArrowDown');
+  await page.getByRole('button',{name:'计算报价',exact:true}).click();
+  await expect(page.locator('.amount strong')).toHaveText('200.00');
+  await page.screenshot({path:info.outputPath('discount-reorder.png'),fullPage:true});
+  await page.getByRole('button',{name:'核对并提交订单',exact:true}).click();
+  await page.getByRole('button',{name:'确认提交',exact:true}).click();
+  await expect(page.getByRole('button',{name:'继续编辑',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'继续编辑',exact:true}).click();
+  await expect(page.getByLabel('第2行折扣',{exact:true})).toHaveValue('50%');
+  await page.getByRole('button',{name:'计算报价',exact:true}).click();
+  await expect(page.locator('.amount strong')).toHaveText('200.00');
+});
+
+test('customer rejection opens an actionable picker and preserves the confirmed price',async({page},info)=>{
+  await login(page);await add(page);
+  await page.getByLabel('客户 / 淘宝 ID',{exact:true}).fill('测试匹配客户');
+  await page.getByLabel('订单号',{exact:true}).fill('original-buyer-order');
+  await page.getByRole('button',{name:'计算报价',exact:true}).click();
+  await page.getByRole('button',{name:'核对并提交订单',exact:true}).click();
+  await page.getByRole('button',{name:'确认提交',exact:true}).click();
+  await expect(page.getByRole('button',{name:'追加备注',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'报价工作台',exact:true}).click();
+  await add(page);
+  await page.getByLabel('客户 / 淘宝 ID',{exact:true}).fill('测试匹配客户');
+  await page.getByLabel('订单号',{exact:true}).fill('another-order-for-buyer');
+  await expect(page.getByRole('region',{name:'匹配客户与订单'}).getByRole('button',{name:'该客户新建订单',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'计算报价',exact:true}).click();
+  await page.getByRole('button',{name:'核对并提交订单',exact:true}).click();
+  await page.getByRole('button',{name:'确认提交',exact:true}).click();
+  const picker=page.getByRole('dialog',{name:'选择匹配客户与订单',exact:true});
+  await expect(picker).toBeVisible();
+  await expect(picker.getByRole('button',{name:'该客户新建订单',exact:true})).toBeVisible();
+  for(const width of [1440,720]){
+    await page.setViewportSize({width,height:884});
+    await expect(picker.getByRole('button',{name:'继续编辑',exact:true})).toBeVisible();
+    expect(await picker.locator('.customer-match').evaluate(e=>e.scrollWidth<=e.clientWidth+1)).toBe(true);
+    await page.screenshot({path:info.outputPath(`customer-selection-${width}.png`),fullPage:true});
+  }
+  await page.setViewportSize({width:1440,height:884});
+  await picker.getByRole('button',{name:'该客户新建订单',exact:true}).click();
+  await expect(picker).toHaveCount(0);
+  await expect(page.locator('.amount strong')).toHaveText('100.00');
+  await page.getByRole('button',{name:'核对并提交订单',exact:true}).click();
+  await page.getByRole('button',{name:'确认提交',exact:true}).click();
+  await expect(page.getByRole('button',{name:'追加备注',exact:true})).toBeVisible();
+});
+
+test('lost native calculation exposes recalculation without changing any dimensions',async({page})=>{
+  await login(page);await add(page);
+  await page.getByRole('button',{name:'计算报价',exact:true}).click();
+  let injected=false;
+  await page.route('**/action',async route=>{
+    if(route.request().postDataJSON()?.action==='save_order'&&!injected){injected=true;return route.fulfill({json:{error:{code:'CALCULATION_REQUIRED',status:409}}});}
+    await route.continue();
+  });
+  await page.getByRole('button',{name:'核对并提交订单',exact:true}).click();
+  await page.getByRole('button',{name:'确认提交',exact:true}).click();
+  await expect(page.getByRole('dialog',{name:'提交未完成',exact:true})).toBeVisible();
+  await page.getByRole('dialog',{name:'提交未完成',exact:true}).getByRole('button',{name:'重新核价',exact:true}).click();
+  await expect(page.locator('.amount strong')).toHaveText('100.00');
+  await page.getByRole('button',{name:'核对并提交订单',exact:true}).click();
+  await page.getByRole('button',{name:'确认提交',exact:true}).click();
+  await expect(page.getByRole('button',{name:'追加备注',exact:true})).toBeVisible();
 });
