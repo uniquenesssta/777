@@ -34,3 +34,11 @@
 - 原生与 HTTPS：独立真实 Rust Host + Rust desktop bridge，在线改目录/小时后调度自动执行，Host 重启后配置及当日备份身份保留；不使用 UI 测试夹具代替此链路。
 - Figma：复用现有组件新增 165:2310（Host 设置）、165:2350（远程文件夹选择），开发者专用。
 - 未做 Windows 实机、SMB 实际权限、母/子封包及安装验证；未轮询 CI。
+
+## 2026-10-21 旧部署配置读取修复
+
+用户 `runtime(9).jsonl` 显示 `host-deployment / host.console.failed`，位置 `host-settings.ps1:14`，异常 `System.Management.Automation.PropertyNotFoundException`。Host 控制台启用 StrictMode，而旧 `service.json` 没有新增的可选 `daily_backup_hour` 属性；直接访问即异常，尚未进入部署操作。
+
+改为先通过 `PSObject.Properties['daily_backup_hour']` 查询属性是否存在，再读取 Value。缺省和 null 沿用已有 daily-backup.json 时间；00:00 正确保留，不按 false 处理。只调整读取逻辑，不修改用户配置、业务数据、证书或任务。
+
+新增 Windows PowerShell 5.1 回归覆盖 7 种配置情形（无每日文件、旧每日配置、null、0/6/23、移除覆盖字段），真实临时 JSON + StrictMode，并核对读取不写回文件。当前环境无 PowerShell，测试已发现但明确跳过，不能计为 Windows 通过；Python 语法和 git diff --check 通过。需要拉取后重新生成 Host 包，使用其完整校验清单及脚本，不手改部署包绕开完整性检查。无需删除 Quote777Service 或 Quote777Hidden。

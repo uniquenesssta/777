@@ -59,6 +59,43 @@ if ($other.root -ne (Join-Path $Base 'other-PC\Quote777Service') -or $other.hidd
             value = self.run_script(script, Path(folder))
             self.assertEqual(value, {'status': 'passed', 'address': '192.168.4.38', 'configured': False})
 
+    def test_prepared_backup_hour_reads_legacy_and_remote_settings_under_strict_mode(self):
+        script = r'''
+param([string] $Modules,[string] $Base)
+$ErrorActionPreference='Stop'; Set-StrictMode -Version Latest
+. (Join-Path $Modules 'host-settings.ps1')
+$root=Join-Path $Base 'Quote777Service'; $private=Join-Path $root 'private'
+[IO.Directory]::CreateDirectory($private) | Out-Null
+$service=Join-Path $private 'service.json'; $daily=Join-Path $private 'daily-backup.json'
+$defaults=[pscustomobject]@{hidden='fixed-default-hidden';hour=23;admin='manager'}
+$config=[ordered]@{backup_dir='existing-normal';bind='192.168.4.23';port=8477}
+function Save-Configuration { [IO.File]::WriteAllText($service,($config | ConvertTo-Json -Compress)) }
+function Assert-Prepared([int]$Expected,[string]$Hidden) {
+    $before=[IO.File]::ReadAllText($service)
+    $value=Get-PreparedHostSettings $root $defaults
+    if ($value.hour -ne $Expected -or $value.hidden -ne $Hidden) { throw 'BACKUP_HOUR_OR_HIDDEN_CHANGED' }
+    if ($value.backup -ne 'existing-normal' -or $value.address -ne '192.168.4.23' -or -not $value.configured) { throw 'PREPARED_IDENTITY_CHANGED' }
+    if ([IO.File]::ReadAllText($service) -cne $before) { throw 'SETTINGS_READ_MUTATED_CONFIGURATION' }
+}
+# Old service JSON: no daily file, then the existing per-day configuration.
+Save-Configuration
+Assert-Prepared 23 'fixed-default-hidden'
+[IO.File]::WriteAllText($daily,'{"hidden_dir":"existing-hidden","daily_hour":8}')
+Assert-Prepared 8 'existing-hidden'
+# Optional null is fallback, while zero is a real midnight override (not falsy fallback).
+$config.daily_backup_hour=$null; Save-Configuration
+Assert-Prepared 8 'existing-hidden'
+foreach ($hour in @(0,6,23)) {
+    $config.daily_backup_hour=$hour; Save-Configuration
+    Assert-Prepared $hour 'existing-hidden'
+}
+$config.Remove('daily_backup_hour'); Save-Configuration
+Assert-Prepared 8 'existing-hidden'
+@{status='passed';cases=7} | ConvertTo-Json -Compress
+'''
+        with tempfile.TemporaryDirectory() as folder:
+            self.assertEqual(self.run_script(script, Path(folder)), {'status': 'passed', 'cases': 7})
+
     def test_generic_address_manifest_keeps_account_machine_and_resource_ownership_guards(self):
         script = r'''
 param([string] $Modules,[string] $Base)

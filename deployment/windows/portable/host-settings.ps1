@@ -11,7 +11,9 @@ function Get-PreparedHostSettings([string] $Root, $Defaults) {
     $daily=Join-Path $Root 'private\daily-backup.json'
     $hidden=$Defaults.hidden; $hour=$Defaults.hour
     if (Test-Path -LiteralPath $daily) { $plan=Read-HostSettingsJson $daily; if ($plan.hidden_dir) { $hidden=$plan.hidden_dir }; $hour=$plan.daily_hour }
-    if ($null -ne $config.daily_backup_hour) { $hour=$config.daily_backup_hour }
+    # Existing deployments have no remote-hour override. StrictMode rejects direct reads of missing properties.
+    $remoteHour=$config.PSObject.Properties['daily_backup_hour']
+    if ($null -ne $remoteHour -and $null -ne $remoteHour.Value) { $hour=$remoteHour.Value }
     return [pscustomobject]@{root=$Root;backup=$config.backup_dir;hidden=$hidden;admin=$Defaults.admin;address=$config.bind;port=$config.port;hour=$hour;configured=$true}
 }
 function Get-HostSetupSettings([string] $Directory) {
