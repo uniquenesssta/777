@@ -649,9 +649,6 @@ textarea {
 .orders-table tr {
   height: 60px;
 }
-.orders-table tr[data-selected="true"] {
-  background: var(--color-accent-soft);
-}
 .orders-table .right {
   text-align: right;
 }
@@ -1012,9 +1009,6 @@ textarea {
 .customer-order-row { display:grid; grid-template-columns:minmax(140px,1.4fr) minmax(140px,1fr) minmax(90px,.7fr) 60px 64px 88px; gap:12px; align-items:center; min-height:44px; font-size:13px; }
 .customer-order-row > span:first-child { overflow-wrap:anywhere; }
 .customer-order-row strong { text-align:right; font-weight:500; }
-.customer-groups { overflow:auto; min-height:0; display:grid; gap:20px; }
-.customer-group { border-bottom:1px solid var(--color-line); padding-bottom:20px; overflow:auto; }
-.customer-group .customer-match-heading { padding:12px 0; }
 .editing-context { display:flex; align-items:center; flex-wrap:wrap; }
 .editing-context span { margin-left:auto; color:var(--color-muted); font-size:12px; }
 @media(max-width:1000px){ .customer-order-row {min-width:700px;} }

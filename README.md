@@ -44,6 +44,8 @@
 
 ## Change Log
 
+- 订单记录取消沿用详情对象造成的整行高光；全部订单补齐微信号及行分隔，客户视图按真实客户组显示独立卡片、汇总和带表头的订单表。现有 Figma 同步，57 项单测、10 项针对性浏览器回归通过（其中 3 项走真实 Rust/HTTPS 业务）；Windows 实机未验。见[订单列表区分优化](docs/verification/P08-order-records-clarity.md)。
+
 - 按最新要求让已允许的导航不再随业务会话消失；开发者连接弹窗增加“切回本机开发数据”，自动使用启动器当前账本/证书/身份，重连保留当前页面。57 项单测、45 项不同 UI 回归及两条真实原生恢复/离线链通过辅助验证，Windows 现场未验；见[修复证据](docs/verification/P08-02-3-source-navigation.md)。
 
 - Host 注册防火墙核验兼容单值/数组及 TCP 编号，记录真实字段差异，并移到停止后台之前；真实冲突保留拦截。Host 打包逻辑 3 项通过，新增 6 项 Windows 回归尚未执行，4.23 现场待复验；未改开发者本机接入，不处理或轮询 CI。见[修复与验证](docs/verification/P08-02-2-registration-firewall.md)。

@@ -2247,5 +2247,17 @@
     "label": "I146:2298;5:92",
     "navigation": "persistent according to delivery and selected permissions; independent of session reachability",
     "visualReview": "existing dialog screenshot reviewed at 600x484; no formal technical UI added"
+  },
+  "orderRecordsClarity20261020": {
+    "allOrders": "32:96",
+    "customers": "84:1646",
+    "groups": "148:2299",
+    "groupCards": [
+      "148:2300",
+      "148:2301"
+    ],
+    "selection": "No persistent row selection derived from detail state",
+    "identity": "customer / Taobao ID plus WeChat; preserve service group identity",
+    "visualReview": "Figma full views and rendered UI at 1440x884 and 720x600 reviewed; text/components remain editable"
   }
 }

@@ -1,3 +1,5 @@
+import "./orders/orderRecords.css";
+import { CustomerIdentity } from "./orders/CustomerIdentity";
 import { CustomerOrders } from "./CustomerOrders";
 import { useState, useRef, useLayoutEffect } from "react";
 import type { Workbench } from "../state/useWorkbench";
@@ -81,7 +83,7 @@ export function OrdersPage({
           app.listScrollRef.current = e.currentTarget.scrollTop;
         }}
       >
-        <table className="orders-table">
+        <table className="orders-table order-records-table" aria-label="全部订单">
           <thead>
             <tr>
               <th>订单号</th>
@@ -93,17 +95,16 @@ export function OrdersPage({
               <th>创建时间</th>
               <th>创建人</th>
               <th>状态</th>
-              <th />
+              <th className="order-action-column">操作</th>
             </tr>
           </thead>
           <tbody>
             {page?.orders.map((o) => (
               <tr
                 key={o.order_id}
-                data-selected={app.selected?.order_id === o.order_id}
               >
-                <td>{o.details.order_ref || "—"}</td>
-                <td>{o.details.customer || "—"}</td>
+                <td className="order-reference">{o.details.order_ref || "未填写订单号"}</td>
+                <td><CustomerIdentity details={o.details}/></td>
                 <td className="right numeric">{money(o.income_cents)}</td>
                 {app.can("finance") && (
                   <td className="right numeric">{money(o.profit_cents)}</td>
