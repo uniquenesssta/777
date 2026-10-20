@@ -63,5 +63,27 @@
     "windows_runtime_executed": false,
     "final_installers_or_preparation_executed": false,
     "ci_queried_or_polled": false
+  },
+  "windows_resource_path_fix": {
+    "source_base": "b9ed6130fcf65088a1937d22f4e3b6462750b1e8",
+    "reported_at": "2026-10-20",
+    "evidence": "User Windows build output: quote-desktop build.rs:49 Tauri resource path lost C: prefix; runtime(6).jsonl records child exit 1",
+    "tauri_utils_source_blob": "692c5cd98eb731ebd40bed2c92a9e594b4bea8e0",
+    "tauri_build_source_blob": "47e85df9f6cc3797af7e79f9f542bcf8009f7685",
+    "resource_payload_unit_tests_passed": 7,
+    "build_diagnostic_tests_passed": 3,
+    "local_signer_tests_passed": 3,
+    "packaging_controller_tests_passed": 3,
+    "existing_session_logging_tests_passed": 3,
+    "legacy_issuer_recovery_tests_passed": 2,
+    "legacy_close_queue_tests_passed": 2,
+    "syntax_compileall_diff_check": "passed",
+    "initial_test_warning": "Unclosed child stdout ResourceWarning; closed streams and reran with ResourceWarning as error successfully",
+    "path_environment": "Node path.win32 for O:/C:; actual temporary file I/O on Linux",
+    "build_log_environment": "Actual harmless Python child, mocked Windows job ownership; no build tools started",
+    "windows_runtime_executed": false,
+    "final_installers_or_preparation_executed": false,
+    "ci_queried_or_polled": false,
+    "ui_or_figma_changed": false
   }
 }

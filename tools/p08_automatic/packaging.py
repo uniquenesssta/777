@@ -1,7 +1,8 @@
 """Owned package jobs, resumable issuance and cancellation; no business connection input."""
-import json, os, re, subprocess, threading, uuid
+import json, os, subprocess, threading, uuid
 from pathlib import Path
 import p07_diagnostics as diagnostics
+from .build_diagnostics import BuildDiagnostics
 
 class PackagingMixin:
     def package_status(self):
@@ -42,7 +43,8 @@ class PackagingMixin:
         return self.package_status()
 
     def build_package(self, args, candidate, destination):
-        from p07_developer import local, replace_json
+        from p07_developer import replace_json
+        build_log = BuildDiagnostics(self.job['id'])
         try:
             from p07_owned_job import OwnedJob
             with self.job_lock:
@@ -57,11 +59,13 @@ class PackagingMixin:
                 self.build_owner.assign(process)
                 process.stdin.write(b'start\n'); process.stdin.flush(); process.stdin.close()
             for line in iter(process.stdout.readline, b''):
+                decoded = line.decode('utf-8', 'replace').rstrip()
+                build_log.feed(decoded)
                 with self.job_lock:
-                    self.job['lines'] = (self.job['lines'] + [line.decode('utf-8', 'replace').rstrip()[-2000:]])[-80:]
+                    self.job['lines'] = (self.job['lines'] + [decoded[-2000:]])[-80:]
             code = process.wait()
             if self.cancelled.is_set():state, error = 'cancelled', None
-            elif code:state, error = 'failed', next((line for line in reversed(self.job['lines']) if re.fullmatch(r'[A-Z][A-Z0-9_]{4,100}',line)), 'TAURI_BUILD_FAILED')
+            elif code:state, error = 'failed', build_log.code or 'TAURI_BUILD_FAILED'
             else:
                 manifest = json.loads((destination / 'release.json').read_text(encoding='utf-8'))
                 if manifest['delivery'] != self.job['delivery']:raise RuntimeError('COMPILED_PACKAGE_MISMATCH')
@@ -75,11 +79,15 @@ class PackagingMixin:
             diagnostics.failure("package", error)
             with self.job_lock:self.job.update(state='cancelled' if self.cancelled.is_set() else 'failed', error='DEVELOPER_BUILD_FAILED')
         finally:
+            build_log.finish(self.job['state'])
             with self.job_lock:
                 if self.build_owner:self.build_owner.close(); self.build_owner = None
                 process = self.build
                 self.build = None
             if process and process.poll() is None:process.kill(); process.wait(timeout=15)
+            if process:
+                for stream in (process.stdin, process.stdout):
+                    if stream:stream.close()
             if self.cancelled.is_set() and candidate.exists() and self.job.get('signing') != 'local':
                 self.close_queue.enqueue(self.job['id'])
             replace_json(self.dev.DEV/'automatic-job.json',self.job)

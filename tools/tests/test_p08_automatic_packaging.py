@@ -4,6 +4,7 @@ import tempfile
 import threading
 import types
 import unittest
+import subprocess
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -46,5 +47,23 @@ class PackagingTests(unittest.TestCase):
                 self.assertEqual(args[args.index(flag)+1],value)
             self.assertEqual(result['job']['id'],'original-package')
             self.assertEqual(result['job']['version'],'1.2.3')
+
+    def test_real_child_output_is_collected_before_the_bounded_ui_tail_discards_it(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp)
+            c=self.controller(root)
+            c.build=None;c.build_owner=None
+            c.job=dict(id='fixture-job',state='running',lines=[],error=None)
+            # A real harmless child, without a Windows job or any build tool.
+            script="import sys;sys.stdin.readline();print('QUOTE777_BUILD_STAGE=compile');print(\"Tauri desktop build configuration: resource path `node-run.ps1` doesn\'t exist\");[print('Compiling dependency') for _ in range(200)];print('TAURI_BUILD_FAILED: 1');sys.exit(1)"
+            dependencies=types.SimpleNamespace(replace_json=Mock())
+            with patch.dict(sys.modules,{'p07_developer':dependencies,'p07_owned_job':types.SimpleNamespace(OwnedJob=Mock)}), patch.object(subprocess,'CREATE_NEW_PROCESS_GROUP',0,create=True), patch.object(packaging.diagnostics,'event') as event:
+                c.build_package([sys.executable,'-c',script],root/'candidate',root/'output')
+            self.assertEqual(c.job['state'],'failed')
+            self.assertEqual(len(c.job['lines']),80)
+            self.assertNotIn('node-run.ps1','\n'.join(c.job['lines']))
+            summary=next(call.kwargs for call in event.call_args_list if call.args[0]=='package.build_diagnostics')
+            self.assertIn('node-run.ps1','\n'.join(summary['diagnostics']))
+            self.assertEqual(summary['stage'],'compile')
 
 if __name__ == '__main__':unittest.main()

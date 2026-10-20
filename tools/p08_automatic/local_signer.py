@@ -3,6 +3,7 @@ import os
 import re
 import subprocess
 import time
+import p07_diagnostics as diagnostics
 from .issuer import Issuer
 
 class LocalSigner(Issuer):
@@ -16,11 +17,12 @@ class LocalSigner(Issuer):
         if os.name != 'nt':
             return dict(ready=False, phase='windows_required', interfaces=[])
         try:
-            result = self.native(['automatic-local-status', '--state', str(self.state)])
+            result = self.native(['automatic-local-status', '--state', str(self.state)], quiet=True)
         except (RuntimeError, OSError, subprocess.TimeoutExpired) as error:
             code = str(error)
             result = dict(ready=False, phase='unavailable', error=code if re.fullmatch(r'[A-Z0-9_]{1,128}', code) else 'LOCAL_SIGNER_UNAVAILABLE')
         self.cache = {k: result.get(k) for k in ['ready', 'phase', 'issuer_id', 'error']}
         self.cache['interfaces'] = []
         self.checked = time.monotonic()
+        diagnostics.event('signer.status', ready=self.cache['ready'], phase=self.cache['phase'], error=self.cache['error'])
         return self.cache

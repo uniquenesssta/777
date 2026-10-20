@@ -2,6 +2,7 @@
 import fs from 'node:fs/promises';
 import { packagePermissions } from './package-permissions.mjs';
 import { issuerConnection, payloadInventory, resourceInventory, issuePackage, managerResources } from './automatic-release.mjs';
+import { stageResources } from './package-resources.mjs';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { spawn, execFileSync } from 'node:child_process';
@@ -81,6 +82,7 @@ export async function build(args) {
   if (!a['--issuer-state'] || !a['--candidate'] || !a['--output']) throw Error('LOCAL_SIGNER_UNAVAILABLE');
   const issuerState=path.resolve(a['--issuer-state']),candidate=path.resolve(a['--candidate']);
   const packageId=a['--package-id']??randomUUID();
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(packageId)) throw Error('PACKAGE_ID_INVALID');
   const hostExecutable=path.join(root,'target/release/quote-host.exe');
   const permissions = packagePermissions(delivery, a['--permissions'] === undefined ? undefined : JSON.parse(a['--permissions']));
   const config = issuerConnection(hostExecutable,issuerState);
@@ -91,6 +93,8 @@ export async function build(args) {
   const version = a['--version'] ?? base.version;
   const output = path.resolve(a['--output']);
   const temporary=candidate+'.stage';
+  const project=path.join(desktop,'src-tauri');
+  const resourceStage=path.join(root,'target','packages',delivery,'resources',packageId);
   const controlFile=path.join(temporary,'build-state.json');
   let cached=await readJson(controlFile).catch(e=>{if(e.code!=='ENOENT')throw e;return null;});
   if (cached) {
@@ -115,6 +119,8 @@ export async function build(args) {
     // A placeholder is never distributable. Registration is added only after the immutable binary is built.
     if(!cached.built) await fs.writeFile(path.join(temporary,'package.json'),'{}');
     overlay.bundle.resources[path.join(temporary,'package.json')]='automatic/package.json';
+    console.log('QUOTE777_BUILD_STAGE=resources');
+    overlay.bundle.resources=await stageResources(overlay.bundle.resources,project,resourceStage);
     await fs.writeFile(path.join(temporary, 'tauri.json'), json(overlay));
     await fs.writeFile(path.join(temporary, 'connection.json'), publicText);
     await fs.writeFile(path.join(temporary, 'metadata.json'), json(meta));
@@ -125,6 +131,7 @@ export async function build(args) {
     delete env.TAURI_CONFIG;
     const binary = path.join(target, 'release', identity.binary + '.exe');
     if(!cached.built) {
+      console.log('QUOTE777_BUILD_STAGE=compile');
       await run([path.join(desktop, 'node_modules/@tauri-apps/cli/tauri.js'), 'build', '--ci', '--features', delivery,
       '--no-bundle', '--no-binary-patching', '--config', path.join(temporary, 'tauri.json'), '--', '--locked'], env);
       await verifyProductionFrontend(path.join(desktop, 'dist'));
@@ -134,10 +141,14 @@ export async function build(args) {
       await fs.copyFile(path.join(temporary,'built-program.exe'),binary);
     }
     if (git(['status', '--porcelain'])) throw Error('BUILD_MODIFIED_SOURCE: inspect worktree before publishing');
-    const payloadFiles = {[identity.binary+'.exe']:binary,...await resourceInventory(overlay.bundle.resources,desktop)};
+    const payloadFiles = {[identity.binary+'.exe']:binary,...await resourceInventory(overlay.bundle.resources,project)};
     const payload=await payloadInventory(payloadFiles);
+    console.log('QUOTE777_BUILD_STAGE=sign');
     await issuePackage({executable:hostExecutable,state:issuerState,candidate,temporary,packageId,delivery,permissions,version,payload});
+    await fs.copyFile(path.join(temporary,'package.json'),path.join(resourceStage,'automatic/package.json'));
+    console.log('QUOTE777_BUILD_STAGE=installer');
     await run([path.join(desktop,'node_modules/@tauri-apps/cli/tauri.js'),'bundle','--ci','--features',delivery,'--bundles','nsis','--no-binary-patching','--config',path.join(temporary,'tauri.json')],env);
+    console.log('QUOTE777_BUILD_STAGE=verify');
     if (JSON.stringify(await payloadInventory(payloadFiles))!==JSON.stringify(payload)) throw Error('ISSUED_PAYLOAD_CHANGED');
     const info = JSON.parse(execFileSync(binary, ['--package-info'], { encoding: 'utf8', timeout: 30000 }));
     for (const key of Object.keys(meta)) if (JSON.stringify(info[key]) !== JSON.stringify(meta[key])) throw Error('COMPILED_PACKAGE_MISMATCH: ' + key);
@@ -173,6 +184,7 @@ export async function build(args) {
     await fs.writeFile(path.join(output, 'release.json'), json(manifest));
     await verifyRelease(output);
     await fs.rm(temporary,{recursive:true,force:true}).catch(()=>{});
+    await fs.rm(resourceStage,{recursive:true,force:true}).catch(()=>{});
     console.log(json({ delivery, version, output, installer, source_commit: source }));
   } catch(error) {
     // Leave protected issuance candidates for recovery if offline. Never publish partial release.json.

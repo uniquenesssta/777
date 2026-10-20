@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { digest, json, publicConnection, readJson } from './deployment.mjs';
+export { resourceInventory } from './package-resources.mjs';
 export function native(executable, args) {
   try { return JSON.parse(execFileSync(executable, args, {encoding:'utf8',timeout:180000,windowsHide:true,stdio:['ignore','pipe','pipe']})); }
   catch (e) {
@@ -23,19 +24,6 @@ export async function payloadInventory(files) {
     const bytes=await fs.readFile(file);entries.push({name,bytes:bytes.length,sha256:digest(bytes)});
   }
   return {format:'777-immutable-payload-v1',files:entries};
-}
-export async function resourceInventory(resources,base) {
-  const files={};
-  async function add(source,destination) {
-    const stat=await fs.lstat(source);
-    if(stat.isSymbolicLink())throw Error('PACKAGE_RESOURCE_LINK_FORBIDDEN');
-    if(stat.isDirectory()){
-      for(const name of await fs.readdir(source))await add(path.join(source,name),destination.replace(/\/$/,'')+'/'+name);
-    }else if(stat.isFile())files[destination]=source;
-    else throw Error('PACKAGE_RESOURCE_INVALID');
-  }
-  for(const [source,destination]of Object.entries(resources))if(destination!=='automatic/package.json')await add(path.resolve(base,source),destination);
-  return files;
 }
 export async function issuePackage({executable,state,candidate,temporary,packageId,delivery,permissions,version,payload}) {
   const input=path.join(temporary,'issue.json'),output=path.join(temporary,'package.json');
