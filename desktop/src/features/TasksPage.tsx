@@ -24,7 +24,7 @@ export function TasksPage({ app }: { app: Workbench }) {
     return () => clearInterval(timer);
   }, [app.jobs, app.busy, app.loadJobs]);
   return (
-    <section className="card management">
+    <section className="card management tasks-card">
       <div className="section-heading">
         <h2>
           导出记录 <small>{app.jobsMore === true ? `已读取 ${app.jobsOffset+app.jobs.length} 项` : `共 ${app.jobsTotal} 项`}</small>
@@ -109,15 +109,15 @@ export function TasksPage({ app }: { app: Workbench }) {
             ))}
           </tbody>
         </table>
+        {!app.jobs.length && (
+          <Empty>暂无导出记录，可在订单详情导出Excel或报价图片。</Empty>
+        )}
+      </div>
         <div className="pagination">
           <Button variant="ghost" disabled={app.busy||app.jobsOffset===0} onClick={()=>void app.loadJobs(Math.max(0,app.jobsOffset-100))}>上一页</Button>
           <small>第 {Math.floor(app.jobsOffset/100)+1}{app.jobsMore === undefined ? ` / ${Math.max(1,Math.ceil(app.jobsTotal/100))}` : ""} 页</small>
           <Button variant="ghost" disabled={app.busy||app.jobsOffset+100>=app.jobsTotal} onClick={()=>void app.loadJobs(app.jobsOffset+100)}>下一页</Button>
         </div>
-        {!app.jobs.length && (
-          <Empty>暂无导出记录，可在订单详情导出Excel或报价图片。</Empty>
-        )}
-      </div>
     </section>
   );
 }

@@ -29,8 +29,8 @@ def restore_data_backup(host, entry, target, *, user='recovered-manager', passwo
     return command('restore-data', root=target, package=backup_pair(host,entry)/'data.qbackup', backup_dir=target.with_name(target.name+'-backups'), host=['127.0.0.1','localhost'], bind='127.0.0.1', port=host.port, admin=user, worker=WORKER, notices=ROOT/'THIRD_PARTY_NOTICES.md', secret=password)
 
 class Hosted:
-    def __init__(self,*,font=None,bootstrap=True):
-        self.temp=tempfile.TemporaryDirectory(prefix='777-p06-native-host-');self.root=Path(self.temp.name);self.host_root=self.root/'host';self.password=secrets.token_urlsafe(24);self.font=font or os.environ.get('P06_CI_FONT_FILE');self.process=None
+    def __init__(self,*,font=None,bootstrap=True,password=None):
+        self.temp=tempfile.TemporaryDirectory(prefix='777-p06-native-host-');self.root=Path(self.temp.name);self.host_root=self.root/'host';self.password=password or secrets.token_urlsafe(24);self.font=font or os.environ.get('P06_CI_FONT_FILE');self.process=None
         try:
             sock=socket.socket();sock.bind(('127.0.0.1',0));self.port=sock.getsockname()[1];sock.close()
             command('init',root=self.host_root,secret=self.password,backup_dir=self.root/'backups',host=['127.0.0.1','localhost'],port=self.port,worker=WORKER,notices=ROOT/'THIRD_PARTY_NOTICES.md')

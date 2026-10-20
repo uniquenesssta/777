@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { connectDevelopment } from "../development-connection.mjs";
+import { connectDevelopment, selectDevelopmentIdentity } from "../development-connection.mjs";
 const host = "http://127.0.0.1:18777";
 let fixture: {
   connection: Record<string, string>;
@@ -102,9 +102,10 @@ test("native development sign-in sequence retains the connection across logout a
   await expect(page.getByRole("textbox", { name: /^服务证书（PEM）/ })).toHaveValue(fixture.connection.certificate_pem);
   await expect(page.getByLabel("证书 SHA-256 指纹", { exact: true })).toHaveValue(fixture.connection.certificate_sha256);
   await page.getByText("证书与指纹（高级）", { exact: true }).click();
-  await page.getByLabel("账号", { exact: true }).fill("sales-one");
-  await page.getByLabel("密码", { exact: true }).fill(fixture.password);
-  await page.getByRole("button", { name: "登录", exact: true }).click();
+  await selectDevelopmentIdentity(page, fixture, "sales-one");
+  await expect(page.getByLabel("账号", { exact: true })).toHaveCount(0);
+  await expect(page.locator('input[type=password]')).toHaveCount(0);
+  await page.getByRole("button", { name: "连接后台", exact: true }).click();
   await page.getByRole("button", { name: "我的订单", exact: true }).click();
   await expect(page.getByRole("button", { name: "查看详情" }).first()).toBeVisible();
   await expect(page.getByText("native-actor-switch", { exact: true })).toHaveCount(0);
@@ -266,7 +267,7 @@ test("current Figma quote geometry and all original assets load at their exporte
   const box = await page.locator(".quote-card").boundingBox();
   expect(box!.x).toBe(40);
   expect(box!.y).toBe(104);
-  expect(box!.height).toBe(748);
+  expect(box!.height).toBe(page.viewportSize()!.height - box!.y - 24);
   const assets = await page.locator("img.icon").evaluateAll((nodes) =>
     nodes.map((n) => ({
       loaded: (n as HTMLImageElement).naturalWidth > 0,

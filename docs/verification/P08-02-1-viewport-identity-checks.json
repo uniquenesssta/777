@@ -1,0 +1,152 @@
+{
+  "date": "2026-10-20",
+  "parent_commit": "aa477404558326e30a6c5d3372288b50f8dd3e4f",
+  "scope": "Development connection identity and viewport height repair; Linux auxiliary checks, no installed Windows or final installers.",
+  "deployment": {
+    "manager": 1,
+    "developer": 1,
+    "sales": 1,
+    "primary": "192.168.4.23"
+  },
+  "frontend_build": "passed TypeScript and Vite",
+  "frontend_unit_tests": {
+    "passed": 48,
+    "failed": 0
+  },
+  "native_development_tests": {
+    "library_passed": 37,
+    "cli_passed": 4,
+    "failed": 0
+  },
+  "native_verification_tests": {
+    "library_passed": 36,
+    "cli_passed": 4,
+    "failed": 0
+  },
+  "clippy": {
+    "development": "passed -D warnings",
+    "verification": "passed -D warnings",
+    "manager": "passed -D warnings",
+    "sales": "passed -D warnings"
+  },
+  "rustfmt": "passed",
+  "runner_unit_tests": {
+    "passed": 11,
+    "failed": 0
+  },
+  "browser": {
+    "engine": "Chromium 153 auxiliary Linux",
+    "stats": {
+      "startTime": "2026-10-20T07:21:26.630Z",
+      "duration": 84928.751,
+      "expected": 63,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "dynamic_sizes": [
+      {
+        "width": 1590,
+        "height": 1200
+      },
+      {
+        "width": 1590,
+        "height": 900
+      },
+      {
+        "width": 1590,
+        "height": 768
+      },
+      {
+        "width": 1366,
+        "height": 600
+      },
+      {
+        "width": 720,
+        "height": 600
+      },
+      {
+        "width": 390,
+        "height": 600
+      }
+    ],
+    "checks": [
+      "five reported pages fill available workspace and grow by window height delta",
+      "100 export rows scroll with pagination outside list",
+      "quote last line and calculate remain accessible",
+      "populated chart grows and shrinks without intrinsic-height lock",
+      "short/narrow window final actions accessible",
+      "connection form sends public connection only, no account or password fields",
+      "existing real native IPC UI order flow and asset dimensions retained"
+    ]
+  },
+  "real_native_TLS": {
+    "development_identity": [
+      "default manager identity verifies pinned Host through real authentication",
+      "restart restores selected source and subject",
+      "expired session renews during save without stale calculation or duplicate order",
+      "wrong pin preserves current verified source",
+      "unknown commit cannot change pending subject, original receipt recovers once"
+    ],
+    "existing_protocol_checks": 16,
+    "host": "standalone Rust Host in owned temporary directory",
+    "desktop": "actual debug verification IPC binary",
+    "windows_DPAPI": false,
+    "production_paths_accessed": false,
+    "sandbox_cleaned": true
+  },
+  "auxiliary_release_attempt": "Blocked by invalid pre-existing Rust release cache metadata/object files; no release success claimed. Actual debug verification binary used explicitly for auxiliary native and browser flow. Windows release remains CI-owned.",
+  "earlier_failures_fixed": [
+    "chart intrinsic-size shrink regression",
+    "fixed-height geometry assertion replaced with viewport relation",
+    "pending actor switch now rejected at connection boundary instead of later recovery"
+  ],
+  "figma": {
+    "file_key": "2ek9bkIz5ldyhjZnnvIuNu",
+    "connection": "108:2082",
+    "viewport_frames": [
+      "21:3",
+      "116:2252",
+      "116:2526",
+      "92:1556"
+    ],
+    "screenshots_reviewed": [
+      "connection after field removal",
+      "issuer ready Fill workspace",
+      "rendered five affected pages",
+      "rendered populated chart"
+    ]
+  },
+  "not_performed": [
+    "new CI polling",
+    "installed Windows runtime",
+    "4.23 or 4.38 upgrade",
+    "manager/sales final installer and build-preparation checks",
+    "E conflict UI or permission implementation"
+  ],
+  "source_sha256": {
+    "desktop/src-tauri/src/client.rs": "06c9c4c1afbe44be49cd33459b57ec342e886a24ad4a33e7a747e6e93bc10c5e",
+    "desktop/src-tauri/src/client/connections.rs": "f0f8dce1f4c91d96988b9b4a430e59757cb8370af9a309ce2638fba7e688672d",
+    "desktop/src-tauri/src/client/credentials.rs": "86e40ffaf567866fdd81a4731e7a510edf61cd42cc56b89a3b967ba2ea65f818",
+    "desktop/src-tauri/src/types.rs": "abfd9f5fc6e855032adbe5b3bc82105009240979fb2a881c8e8d705689d95d39",
+    "desktop/src/app.css": "79a4a370c3c98027a4f45b8da40b016dc8bea2cb90373577aedd153336b90465",
+    "desktop/src/features/ConnectionPage.tsx": "5b1e215fba814b5e7ac75acf6a1cd558b14482cbecb23bfb8e3e476828c8fed4",
+    "desktop/src/features/DeveloperPage.tsx": "5d4b394026a214c71ebaba76d159967779aeb41ce0b354a7a188be59a588bd0e",
+    "desktop/src/features/ProfitCharts.tsx": "45a8f8edf4c77bde9780332d0618a5a083c6a7d7bc2f72d745afd2887fff3e08",
+    "desktop/src/features/TasksPage.tsx": "e1e7c2a143f53511ffa1e6c527f247b7b511a5ce1f5183c0fe582cb2e7a4a6de",
+    "desktop/src/features/connection/ConnectionForm.tsx": "128fabec81b8830111ea5f2143391cbf6c77d5d5b7f0bd9268dbce05f89a3989",
+    "desktop/src/layout/viewport.css": "58554ec4fe61dd49156f487dffa1a7cc506c1a2513522ebdc0d9f8a38d848a40",
+    "desktop/src/main.tsx": "4624065474ad153f02876edd5be9cd22c812a9a59450eecfbb98e69653670c9b",
+    "desktop/src/state/useWorkbench.ts": "788def354b93e59fb6b7bd53d71785b8c189d95201cc8d7bec86689b6d578b5c",
+    "desktop/tests/development-connection.mjs": "03a992233d88002ac9e731f6994fab89ba69eeba55d41eda8f2c81ac8d6d515b",
+    "desktop/tests/ui/connection-dialog.spec.ts": "b82e8108ab85f78016e6c09dd1818c7bd5d7b14890d26b45ded51c4280248cf4",
+    "desktop/tests/ui/fixtures/package-bridge.ts": "8e9d5c4c36b412bb283efab732c5fdfffdd81d8c2682df6112e29edbb9b5cc4d",
+    "desktop/tests/ui/viewport-height.spec.ts": "86353b1cb99516b2ea647e395f50933b06f67dbe0d2b6abd7477156b245bb2a5",
+    "desktop/tests/ui/workbench.spec.ts": "a33cab27fa10bd64359502dfc0bcd283a62d882fc3a34e6612ff0b1e03d84ffa",
+    "desktop/tests/windows-smoke.mjs": "1891bfd4dbf33c118ba7d9f857b907dd841406e145202c9687fd8d70d89879e8",
+    "tests/native_host_fixture.py": "9551fd2813264806401c5040de83594bd61965372b9ed915e3407e6c967716e7",
+    "tools/p07_desktop_check.py": "00528c154cf25fb473244a75b061d480770dad649d2840f8d742a1c7921ff1ce",
+    "tools/p07_desktop_fixture.py": "26af5e74fb6dcce8f4c97f941fe4efca53be295404a43cbe4513eda3d9a86553",
+    "tools/p07_development_identity_check.py": "54bf69ea90635d1e928166c7fb2f1699b49c8008447922c3b844485269004bb2"
+  }
+}

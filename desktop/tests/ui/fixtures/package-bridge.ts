@@ -17,6 +17,12 @@ export async function setup(page:Page,delivery:string,permissions:string[]|null=
           case 'prices':return{price_version_id:'fixture',items:[{product_id:'商品',sale:'10',unit_sale:'10',k:'1',single:true}]};
           case 'settings':return{revision:'1',export_dir:'D:\\Excel',image_dir:'D:\\Images'};
           case 'backup_status':return (window as any).__backupState??{target:'',last_success:null};
+          case 'outputs':return {offset:0,total:100,limit:100,jobs:Array.from({length:(window as any).__jobCount??3},(_,i)=>({job_id:`job-${i}`,order_id:'order',kind:'excel_admin',state:'done',filename:`quote-${i}.xlsx`,created_at:'2026-10-20T00:00:00Z'}))};
+          case 'analytics':{
+            const count=(window as any).__analysisOrders??0;
+            const totals={order_count:count,income_cents:count?'10000':'0',cost_cents:count?'4000':'0',profit_cents:count?'6000':'0',margin:count?'60.0%':null};
+            return {format:'777-profit-analysis-v1',timezone:'Asia/Shanghai',ledger_revision:'1',from:r.from,to:r.to,period:r.period,totals,unplaced_date_orders:0,buckets:count?[{start:'2026-10-20',totals}]:[]};
+          }
           case 'backup':if((window as any).__backupError)throw{code:'DAILY_BACKUP_FAILED'};return (window as any).__backupReceipt??{backup_id:'fixture',delivery_complete:false};
           case 'business_directory':return{directory:'',applied:false,ledger_id:'fixture'};
           case 'developer':if(r.request.op.startsWith('issuer_'))return state.issuer;return {...state,preferences:{...state.preferences,output:(window as any).__packageOutput??state.preferences.output},job:(window as any).__packageJob??null};

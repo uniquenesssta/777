@@ -257,13 +257,11 @@ export function useWorkbench() {
       },
     );
   }
-  async function connect(c: Connection, username: string, password: string) {
+  async function connect(c: Connection) {
     await run(
       async () => {
         const s = await request<Session & {catalog:Catalog|null;settings:Preferences}>("connect", {
           connection: c,
-          username,
-          password,
         });
         const p=s.catalog, dirs=s.settings;
         return { s, p, dirs };

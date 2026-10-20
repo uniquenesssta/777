@@ -53,7 +53,11 @@ pub(super) async fn identity(session: &Session) -> Result<String> {
     identifier(&ledger)?;
     Ok(ledger)
 }
-async fn login(connection: Connection, username: &str, password: &str) -> Result<(Session, Value)> {
+pub(super) async fn login(
+    connection: Connection,
+    username: &str,
+    password: &str,
+) -> Result<(Session, Value)> {
     if username.is_empty() || username.chars().count() > 64 || password.len() > 4096 {
         return Err(DesktopError::new(422, "INVALID_LOGIN"));
     }
@@ -107,6 +111,11 @@ impl Desktop {
             }
         }
         let (session, caps) = login(connection.clone(), &username, &password).await?;
+        if let Some(p) = self.store.read::<Pending>("pending.bin")? {
+            if p.subject != session.subject {
+                return Err(DesktopError::new(403, "PENDING_IDENTITY_MISMATCH"));
+            }
+        }
         let catalog = match transport::request(&session, "GET", "/v1/prices", None).await {
             Ok(value) => value,
             Err(e) if e.code == "PRICES_NOT_PUBLISHED" => Value::Null,
@@ -119,6 +128,7 @@ impl Desktop {
             caps["ledger_id"].as_str().map(str::to_owned)
         };
         // Only a verified login replaces the persisted connection and active session.
+        self.remember_credential(&session, &username, &password)?;
         self.remember_source(mode, connection)?;
         let value = json!({"subject":session.subject,"role":session.role,"username":username,"pending":self.has_pending()?,"pricing_mode_version":caps["pricing_mode_version"],"catalog":catalog,"settings":settings,"ledger_id":ledger_id});
         self.session = Some(session);

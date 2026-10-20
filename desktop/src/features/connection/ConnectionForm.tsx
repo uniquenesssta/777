@@ -16,15 +16,11 @@ export function ConnectionForm({
   onCancel?: () => void;
   onSubmit: (
     c: Connection,
-    username: string,
-    password: string,
   ) => Promise<void>;
 }) {
   const [connection, setConnection] = useState<Connection>(
     saved ?? { url: "", certificate_pem: "", certificate_sha256: "" },
   );
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [working, setWorking] = useState(false);
   const [error, setError] = useState("");
   const [imported, setImported] = useState(false);
@@ -62,10 +58,8 @@ export function ConnectionForm({
         if (disabled) return;
         setWorking(true);
         setError("");
-        const secret = password;
-        setPassword("");
         try {
-          await onSubmit(connection, username, secret);
+          await onSubmit(connection);
         } catch (error) {
           setError(errorMessage(error));
         } finally {
@@ -82,7 +76,7 @@ export function ConnectionForm({
       </Button>
       <p className="muted connection-help">选择 Host 部署目录 Quote777Service 中的 connection.json，自动读取地址与证书，不导入业务数据。</p>
       {imported && (
-        <p className="muted">文件已读取；输入管理员账号后核对服务身份。</p>
+        <p className="muted">文件已读取；连接时自动核对后台身份。</p>
       )}
       <Field label="服务地址">
         <Input
@@ -117,28 +111,7 @@ export function ConnectionForm({
           />
         </Field>
       </details>
-      <div className="form-pair">
-        <Field label="账号">
-          <Input
-            required
-            autoComplete="username"
-            disabled={disabled}
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </Field>
-        <Field label="密码">
-          <Input
-            required
-            type="password"
-            autoComplete="current-password"
-            disabled={disabled}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </Field>
-      </div>
-      <p className="muted connection-help">使用后台管理员账号；不是 Windows 登录密码。</p>
+      <p className="muted connection-help">自动使用默认或已保存的连接身份，无需填写账号密码。</p>
       {error && (
         <p className="inline-error" role="alert">
           {error}

@@ -6,10 +6,10 @@ ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT),str(ROOT/'tests
 from native_host_fixture import Hosted
 from quote_service.journal import MemoryJournal
 from quote_core import QuoteSnapshot,NormalLine,DraftDetails
-CLIENT=ROOT/'target/release'/('quote-desktop.exe' if os.name=='nt' else 'quote-desktop')
+CLIENT=Path(os.environ.get('P07_DESKTOP_BINARY',str(ROOT/'target/release'/('quote-desktop.exe' if os.name=='nt' else 'quote-desktop'))))
 class Scenario:
-    def __init__(self):
-        self.host=Hosted();self.bridge=None;self.lock=threading.RLock();self.profile=self.host.root/'desktop';self.profile.mkdir();(self.profile/'777-isolated-profile.json').write_text('{"production":false}',encoding='utf-8')
+    def __init__(self,*,password=None):
+        self.host=Hosted(password=password);self.bridge=None;self.lock=threading.RLock();self.profile=self.host.root/'desktop';self.profile.mkdir();(self.profile/'777-isolated-profile.json').write_text('{"production":false}',encoding='utf-8')
         manager=self.host.client('manager')
         prices={'price_version_id':'2026.10.13','items':[{'product_id':'户外写真','sale':'20','cost':'10','k':'1','single':False},{'product_id':'PVC 硬板','sale':'85','cost':'45','k':'1','single':False},{'product_id':'安装服务','sale':'100','cost':'50','k':'1','single':True}]}
         manager.mutate('/v1/prices',{'prices':prices,'expected_price_version_id':'fixture-v1'},MemoryJournal())

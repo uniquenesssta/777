@@ -53,8 +53,10 @@ pub enum Action {
     Connection {},
     Connect {
         connection: Connection,
-        username: String,
-        password: String,
+        #[serde(default)]
+        username: Option<String>,
+        #[serde(default)]
+        password: Option<String>,
     },
     Disconnect {},
     ImportConnection {

@@ -44,11 +44,11 @@ function TrendChart({
   chart: Exclude<ProfitChart, "pie">;
 }) {
   const scroll = useRef<HTMLDivElement>(null);
-  const [available, setAvailable] = useState(760);
+  const [available, setAvailable] = useState({width:760,height:310});
   useEffect(() => {
     if (!scroll.current) return;
     const observer = new ResizeObserver(() =>
-      setAvailable(scroll.current?.clientWidth ?? 760),
+      setAvailable({width:scroll.current?.clientWidth ?? 760,height:scroll.current?.clientHeight ?? 310}),
     );
     observer.observe(scroll.current);
     return () => observer.disconnect();
@@ -58,9 +58,10 @@ function TrendChart({
     return formalPresentation() ? null : <Empty>当前服务未提供K线数据，请更新服务后刷新。</Empty>;
   const domain = candle ? candleDomain(data) : chartDomain(data);
   const top = 20,
-    height = 230,
+    height = Math.max(100, available.height - 80),
     left = 150;
-  const width = Math.max(360, available, data.buckets.length * 56 + left + 24);
+  const width = Math.max(360, available.width, data.buckets.length * 56 + left + 24);
+  const svgHeight = height + 80;
   const y = (n: bigint) =>
     top + chartFraction(n, domain.min, domain.max) * height;
   const x = (i: number) =>
@@ -103,8 +104,8 @@ function TrendChart({
       >
         <svg
           width={width}
-          height={310}
-          viewBox={`0 0 ${width} 310`}
+          height={svgHeight}
+          viewBox={`0 0 ${width} ${svgHeight}`}
           role="img"
           aria-label={`${data.from}至${data.to}${title}`}
         >

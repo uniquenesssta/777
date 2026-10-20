@@ -1,0 +1,52 @@
+/* The header participates in layout, including its wrapped narrow-window height.
+   Small windows scroll the workspace; lists scroll inside their growing cards. */
+#root {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.topbar { flex: none; }
+.workspace {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.workspace > :is(.workbench-grid, .orders-card, .management, .profit-page, .developer-page, .price-maintenance) {
+  flex: 1 0 auto;
+}
+.workspace > .inline-error { flex: none; }
+.workbench-grid > :is(.quote-card, .settlement) > *,
+.workspace > :is(.orders-card, .management, .profit-page) > * {
+  flex-shrink: 0;
+}
+.workbench-grid .line-scroll,
+.workspace > :is(.orders-card, .management) > .orders-table-scroll {
+  flex: 1 1 0;
+}
+.workspace > .settings { width: 100%; }
+.profit-page > .empty {
+  flex: 1 0 160px;
+  display: grid;
+  place-content: center;
+}
+.profit-page > :is(.profit-chart, .profit-pie) { flex: 1 0 auto; }
+.profit-chart-scroll { position: relative; flex: 1 0 180px; min-height: 180px; }
+.profit-chart-scroll > svg { display: block; position: absolute; top: 0; left: 0; }
+.developer-page > :is(.developer-title, .developer-workspace-tabs) { flex: none; }
+.developer-content:not([hidden]) { display: flex; flex-direction: column; flex: 1 0 auto; }
+.developer-content > :is(.package-panel, .packaging-workspace),
+.developer-page > .package-panel { flex: 1 0 auto; }
+.price-catalog { display: flex; flex-direction: column; flex: 1; }
+.price-table-scroll { flex: 1 1 0; min-height: 240px; max-height: none; }
+.price-publish-actions { flex: none; }
+.connection-page, .formal-idle { flex: 1; min-height: 0; overflow: auto; }
+.connection-card { align-self: flex-start; }
+@media (max-width: 1000px) {
+  .workbench-grid { grid-template-rows: minmax(440px, 1fr) auto; }
+  .workbench-grid > .settlement { min-height: auto; }
+}

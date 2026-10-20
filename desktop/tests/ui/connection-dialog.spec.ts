@@ -9,6 +9,8 @@ for (const target of [false]) {
     await page.getByRole('button', {name:target?'核对或更换目标':'选择或更换后台连接', exact:true}).click();
     const dialog=page.getByRole('dialog');
     await expect(dialog).toHaveAccessibleName(target?'选择封包连接的后台':'连接后台服务');
+    await expect(dialog.getByLabel('账号',{exact:true})).toHaveCount(0);
+    await expect(dialog.locator('input[type=password]')).toHaveCount(0);
     await expect(dialog.locator('details')).not.toHaveAttribute('open', '');
     await dialog.getByRole('button', {name:'选择后台连接文件', exact:true}).click();
     await expect(dialog.getByLabel('服务地址', {exact:true})).toHaveValue('https://192.168.4.38:8477');
@@ -34,3 +36,14 @@ for (const target of [false]) {
     expect(await page.evaluate(()=>(window as any).__requests.filter((r:any)=>r.action==='connect'||r.action==='verify_package_target'))).toHaveLength(0);
   });
 }
+
+test('developer connection submits only public connection information',async({page})=>{
+  await setup(page,'development');
+  await page.getByRole('button',{name:'开发部署',exact:true}).click();
+  await page.getByRole('button',{name:'开发数据',exact:true}).click();
+  await page.getByRole('button',{name:'选择或更换后台连接',exact:true}).click();
+  await page.getByRole('dialog').getByRole('button',{name:'验证并连接',exact:true}).click();
+  await expect.poll(()=>page.evaluate(()=>(window as any).__requests.filter((r:any)=>r.action==='connect'))).toHaveLength(1);
+  const [r]=await page.evaluate(()=>(window as any).__requests.filter((r:any)=>r.action==='connect'));
+  expect(Object.keys(r).sort()).toEqual(['action','connection']);
+});

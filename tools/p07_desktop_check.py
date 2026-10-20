@@ -7,7 +7,7 @@ from p07_check_runner import Progress,preflight,build_plan,stop_tree,require_emb
 
 def fingerprints():
     paths=[p for p in (ROOT/'desktop').rglob('*') if p.is_file() and not any(n in p.relative_to(ROOT/'desktop').parts for n in ['node_modules','dist','gen','test-results','playwright-report'])]
-    paths += [ROOT/n for n in ['Cargo.toml','Cargo.lock','tools/p07_desktop_check.py','tools/p07_desktop_fixture.py','tools/p07_check_runner.py','tools/p07_native_window.py','tests/test_p07_check_runner.py','tests/test_p07_native_window.py','tests/p07_window_fixture.py','docs/design/figma-state.json','docs/design/figma-tokens.json']]
+    paths += [ROOT/n for n in ['Cargo.toml','Cargo.lock','tools/p07_desktop_check.py','tools/p07_desktop_fixture.py','tools/p07_development_identity_check.py','tests/native_host_fixture.py','tools/p07_check_runner.py','tools/p07_native_window.py','tests/test_p07_check_runner.py','tests/test_p07_native_window.py','tests/p07_window_fixture.py','docs/design/figma-state.json','docs/design/figma-tokens.json']]
     return {p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes().replace(b'\r\n',b'\n') if p.suffix not in ['.ico','.png'] else p.read_bytes()).hexdigest() for p in sorted(paths)}
 def protocol_check():
     from p07_desktop_fixture import Scenario
@@ -73,8 +73,8 @@ def protocol_check():
         checks.append('service_independently_denies_sales_analytics_over_real_HTTPS')
         call('disconnect');call('connect',connection=conn,username='manager',password=s.host.password)
         call('calculate',snapshot=snap,draft_revision='2');s.host.fault.write_text('after_commit',encoding='utf-8');refused('submit','COMMIT_UNKNOWN',snapshot=snap,details={'customer':'unknown','order_ref':'original-only','wechat':''},draft_revision='2')
-        assert (s.profile/'pending.bin').exists();s.host.restart();s.stop_bridge();s.start_bridge();session=call('connect',connection=conn,username='sales-one',password=s.host.password);assert session['pending'];refused('recover','PENDING_IDENTITY_MISMATCH',retry=True)
-        call('disconnect');session=call('connect',connection=conn,username='manager',password=s.host.password);assert session['pending'];recovered=call('recover',retry=False);assert not recovered['pending'] and recovered['result']['income_cents']=='20000' and recovered['path']=='/v1/orders';assert not (s.profile/'pending.bin').exists()
+        assert (s.profile/'pending.bin').exists();s.host.restart();s.stop_bridge();s.start_bridge();refused('connect','PENDING_IDENTITY_MISMATCH',connection=conn,username='sales-one',password=s.host.password);assert (s.profile/'pending.bin').exists();refused('recover','UNAUTHENTICATED',retry=True)
+        session=call('connect',connection=conn,username='manager',password=s.host.password);assert session['pending'];recovered=call('recover',retry=False);assert not recovered['pending'] and recovered['result']['income_cents']=='20000' and recovered['path']=='/v1/orders';assert not (s.profile/'pending.bin').exists()
         again=call('recover',retry=True);assert not again['pending'] and again['result'] is None;assert s.host.service.ledger.inventory()['counts']['orders']==27;checks.append('native_host_and_desktop_restart_original_receipt_identity_and_no_duplicate')
         large={**snap,'lines':[{'line_kind':'normal','product_id':'户外写真','q':'1','h':'10000000','w':'1000000','name':''}]};v=call('calculate',snapshot=large,draft_revision='3')['result'];assert v['totals']['income_cents']=='20000000000000000';checks.append('money_above_JavaScript_integer_limit_remains_exact_string')
         call('calculate',snapshot=snap,draft_revision='4');p=call('prices');updated={k:v for k,v in p.items() if k in ['price_version_id','items']};updated['items']=[{k:v for k,v in item.items() if k in ['product_id','sale','cost','k','single','pricing_mode']} for item in updated['items']];updated['price_version_id']='new-published-version';s.host.client('manager').mutate('/v1/prices',{'prices':updated,'expected_price_version_id':p['price_version_id']},MemoryJournal())
@@ -213,6 +213,8 @@ def main(argv=None):
                 report['release_frontend']={'status':'not_run_actual_Windows_required'}
             progress.stage('真实 Rust HTTPS 隔离协议验证')
             report['protocol']=protocol_check()
+            from p07_development_identity_check import check
+            report['development_identity']=check()
             progress.save()
             if full:
                 progress.stage('准备仅供浏览器测试使用的字体')

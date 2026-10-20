@@ -1,5 +1,6 @@
 mod automatic;
 mod connections;
+mod credentials;
 mod data_source;
 mod enrollment;
 #[cfg(test)]
@@ -138,7 +139,14 @@ impl Desktop {
     }
     async fn request(&mut self, method: &str, path: &str, body: Option<&Value>) -> Result<Value> {
         let s = self.session()?;
-        let result = transport::request(s, method, path, body).await;
+        let mut result = transport::request(s, method, path, body).await;
+        if !crate::startup::formal()
+            && path != "/v1/logout"
+            && result.as_ref().is_err_and(|e| e.status == 401)
+            && self.renew_development().await.is_ok()
+        {
+            result = transport::request(self.session()?, method, path, body).await;
+        }
         if result.as_ref().is_err_and(|e| e.status == 401) {
             if let Some(s) = &mut self.session {
                 s.token.clear();
@@ -151,10 +159,13 @@ impl Desktop {
         if self.store.read::<Pending>("pending.bin")?.is_some() {
             return Err(DesktopError::new(409, "PENDING_REQUEST_REQUIRES_QUERY"));
         }
-        let s = self.session()?;
-        if s.token.is_empty() {
-            return Err(DesktopError::new(401, "UNAUTHENTICATED"));
+        if self.session()?.token.is_empty() {
+            if crate::startup::formal() {
+                return Err(DesktopError::new(401, "UNAUTHENTICATED"));
+            }
+            self.renew_development().await?;
         }
+        let s = self.session()?;
         body["request_id"] = json!(new_id()?);
         if serde_json::to_vec(&body)
             .map_err(|_| DesktopError::new(422, "INVALID_BODY"))?
@@ -271,7 +282,11 @@ impl Desktop {
         let kind = startup::delivery();
         if !startup::formal() {
             if self.host_selected()? {
-                return Ok(json!({"delivery":kind,"session":null,"automatic":false}));
+                let connection = self
+                    .saved_connection()?
+                    .ok_or_else(|| DesktopError::new(422, "INVALID_CONNECTION"))?;
+                let session = self.connect_selected(connection, None, None).await?;
+                return Ok(json!({"delivery":kind,"session":session,"automatic":true}));
             }
             #[cfg(all(
                 debug_assertions,
@@ -363,7 +378,7 @@ impl Desktop {
             Action::PackageTarget {} => self.package_target(),
             Action::UseCurrentPackageTarget {} => self.use_current_package_target().await,
             Action::VerifyPackageTarget { connection, username, password } => self.verify_package_target(connection, username, password).await,
-            Action::Connect { connection, username, password } => self.connect(connection, username, password, "host").await,
+            Action::Connect { connection, username, password } => self.connect_selected(connection, username, password).await,
             Action::Disconnect {} => {
                 let result = self.request("POST", "/v1/logout", Some(&json!({}))).await;
                 self.session = None;

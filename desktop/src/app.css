@@ -202,7 +202,7 @@ strong {
 .workbench-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
-  align-items: start;
+  align-items: stretch;
   gap: 24px;
 }
 .card {
@@ -212,7 +212,6 @@ strong {
 }
 .quote-card {
   padding: 24px;
-  min-height: 748px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -320,8 +319,8 @@ textarea {
 }
 .line-scroll {
   overflow: auto;
-  max-height: 458px;
-  min-height: 458px;
+  flex: 1 1 0;
+  min-height: 180px;
 }
 .quote-table {
   min-width: 776px;
@@ -465,13 +464,9 @@ textarea {
 }
 .settlement {
   padding: 24px;
-  min-height: 748px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-}
-.settlement[data-admin="false"] {
-  min-height: 528px;
 }
 .amount-card {
   border-radius: 16px;
@@ -607,7 +602,6 @@ textarea {
 .orders-card,
 .management {
   padding: 24px;
-  min-height: 748px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -627,8 +621,8 @@ textarea {
 }
 .orders-table-scroll {
   overflow: auto;
-  flex: 1;
-  min-height: 0;
+  flex: 1 1 0;
+  min-height: 160px;
 }
 .orders-table,
 .prices-table {
@@ -908,11 +902,6 @@ textarea {
   }
 }
 
-.orders-card {
-  height: calc(100vh - 136px);
-  min-height: 600px;
-}
-
 @media (max-width: 1000px) {
   .topbar {
     height: auto;
@@ -932,8 +921,7 @@ textarea {
   .quote-card, .settlement, .orders-card, .management { min-height: 0; min-width: 0; padding: 16px; }
   .customer-row { flex-wrap: wrap; }
   .compact-field, .compact-field:first-child { flex: 1 1 160px; }
-  .line-scroll { min-height: 240px; height: clamp(240px, calc(100dvh - 360px), 458px); }
-  .orders-card { height: max(420px, calc(100dvh - 180px)); }
+  .line-scroll { flex-basis: 280px; }
   .orders-table, .prices-table { min-width: 640px; }
   .order-filters, .form-pair, .scope-totals { flex-wrap: wrap; }
   .order-filters > .input { width: auto; flex: 1 1 220px; }
