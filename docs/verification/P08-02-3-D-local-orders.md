@@ -2,6 +2,8 @@
 
 2026-10-20（Asia/Shanghai）；唯一分支 `stage/p08-cutover`，基线 `b70aa10373bd7412bea6e574fc17ec09d158d3e1`。用户要求开始 D，并要求再核实 C 的 CI：已直接读取对应 SHA 的已结束工作流 [#83](https://github.com/uniquenesssta/777/actions/runs/39302481133) 及各任务结果，整体成功；三个功能任务成功，installers 按约定跳过。见 [C 核实记录](P08-02-3-C-ci-confirmation.json)。新 D 提交正常触发 CI，提交后不轮询、不等待。
 
+最新 Windows 结果：首轮 D [CI #84](https://github.com/uniquenesssta/777/actions/runs/39366809561) 未通过，已修正异步借用及测试连接释放，修复提交结果尚未核实；见 [修复记录](P08-02-3-D-ci-fix.md)。下文原 D 辅助证据保留，不替代 Windows 验收。
+
 ## 保存与恢复
 
 正式母版、子版在首次真实登记、Host 显式 apply、签名租约与公开价格校验成功后，沿用现有订单操作在本机保存正式单。本机订单、不可变上传原件、本地修改前后值及保存回执在同一个 SQLite WAL/FULL 事务中提交；失败回滚且保留输入。保存不依赖 React 页面定时器或服务器响应。

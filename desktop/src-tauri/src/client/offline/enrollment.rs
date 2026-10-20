@@ -91,7 +91,7 @@ impl Desktop {
         self.local_settings(s, &binding.capabilities).await?;
         Ok(())
     }
-    async fn local_settings(&self, s: &Session, capabilities: &[String]) -> Result<()> {
+    async fn local_settings(&mut self, s: &Session, capabilities: &[String]) -> Result<()> {
         if capabilities.iter().any(|v| v == "settings") {
             let settings = transport::request(s, "GET", "/v1/settings", None).await?;
             self.local.put("settings", &settings)?;

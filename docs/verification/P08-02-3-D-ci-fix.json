@@ -1,0 +1,243 @@
+{
+  "task": "P08-02-3-D-ci-fix",
+  "date": "2026-10-20",
+  "branch": "stage/p08-cutover",
+  "source_parent": "057e2914e63856b752e0ec5150be4107e967d1ce",
+  "failed_run": {
+    "id": 39366809561,
+    "head_sha": "057e2914e63856b752e0ec5150be4107e967d1ce",
+    "run_number": 84,
+    "run_attempt": 1,
+    "status": "completed",
+    "conclusion": "failure",
+    "html_url": "https://github.com/uniquenesssta/777/actions/runs/39366809561",
+    "created_at": "2026-10-20T03:55:16Z",
+    "updated_at": "2026-10-20T04:13:29Z"
+  },
+  "jobs": [
+    {
+      "id": 118445401499,
+      "name": "desktop-contracts",
+      "status": "completed",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Windows build, real Rust HTTPS, browser and actual Tauri WebView2 lifecycle"
+      ]
+    },
+    {
+      "id": 118445401613,
+      "name": "host-sync",
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "id": 118445401620,
+      "name": "offline-orders",
+      "status": "completed",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Strict desktop analysis and Windows local transaction, protection and startup tests"
+      ]
+    },
+    {
+      "id": 118445401674,
+      "name": "device-presentation",
+      "status": "completed",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Device identity, manager/sales presentation and complete quote images"
+      ]
+    },
+    {
+      "id": 118445402296,
+      "name": "installers",
+      "status": "completed",
+      "conclusion": "skipped",
+      "failed_steps": []
+    }
+  ],
+  "read_scope": "Completed run/job summaries and full decoded logs for the three failed jobs; no new-run polling; artifacts not downloaded.",
+  "original_log_excerpts": [
+    {
+      "id": 118445401499,
+      "failures": [
+        "2026-10-20T04:00:26.3323440Z error[E0277]: `std::cell::RefCell<rusqlite::inner_connection::InnerConnection>` cannot be shared between threads safely",
+        "2026-10-20T04:00:26.3345320Z  94 |       async fn local_settings(&self, s: &Session, capabilities: &[String]) -> Result<()> {",
+        "2026-10-20T04:00:26.3390197Z error[E0277]: `RefCell<LruCache<Arc<str>, RawStatement>>` cannot be shared between threads safely",
+        "2026-10-20T04:00:26.3417343Z  94 |       async fn local_settings(&self, s: &Session, capabilities: &[String]) -> Result<()> {",
+        "2026-10-20T04:00:28.9879236Z error[E0277]: `RefCell<LruCache<Arc<str>, RawStatement>>` cannot be shared between threads safely",
+        "2026-10-20T04:00:28.9904108Z  94 |       async fn local_settings(&self, s: &Session, capabilities: &[String]) -> Result<()> {"
+      ]
+    },
+    {
+      "id": 118445401620,
+      "failures": [
+        "2026-10-20T04:02:04.5970468Z test background::startup::tests::owned_run_value_roundtrip_preserves_spaces_and_background_argument ... ok",
+        "2026-10-20T04:02:11.4179502Z thread 'client::data_source::tests::source_mode_and_connection_reload_together_without_replacing_package_target' (7288) panicked at desktop\\src-tauri\\src\\client\\data_source.rs:82:39:",
+        "2026-10-20T04:02:11.4181910Z called `Result::unwrap()` on an `Err` value: Os { code: 32, kind: Uncategorized, message: \"The process cannot access the file because it is being used by another process.\" }",
+        "2026-10-20T04:02:11.4187737Z test result: FAILED. 36 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.92s"
+      ]
+    },
+    {
+      "id": 118445401674,
+      "failures": [
+        "2026-10-20T04:07:03.2050861Z error[E0277]: `RefCell<rusqlite::inner_connection::InnerConnection>` cannot be shared between threads safely",
+        "2026-10-20T04:07:03.2068374Z  94 |       async fn local_settings(&self, s: &Session, capabilities: &[String]) -> Result<()> {",
+        "2026-10-20T04:07:03.2105955Z error[E0277]: `RefCell<hashlink::lru_cache::LruCache<Arc<str>, rusqlite::raw_statement::RawStatement>>` cannot be shared between threads safely",
+        "2026-10-20T04:07:03.2125832Z  94 |       async fn local_settings(&self, s: &Session, capabilities: &[String]) -> Result<()> {"
+      ]
+    }
+  ],
+  "fixes": [
+    "Exclusive borrow across the real settings request/cache await; no unsafe Sync declaration or removed network functionality.",
+    "Compile-only Send obligations for real execute, directory_context and sync_tick futures; old source rejected, corrected source accepted.",
+    "Drop Desktop before original cleanup assertions in source-reload and developer-pending tests."
+  ],
+  "Windows_fix_verification": "pending_new_CI",
+  "final_installers_or_build_preparation_verified": false,
+  "workflow_checks_removed_or_relaxed": false,
+  "formal_UI_or_logging_changed": false,
+  "live_hosts_contacted": false,
+  "stage_E_started": false,
+  "local_environment": {
+    "os": "Linux",
+    "rust": "rustc 1.97.1 (8bab26f4f 2026-07-14)"
+  },
+  "local_checks": [
+    {
+      "name": "before_compile_contract",
+      "command": "cargo check --locked -j6 -p quote-desktop --lib --tests --features verification,manager",
+      "exit_code": 101,
+      "log_sha256": "0cf1a145ee5f7d33577d7691eeb25cd73eee3129c92571dfc78e1dedd3897ce8",
+      "expected_failure_reproduced": true,
+      "excerpt": [
+        "error: future cannot be sent between threads safely",
+        "  --> desktop/src-tauri/src/client/future_contract.rs:9:18",
+        "   |",
+        " 9 |     require_send(desktop.execute(Action::Bootstrap {}));",
+        "   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ future returned by `execute` is not `Send`",
+        "   |",
+        "   = help: within `client::Desktop`, the trait `Sync` is not implemented for `RefCell<rusqlite::inner_connection::InnerConnection>`",
+        "   = note: if you want to do aliasing and mutation between multiple threads, use `std::sync::RwLock` instead",
+        "note: future is not `Send` as this value is used across an await",
+        "  --> desktop/src-tauri/src/client/offline/enrollment.rs:96:79",
+        "   |",
+        "94 |     async fn local_settings(&self, s: &Session, capabilities: &[String]) -> Result<()> {",
+        "   |                             ----- has type `&client::Desktop` which is not `Send`",
+        "95 |         if capabilities.iter().any(|v| v == \"settings\") {",
+        "96 |             let settings = transport::request(s, \"GET\", \"/v1/settings\", None).await?;",
+        "   |                                                                               ^^^^^ await occurs here, with `&self` maybe used later",
+        "note: required by a bound in `require_send`",
+        "  --> desktop/src-tauri/src/client/future_contract.rs:6:46",
+        "   |",
+        " 6 |     fn require_send<T: std::future::Future + Send>(future: T) {",
+        "   |                                              ^^^^ required by this bound in `require_send`",
+        "",
+        "error: future cannot be sent between threads safely",
+        "  --> desktop/src-tauri/src/client/future_contract.rs:9:18",
+        "   |",
+        " 9 |     require_send(desktop.execute(Action::Bootstrap {}));",
+        "   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ future returned by `execute` is not `Send`",
+        "   |",
+        "   = help: within `client::Desktop`, the trait `Sync` is not implemented for `RefCell<hashlink::lru_cache::LruCache<Arc<str>, rusqlite::raw_statement::RawStatement>>`",
+        "   = note: if you want to do aliasing and mutation between multiple threads, use `std::sync::RwLock` instead",
+        "note: future is not `Send` as this value is used across an await",
+        "  --> desktop/src-tauri/src/client/offline/enrollment.rs:96:79",
+        "   |",
+        "94 |     async fn local_settings(&self, s: &Session, capabilities: &[String]) -> Result<()> {",
+        "   |                             ----- has type `&client::Desktop` which is not `Send`",
+        "95 |         if capabilities.iter().any(|v| v == \"settings\") {",
+        "96 |             let settings = transport::request(s, \"GET\", \"/v1/settings\", None).await?;",
+        "   |                                                                               ^^^^^ await occurs here, with `&self` maybe used later",
+        "note: required by a bound in `require_send`",
+        "  --> desktop/src-tauri/src/client/future_contract.rs:6:46"
+      ]
+    },
+    {
+      "name": "after_compile_contract",
+      "command": "cargo check --locked -j6 -p quote-desktop --lib --tests --features verification,manager",
+      "exit_code": 0,
+      "log_sha256": "c1ed37bb56e4daabea4670a18bd037e83d05509f0d6ce5aaed1d6609abe960a4",
+      "tail": [
+        "    Checking quote-desktop v0.1.0 (/workspace/scratch/45a5dfca7a35/777/desktop/src-tauri)",
+        "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.82s"
+      ]
+    },
+    {
+      "name": "manager_unit_tests",
+      "command": "cargo test --locked -j6 -p quote-desktop --lib --features verification,manager",
+      "exit_code": 0,
+      "log_sha256": "444916b5993036402026f5c11be45f3bfce76352e8c473d01ebc7b52981e622d",
+      "tail": [
+        "test offline::checks::receipts::same_command_after_a_lost_ui_reply_replays_the_original_and_rejects_changed_body ... ok",
+        "test offline::checks::receipts::a_long_blocked_chain_does_not_hide_a_later_unrelated_order ... ok",
+        "",
+        "test result: ok. 36 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s",
+        ""
+      ],
+      "passed": 36,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "name": "sales_unit_tests",
+      "command": "cargo test --locked -j6 -p quote-desktop --lib --features verification,sales",
+      "exit_code": 0,
+      "log_sha256": "2c75219da34e483fe7e57a14a4c6b08731fde4050ef44000705c6d14c7f84574",
+      "tail": [
+        "test offline::checks::trust::clock_rollback_expiry_and_known_revocation_preserve_data_but_stop_new_writes ... ok",
+        "test offline::checks::receipts::a_long_blocked_chain_does_not_hide_a_later_unrelated_order ... ok",
+        "",
+        "test result: ok. 36 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s",
+        ""
+      ],
+      "passed": 36,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "name": "development_unit_tests",
+      "command": "cargo test --locked -j6 -p quote-desktop --lib",
+      "exit_code": 0,
+      "log_sha256": "672acbcff36f4bc5cb30f088b9d4f5a72672c467f751da057d013e4c15120415",
+      "tail": [
+        "test offline::checks::trust::clock_rollback_expiry_and_known_revocation_preserve_data_but_stop_new_writes ... ok",
+        "test offline::checks::receipts::a_long_blocked_chain_does_not_hide_a_later_unrelated_order ... ok",
+        "",
+        "test result: ok. 37 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s",
+        ""
+      ],
+      "passed": 37,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "name": "strict_analysis",
+      "command": "cargo clippy --locked -j6 -p quote-desktop --all-targets --features verification,manager -- -D warnings",
+      "exit_code": 0,
+      "log_sha256": "4d661527afc8d0c2d252d00c2115484dd8691f2a0b77584e55996c8875229174",
+      "tail": [
+        "    Checking quote-core v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-core)",
+        "   Compiling quote-desktop v0.1.0 (/workspace/scratch/45a5dfca7a35/777/desktop/src-tauri)",
+        "    Checking quote-security v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-security)",
+        "    Checking quote-ledger v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-ledger)",
+        "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.01s"
+      ]
+    },
+    {
+      "name": "format",
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tail": []
+    }
+  ],
+  "counting_and_scope": "Linux auxiliary checks. The Send obligation is compile-only. Role test runs overlap and are not summed. Windows cleanup and Tauri UI/runtime require the new CI; no TLS flow or frontend rerun for this borrow/lifecycle-only fix.",
+  "implementation_sha256_LF": {
+    "desktop/src-tauri/src/client.rs": "dd4dff96012cdca0672ddd98c03cd2747b7ad4255ead9f244f5b67dc605abb66",
+    "desktop/src-tauri/src/client/data_source.rs": "d77df8b9c32d0285e8cc495722a5148248d4da9c3668003491d6ed5ed919de5e",
+    "desktop/src-tauri/src/client/offline/enrollment.rs": "d6a6af391ceca96d2ca4e336ef71b0d786457aee9f7d1c71e7754749ae357799",
+    "desktop/src-tauri/src/client/future_contract.rs": "f477c7815ee3db044617fb46dcffb95c8597193e047252b36176e35d5561bbee"
+  }
+}

@@ -2,6 +2,8 @@ mod automatic;
 mod connections;
 mod data_source;
 mod enrollment;
+#[cfg(test)]
+mod future_contract;
 mod offline;
 mod preferences;
 mod restricted_outputs;
@@ -748,6 +750,7 @@ mod tests {
             );
             assert_eq!(std::fs::read(root.join("pending.bin")).unwrap(), before);
         }
+        drop(desktop);
         std::fs::remove_dir_all(root).unwrap();
     }
     #[test]

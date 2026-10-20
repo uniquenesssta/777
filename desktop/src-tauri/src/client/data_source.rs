@@ -79,6 +79,7 @@ mod tests {
             std::fs::read(root.join("package-target.bin")).unwrap(),
             target
         );
+        drop(desktop);
         std::fs::remove_dir_all(root).unwrap();
     }
 }
