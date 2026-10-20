@@ -6,6 +6,7 @@ mod enrollment;
 #[cfg(test)]
 mod future_contract;
 mod offline;
+mod pending;
 mod preferences;
 mod restricted_outputs;
 mod retry;
@@ -157,65 +158,6 @@ impl Desktop {
         }
         result
     }
-    async fn mutate(&mut self, path: &str, mut body: Value) -> Result<Value> {
-        if self.store.read::<Pending>("pending.bin")?.is_some() {
-            return Err(DesktopError::new(409, "PENDING_REQUEST_REQUIRES_QUERY"));
-        }
-        if self.session()?.token.is_empty() {
-            if crate::startup::formal() {
-                return Err(DesktopError::new(401, "UNAUTHENTICATED"));
-            }
-            self.renew_development().await?;
-        }
-        let s = self.session()?;
-        body["request_id"] = json!(new_id()?);
-        if serde_json::to_vec(&body)
-            .map_err(|_| DesktopError::new(422, "INVALID_BODY"))?
-            .len()
-            > REQUEST_LIMIT
-        {
-            return Err(DesktopError::new(413, "BODY_TOO_LARGE"));
-        }
-        let p = Pending {
-            path: path.into(),
-            body,
-            subject: s.subject.clone(),
-            url: s.connection.url.clone(),
-            pin: s.connection.certificate_sha256.clone(),
-        };
-        self.store.write("pending.bin", &p)?;
-        self.send_pending(&p).await
-    }
-    async fn send_pending(&mut self, p: &Pending) -> Result<Value> {
-        permissions::pending(&permissions::selected()?, &p.path, &p.body)?;
-        if let Some(id) = p
-            .path
-            .strip_prefix("/v1/outputs/")
-            .and_then(|v| v.strip_suffix("/retry"))
-        {
-            self.authorize_output(id).await?;
-        }
-        let s = self.session()?;
-        if p.subject != s.subject
-            || p.url != s.connection.url
-            || p.pin != s.connection.certificate_sha256
-        {
-            return Err(DesktopError::new(403, "PENDING_IDENTITY_MISMATCH"));
-        }
-        match self.request("POST", &p.path, Some(&p.body)).await {
-            Ok(v) => {
-                self.store.clear("pending.bin")?;
-                Ok(v)
-            }
-            Err(e) if e.status == 0 || e.status >= 500 || e.status == 202 || e.status == 401 => {
-                Err(DesktopError::new(202, "COMMIT_UNKNOWN"))
-            }
-            Err(e) => {
-                self.store.clear("pending.bin")?;
-                Err(e)
-            }
-        }
-    }
     pub async fn execute(&mut self, action: Action) -> Result<Value> {
         if matches!(action, Action::UiDiagnostic { .. }) {
             return self.execute_inner(action).await;
@@ -331,15 +273,37 @@ impl Desktop {
     }
     async fn execute_inner(&mut self, action: Action) -> Result<Value> {
         match action {
-            Action::UiDiagnostic { event, order_id, revision: order_revision, draft_revision, lines, error_kind, source, line, column } => {
-                if let Some(id) = &order_id { identifier(id)?; }
-                for r in [order_revision.as_deref(), draft_revision.as_deref()].into_iter().flatten() {
+            Action::UiDiagnostic {
+                event,
+                order_id,
+                revision: order_revision,
+                draft_revision,
+                lines,
+                error_kind,
+                source,
+                line,
+                column,
+            } => {
+                if let Some(id) = &order_id {
+                    identifier(id)?;
+                }
+                for r in [order_revision.as_deref(), draft_revision.as_deref()]
+                    .into_iter()
+                    .flatten()
+                {
                     if r.is_empty() || r.len() > 40 || !r.bytes().all(|b| b.is_ascii_digit()) {
                         return Err(DesktopError::new(422, "INVALID_REVISION"));
                     }
                 }
-                let record = if matches!(event, crate::UiEvent::FrontendError) { quote_diagnostics::event } else { quote_diagnostics::event_each };
-                record("ui.event", json!({"event":event,"order_id":order_id,"revision":order_revision,"draft_revision":draft_revision,"lines":lines,"error_kind":error_kind,"source":source,"line":line,"column":column}));
+                let record = if matches!(event, crate::UiEvent::FrontendError) {
+                    quote_diagnostics::event
+                } else {
+                    quote_diagnostics::event_each
+                };
+                record(
+                    "ui.event",
+                    json!({"event":event,"order_id":order_id,"revision":order_revision,"draft_revision":draft_revision,"lines":lines,"error_kind":error_kind,"source":source,"line":line,"column":column}),
+                );
                 Ok(Value::Null)
             }
             #[cfg(all(
@@ -354,12 +318,20 @@ impl Desktop {
                 let switches = request.switches_data();
                 let data = serde_json::to_value(&request)
                     .map_err(|_| DesktopError::new(422, "INVALID_BODY"))?;
-                if let crate::developer::DeveloperAction::Package { ref delivery, ref permissions } = request {
+                if let crate::developer::DeveloperAction::Package {
+                    ref delivery,
+                    ref permissions,
+                } = request
+                {
                     crate::permissions::validate(delivery, permissions)?;
                 }
                 let result = crate::developer::call(data).await?;
                 if switches {
-                    self.remember_source("local", serde_json::from_value(result["connection"].clone()).map_err(|_|DesktopError::new(502,"DEVELOPER_CONFIG_INVALID"))?)?;
+                    self.remember_source(
+                        "local",
+                        serde_json::from_value(result["connection"].clone())
+                            .map_err(|_| DesktopError::new(502, "DEVELOPER_CONFIG_INVALID"))?,
+                    )?;
                     self.session = None;
                     self.calculation = None;
                     self.auto_expires = 0;
@@ -376,11 +348,24 @@ impl Desktop {
             }
             Action::ImportEnrollment { path } => self.import_enrollment(&path).await,
             Action::BusinessDirectory {} => self.business_directory(None).await,
-            Action::SaveBusinessDirectory { directory } => self.business_directory(Some(directory)).await,
+            Action::SaveBusinessDirectory { directory } => {
+                self.business_directory(Some(directory)).await
+            }
             Action::PackageTarget {} => self.package_target(),
             Action::UseCurrentPackageTarget {} => self.use_current_package_target().await,
-            Action::VerifyPackageTarget { connection, username, password } => self.verify_package_target(connection, username, password).await,
-            Action::Connect { connection, username, password } => self.connect_selected(connection, username, password).await,
+            Action::VerifyPackageTarget {
+                connection,
+                username,
+                password,
+            } => {
+                self.verify_package_target(connection, username, password)
+                    .await
+            }
+            Action::Connect {
+                connection,
+                username,
+                password,
+            } => self.connect_selected(connection, username, password).await,
             Action::Disconnect {} => {
                 let result = self.request("POST", "/v1/logout", Some(&json!({}))).await;
                 self.session = None;
@@ -469,31 +454,83 @@ impl Desktop {
                 let result = self
                     .mutate("/v1/orders", json!({"snapshot":snapshot,"details":details}))
                     .await;
-                if result.is_ok() { self.calculation = None; }
+                if result.is_ok() {
+                    self.calculation = None;
+                }
                 result
             }
-            Action::CustomerOrders{query,offset,group_id,order_offset} => self.request("POST","/v1/customer-orders",Some(&json!({"query":query,"offset":offset,"group_id":group_id,"order_offset":order_offset.unwrap_or(0)}))).await,
-            Action::OrderPreview{snapshot,sources,order_id,expected_revision,draft_revision} => {
+            Action::CustomerOrders {
+                query,
+                identity,
+                offset,
+                group_id,
+                order_offset,
+            } => {
+                let mut body = json!({"query":query,"offset":offset,"group_id":group_id,"order_offset":order_offset.unwrap_or(0)});
+                if let Some(identity) = identity {
+                    body["identity"] = json!(identity);
+                }
+                self.request("POST", "/v1/customer-orders", Some(&body))
+                    .await
+            }
+            Action::OrderPreview {
+                snapshot,
+                sources,
+                order_id,
+                expected_revision,
+                draft_revision,
+            } => {
                 revision(&draft_revision)?;
-                self.calculation=None;
-                let expected=expected_revision.map(|s|revision(&s)).transpose()?;
-                let context=json!({"snapshot":snapshot,"sources":sources,"order_id":order_id,"expected_revision":expected});
-                let result=self.request("POST","/v1/order-preview",Some(&context)).await?;
-                self.calculation=Some(Calculation{snapshot:context,revision:draft_revision.clone(),result:result.clone()});
+                self.calculation = None;
+                let expected = expected_revision.map(|s| revision(&s)).transpose()?;
+                let context = json!({"snapshot":snapshot,"sources":sources,"order_id":order_id,"expected_revision":expected});
+                let result = self
+                    .request("POST", "/v1/order-preview", Some(&context))
+                    .await?;
+                self.calculation = Some(Calculation {
+                    snapshot: context,
+                    revision: draft_revision.clone(),
+                    result: result.clone(),
+                });
                 Ok(json!({"draft_revision":draft_revision,"result":result}))
             }
-            Action::SaveOrder{snapshot,sources,order_id,expected_revision,draft_revision,details,customer,..} => {
-                let expected=expected_revision.map(|s|revision(&s)).transpose()?;
-                let mut context=json!({"snapshot":snapshot,"sources":sources,"order_id":order_id,"expected_revision":expected});
-                let c=self.calculation.as_ref().ok_or_else(||DesktopError::new(409,"CALCULATION_REQUIRED"))?;
-                if c.snapshot!=context||c.revision!=draft_revision||c.result["status"]!="ok"{return Err(DesktopError::new(409,"CALCULATION_STALE"));}
-                context["details"]=details;context["customer"]=customer;
-                let result=self.mutate("/v1/order-save",context).await;
-                if result.is_ok() { self.calculation=None; } result
+            Action::SaveOrder {
+                snapshot,
+                sources,
+                order_id,
+                expected_revision,
+                draft_revision,
+                details,
+                customer,
+                ..
+            } => {
+                let expected = expected_revision.map(|s| revision(&s)).transpose()?;
+                let mut context = json!({"snapshot":snapshot,"sources":sources,"order_id":order_id,"expected_revision":expected});
+                let c = self
+                    .calculation
+                    .as_ref()
+                    .ok_or_else(|| DesktopError::new(409, "CALCULATION_REQUIRED"))?;
+                if c.snapshot != context
+                    || c.revision != draft_revision
+                    || c.result["status"] != "ok"
+                {
+                    return Err(DesktopError::new(409, "CALCULATION_STALE"));
+                }
+                context["details"] = details;
+                context["customer"] = customer;
+                let result = self.mutate("/v1/order-save", context).await;
+                if result.is_ok() {
+                    self.calculation = None;
+                }
+                result
             }
-            Action::LocalReceipt{operation_id}=>{
+            Action::LocalReceipt { operation_id } => {
                 identifier(&operation_id)?;
-                if self.local.active()?{self.local.saved_receipt(&operation_id)}else{Ok(json!({"result":null,"submitted":null}))}
+                if self.local.active()? {
+                    self.local.saved_receipt(&operation_id)
+                } else {
+                    Ok(json!({"result":null,"submitted":null}))
+                }
             }
             Action::Orders {
                 q,
@@ -527,9 +564,24 @@ impl Desktop {
                 )
                 .await
             }
-            Action::OrderChanges {order_id,revision:rev} => {
-                let result=self.request("GET",&format!("/v1/orders/{}/changes/{}",identifier(&order_id)?,revision(&rev)?),None).await?;
-                if self.local.active()?{self.local.put(&format!("diff:{order_id}:{rev}"),&result)?;}
+            Action::OrderChanges {
+                order_id,
+                revision: rev,
+            } => {
+                let result = self
+                    .request(
+                        "GET",
+                        &format!(
+                            "/v1/orders/{}/changes/{}",
+                            identifier(&order_id)?,
+                            revision(&rev)?
+                        ),
+                        None,
+                    )
+                    .await?;
+                if self.local.active()? {
+                    self.local.put(&format!("diff:{order_id}:{rev}"), &result)?;
+                }
                 Ok(result)
             }
             Action::Order { order_id } => {
@@ -574,7 +626,10 @@ impl Desktop {
                     "/v1/prices",
                     json!({"prices":prices,"expected_price_version_id":expected_price_version_id}),
                 ).await?;
-                if self.local.active()?{self.local.put("prices_changed",&json!(true))?;self.local.put("ready_checked",&json!(0))?;}
+                if self.local.active()? {
+                    self.local.put("prices_changed", &json!(true))?;
+                    self.local.put("ready_checked", &json!(0))?;
+                }
                 Ok(result)
             }
             Action::Settings {} => self.request("GET", "/v1/settings", None).await,
@@ -585,7 +640,9 @@ impl Desktop {
             } => {
                 self.admin()?;
                 let result=self.request("POST","/v1/settings",Some(&json!({"revision":revision(&rev)?,"export_dir":export_dir,"image_dir":image_dir}))).await?;
-                if self.local.active()?{self.local.put("settings",&result)?;}
+                if self.local.active()? {
+                    self.local.put("settings", &result)?;
+                }
                 Ok(result)
             }
             Action::Outputs { offset } => self.visible_outputs(offset).await,
@@ -608,10 +665,11 @@ impl Desktop {
                     .map_err(|_| DesktopError::new(503, "OUTPUT_FOLDER_UNAVAILABLE"))??;
                 Ok(json!({"opened":true}))
             }
-            Action::CreateReport{from,to}=>{
+            Action::CreateReport { from, to } => {
                 self.admin()?;
-                self.mutate("/v1/outputs/report",json!({"from":from,"to":to})).await
-            },
+                self.mutate("/v1/outputs/report", json!({"from":from,"to":to}))
+                    .await
+            }
             Action::CreateOutput {
                 order_id,
                 expected_revision,
@@ -624,12 +682,20 @@ impl Desktop {
                 if kind == "excel_admin" {
                     self.admin()?;
                 }
-                let expected=if self.local.active()?{self.local.output_revision(&order_id,&expected_revision)?}else{expected_revision};
+                let expected = if self.local.active()? {
+                    self.local.output_revision(&order_id, &expected_revision)?
+                } else {
+                    expected_revision
+                };
                 self.mutate("/v1/outputs",json!({"order_id":order_id,"expected_revision":revision(&expected)?,"kind":kind})).await
             }
             Action::DeleteOutput { job_id } => {
                 self.authorize_output(&job_id).await?;
-                self.mutate(&format!("/v1/outputs/{}/delete", identifier(&job_id)?), json!({})).await
+                self.mutate(
+                    &format!("/v1/outputs/{}/delete", identifier(&job_id)?),
+                    json!({}),
+                )
+                .await
             }
             Action::RetryOutput { job_id } => {
                 self.authorize_output(&job_id).await?;
@@ -639,40 +705,7 @@ impl Desktop {
                 )
                 .await
             }
-            Action::Recover { retry } => {
-                let Some(p) = self.store.read::<Pending>("pending.bin")? else {
-                    return Ok(json!({"pending":false,"result":null}));
-                };
-                let s = self.session()?;
-                if p.subject != s.subject
-                    || p.url != s.connection.url
-                    || p.pin != s.connection.certificate_sha256
-                {
-                    return Err(DesktopError::new(403, "PENDING_IDENTITY_MISMATCH"));
-                }
-                let receipt = self
-                    .request(
-                        "GET",
-                        &format!(
-                            "/v1/requests/{}",
-                            identifier(p.body["request_id"].as_str().unwrap_or(""))?
-                        ),
-                        None,
-                    )
-                    .await?;
-                if !receipt["result"].is_null() {
-                    self.store.clear("pending.bin")?;
-                    return Ok(
-                        json!({"pending":false,"result":receipt["result"],"path":p.path,"submitted":if ["/v1/orders","/v1/order-save"].contains(&p.path.as_str()) {p.body.clone()} else {Value::Null}}),
-                    );
-                }
-                if retry {
-                    return Ok(
-                        json!({"pending":false,"result":self.send_pending(&p).await?,"path":p.path,"submitted":if ["/v1/orders","/v1/order-save"].contains(&p.path.as_str()) {p.body.clone()} else {Value::Null}}),
-                    );
-                }
-                Ok(json!({"pending":true,"result":null,"request_id":p.body["request_id"]}))
-            }
+            Action::Recover { retry } => self.recover_pending(retry).await,
             Action::BackupStatus {} => {
                 self.admin()?;
                 self.request("GET", "/v1/backup", None).await

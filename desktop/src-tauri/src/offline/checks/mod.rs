@@ -1,4 +1,5 @@
 mod business;
+mod customer_identity;
 mod finance;
 mod receipts;
 mod trust;

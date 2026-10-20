@@ -2277,5 +2277,13 @@
     "draftLifetime": "current native runtime only; pending receipts and saved orders retained",
     "orderViews": "retain both views; immediate committed search; quote typing still debounced 250ms",
     "visualReview": "existing components reused; confirmation layout corrected and screenshot reviewed"
+  },
+  "customerIdentityCorrection20261020": {
+    "picker": "85:1772",
+    "title": "85:1773",
+    "description": "85:1774",
+    "identity": "Exact same-field Taobao ID or WeChat match; never order_ref; distinct candidates require user selection",
+    "visualReview": "Existing editable picker updated and screenshot reviewed at 420x284",
+    "implementation": "docs/verification/P08-pending-customer-identity.md"
   }
 }

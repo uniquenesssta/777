@@ -93,11 +93,23 @@ impl Local {
         offset: u32,
         group: Option<&str>,
         order_offset: u32,
+        identity: Option<&quote_core::customer_identity::CustomerIdentity>,
     ) -> Result<Value> {
         permit(&self.context()?, "orders")?;
+        if identity.is_some_and(|v| !v.valid()) {
+            return Err(fault("INVALID_QUERY"));
+        }
         let q = quote_core::search::casefold(query);
         let mut groups: Vec<(String, Vec<Value>)> = Vec::new();
         for o in self.all()? {
+            if identity.is_some_and(|v| {
+                !v.matches(
+                    o["details"]["customer"].as_str().unwrap_or(""),
+                    o["details"]["wechat"].as_str().unwrap_or(""),
+                )
+            }) {
+                continue;
+            }
             if !["customer", "order_ref", "wechat"].iter().any(|k| {
                 quote_core::search::casefold(o["details"][k].as_str().unwrap_or("")).contains(&q)
             }) {

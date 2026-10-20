@@ -1,5 +1,5 @@
 import { formalPresentation } from "../state/formalPresentation";
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import type { ProfitAnalysis } from "../contracts";
 import { money } from "../state/format";
 import {
@@ -45,16 +45,27 @@ function TrendChart({
 }) {
   const scroll = useRef<HTMLDivElement>(null);
   const [available, setAvailable] = useState({width:760,height:310});
-  useEffect(() => {
-    if (!scroll.current) return;
-    const observer = new ResizeObserver(() =>
-      setAvailable({width:scroll.current?.clientWidth ?? 760,height:scroll.current?.clientHeight ?? 310}),
-    );
-    observer.observe(scroll.current);
-    return () => observer.disconnect();
-  }, [chart, data]);
   const candle = chart === "candle";
-  if (candle && data.buckets.some((b) => !b.profit_ohlc))
+  const supported = !candle || data.buckets.every(b => !!b.profit_ohlc);
+  useLayoutEffect(() => {
+    const element = scroll.current;
+    if (!element) return;
+    const resize = (width:number, height:number) => {
+      // Fractional CSS pixels must not round up and create a scrollbar which
+      // changes the measured space again. Do not redraw for unchanged sizes.
+      const next = {width:Math.max(0,Math.floor(width)),height:Math.max(0,Math.floor(height))};
+      setAvailable(previous => previous.width === next.width && previous.height === next.height ? previous : next);
+    };
+    const style = getComputedStyle(element);
+    resize(parseFloat(style.width), Math.min(parseFloat(style.height),element.clientHeight));
+    const observer = new ResizeObserver(entries => {
+      const {width,height} = entries[0].contentRect;
+      resize(width,height);
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [supported]);
+  if (!supported)
     return formalPresentation() ? null : <Empty>当前服务未提供K线数据，请更新服务后刷新。</Empty>;
   const domain = candle ? candleDomain(data) : chartDomain(data);
   const top = 20,

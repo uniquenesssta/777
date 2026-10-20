@@ -64,7 +64,8 @@ export function draftReducer(d: Draft, a: DraftAction): Draft {
   return {
     ...d,
     ...(a.type === "edit"
-      ? { details: a.details ?? d.details, lines: a.lines ?? d.lines }
+      ? { details: a.details ?? d.details, lines: a.lines ?? d.lines,
+          customer:a.details && (a.details.customer.trim()!==d.details.customer.trim() || a.details.wechat.trim()!==d.details.wechat.trim()) ? undefined : d.customer }
       : {}),
     priceVersion: a.type === "prices" ? a.version : d.priceVersion,
     revision: (BigInt(d.revision) + 1n).toString(),

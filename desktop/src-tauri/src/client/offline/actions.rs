@@ -34,7 +34,7 @@ impl Desktop {
             }
             Order{order_id}=>self.local.order(order_id)?,
             Orders{q,state,offset,view}=>self.local.listing(q,state,*offset,view)?,
-            CustomerOrders{query,offset,group_id,order_offset}=>self.local.customers(query,*offset,group_id.as_deref(),order_offset.unwrap_or(0))?,
+            CustomerOrders{query,identity,offset,group_id,order_offset}=>self.local.customers(query,*offset,group_id.as_deref(),order_offset.unwrap_or(0),identity.as_ref())?,
             OrderChanges{order_id,revision}=>match self.local.changes(order_id,revision){Ok(v)=>v,Err(e)if e.status==404=>return Ok(None),Err(e)=>return Err(e)},
             Note{order_id,expected_revision,body}=>self.local.save("note",&json!({"order_id":order_id,"expected_revision":expected_revision,"body":body}))?,
             SetState{order_id,expected_revision,state,reason}=>self.local.save("state",&json!({"order_id":order_id,"expected_revision":expected_revision,"state":state,"reason":reason}))?,

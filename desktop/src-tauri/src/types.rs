@@ -94,6 +94,8 @@ pub enum Action {
     },
     CustomerOrders {
         query: String,
+        #[serde(default)]
+        identity: Option<quote_core::customer_identity::CustomerIdentity>,
         offset: u32,
         group_id: Option<String>,
         order_offset: Option<u32>,

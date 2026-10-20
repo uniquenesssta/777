@@ -137,6 +137,10 @@ pub fn authorize(selected: &Option<Vec<String>>, action: &Action) -> Result<()> 
     };
     require(selected, permission)
 }
+pub fn output_mutation_job(path: &str) -> Option<&str> {
+    let (id, operation) = path.strip_prefix("/v1/outputs/")?.split_once('/')?;
+    (["retry", "delete"].contains(&operation) && crate::types::identifier(id).is_ok()).then_some(id)
+}
 pub fn pending(selected: &Option<Vec<String>>, path: &str, body: &Value) -> Result<()> {
     let permission = match path {
         "/v1/orders" => "quote",
@@ -159,7 +163,7 @@ pub fn pending(selected: &Option<Vec<String>>, path: &str, body: &Value) -> Resu
             }
             "exports"
         }
-        p if p.starts_with("/v1/outputs/") && p.ends_with("/retry") => "exports",
+        p if output_mutation_job(p).is_some() => "exports",
         _ => return Err(DesktopError::new(403, "PACKAGE_PERMISSION_DENIED")),
     };
     require(selected, permission)

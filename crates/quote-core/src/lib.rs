@@ -6,4 +6,5 @@ pub mod numbers;
 pub mod pricing;
 pub mod session;
 
+pub mod customer_identity;
 pub mod search;

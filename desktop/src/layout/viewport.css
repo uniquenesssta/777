@@ -38,7 +38,7 @@
   place-content: center;
 }
 .profit-page > :is(.profit-chart, .profit-pie) { flex: 1 0 auto; }
-.profit-chart-scroll { position: relative; flex: 1 0 180px; min-height: 180px; }
+.profit-chart-scroll { position: relative; flex: 1 0 180px; min-height: 180px; overflow-x: auto; overflow-y: hidden; }
 .profit-chart-scroll > svg { display: block; position: absolute; top: 0; left: 0; }
 .developer-page > :is(.developer-title, .developer-workspace-tabs) { flex: none; }
 .developer-content:not([hidden]) { display: flex; flex-direction: column; flex: 1 0 auto; }

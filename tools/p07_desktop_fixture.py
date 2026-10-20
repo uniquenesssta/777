@@ -65,6 +65,12 @@ class Handler(BaseHTTPRequestHandler):
                 if Handler.scenario:Handler.scenario.close()
                 Handler.scenario=Scenario();return self.send_json(Handler.scenario.fixture())
             if self.path=='/action' and self.scenario:return self.send_json(self.scenario.call(data))
+            if self.path=='/block-output-directory' and self.scenario:
+                # A real filesystem failure for native export/delete integration checks.
+                blocked=self.scenario.host.root/'blocked-output';blocked.write_text('not a directory',encoding='utf-8')
+                with self.scenario.host.service.auth.connection() as c:
+                    c.execute('UPDATE preferences SET export_dir=?,revision=revision+1 WHERE id=1',(str(blocked),));c.commit()
+                return self.send_json({'ok':True})
             if self.path=='/fault-after-commit' and self.scenario:self.scenario.host.fault.write_text('after_commit',encoding='utf-8');return self.send_json({'ok':True})
             if self.path=='/restart' and self.scenario:self.scenario.host.restart();return self.send_json({'ok':True})
             self.send_json({'error':'NOT_FOUND'},404)

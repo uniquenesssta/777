@@ -352,7 +352,7 @@ test("confirmed write with failed detail refresh clears the original draft and n
   ).toBeDisabled();
   await page.getByRole("button", { name: "订单记录", exact: true }).click();
   await expect(
-    page.getByText("saved-refresh-failed", { exact: true }),
+    page.getByRole("table", { name: "全部订单", exact: true }).getByText("saved-refresh-failed", { exact: true }),
   ).toHaveCount(1);
   await page.getByRole("button", { name: "查看详情" }).first().click();
   await page.route(host + "/action", async (route) => {
@@ -559,6 +559,7 @@ for (const username of ["manager", "sales-one"]) {
 test("P07-07 customer match edits the chosen order and exports period financial report", async ({page})=>{
   await login(page);
   await page.getByLabel("订单号",{exact:true}).fill("00000");
+  await page.getByLabel("客户 / 淘宝 ID",{exact:true}).fill("客户0");
   const match=page.getByRole("region",{name:"匹配客户与订单"});
   await expect(match.getByRole("button",{name:"继续编辑",exact:true})).toBeVisible();
   await page.screenshot({path:"test-results/p07-07-customer-match.png"});
@@ -607,6 +608,7 @@ test("P07-07 customer match edits the chosen order and exports period financial 
 test("P07-07 continue existing draft from another order preserves pending edits",async({page})=>{
   await login(page);
   await page.getByLabel("订单号",{exact:true}).fill("00000");
+  await page.getByLabel("客户 / 淘宝 ID",{exact:true}).fill("客户0");
   await page.getByRole("region",{name:"匹配客户与订单"}).getByRole("button",{name:"继续编辑",exact:true}).click();
   await page.getByLabel("第1行数量",{exact:true}).fill("4");
   const readOther=async()=>{
@@ -720,7 +722,7 @@ test('customer rejection opens an actionable picker and preserves the confirmed 
   await page.getByRole('button',{name:'计算报价',exact:true}).click();
   await page.getByRole('button',{name:'核对并提交订单',exact:true}).click();
   await page.getByRole('button',{name:'确认提交',exact:true}).click();
-  const picker=page.getByRole('dialog',{name:'选择匹配客户与订单',exact:true});
+  const picker=page.getByRole('dialog',{name:'是否是这个客户',exact:true});
   await expect(picker).toBeVisible();
   await expect(picker.getByRole('button',{name:'该客户新建订单',exact:true})).toBeVisible();
   for(const width of [1440,720]){

@@ -1,4 +1,5 @@
 import { startDraftSession, draftKey } from "./draftSession";
+import { pendingRequestState } from "./pendingRequest";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { navigationRole as resolveNavigationRole } from "./navigation";
 import { selectCurrentLocalDevelopment } from "./localDevelopment";
@@ -126,12 +127,14 @@ export function useWorkbench() {
       } catch (e) {
         if (e instanceof Error) uiDiagnostic("frontend_error", undefined, e);
         if (rethrow) throw e;
+        const journalPending = await pendingRequestState();
         if (current === epoch.current) {
           setFeedback(errorMessage(e));
           setIsError(true);
           const code = errorCode(e);
           if (formalPresentation() && !showError(code)) setConnected(false);
-          if (
+          if (journalPending !== null) setPending(journalPending);
+          else if (
             ["COMMIT_UNKNOWN", "PENDING_REQUEST_REQUIRES_QUERY"].includes(code)
           )
             setPending(true);
@@ -703,6 +706,7 @@ export function useWorkbench() {
     chooseCustomer,
     chooseNewCustomer:()=>{dispatch({type:"link_customer",details:draft.details,customer:{new_customer:true}});setSaveFailure("");setMatchRequest(0);setFeedback("");setIsError(false);},
     customerOrders,
+    customerMatches:(identity:import("./customerMatches").CustomerIdentity,offset=0)=>request<CustomerListing>("customer_orders",{query:"",identity,offset,group_id:null,order_offset:0}),
     listScrollRef,
     delivery,
     automatic,

@@ -1,12 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {customerQueries,mergeCustomerMatches} from '../src/state/customerMatches.ts';
-import type {CustomerListing,CustomerGroup} from '../src/contracts.ts';
-test('matching uses all current identifiers after restore and deduplicates queries and customers',()=>{
- assert.deepEqual(customerQueries({customer:' buyer ',wechat:'wechat',order_ref:'new-order'}),['buyer','wechat','new-order']);
- assert.deepEqual(customerQueries({customer:'same',wechat:'same',order_ref:''}),['same']);
- const group={group_id:'buyer',orders:[{order_id:'order'}]} as CustomerGroup;
- const page={groups:[group],offset:0,limit:20,total:1} as CustomerListing;
- const result=mergeCustomerMatches([page,page]);assert.equal(result.groups.length,1);assert.equal(result.groups[0].orders.length,1);assert.equal(result.has_more,false);
- assert.equal(mergeCustomerMatches([{...page,total:21}]).has_more,true);
+import {customerIdentity,hasCustomerIdentity} from '../src/state/customerMatches.ts';
+test('quote matching only carries field-specific Taobao and WeChat identity',()=>{
+ assert.deepEqual(customerIdentity({customer:' buyer ',wechat:' wechat ',order_ref:'new-order'}),{customer:'buyer',wechat:'wechat'});
+ assert.equal(hasCustomerIdentity(customerIdentity({customer:'',wechat:'',order_ref:'existing-order'})),false);
+ assert.equal(hasCustomerIdentity({customer:'buyer',wechat:''}),true);
+ assert.equal(hasCustomerIdentity({customer:'',wechat:'wechat'}),true);
+});
+
+import {draftReducer,emptyDraft} from '../src/state/draft.ts';
+test('changing identity clears an old customer choice; changing only the order number preserves it',()=>{
+ const original={...emptyDraft(),details:{customer:'buyer',wechat:'wx',order_ref:'one'},customer:{customer_id:'chosen'}};
+ const numbered=draftReducer(original,{type:'edit',details:{...original.details,order_ref:'two'}});
+ assert.deepEqual(numbered.customer,{customer_id:'chosen'});
+ for(const details of [{...original.details,customer:'other'},{...original.details,wechat:'other'}]){
+   assert.equal(draftReducer(original,{type:'edit',details}).customer,undefined);
+ }
 });

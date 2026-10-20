@@ -4,7 +4,25 @@ use quote_ledger::store::{self, Actor};
 use rusqlite::{named_params, Connection};
 use serde_json::{json, Value};
 pub fn listing(c: &Connection, a: &Actor, data: &Value) -> Result<Value> {
-    protocol::fields(data, &["query", "offset"], &["group_id", "order_offset"])?;
+    protocol::fields(
+        data,
+        &["query", "offset"],
+        &["group_id", "order_offset", "identity"],
+    )?;
+    let identity = if data["identity"].is_null() {
+        None
+    } else {
+        let value: quote_core::customer_identity::CustomerIdentity =
+            serde_json::from_value(data["identity"].clone())
+                .map_err(|_| Error::new(422, "INVALID_QUERY"))?;
+        if !value.valid() {
+            return Err(Error::new(422, "INVALID_QUERY"));
+        }
+        Some(value)
+    };
+    let identity_only = i32::from(identity.is_some());
+    let name = identity.as_ref().map_or("", |v| v.customer.trim());
+    let wechat = identity.as_ref().map_or("", |v| v.wechat.trim());
     let q = protocol::text(&data["query"], 256, false)?.trim();
     let offset = crate::number(&data["offset"])?;
     let order_offset = if data["order_offset"].is_null() {
@@ -20,18 +38,27 @@ pub fn listing(c: &Connection, a: &Actor, data: &Value) -> Result<Value> {
         store::id(group)?;
     }
     let tx = c.unchecked_transaction()?;
-    let filter="(?1='admin' OR owner_id=?2) AND (?3='' OR instr(details_json,?3)>0) AND (?4='' OR coalesce(customer_id,order_id)=?4)";
+    let filter="(?1='admin' OR owner_id=?2) AND (?3='' OR instr(details_json,?3)>0) AND (?4='' OR coalesce(customer_id,order_id)=?4) AND (?5=0 OR ((?6!='' AND trim(json_extract(details_json,'$.customer'))=?6) OR (?7!='' AND trim(json_extract(details_json,'$.wechat'))=?7)))";
     let count: i64 = tx.query_row(
         &format!(
             "SELECT count(DISTINCT coalesce(customer_id,order_id)) FROM orders WHERE {filter}"
         ),
-        rusqlite::params![a.role, a.subject, q, group],
+        rusqlite::params![a.role, a.subject, q, group, identity_only, name, wechat],
         |r| r.get(0),
     )?;
-    let mut st=tx.prepare(&format!("SELECT coalesce(customer_id,order_id) FROM orders WHERE {filter} GROUP BY coalesce(customer_id,order_id) ORDER BY max(created_at) DESC,coalesce(customer_id,order_id) LIMIT 20 OFFSET ?5"))?;
+    let mut st=tx.prepare(&format!("SELECT coalesce(customer_id,order_id) FROM orders WHERE {filter} GROUP BY coalesce(customer_id,order_id) ORDER BY max(created_at) DESC,coalesce(customer_id,order_id) LIMIT 20 OFFSET ?8"))?;
     let ids = st
         .query_map(
-            rusqlite::params![a.role, a.subject, q, group, offset],
+            rusqlite::params![
+                a.role,
+                a.subject,
+                q,
+                group,
+                identity_only,
+                name,
+                wechat,
+                offset
+            ],
             |r| r.get::<_, String>(0),
         )?
         .collect::<std::result::Result<Vec<_>, _>>()?;
