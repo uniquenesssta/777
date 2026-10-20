@@ -48,7 +48,7 @@ pub(crate) fn save(root: &Path, id: &str, kind: &str, content: &Value) -> Result
     {
         return Err(invalid());
     }
-    if (extension == ".png" && !raw.starts_with(b"\x89PNG\r\n\x1a\n"))
+    if (extension == ".jpg" && !(raw.starts_with(b"\xff\xd8\xff") && raw.ends_with(b"\xff\xd9")))
         || (extension == ".xlsx" && !raw.starts_with(b"PK\x03\x04"))
     {
         return Err(invalid());

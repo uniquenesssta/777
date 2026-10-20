@@ -525,17 +525,17 @@ export function useWorkbench() {
     selected &&
     run(
       async () => {
-        await request("create_output", {
+        const job = await request<Job>("create_output", {
           order_id: selected.order_id,
           expected_revision: selected.revision,
           kind,
         });
+        if (job.state === "failed") throw {code: job.error || "LOCAL_OUTPUT_WRITE_FAILED"};
         return afterSaved(() => request<JobListing>("outputs"));
       },
       (r) => {
         acceptJobs(r.value);
-        setRoute("tasks");
-        savedFeedback(r, "输出任务已创建，订单不会重复入账。");
+        savedFeedback(r, "导出完成。");
       },
     );
   const retryOutput = (id: string) =>

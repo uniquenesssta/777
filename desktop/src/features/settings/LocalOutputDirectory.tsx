@@ -17,9 +17,9 @@ export function LocalOutputDirectory({disabled,finance}:{disabled:boolean;financ
       <div className="directory-choice"><Input id="local-output-root" readOnly value={value?.root??""} placeholder="选择本机保存文件夹"/>
         <Button variant="outline" disabled={disabled||busy} onClick={()=>void choose()}>选择文件夹</Button></div>
     </div>
-    <p className="muted">仅用于当前电脑，选择后自动保存。</p>
+    <p className="muted">选择后自动保存。</p>
     <dl className="local-output-folders">
-      {[['报价图片','PIC',value?.image_dir],['报价表','Excel',value?.export_dir],['内部财务报表','内部财务报表',value?.report_dir]].filter(([label])=>finance||label!=='内部财务报表').map(([label,folder,path])=><div key={folder}><dt>{label}</dt><dd title={path}>{path||folder}</dd></div>)}
+      {[['导出图片','PIC',value?.image_dir],['报价表','Excel',value?.export_dir],['内部财务报表','内部财务报表',value?.report_dir]].filter(([label])=>finance||label!=='内部财务报表').map(([label,folder,path])=><div key={folder}><dt>{label}</dt><dd title={path}>{path||folder}</dd></div>)}
     </dl>
     {error&&<p role="alert">{error}</p>}
   </section>;

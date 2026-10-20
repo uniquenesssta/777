@@ -14,7 +14,7 @@ use std::path::PathBuf;
 const CONFIG: &str = "local-output-root.bin";
 pub(crate) fn folder(kind: &str) -> Result<(&'static str, &'static str)> {
     match kind {
-        "quote_png" => Ok(("PIC", ".png")),
+        "quote_png" => Ok(("PIC", ".jpg")),
         "excel_quote" => Ok(("Excel", ".xlsx")),
         "excel_admin" | "excel_period" => Ok(("内部财务报表", ".xlsx")),
         _ => Err(DesktopError::new(422, "INVALID_OUTPUT_KIND")),

@@ -20,7 +20,7 @@ pub(crate) fn insert(store: &Store, scope: &str, payload: &Value) -> Result<Valu
     let id = payload["job_id"].as_str().ok_or_else(err)?;
     crate::types::identifier(id)?;
     store.write(&format!("local-export-{id}.bin"), payload)?;
-    let job = json!({"job_id":id,"order_id":payload["order"]["order_id"].as_str().unwrap_or(id),"kind":payload["kind"],"state":"queued","created_at":payload["generated_at"],"batch":payload["batch"],"range":payload["range"]});
+    let job = json!({"job_id":id,"order_id":payload["order"]["order_id"],"order_ref":payload["order"]["details"]["order_ref"],"kind":payload["kind"],"state":"queued","created_at":payload["generated_at"],"batch":payload["batch"],"range":payload["range"]});
     db(store)?
         .execute(
             "INSERT INTO jobs VALUES(?,?,?)",
@@ -68,7 +68,14 @@ pub(crate) fn list(store: &Store, scope: &str, offset: u32) -> Result<Value> {
         .map_err(|_| err())?;
     let jobs = raw
         .into_iter()
-        .map(|s| serde_json::from_str::<Value>(&s).map_err(|_| err()))
+        .map(|s| {
+            let mut job: Value = serde_json::from_str(&s).map_err(|_| err())?;
+            if job.get("order_ref").is_none() && job["kind"] != "excel_period" {
+                let snapshot = payload(store, job["job_id"].as_str().ok_or_else(err)?)?;
+                job["order_ref"] = snapshot["order"]["details"]["order_ref"].clone();
+            }
+            Ok(job)
+        })
         .collect::<Result<Vec<_>>>()?;
     Ok(json!({"jobs":jobs,"offset":offset,"total":total,"limit":100}))
 }

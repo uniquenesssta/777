@@ -136,7 +136,7 @@ export function DetailPage({ app }: { app: Workbench }) {
               disabled={app.busy || app.pending}
               onClick={() => app.output("quote_png")}
             >
-              报价图片
+              导出图片
             </Button>
           </div>}
           {app.delivery !== "sales" && app.can("finance") && app.can("exports") && (

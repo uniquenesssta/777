@@ -1,7 +1,6 @@
 use crate::{DesktopError as Error, Result};
 use quote_ledger::store::{encoded, hash};
 use serde_json::Value;
-use std::io::Cursor;
 const LIMIT: usize = 4 * 1024 * 1024;
 fn fail<T>(status: u16, code: &str) -> Result<T> {
     Err(Error::new(status, code))
@@ -70,7 +69,7 @@ pub fn render(payload: &Value) -> Result<Vec<u8>> {
                 vec![String::new()]
             } else {
                 chars
-                    .chunks(40)
+                    .chunks(36)
                     .map(|a| a.iter().collect())
                     .collect::<Vec<String>>()
             }
@@ -79,12 +78,12 @@ pub fn render(payload: &Value) -> Result<Vec<u8>> {
     if wrapped.len() > 400 {
         return fail(422, "OUTPUT_IMAGE_TOO_TALL");
     }
-    let height = 40 + wrapped.len() * 36;
-    let width = 1200;
-    let mut pixels = vec![255u8; width * height * 3];
+    let height = 32 + wrapped.len() * 28;
+    let width = 800;
+    let mut pixels = vec![255u8; width * height];
     for (row, line) in wrapped.iter().enumerate() {
-        let mut x = 24f32;
-        let baseline = 20 + row * 36 + 24;
+        let mut x = 20f32;
+        let baseline = 16 + row * 28 + 20;
         for ch in line.chars() {
             if ch == '\n' || ch == '\r' {
                 continue;
@@ -99,7 +98,7 @@ pub fn render(payload: &Value) -> Result<Vec<u8>> {
             if !ch.is_whitespace() && f.lookup_glyph_index(ch) == 0 {
                 return fail(503, "OUTPUT_CJK_FONT_UNAVAILABLE");
             }
-            let (m, bitmap) = f.rasterize(ch, 24.);
+            let (m, bitmap) = f.rasterize(ch, 20.);
             let top = baseline as i32 - m.ymin - m.height as i32;
             let left = x as i32 + m.xmin;
             for dy in 0..m.height {
@@ -108,10 +107,8 @@ pub fn render(payload: &Value) -> Result<Vec<u8>> {
                     let py = top + dy as i32;
                     if px >= 0 && px < width as i32 && py >= 0 && py < height as i32 {
                         let alpha = bitmap[dy * m.width + dx];
-                        let p = (py as usize * width + px as usize) * 3;
-                        for c in &mut pixels[p..p + 3] {
-                            *c = ((*c as u16 * (255 - alpha) as u16) / 255) as u8;
-                        }
+                        let p = py as usize * width + px as usize;
+                        pixels[p] = ((pixels[p] as u16 * (255 - alpha) as u16) / 255) as u8;
                     }
                 }
             }
@@ -119,69 +116,26 @@ pub fn render(payload: &Value) -> Result<Vec<u8>> {
         }
     }
     let mut raw = vec![];
-    {
-        let mut e = png::Encoder::new(&mut raw, width as u32, height as u32);
-        e.set_color(png::ColorType::Rgb);
-        e.set_depth(png::BitDepth::Eight);
-        for (k, v) in [
-            ("777_format", "777-output-v1".to_string()),
-            (
-                "777_job_id",
-                payload["job_id"].as_str().unwrap_or("").to_string(),
-            ),
-            ("777_payload_sha256", hash(encoded(payload))),
-        ] {
-            e.add_text_chunk(k.into(), v)
-                .map_err(|_| Error::new(422, "OUTPUT_BLOB_INVALID"))?;
-        }
-        let mut writer = e
-            .write_header()
-            .map_err(|_| Error::new(422, "OUTPUT_BLOB_INVALID"))?;
-        writer
-            .write_image_data(&pixels)
-            .map_err(|_| Error::new(422, "OUTPUT_BLOB_INVALID"))?;
-    }
+    let mut encoder = jpeg_encoder::Encoder::new(&mut raw, 60);
+    encoder.set_optimized_huffman_tables(true);
+    let metadata = format!(
+        "777-output-v1\0{}\0{}",
+        payload["job_id"].as_str().unwrap_or(""),
+        hash(encoded(payload))
+    );
+    encoder
+        .add_app_segment(15, metadata.as_bytes())
+        .map_err(|_| Error::new(422, "OUTPUT_BLOB_INVALID"))?;
+    encoder
+        .encode(
+            &pixels,
+            width as u16,
+            height as u16,
+            jpeg_encoder::ColorType::Luma,
+        )
+        .map_err(|_| Error::new(422, "OUTPUT_BLOB_INVALID"))?;
     if raw.len() > LIMIT {
         return fail(413, "OUTPUT_TOO_LARGE");
     }
-    validate(&raw, payload)?;
     Ok(raw)
-}
-pub fn validate(raw: &[u8], payload: &Value) -> Result<()> {
-    if raw.is_empty() || raw.len() > LIMIT {
-        return fail(422, "OUTPUT_BLOB_INVALID");
-    }
-    let mut d = png::Decoder::new(Cursor::new(raw));
-    d.set_limits(png::Limits {
-        bytes: 64 * 1024 * 1024,
-    });
-    let mut r = d
-        .read_info()
-        .map_err(|_| Error::new(422, "OUTPUT_BLOB_INVALID"))?;
-    let info = r.info();
-    if info.width != 1200 || info.height > 14440 || info.height == 0 {
-        return fail(422, "OUTPUT_BLOB_INVALID");
-    }
-    let get = |key: &str| {
-        info.uncompressed_latin1_text
-            .iter()
-            .find(|t| t.keyword == key)
-            .map(|t| t.text.as_str())
-    };
-    let expected = hash(encoded(payload));
-    if get("777_format") != Some("777-output-v1")
-        || get("777_job_id") != payload["job_id"].as_str()
-        || get("777_payload_sha256") != Some(expected.as_str())
-    {
-        return fail(422, "OUTPUT_BLOB_INVALID");
-    }
-    let size = r
-        .output_buffer_size()
-        .ok_or_else(|| Error::new(422, "OUTPUT_BLOB_INVALID"))?;
-    if size > 64 * 1024 * 1024 {
-        return fail(422, "OUTPUT_BLOB_INVALID");
-    }
-    r.next_frame(&mut vec![0; size])
-        .map_err(|_| Error::new(422, "OUTPUT_BLOB_INVALID"))?;
-    Ok(())
 }

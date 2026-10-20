@@ -111,6 +111,7 @@ export interface OrderChanges {
 }
 export interface JobListing {has_more?:boolean;jobs:Job[];offset:number;total:number;limit:number}
 export interface Job {
+  order_ref?: string;
   batch?:{id:string;part:number;count:number;from:string;to:string;order_count:number}|null;
   range?:{from:string;to:string};
   job_id: string;

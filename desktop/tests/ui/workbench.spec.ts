@@ -308,6 +308,8 @@ test("manager price publication, readonly inherited directories and real output 
   await page.getByRole("button", { name: "核对并提交订单" }).click();
   await page.getByRole("button", { name: "确认提交", exact: true }).click();
   await page.getByRole("button", { name: "导出报价", exact: true }).click();
+  await expect(page.locator(".order-detail")).toBeVisible();
+  await page.getByRole("navigation").getByRole("button", { name: "导出记录", exact: true }).click();
   await expect(page.getByText("已完成", { exact: true }).first()).toBeVisible({
     timeout: 15000,
   });

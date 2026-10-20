@@ -62,7 +62,7 @@ export function TasksPage({ app }: { app: Workbench }) {
                     excel_quote: "报价表",
                     excel_admin: "内部财务报表",
                     excel_period: "内部财务报表（期间）",
-                    quote_png: "报价图片",
+                    quote_png: "导出图片",
                   }[j.kind] ?? j.kind}
                   {j.batch&&j.batch.count>1&&<small className="report-part" title={`导出批次 ${j.batch.id}`}>第 {j.batch.part} / {j.batch.count} 份 · {j.batch.order_count} 笔订单<br/>{j.batch.from} 至 {j.batch.to}</small>}
                 </td>
@@ -72,7 +72,7 @@ export function TasksPage({ app }: { app: Workbench }) {
                     onClick={() => void app.readOrder(j.order_id)}
                     disabled={app.busy}
                   >
-                    {j.order_id.slice(0, 8)}
+                    {j.order_ref || "未填写订单号"}
                   </Button>}
                 </td>
                 <td>{stamp(j.created_at)}</td>
@@ -110,7 +110,7 @@ export function TasksPage({ app }: { app: Workbench }) {
           </tbody>
         </table>
         {!app.jobs.length && (
-          <Empty>暂无导出记录。{app.delivery !== "sales" && (app.can("finance")?"可在上方导出内部财务报表，或在订单详情导出报价。":"可在订单详情导出报价表或报价图片。")}</Empty>
+          <Empty>暂无导出记录。{app.delivery !== "sales" && (app.can("finance")?"可在上方导出内部财务报表，或在订单详情导出报价。":"可在订单详情导出报价表或导出图片。")}</Empty>
         )}
       </div>
         <div className="pagination">

@@ -1842,6 +1842,31 @@
       ]
     },
     {
+      "name": "jpeg-encoder",
+      "version": "0.6.1",
+      "license": "(MIT OR Apache-2.0) AND IJG",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "crate_checksum": "b454d911ac55068f53495488d8ccd0646eaa540c033a28ee15b07838afafb01f",
+      "repository": "https://github.com/vstroebel/jpeg-encoder",
+      "license_files": [
+        {
+          "file": "LICENSE-MIT",
+          "sha256": "4d022727ea392ebba2fe5e9a5f78c610a0eae506b491f3db29c78b6d430d6503",
+          "origin": "crate archive"
+        },
+        {
+          "file": "LICENSE-APACHE",
+          "sha256": "85a884980abd6032fc6b5439ba918ab16db9ac9051b5cf18db9c27c587df07c0",
+          "origin": "crate archive"
+        },
+        {
+          "file": "src/fdct.rs",
+          "sha256": "0b59244bbd05b2593ded252ecf0d010a8a4c6ec1d4713b3caeb6fb724586e4d6",
+          "origin": "crate archive"
+        }
+      ]
+    },
+    {
       "name": "json-patch",
       "version": "4.2.0",
       "license": "MIT/Apache-2.0",

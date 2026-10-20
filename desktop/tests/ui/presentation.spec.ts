@@ -298,6 +298,7 @@ test("keyboard dialog returns focus and fonts fall back without a banner", async
 test("manager chooses one local directory and cancellation preserves it", async ({page})=>{
   await bootstrap(page);
   await page.getByRole("button",{name:"存储与备份",exact:true}).click();
+  await expect(page.locator(".local-output-settings .muted")).toHaveText("选择后自动保存。");
   await page.locator(".local-output-settings").getByRole("button",{name:"选择文件夹",exact:true}).click();
   await expect(page.getByLabel("导出文件保存位置")).toHaveValue("D:\\新的导出");
   await expect(page.locator(".local-output-folders")).toContainText("D:\\新的导出\\PIC");

@@ -54,7 +54,7 @@ for (const delivery of ['manager','sales','development']) {
     // Grant exports even for sales to check delivery hiding independently of permission.
     await orderRecords(page, delivery, false, delivery==='sales'?['quote','orders','exports']:undefined);
     await page.getByRole('button',{name:'查看详情'}).first().click();
-    for (const name of ['导出报价','报价图片','内部财务报表']) {
+    for (const name of ['导出报价','导出图片','内部财务报表']) {
       await expect(page.getByRole('button',{name,exact:true})).toHaveCount(delivery!=='sales'?1:0);
     }
     {
