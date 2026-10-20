@@ -39,7 +39,9 @@ def main():
         (output/'failure.txt').write_text(traceback.format_exc(),encoding='utf-8')
     report['native_sha256']={kind:hashlib.sha256(path.read_bytes()).hexdigest() for kind,path in [('manager',args.manager),('sales',args.sales)] if path}
     (output/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    print(json.dumps(report,ensure_ascii=False,indent=2))
+    summary={key:report[key] for key in ('task','status','environment','runtime','failure','native_sha256') if key in report}
+    summary['report']=str(output/'report.json')
+    print(json.dumps(summary,ensure_ascii=False,indent=2))
     return int(report['status']=='failed')
 
 

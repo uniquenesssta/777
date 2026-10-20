@@ -1,8 +1,8 @@
 """Stop the real server, close/reopen clients, resume in an independent process."""
 import time
-import sqlite3
 from .bridge import Bridge
 from .fixture import LocalFixture
+from .storage import inspect_database
 from p08_application.wire import identifier
 
 
@@ -35,7 +35,7 @@ def run(manager_binary, sales_binary=None):
         initial_worker=Bridge(manager_binary,profile,package,worker=True);clients.append(initial_worker)
         deadline=time.monotonic()+45
         while True:
-            with sqlite3.connect(profile/'offline.sqlite3') as db:
+            with inspect_database(profile) as db:
                 cached=db.execute("SELECT count(*) FROM local_orders WHERE id=? AND confirmed IS NOT NULL",(baseline['order_id'],)).fetchone()[0]
             if cached:break
             if time.monotonic()>=deadline:raise RuntimeError('EXISTING_AUTHORIZED_ORDER_NOT_CACHED')
@@ -84,7 +84,7 @@ def run(manager_binary, sales_binary=None):
         # cannot prove the central receipts/feed were incorporated.
         deadline=time.monotonic()+60
         while True:
-            with sqlite3.connect(profile/'offline.sqlite3') as db:
+            with inspect_database(profile) as db:
                 confirmed=db.execute("SELECT count(*) FROM local_orders WHERE confirmed IS NOT NULL AND last_operation IS NULL").fetchone()[0]
                 applied=db.execute("SELECT count(*) FROM local_operations WHERE state='applied'").fetchone()[0]
                 history=db.execute("SELECT count(*) FROM local_meta WHERE key=?",('diff:'+one['order_id']+':2',)).fetchone()[0]
@@ -104,7 +104,7 @@ def run(manager_binary, sales_binary=None):
             initial_sales=Bridge(sales_binary,sales_profile,sales_package,worker=True);clients.append(initial_sales)
             deadline=time.monotonic()+45
             while True:
-                with sqlite3.connect(sales_profile/'offline.sqlite3') as db:
+                with inspect_database(sales_profile) as db:
                     cursor=db.execute("SELECT count(*) FROM local_meta WHERE key='feed_cursor'").fetchone()[0]
                     visible=db.execute('SELECT count(*) FROM local_orders').fetchone()[0]
                 if cursor:break

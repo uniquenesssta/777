@@ -94,7 +94,7 @@
     "Compile-only Send obligations for real execute, directory_context and sync_tick futures; old source rejected, corrected source accepted.",
     "Drop Desktop before original cleanup assertions in source-reload and developer-pending tests."
   ],
-  "Windows_fix_verification": "pending_new_CI",
+  "Windows_fix_verification": "CI #85 confirms the prior Send and Rust test cleanup fixes. A later Python inspection-connection cleanup failure is repaired in follow_up_ci85; new Windows result pending.",
   "final_installers_or_build_preparation_verified": false,
   "workflow_checks_removed_or_relaxed": false,
   "formal_UI_or_logging_changed": false,
@@ -239,5 +239,252 @@
     "desktop/src-tauri/src/client/data_source.rs": "d77df8b9c32d0285e8cc495722a5148248d4da9c3668003491d6ed5ed919de5e",
     "desktop/src-tauri/src/client/offline/enrollment.rs": "d6a6af391ceca96d2ca4e336ef71b0d786457aee9f7d1c71e7754749ae357799",
     "desktop/src-tauri/src/client/future_contract.rs": "f477c7815ee3db044617fb46dcffb95c8597193e047252b36176e35d5561bbee"
+  },
+  "follow_up_ci85": {
+    "source_parent": "9a0f68eee3f9271ec3dfb92d569618497ac92626",
+    "failed_run": {
+      "id": 39373611132,
+      "head_sha": "9a0f68eee3f9271ec3dfb92d569618497ac92626",
+      "run_number": 85,
+      "run_attempt": 1,
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/uniquenesssta/777/actions/runs/39373611132",
+      "created_at": "2026-10-20T05:12:04Z",
+      "updated_at": "2026-10-20T05:51:07Z"
+    },
+    "jobs": [
+      {
+        "id": 118466707891,
+        "name": "desktop-contracts",
+        "conclusion": "success",
+        "steps": []
+      },
+      {
+        "id": 118466707974,
+        "name": "host-sync",
+        "conclusion": "success",
+        "steps": []
+      },
+      {
+        "id": 118466708166,
+        "name": "offline-orders",
+        "conclusion": "failure",
+        "steps": [
+          {
+            "number": 5,
+            "name": "Strict desktop analysis and Windows local transaction, protection and startup tests",
+            "conclusion": "success"
+          },
+          {
+            "number": 6,
+            "name": "Build real runtime IPC drivers and Host resources",
+            "conclusion": "success"
+          },
+          {
+            "number": 7,
+            "name": "Real TLS stop, offline saves, process restart and independent silent upload",
+            "conclusion": "failure"
+          }
+        ]
+      },
+      {
+        "id": 118466708167,
+        "name": "device-presentation",
+        "conclusion": "success",
+        "steps": []
+      },
+      {
+        "id": 118466709359,
+        "name": "installers",
+        "conclusion": "skipped",
+        "steps": []
+      }
+    ],
+    "read_scope": "Completed job summaries, full decoded offline-orders job log, and downloaded original failure/report artifact. New CI not polled.",
+    "Windows_test_result": "2026-10-20T05:19:06.6228989Z test result: ok. 37 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.79s",
+    "artifact": {
+      "id": 12243041833,
+      "url": "https://github.com/uniquenesssta/777/actions/runs/39373611132/artifacts/12243041833",
+      "sha256_from_upload": "72c1f3f7191afbee876f41e50488d700d8c7ed45b3ca0824b5a53ecec8dac162",
+      "failure_traceback": [
+        "Traceback (most recent call last):",
+        "  File \"C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\Lib\\shutil.py\", line 633, in _rmtree_unsafe",
+        "    os.unlink(fullname)",
+        "PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\777-p06-native-host-pu5r44fp\\\\desktop-manager\\\\offline.sqlite3'",
+        "",
+        "During handling of the above exception, another exception occurred:",
+        "",
+        "Traceback (most recent call last):",
+        "  File \"D:\\a\\777\\777\\tools\\p08_local_check.py\", line 35, in main",
+        "    report['runtime']=run(args.manager.resolve(),args.sales.resolve() if args.sales else None)",
+        "                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"D:\\a\\777\\777\\tools\\p08_local\\scenarios.py\", line 143, in run",
+        "    f.close()",
+        "  File \"D:\\a\\777\\777\\tools\\p08_application\\fixture.py\", line 73, in close",
+        "    self.host.close()",
+        "  File \"D:\\a\\777\\777\\tests\\native_host_fixture.py\", line 80, in close",
+        "    def close(self):self.stop();self.temp.cleanup()",
+        "                                ^^^^^^^^^^^^^^^^^^^",
+        "  File \"C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\Lib\\tempfile.py\", line 954, in cleanup",
+        "    self._rmtree(self.name, ignore_errors=self._ignore_cleanup_errors)",
+        "  File \"C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\Lib\\tempfile.py\", line 934, in _rmtree",
+        "    _shutil.rmtree(name, onexc=onexc)",
+        "  File \"C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\Lib\\shutil.py\", line 781, in rmtree",
+        "    return _rmtree_unsafe(path, onexc)",
+        "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\Lib\\shutil.py\", line 635, in _rmtree_unsafe",
+        "    onexc(os.unlink, fullname, err)",
+        "  File \"C:\\hostedtoolcache\\windows\\Python\\3.12.10\\x64\\Lib\\tempfile.py\", line 909, in onexc",
+        "    _os.unlink(path)",
+        "PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\777-p06-native-host-pu5r44fp\\\\desktop-manager\\\\offline.sqlite3'"
+      ],
+      "original_report_status": "failed",
+      "native_sha256": {
+        "manager": "e350ccb165e728058c78d2c613839e37759eb963331d1db9272a4b3d43b7f0cd",
+        "sales": "be177df127eee7b95b629d759b76bb62832c889f749d0c2acb7b26e35a823656"
+      },
+      "download_sha256": "72c1f3f7191afbee876f41e50488d700d8c7ed45b3ca0824b5a53ecec8dac162"
+    },
+    "root_cause": "Python SQLite Connection context manager finishes the transaction but does not close the database handle; temporary-directory cleanup failed with WinError 32 after native client processes exited.",
+    "changes": [
+      "Independent inspection-connection lifecycle with explicit close on successful reads and on exceptions; three existing query sites retain all original business assertions.",
+      "Two real SQLite lifecycle regressions fail with the original context behavior and pass with explicit closure.",
+      "Console prints only result/failure summary and report path; full report fingerprint manifest and failure exit code retained."
+    ],
+    "production_Rust_or_UI_changed": false,
+    "workflow_checks_removed_or_relaxed": false,
+    "final_installers_or_build_preparation_verified": false,
+    "Windows_new_fix_result": "pending_new_CI",
+    "local_environment": "Linux",
+    "checks": [
+      {
+        "name": "before_lifecycle_regression",
+        "command": "python -m unittest discover -s tests -p test_p08_local_storage.py -v",
+        "exit_code": 1,
+        "log_sha256": "3f98490f48c4e68ce91af75f1714b70ae331ccaf76b1249809a36f0d9ad2a03b",
+        "expected_failures": 2,
+        "original_behavior_reproduced": true,
+        "tail": [
+          "         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+          "AssertionError: ProgrammingError not raised",
+          "",
+          "----------------------------------------------------------------------",
+          "Ran 2 tests in 0.002s",
+          "",
+          "FAILED (failures=2)"
+        ]
+      },
+      {
+        "name": "after_lifecycle_regression",
+        "command": "python -m unittest discover -s tests -p test_p08_local_storage.py -v",
+        "exit_code": 0,
+        "log_sha256": "251c99ca22d76cc91436832847bf553e16eb56b81a55769b8234901a0e53d40c",
+        "tail": [
+          "test_reader_failure_is_preserved_and_the_connection_is_closed (test_p08_local_storage.LocalInspectionTests.test_reader_failure_is_preserved_and_the_connection_is_closed) ... ok",
+          "test_successful_inspection_closes_the_connection_before_directory_cleanup (test_p08_local_storage.LocalInspectionTests.test_successful_inspection_closes_the_connection_before_directory_cleanup) ... ok",
+          "",
+          "----------------------------------------------------------------------",
+          "Ran 2 tests in 0.002s",
+          "",
+          "OK"
+        ]
+      },
+      {
+        "name": "P08_python_regression",
+        "command": "python -m unittest discover -s tests -p test_p08_*.py -v",
+        "exit_code": 0,
+        "log_sha256": "55b66f00bf29f84e89cfbfb65b4e3f5edc76b696b3ae98424eaddd0d6d95258c",
+        "tail": [
+          "test_defaults_follow_local_machine_and_copied_settings_cannot_bind_another_computer (test_p08_settings.HostSettingsTests.test_defaults_follow_local_machine_and_copied_settings_cannot_bind_another_computer) ... skipped 'Windows PowerShell 5.1 runtime requires Windows'",
+          "test_generic_address_manifest_keeps_account_machine_and_resource_ownership_guards (test_p08_settings.HostSettingsTests.test_generic_address_manifest_keeps_account_machine_and_resource_ownership_guards) ... skipped 'Windows PowerShell 5.1 runtime requires Windows'",
+          "",
+          "----------------------------------------------------------------------",
+          "Ran 19 tests in 0.028s",
+          "",
+          "OK (skipped=10)"
+        ]
+      },
+      {
+        "name": "python_compile",
+        "command": "python -m compileall -q tools/p08_local tools/p08_local_check.py tests/test_p08_local_storage.py",
+        "exit_code": 0,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tail": []
+      },
+      {
+        "name": "Host_runtime_build",
+        "command": "cargo build --locked --release -j6 -p quote-host -p quote-ledger",
+        "exit_code": 0,
+        "log_sha256": "b80bb951bbb2ffcfa5a6d52a7e683fca976628e53c3b523bc4897ba67dc32bb6",
+        "tail": [
+          "   Compiling rcgen v0.14.10",
+          "   Compiling quote-security v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-security)",
+          "   Compiling scrypt v0.11.0",
+          "   Compiling rusqlite v0.37.0",
+          "   Compiling quote-ledger v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-ledger)",
+          "   Compiling quote-host v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-host)",
+          "    Finished `release` profile [optimized] target(s) in 1m 28s"
+        ]
+      },
+      {
+        "name": "manager_runtime_build",
+        "command": "cargo build --locked -j6 -p quote-desktop --example offline-bridge --features verification,manager",
+        "exit_code": 0,
+        "log_sha256": "04e674f15722f079f22c209690afc04df826ca1e1767f0448498bf1d800adf86",
+        "tail": [
+          "   Compiling quote-desktop v0.1.0 (/workspace/scratch/45a5dfca7a35/777/desktop/src-tauri)",
+          "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.29s"
+        ]
+      },
+      {
+        "name": "sales_runtime_build",
+        "command": "cargo build --locked -j6 -p quote-desktop --example offline-bridge --features verification,sales",
+        "exit_code": 0,
+        "log_sha256": "87adac2cfa9892b463d353796ef861d16736c8e2cc552f4cf4e4a3b8203429c5",
+        "tail": [
+          "   Compiling quote-desktop v0.1.0 (/workspace/scratch/45a5dfca7a35/777/desktop/src-tauri)",
+          "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.60s"
+        ]
+      }
+    ],
+    "real_native_TLS": {
+      "command": "python tools/p08_local_check.py --auxiliary --manager reports/p08-02-3-D-ci85-drivers/manager --sales reports/p08-02-3-D-ci85-drivers/sales --output reports/p08-02-3-D-ci85-native",
+      "exit_code": 0,
+      "status": "auxiliary_native_offline_flow_passed_Windows_pending",
+      "runtime": {
+        "checks": [
+          "real_native_automatic_enrollment_signed_lease_and_public_catalog",
+          "existing_authorized_Host_order_downloaded_and_read_offline",
+          "server_stopped_formal_order_and_note_committed_locally",
+          "client_process_closed_reopened_and_same_order_edited_offline",
+          "lost_local_UI_reply_recovers_same_command_receipt_without_a_second_order",
+          "durable_central_receipts_confirmed_projection_and_bounded_history_cache",
+          "native_business_history_and_financial_projection",
+          "closed_client_independent_worker_uploads_to_restarted_TLS_Host",
+          "stable_order_and_line_IDs_and_single_central_booking"
+        ],
+        "sales_isolation_executed": true,
+        "order_id": "c805bbbe-bcc0-458c-976f-abd67085b06a",
+        "final_income_cents": "3000",
+        "live_hosts_contacted": false,
+        "final_installers_verified": false
+      },
+      "native_sha256": {
+        "manager": "5f711818995514d90facca2c743efd8e28fa6e29448078c2420ab30056a2c06f",
+        "sales": "1ab6b446fe8f7ffb2bf3ceeabb8d44148e72e984860ca06ed031dbcc03cd6d91"
+      },
+      "report_sha256": "56b059c08c666cd36960b0049a00cf99e1c7847002bcb930dbf8fc6a214b1f50",
+      "full_manifest_entries": 222,
+      "console_lines": 28,
+      "temporary_directory_cleanup_completed": true
+    },
+    "implementation_sha256_LF": {
+      "tools/p08_local/scenarios.py": "b1b7e41ab3ce9a965f68a1c62749fc8547aeee687fe8c051e3a84921a5f07ecc",
+      "tools/p08_local/storage.py": "484b504e4a4ddae5a59bb3902f70d6fa1f1ddf6d63fe93c72a8e477c7c9727f0",
+      "tools/p08_local_check.py": "dfe4d89c5a8caf232a48ca4b3f1b6000ac602ce529b005d3087e5c5e50a6659d",
+      "tests/test_p08_local_storage.py": "545cfc06dd0f9e8edefe55f7131613753e8e84c5913989fa9b81d1187d048c52"
+    },
+    "scope": "Linux auxiliary build/tests and real separate native TLS processes passed including cleanup. Prior Rust fixes now verified by Windows CI #85. New Windows file-handle and complete native-flow result remains pending. No final installer/build preparation, site access or stage E."
   }
 }
