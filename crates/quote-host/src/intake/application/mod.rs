@@ -3,6 +3,7 @@ mod authorization;
 mod changes;
 mod cursor;
 mod engine;
+mod history;
 mod merge;
 mod plan;
 mod projection;

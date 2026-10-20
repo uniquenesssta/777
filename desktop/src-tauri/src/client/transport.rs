@@ -67,7 +67,7 @@ pub(super) async fn request_with_package(
     }
     let value: Value = serde_json::from_slice(&bytes)
         .map_err(|_| DesktopError::new(502, "SERVICE_RESPONSE_INVALID"))?;
-    if status != 200 {
+    if status != 200 && !(status == 202 && path == "/v1/offline/operations") {
         let mut error = DesktopError::new(
             status,
             value["error"]

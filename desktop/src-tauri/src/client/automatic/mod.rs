@@ -32,6 +32,8 @@ impl Desktop {
             certificate_pem: connection.certificate_pem,
             certificate_sha256: connection.certificate_sha256,
         };
+        #[cfg(feature = "verification")]
+        let connection = self.isolated_connection(connection)?;
         let mut s = Session {
             http: tls::build(&connection)?,
             connection,
@@ -127,6 +129,7 @@ impl Desktop {
             return Err(invalid());
         }
         self.auto_expires = auth["expires"].as_u64().ok_or_else(invalid)?;
+        self.prepare_local(&s, &device.id, &p).await?;
         quote_diagnostics::event(
             "automatic.device.active",
             json!({"device_id":device.id,"package_id":package,"ledger_id":ledger,"subject":s.subject,"delivery":crate::startup::delivery()}),

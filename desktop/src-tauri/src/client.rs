@@ -2,6 +2,7 @@ mod automatic;
 mod connections;
 mod data_source;
 mod enrollment;
+mod offline;
 mod preferences;
 mod restricted_outputs;
 mod retry;
@@ -47,17 +48,23 @@ pub struct Desktop {
     package_session: Option<Session>,
     automatic_package: Option<quote_security::automatic::Package>,
     automatic_retry: retry::AutomaticRetry,
+    local: crate::offline::Local,
+    last_tcp: Option<bool>,
 }
 impl Desktop {
     pub fn new(root: PathBuf, auxiliary: bool) -> Result<Self> {
+        let store = Store::new(root, auxiliary)?;
+        let (path, auxiliary) = store.local_database()?;
         Ok(Self {
-            store: Store::new(root, auxiliary)?,
+            store,
             session: None,
             calculation: None,
             auto_expires: 0,
             package_session: None,
             automatic_package: None,
             automatic_retry: retry::AutomaticRetry::default(),
+            local: crate::offline::Local::open(path, auxiliary)?,
+            last_tcp: None,
         })
     }
     pub fn has_pending(&self) -> Result<bool> {
@@ -223,6 +230,16 @@ impl Desktop {
     async fn execute_logged(&mut self, action: Action) -> Result<Value> {
         let policy = permissions::selected()?;
         permissions::authorize(&policy, &action)?;
+        if crate::startup::formal() && self.local.active()? {
+            self.local_context()?;
+            if let Some(mut v) = self.local_action(&action)? {
+                display(&mut v);
+                if !permissions::has(&policy, "finance") {
+                    permissions::redact_financial(&mut v);
+                }
+                return Ok(v);
+            }
+        }
         if crate::startup::formal()
             && !matches!(
                 action,
@@ -234,7 +251,11 @@ impl Desktop {
             )
             && self.auto_expires <= clock() + 30
         {
-            self.bootstrap().await?;
+            if self.automatic_package.is_some() {
+                self.bootstrap_automatic().await?;
+            } else {
+                self.bootstrap().await?;
+            }
         }
         let mut v = self.execute_inner(action).await?;
         display(&mut v);
@@ -413,6 +434,7 @@ impl Desktop {
                 snapshot,
                 details,
                 draft_revision,
+                ..
             } => {
                 let c = self
                     .calculation
@@ -440,7 +462,7 @@ impl Desktop {
                 self.calculation=Some(Calculation{snapshot:context,revision:draft_revision.clone(),result:result.clone()});
                 Ok(json!({"draft_revision":draft_revision,"result":result}))
             }
-            Action::SaveOrder{snapshot,sources,order_id,expected_revision,draft_revision,details,customer} => {
+            Action::SaveOrder{snapshot,sources,order_id,expected_revision,draft_revision,details,customer,..} => {
                 let expected=expected_revision.map(|s|revision(&s)).transpose()?;
                 let mut context=json!({"snapshot":snapshot,"sources":sources,"order_id":order_id,"expected_revision":expected});
                 let c=self.calculation.as_ref().ok_or_else(||DesktopError::new(409,"CALCULATION_REQUIRED"))?;
@@ -448,6 +470,10 @@ impl Desktop {
                 context["details"]=details;context["customer"]=customer;
                 let result=self.mutate("/v1/order-save",context).await;
                 self.calculation=None;result
+            }
+            Action::LocalReceipt{operation_id}=>{
+                identifier(&operation_id)?;
+                if self.local.active()?{self.local.saved_receipt(&operation_id)}else{Ok(json!({"result":null,"submitted":null}))}
             }
             Action::Orders {
                 q,
@@ -482,7 +508,9 @@ impl Desktop {
                 .await
             }
             Action::OrderChanges {order_id,revision:rev} => {
-                self.request("GET",&format!("/v1/orders/{}/changes/{}",identifier(&order_id)?,revision(&rev)?),None).await
+                let result=self.request("GET",&format!("/v1/orders/{}/changes/{}",identifier(&order_id)?,revision(&rev)?),None).await?;
+                if self.local.active()?{self.local.put(&format!("diff:{order_id}:{rev}"),&result)?;}
+                Ok(result)
             }
             Action::Order { order_id } => {
                 self.request(
@@ -522,11 +550,12 @@ impl Desktop {
             } => {
                 self.admin()?;
                 self.calculation = None;
-                self.mutate(
+                let result=self.mutate(
                     "/v1/prices",
                     json!({"prices":prices,"expected_price_version_id":expected_price_version_id}),
-                )
-                .await
+                ).await?;
+                if self.local.active()?{self.local.put("prices_changed",&json!(true))?;self.local.put("ready_checked",&json!(0))?;}
+                Ok(result)
             }
             Action::Settings {} => self.request("GET", "/v1/settings", None).await,
             Action::SaveSettings {
@@ -535,7 +564,9 @@ impl Desktop {
                 image_dir,
             } => {
                 self.admin()?;
-                self.request("POST","/v1/settings",Some(&json!({"revision":revision(&rev)?,"export_dir":export_dir,"image_dir":image_dir}))).await
+                let result=self.request("POST","/v1/settings",Some(&json!({"revision":revision(&rev)?,"export_dir":export_dir,"image_dir":image_dir}))).await?;
+                if self.local.active()?{self.local.put("settings",&result)?;}
+                Ok(result)
             }
             Action::Outputs { offset } => self.visible_outputs(offset).await,
             Action::OpenOutputFolder { job_id } => {
@@ -573,7 +604,8 @@ impl Desktop {
                 if kind == "excel_admin" {
                     self.admin()?;
                 }
-                self.mutate("/v1/outputs",json!({"order_id":order_id,"expected_revision":revision(&expected_revision)?,"kind":kind})).await
+                let expected=if self.local.active()?{self.local.output_revision(&order_id,&expected_revision)?}else{expected_revision};
+                self.mutate("/v1/outputs",json!({"order_id":order_id,"expected_revision":revision(&expected)?,"kind":kind})).await
             }
             Action::RetryOutput { job_id } => {
                 self.authorize_output(&job_id).await?;

@@ -17,5 +17,5 @@ class P06HostCheckTests(unittest.TestCase):
             self.assertEqual((out/'report.json').read_text(),'original')
     def test_native_resources_casefold_schema_and_old_gui_source_are_fingerprinted(self):
         f=tool.fingerprints()
-        for p in ['crates/quote-host/src/host.rs','crates/quote-host/src/casefold-v15.json','docs/verification/P06-04-auth-schema.sql','quote_service/native_host.py','tools/p05_service_check.py','.github/workflows/p06-windows.yml']:
+        for p in ['crates/quote-host/src/host.rs','crates/quote-core/src/casefold-v15.json','docs/verification/P06-04-auth-schema.sql','quote_service/native_host.py','tools/p05_service_check.py','.github/workflows/p06-windows.yml']:
             self.assertIn(p,f);self.assertEqual(len(f[p]),64)

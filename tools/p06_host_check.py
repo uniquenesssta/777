@@ -11,7 +11,7 @@ MODULES=['test_native_host','test_p06_host_check','test_ledger_security','test_n
 def fingerprints():
     result=excel_fingerprints()
     names=['tools/p06_host_check.py','tools/p06_resources.py','tools/p06_reference_host.py','tools/p06_ci_fonts.py','tools/p05_service_check.py','tests/native_host_fixture.py','tests/test_native_host.py','tests/test_p06_host_check.py','tests/test_ledger_security.py','docs/verification/P06-04-protocol.json','docs/verification/P06-04-dependencies.json','docs/verification/P06-04-auth-schema.sql','docs/verification/P06-04-output-schema.sql','.github/workflows/p06-windows.yml']
-    names += [p.relative_to(ROOT).as_posix() for p in (ROOT/'crates/quote-host').rglob('*.json')]
+    names += [p.relative_to(ROOT).as_posix() for crate in ('quote-host','quote-core') for p in (ROOT/'crates'/crate).rglob('*.json')]
     for name in names:result[name]=hashlib.sha256((ROOT/name).read_bytes().replace(b'\r\n',b'\n')).hexdigest()
     return dict(sorted(result.items()))
 def actual_windows():

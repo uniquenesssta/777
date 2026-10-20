@@ -13,6 +13,17 @@ impl Desktop {
             return Err(invalid());
         }
         let p: Package = serde_json::from_slice(&raw).map_err(|_| invalid())?;
+        self.accept_automatic_package(p.clone())?;
+        self.store.replace("automatic-package.bin", &p)
+    }
+    pub fn load_background_package(&mut self) -> Result<()> {
+        let p: Package = self
+            .store
+            .read("automatic-package.bin")?
+            .ok_or_else(invalid)?;
+        self.accept_automatic_package(p)
+    }
+    fn accept_automatic_package(&mut self, p: Package) -> Result<()> {
         let connection = p
             .validate(crate::startup::delivery())
             .map_err(|e| DesktopError::new(e.status, &e.code))?;

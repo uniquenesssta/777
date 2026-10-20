@@ -1,0 +1,158 @@
+P08-02-3 D | Linux auxiliary evidence | 2026-10-20
+C completed CI verified separately: #83, b70aa10373bd7412bea6e574fc17ec09d158d3e1
+No final installers/build preparation or live hosts. New D CI not read.
+
+$ cargo test --locked -j6 -p quote-host -p quote-ledger -p quote-security -p quote-core -p quote-desktop
+exit=0; passed=181; skipped=0
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 36 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.76s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 89.73s
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.52s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.13s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.39s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.50s
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 16.96s
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 29.10s
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 19.27s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+$ cargo test --locked -j6 -p quote-desktop --lib
+exit=0; passed=37; skipped=0
+running 37 tests
+test client::retry::tests::a_network_reconnection_wakes_transient_failure_without_bypassing_rate_limits ... ok
+test client::retry::tests::polling_cannot_bypass_a_failed_enrollment_or_clear_its_retry_gate ... ok
+test client::connections::tests::package_blocks_all_loopback_spellings ... ok
+test client::tests::developer_wire_excludes_private_bootstrap_and_arbitrary_commands ... ok
+test client::tests::display_preserves_exact_large_cents_and_safe_revision_strings ... ok
+test client::tests::wire_rejects_arbitrary_paths_actor_and_unknown_commands ... ok
+test journal::tests::ancestor_links_are_rejected_before_creating_profile_or_writing ... ok
+test connection_file::tests::parser_rejects_private_material_wrong_kind_and_oversized_files ... ok
+test client::automatic::identity::tests::unknown_pending_or_site_change_cannot_create_a_new_identity_or_overwrite_the_original ... ok
+test directory_preference::tests::preferences_survive_restart_and_are_isolated_without_touching_target ... ok
+test client::automatic::identity::tests::legacy_material_keeps_its_original_device_secret_and_profile ... ok
+test client::automatic::identity::tests::retries_reuse_the_candidate_and_a_second_profile_gets_an_independent_identity ... ok
+test journal::tests::pending_is_exclusive_and_corruption_is_never_silently_discarded ... ok
+test client::data_source::tests::source_mode_and_connection_reload_together_without_replacing_package_target ... ok
+test offline::checks::finance::authorized_finance_uses_real_cached_cost_plus_prices_and_losing_finance_scrubs_views ... ok
+test offline::checks::business::durable_formal_order_and_original_survive_reopen_and_continued_edits ... ok
+test offline::checks::business::a_confirmed_projection_never_overwrites_a_pending_local_order ... ok
+test client::tests::developer_switch_and_backup_reject_pending_before_launcher_call ... ok
+test offline::checks::business::failed_transaction_never_leaves_an_order_or_queue_half_committed ... ok
+test offline::checks::business::accepted_is_not_applied_and_originals_are_not_deleted_on_receipt ... ok
+test offline::checks::finance::history_is_published_only_after_all_fragment_bytes_match_the_complete_digest ... ok
+test output_folder::tests::remote_host_local_drive_is_not_this_computer ... ok
+test permissions::tests::direct_ipc_and_old_pending_cannot_restore_removed_permissions ... ok
+test permissions::tests::historical_diff_rows_and_cost_plus_catalog_are_public_projections ... ok
+test permissions::tests::nested_history_and_calculations_do_not_leak_costs ... ok
+test permissions::tests::role_dependencies_unknown_ids_and_duplicates_fail_closed ... ok
+test startup::package_tests::identity_path_does_not_depend_on_installer_identifier_or_version ... ok
+test types::close_tests::readonly_network_and_calculation_do_not_protect_close ... ok
+test types::close_tests::ui_diagnostics_only_accept_known_events_and_metadata ... ok
+test types::close_tests::writes_and_unknown_receipt_recovery_protect_close ... ok
+test offline::checks::receipts::same_command_after_a_lost_ui_reply_replays_the_original_and_rejects_changed_body ... ok
+test offline::checks::receipts::shared_payload_validation_prevents_locally_committing_an_unuploadable_customer ... ok
+test offline::checks::receipts::an_explicit_self_customer_anchor_does_not_wait_on_its_own_edit ... ok
+test offline::checks::trust::clock_rollback_expiry_and_known_revocation_preserve_data_but_stop_new_writes ... ok
+test offline::checks::receipts::transport_lock_is_independent_of_business_writes_and_released_on_drop ... ok
+test offline::checks::trust::forged_signature_catalog_or_binding_cannot_authorize_local_writes ... ok
+test offline::checks::receipts::a_long_blocked_chain_does_not_hide_a_later_unrelated_order ... ok
+test result: ok. 37 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+$ npm test --prefix desktop
+exit=0; passed=48; skipped=0
+ℹ suites 0
+ℹ pass 48
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3945.433264
+
+$ python -m unittest discover -s tests -p test_p06_host_check.py -v
+exit=0; passed=4; skipped=0
+test_simulated_platform_never_enters_native_windows_gui (test_p06_host_check.P06HostCheckTests.test_simulated_platform_never_enters_native_windows_gui) ... ok
+test_windows_mode_refuses_before_native_commands_and_records_failure (test_p06_host_check.P06HostCheckTests.test_windows_mode_refuses_before_native_commands_and_records_failure) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.020s
+
+OK
+
+$ python -m unittest discover -s tests -p test_p07_*.py -v
+exit=0; passed=44; skipped=8
+test_same_size_tampering_still_fails_sha256_before_writing_bootstrap (test_p07_package_enrollment.WindowsEnrollmentTests.test_same_size_tampering_still_fails_sha256_before_writing_bootstrap) ... skipped 'requires built-in Windows PowerShell; no simulated enrollment pass'
+test_wrong_role_service_or_extra_secret_is_rejected_before_writing (test_p07_package_enrollment.WindowsEnrollmentTests.test_wrong_role_service_or_extra_secret_is_rejected_before_writing) ... skipped 'requires built-in Windows PowerShell; no simulated enrollment pass'
+
+----------------------------------------------------------------------
+Ran 52 tests in 4.434s
+
+OK (skipped=8)
+
+$ python -m unittest discover -s tests -p test_p08_*.py -v
+exit=0; passed=7; skipped=10
+test_defaults_follow_local_machine_and_copied_settings_cannot_bind_another_computer (test_p08_settings.HostSettingsTests.test_defaults_follow_local_machine_and_copied_settings_cannot_bind_another_computer) ... skipped 'Windows PowerShell 5.1 runtime requires Windows'
+test_generic_address_manifest_keeps_account_machine_and_resource_ownership_guards (test_p08_settings.HostSettingsTests.test_generic_address_manifest_keeps_account_machine_and_resource_ownership_guards) ... skipped 'Windows PowerShell 5.1 runtime requires Windows'
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.040s
+
+OK (skipped=10)
+
+$ cargo clippy --locked -j6 -p quote-host -p quote-ledger -p quote-security -p quote-core -p quote-desktop --all-targets --features quote-desktop/verification,quote-desktop/manager -- -D warnings
+exit=0
+    Checking quote-security v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-security)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.45s
+
+$ cargo fmt --all -- --check
+exit=0
+
+$ desktop/node_modules/.bin/tsc --noEmit (cwd desktop)
+exit=0
+
+$ python -m compileall -q tools/p08_local tools/p08_local_check.py tools/p06_host_check.py
+exit=0
+
+$ cargo build --locked --release -j6 -p quote-host -p quote-ledger
+exit=0
+   Compiling quote-ledger v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-ledger)
+   Compiling quote-host v0.1.0 (/workspace/scratch/45a5dfca7a35/777/crates/quote-host)
+    Finished `release` profile [optimized] target(s) in 20.98s
+
+$ cargo build --locked -j6 -p quote-desktop --example offline-bridge --features verification,manager
+exit=0
+   Compiling quote-desktop v0.1.0 (/workspace/scratch/45a5dfca7a35/777/desktop/src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.57s
+
+$ cargo build --locked -j6 -p quote-desktop --example offline-bridge --features verification,sales
+exit=0
+   Compiling quote-desktop v0.1.0 (/workspace/scratch/45a5dfca7a35/777/desktop/src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.57s
+
+Real native TLS scenario: auxiliary_native_offline_flow_passed_Windows_pending
+real_native_automatic_enrollment_signed_lease_and_public_catalog
+existing_authorized_Host_order_downloaded_and_read_offline
+server_stopped_formal_order_and_note_committed_locally
+client_process_closed_reopened_and_same_order_edited_offline
+lost_local_UI_reply_recovers_same_command_receipt_without_a_second_order
+durable_central_receipts_confirmed_projection_and_bounded_history_cache
+native_business_history_and_financial_projection
+closed_client_independent_worker_uploads_to_restarted_TLS_Host
+stable_order_and_line_IDs_and_single_central_booking
+sales feed consumed before isolation assertion; sales own offline order uploaded; no cost/profit projection
+
+Final evidence/docs integrity: JSON/YAML unique keys, relative links, source hashes, git diff --check passed.

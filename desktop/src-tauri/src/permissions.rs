@@ -88,7 +88,7 @@ pub fn authorize(selected: &Option<Vec<String>>, action: &Action) -> Result<()> 
         }
         // Provisioning is an operator action; no formal UI entry point exists.
         ImportEnrollment { .. } => return Ok(()),
-        Prices {} | Calculate { .. } | Submit { .. } => "quote",
+        Prices {} | Calculate { .. } | Submit { .. } | LocalReceipt { .. } => "quote",
         OrderPreview { order_id, .. } | SaveOrder { order_id, .. } => {
             if order_id.is_some() {
                 "edit_orders"

@@ -23,7 +23,17 @@ pub(super) fn handle(
         return Err(Error::new(405, "METHOD_NOT_ALLOWED"));
     }
     match path {
-        "/v1/offline/changes" | "/v1/offline/order-chunk" => {
+        "/v1/offline/ready" => {
+            fields(data, &["protocol"], &[])?;
+            if data["protocol"] != FORMAT {
+                return Err(Error::new(426, "OFFLINE_PROTOCOL_UNSUPPORTED"));
+            }
+            let c = store::open(&i.ledger, false)?;
+            Ok(
+                serde_json::json!({"application":application::enabled(i),"local_orders":"777-local-orders-v1","epoch":i.config["epoch"],"device_epoch":ctx.device_epoch.to_string(),"user_epoch":ctx.user_epoch.to_string(),"price_version_id":store::verify(&c)?["active_price_id"]}),
+            )
+        }
+        "/v1/offline/changes" | "/v1/offline/order-chunk" | "/v1/offline/diff-chunk" => {
             application::changes(i, &ctx, path, data)
         }
         "/v1/offline/lease" => leases::issue(i, &ctx, data),

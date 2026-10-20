@@ -5,6 +5,7 @@ use serde_json::{json, Value};
 pub const DDL: &str = include_str!("schema.sql");
 mod application_validation;
 pub mod canonical;
+pub mod payload;
 mod references;
 mod validation;
 pub const HASH: &str = "721dc11b48d5c45b2b4f5fcc512b730e2e6f36f266a86409a7a56439ed6c6bab";

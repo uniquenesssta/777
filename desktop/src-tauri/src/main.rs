@@ -20,6 +20,7 @@ mod shell {
     struct ClientState {
         desktop: tokio::sync::Mutex<Desktop>,
         writes: AtomicUsize,
+        background: std::sync::atomic::AtomicBool,
     }
     type Shared = Arc<ClientState>;
     struct Writing<'a>(&'a AtomicUsize);
@@ -111,7 +112,17 @@ mod shell {
         let _writing = request
             .protects_close()
             .then(|| Writing::start(&state.writes));
-        state.desktop.lock().await.execute(request).await
+        let mut desktop = state.desktop.lock().await;
+        let result = desktop.execute(request).await;
+        let ready = desktop.background_ready();
+        drop(desktop);
+        if ready && !state.background.swap(true, Ordering::SeqCst) {
+            #[cfg(quote777_packaged)]
+            if quote_desktop::background::ensure().is_err() {
+                state.background.store(false, Ordering::SeqCst);
+            }
+        }
+        result
     }
     pub fn run() {
         #[cfg(any(feature = "verification", debug_assertions))]
@@ -163,7 +174,11 @@ mod shell {
                   }
                   client
                 };
-                app.manage(Arc::new(ClientState { desktop: tokio::sync::Mutex::new(client), writes: AtomicUsize::new(0) }));
+                if client.background_ready() {
+                    #[cfg(quote777_packaged)]
+                    let _=quote_desktop::background::ensure();
+                }
+                app.manage(Arc::new(ClientState { desktop: tokio::sync::Mutex::new(client), writes: AtomicUsize::new(0), background: std::sync::atomic::AtomicBool::new(false) }));
                 #[cfg(any(feature = "verification", debug_assertions))]
                 let isolated_created = if let Some(profile) = isolated {
                     let config = &app.config().app.windows[0];
@@ -198,6 +213,11 @@ mod shell {
     }
 }
 fn main() {
+    #[cfg(all(windows, quote777_packaged))]
+    if std::env::args().any(|a| a == "--background-sync") {
+        let _ = quote_desktop::background::run();
+        return;
+    }
     if quote_desktop::delivery() == "development" {
         quote_diagnostics::init("desktop");
     }
@@ -234,29 +254,5 @@ fn main() {
 }
 #[cfg(feature = "verification")]
 fn verification_bridge() {
-    use std::io::{BufRead, Write};
-    let args = std::env::args().collect::<Vec<_>>();
-    let index = args
-        .iter()
-        .position(|a| a == "--profile")
-        .expect("isolated profile required");
-    let root = std::path::PathBuf::from(args.get(index + 1).expect("profile path"));
-    if !root.join("777-isolated-profile.json").is_file() {
-        panic!("owned isolated profile marker required");
-    }
-    let mut client =
-        quote_desktop::Desktop::new(root, !cfg!(windows)).expect("isolated client store");
-    let runtime = tokio::runtime::Runtime::new().unwrap();
-    for line in std::io::stdin().lock().lines() {
-        let line = line.unwrap();
-        let response = match serde_json::from_str::<quote_desktop::Action>(&line) {
-            Ok(a) => match runtime.block_on(client.execute(a)) {
-                Ok(v) => serde_json::json!({"ok":v}),
-                Err(e) => serde_json::json!({"error":e}),
-            },
-            Err(_) => serde_json::json!({"error":{"status":422,"code":"INVALID_ACTION"}}),
-        };
-        println!("{}", response);
-        std::io::stdout().flush().unwrap();
-    }
+    quote_desktop::run_verification_bridge();
 }

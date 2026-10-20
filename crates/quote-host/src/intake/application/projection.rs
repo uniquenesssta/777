@@ -48,6 +48,11 @@ pub(super) fn chunk(i: &Intake, ctx: &Context, data: &Value) -> Result<Value> {
             let records=st.query_map(params![id,offset],|r|Ok(json!({"note_id":r.get::<_,String>(0)?,"author":r.get::<_,String>(1)?,"body":r.get::<_,String>(2)?,"created_at":r.get::<_,String>(3)?})))?.collect::<std::result::Result<Vec<_>,_>>()?;
             records
         }
+        "history" => {
+            let mut st=c.prepare("SELECT v.revision,v.created_at,json_extract(v.snapshot_json,'$.order.details_json'),json_extract(v.snapshot_json,'$.order.income_cents'),json_extract(v.snapshot_json,'$.order.cost_cents'),json_extract(v.snapshot_json,'$.order.profit_cents') FROM order_versions v WHERE v.order_id=? AND EXISTS(SELECT 1 FROM audit_events a WHERE a.order_id=v.order_id AND a.operation='save_order' AND a.before_json=v.snapshot_json) ORDER BY v.revision DESC LIMIT 65 OFFSET ?")?;
+            let records=st.query_map(params![id,offset],|r|Ok(json!({"revision":r.get::<_,i64>(0)?.to_string(),"created_at":r.get::<_,String>(1)?,"details":serde_json::from_str::<Value>(&r.get::<_,String>(2)?).map_err(|_|rusqlite::Error::InvalidQuery)?,"income_cents":r.get::<_,i64>(3)?.to_string(),"cost_cents":r.get::<_,i64>(4)?.to_string(),"profit_cents":r.get::<_,i64>(5)?.to_string()})))?.collect::<std::result::Result<Vec<_>,_>>()?;
+            records
+        }
         _ => return Err(Error::new(422, "INVALID_FIELDS")),
     };
     let mut items = Vec::new();

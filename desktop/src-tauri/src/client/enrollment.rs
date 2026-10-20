@@ -52,6 +52,9 @@ impl Desktop {
     }
     pub(super) async fn bootstrap_formal(&mut self) -> Result<Value> {
         if self.automatic_package.is_some() {
+            if self.local.active()? {
+                return self.local_bootstrap();
+            }
             self.automatic_retry.ready()?;
             let result = self.bootstrap_automatic().await;
             self.automatic_retry.record(&result);

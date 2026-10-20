@@ -5,3 +5,5 @@ pub mod models;
 pub mod numbers;
 pub mod pricing;
 pub mod session;
+
+pub mod search;

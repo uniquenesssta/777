@@ -14,6 +14,10 @@ sales = []
 quote-security = { path = "../../crates/quote-security" }
 quote-diagnostics = { path = "../../crates/quote-diagnostics" }
 quote-core = { path = "../../crates/quote-core" }
+quote-ledger = { path = "../../crates/quote-ledger" }
+rusqlite.workspace = true
+ring = "=0.17.14"
+time = { workspace = true, features = ["parsing"] }
 serde.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
@@ -22,7 +26,7 @@ base64.workspace = true
 x509-parser = { version = "=0.18.1", features = ["verify"] }
 reqwest = { version = "=0.13.5", default-features = false, features = ["rustls-no-provider", "json"] }
 rustls = { version = "=0.23.45", default-features = false, features = ["ring", "std", "tls12"] }
-tokio = { version = "=1.52.3", features = ["rt-multi-thread", "macros", "sync", "time"] }
+tokio = { version = "=1.52.3", features = ["rt-multi-thread", "macros", "sync", "time", "net"] }
 [target.'cfg(windows)'.dependencies]
 windows = { version = "=0.62.2", features = ["Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_Shell_Common"] }
 tauri = { version = "=2.12.3", default-features = false, features = ["wry", "compression", "common-controls-v6"] }

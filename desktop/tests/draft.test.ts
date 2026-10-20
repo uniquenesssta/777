@@ -7,6 +7,16 @@ import {
 } from "../src/state/draft.ts";
 import { money } from "../src/state/format.ts";
 import type { Calculation } from "../src/contracts.ts";
+import { snapshot,draftContext } from "../src/state/draft.ts";
+
+test("a committed local save can be recovered after process restart without a fresh order identity",()=>{
+  const d={...emptyDraft(),priceVersion:"v1",details:{customer:"buyer",order_ref:"one",wechat:"id"},lines:[{id:"one",raw:{line_kind:"normal" as const,product_id:"item",q:"1",h:"",w:"",name:""}}]};
+  const restored=restorableDraft(JSON.stringify({schema:"777-desktop-draft-v1",save_id:d.saveId,price_version_id:d.priceVersion,details:d.details,lines:d.lines,editing:d.editing,customer:d.customer}));
+  assert.equal(restored.saveId,d.saveId);
+  const next=draftReducer(restored,{type:"committed",snapshot:snapshot(d),details:d.details,context:draftContext(d)});
+  assert.equal(next.lines.length,0);
+  assert.notEqual(next.saveId,d.saveId);
+});
 const result: Calculation = {
   status: "ok",
   price_version_id: "v1",

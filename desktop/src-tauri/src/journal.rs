@@ -14,6 +14,17 @@ fn error() -> DesktopError {
     DesktopError::new(503, "LOCAL_PENDING_UNAVAILABLE")
 }
 impl Store {
+    pub(crate) fn local_database(&self) -> Result<(PathBuf, bool)> {
+        check(&self.root)?;
+        let p = self.root.join("offline.sqlite3");
+        for suffix in ["", "-wal", "-shm", "-journal"] {
+            let file = self.root.join(format!("offline.sqlite3{suffix}"));
+            if file.try_exists().map_err(|_| error())? {
+                check(&file)?;
+            }
+        }
+        Ok((p, self.auxiliary))
+    }
     pub fn new(root: PathBuf, auxiliary: bool) -> Result<Self> {
         if cfg!(windows) == auxiliary {
             return Err(DesktopError::new(422, "ACTUAL_WINDOWS_REQUIRED"));
@@ -103,7 +114,7 @@ impl Store {
         Ok(())
     }
 }
-fn check(p: &Path) -> Result<()> {
+pub(crate) fn check(p: &Path) -> Result<()> {
     for p in p.ancestors() {
         let m = fs::symlink_metadata(p).map_err(|_| error())?;
         if m.file_type().is_symlink() {

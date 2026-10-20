@@ -87,6 +87,8 @@ pub enum Action {
         snapshot: Value,
         details: Value,
         draft_revision: String,
+        #[serde(default)]
+        operation_id: Option<String>,
     },
     CustomerOrders {
         query: String,
@@ -109,6 +111,11 @@ pub enum Action {
         draft_revision: String,
         details: Value,
         customer: Value,
+        #[serde(default)]
+        operation_id: Option<String>,
+    },
+    LocalReceipt {
+        operation_id: String,
     },
     Orders {
         q: String,
@@ -240,6 +247,7 @@ impl Action {
             Self::CustomerOrders { .. } => "CustomerOrders",
             Self::OrderPreview { .. } => "OrderPreview",
             Self::SaveOrder { .. } => "SaveOrder",
+            Self::LocalReceipt { .. } => "LocalReceipt",
             Self::Order { .. } => "Order",
             Self::OrderChanges { .. } => "OrderChanges",
             Self::Note { .. } => "Note",
@@ -359,6 +367,7 @@ mod close_tests {
     #[test]
     fn writes_and_unknown_receipt_recovery_protect_close() {
         assert!(Action::Submit {
+            operation_id: None,
             snapshot: Value::Null,
             details: Value::Null,
             draft_revision: "1".into()

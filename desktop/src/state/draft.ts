@@ -6,6 +6,7 @@ export interface DraftLine {
   frozen?: {product_id:string;sale:string;k:string;single:boolean};
 }
 export interface Draft {
+  saveId: string;
   editing?: {order_id:string;revision:string};
   customer?: CustomerChoice;
   revision: string;
@@ -16,6 +17,7 @@ export interface Draft {
   calculatedRevision: string | null;
 }
 export const emptyDraft = (): Draft => ({
+  saveId: crypto.randomUUID(),
   revision: "1",
   details: { customer: "", order_ref: "", wechat: "" },
   lines: [],
@@ -47,6 +49,7 @@ export function draftReducer(d: Draft, a: DraftAction): Draft {
       (a.context === undefined ? !d.editing : stableRaw(draftContext(d)) === stableRaw(a.context));
     return {
       ...(matches ? emptyDraft() : d),
+      saveId: crypto.randomUUID(),
       priceVersion: d.priceVersion,
       revision: (BigInt(d.revision) + 1n).toString(),
       calculation: null,
@@ -86,7 +89,7 @@ export function restorableDraft(raw: string | null): Draft {
     if (
       p.schema !== "777-desktop-draft-v1" ||
       !Array.isArray(p.lines) ||
-      p.lines.length > 1000 ||
+      p.lines.length > 10000 ||
       !p.details
     )
       return fresh;
@@ -108,7 +111,9 @@ export function restorableDraft(raw: string | null): Draft {
       return fresh;
     const editing = p.editing && typeof p.editing.order_id === "string" && /^\d+$/.test(p.editing.revision) ? p.editing : undefined;
     const customer = p.customer && typeof p.customer === "object" ? p.customer : undefined;
-    return { ...fresh, lines: p.lines, details: p.details, editing, customer };
+    const saveId = typeof p.save_id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(p.save_id) ? p.save_id : fresh.saveId;
+    const priceVersion = typeof p.price_version_id === "string" && p.price_version_id.length<=256 ? p.price_version_id : fresh.priceVersion;
+    return { ...fresh, saveId,priceVersion, lines: p.lines, details: p.details, editing, customer };
   } catch {
     return fresh;
   }

@@ -22,6 +22,7 @@ import { selectDraftSource } from "./developerDraft";
 import { profitRange, type ProfitPreset } from "./profit";
 import { draftReducer, restorableDraft, snapshot, draftContext } from "./draft";
 import { uiDiagnostic } from "./uiDiagnostics";
+import { persistDraft, savedDraft, savedContext, type SavedInput } from "./localSave";
 export type Route =
   | "quote"
   | "orders"
@@ -95,23 +96,13 @@ export function useWorkbench() {
   }
   useEffect(() => {
     try {
-      localStorage.setItem(
-        "777-desktop-draft-v1",
-        JSON.stringify({
-          schema: "777-desktop-draft-v1",
-          ...(draftSource.current ? {source_pin:draftSource.current} : {}),
-          details: draft.details,
-          lines: draft.lines,
-          editing: draft.editing,
-          customer: draft.customer,
-        }),
-      );
+      persistDraft(draft,draftSource.current);
     } catch {
       uiDiagnostic("frontend_error", undefined, new Error("draft storage unavailable"));
       setFeedback(formalPresentation() ? "" : "当前草稿无法保存到本机，请保持窗口打开。");
       setIsError(true);
     }
-  }, [draft.details, draft.lines, draft.editing, draft.customer]);
+  }, [draft.details, draft.lines, draft.editing, draft.customer,draft.saveId]);
   useEffect(() => { uiDiagnostic("draft_context", draft); }, [draft.editing?.order_id, draft.editing?.revision]);
   const run = useCallback(
     async <T>(work: () => Promise<T>, done?: (v: T) => void, rethrow = false) => {
@@ -230,7 +221,7 @@ export function useWorkbench() {
         }>("bootstrap");
         const p = b.session ? await request<Catalog>("prices").catch(e => { if (errorCode(e) === "PRICES_NOT_PUBLISHED") return null; throw e; }) : null;
         const policy = await request<{permissions:string[]|null;developer_tools?:boolean}>("connection");
-        const dirs = b.session && allowed(policy.permissions ?? null,b.session.role,"settings") ? await request<Preferences>("settings") : null;
+        const dirs = b.session && allowed(policy.permissions ?? null,b.session.role,"settings") ? await request<Preferences>("settings").catch(e=>{if(["manager","sales"].includes(b.delivery))return null;throw e;}) : null;
         const c = b.session
           ? await request<{ connection: Connection | null }>("connection")
           : null;
@@ -241,9 +232,10 @@ export function useWorkbench() {
           const raw=localStorage.getItem("777-desktop-draft-v1");
           if(raw) localStorage.setItem(`777-desktop-restricted-draft-${draft.editing!.order_id}`,raw);
         }
-        return { b, p, dirs, c, policy, restrictedDraft };
+        const localSaved = b.session && ["manager","sales"].includes(b.delivery) ? await savedDraft(draft.saveId) : null;
+        return { b, p, dirs, c, policy, restrictedDraft, localSaved };
       },
-      ({ b, p, dirs, c, policy, restrictedDraft }) => {
+      ({ b, p, dirs, c, policy, restrictedDraft, localSaved }) => {
         setDeliveryContext(b.delivery);
         setPermissions(policy.permissions ?? null);
         setDeveloperTools(b.delivery === "development" && !!policy.developer_tools);
@@ -255,6 +247,7 @@ export function useWorkbench() {
         setAutomatic(b.automatic);
         setSession(b.session);
         if (restrictedDraft) dispatch({type:"reset"});
+        else if (localSaved?.result && localSaved.submitted) dispatch({type:"committed",snapshot:localSaved.submitted.snapshot,details:localSaved.submitted.details,context:savedContext(localSaved.submitted)});
         dispatch({ type: "invalidate" });
         setCatalog(p);
         setPreferences(dirs);
@@ -299,10 +292,13 @@ export function useWorkbench() {
   const loadOrders = useCallback(
     (next = filters) =>
       run(
-        () => request<Listing>("orders", next),
+        async () => {
+          try { return await request<Listing>("orders",next); }
+          catch(e) { if(errorCode(e)!=="QUERY_VIEW_CHANGED")throw e;return request<Listing>("orders",{...next,offset:0,view:""}); }
+        },
         (v) => {
           setListing(v);
-          setFilters({ ...next, view: v.view });
+          setFilters({ ...next,offset:v.offset, view: v.view });
         },
       ),
     [filters, run],
@@ -407,23 +403,23 @@ export function useWorkbench() {
     return run(
       async () => {
         uiDiagnostic("save_requested", draft);
-        const receipt = await request<{ order_id: string }>("save_order", {
-          snapshot: submitted,
-          sources:draft.lines.map(l=>l.source??null),
-          order_id:draft.editing?.order_id??null,
-          expected_revision:draft.editing?.revision??null,
-          customer:draft.customer??{},
-          details,
-          draft_revision: draft.revision,
-        });
-        return can("orders") ? afterSaved(() =>
-          request<Order>("order", { order_id: receipt.order_id }),
-        ) : {value:null};
+        persistDraft(draft,draftSource.current);
+        let committed:SavedInput={snapshot:submitted,details,...context};
+        let receipt:{order_id:string};
+        try {
+          receipt=await request<{order_id:string}>("save_order",{...committed,draft_revision:draft.revision,operation_id:draft.saveId});
+        } catch(e) {
+          const saved=await savedDraft(draft.saveId);
+          if(!saved?.result||!saved.submitted)throw e;
+          receipt=saved.result;committed=saved.submitted;
+        }
+        const value=can("orders") ? await afterSaved(()=>request<Order>("order",{order_id:receipt.order_id})) : {value:null};
+        return {...value,committed};
       },
       (r) => {
         setPending(false);
         uiDiagnostic("save_confirmed", draft);
-        dispatch({ type: "committed", snapshot: submitted, details,context });
+        dispatch({ type: "committed", snapshot:r.committed.snapshot, details:r.committed.details,context:savedContext(r.committed) });
         setSelected(r.value);
         setListing(null);
         setAnalysis(null);

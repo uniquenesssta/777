@@ -90,20 +90,8 @@ pub fn number(v: &Value) -> Result<i64> {
     v.as_i64()
         .ok_or_else(|| Error::new(422, "INVALID_BUSINESS_INPUT"))
 }
-pub fn casefold(s: &str) -> String {
-    use std::{collections::BTreeMap, sync::OnceLock};
-    static DATA: OnceLock<BTreeMap<String, String>> = OnceLock::new();
-    let data = DATA.get_or_init(|| {
-        serde_json::from_str(include_str!("casefold-v15.json")).expect("frozen Unicode15 table")
-    });
-    s.chars()
-        .map(|c| {
-            data.get(&c.to_string())
-                .cloned()
-                .unwrap_or_else(|| c.to_string())
-        })
-        .collect()
-}
+pub use quote_core::search::casefold;
+
 pub mod image;
 pub mod intake;
 

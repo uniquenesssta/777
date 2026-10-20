@@ -88,6 +88,55 @@ jobs:
           name: p08-02-sync-evidence
           path: reports/p08-02-sync
           if-no-files-found: warn
+  offline-orders:
+    if: ${{ !contains(github.event.head_commit.message, '[host-checks]') }}
+    runs-on: windows-latest
+    timeout-minutes: 35
+    env:
+      PYTHONUTF8: '1'
+      CARGO_BUILD_JOBS: '2'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12.10'
+      - name: Pinned native runtime prerequisites
+        shell: pwsh
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --component rustfmt,clippy
+          if ($LASTEXITCODE -ne 0) { throw 'Rust setup failed' }
+          python -m pip install -r requirements-baseline.txt -r requirements-service.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Native verification dependencies failed' }
+      - name: Strict desktop analysis and Windows local transaction, protection and startup tests
+        shell: pwsh
+        run: |
+          cargo clippy --locked -j 2 -p quote-desktop --lib --examples --features verification,manager -- -D warnings
+          if ($LASTEXITCODE -ne 0) { throw 'Local order strict analysis failed' }
+          cargo test --locked -j 2 -p quote-desktop --lib --features verification,manager
+          if ($LASTEXITCODE -ne 0) { throw 'Windows local order tests failed' }
+      - name: Build real runtime IPC drivers and Host resources
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path reports/p08-02-3-D-drivers -Force | Out-Null
+          cargo build --locked --release -j 2 -p quote-host -p quote-ledger
+          if ($LASTEXITCODE -ne 0) { throw 'Native Host build failed' }
+          foreach ($role in @('manager','sales')) {
+            cargo build --locked -j 2 -p quote-desktop --example offline-bridge --features "verification,$role"
+            if ($LASTEXITCODE -ne 0) { throw "Native $role driver build failed" }
+            Copy-Item target/debug/examples/offline-bridge.exe "reports/p08-02-3-D-drivers/$role.exe"
+          }
+      - name: Real TLS stop, offline saves, process restart and independent silent upload
+        shell: pwsh
+        run: |
+          python tools/p08_local_check.py --manager reports/p08-02-3-D-drivers/manager.exe --sales reports/p08-02-3-D-drivers/sales.exe --output reports/p08-02-3-D-local
+          if ($LASTEXITCODE -ne 0) { throw 'Native offline order data flow failed' }
+      - name: Upload local order evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: p08-02-3-D-local-orders-evidence
+          path: reports/p08-02-3-D-local
+          if-no-files-found: warn
   desktop-contracts:
     if: ${{ !contains(github.event.head_commit.message, '[host-checks]') }}
     runs-on: windows-latest

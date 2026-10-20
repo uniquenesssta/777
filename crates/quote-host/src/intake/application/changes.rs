@@ -14,6 +14,9 @@ pub(crate) fn handle(i: &Intake, ctx: &Context, path: &str, data: &Value) -> Res
     if path == "/v1/offline/order-chunk" {
         return super::projection::chunk(i, ctx, data);
     }
+    if path == "/v1/offline/diff-chunk" {
+        return super::history::chunk(i, ctx, data);
+    }
     protocol::fields(data, &["protocol", "cursor"], &[])?;
     let after = super::cursor::decode(i, ctx, &data["cursor"])?;
     let c = store::open(&i.ledger, false)?;
