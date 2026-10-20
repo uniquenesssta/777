@@ -573,7 +573,7 @@ test("P07-07 customer match edits the chosen order and exports period financial 
   await page.getByRole("button",{name:"计算报价",exact:true}).click();
   await page.getByRole("button",{name:"保存修改",exact:true}).click();
   await page.getByRole("button",{name:"确认提交",exact:true}).click();
-  await expect(page.getByText("修改记录",{exact:true})).toBeVisible();
+  await expect(page.getByRole("button",{name:/^修改记录（/})).toBeVisible();
   await page.getByRole("button",{name:"继续编辑",exact:true}).click();
   await expect(page.getByText("已保存版本 2",{exact:true})).toBeVisible();
   await page.getByLabel("第1行数量",{exact:true}).fill("3");
@@ -584,6 +584,7 @@ test("P07-07 customer match edits the chosen order and exports period financial 
   await page.getByRole("button",{name:"计算报价",exact:true}).click();
   await page.getByRole("button",{name:"保存修改",exact:true}).click();
   await page.getByRole("button",{name:"确认提交",exact:true}).click();
+  await page.getByRole("button",{name:/^修改记录（/}).click();
   await expect(page.locator("summary").filter({hasText:"版本 2 → 3"})).toBeVisible();
   await page.locator("summary").filter({hasText:"版本 2 → 3"}).click();
   const diff=page.locator(".revision-diff[open]");
@@ -592,6 +593,7 @@ test("P07-07 customer match edits the chosen order and exports period financial 
   await expect(quantity.getByRole("cell").nth(1)).toHaveText("2");
   await expect(quantity.getByRole("cell").nth(2)).toHaveText("3");
   await page.screenshot({path:"test-results/p07-07-edited-order.png"});
+  await page.keyboard.press("Escape");
   await page.getByRole("button",{name:"订单记录",exact:true}).click();
   await page.getByRole("button",{name:"按客户查看",exact:true}).click();
   await page.getByLabel("搜索客户",{exact:true}).fill("客户0");

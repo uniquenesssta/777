@@ -94,7 +94,6 @@ export function OrdersPage({
                 <th className="right">利润（¥）</th>
               )}
               <th>创建时间</th>
-              <th>创建人</th>
               <th>状态</th>
               <th className="order-action-column">操作</th>
             </tr>
@@ -111,7 +110,6 @@ export function OrdersPage({
                   <td className="right numeric">{money(o.profit_cents)}</td>
                 )}
                 <td>{stamp(o.created_at)}</td>
-                <td>{o.owner_id?.slice(0, 8) || app.session?.username}</td>
                 <td>
                   <Badge muted={o.state === "void"}>
                     {o.state === "active" ? "已保存" : "已作废"}

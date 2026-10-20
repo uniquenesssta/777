@@ -5,5 +5,6 @@ import "./tokens.css";
 import "./app.css";
 import "./layout/viewport.css";
 import "./layout/management.css";
+import "./features/orders/orderDetail.css";
 installUiDiagnostics();
 createRoot(document.getElementById("root")!).render(<App />);

@@ -41,7 +41,7 @@ export function TasksPage({ app }: { app: Workbench }) {
       <p className="muted export-purpose">
         查看导出进度和结果，完成后可直接打开文件夹。
       </p>
-      {app.can("finance")&&<form className="report-filters" onSubmit={e=>{e.preventDefault();void app.createReport(from,to);}}><strong>内部财务报表</strong><Field label="报表开始日期"><Input type="date" required value={from} max={to} onChange={e=>setFrom(e.target.value)}/></Field><Field label="报表结束日期"><Input type="date" required value={to} min={from} onChange={e=>setTo(e.target.value)}/></Field><Button type="submit" disabled={app.busy||app.pending||!from||!to||from>to}>导出 Excel</Button><small className="muted">按月分表、月内按日；大范围自动拆分文件。</small></form>}
+      {!app.formal && app.can("finance")&&<form className="report-filters" onSubmit={e=>{e.preventDefault();void app.createReport(from,to);}}><strong>内部财务报表</strong><Field label="报表开始日期"><Input type="date" required value={from} max={to} onChange={e=>setFrom(e.target.value)}/></Field><Field label="报表结束日期"><Input type="date" required value={to} min={from} onChange={e=>setTo(e.target.value)}/></Field><Button type="submit" disabled={app.busy||app.pending||!from||!to||from>to}>导出 Excel</Button><small className="muted">按月分表、月内按日；大范围自动拆分文件。</small></form>}
       <div className="orders-table-scroll">
         <table className="orders-table">
           <thead>
@@ -110,7 +110,7 @@ export function TasksPage({ app }: { app: Workbench }) {
           </tbody>
         </table>
         {!app.jobs.length && (
-          <Empty>暂无导出记录。{app.can("finance")?"可在上方导出内部财务报表，或在订单详情导出报价。":"可在订单详情导出报价表或报价图片。"}</Empty>
+          <Empty>暂无导出记录。{!app.formal && (app.can("finance")?"可在上方导出内部财务报表，或在订单详情导出报价。":"可在订单详情导出报价表或报价图片。")}</Empty>
         )}
       </div>
         <div className="pagination">

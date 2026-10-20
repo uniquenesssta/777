@@ -1,8 +1,8 @@
 // UI-only data; real Rust order/edit/export coverage remains in workbench.spec.ts.
 import type { Page } from '@playwright/test';
 import { setup } from './package-bridge';
-export async function orderRecords(page: Page, delivery = 'manager', longIdentity = false) {
-  await setup(page, delivery, delivery === 'sales' ? ['quote', 'orders'] : null);
+export async function orderRecords(page: Page, delivery = 'manager', longIdentity = false, permissions?: string[]) {
+  await setup(page, delivery, permissions ?? (delivery === 'sales' ? ['quote', 'orders'] : null));
   await page.evaluate(({longIdentity}) => {
     const make = (index: number, group: number, state = 'active') => ({
       order_id: `order-${index}`, customer_id: `customer-${group}`, revision: '1', state,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { OrderHistory } from "./OrderHistory";
+import { OrderDetailRecords } from "./orders/OrderDetailRecords";
 import type { Workbench } from "../state/useWorkbench";
 import { money, stamp } from "../state/format";
 import { Summary } from "./QuotePage";
@@ -11,7 +11,7 @@ export function DetailPage({ app }: { app: Workbench }) {
   if (!order) return <Empty>请选择一笔订单。</Empty>;
   return (
     <>
-      <div className="workbench-grid" data-node-id="32:499">
+      <div className="workbench-grid order-detail" data-node-id="32:499">
         <section className="card quote-card">
           <div className="customer-row readonly-customer">
             <div>
@@ -87,20 +87,7 @@ export function DetailPage({ app }: { app: Workbench }) {
               )}
             </div>
           </div>
-          <OrderHistory order={order} />
-          <section className="note-history">
-            <h3>备注记录</h3>
-            {order.notes.length ? (
-              order.notes.map((n) => (
-                <div key={n.note_id}>
-                  <p>{n.body}</p>
-                  <small>{stamp(n.created_at)}</small>
-                </div>
-              ))
-            ) : (
-              <p className="muted">暂无备注</p>
-            )}
-          </section>
+          <OrderDetailRecords order={order} />
         </section>
         <Summary
           amounts={order}
@@ -136,7 +123,7 @@ export function DetailPage({ app }: { app: Workbench }) {
               </Button>
             )}
           </div>}
-          {app.can("exports") && <div className="button-pair">
+          {!app.formal && app.can("exports") && <div className="button-pair">
             <Button
               variant="ghost"
               disabled={app.busy || app.pending}
@@ -152,7 +139,7 @@ export function DetailPage({ app }: { app: Workbench }) {
               报价图片
             </Button>
           </div>}
-          {app.can("finance") && app.can("exports") && (
+          {!app.formal && app.can("finance") && app.can("exports") && (
             <Button
               variant="ghost"
               disabled={app.busy || app.pending}
