@@ -27,7 +27,20 @@ async fn post(
     body: &Value,
 ) -> Result<Value> {
     let client = crate::cluster::transport::Client::new(connection)?;
-    client.request(path, token, body).await
+    client.request(path, token, body).await.map_err(|error| {
+        if error.code == "CLUSTER_PRIMARY_UNREACHABLE_OR_CERTIFICATE_REJECTED" {
+            Error::new(
+                error.status,
+                if path == "/v1/automatic/binding/pair" {
+                    "ISSUER_PAIR_UNREACHABLE_OR_CERTIFICATE_REJECTED"
+                } else {
+                    "ISSUER_PRIMARY_UNREACHABLE_OR_CERTIFICATE_REJECTED"
+                },
+            )
+        } else {
+            error
+        }
+    })
 }
 pub async fn connect(path: &Path, auxiliary: bool) -> Result<Value> {
     let mut state = load(path, auxiliary)?;

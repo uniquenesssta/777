@@ -267,5 +267,21 @@
       "E_business_conflict_UI_and_authorization": "not implemented"
     },
     "follow_up": "E: authorized mother business conflict review and append-only decision history, plus developer maintenance; await explicit start. F/G remain pending. New documentation commit is not polled."
+  },
+  "ui_issuer_refinement_2026_10_20": {
+    "scope": "E paused; management UI and developer issuer recovery",
+    "frontend_unit_tests": 48,
+    "targeted_browser_tests": 15,
+    "controller_tests": 2,
+    "native_test": "issuer_recovery_reports_the_failed_stage_without_replacing_protected_state: passed; real owned loopback TCP/TLS failure, both phases, protected bytes unchanged",
+    "build": "TypeScript/Vite passed",
+    "clippy": "quote-host automatic_installation test target, -D warnings passed",
+    "environment": "Linux auxiliary; Chromium 153",
+    "not_performed": [
+      "manager/sales installer and build preparation checks",
+      "4.23/4.38 site changes or validation",
+      "new Windows CI polling",
+      "E implementation"
+    ]
   }
 }

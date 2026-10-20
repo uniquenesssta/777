@@ -40,7 +40,7 @@ export function ProfitPage({ app }: { app: Workbench }) {
           <h2>利润分析</h2>
           <p className="muted">
             {data
-              ? `${data.from.replace("T", " ").slice(0, 19)} 至 ${data.to.replace("T", " ").slice(0, 19)} · 有效订单 ${data.totals.order_count} 笔`
+              ? `${data.from.replace("T", " ").slice(0, 16)} 至 ${data.to.replace("T", " ").slice(0, 16)} · 有效订单 ${data.totals.order_count} 笔`
               : "收入、成本与利润趋势"}
           </p>
         </div>

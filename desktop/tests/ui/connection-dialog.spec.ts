@@ -4,7 +4,7 @@ import {setup} from './fixtures/package-bridge';
 for (const target of [false]) {
   test(`${target ? 'package target' : 'developer connection'} dialog contains controls at desktop and narrow sizes`, async ({page}, info) => {
     await setup(page, 'development');
-    await page.getByRole('button', {name:'开发部署', exact:true}).click();
+    await page.getByRole('button', {name:'开发者工具', exact:true}).click();
     await page.getByRole('button', {name:'开发数据', exact:true}).click();
     await page.getByRole('button', {name:target?'核对或更换目标':'选择或更换后台连接', exact:true}).click();
     const dialog=page.getByRole('dialog');
@@ -39,7 +39,7 @@ for (const target of [false]) {
 
 test('developer connection submits only public connection information',async({page})=>{
   await setup(page,'development');
-  await page.getByRole('button',{name:'开发部署',exact:true}).click();
+  await page.getByRole('button',{name:'开发者工具',exact:true}).click();
   await page.getByRole('button',{name:'开发数据',exact:true}).click();
   await page.getByRole('button',{name:'选择或更换后台连接',exact:true}).click();
   await page.getByRole('dialog').getByRole('button',{name:'验证并连接',exact:true}).click();

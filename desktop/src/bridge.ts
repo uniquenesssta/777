@@ -7,10 +7,17 @@ export function request<T>(
   return invoke<T>("desktop_action", { request: { action, ...data } });
 }
 const errors: Record<string, string> = {
-  ISSUER_NOT_READY:"发行准备尚未完成，请在发行维护中准备主机升级包。",
+  ISSUER_NOT_READY:"尚未获得 4.23 的封包授权，请先完成封包授权。",
+  ISSUER_PAIR_UNREACHABLE_OR_CERTIFICATE_REJECTED:"尚未连接上 4.23 的临时授权服务（8478），或升级包证书不匹配。请确认 4.23 已运行本机生成的同一份 upgrade.cmd，且仍在等待连接；恢复后重试，无需重新生成。",
+  ISSUER_PRIMARY_UNREACHABLE_OR_CERTIFICATE_REJECTED:"已读取主机身份，但未能连接或验证 4.23 的正式服务（8477）。请确认后台正在运行，恢复连接后重试；现有准备记录已保留。",
+  CLUSTER_PRIMARY_UNREACHABLE_OR_CERTIFICATE_REJECTED:"未能连接或验证 4.23。请确认后台正在运行，并在 4.23 运行本机生成的同一份升级包；恢复后重试，先不要重新生成。",
+  ISSUER_NATIVE_UNAVAILABLE:"未找到本机授权工具。请退出开发版后使用 npm run dev 重新启动，完成工具准备。",
+  ISSUER_STATUS_UNAVAILABLE:"暂时无法读取本机封包授权状态。请刷新重试，现有准备记录不会被替换。",
+  ISSUER_KIT_UNAVAILABLE:"原升级包已移动或丢失。请展开“更换升级包”重新生成，并在 4.23 运行新包。",
+  WINDOWS_PACKAGING_REQUIRED:"请在 Windows 开发版中进行封包和授权准备。",
   ISSUER_INTERFACE_SELECTION_REQUIRED:"请选择用于连接主机的本机网络接口。",
   PACKAGE_RESUME_CONFLICT:"本次任务的封包内容已经变化，请按当前选择重新封包。",
-  UPGRADE_BINDING_CONFLICT:"主机升级与本机发行准备不匹配，请在发行维护中重新核对。",
+  UPGRADE_BINDING_CONFLICT:"4.23 与本机的升级材料不匹配。请在 4.23 运行本机的同一份升级包；若材料已过期，再展开“更换升级包”。",
   CONNECTION_FILE_INVALID: "文件内容不完整或格式不正确，请重新选择部署生成的文件。",
   CONNECTION_FILE_WRONG_KIND: "文件用途不匹配。Host 加入文件、公开连接文件和桌面登记文件不能混用。",
   CONNECTION_FILE_UNAVAILABLE: "无法读取所选文件，请检查位置和访问权限。",

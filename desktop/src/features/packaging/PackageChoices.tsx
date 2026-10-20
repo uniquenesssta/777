@@ -43,7 +43,7 @@ export function PackageChoices({onMaintenance}:{onMaintenance:()=>void}){
         <small className="muted">{delivery==='manager'?'安装时自动配置后台，接入同一份业务数据。':'安装后自动接入业务数据。'}</small>
         <small className="muted">功能以本次勾选为准。</small>
         <Button disabled={disabled||!state?.issuer?.ready} onClick={()=>void pack()}>封包{title}</Button>
-        {state&&!state.issuer?.ready&&<><p>发行准备尚未完成。</p><Button variant="outline" disabled={disabled} onClick={onMaintenance}>前往发行维护</Button></>}
+        {state&&!state.issuer?.ready&&<><p>尚未获得 4.23 的封包授权，完成后即可封包。</p><Button variant="outline" disabled={disabled} onClick={onMaintenance}>完成封包授权</Button></>}
         <small className="muted">登录、退出登录和内部连接提示始终隐藏。</small>
       </section>
     </div>

@@ -2,6 +2,7 @@
 import ipaddress
 import json
 import os
+import re
 from pathlib import Path
 import socket
 import subprocess
@@ -36,9 +37,13 @@ class Issuer:
                 if ip.version==4 and not ip.is_loopback and not ip.is_unspecified:addresses.append(address)
         except OSError:pass
         try:result=self.native(['automatic-issuer-status','--state',str(self.state)])
-        except (RuntimeError,OSError,subprocess.TimeoutExpired):result=dict(ready=False,phase='upgrade_required')
+        except RuntimeError as error:
+            code=str(error)
+            result=dict(ready=False,phase='unavailable',error=code if re.fullmatch(r'[A-Z0-9_]{1,128}',code) else 'ISSUER_STATUS_UNAVAILABLE')
+        except FileNotFoundError:result=dict(ready=False,phase='unavailable',error='ISSUER_NATIVE_UNAVAILABLE')
+        except (OSError,subprocess.TimeoutExpired):result=dict(ready=False,phase='unavailable',error='ISSUER_STATUS_UNAVAILABLE')
         # Only public identity and readiness cross the control bridge.
-        self.cache={k:result.get(k) for k in ['ready','phase','site_id','ledger_id']}
+        self.cache={k:result.get(k) for k in ['ready','phase','site_id','ledger_id','error']}
         self.cache['interfaces']=sorted(set(addresses))
         self.checked=time.monotonic()
         return self.cache
@@ -47,6 +52,7 @@ class Issuer:
         from p07_developer import replace_json
         status=self.status(refresh=True)
         if status['ready']:raise RuntimeError('ISSUER_ALREADY_READY')
+        if status['phase'] in ('unavailable','windows_required'):raise RuntimeError(status.get('error') or 'WINDOWS_PACKAGING_REQUIRED')
         peers=status['interfaces']
         if peer is None and len(peers)==1:peer=peers[0]
         if peer not in peers:raise RuntimeError('ISSUER_INTERFACE_SELECTION_REQUIRED')

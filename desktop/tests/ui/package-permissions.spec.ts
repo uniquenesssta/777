@@ -4,7 +4,7 @@ import {setup} from './fixtures/package-bridge';
 async function top(page:import('@playwright/test').Page){await page.evaluate(()=>scrollTo(0,0));await expect.poll(()=>page.evaluate(()=>scrollY)).toBe(0);}
 test('package choices send the reviewed policy and do not require typed paths or version',async({page},info)=>{
   await setup(page,'development');
-  await page.getByRole('button',{name:'开发部署',exact:true}).click();
+  await page.getByRole('button',{name:'开发者工具',exact:true}).click();
   const card=page.locator('.packaging-workspace');
   await expect(card.locator('input[type=text]')).toHaveCount(0);
   await card.getByLabel('成本、利润与内部财务报表',{exact:true}).uncheck();
@@ -27,11 +27,11 @@ test('package choices send the reviewed policy and do not require typed paths or
   await page.screenshot({path:info.outputPath('package-choices-720.png'),fullPage:true});
 });
 test('choices survive maintenance navigation; failed jobs retry without a new package request',async({page},info)=>{
-  await setup(page,'development');await page.getByRole('button',{name:'开发部署',exact:true}).click();
+  await setup(page,'development');await page.getByRole('button',{name:'开发者工具',exact:true}).click();
   const card=page.locator('.packaging-workspace');
   await card.getByLabel('成本、利润与内部财务报表',{exact:true}).uncheck();
-  await page.getByRole('button',{name:'发行维护',exact:true}).click();
-  await expect(page.getByRole('heading',{name:'发行准备完成',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'封包授权',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'已获得封包授权',exact:true})).toBeVisible();
   await top(page);
   await page.screenshot({path:info.outputPath('issuer-ready.png'),fullPage:true});
   await page.getByRole('button',{name:'返回应用封包',exact:true}).click();
@@ -44,7 +44,7 @@ test('choices survive maintenance navigation; failed jobs retry without a new pa
 });
 test('390px long paths wrap and the original check asset renders at 12px',async({page},info)=>{
   await setup(page,'development');await page.setViewportSize({width:390,height:600});
-  await page.getByRole('button',{name:'开发部署',exact:true}).click();
+  await page.getByRole('button',{name:'开发者工具',exact:true}).click();
   await page.evaluate(()=>{(window as any).__packageOutput='D:\\'+('报价系统交付目录'.repeat(50));});
   await expect.poll(()=>page.locator('.package-path').first().textContent()).toContain('报价系统交付目录');
   await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
@@ -59,7 +59,7 @@ test('390px long paths wrap and the original check asset renders at 12px',async(
 for(const delivery of ['manager','sales'])test(`${delivery} quote-only policy has no hidden-feature navigation or account menu`,async({page})=>{
   await setup(page,delivery,['quote']);
   await expect(page.getByRole('button',{name:'报价工作台',exact:true})).toBeVisible();
-  for(const name of ['账户菜单','退出登录','订单记录','我的订单','价格维护','利润分析','导出记录','存储与备份','开发部署'])
+  for(const name of ['账户菜单','退出登录','订单记录','我的订单','价格维护','利润分析','导出记录','存储与备份','开发者工具'])
     await expect(page.getByRole('button',{name,exact:true})).toHaveCount(0);
   await expect(page.locator('.finance-cost')).toHaveCount(0);
   const requests=await page.evaluate(()=>(window as any).__requests);

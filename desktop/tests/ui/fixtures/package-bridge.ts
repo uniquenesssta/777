@@ -17,7 +17,8 @@ export async function setup(page:Page,delivery:string,permissions:string[]|null=
           case 'prices':return{price_version_id:'fixture',items:[{product_id:'商品',sale:'10',unit_sale:'10',k:'1',single:true}]};
           case 'settings':return{revision:'1',export_dir:'D:\\Excel',image_dir:'D:\\Images'};
           case 'backup_status':return (window as any).__backupState??{target:'',last_success:null};
-          case 'outputs':return {offset:0,total:100,limit:100,jobs:Array.from({length:(window as any).__jobCount??3},(_,i)=>({job_id:`job-${i}`,order_id:'order',kind:'excel_admin',state:'done',filename:`quote-${i}.xlsx`,created_at:'2026-10-20T00:00:00Z'}))};
+          case 'orders':return {orders:[],offset:0,total:0,limit:20,view:''};
+          case 'outputs':return {offset:0,total:(window as any).__jobCount===0?0:100,limit:100,jobs:Array.from({length:(window as any).__jobCount??3},(_,i)=>({job_id:`job-${i}`,order_id:'order',kind:'excel_admin',state:'done',filename:`quote-${i}.xlsx`,created_at:'2026-10-20T00:00:00Z'}))};
           case 'analytics':{
             const count=(window as any).__analysisOrders??0;
             const totals={order_count:count,income_cents:count?'10000':'0',cost_cents:count?'4000':'0',profit_cents:count?'6000':'0',margin:count?'60.0%':null};
@@ -25,7 +26,12 @@ export async function setup(page:Page,delivery:string,permissions:string[]|null=
           }
           case 'backup':if((window as any).__backupError)throw{code:'DAILY_BACKUP_FAILED'};return (window as any).__backupReceipt??{backup_id:'fixture',delivery_complete:false};
           case 'business_directory':return{directory:'',applied:false,ledger_id:'fixture'};
-          case 'developer':if(r.request.op.startsWith('issuer_'))return state.issuer;return {...state,preferences:{...state.preferences,output:(window as any).__packageOutput??state.preferences.output},job:(window as any).__packageJob??null};
+          case 'developer':{
+            const issuer=(window as any).__issuerState??state.issuer;
+            if(r.request.op==='issuer_connect'&&(window as any).__issuerError)throw {code:(window as any).__issuerError};
+            if(r.request.op.startsWith('issuer_'))return issuer;
+            return {...state,issuer,preferences:{...state.preferences,output:(window as any).__packageOutput??state.preferences.output},job:(window as any).__packageJob??null};
+          }
           case 'package_target':case 'use_current_package_target':return target;
           case 'import_connection':return{connection};
           case 'pick_directory':return{directory:'D:\\Selected'};

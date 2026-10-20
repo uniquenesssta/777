@@ -40,7 +40,7 @@
 .developer-page > :is(.developer-title, .developer-workspace-tabs) { flex: none; }
 .developer-content:not([hidden]) { display: flex; flex-direction: column; flex: 1 0 auto; }
 .developer-content > :is(.package-panel, .packaging-workspace),
-.developer-page > .package-panel { flex: 1 0 auto; }
+.developer-page > .package-panel:not(.issuer-panel) { flex: 1 0 auto; }
 .price-catalog { display: flex; flex-direction: column; flex: 1; }
 .price-table-scroll { flex: 1 1 0; min-height: 240px; max-height: none; }
 .price-publish-actions { flex: none; }

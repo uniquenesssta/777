@@ -24,14 +24,14 @@ export function OrdersPage({
           {app.session?.role === "admin" ? "订单记录" : "我的订单"}{" "}
           <small>{page?.total ?? 0} 条</small>
         </h2>
-        <Button variant="outline" onClick={()=>setCustomerMode(true)}>按客户查看</Button>
+        <div className="section-actions"><Button variant="outline" onClick={()=>setCustomerMode(true)}>按客户查看</Button>
         <Button
           variant="ghost"
           disabled={app.busy}
           onClick={() => void app.loadOrders({ ...app.filters, view: "" })}
         >
           刷新
-        </Button>
+        </Button></div>
       </div>
       <form
         className="order-filters"

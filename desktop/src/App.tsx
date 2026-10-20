@@ -34,7 +34,7 @@ export default function App() {
     { route: "profit", label: "利润分析", admin: true },
     { route: "tasks", label: "导出记录" },
     { route: "settings", label: "存储与备份" },
-    ...(!formalPackage && app.developerTools ? [{ route: "developer" as Route, label: "开发部署" }] : []),
+    ...(!formalPackage && app.developerTools ? [{ route: "developer" as Route, label: "开发者工具" }] : []),
   ];
   const nav = (route: Route) => {
     setMenu(false);
@@ -109,7 +109,7 @@ export default function App() {
             </div>}
           </>
         )}
-        {!formalPackage && app.developerTools && !app.session && <nav aria-label="主导航"><Button variant="primary" onClick={()=>nav("developer")}>开发部署</Button></nav>}
+        {!formalPackage && app.developerTools && !app.session && <nav aria-label="主导航"><Button variant="primary" onClick={()=>nav("developer")}>开发者工具</Button></nav>}
       </header>
       {!formalPackage && app.developerTools && app.route === "developer" ? <main className="workspace" aria-busy={app.busy} tabIndex={-1}><DeveloperPage app={app}/></main> : !app.session ? formalPackage || ["manager","sales"].includes(app.delivery) ? <main className="formal-idle" aria-label="记账器" /> : app.delivery === "loading" || app.automatic ? (
         <main className="connection-page"><section className="card connection-card" aria-busy={app.busy}>
