@@ -69,11 +69,12 @@ mod shell {
     async fn desktop_action(
         window: tauri::WebviewWindow,
         state: State<'_, Shared>,
-        request: Action,
+        request: serde_json::Value,
     ) -> Result<serde_json::Value, DesktopError> {
         if window.label() != "main" {
             return Err(DesktopError::new(403, "WINDOW_NOT_AUTHORIZED"));
         }
+        let request = Action::from_request(request)?;
         if let Action::PickDirectory { ref target } = request {
             let initial = state.desktop.lock().await.directory_context(target).await?;
             // directory_context authorizes the exact target before showing any dialog.

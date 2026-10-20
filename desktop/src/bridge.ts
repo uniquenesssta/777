@@ -7,6 +7,7 @@ export function request<T>(
   return invoke<T>("desktop_action", { request: { action, ...data } });
 }
 const errors: Record<string, string> = {
+  DESKTOP_REQUEST_INVALID:"操作请求格式不匹配，请更新并重新启动开发版；错误已记录到本次运行日志。",
   LOCAL_SIGNER_UNAVAILABLE:"本机签发身份暂不可用，请检查开发日志；无需连接服务器授权。",
   LOCAL_ISSUER_STATE_INVALID:"本机签发身份文件无法读取，现有文件已保留，请检查开发日志。",
   PACKAGE_LEGACY_REBUILD_REQUIRED:"这是旧封包流程的未完成任务，请按当前版本与功能选择重新封包。",

@@ -15,7 +15,13 @@ export function PackageChoices(){
   const change=(value:Partial<typeof prefs>)=>setDraft({...prefs,...value});
   const title=delivery==='manager'?'母版':'子版';
   const label=(item:typeof permissionCatalog[number])=>item.id==='settings'?(delivery==='sales'?'存储设置（只读）':'存储设置'):item.label;
-  async function pack(){await run(async()=>{await developer('save_package',prefs);setState(await developer<PackageConfiguration>('package',{delivery,permissions:selected}));});}
+  async function pack(){await run(async()=>{
+    // Saved preferences also contain the business root/schema; the IPC command
+    // accepts only package options, including when a draft spreads that state.
+    const {output,version,runtime}=prefs;
+    await developer('save_package',{output,version,runtime});
+    setState(await developer<PackageConfiguration>('package',{delivery,permissions:selected}));
+  });}
   return <div className="packaging-workspace" data-node-id={delivery==='manager'?'113:2205':'113:2206'}>
     <div className="package-columns">
       <section className="card package-panel">

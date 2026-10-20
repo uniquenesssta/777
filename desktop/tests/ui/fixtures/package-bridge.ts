@@ -4,7 +4,7 @@ export async function setup(page:Page,delivery:string,permissions:string[]|null=
     const connection={url:'https://192.168.4.38:8477',certificate_sha256:'a'.repeat(64),certificate_pem:'fixture'};
     const target={target:{connection,ledger_id:'fixture-ledger'},verified:true};
     const state={daily:{hidden_dir:'D:\\Hidden',daily_hour:23},root:'D:\\Dev',backup_dir:'D:\\Backup',ledger_id:'fixture-ledger',last_backup:null,connection,
-      preferences:{output:'D:\\Packages',version:'0.1.0',runtime:'downloadBootstrapper'},job:null,issuer:{ready:true,phase:'ready',interfaces:['192.168.4.80']}};
+      preferences:{schema:'777-developer-v1',root:'D:\\Dev',output:'D:\\Packages',version:'0.1.0',runtime:'downloadBootstrapper'},job:null,issuer:{ready:true,phase:'ready',interfaces:['192.168.4.80']}};
     (window as any).__requests=[];
     Object.defineProperty(window,'__TAURI_INTERNALS__',{value:{metadata:{currentWindow:{label:'main'},currentWebview:{label:'main'}},transformCallback:()=>1,unregisterCallback:()=>{},
       invoke:async(command:string,{request:r}:{request:any})=>{
@@ -27,6 +27,8 @@ export async function setup(page:Page,delivery:string,permissions:string[]|null=
           case 'backup':if((window as any).__backupError)throw{code:'DAILY_BACKUP_FAILED'};return (window as any).__backupReceipt??{backup_id:'fixture',delivery_complete:false};
           case 'business_directory':return{directory:'',applied:false,ledger_id:'fixture'};
           case 'developer':{
+            if(r.request.op==='save_package'&&Object.keys(r.request).some(k=>!['op','output','version','runtime'].includes(k)))throw {code:'DESKTOP_REQUEST_INVALID'};
+            if(r.request.op==='save_package'&&(window as any).__savePackageError)throw {code:(window as any).__savePackageError};
             const issuer=(window as any).__issuerState??state.issuer;
             if(r.request.op==='issuer_connect'&&(window as any).__issuerError)throw {code:(window as any).__issuerError};
             if(r.request.op.startsWith('issuer_'))return issuer;

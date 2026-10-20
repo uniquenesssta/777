@@ -13,6 +13,8 @@ test('local packaging has no server approval, login or Host import step',async({
   await page.getByRole('button',{name:'封包子版',exact:true}).click();
   const requests=await page.evaluate(()=>(window as any).__requests.filter((r:any)=>r.action==='developer'));
   expect(requests.filter((r:any)=>r.request.op==='package').map((r:any)=>r.request.delivery)).toEqual(['manager','sales']);
+  for(const saved of requests.filter((r:any)=>r.request.op==='save_package'))
+    expect(saved.request).toEqual({op:'save_package',output:'D:\\Packages',version:'0.1.0',runtime:'downloadBootstrapper'});
   expect(requests.some((r:any)=>r.request.op.startsWith('issuer_'))).toBe(false);
 });
 

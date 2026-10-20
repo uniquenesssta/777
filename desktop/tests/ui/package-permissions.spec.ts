@@ -15,7 +15,7 @@ test('package choices send the reviewed policy and do not require typed paths or
   const build=requests.find((r:any)=>r.action==='developer'&&r.request.op==='package');
   expect(build.request.delivery).toBe('manager');
   expect(build.request.permissions).toEqual(['quote','orders','edit_orders','exports','settings','backup']);
-  expect(requests.some((r:any)=>r.action==='developer'&&r.request.op==='save_package'&&r.request.output==='D:\\Selected')).toBe(true);
+  expect(requests.find((r:any)=>r.action==='developer'&&r.request.op==='save_package').request).toEqual({op:'save_package',output:'D:\\Selected',version:'0.1.0',runtime:'downloadBootstrapper'});
   expect(requests.some((r:any)=>['package_target','use_current_package_target','verify_package_target'].includes(r.action))).toBe(false);
   await top(page);
   await page.screenshot({path:info.outputPath('package-manager.png'),fullPage:true});
@@ -79,4 +79,14 @@ test('developer packaging remains available without a business session',async({p
   await expect.poll(()=>page.evaluate(()=>(window as any).__requests.some((r:any)=>r.action==='developer'&&r.request.op==='package'))).toBe(true);
   const calls=await page.evaluate(()=>(window as any).__requests.map((r:any)=>r.action));
   expect(calls).not.toContain('prices');expect(calls).not.toContain('settings');expect(calls).not.toContain('connect');
+});
+
+test('rejected package settings show the structured error and never start a job',async({page})=>{
+  await setup(page,'development');
+  await page.getByRole('button',{name:'开发者工具',exact:true}).click();
+  await page.evaluate(()=>(window as any).__savePackageError='DESKTOP_REQUEST_INVALID');
+  await page.getByRole('button',{name:'封包母版',exact:true}).click();
+  await expect(page.getByRole('alert')).toContainText('操作请求格式不匹配');
+  expect(await page.evaluate(()=>(window as any).__requests.some((r:any)=>r.action==='developer'&&r.request.op==='package'))).toBe(false);
+  await expect(page.getByRole('button',{name:'封包母版',exact:true})).toBeEnabled();
 });

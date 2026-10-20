@@ -24,6 +24,7 @@ mod journal;
 mod offline;
 mod output_folder;
 mod permissions;
+mod request_boundary;
 mod startup;
 mod tls;
 mod types;

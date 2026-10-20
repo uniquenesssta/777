@@ -25,10 +25,11 @@ test('visibility intersects the package and authenticated role',()=>{
 test('formal errors never expose service failures, codes or guessed messages',()=>{
   for(const delivery of ['manager','sales']) {
     setDeliveryContext(delivery);
-    for(const code of ['UNAUTHENTICATED','DEPLOYMENT_NOT_CONFIGURED','DEVICE_NOT_AUTHORIZED','SERVICE_UNREACHABLE_OR_CERTIFICATE_REJECTED','UNEXPECTED_ERROR'])
+    for(const code of ['UNAUTHENTICATED','DEPLOYMENT_NOT_CONFIGURED','DEVICE_NOT_AUTHORIZED','SERVICE_UNREACHABLE_OR_CERTIFICATE_REJECTED','UNEXPECTED_ERROR','DESKTOP_REQUEST_INVALID'])
       assert.equal(errorMessage({code}), '');
     assert.match(errorMessage({code:'CUSTOMER_ORDER_NUMBER_EXISTS'}),/订单号/);
   }
   setDeliveryContext('development');
   assert.match(errorMessage({code:'UNAUTHENTICATED'}),/重新连接/);
+  assert.match(errorMessage({code:'DESKTOP_REQUEST_INVALID'}),/请求格式不匹配/);
 });

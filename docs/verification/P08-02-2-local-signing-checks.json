@@ -45,5 +45,23 @@
   "production_hosts_accessed": false,
   "windows_execution_performed": false,
   "ci_polled": false,
-  "offline_conflict_review_E_started": false
+  "offline_conflict_review_E_started": false,
+  "package_request_fix": {
+    "source_base": "9e3715cd585565635612fb6aac4de4605a15b3a9",
+    "reported_at": "2026-10-20",
+    "evidence": "User screenshot: UNEXPECTED_ERROR/no job; runtime(5).jsonl: local signer succeeds, no save_package or package control event",
+    "root_cause": "Full saved preferences include schema/root rejected by strict SavePackage IPC parser before command logging",
+    "pre_fix_reproduction": "UI regression failed after fixture restored full preferences and strict command fields",
+    "ui_bridge_tests_passed": 10,
+    "native_request_parser_tests_passed": 2,
+    "frontend_unit_tests_passed": 48,
+    "frontend_typescript_vite_build": "passed",
+    "development_lib_tests_strict_clippy": "passed",
+    "rustfmt_and_diff_check": "passed",
+    "native_command_environment": "CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=2 CARGO_PROFILE_DEV_CODEGEN_UNITS=1 CARGO_PROFILE_TEST_CODEGEN_UNITS=1",
+    "ui_uses_fixture": true,
+    "windows_runtime_executed": false,
+    "final_installers_or_preparation_executed": false,
+    "ci_queried_or_polled": false
+  }
 }
