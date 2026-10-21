@@ -90,7 +90,7 @@ fn signed_roles_permissions_and_secrets_cannot_be_changed_or_self_authorized() {
     for (key, value) in [
         ("delivery", json!("manager")),
         ("capabilities", json!(["quote", "finance"])),
-        ("max_devices", json!(4096)),
+        ("max_devices", json!(4095)),
         ("artifact_sha256", json!(store::hash("changed"))),
     ] {
         let mut changed = p.clone();
@@ -131,8 +131,11 @@ fn first_contact_binds_existing_ledger_and_enforces_device_role_and_revocation()
         let session = f.activate(&data, &bound.secret, &secret);
         assert_eq!(session["delivery"], delivery);
         assert_eq!(session["capabilities"], json!(["quote"]));
-        let (another, _) = f.candidate(id);
-        assert!(a::devices::enroll(&f.c(), &another, &bound.secret).is_err());
+        let (another, another_secret) = f.candidate(id);
+        let second = f.activate(&another, &bound.secret, &another_secret);
+        assert_ne!(session["subject"], second["subject"]);
+        assert_eq!(second["delivery"], delivery);
+        assert_eq!(second["capabilities"], session["capabilities"]);
         assert!(a::devices::enroll(&f.c(), &data, &bound.secret).is_ok());
         a::packages::close(
             &f.c(),

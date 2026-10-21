@@ -20,7 +20,9 @@ fn adopted_device_keeps_subject_and_disables_legacy_session_without_disabling_ma
     legacy.enroll(&f.service.auth,&json!({"ticket":grant["ticket"],"device_id":device,"device_secret":secret,"delivery":"manager"})).unwrap();
     let old = legacy.session(&f.service.auth, &identity).unwrap();
     f.service.devices = Some(legacy);
-    let (package, key, _) = f.package("manager", &["quote"], 5);
+    let (package, key, _) = f.package("manager", &["quote"], 1);
+    let (occupied, occupied_secret) = f.candidate(&package);
+    f.activate(&occupied, &key, &occupied_secret);
     let profile = a::trust::profile(&f.c()).unwrap();
     let body = envelope(
         a::ENROLLMENT,

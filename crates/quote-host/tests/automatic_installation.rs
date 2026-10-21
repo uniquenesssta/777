@@ -6,5 +6,6 @@ mod automatic_checks {
     mod issuer_recovery;
     mod local_issuance;
     mod nodes;
+    mod repeat_installation;
     mod upgrade;
 }

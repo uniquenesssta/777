@@ -2,6 +2,7 @@
 pub mod api;
 pub mod bootstrap;
 pub mod business;
+mod capacity;
 pub mod deployment;
 pub mod devices;
 pub mod installation;

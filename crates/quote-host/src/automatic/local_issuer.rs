@@ -96,7 +96,7 @@ pub fn issue(
         old
     } else {
         let secret = secret()?;
-        let manifest = json!({"format":"777-local-manifest-v1","package_id":package_id,"issuer_id":s["issuer_id"],"delivery":delivery,"capabilities":permissions,"node_enrollment":delivery=="manager","release_version":input["version"],"artifact_sha256":input["artifact_sha256"],"protocols":trust::protocols(),"enroll_before":auth::now()+365*86400,"max_devices":1,"max_nodes":if delivery=="manager"{1}else{0},"secret_hash":digest(&secret)?});
+        let manifest = json!({"format":"777-local-manifest-v1","package_id":package_id,"issuer_id":s["issuer_id"],"delivery":delivery,"capabilities":permissions,"node_enrollment":delivery=="manager","release_version":input["version"],"artifact_sha256":input["artifact_sha256"],"protocols":trust::protocols(),"enroll_before":auth::now()+365*86400,"max_devices":capacity::DEVICES,"max_nodes":if delivery=="manager"{capacity::NODES}else{0},"secret_hash":digest(&secret)?});
         let mut profile = profile(&s)?;
         profile["signature"] = json!(URL_SAFE_NO_PAD.encode(
             key(&s)?

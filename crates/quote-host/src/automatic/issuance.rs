@@ -65,7 +65,7 @@ pub async fn issue(
         }
         old
     } else {
-        let m = json!({"format":"777-package-manifest-v1","package_id":id,"issuer_id":s["issuer_id"],"site_id":s["profile"]["site_id"],"ledger_id":s["profile"]["ledger_id"],"trust_revision":s["profile"]["trust_revision"],"delivery":delivery,"capabilities":permissions,"node_enrollment":delivery=="manager","release_version":input["version"],"artifact_sha256":input["artifact_sha256"],"protocols":trust::protocols(),"enroll_before":auth::now()+365*86400,"max_devices":256,"max_nodes":if delivery=="manager"{128}else{0}});
+        let m = json!({"format":"777-package-manifest-v1","package_id":id,"issuer_id":s["issuer_id"],"site_id":s["profile"]["site_id"],"ledger_id":s["profile"]["ledger_id"],"trust_revision":s["profile"]["trust_revision"],"delivery":delivery,"capabilities":permissions,"node_enrollment":delivery=="manager","release_version":input["version"],"artifact_sha256":input["artifact_sha256"],"protocols":trust::protocols(),"enroll_before":auth::now()+365*86400,"max_devices":capacity::DEVICES,"max_nodes":if delivery=="manager"{capacity::NODES}else{0}});
         let record = json!({"input":input,"issuer_id":s["issuer_id"],"manifest":m,"secret":secret()?,"request_id":store::uid()?});
         issuer_state::save(candidate, &record, auxiliary)?;
         record

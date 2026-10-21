@@ -43,15 +43,7 @@ pub fn adopt(
     if conflict {
         return fail(409, "LEGACY_SUBJECT_ALREADY_ADOPTED");
     }
-    let used: i64 = tx.query_row(
-        "SELECT devices FROM package_grants WHERE id=?",
-        [&package],
-        |r| r.get(0),
-    )?;
-    let total: i64 = tx.query_row("SELECT count(*) FROM automatic_devices", [], |r| r.get(0))?;
-    if used >= m.max_devices || total >= 4096 {
-        return fail(403, "DEVICE_ENROLLMENT_CAPACITY");
-    }
+    capacity::device(&tx)?;
     tx.execute(
         "INSERT INTO automatic_devices VALUES(?,?,?,?,1,1)",
         params![device, actor.subject, package, digest(device_secret)?],

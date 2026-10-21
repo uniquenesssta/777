@@ -45,15 +45,7 @@ pub fn enroll(c: &Connection, data: &Value, token: &str) -> Result<Value> {
     if let Some(v) = receipt(&tx, &format!("enroll:{device}"), &request, data)? {
         return Ok(v);
     }
-    let used: i64 = tx.query_row(
-        "SELECT devices FROM package_grants WHERE id=?",
-        [&package],
-        |r| r.get(0),
-    )?;
-    let total: i64 = tx.query_row("SELECT count(*) FROM automatic_devices", [], |r| r.get(0))?;
-    if used >= m.max_devices || total >= 4096 {
-        return fail(403, "DEVICE_ENROLLMENT_CAPACITY");
-    }
+    capacity::device(&tx)?;
     let subject = store::uid()?;
     let role = if m.delivery == "manager" {
         "admin"
@@ -141,14 +133,7 @@ pub fn upgrade(c: &Connection, data: &Value, token: &str, package_token: &str) -
         return Ok(json!({"device_id":ctx.id,"package_id":next}));
     }
     packages::authenticate(&tx, &next, package_token, false)?;
-    let used: i64 = tx.query_row(
-        "SELECT devices FROM package_grants WHERE id=?",
-        [&next],
-        |r| r.get(0),
-    )?;
-    if used >= m.max_devices {
-        return fail(403, "DEVICE_ENROLLMENT_CAPACITY");
-    }
+
     tx.execute(
         "UPDATE automatic_devices SET package_id=?,epoch=epoch+1 WHERE id=?",
         params![next, ctx.id],

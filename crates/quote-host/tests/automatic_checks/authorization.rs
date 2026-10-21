@@ -3,7 +3,7 @@ use quote_host::{auth, automatic as a, protocol};
 use quote_ledger::store;
 use serde_json::{json, Value};
 #[test]
-fn multi_install_identity_retry_capacity_and_secret_storage() {
+fn multi_install_identity_retry_and_secret_storage() {
     let f = Fixture::new();
     let (package, secret, _) = f.package("sales", &["quote", "orders"], 2);
     let (d1, s1) = f.candidate(&package);
@@ -25,7 +25,10 @@ fn multi_install_identity_retry_capacity_and_secret_storage() {
             .unwrap(),
         2
     );
-    assert!(a::devices::enroll(&f.c(), &f.candidate(&package).0, &secret).is_err());
+    let (third, third_secret) = f.candidate(&package);
+    let third_session = f.activate(&third, &secret, &third_secret);
+    assert_ne!(third_session["subject"], first["subject"]);
+    assert_ne!(third_session["subject"], second["subject"]);
     let mut changed = d1.clone();
     changed["device_secret_hash"] = json!(store::hash("other"));
     assert!(a::devices::enroll(&f.c(), &changed, &secret).is_err());
@@ -134,7 +137,9 @@ fn forged_manifest_cross_site_and_password_login_do_not_elevate() {
 fn same_role_upgrade_changes_scope_without_changing_subject_and_revoked_device_stays_revoked() {
     let f = Fixture::new();
     let (p1, s1, _) = f.package("manager", &["quote", "orders", "finance"], 3);
-    let (p2, s2, _) = f.package("manager", &["quote"], 3);
+    let (p2, s2, _) = f.package("manager", &["quote"], 1);
+    let (occupied, occupied_secret) = f.candidate(&p2);
+    f.activate(&occupied, &s2, &occupied_secret);
     let (d, secret) = f.candidate(&p1);
     let session = f.activate(&d, &s1, &secret);
     let old = session["token"].as_str().unwrap();

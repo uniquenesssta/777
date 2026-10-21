@@ -16,6 +16,7 @@ pub struct Manifest {
     pub artifact_sha256: String,
     pub protocols: Value,
     pub enroll_before: i64,
+    // Retained in signed v1 manifests for compatibility; only service-wide bounds apply.
     pub max_devices: i64,
     pub max_nodes: i64,
 }

@@ -59,15 +59,7 @@ fn reserve(c: &Connection, data: &Value, token: &str) -> Result<Value> {
             return Err(denied());
         }
     } else {
-        let used: i64 = tx.query_row(
-            "SELECT nodes FROM package_grants WHERE id=?",
-            [&package],
-            |r| r.get(0),
-        )?;
-        let total: i64 = tx.query_row("SELECT count(*) FROM automatic_nodes", [], |r| r.get(0))?;
-        if used >= m.max_nodes || total >= 128 {
-            return fail(403, "NODE_ENROLLMENT_CAPACITY");
-        }
+        capacity::node(&tx)?;
     }
     // Stable HMAC permits lost-response recovery without retaining plaintext.
     use base64::Engine;
@@ -170,14 +162,7 @@ pub fn upgrade(c: &Connection, data: &Value, secret: &str, package_token: &str) 
     }
     if old != next {
         packages::authenticate(&tx, &next, package_token, false)?;
-        let used: i64 = tx.query_row(
-            "SELECT nodes FROM package_grants WHERE id=?",
-            [&next],
-            |r| r.get(0),
-        )?;
-        if used >= m.max_nodes {
-            return Err(denied());
-        }
+
         tx.execute(
             "UPDATE automatic_nodes SET package_id=? WHERE id=?",
             params![next, node],
