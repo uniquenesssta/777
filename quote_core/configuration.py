@@ -186,7 +186,7 @@ def parse_price_config(source, *, price_version_id, legacy_single_names=None):
                 if len(legacy_single_names) > PRODUCT_LIMIT:
                     raise ValidationError("CONFIG_PRODUCT_CAPACITY", "legacy_single_names")
                 single_names = frozenset(_name(name, "legacy_single_names") for name in legacy_single_names)
-        if not entries or len(entries) > PRODUCT_LIMIT:
+        if (schema != "json_items" and not entries) or len(entries) > PRODUCT_LIMIT:
             raise ValidationError("CONFIG_PRODUCT_CAPACITY", "items")
 
         items, seen = [], set()

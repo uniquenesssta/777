@@ -96,7 +96,6 @@ export function PricesPage({ app }: { app: Workbench }) {
     );
   const ready =
     supported &&
-    rows.length > 0 &&
     rows.every(
       (p) =>
         p.product_id.trim() !== "" &&
@@ -312,7 +311,7 @@ export function PricesPage({ app }: { app: Workbench }) {
         open={confirm}
         onOpenChange={setConfirm}
         title="发布新价格"
-        description={`确认发布这 ${rows.length} 种商品的定价？`}
+        description={rows.length ? `确认发布这 ${rows.length} 种商品的定价？` : "确认发布空价格版本？已有订单和历史价格保留。"}
         compact
         className="price-confirm"
       >

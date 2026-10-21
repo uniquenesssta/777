@@ -164,7 +164,7 @@ pub fn prices(v: &Value) -> Result<Prices> {
     let a = v["items"]
         .as_array()
         .ok_or_else(|| Error::new(422, "INVALID_PRICES"))?;
-    if a.is_empty() || a.len() > 1000 {
+    if a.len() > 1000 {
         return fail(422, "INVALID_PRICES");
     }
     for i in a {

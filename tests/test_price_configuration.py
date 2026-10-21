@@ -79,8 +79,14 @@ class PriceConfigurationTests(unittest.TestCase):
                 self.rejected(json.dumps({"items": value, "P": [1, 2, 3]}), "CONFIG_ITEMS_TYPE")
         for source in ("[]", "true", "1", '"text"'):
             self.rejected(source, "CONFIG_ROOT_TYPE")
-        for source in ("{}", '{"items":[]}', '{"export_dir":""}'):
+        for source in ("{}", '{"export_dir":""}'):
             self.rejected(source, "CONFIG_PRODUCT_CAPACITY")
+
+    def test_explicit_empty_catalog_is_a_valid_version(self):
+        parsed = self.parse('{"items":[]}')
+        self.assertEqual(parsed.status, "ok")
+        self.assertEqual(parsed.config.prices.price_version_id, "v1")
+        self.assertEqual(len(parsed.config.prices.items), 0)
 
     def test_bad_item_missing_fields_and_unknown_fields_reject_all_items(self):
         for bad in (None, False, 1, [], "item"):

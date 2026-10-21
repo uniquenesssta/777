@@ -460,7 +460,8 @@ fn parse_checked(
             }
         }
     }
-    if entries.is_empty() || entries.len() > 10000 {
+    // An explicit empty catalog is a valid publication; an empty legacy object is not.
+    if (!modern && entries.is_empty()) || entries.len() > 10000 {
         return Err(Fault::new("CONFIG_PRODUCT_CAPACITY", "items"));
     }
     let mut seen = HashSet::new();
