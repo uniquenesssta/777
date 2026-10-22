@@ -322,13 +322,13 @@ export function QuotePage({ app }: { app: Workbench }) {
         <Summary
           amounts={final.totals}
           calculatedIncome={final.calculated}
-          finalPrice={<FinalPrice value={draft.finalPrice} calculated={final.calculated} valid={final.valid} disabled={(!result && !draft.finalPrice) || app.busy || app.pending} onChange={value => dispatch({type:"final_price", value})} />}
+          finalPrice={<FinalPrice value={draft.finalPrice} calculated={final.calculated} valid={final.valid} disabled={app.busy || app.pending} onChange={value => dispatch({type:"final_price", value})} />}
           lines={result?.lines ?? []}
           admin={app.can("finance")}
         >
           <Button
             disabled={
-              app.busy || !catalog || !draft.lines.length || app.pending || !final.valid
+              app.busy || !catalog || !draft.lines.length || app.pending
             }
             onClick={() => {
               if (valid) {

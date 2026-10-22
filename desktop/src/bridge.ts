@@ -7,6 +7,7 @@ export function request<T>(
   return invoke<T>("desktop_action", { request: { action, ...data } });
 }
 const errors: Record<string, string> = {
+  FINAL_PRICE_HOST_UPDATE_REQUIRED:"当前连接的后台尚未支持最终成交价，请更新该后台后重新提交；填写内容已保留。",
   FINAL_PRICE_INVALID:"最终成交价无效，请检查金额后重新提交。",
   LOCAL_OUTPUT_ROOT_REQUIRED:"请先在存储与备份中选择本机导出文件保存位置。",
   LOCAL_OUTPUT_WRITE_FAILED:"无法写入本机导出文件夹，请检查权限和剩余空间后重试。",

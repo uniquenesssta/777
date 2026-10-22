@@ -388,12 +388,14 @@ export function useWorkbench() {
     );
   const calculate = () => {
     const stalePrice=["PRICE_VERSION_CHANGED","PRICE_STALE"].includes(saveFailure);
-    const revision = stalePrice ? (BigInt(draft.revision)+1n).toString() : draft.revision;
+    const calculating = draftReducer(draft, {type:"calculate"});
+    dispatch({type:"calculate"});
+    const revision = stalePrice ? (BigInt(calculating.revision)+1n).toString() : calculating.revision;
     return run(
       async () => {
         const prices=stalePrice ? await request<Catalog>("prices") : null;
         const v=await request<{draft_revision:string;result:Calculation}>("order_preview", {
-          snapshot:{...snapshot(draft),price_version_id:prices?.price_version_id ?? draft.priceVersion},
+          snapshot:{...snapshot(calculating),price_version_id:prices?.price_version_id ?? calculating.priceVersion},
           sources:draft.lines.map(l=>l.source??null),
           order_id:draft.editing?.order_id??null,
           expected_revision:draft.editing?.revision??null,

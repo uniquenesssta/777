@@ -38,3 +38,21 @@ test("changing and clearing final price keeps valid base calculation but require
   assert.equal(d.verifiedRevision,d.revision);
   assert.equal(draftReducer(d,{type:"reset"}).finalPrice,"");
 });
+test("explicit calculation clears any agreed price before building its request, submission retains it", () => {
+  for (const raw of ["80.25", "-1", "invalid", ""]) {
+    let draft={...emptyDraft(),priceVersion:"v1"};
+    draft=draftReducer(draft,{type:"calculated",revision:draft.revision,result:calculation});
+    draft=draftReducer(draft,{type:"final_price",value:raw});
+    const oldRevision=draft.revision;
+    const next=draftReducer(draft,{type:"calculate"});
+    assert.equal(next.finalPrice,"");
+    assert.equal(snapshot(next).final_price,undefined);
+    assert.equal(next.calculation,null);
+    assert.notEqual(next.revision,oldRevision);
+    assert.equal(draftReducer(next,{type:"calculated",revision:oldRevision,result:calculation}).calculation,null);
+    const checked=draftReducer(next,{type:"calculated",revision:next.revision,result:calculation});
+    const ready=draftReducer(checked,{type:"final_price",value:"80.25"});
+    assert.equal(snapshot(ready).final_price,"80.25");
+    assert.equal(ready.calculatedRevision,ready.revision);
+  }
+});

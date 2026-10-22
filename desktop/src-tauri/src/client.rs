@@ -11,6 +11,7 @@ mod local_reports;
 mod offline;
 mod pending;
 mod preferences;
+mod quote_preview;
 mod restricted_outputs;
 mod retry;
 mod transport;
@@ -504,9 +505,7 @@ impl Desktop {
                 self.calculation = None;
                 let expected = expected_revision.map(|s| revision(&s)).transpose()?;
                 let context = json!({"snapshot":snapshot,"sources":sources,"order_id":order_id,"expected_revision":expected});
-                let result = self
-                    .request("POST", "/v1/order-preview", Some(&context))
-                    .await?;
+                let result = self.preview_order(&context).await?;
                 self.calculation = Some(Calculation {
                     snapshot: context,
                     revision: draft_revision.clone(),

@@ -31,6 +31,7 @@ export const emptyDraft = (): Draft => ({
 });
 export type DraftAction =
   | { type: "final_price"; value: string }
+  | { type: "calculate" }
   | { type: "restore"; raw: string | null }
   | { type: "load_order"; order:Order }
   | { type: "customer"; details:Draft["details"]; customer:CustomerChoice }
@@ -76,6 +77,7 @@ export function draftReducer(d: Draft, a: DraftAction): Draft {
       ? { details: a.details ?? d.details, lines: a.lines ?? d.lines,
           customer:a.details && (a.details.customer.trim()!==d.details.customer.trim() || a.details.wechat.trim()!==d.details.wechat.trim()) ? undefined : d.customer }
       : {}),
+    finalPrice: a.type === "calculate" ? "" : d.finalPrice,
     priceVersion: a.type === "prices" ? a.version : d.priceVersion,
     revision: (BigInt(d.revision) + 1n).toString(),
     calculation: null,

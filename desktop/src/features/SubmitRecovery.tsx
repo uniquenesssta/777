@@ -10,12 +10,13 @@ export function SubmitRecovery({app,valid}:{app:Workbench;valid:boolean}) {
   useEffect(()=>{
     setOpen(!!app.saveFailure && showError(app.saveFailure) && !customerErrors.has(app.saveFailure) && !app.pending);
   },[app.saveFailure,app.pending]);
+  const updateHost=app.saveFailure === "FINAL_PRICE_HOST_UPDATE_REQUIRED";
   const reload=changedOrder.has(app.saveFailure) && !!app.draft.editing;
   return <Modal open={open} onOpenChange={value=>!app.busy&&setOpen(value)} title="提交未完成" description={app.feedback || '填写内容已保留，请选择下一步。'} compact>
     <div className="dialog-actions">
       <Button variant="outline" disabled={app.busy} onClick={()=>setOpen(false)}>返回修改</Button>
       {reload ? <Button disabled={app.busy||app.pending} onClick={()=>{setOpen(false);void app.beginEdit(app.draft.editing!.order_id);}}>读取最新订单</Button> : <>
-        <Button variant="outline" disabled={app.busy||app.pending} onClick={()=>{setOpen(false);void app.calculate();}}>重新核价</Button>
+        {!updateHost && <Button variant="outline" disabled={app.busy||app.pending} onClick={()=>{setOpen(false);void app.calculate();}}>重新核价</Button>}
         {valid && <Button disabled={app.busy||app.pending} onClick={()=>{setOpen(false);void app.submit();}}>再次提交</Button>}
       </>}
     </div>
