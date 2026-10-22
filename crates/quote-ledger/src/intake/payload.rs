@@ -75,7 +75,12 @@ pub fn validate(v: &Value) -> Result<()> {
             for k in ["customer", "order_ref", "wechat"] {
                 text(&p["details"][k], 256, false)?;
             }
-            fields(&p["snapshot"], &["price_version_id", "lines"], &[])?;
+            fields(
+                &p["snapshot"],
+                &["price_version_id", "lines"],
+                &["final_price"],
+            )?;
+            final_price(&p["snapshot"])?;
             text(&p["snapshot"]["price_version_id"], 256, true)?;
             let lines = p["snapshot"]["lines"]
                 .as_array()
@@ -90,7 +95,12 @@ pub fn validate(v: &Value) -> Result<()> {
             }
         }
         Some("edit") => {
-            fields(p, &["detail_changes", "line_changes", "customer"], &[])?;
+            fields(
+                p,
+                &["detail_changes", "line_changes", "customer"],
+                &["final_price"],
+            )?;
+            final_price(p)?;
             customer(&p["customer"])?;
             fields(
                 &p["detail_changes"],
@@ -131,6 +141,14 @@ pub fn validate(v: &Value) -> Result<()> {
             text(&p["reason"], 4096, true)?;
         }
         _ => return Err(Error::new("OFFLINE_KIND_INVALID")),
+    }
+    Ok(())
+}
+
+fn final_price(v: &Value) -> Result<()> {
+    if let Some(value) = v.get("final_price").filter(|v| !v.is_null()) {
+        let raw = text(value, 32, false)?;
+        quote_core::settlement::cents(raw).map_err(|_| Error::new("FINAL_PRICE_INVALID"))?;
     }
     Ok(())
 }

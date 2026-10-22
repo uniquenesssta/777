@@ -72,6 +72,7 @@ pub fn public_order(mut v: Value) -> Value {
             "created_at",
             "updated_at",
             "details",
+            "final_price",
             "income_cents",
             "notes",
             "rule_version",

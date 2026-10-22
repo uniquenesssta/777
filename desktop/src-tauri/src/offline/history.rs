@@ -74,6 +74,14 @@ impl Local {
                 "text",
             );
         }
+        diff(
+            &mut changes,
+            "订单金额",
+            "最终成交价",
+            &a["final_price"],
+            &b["final_price"],
+            "text",
+        );
         for (k, label) in [
             ("income_cents", "金额"),
             ("cost_cents", "成本"),

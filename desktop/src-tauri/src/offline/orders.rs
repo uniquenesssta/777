@@ -116,7 +116,7 @@ impl Local {
             .checked_add(1)
             .ok_or_else(|| fault("LOCAL_VERSION_INVALID"))?;
         let mut next=old.clone().unwrap_or_else(||json!({"order_id":id,"owner_id":b["subject"],"revision":"0","state":"active","created_at":stamp(),"notes":[],"history":[]}));
-        let (wire_kind, payload) = if kind == "save" {
+        let (wire_kind, mut payload) = if kind == "save" {
             for k in ["customer", "order_ref", "wechat"] {
                 let s = body["details"][k]
                     .as_str()
@@ -205,6 +205,7 @@ impl Local {
             if customer["new_customer"] == true {
                 next["customer_id"] = json!(crate::types::new_id()?);
             }
+            next["final_price"] = body["snapshot"]["final_price"].clone();
             next["details"] = body["details"].clone();
             next["lines"] = json!(lines);
             next["price_version_id"] = body["snapshot"]["price_version_id"].clone();
@@ -289,6 +290,18 @@ impl Local {
             next["state"] = json!(state);
             ("set_state", json!({"state":state,"reason":reason}))
         };
+        if kind == "save" {
+            if wire_kind == "create" {
+                if !next["final_price"].is_null() {
+                    payload["snapshot"]["final_price"] = next["final_price"].clone();
+                }
+            } else if old
+                .as_ref()
+                .is_some_and(|v| v["final_price"] != next["final_price"])
+            {
+                payload["final_price"] = next["final_price"].clone();
+            }
+        }
         next["revision"] = json!(revision.to_string());
         let op = if body["operation_id"].is_null() {
             crate::types::new_id()?

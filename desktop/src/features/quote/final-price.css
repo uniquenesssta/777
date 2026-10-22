@@ -1,0 +1,6 @@
+.final-price { display:grid; grid-template-columns:minmax(0,1fr) minmax(100px,152px); align-items:center; gap:8px; flex-shrink:0; }
+.final-price label { font-size:14px; }
+.final-price input { width:100%; min-width:0; text-align:right; font-variant-numeric:tabular-nums; }
+.final-price small { grid-column:1 / -1; color:var(--danger, #b42318); }
+/* Use the existing action spacer for this field, keeping the card height stable. */
+.settlement:has(> .final-price) .settlement-actions { min-height:48px; }

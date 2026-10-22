@@ -36,6 +36,15 @@ pub(super) fn chunk(i: &Intake, ctx: &Context, data: &Value) -> Result<Value> {
     {
         return Err(Error::new(409, "REVISION_OR_PRICE_CONFLICT"));
     }
+    let input: String = c.query_row(
+        "SELECT input_json FROM orders WHERE order_id=?",
+        [id],
+        |r| r.get(0),
+    )?;
+    let input: Value = serde_json::from_str(&input)?;
+    if let Some(price) = input.get("final_price") {
+        header["final_price"] = price.clone();
+    }
     header["deleted"] = json!(quote_ledger::deletion::deleted(&c, id)?);
     let section = protocol::text(&data["section"], 16, true)?;
     let rows = match section {

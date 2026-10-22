@@ -39,7 +39,7 @@ pub fn render(payload: &Value) -> Result<Vec<u8>> {
             o["details"][k].as_str().unwrap_or("")
         ))
     }
-    lines.push(format!("收入: {} 元", money(&o["income_cents"])?));
+    lines.push(format!("最终成交价: {} 元", money(&o["income_cents"])?));
     for l in o["lines"]
         .as_array()
         .ok_or_else(|| Error::new(422, "OUTPUT_SNAPSHOT_INVALID"))?

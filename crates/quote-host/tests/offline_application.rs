@@ -8,6 +8,8 @@ mod crashes;
 mod decisions;
 #[path = "application_checks/deletion.rs"]
 mod deletion;
+#[path = "application_checks/final_price.rs"]
+mod final_price;
 #[allow(dead_code)]
 #[path = "intake_checks/support.rs"]
 mod intake_support;

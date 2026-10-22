@@ -74,6 +74,16 @@ fn compare(before: &Value, after: &Value, admin: bool) -> Result<Vec<Value>> {
     ] {
         add(&mut out, "订单", label, &bd[key], &ad[key], "text");
     }
+    let bi = parsed(&before["order"], "input_json")?;
+    let ai = parsed(&after["order"], "input_json")?;
+    add(
+        &mut out,
+        "订单",
+        "最终成交价",
+        &bi["final_price"],
+        &ai["final_price"],
+        "text",
+    );
     let bl = before["lines"]
         .as_array()
         .ok_or_else(|| Error::new(503, "INVALID_DATABASE"))?;

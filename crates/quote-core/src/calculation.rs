@@ -159,6 +159,12 @@ fn calculate_checked(
             subtotal_before: before,
         });
     }
+    *index = None;
+    if let Some(raw) = &q.final_price {
+        if let Some(value) = crate::settlement::cents(raw)? {
+            income = value;
+        }
+    }
     Ok(QuoteResult {
         status: "ok".into(),
         rule_version: q.rule_version.clone(),

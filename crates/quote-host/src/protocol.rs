@@ -113,7 +113,7 @@ pub fn quote(v: &Value) -> Result<Quote> {
     fields(
         v,
         &["price_version_id", "lines"],
-        &["rule_version", "numeric_profile"],
+        &["rule_version", "numeric_profile", "final_price"],
     )?;
     if v.get("rule_version").is_some_and(|x| x != RULE_VERSION)
         || v.get("numeric_profile")
@@ -122,6 +122,9 @@ pub fn quote(v: &Value) -> Result<Quote> {
         return fail(409, "PROTOCOL_VERSION_CONFLICT");
     }
     text(&v["price_version_id"], 256, true)?;
+    if let Some(price) = v.get("final_price").filter(|v| !v.is_null()) {
+        text(price, 32, false)?;
+    }
     let lines = v["lines"]
         .as_array()
         .ok_or_else(|| Error::new(422, "INVALID_LINES"))?;

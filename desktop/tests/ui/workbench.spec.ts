@@ -763,3 +763,32 @@ test('lost native calculation exposes recalculation without changing any dimensi
   await page.getByRole('button',{name:'确认提交',exact:true}).click();
   await expect(page.getByRole('button',{name:'追加备注',exact:true})).toBeVisible();
 });
+
+test("final agreed order price can be entered and cleared without changing dimensions", async ({page}) => {
+  await login(page);
+  await add(page);
+  await page.getByLabel("订单号",{exact:true}).fill("final-price-native");
+  await page.getByRole("button",{name:"计算报价",exact:true}).click();
+  const input=page.getByLabel("最终成交价",{exact:true});
+  await expect(input).toHaveAttribute("placeholder","100.00");
+  await input.fill("90.25");
+  await expect(page.locator(".amount-card")).toContainText("100.00");
+  await expect(page.locator(".profit-pair")).toContainText("40.25");
+  await input.fill("-1");
+  await expect(page.getByRole("button",{name:"计算报价",exact:true})).toBeDisabled();
+  await input.fill("");
+  await expect(page.locator(".profit-pair")).toContainText("50.00");
+  await input.fill("90.25");
+  await page.getByRole("button",{name:"核对并提交订单",exact:true}).click();
+  await expect(page.locator(".confirm-amount")).toContainText("90.25");
+  await page.getByRole("button",{name:"确认提交",exact:true}).click();
+  await expect(page.locator(".amount-card")).toContainText("90.25");
+  await page.getByRole("button",{name:"继续编辑",exact:true}).click();
+  await expect(input).toHaveValue("90.25");
+  await page.getByRole("button",{name:"计算报价",exact:true}).click();
+  await input.fill("");
+  await page.getByRole("button",{name:"保存修改",exact:true}).click();
+  await expect(page.locator(".confirm-amount")).toContainText("100.00");
+  await page.getByRole("button",{name:"确认提交",exact:true}).click();
+  await expect(page.locator(".amount-card")).toContainText("100.00");
+});

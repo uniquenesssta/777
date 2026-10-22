@@ -1,0 +1,40 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { finalPriceCents, settlement } from "../src/state/settlement.ts";
+import { draftReducer, emptyDraft, snapshot, restorableDraft } from "../src/state/draft.ts";
+import type { Calculation } from "../src/contracts.ts";
+const calculation = {status:"ok",price_version_id:"v1",lines:[{income_cents:"20000"},{income_cents:"-10000"}],totals:{income_cents:"10000",cost_cents:"8000"},issues:[],warnings:[]} as Calculation;
+test("manual price replaces discounted order total and preserves costs; clearing uses line sum even after manual calculation", () => {
+  const value = settlement(calculation,"90.25");
+  assert.equal(value.totals?.income_cents,"9025");
+  assert.equal(value.totals?.profit_cents,"1025");
+  assert.equal(value.totals?.financial_display?.margin,"11.4%");
+  assert.equal(settlement({...calculation,totals:value.totals},"").totals?.income_cents,"10000");
+  assert.equal(settlement(calculation,"0").totals?.profit_cents,"-8000");
+  assert.equal(settlement(calculation,"0").totals?.financial_display?.margin,null);
+  assert.equal(settlement({...calculation,totals:{income_cents:"10000"}},"80").totals?.cost_cents,undefined);
+});
+test("money validation remains exact above JS safe integer and rejects invalid final prices", () => {
+  assert.equal(finalPriceCents("90071992547409.93"),9007199254740993n);
+  assert.equal(finalPriceCents("92233720368547758.07"),9223372036854775807n);
+  assert.equal(finalPriceCents(" "),null);
+  for (const raw of ["-1","1.001","NaN","1e2","1/2","1,000","92233720368547758.08"]) assert.equal(finalPriceCents(raw),undefined,raw);
+});
+test("changing and clearing final price keeps valid base calculation but requires native confirmation of the new revision", () => {
+  let d={...emptyDraft(),priceVersion:"v1"};
+  d=draftReducer(d,{type:"calculated",revision:d.revision,result:calculation});
+  const original=d.verifiedRevision;
+  d=draftReducer(d,{type:"final_price",value:"90.25"});
+  assert.equal(d.calculatedRevision,d.revision);
+  assert.equal(d.verifiedRevision,original);
+  assert.equal(snapshot(d).final_price,"90.25");
+  const restored=restorableDraft(JSON.stringify({schema:"777-desktop-draft-v1",final_price:d.finalPrice,details:d.details,lines:d.lines}));
+  assert.equal(restored.finalPrice,"90.25");
+  assert.equal(restored.calculation,null);
+  d=draftReducer(d,{type:"final_price",value:""});
+  assert.notEqual(d.verifiedRevision,d.revision);
+  assert.equal(snapshot(d).final_price,undefined);
+  d=draftReducer(d,{type:"calculated",revision:d.revision,result:calculation});
+  assert.equal(d.verifiedRevision,d.revision);
+  assert.equal(draftReducer(d,{type:"reset"}).finalPrice,"");
+});

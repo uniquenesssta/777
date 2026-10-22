@@ -74,6 +74,7 @@ export interface CustomerChoice { customer_id?: string; anchor_order_id?: string
 export interface CustomerGroup { group_id:string; details:Order["details"]; orders:Order[]; total:number; active_count:number; totals:Money; order_offset:number }
 export interface CustomerListing { groups:CustomerGroup[]; total:number; offset:number; limit:number }
 export interface Order extends Money {
+  final_price?: string | null;
   customer_id?: string | null;
   history?: {revision:string;created_at:string;details:Order["details"];income_cents:string;cost_cents?:string;profit_cents?:string}[];
   order_id: string;

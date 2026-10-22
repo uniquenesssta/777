@@ -177,6 +177,9 @@ pub fn write(payload: &Value) -> Result<Vec<u8>> {
     let income = text(&order["income_cents"])?;
     rows.push(vec!["income_cents".into(), income.clone()]);
     rows.push(vec!["income_yuan".into(), money(&income)?]);
+    if let Some(price) = order["final_price"].as_str() {
+        rows.push(vec!["final_price".into(), price.into()]);
+    }
     if kind == "excel_admin" {
         for key in ["cost_cents", "profit_cents"] {
             rows.push(vec![key.into(), text(&order[key])?]);

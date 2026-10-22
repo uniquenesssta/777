@@ -164,6 +164,15 @@ impl Service {
             v.as_object_mut().unwrap().remove("cost_cents");
             v.as_object_mut().unwrap().remove("profit_cents");
         }
+        let input: String = c.query_row(
+            "SELECT input_json FROM orders WHERE order_id=?",
+            [key],
+            |r| r.get(0),
+        )?;
+        let input: Value = serde_json::from_str(&input)?;
+        if let Some(price) = input.get("final_price") {
+            v["final_price"] = price.clone();
+        }
         let mut st=c.prepare("SELECT sequence,raw_json,normalized_json,subtotal_before_cents,income_cents,cost_cents,profit_cents FROM lines WHERE order_id=? ORDER BY sequence")?;
         let lines=st.query_map([key],|r|{let mut n=serde_json::from_str::<Value>(&r.get::<_,String>(2)?).map_err(|_|rusqlite::Error::InvalidQuery)?;protocol::normalized(&mut n,a);let f=protocol::financial(json!({"income_cents":r.get::<_,i64>(4)?.to_string(),"cost_cents":r.get::<_,i64>(5)?.to_string(),"profit_cents":r.get::<_,i64>(6)?.to_string()}),a);let mut l=json!({"sequence":r.get::<_,i64>(0)?,"raw":serde_json::from_str::<Value>(&r.get::<_,String>(1)?).map_err(|_|rusqlite::Error::InvalidQuery)?,"normalized":n,"subtotal_before_cents":r.get::<_,i64>(3)?.to_string()});l.as_object_mut().unwrap().extend(f.as_object().unwrap().clone());Ok(l)})?.collect::<std::result::Result<Vec<_>,_>>()?;
         v["lines"] = json!(lines);

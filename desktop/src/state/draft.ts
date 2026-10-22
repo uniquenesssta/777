@@ -6,6 +6,8 @@ export interface DraftLine {
   frozen?: {product_id:string;sale:string;k:string;single:boolean};
 }
 export interface Draft {
+  finalPrice: string;
+  verifiedRevision: string | null;
   saveId: string;
   editing?: {order_id:string;revision:string};
   customer?: CustomerChoice;
@@ -17,6 +19,8 @@ export interface Draft {
   calculatedRevision: string | null;
 }
 export const emptyDraft = (): Draft => ({
+  finalPrice: "",
+  verifiedRevision: null,
   saveId: crypto.randomUUID(),
   revision: "1",
   details: { customer: "", order_ref: "", wechat: "" },
@@ -26,6 +30,7 @@ export const emptyDraft = (): Draft => ({
   calculatedRevision: null,
 });
 export type DraftAction =
+  | { type: "final_price"; value: string }
   | { type: "restore"; raw: string | null }
   | { type: "load_order"; order:Order }
   | { type: "customer"; details:Draft["details"]; customer:CustomerChoice }
@@ -37,9 +42,13 @@ export type DraftAction =
   | { type: "reset" }
   | { type: "committed"; snapshot: unknown; details: unknown; context?:unknown };
 export function draftReducer(d: Draft, a: DraftAction): Draft {
+  if (a.type === "final_price") {
+    const revision = (BigInt(d.revision)+1n).toString();
+    return {...d, finalPrice:a.value, revision, calculatedRevision:d.calculatedRevision===d.revision ? revision : null};
+  }
   if (a.type === "restore") return restorableDraft(a.raw);
   if (a.type === "reset") return {...emptyDraft(),priceVersion:d.priceVersion};
-  if (a.type === "load_order") return {...emptyDraft(), priceVersion:d.priceVersion, revision:(BigInt(d.revision)+1n).toString(), editing:{order_id:a.order.order_id,revision:a.order.revision}, customer:a.order.customer_id?{customer_id:a.order.customer_id}:{}, details:a.order.details, lines:a.order.lines.map(l=>({id:crypto.randomUUID(),raw:l.raw,source:l.line_id,frozen:l.raw.line_kind==="normal"?{product_id:l.raw.product_id,sale:String(l.normalized.sale??""),k:String(l.normalized.k??"1"),single:l.normalized.h===undefined}:undefined}))};
+  if (a.type === "load_order") return {...emptyDraft(), finalPrice:a.order.final_price??"", priceVersion:d.priceVersion, revision:(BigInt(d.revision)+1n).toString(), editing:{order_id:a.order.order_id,revision:a.order.revision}, customer:a.order.customer_id?{customer_id:a.order.customer_id}:{}, details:a.order.details, lines:a.order.lines.map(l=>({id:crypto.randomUUID(),raw:l.raw,source:l.line_id,frozen:l.raw.line_kind==="normal"?{product_id:l.raw.product_id,sale:String(l.normalized.sale??""),k:String(l.normalized.k??"1"),single:l.normalized.h===undefined}:undefined}))};
   if (a.type === "link_customer") return {...d,details:a.details,customer:a.customer};
   if (a.type === "customer") return {...emptyDraft(),priceVersion:d.priceVersion,revision:(BigInt(d.revision)+1n).toString(),details:a.details,customer:a.customer};
   if (a.type === "committed") {
@@ -59,7 +68,7 @@ export function draftReducer(d: Draft, a: DraftAction): Draft {
   if (a.type === "calculated")
     return a.revision === d.revision &&
       a.result.price_version_id === d.priceVersion
-      ? { ...d, calculation: a.result, calculatedRevision: a.revision }
+      ? { ...d, calculation: a.result, calculatedRevision: a.revision, verifiedRevision:a.revision }
       : d;
   return {
     ...d,
@@ -76,6 +85,7 @@ export function draftReducer(d: Draft, a: DraftAction): Draft {
 export function draftContext(d:Draft){return {order_id:d.editing?.order_id??null,expected_revision:d.editing?.revision??null,sources:d.lines.map(l=>l.source??null),customer:d.customer??{}};}
 export function snapshot(d: Draft) {
   return {
+    ...(d.finalPrice.trim() ? {final_price:d.finalPrice.trim()} : {}),
     price_version_id: d.priceVersion,
     rule_version: "business-v1",
     numeric_profile: "numeric-v1",
@@ -114,7 +124,7 @@ export function restorableDraft(raw: string | null): Draft {
     const customer = p.customer && typeof p.customer === "object" ? p.customer : undefined;
     const saveId = typeof p.save_id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(p.save_id) ? p.save_id : fresh.saveId;
     const priceVersion = typeof p.price_version_id === "string" && p.price_version_id.length<=256 ? p.price_version_id : fresh.priceVersion;
-    return { ...fresh, saveId,priceVersion, lines: p.lines, details: p.details, editing, customer };
+    return { ...fresh, finalPrice:typeof p.final_price==="string" && p.final_price.length<=32 ? p.final_price : "", saveId,priceVersion, lines: p.lines, details: p.details, editing, customer };
   } catch {
     return fresh;
   }

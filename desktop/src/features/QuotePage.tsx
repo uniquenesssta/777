@@ -1,3 +1,5 @@
+import { settlement } from "../state/settlement";
+import { FinalPrice } from "./quote/FinalPrice";
 import { SubmitRecovery } from "./SubmitRecovery";
 import { QuoteCatalogActions } from "./quote/QuoteCatalogActions";
 import { CustomerMatches } from "./CustomerMatches";
@@ -13,12 +15,16 @@ export function Summary({
   admin,
   children,
   submitted = false,
+  calculatedIncome,
+  finalPrice,
 }: {
   amounts: Money | null;
   lines: Line[];
   admin: boolean;
   children: React.ReactNode;
   submitted?: boolean;
+  calculatedIncome?: string;
+  finalPrice?: React.ReactNode;
 }) {
   const normal = lines.filter((l) => l.raw.line_kind === "normal");
   const discounts = lines.filter((l) => l.raw.line_kind === "discount");
@@ -33,7 +39,7 @@ export function Summary({
         </div>
         <div className="amount">
           <span>¥</span>
-          <strong>{money(amounts?.income_cents)}</strong>
+          <strong>{money(calculatedIncome ?? amounts?.income_cents)}</strong>
         </div>
         <small>
           {amounts ? `已计入 ${discounts.length} 条折扣` : "请计算并核对报价"}
@@ -49,6 +55,7 @@ export function Summary({
           <b className="accent">{amounts ? money(total(discounts)) : "—"}</b>
         </div>
       </div>
+      {finalPrice}
       {admin && (
         <section className="finance">
           <small className="muted">
@@ -91,10 +98,12 @@ export function QuotePage({ app }: { app: Workbench }) {
     row.querySelector<HTMLSelectElement>("select")?.focus({ preventScroll: true });
   }, [draft.lines]);
   const result = draft.calculation;
-  const valid =
+  const final = settlement(result, draft.finalPrice);
+  const calculated =
     result?.status === "ok" &&
     draft.calculatedRevision === draft.revision &&
     !app.pending;
+  const valid = calculated && final.valid;
   useEffect(() => {
     if (confirm && confirmRevision !== draft.revision) setConfirm(false);
   }, [draft.revision, confirmRevision, confirm]);
@@ -311,13 +320,15 @@ export function QuotePage({ app }: { app: Workbench }) {
           </footer>
         </section>
         <Summary
-          amounts={result?.totals ?? null}
+          amounts={final.totals}
+          calculatedIncome={final.calculated}
+          finalPrice={<FinalPrice value={draft.finalPrice} calculated={final.calculated} valid={final.valid} disabled={(!result && !draft.finalPrice) || app.busy || app.pending} onChange={value => dispatch({type:"final_price", value})} />}
           lines={result?.lines ?? []}
           admin={app.can("finance")}
         >
           <Button
             disabled={
-              app.busy || !catalog || !draft.lines.length || app.pending
+              app.busy || !catalog || !draft.lines.length || app.pending || !final.valid
             }
             onClick={() => {
               if (valid) {
@@ -341,7 +352,7 @@ export function QuotePage({ app }: { app: Workbench }) {
               </Button>
             </section>
           )}
-          {!valid && draft.lines.length > 0 && (
+          {!calculated && draft.lines.length > 0 && (
             <small>输入修改后需重新计算。</small>
           )}
         </Summary>
@@ -355,8 +366,8 @@ export function QuotePage({ app }: { app: Workbench }) {
         compact
       >
         <div className="confirm-amount">
-          <span>应收合计</span>
-          <strong>¥ {money(result?.totals?.income_cents)}</strong>
+          <span>最终成交价</span>
+          <strong>¥ {money(final.totals?.income_cents)}</strong>
         </div>
         <div className="dialog-actions">
           <Button

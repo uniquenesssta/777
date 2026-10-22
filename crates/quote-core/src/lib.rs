@@ -5,6 +5,7 @@ pub mod models;
 pub mod numbers;
 pub mod pricing;
 pub mod session;
+pub mod settlement;
 
 pub mod customer_identity;
 pub mod search;

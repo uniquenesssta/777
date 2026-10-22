@@ -84,6 +84,11 @@ pub fn backup_orders(data: &Value) -> Result<Vec<Value>> {
     for o in &mut orders {
         o["details"] =
             serde_json::from_str(o["details_json"].as_str().ok_or_else(bad)?).map_err(|_| bad())?;
+        let input: Value =
+            serde_json::from_str(o["input_json"].as_str().ok_or_else(bad)?).map_err(|_| bad())?;
+        if let Some(price) = input.get("final_price") {
+            o["final_price"] = price.clone();
+        }
         let key = string(&o["order_id"]);
         let mut ls = lines.remove(&key).unwrap_or_default();
         ls.sort_by_key(|l| l["sequence"].as_i64().unwrap_or(0));
@@ -347,6 +352,12 @@ pub fn write(book: &mut Workbook, orders: &[Value], admin: bool, description: &s
                     }
                 }
             }
+            if o["final_price"]
+                .as_str()
+                .is_some_and(|s| !s.trim().is_empty())
+            {
+                row[17] = "按最终成交价结算".into();
+            }
             w.push(row.clone(), true)?;
             for l in o["lines"].as_array().ok_or_else(bad)? {
                 let mut r = vec![String::new(); 21];
@@ -375,6 +386,24 @@ pub fn write(book: &mut Workbook, orders: &[Value], admin: bool, description: &s
                     }
                 }
                 r[12] = yuan(cents(&l["income_cents"])?);
+                w.push(r, false)?;
+            }
+            if o["final_price"]
+                .as_str()
+                .is_some_and(|s| !s.trim().is_empty())
+            {
+                let calculated = o["lines"]
+                    .as_array()
+                    .ok_or_else(bad)?
+                    .iter()
+                    .try_fold(0i128, |sum, l| {
+                        Ok::<_, Error>(sum + cents(&l["income_cents"])?)
+                    })?;
+                let mut r = vec![String::new(); 21];
+                r[3] = row[3].clone();
+                r[18] = row[18].clone();
+                r[4] = "成交调价".into();
+                r[12] = yuan(cents(&o["income_cents"])? - calculated);
                 w.push(r, false)?;
             }
             for n in o["notes"].as_array().ok_or_else(bad)? {

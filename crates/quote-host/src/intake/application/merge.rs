@@ -33,6 +33,17 @@ pub(super) fn merge(base: &Order, current: &Order, candidate: &Order, kind: &str
     }
     let local = base.lines != candidate.lines;
     let remote = base.lines != current.lines;
+    let local_price = base.final_price != candidate.final_price;
+    let remote_price = base.final_price != current.final_price;
+    if (local_price && remote)
+        || (remote_price && local)
+        || (local_price && remote_price && current.final_price != candidate.final_price)
+    {
+        return Err(conflict("FINANCIAL_GROUP_CONFLICT"));
+    }
+    if local_price {
+        next.final_price = candidate.final_price.clone();
+    }
     if local
         && remote
         && [base, current, candidate]

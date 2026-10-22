@@ -55,6 +55,7 @@ pub(super) fn propose(v: &Value, base: Option<&Order>, price: &str) -> Result<Or
     let kind = v["kind"].as_str().unwrap();
     if kind == "create" {
         return Ok(Order {
+            final_price: p["snapshot"]["final_price"].as_str().map(str::to_owned),
             order_id: v["order_id"].as_str().unwrap().into(),
             owner_id: v["owner_id"].as_str().unwrap().into(),
             revision: 0,
@@ -81,6 +82,9 @@ pub(super) fn propose(v: &Value, base: Option<&Order>, price: &str) -> Result<Or
     }
     match kind {
         "edit" => {
+            if let Some(price) = p.get("final_price") {
+                next.final_price = price.as_str().map(str::to_owned);
+            }
             if next.state != "active" {
                 return Err(conflict("ORDER_STATE_CONFLICT"));
             }

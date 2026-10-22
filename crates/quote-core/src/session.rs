@@ -344,16 +344,25 @@ impl Session {
         if lines.is_empty() || lines.len() != q.lines.len() {
             return problem("VALIDATION", "RESULT_INCOMPLETE", "lines");
         }
+        let expected_income = match q
+            .final_price
+            .as_deref()
+            .map(crate::settlement::cents)
+            .transpose()
+        {
+            Ok(Some(Some(value))) => value as i128,
+            Ok(_) => lines
+                .iter()
+                .map(|l| l.amounts.income() as i128)
+                .sum::<i128>(),
+            Err(_) => return problem("VALIDATION", "FINAL_PRICE_INVALID", "final_price"),
+        };
         if lines
             .iter()
             .zip(&q.lines)
             .enumerate()
             .any(|(i, (line, raw))| line.sequence != i + 1 || line.raw != *raw)
-            || lines
-                .iter()
-                .map(|l| l.amounts.income() as i128)
-                .sum::<i128>()
-                != totals.income() as i128
+            || expected_income != totals.income() as i128
             || lines.iter().map(|l| l.amounts.cost() as i128).sum::<i128>() != totals.cost() as i128
         {
             return problem("VALIDATION", "RESULT_INCONSISTENT", "lines");

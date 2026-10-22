@@ -9,6 +9,6 @@ export function selectDraftSource(store:DraftStore, previous:string|null, pin:st
     next=store.getItem(`777-desktop-draft-source-${pin}`);
   }
   const restored=restorableDraft(next);
-  store.setItem(key,JSON.stringify({schema:key,source_pin:pin,details:restored.details,lines:restored.lines,editing:restored.editing,customer:restored.customer}));
+  store.setItem(key,JSON.stringify({schema:key,source_pin:pin,final_price:restored.finalPrice,details:restored.details,lines:restored.lines,editing:restored.editing,customer:restored.customer}));
   return next;
 }

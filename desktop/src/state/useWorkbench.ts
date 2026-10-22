@@ -110,7 +110,7 @@ export function useWorkbench() {
       setFeedback(formalPresentation() ? "" : "当前草稿无法保存到本机，请保持窗口打开。");
       setIsError(true);
     }
-  }, [draft.details, draft.lines, draft.editing, draft.customer,draft.saveId,draftReady]);
+  }, [draft.details, draft.lines, draft.editing, draft.customer,draft.saveId,draft.finalPrice,draftReady]);
   useEffect(() => { uiDiagnostic("draft_context", draft); }, [draft.editing?.order_id, draft.editing?.revision]);
   const run = useCallback(
     async <T>(work: () => Promise<T>, done?: (v: T) => void, rethrow = false) => {
@@ -420,6 +420,14 @@ export function useWorkbench() {
         let committed:SavedInput={snapshot:submitted,details,...context};
         let receipt:{order_id:string};
         try {
+          if (draft.verifiedRevision !== draft.revision) {
+            const checked = await request<{draft_revision:string;result:Calculation}>("order_preview", {
+              snapshot:submitted, sources:context.sources, order_id:context.order_id,
+              expected_revision:context.expected_revision, draft_revision:draft.revision,
+            });
+            dispatch({type:"calculated",revision:checked.draft_revision,result:checked.result});
+            if (checked.result.status !== "ok") throw {code:checked.result.issues.some(i=>i.field==="final_price") ? "FINAL_PRICE_INVALID" : "CALCULATION_REQUIRED"};
+          }
           receipt=await request<{order_id:string}>("save_order",{...committed,draft_revision:draft.revision,operation_id:draft.saveId});
         } catch(e) {
           const saved=await savedDraft(draft.saveId);

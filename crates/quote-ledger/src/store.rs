@@ -258,7 +258,11 @@ pub fn legacy_line(l: &Line) -> Value {
     v
 }
 pub fn legacy_quote(q: &Quote) -> Value {
-    json!({"price_version_id":q.price_version_id,"rule_version":q.rule_version,"numeric_profile":q.numeric_profile,"lines":q.lines.iter().map(legacy_line).collect::<Vec<_>>()})
+    let mut v = json!({"price_version_id":q.price_version_id,"rule_version":q.rule_version,"numeric_profile":q.numeric_profile,"lines":q.lines.iter().map(legacy_line).collect::<Vec<_>>()});
+    if let Some(price) = &q.final_price {
+        v["final_price"] = json!(price);
+    }
+    v
 }
 pub fn decode_quote(mut v: Value) -> Result<Quote> {
     if let Some(ls) = v["lines"].as_array_mut() {

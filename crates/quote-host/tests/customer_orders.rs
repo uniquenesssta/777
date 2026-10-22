@@ -454,5 +454,7 @@ fn discount_policy_survives_publish_edit_reorder_and_backup() {
 
 #[path = "customer_order_checks/export_cleanup.rs"]
 mod export_cleanup;
+#[path = "customer_order_checks/final_price.rs"]
+mod final_price;
 #[path = "customer_order_checks/identity.rs"]
 mod identity;

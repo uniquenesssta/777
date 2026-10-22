@@ -10,6 +10,8 @@ pub struct Line {
 }
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Order {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub final_price: Option<String>,
     pub order_id: String,
     pub owner_id: String,
     pub revision: i64,
@@ -24,6 +26,10 @@ impl Order {
     pub fn from_snapshot(snapshot: &Value) -> Result<Self> {
         let o = &snapshot["order"];
         Ok(Self {
+            final_price: serde_json::from_str::<Value>(o["input_json"].as_str().unwrap())?
+                ["final_price"]
+                .as_str()
+                .map(str::to_owned),
             order_id: o["order_id"].as_str().unwrap().into(),
             owner_id: o["owner_id"].as_str().unwrap().into(),
             revision: o["revision"].as_i64().unwrap(),

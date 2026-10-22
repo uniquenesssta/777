@@ -122,3 +122,33 @@ fn offline_exempt_policy_survives_save_restart_and_reordering() {
     );
     assert_eq!(changed["lines"][1]["line_id"], saved["lines"][0]["line_id"]);
 }
+#[test]
+fn final_price_offline_save_reopen_clear_and_upload_are_consistent() {
+    let f = Fixture::with_finance(true);
+    let mut body = f.body();
+    body["snapshot"]["final_price"] = json!("8.25");
+    let saved = f.local.save("save", &body).unwrap();
+    let id = saved["order_id"].as_str().unwrap();
+    assert_eq!(saved["income_cents"], "825");
+    let first = f.local.upload().unwrap()[0].clone();
+    assert_eq!(first["payload"]["snapshot"]["final_price"], "8.25");
+    let reopened = Local::open(f.root.join("offline.sqlite3"), !cfg!(windows)).unwrap();
+    let order = reopened.order(id).unwrap();
+    assert_eq!(order["final_price"], "8.25");
+    assert_eq!(order["profit_cents"], "425");
+    reopened.receipts(&json!([{"operation_id":first["operation_id"],"content_sha256":first["content_sha256"],"state":"applied","applied":true,"result":{"order_id":id,"revision":"1"}}])).unwrap();
+    body["order_id"] = json!(id);
+    body["expected_revision"] = json!("1");
+    body["sources"] = json!([order["lines"][0]["line_id"]]);
+    body["snapshot"]
+        .as_object_mut()
+        .unwrap()
+        .remove("final_price");
+    assert_eq!(
+        reopened.save("save", &body).unwrap()["income_cents"],
+        "1000"
+    );
+    let op = reopened.upload().unwrap()[0].clone();
+    assert!(op["payload"].get("final_price").is_some());
+    assert!(op["payload"]["final_price"].is_null());
+}

@@ -69,9 +69,10 @@ pub fn apply(c: &Connection, change: Change<'_>) -> Result<Value> {
                 false,
             )?;
         }
-        let q = decode_quote(
+        let mut q = decode_quote(
             json!({"price_version_id":order.price_version_id,"rule_version":quote_core::models::RULE_VERSION,"numeric_profile":quote_core::models::NUMERIC_PROFILE,"lines":order.lines.iter().map(|l|l.raw.clone()).collect::<Vec<_>>()}),
         )?;
+        q.final_price = order.final_price.clone();
         let prices = load_prices(c, &order.price_version_id)?;
         let mut frozen = Vec::new();
         let mut ids = std::collections::HashSet::new();
